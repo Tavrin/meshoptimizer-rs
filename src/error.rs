@@ -12,7 +12,7 @@ pub enum Error {
     InvalidLayout,
     /// A parameter is outside the operation's supported domain.
     InvalidParameter,
-    /// A vertex flag contains unknown bits.
+    /// A vertex flag or option mask contains unknown or unsupported bits.
     UnknownFlags,
     /// A codec version is unsupported.
     UnsupportedVersion,
@@ -37,7 +37,7 @@ impl fmt::Display for Error {
             Self::IndexOutOfBounds => "vertex index out of bounds",
             Self::InvalidLayout => "invalid vertex layout",
             Self::InvalidParameter => "invalid parameter",
-            Self::UnknownFlags => "unknown vertex flags",
+            Self::UnknownFlags => "unknown or unsupported flag bits",
             Self::UnsupportedVersion => "unsupported stream version",
             Self::BufferTooSmall => "destination buffer too small",
             Self::InvalidStream => "invalid encoded stream",

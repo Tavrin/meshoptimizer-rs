@@ -73,13 +73,15 @@ jobs:
       - run: cargo fetch --locked --manifest-path parity/Cargo.toml
       - run: parity/check-reference.sh
       - run: parity/run.sh --phase 0.1
-      - run: parity/sweep.sh --cases-per-family 1000 --seed 20261002
+      - run: parity/sweep.sh --cases-per-family 2000 --seed 20261002
       - run: parity/js.sh --require-coverage
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: parity-lane1
-          path: parity/results/
+          name: parity-geometry
+          path: |
+            parity/results/
+            ${{ runner.temp }}/meshopt-parity/parity-artifacts/
       - name: Remove temporary build output
         if: always()
         shell: bash

@@ -5,38 +5,44 @@
   "source_sha256": {
     "rust_and_harness": {
       "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-      "Cargo.toml": "9dd893a8cf552ae4389a11ac672d0e207961add519e256e37673345298dc3c6d",
+      "Cargo.toml": "fe6e0806ef0ad81dce8a1bb7005118935528aebad7a7f4bc682e432ffec07094",
       "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
       "fuzz/Cargo.toml": "73f481cd3db91c00356c28768c6eba511e670bc03ee65c387612e0a91a255f88",
-      "fuzz/smoke.py": "2e96f78da7d1c68fb4ce5f8435216dbc13efc5dd8f154bbee20b2855964aa407",
+      "fuzz/smoke.py": "6f3f93b51aa243069d204bb538185022d19c77114608e065822daa7c38d31ce8",
       "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
+      "fuzz/src/bin/simplify.rs": "8e8254d7bf3c96f8d3ee118fc9406a441217d458a63f5a38a0b0a36deb6919e0",
+      "fuzz/src/bin/simplify_scale.rs": "0816ba3c1d598bf6e0476ec3808d925779a0e7c297d56d557e292a2b644743df",
+      "fuzz/src/bin/simplify_with_attributes.rs": "0757292b85d452ccf6ea591cd147c00387727d123df782d6168359402ccd2460",
       "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
-      "fuzz/src/lib.rs": "b441f6023a3be5feaf5e8c66f906d675d4b4dcbe87f655b3f1f1e565f5e23fbe",
+      "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
       "parity/Cargo.lock": "112cd885caf73df56e35b83e6b262a1cd9e629c79f678fd9c85be8cf16f6a894",
       "parity/Cargo.toml": "67c648770ff4754786a0a1116f4d8470c2c1e1f3aadb03439aceb6d8fc584053",
       "parity/benchmark.sh": "c6b216f063c8a0ed4bcc1acb9442e06e15b6ed4efff324f7d3cf4402dd159ace",
       "parity/check-reference.sh": "ad4860d87be254b01958512287d31c8e056b49aaaef368b2548f01fca3ecf202",
       "parity/fuzz.sh": "3df71ce7a8450d05b9b3e9dbd09e2db01bd49f994c9850013bc1877d09ec902f",
-      "parity/gates.py": "643264d1119a96cd7b47eb5034808bc6856d02360c0e664503ff7a98ec7c5f20",
+      "parity/gates.py": "bf19996eafa9cf7d644e93611758dd5f6c69ae62344724856512df3eae2523e4",
       "parity/gates.sh": "487e1de5c2c308bd94d56518beb3187b7a8a6abb72484398f7371c1d49c48431",
+      "parity/js-fixtures.cjs": "eead629f8648f57265fdfd76cc4cc891617f6b1055bb7678401b07338b6576c7",
       "parity/js.sh": "033919e1d016f1319159cb96bad65c09beacc158793c8c9c62415a983ebac86f",
+      "parity/native-fixtures.py": "a1084c57cc353a4fccbb16dca7eb0f6d210dc5bf4f4007364f285c5ce7a881c3",
       "parity/qualify.sh": "228fc2bc3bec9d48ede3292ef86412d7435fafb4363f0359aa0275682fc8c646",
-      "parity/reference.cpp": "2d7d64fa3851b974e3aaba19ff7a532c9cc1748f2a5d0ef3d86219b51dd1763e",
+      "parity/reference.cpp": "42d1aae563f094a1eec40a05a8508c0f62a9b69eddcf77c6c648378a441d60bd",
       "parity/report.sh": "17be39ff819b008d3050e347a473684eff035d160bb8adc659d281ff7b21fd61",
       "parity/run.sh": "ca205680f5dfea64e7309e29a1edec7b9c5c506e7043f3ce1765e3f26088b30e",
-      "parity/runner.py": "c23d51808d0440f94114249f8a7a07006c67dfdd95d15da96fbcce45a6e76198",
-      "parity/src/lib.rs": "f1c29904291f175429eaf1041c9a6ddd5432fa094d54350a28aa1e36ff45bd19",
+      "parity/runner.py": "febc87af393a46776a717174cf760539b760af2938453222c0ca4ee8206501d4",
+      "parity/src/lib.rs": "f8f8d770128590f49533d895294f0e4a379fcb48420790ff5673c65447d86f90",
       "parity/src/main.rs": "ee2b00442b48b66099b26bc5d19b75fbf3a529fee9a857663bf846252af2b866",
       "parity/sweep.sh": "7787f5d059a360265372d9fd48188679e29f4c8fea1fabf4b4a5120790ad8159",
       "parity/wasm.cjs": "4ebb96263f7cc058c81e8a546908eb8f18d9ec6c4e64ee1b217c4c916b262865",
       "src/cache.rs": "2b76548701ce25eba5d8da6dcfbf8feeb9682cd17e50be4073a50d29d6b5e53f",
-      "src/error.rs": "14bbb10f795908c0af7fcc4c29adf1cdf8dae022ceebd539b3fe155b463f3d02",
+      "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
       "src/input.rs": "4da6d4deaa6712e9617044828d465f9d5f887212488bd34b6fa5148dc4acc5c3",
-      "src/lib.rs": "ce2e008b1ce766765c97e26457fffd7a106bdede9a3db669ae4d0fee21876e2e",
+      "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
       "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
       "src/overdraw.rs": "23cca595d4a7879ca0b7020b78817166e020a759807279d7e41ec118b11d45c5",
-      "src/workspace.rs": "58c45d6fc1607d536f8eb884e3ced56b8a4e2281976f6ada0c765338e2acbc4b",
-      "tests/api.rs": "4b80db5b00be1d9a7e0e3a1cb784f4117cf43a49b691de24564131926e2bab33"
+      "src/simplify.rs": "cc60975a9c120493494052042d7463108ca5d0243bd291a11af4f070ee8ac86b",
+      "src/workspace.rs": "7800ef27614813de29e5e11e5bc96970e84afcae6989951d6e9f824c1222e435",
+      "tests/api.rs": "04b2a0e8f1085bc4026525fd9bae5e0d51f9cdcc26ca6954c5c3093368983c63"
     },
     "upstream": {
       "LICENSE.md": "f03037ca7bad1e3eb7f4a63fa6084a8baabd5ba30d3c239a9a7f35705d873e26",
@@ -288,5 +294,5 @@
       "coverage": "upstream sanity only; no direct shipped-module fixture"
     }
   ],
-  "applicability": "Only reorderMesh invokes a cache optimizer; its optsize=true selects Strip (0.1.x). Its input topology is also in the Rust lane corpus. No JS overdraw fixture exists."
+  "applicability": "Six applicable simplifier calls are captured by js-fixtures.cjs and compared through Rust/native/WASM. reorderMesh uses Strip (0.1.x); only its topology is reused for standard cache. Other JS operations remain upstream sanity checks."
 }

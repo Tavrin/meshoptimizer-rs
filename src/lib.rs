@@ -14,7 +14,13 @@ mod error;
 mod input;
 mod math;
 mod overdraw;
+mod simplify;
 mod workspace;
+pub use simplify::{
+    simplify, simplify_into, simplify_scale, simplify_with_attributes,
+    simplify_with_attributes_into, SimplifiedMesh, SimplifyOptions, SimplifyResult,
+    SimplifySettings,
+};
 
 pub use cache::{
     optimize_vertex_cache, optimize_vertex_cache_in_place, optimize_vertex_cache_into,

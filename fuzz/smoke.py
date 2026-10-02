@@ -50,14 +50,14 @@ def main():
     if before_build != snapshot():
         raise ValueError("source changed during fuzz build")
     before = snapshot()
-    binaries = {name: target / "release" / name for name in ["vertex_cache", "overdraw"]}
+    binaries = {name: target / "release" / name for name in ["vertex_cache", "overdraw", "simplify", "simplify_with_attributes", "simplify_scale"]}
     identities = {n: sha(b) for n, b in binaries.items()}
     dependencies = dependency_snapshot()
     record = {"profile": "stable-seeded-mutation; no sanitizer or coverage instrumentation",
               "source_sha256": before, "dependency_sha256": dependencies, "executable_sha256": identities,
               "rustc": subprocess.check_output(["rustc", "-Vv"], text=True),
               "cargo": subprocess.check_output(["cargo", "-V"], text=True).strip(),
-              "hardware": platform.uname()._asdict(), "started_unix": time.time(),
+              "hardware": {k:v for k,v in platform.uname()._asdict().items() if k != "node"}, "started_unix": time.time(),
               "budget_seconds": args.seconds, "seed": args.seed, "rustflags": ""}
     processes = {}
     for name, binary in binaries.items():

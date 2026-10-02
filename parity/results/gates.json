@@ -1,26 +1,27 @@
 {
   "schema": 1,
-  "started_unix": 1790933709.1089854,
+  "started_unix": 1790936956.250379,
   "source_sha256": {
-    ".github/workflows/ci.yml": "704ca7ce520b7c084b1f2de854426041fcbbc53cc2af16f7597b29267af1dbda",
-    "CHANGELOG.md": "980a276eb228ec75be873179fc808f48fa5b38a5962c8aa2e8666254fe70f0e9",
+    ".github/workflows/ci.yml": "386bc91870463a50c8dc46630d8554c299ceeb78586bcb726c6a5a9dec374e9a",
+    "CHANGELOG.md": "08df046dff86980690bcdb0ecdce0a72b39f527b85618acc8affee93d993c853",
     "CONTRIBUTING.md": "c0550b599d351e228937b34a4e7fc58edaf16796f129cc240db4d5e8b07bc5de",
     "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-    "Cargo.toml": "9dd893a8cf552ae4389a11ac672d0e207961add519e256e37673345298dc3c6d",
+    "Cargo.toml": "fe6e0806ef0ad81dce8a1bb7005118935528aebad7a7f4bc682e432ffec07094",
     "LICENSE": "f31c188c9843a39d579d651982ddba2d686a291c1017466fd5c490d0b50765e0",
-    "README.md": "f3985bff6eddaa9d99734e33a5b747397f8cc62c6385a55ffb129b7db268e2ea",
+    "README.md": "df3b7bd8ca2b4069d3f3c0302ab8991e59f52f0938f5dcb550f9e0773b6e1816",
     "SECURITY.md": "828202d8781968808c38e088757269ad6c86e7299f5c6882288e425ba153f98a",
-    "UPSTREAM.md": "2dd6e17779160b330bf23761d719ea5d118d204ee3bb80d1c6f067d97435b8e9",
-    "parity/gates.py": "643264d1119a96cd7b47eb5034808bc6856d02360c0e664503ff7a98ec7c5f20",
+    "UPSTREAM.md": "37ba3b0063a9a9d052808d86c04857e9db37f42aac04e1a691d83125f9ae9fce",
+    "parity/gates.py": "bf19996eafa9cf7d644e93611758dd5f6c69ae62344724856512df3eae2523e4",
     "parity/gates.sh": "487e1de5c2c308bd94d56518beb3187b7a8a6abb72484398f7371c1d49c48431",
     "src/cache.rs": "2b76548701ce25eba5d8da6dcfbf8feeb9682cd17e50be4073a50d29d6b5e53f",
-    "src/error.rs": "14bbb10f795908c0af7fcc4c29adf1cdf8dae022ceebd539b3fe155b463f3d02",
+    "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
     "src/input.rs": "4da6d4deaa6712e9617044828d465f9d5f887212488bd34b6fa5148dc4acc5c3",
-    "src/lib.rs": "ce2e008b1ce766765c97e26457fffd7a106bdede9a3db669ae4d0fee21876e2e",
+    "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
     "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
     "src/overdraw.rs": "23cca595d4a7879ca0b7020b78817166e020a759807279d7e41ec118b11d45c5",
-    "src/workspace.rs": "58c45d6fc1607d536f8eb884e3ced56b8a4e2281976f6ada0c765338e2acbc4b",
-    "tests/api.rs": "4b80db5b00be1d9a7e0e3a1cb784f4117cf43a49b691de24564131926e2bab33"
+    "src/simplify.rs": "cc60975a9c120493494052042d7463108ca5d0243bd291a11af4f070ee8ac86b",
+    "src/workspace.rs": "7800ef27614813de29e5e11e5bc96970e84afcae6989951d6e9f824c1222e435",
+    "tests/api.rs": "04b2a0e8f1085bc4026525fd9bae5e0d51f9cdcc26ca6954c5c3093368983c63"
   },
   "environment": {
     "CARGO_NET_OFFLINE": "true",
@@ -42,55 +43,55 @@
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": "   Compiling libm v0.2.16\n    Checking meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s\n"
+      "stderr": "    Checking meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.04s\n"
     },
     {
       "command": "cargo test --locked --all-features",
       "cwd": "working tree",
       "exit": 0,
-      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 26 tests\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest cache_preserves_triangle_corners ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest destination_tail_is_untouched ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest empty_meshes_succeed ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest in_place_errors_are_atomic ... ok\ntest indices_are_checked ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest short_destination_is_unchanged ... ok\ntest storage_limit_includes_output ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest topology_is_checked ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\n\ntest result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
-      "stderr": "   Compiling libm v0.2.16\n   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-83e7529658478b32)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-2de3bcc23cc9775a)\n   Doc-tests meshoptimizer_rs\n"
+      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 43 tests\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest destination_tail_is_untouched ... ok\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest cache_preserves_triangle_corners ... ok\ntest empty_meshes_succeed ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest in_place_errors_are_atomic ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest indices_are_checked ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest priority_increases_positional_cost ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest scale_has_no_epsilon_clamp ... ok\ntest short_destination_is_unchanged ... ok\ntest simplifier_checks_target_and_error ... ok\ntest simplifier_accepts_partial_triangle_target ... ok\ntest protect_prevents_permissive_discontinuity_collapses ... ok\ntest simplifier_into_matches_allocating_and_preserves_tail ... ok\ntest simplifier_rejects_nonfinite_unused_geometry ... ok\ntest simplifier_reports_overflowing_extent ... ok\ntest simplifier_rejects_unimplemented_option_bits ... ok\ntest simplifier_validates_flag_length ... ok\ntest simplifier_validates_attribute_dimensions_and_values ... ok\ntest simplifier_locks_preserve_vertices ... ok\ntest simplifier_memory_budget_includes_scratch_and_output ... ok\ntest topology_is_checked ... ok\ntest simplifier_zero_weights_match_position_only ... ok\ntest simplifier_matches_upstream_strip ... ok\ntest simplifier_empty_has_zero_error ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\ntest storage_limit_includes_output ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest simplifier_exact_work_budget_is_enforced ... ok\n\ntest result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling libm v0.2.16\n   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.60s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-83e7529658478b32)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-2de3bcc23cc9775a)\n   Doc-tests meshoptimizer_rs\n"
     },
     {
       "command": "cargo test --locked --no-default-features",
       "cwd": "working tree",
       "exit": 0,
-      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 26 tests\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest cache_preserves_triangle_corners ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest destination_tail_is_untouched ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest empty_meshes_succeed ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest in_place_errors_are_atomic ... ok\ntest indices_are_checked ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest short_destination_is_unchanged ... ok\ntest storage_limit_includes_output ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest topology_is_checked ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\n\ntest result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
-      "stderr": "   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.15s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-47374f40c3822cb0)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-10c559cf3a2b8374)\n   Doc-tests meshoptimizer_rs\n"
+      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 43 tests\ntest empty_meshes_succeed ... ok\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest cache_preserves_triangle_corners ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest in_place_errors_are_atomic ... ok\ntest indices_are_checked ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest destination_tail_is_untouched ... ok\ntest scale_has_no_epsilon_clamp ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest short_destination_is_unchanged ... ok\ntest priority_increases_positional_cost ... ok\ntest protect_prevents_permissive_discontinuity_collapses ... ok\ntest simplifier_locks_preserve_vertices ... ok\ntest simplifier_rejects_unimplemented_option_bits ... ok\ntest simplifier_matches_upstream_strip ... ok\ntest simplifier_memory_budget_includes_scratch_and_output ... ok\ntest topology_is_checked ... ok\ntest storage_limit_includes_output ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest simplifier_exact_work_budget_is_enforced ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\ntest simplifier_rejects_nonfinite_unused_geometry ... ok\ntest simplifier_accepts_partial_triangle_target ... ok\ntest simplifier_checks_target_and_error ... ok\ntest simplifier_into_matches_allocating_and_preserves_tail ... ok\ntest simplifier_zero_weights_match_position_only ... ok\ntest simplifier_validates_flag_length ... ok\ntest simplifier_validates_attribute_dimensions_and_values ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest simplifier_empty_has_zero_error ... ok\ntest simplifier_reports_overflowing_extent ... ok\n\ntest result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.65s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-47374f40c3822cb0)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-10c559cf3a2b8374)\n   Doc-tests meshoptimizer_rs\n"
     },
     {
       "command": "cargo build --target wasm32-unknown-unknown --no-default-features",
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s\n"
+      "stderr": "   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.97s\n"
     },
     {
       "command": "cargo build --locked --no-default-features",
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s\n"
+      "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s\n"
     },
     {
       "command": "cargo +1.88 test --locked --all-features",
       "cwd": "working tree",
       "exit": 0,
-      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 26 tests\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest cache_preserves_triangle_corners ... ok\ntest destination_tail_is_untouched ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest empty_meshes_succeed ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest in_place_errors_are_atomic ... ok\ntest indices_are_checked ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest short_destination_is_unchanged ... ok\ntest storage_limit_includes_output ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest topology_is_checked ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\n\ntest result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-3cf5ac158d25452c)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-b1905f7d47926289)\n   Doc-tests meshoptimizer_rs\n"
+      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 43 tests\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest cache_preserves_triangle_corners ... ok\ntest destination_tail_is_untouched ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest empty_meshes_succeed ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest in_place_errors_are_atomic ... ok\ntest indices_are_checked ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest scale_has_no_epsilon_clamp ... ok\ntest short_destination_is_unchanged ... ok\ntest priority_increases_positional_cost ... ok\ntest simplifier_checks_target_and_error ... ok\ntest simplifier_empty_has_zero_error ... ok\ntest protect_prevents_permissive_discontinuity_collapses ... ok\ntest simplifier_accepts_partial_triangle_target ... ok\ntest simplifier_locks_preserve_vertices ... ok\ntest simplifier_exact_work_budget_is_enforced ... ok\ntest simplifier_rejects_nonfinite_unused_geometry ... ok\ntest simplifier_matches_upstream_strip ... ok\ntest simplifier_rejects_unimplemented_option_bits ... ok\ntest simplifier_reports_overflowing_extent ... ok\ntest simplifier_validates_attribute_dimensions_and_values ... ok\ntest simplifier_memory_budget_includes_scratch_and_output ... ok\ntest simplifier_validates_flag_length ... ok\ntest simplifier_into_matches_allocating_and_preserves_tail ... ok\ntest storage_limit_includes_output ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest topology_is_checked ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\ntest simplifier_zero_weights_match_position_only ... ok\n\ntest result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.95s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-3cf5ac158d25452c)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-b1905f7d47926289)\n   Doc-tests meshoptimizer_rs\n"
     },
     {
       "command": "cargo +1.88 test --locked --no-default-features",
       "cwd": "working tree",
       "exit": 0,
-      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 26 tests\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest cache_preserves_triangle_corners ... ok\ntest destination_tail_is_untouched ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest empty_meshes_succeed ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest in_place_errors_are_atomic ... ok\ntest indices_are_checked ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest short_destination_is_unchanged ... ok\ntest storage_limit_includes_output ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest topology_is_checked ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\n\ntest result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
-      "stderr": "    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-169e9601761443bc)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-7736a2078c4a1794)\n   Doc-tests meshoptimizer_rs\n"
+      "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 43 tests\ntest indices_are_checked ... ok\ntest destination_tail_is_untouched ... ok\ntest empty_meshes_succeed ... ok\ntest intermediate_overflow_is_rejected ... ok\ntest counted_overdraw_work_has_an_exact_boundary ... ok\ntest in_place_errors_are_atomic ... ok\ntest cache_preserves_triangle_corners ... ok\ntest counted_cache_work_has_an_exact_boundary ... ok\ntest attributes_enforce_width_and_support_zero_components ... ok\ntest degenerate_triangles_remain_valid ... ok\ntest optional_flags_require_one_entry_per_vertex ... ok\ntest overdraw_in_place_numerical_error_is_atomic ... ok\ntest overdraw_destination_tail_is_untouched ... ok\ntest lowering_limits_releases_retained_scratch ... ok\ntest nonfinite_threshold_is_rejected ... ok\ntest layouts_enforce_upstream_stride_bounds ... ok\ntest byte_positions_honor_unaligned_offsets_and_endianness ... ok\ntest flags_preserve_all_combinations_and_reject_unknown_bits ... ok\ntest platform_size_overflow_is_checked_without_allocation ... ok\ntest finite_thresholds_below_one_are_accepted ... ok\ntest simplifier_checks_target_and_error ... ok\ntest priority_increases_positional_cost ... ok\ntest protect_prevents_permissive_discontinuity_collapses ... ok\ntest short_destination_is_unchanged ... ok\ntest scale_has_no_epsilon_clamp ... ok\ntest simplifier_empty_has_zero_error ... ok\ntest simplifier_rejects_nonfinite_unused_geometry ... ok\ntest simplifier_matches_upstream_strip ... ok\ntest simplifier_locks_preserve_vertices ... ok\ntest storage_limit_includes_output ... ok\ntest simplifier_memory_budget_includes_scratch_and_output ... ok\ntest simplifier_zero_weights_match_position_only ... ok\ntest simplifier_rejects_unimplemented_option_bits ... ok\ntest simplifier_exact_work_budget_is_enforced ... ok\ntest topology_is_checked ... ok\ntest simplifier_accepts_partial_triangle_target ... ok\ntest simplifier_reports_overflowing_extent ... ok\ntest simplifier_validates_attribute_dimensions_and_values ... ok\ntest simplifier_into_matches_allocating_and_preserves_tail ... ok\ntest strided_and_byte_positions_match_packed_overdraw ... ok\ntest simplifier_validates_flag_length ... ok\ntest strided_positions_honor_offset_and_last_record_extent ... ok\ntest unused_nonfinite_geometry_is_rejected ... ok\n\ntest result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n",
+      "stderr": "   Compiling meshoptimizer-rs v0.1.0 (.)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.40s\n     Running unittests src/lib.rs ($CARGO_TARGET_DIR/debug/deps/meshoptimizer_rs-169e9601761443bc)\n     Running tests/api.rs ($CARGO_TARGET_DIR/debug/deps/api-7736a2078c4a1794)\n   Doc-tests meshoptimizer_rs\n"
     },
     {
       "command": "cargo package --list",
       "cwd": "source-identical temporary export (inventory matched working tree with --allow-dirty)",
       "exit": 0,
-      "stdout": "CHANGELOG.md\nCargo.lock\nCargo.toml\nCargo.toml.orig\nLICENSE\nREADME.md\nUPSTREAM.md\nsrc/cache.rs\nsrc/error.rs\nsrc/input.rs\nsrc/lib.rs\nsrc/math.rs\nsrc/overdraw.rs\nsrc/workspace.rs\ntests/api.rs\n",
+      "stdout": "CHANGELOG.md\nCargo.lock\nCargo.toml\nCargo.toml.orig\nLICENSE\nREADME.md\nUPSTREAM.md\nsrc/cache.rs\nsrc/error.rs\nsrc/input.rs\nsrc/lib.rs\nsrc/math.rs\nsrc/overdraw.rs\nsrc/simplify.rs\nsrc/workspace.rs\ntests/api.rs\n",
       "stderr": ""
     },
     {
@@ -98,35 +99,35 @@
       "cwd": "working tree; loopback sparse registry and locked vendored dependency sources (D9)",
       "exit": 0,
       "stdout": "",
-      "stderr": "    Updating `lane1-offline` index\n   Packaging meshoptimizer-rs v0.1.0 (.)\n    Packaged 15 files, 54.3KiB (14.8KiB compressed)\n   Verifying meshoptimizer-rs v0.1.0 (.)\n   Compiling libm v0.2.16\n   Compiling meshoptimizer-rs v0.1.0 ($CARGO_TARGET_DIR/package/meshoptimizer-rs-0.1.0)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.64s\n   Uploading meshoptimizer-rs v0.1.0 (.)\nwarning: aborting upload due to dry run\n"
+      "stderr": "    Updating `lane1-offline` index\n   Packaging meshoptimizer-rs v0.1.0 (.)\n    Packaged 17 files, 106.3KiB (25.3KiB compressed)\n   Verifying meshoptimizer-rs v0.1.0 (.)\n   Compiling libm v0.2.16\n   Compiling meshoptimizer-rs v0.1.0 ($CARGO_TARGET_DIR/package/meshoptimizer-rs-0.1.0)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.50s\n   Uploading meshoptimizer-rs v0.1.0 (.)\nwarning: aborting upload due to dry run\n"
     },
     {
       "command": "cargo doc --locked --no-deps --all-features",
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": "   Compiling libm v0.2.16\n Documenting meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.81s\n   Generated $CARGO_TARGET_DIR/doc/meshoptimizer_rs/index.html\n"
+      "stderr": "   Compiling libm v0.2.16\n Documenting meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.25s\n   Generated $CARGO_TARGET_DIR/doc/meshoptimizer_rs/index.html\n"
     },
     {
       "command": "cargo doc --locked --no-deps --no-default-features",
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": " Documenting meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s\n   Generated $CARGO_TARGET_DIR/doc/meshoptimizer_rs/index.html\n"
+      "stderr": " Documenting meshoptimizer-rs v0.1.0 (.)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.85s\n   Generated $CARGO_TARGET_DIR/doc/meshoptimizer_rs/index.html\n"
     },
     {
       "command": "cargo clippy --locked --manifest-path parity/Cargo.toml --all-targets -- -D warnings",
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": "    Checking meshoptimizer-rs v0.1.0 (.)\n    Checking meshoptimizer-parity v0.0.0 (./parity)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n"
+      "stderr": "    Checking meshoptimizer-rs v0.1.0 (.)\n    Checking meshoptimizer-parity v0.0.0 (./parity)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.75s\n"
     },
     {
       "command": "cargo clippy --locked --manifest-path fuzz/Cargo.toml --all-targets -- -D warnings",
       "cwd": "working tree",
       "exit": 0,
       "stdout": "",
-      "stderr": "    Checking meshoptimizer-rs v0.1.0 (.)\n    Checking meshoptimizer-smoke v0.0.0 (./fuzz)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s\n"
+      "stderr": "    Checking meshoptimizer-rs v0.1.0 (.)\n    Checking meshoptimizer-smoke v0.0.0 (./fuzz)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.96s\n"
     },
     {
       "command": "cargo fmt --manifest-path parity/Cargo.toml --check",
@@ -147,8 +148,49 @@
     {
       "command": "cargo package --list",
       "working_tree_exit": 101,
-      "stderr": "error: 14 files in the working directory contain changes that were not yet committed into git:\n\nCHANGELOG.md\nCargo.lock\nCargo.toml\nLICENSE\nREADME.md\nUPSTREAM.md\nsrc/cache.rs\nsrc/error.rs\nsrc/input.rs\nsrc/lib.rs\nsrc/math.rs\nsrc/overdraw.rs\nsrc/workspace.rs\ntests/api.rs\n\nto proceed despite this and include the uncommitted changes, pass the `--allow-dirty` flag\n",
+      "stderr": "error: 9 files in the working directory contain changes that were not yet committed into git:\n\nCHANGELOG.md\nCargo.toml\nREADME.md\nUPSTREAM.md\nsrc/error.rs\nsrc/lib.rs\nsrc/simplify.rs\nsrc/workspace.rs\ntests/api.rs\n\nto proceed despite this and include the uncommitted changes, pass the `--allow-dirty` flag\n",
       "decision": "D8: exact command in source-identical export; no Git metadata changes"
+    },
+    {
+      "decision": "D14: compare source inventories excluding Cargo-generated VCS metadata",
+      "export_inventory": [
+        "CHANGELOG.md",
+        "Cargo.lock",
+        "Cargo.toml",
+        "Cargo.toml.orig",
+        "LICENSE",
+        "README.md",
+        "UPSTREAM.md",
+        "src/cache.rs",
+        "src/error.rs",
+        "src/input.rs",
+        "src/lib.rs",
+        "src/math.rs",
+        "src/overdraw.rs",
+        "src/simplify.rs",
+        "src/workspace.rs",
+        "tests/api.rs"
+      ],
+      "working_inventory": [
+        ".cargo_vcs_info.json",
+        "CHANGELOG.md",
+        "Cargo.lock",
+        "Cargo.toml",
+        "Cargo.toml.orig",
+        "LICENSE",
+        "README.md",
+        "UPSTREAM.md",
+        "src/cache.rs",
+        "src/error.rs",
+        "src/input.rs",
+        "src/lib.rs",
+        "src/math.rs",
+        "src/overdraw.rs",
+        "src/simplify.rs",
+        "src/workspace.rs",
+        "tests/api.rs"
+      ],
+      "generated_metadata_only": ".cargo_vcs_info.json"
     },
     {
       "decision": "D9: Cargo real dry-run with a loopback sparse registry and offline-vendored locked dependencies",
@@ -322,9 +364,9 @@
   ],
   "passed": true,
   "identities_unchanged": true,
-  "finished_unix": 1790933713.2636888,
+  "finished_unix": 1790936975.4074187,
   "package_artifact": {
     "name": "meshoptimizer-rs-0.1.0.crate",
-    "sha256": "367b418154f57b05bd1aad68bf8b3fe63ada17ca634af7e7dee26380f572ba6d"
+    "sha256": "16834dcfbddaca52d34f2c5a18fd20d42fde45e6004f2899ce3f463a90b49f7f"
   }
 }

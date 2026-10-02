@@ -4,9 +4,9 @@ Pure-Rust port of meshoptimizer 1.3, with no C/C++ in the published package.
 This is an independent project, unaffiliated with upstream meshoptimizer.
 The crate forbids unsafe code and supports `no_std` with `alloc`.
 
-The foundation implements the standard vertex-cache optimizer and overdraw
-optimizer. Simplification and the rest of upstream's API are scheduled work;
-this is not a complete meshoptimizer 1.3 replacement.
+Work in progress, not yet published. Implements `simplify`,
+`simplify_with_attributes`, `simplify_scale`, standard vertex-cache optimization
+and overdraw optimization. This is not a complete meshoptimizer 1.3 replacement.
 
 ```rust
 use meshoptimizer_rs::{optimize_vertex_cache, optimize_overdraw, Positions, Workspace};
@@ -18,15 +18,25 @@ let indices = optimize_overdraw(&cached, Positions::from_packed(&positions), 1.0
 # Ok::<(), meshoptimizer_rs::Error>(())
 ```
 
-Each operation has an allocating variant, an `_into` variant for a caller
-buffer, and an `_in_place` variant. In-place calls leave input unchanged on
+Simplifiers and optimizers have allocating and caller-buffer `_into` variants.
+The cache and overdraw optimizers also have `_in_place` variants. In-place calls leave input unchanged on
 failure. Caller-buffer calls preserve the unused tail but may partially write
 the used prefix on a later work-limit or numerical failure.
 
 `Positions` accepts packed XYZ, interleaved floats, or initialized bytes with
-explicit byte order. `Attributes` supplies checked strided views for later
-simplification work. `VertexFlags` represents `LOCK`, `PROTECT`, and `PRIORITY`
+explicit byte order. `Attributes` supplies checked strided views for attribute-aware
+simplification. `VertexFlags` represents `LOCK`, `PROTECT`, and `PRIORITY`
 and rejects unknown bits. Primary topology uses `u32` indices.
+
+Simplification returns original vertex references and a linear result error.
+Targets are index counts and need not be multiples of three; topology or error
+constraints may stop a call before its target. `SimplifySettings` carries the
+target, error limit and `SimplifyOptions`. Supported options are `EMPTY`,
+`PERMISSIVE`, `LOCK_BORDER`, `ERROR_ABSOLUTE`, `REGULARIZE`, and
+`REGULARIZE_LIGHT`. Unknown or unimplemented bits are rejected.
+`LOCK` prevents movement, `PROTECT` protects discontinuities under permissive
+simplification, and `PRIORITY` increases positional preference without a
+preservation guarantee. Scale returns the maximum axis extent without clamping.
 
 Invalid topology, layout, indices, non-finite geometry, overflow and resource
 failures return `Error`. `Workspace` reuses scratch and defaults to 1 GiB of

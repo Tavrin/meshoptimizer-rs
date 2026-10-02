@@ -9,6 +9,7 @@ The harness rejects any other or modified reference checkout.
 |---|---|---|
 | `src/cache.rs` | `src/vcacheoptimizer.cpp` | standard `meshopt_optimizeVertexCache` |
 | `src/overdraw.rs` | `src/overdrawoptimizer.cpp` | `meshopt_optimizeOverdraw` |
+| `src/simplify.rs` | `src/simplifier.cpp` | `meshopt_simplify`, `meshopt_simplifyWithAttributes`, `meshopt_simplifyScale` |
 | `src/math.rs` | scalar `sqrtf` usage | pinned libm 0.2.16 backend |
 
 The recovered implementations were checked against the pinned source's

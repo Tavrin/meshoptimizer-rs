@@ -1,6 +1,6 @@
 # Differential harness
 
-This unpublished package compares the two foundation modules against the
+This unpublished package compares the five geometry functions against the
 unmodified meshoptimizer 1.3 source checkout at
 `4c203430ca565cb59a468a91922c76c208169536`. No network is used by the scripts.
 Set `MESHOPT_REFERENCE` to that checkout and `CARGO_TARGET_DIR` to an isolated
@@ -24,7 +24,7 @@ parity/report.sh --phase 0.1 --verify-artifacts
 `run.sh` executes the corpus and a 65,543-value sqrtf bit probe against C++
 and native Rust, then compares executed wasm32 Rust on the same messages.
 `sweep.sh` defaults to 2,000 cases per function; it accepts larger budgets and
-requires at least 1,000 for CI. Case identifiers, seeds, options, exact inputs
+requires at least 2,000, including in CI. Case identifiers, seeds, options, exact inputs
 and all output bytes are retained. A failure stops immediately without skipping
 or regenerating the seed.
 
@@ -48,7 +48,12 @@ claims complete release 0.1 or unavailable target qualification. Unimplemented
 phases, profiles and command options are rejected.
 
 Records default to `parity/results/`; `MESHOPT_RESULTS` can override the retained
-destination. ZIP artifacts preserve explicit little-endian input and response
+destination. Large ZIP artifacts go to `MESHOPT_ARTIFACTS`, defaulting to
+`$CARGO_TARGET_DIR/parity-artifacts`, outside the repository. Set it to a durable
+external directory before deleting the build target; this lane uses
+`/mnt/linux-extra/moss-capture-archive/meshopt-lane2`. JSON records retain archive
+and member hashes, not archive contents. Hostnames are excluded from hardware
+metadata. ZIP artifacts preserve explicit little-endian input and response
 bytes. Build outputs stay in `CARGO_TARGET_DIR`. After verification, delete that
 temporary directory; retained source identities and buffers remain reviewable.
 
@@ -66,7 +71,11 @@ these are package/build checks, not crates.io naming or publication readiness.
 Requests begin with `MO01` followed by six little-endian u32 words: operation,
 vertex count, index/word count, threshold f32 bits, mode, and sample count.
 Packed XYZ f32 bits precede u32 indices. Operation 1 is standard cache, 2 is
-overdraw, and 3 is a bounded sqrtf probe with zero vertices. Mode 0 compares
+overdraw, and 3 is a bounded sqrtf probe with zero vertices. Operations 4/5/6
+are simplify/attributes/scale. They append target index count, error bits,
+option bits, component count, component weights, packed attributes and one
+u32 flag value per vertex. Simplifier responses contain error bits followed by
+result indices; scale responds with one f32 bit pattern. Mode 0 compares
 outputs; mode 1 records one to 100 native timing samples. Exact message sizes
 and a 128 MiB ceiling are checked before allocation.
 

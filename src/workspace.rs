@@ -36,7 +36,13 @@ pub struct Usage {
 /// insertion, search and score update, and each cache/emission visit. Overdraw
 /// work counts validation, cache simulation, geometry and counting-sort record
 /// visits, and copied indices. Fixed scalar arithmetic inside a visit is not
-/// counted separately. Limits never disable checked size arithmetic.
+/// counted separately. Simplification counts validation, position/hash and
+/// adjacency visits, edge searches, classification, quadric and attribute
+/// accumulation, collapse ranking/sorting/flip checks, and remapping visits.
+/// Its typed scratch is allocated fallibly per call and released on return;
+/// usage reports peak storage including retained workspace buffers. Scale
+/// computation is allocation-free and has no workspace argument.
+/// Limits never disable checked size arithmetic.
 #[derive(Debug, Default)]
 pub struct Workspace {
     limits: Limits,

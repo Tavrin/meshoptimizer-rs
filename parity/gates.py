@@ -128,8 +128,16 @@ def main():
                         raise ValueError("package export differs from source")
                     result = subprocess.run(cmd, cwd=export, env=cmd_env, capture_output=True, text=True)
                     allowed = subprocess.run([*cmd, "--allow-dirty"], cwd=ROOT, env=cmd_env, capture_output=True, text=True)
-                    if allowed.returncode or result.stdout != allowed.stdout:
-                        raise ValueError("export and working-tree package inventories differ")
+                    export_inventory = result.stdout.splitlines()
+                    working_inventory = allowed.stdout.splitlines()
+                    # Cargo adds this generated metadata only when Git history exists.
+                    # It is not a source file and cannot appear in a Git-free export.
+                    normalized_working = [n for n in working_inventory if n != ".cargo_vcs_info.json"]
+                    if allowed.returncode or export_inventory != normalized_working:
+                        raise ValueError("export and working-tree package source inventories differ")
+                    record["adjustments"].append({"decision": "D14: compare source inventories excluding Cargo-generated VCS metadata",
+                        "export_inventory": export_inventory, "working_inventory": working_inventory,
+                        "generated_metadata_only": ".cargo_vcs_info.json"})
                     for name in result.stdout.splitlines():
                         if name.startswith(("parity/", "fuzz/", ".github/")):
                             raise ValueError("unpublished tooling in package")
@@ -155,7 +163,12 @@ def main():
     record["identities_unchanged"] = record["source_sha256"] == snapshot()
     record["passed"] = len(record["commands"]) == len(COMMANDS) and all(c["exit"] == 0 for c in record["commands"]) and record["identities_unchanged"]
     record["finished_unix"] = time.time()
-    package = target / "package/meshoptimizer-rs-0.1.0.crate"
+    package_name = "meshoptimizer-rs-0.1.0.crate"
+    candidates = [target / "package" / package_name, target / "package/tmp-crate" / package_name]
+    packages = [p for p in candidates if p.is_file()]
+    if record["passed"] and len(packages) != 1:
+        raise ValueError("missing or ambiguous Cargo package output")
+    package = packages[0] if packages else candidates[0]
     if record["passed"]:
         shutil.copyfile(package, destination / package.name)
         record["package_artifact"] = {"name": package.name, "sha256": sha(package)}

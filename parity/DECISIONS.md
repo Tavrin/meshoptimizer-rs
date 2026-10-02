@@ -134,3 +134,103 @@ C++ is appropriate for these modules, which have no explicit SIMD paths.
 The lane's requested benchmark is recorded only; `--enforce` rejects an
 unsupported qualification claim. Broader workloads, caller-buffer benchmarks,
 release performance bars and Moss migration are deferred by lane scope.
+
+## D11 — Simplifier API and stable options
+
+Port the pinned edge-collapse implementation directly, including its half-seam,
+complex/fringe classification, wedge traversal, quadric arithmetic, direction
+selection and stable 12-bit counting sort. Provide allocating and caller-buffer
+variants, original vertex references, and bit-preserved linear result error.
+Target counts are index counts and may be nonmultiples of three. A target is
+not a guarantee. Scale is allocation-free and returns the extent without an
+epsilon clamp; it needs no Workspace argument.
+
+Expose empty options and Permissive, plus LockBorder, ErrorAbsolute, Regularize
+and RegularizeLight because these share the implemented paths. Sparse and Prune
+need separate algorithms; defer them and all experimental options. Reject their
+bits rather than silently approximating behavior. All LOCK/PROTECT/PRIORITY
+combinations are accepted for attribute simplification. Priority examines the
+canonical vertex, as upstream does, and does not guarantee preservation.
+
+Read Moss main without checkout changes at
+`eddd56d1ba95b8bd2e1b8f9296bf080a86801a0e`. Cooker/editor use empty options;
+the cooker retry uses Permissive and Boolean locks, mapped to LOCK/empty.
+No LockBorder call was found. Cooker targets are 0.5/0.25/0.125 with error
+`max(1-ratio, 0.05)`. The editor currently multiplies that error by its clamped
+scale before calling relative mode; qualification includes those actual inputs
+without changing the consumer. Current cooker attributes are normal xyz,
+UV, tangent xyz (weights 2/2/2/1/1/1/1/1), plus optional RGBA (weight 8 each).
+Opposite tangent handedness is locked by the consumer. Moss integration remains
+outside this lane.
+
+## D12 — Scratch, work and numerical contracts
+
+Keep typed simplifier scratch local to each call. Charge every fallibly reserved
+capacity, output capacity and pre-existing retained Workspace capacity against
+the same byte limit before using it. Release local scratch on return; Usage
+reports the peak. Reusing typed simplifier scratch is a later performance choice,
+not required for correctness. Caller-buffer variants reserve/validate first and
+may modify the input-length prefix on a later failure, matching D3.
+
+Count validation, hash probes, vertex/adjacency visits, edge searches, quadric
+and attribute accumulation, collapse candidates, ranking, counting-sort visits,
+flip checks and remapping. Fixed scalar arithmetic and fixed-size histogram work
+are not separate units. Tests establish exact work and byte boundaries.
+
+Reject non-finite supplied attributes even when their weight is zero, and
+non-finite unused positions. Reject overflowing rescale/quadric/result
+intermediates. Preserve upstream's internal absolute-error cutoff calculation,
+including its zero-extent division behavior; do not reject an empty or
+coincident mesh just because that internal cutoff is non-finite. The public
+error limit itself must always be finite and nonnegative. These checked input
+and allocation failures intentionally differ from C++ assertions/undefined cases.
+
+## D13 — Final-source evidence and external artifacts
+
+Interpret the brief's default `target/parity-artifacts` as the isolated
+`$CARGO_TARGET_DIR/parity-artifacts`; a repository-local default would contradict
+its explicit outside-repository requirement. Reject any MESHOPT_ARTIFACTS path
+inside this checkout. Retain this lane's archives at
+`/mnt/linux-extra/moss-capture-archive/meshopt-lane2`, independently of the
+throwaway build target. JSON contains archive/member hashes and metadata only.
+Remove the hostname field from both parity and fuzz hardware identities.
+
+Re-run all five functions against final sources. Capture applicable upstream
+native fixture inputs before their in-place calls, preserving the original
+fixture bodies/assertions, and capture six applicable JS calls with an adapter
+while separately executing all five unchanged JS suites. Uint16 JS input is
+widened explicitly to the crate's u32 topology API. Record a fixed required
+fixture inventory so a missing fixture fails qualification. Remaining native/JS
+simplifier options and functions are excluded explicitly in COVERAGE.md.
+
+Use native scalar-strict C++ for exact indices and f32 error bits; execute the
+same messages in wasm32 and require native-Rust byte identity. Run 2,000 seeded
+cases per entry point, and stable bounded mutation for 600 elapsed seconds per
+entry point, retaining D7's instrumentation limits. Benchmarks use the D10
+single-threaded allocating method on one million triangles at all three cooker
+target ratios, with eight weighted attributes and Permissive for the attribute
+entry point. No performance optimization is authorized in this lane.
+
+## D14 — Package inventory with existing Git history
+
+Lane 1's D8 export comparison assumed an unborn repository. This checkout has
+history, so Cargo additionally generates `.cargo_vcs_info.json` in the working
+repository's package inventory. The Git-free export cannot generate that file.
+Compare the exact source inventories with this one generated metadata entry
+excluded, record both full inventories, and continue verifying every included
+source hash. The actual publish dry run still builds the real working-tree
+package, including Cargo's dirty VCS metadata. Do not create synthetic Git
+history, stage files, or change any Git metadata to make inventories match.
+
+Current Cargo places the dry-run archive under `package/tmp-crate/`, while
+lane 1 expected `package/`. Accept either documented observed output location,
+require exactly one candidate, and hash/copy that archive. The temporary
+registry copy was checked to have the same bytes; do not mistake it for a
+second independent package build.
+
+## D15 — No implicit allocating result clone
+
+Do not implement Clone for SimplifiedMesh: a derived Vec clone would expose an
+infallible crate-provided allocation outside Workspace accounting. Callers own
+the returned Vec and can explicitly choose their own copying policy. Settings,
+options and caller-buffer results remain Copy because they allocate nothing.

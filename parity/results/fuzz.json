@@ -2,20 +2,24 @@
   "profile": "stable-seeded-mutation; no sanitizer or coverage instrumentation",
   "source_sha256": {
     "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-    "Cargo.toml": "9dd893a8cf552ae4389a11ac672d0e207961add519e256e37673345298dc3c6d",
+    "Cargo.toml": "fe6e0806ef0ad81dce8a1bb7005118935528aebad7a7f4bc682e432ffec07094",
     "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
     "fuzz/Cargo.toml": "73f481cd3db91c00356c28768c6eba511e670bc03ee65c387612e0a91a255f88",
-    "fuzz/smoke.py": "2e96f78da7d1c68fb4ce5f8435216dbc13efc5dd8f154bbee20b2855964aa407",
+    "fuzz/smoke.py": "6f3f93b51aa243069d204bb538185022d19c77114608e065822daa7c38d31ce8",
     "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
+    "fuzz/src/bin/simplify.rs": "8e8254d7bf3c96f8d3ee118fc9406a441217d458a63f5a38a0b0a36deb6919e0",
+    "fuzz/src/bin/simplify_scale.rs": "0816ba3c1d598bf6e0476ec3808d925779a0e7c297d56d557e292a2b644743df",
+    "fuzz/src/bin/simplify_with_attributes.rs": "0757292b85d452ccf6ea591cd147c00387727d123df782d6168359402ccd2460",
     "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
-    "fuzz/src/lib.rs": "b441f6023a3be5feaf5e8c66f906d675d4b4dcbe87f655b3f1f1e565f5e23fbe",
+    "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
     "src/cache.rs": "2b76548701ce25eba5d8da6dcfbf8feeb9682cd17e50be4073a50d29d6b5e53f",
-    "src/error.rs": "14bbb10f795908c0af7fcc4c29adf1cdf8dae022ceebd539b3fe155b463f3d02",
+    "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
     "src/input.rs": "4da6d4deaa6712e9617044828d465f9d5f887212488bd34b6fa5148dc4acc5c3",
-    "src/lib.rs": "ce2e008b1ce766765c97e26457fffd7a106bdede9a3db669ae4d0fee21876e2e",
+    "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
     "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
     "src/overdraw.rs": "23cca595d4a7879ca0b7020b78817166e020a759807279d7e41ec118b11d45c5",
-    "src/workspace.rs": "58c45d6fc1607d536f8eb884e3ced56b8a4e2281976f6ada0c765338e2acbc4b"
+    "src/simplify.rs": "cc60975a9c120493494052042d7463108ca5d0243bd291a11af4f070ee8ac86b",
+    "src/workspace.rs": "7800ef27614813de29e5e11e5bc96970e84afcae6989951d6e9f824c1222e435"
   },
   "dependency_sha256": {
     "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
@@ -176,20 +180,22 @@
     "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
   },
   "executable_sha256": {
-    "vertex_cache": "d5a4e226079f39df82121a58e8d0b6001ed269858d7cb574d7bc969f73e236d5",
-    "overdraw": "3030eca8302cdfea9bd178408ae9d63c3b5ef721cbe68614c92df294adf9b8db"
+    "vertex_cache": "1f3c00091d2053120b8f5faab92c1fc4addaea3c994021641604cea3cca51588",
+    "overdraw": "5369eca5ae5cbb95674d9888ab1aaf99add834f50ef8a456a88c4c9b61f2fa84",
+    "simplify": "19e126746c89e367a049abe37a95ff0a657c809f6ecedb1d2489641411175e85",
+    "simplify_with_attributes": "75b1e5566497348d024288dea5e18a4ee935d2b8f83c25876d8a1c9c9d6a0c7c",
+    "simplify_scale": "d7c8c5c21c01cf46c7b2179cfeb7b4aedcf19d37f0a3ca767aaee58469ec7eae"
   },
   "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
   "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
   "hardware": {
     "system": "Linux",
-    "node": "redacted",
     "release": "7.0.0-28-generic",
     "version": "#28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2",
     "machine": "x86_64",
     "processor": "x86_64"
   },
-  "started_unix": 1790933035.9796698,
+  "started_unix": 1790936926.1550446,
   "budget_seconds": 600,
   "seed": 20261002,
   "rustflags": "",
@@ -197,44 +203,104 @@
     {
       "target": "vertex_cache",
       "exit": 0,
-      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":600.000006053,\"executions\":64143023,\"successes\":34893510,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":600.00003137,\"executions\":35800198,\"successes\":19475920,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "vertex_cache",
-        "seconds": 600.000006053,
-        "executions": 64143023,
-        "successes": 34893510,
+        "seconds": 600.00003137,
+        "executions": 35800198,
+        "successes": 19475920,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 597.8,
-        "system_seconds": 0.01,
+        "user_seconds": 596.8,
+        "system_seconds": 0.13,
         "elapsed_seconds": 600.0,
-        "max_rss_kib": 2196
+        "max_rss_kib": 2220
       }
     },
     {
       "target": "overdraw",
       "exit": 0,
-      "stdout": "{\"target\":\"overdraw\",\"seconds\":600.000492908,\"executions\":107305797,\"successes\":44847066,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"overdraw\",\"seconds\":600.000009028,\"executions\":59129202,\"successes\":24712166,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "overdraw",
-        "seconds": 600.000492908,
-        "executions": 107305797,
-        "successes": 44847066,
+        "seconds": 600.000009028,
+        "executions": 59129202,
+        "successes": 24712166,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 602.49,
-        "system_seconds": 0.01,
+        "user_seconds": 596.46,
+        "system_seconds": 0.14,
         "elapsed_seconds": 600.0,
-        "max_rss_kib": 2204
+        "max_rss_kib": 2172
+      }
+    },
+    {
+      "target": "simplify",
+      "exit": 0,
+      "stdout": "{\"target\":\"simplify\",\"seconds\":600.00005771,\"executions\":36161435,\"successes\":18320639,\"crashes\":0,\"seed\":20261002}\n",
+      "stderr": "",
+      "statistics": {
+        "target": "simplify",
+        "seconds": 600.00005771,
+        "executions": 36161435,
+        "successes": 18320639,
+        "crashes": 0,
+        "seed": 20261002
+      },
+      "usage": {
+        "user_seconds": 597.09,
+        "system_seconds": 0.2,
+        "elapsed_seconds": 600.0,
+        "max_rss_kib": 1944
+      }
+    },
+    {
+      "target": "simplify_with_attributes",
+      "exit": 0,
+      "stdout": "{\"target\":\"simplify_with_attributes\",\"seconds\":600.000011973,\"executions\":26343347,\"successes\":10217739,\"crashes\":0,\"seed\":20261002}\n",
+      "stderr": "",
+      "statistics": {
+        "target": "simplify_with_attributes",
+        "seconds": 600.000011973,
+        "executions": 26343347,
+        "successes": 10217739,
+        "crashes": 0,
+        "seed": 20261002
+      },
+      "usage": {
+        "user_seconds": 598.02,
+        "system_seconds": 0.12,
+        "elapsed_seconds": 600.0,
+        "max_rss_kib": 2144
+      }
+    },
+    {
+      "target": "simplify_scale",
+      "exit": 0,
+      "stdout": "{\"target\":\"simplify_scale\",\"seconds\":600.000000452,\"executions\":769673693,\"successes\":725430906,\"crashes\":0,\"seed\":20261002}\n",
+      "stderr": "",
+      "statistics": {
+        "target": "simplify_scale",
+        "seconds": 600.000000452,
+        "executions": 769673693,
+        "successes": 725430906,
+        "crashes": 0,
+        "seed": 20261002
+      },
+      "usage": {
+        "user_seconds": 597.5,
+        "system_seconds": 0.15,
+        "elapsed_seconds": 600.0,
+        "max_rss_kib": 1896
       }
     }
   ],
-  "finished_unix": 1790933635.983496,
+  "finished_unix": 1790937526.1591284,
   "identities_unchanged": true
 }

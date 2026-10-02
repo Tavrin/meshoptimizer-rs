@@ -25,7 +25,7 @@ pub fn execute(input: &[u8]) -> Result<Vec<u8>, String> {
     let mode = word(input, 20)?;
     let samples = word(input, 24)? as usize;
     if op == 0
-        || op > 3
+        || op > 6
         || mode > 1
         || samples > 100
         || (mode == 1 && samples < 1)
@@ -38,7 +38,7 @@ pub fn execute(input: &[u8]) -> Result<Vec<u8>, String> {
         .and_then(|n| count.checked_mul(4).and_then(|c| n.checked_add(c)))
         .and_then(|n| n.checked_add(28))
         .ok_or("count overflow")?;
-    if expected > MAX || input.len() != expected {
+    if expected > MAX || (op <= 3 && input.len() != expected) || input.len() < expected {
         return Err("invalid message length".into());
     }
     let mut positions = Vec::new();
@@ -58,6 +58,34 @@ pub fn execute(input: &[u8]) -> Result<Vec<u8>, String> {
         .map_err(|e| e.to_string())?;
     for i in 0..count {
         indices.push(word(input, 28 + vertices * 12 + i * 4)?);
+    }
+    let mut target = 0;
+    let mut error = 0.0;
+    let mut options = meshoptimizer_rs::SimplifyOptions::EMPTY;
+    let mut ac = 0;
+    let mut weights = Vec::new();
+    let mut attributes = Vec::new();
+    let mut flags = Vec::new();
+    if op >= 4 {
+        target = word(input, expected)? as usize;
+        error = f32::from_bits(word(input, expected + 4)?);
+        options = meshoptimizer_rs::SimplifyOptions::from_bits(word(input, expected + 8)?)
+            .map_err(|e| e.to_string())?;
+        ac = word(input, expected + 12)? as usize;
+        if ac > 32 || input.len() != expected + 16 + ac * 4 + vertices * ac * 4 + vertices * 4 {
+            return Err("invalid simplifier message".into());
+        }
+        for k in 0..ac {
+            weights.push(f32::from_bits(word(input, expected + 16 + k * 4)?));
+        }
+        for k in 0..vertices * ac {
+            attributes.push(f32::from_bits(word(input, expected + 16 + ac * 4 + k * 4)?));
+        }
+        for k in 0..vertices {
+            let raw = word(input, expected + 16 + ac * 4 + vertices * ac * 4 + k * 4)?;
+            let raw = u8::try_from(raw).map_err(|_| "invalid flag width")?;
+            flags.push(meshoptimizer_rs::VertexFlags::from_bits(raw).map_err(|e| e.to_string())?);
+        }
     }
     let operation = || -> Result<Vec<u32>, String> {
         match op {
@@ -81,6 +109,46 @@ pub fn execute(input: &[u8]) -> Result<Vec<u8>, String> {
                 }
                 Ok(out)
             }
+            4 | 5 => {
+                let settings = meshoptimizer_rs::SimplifySettings {
+                    target_index_count: target,
+                    target_error: error,
+                    options,
+                };
+                let p = Positions::from_packed(&positions);
+                let mut workspace = Workspace::default();
+                let result = if op == 4 {
+                    meshoptimizer_rs::simplify(&indices, p, settings, &mut workspace)
+                } else {
+                    let a = meshoptimizer_rs::Attributes::from_interleaved(
+                        &attributes,
+                        vertices,
+                        ac,
+                        ac,
+                        0,
+                    )
+                    .map_err(|e| e.to_string())?;
+                    meshoptimizer_rs::simplify_with_attributes(
+                        &indices,
+                        p,
+                        a,
+                        &weights,
+                        Some(&flags),
+                        settings,
+                        &mut workspace,
+                    )
+                }
+                .map_err(|e| e.to_string())?;
+                let mut out = Vec::with_capacity(result.indices.len() + 1);
+                out.push(result.error.to_bits());
+                out.extend(result.indices);
+                Ok(out)
+            }
+            6 => Ok(vec![meshoptimizer_rs::simplify_scale(
+                Positions::from_packed(&positions),
+            )
+            .map_err(|e| e.to_string())?
+            .to_bits()]),
             _ => Err("unknown operation".into()),
         }
     };
