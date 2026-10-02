@@ -59,7 +59,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MESHOPT_REFERENCE: ${{ github.workspace }}/reference
-      CARGO_TARGET_DIR: ${{ github.workspace }}/target-parity
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -67,6 +66,7 @@ jobs:
           repository: zeux/meshoptimizer
           ref: 4c203430ca565cb59a468a91922c76c208169536
           path: reference
+      - run: echo "CARGO_TARGET_DIR=$RUNNER_TEMP/meshopt-parity" >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
