@@ -1,0 +1,1375 @@
+{
+  "schema": 1,
+  "command": "run",
+  "phase": "0.1-lane1",
+  "profile": "scalar-strict",
+  "seed": 20261002,
+  "started_unix": 1790933765.6825826,
+  "identities": {
+    "source_sha256": {
+      "rust_and_harness": {
+        "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
+        "Cargo.toml": "9dd893a8cf552ae4389a11ac672d0e207961add519e256e37673345298dc3c6d",
+        "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
+        "fuzz/Cargo.toml": "73f481cd3db91c00356c28768c6eba511e670bc03ee65c387612e0a91a255f88",
+        "fuzz/smoke.py": "2e96f78da7d1c68fb4ce5f8435216dbc13efc5dd8f154bbee20b2855964aa407",
+        "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
+        "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
+        "fuzz/src/lib.rs": "b441f6023a3be5feaf5e8c66f906d675d4b4dcbe87f655b3f1f1e565f5e23fbe",
+        "parity/Cargo.lock": "112cd885caf73df56e35b83e6b262a1cd9e629c79f678fd9c85be8cf16f6a894",
+        "parity/Cargo.toml": "67c648770ff4754786a0a1116f4d8470c2c1e1f3aadb03439aceb6d8fc584053",
+        "parity/benchmark.sh": "c6b216f063c8a0ed4bcc1acb9442e06e15b6ed4efff324f7d3cf4402dd159ace",
+        "parity/check-reference.sh": "ad4860d87be254b01958512287d31c8e056b49aaaef368b2548f01fca3ecf202",
+        "parity/fuzz.sh": "3df71ce7a8450d05b9b3e9dbd09e2db01bd49f994c9850013bc1877d09ec902f",
+        "parity/gates.py": "643264d1119a96cd7b47eb5034808bc6856d02360c0e664503ff7a98ec7c5f20",
+        "parity/gates.sh": "487e1de5c2c308bd94d56518beb3187b7a8a6abb72484398f7371c1d49c48431",
+        "parity/js.sh": "033919e1d016f1319159cb96bad65c09beacc158793c8c9c62415a983ebac86f",
+        "parity/qualify.sh": "228fc2bc3bec9d48ede3292ef86412d7435fafb4363f0359aa0275682fc8c646",
+        "parity/reference.cpp": "2d7d64fa3851b974e3aaba19ff7a532c9cc1748f2a5d0ef3d86219b51dd1763e",
+        "parity/report.sh": "17be39ff819b008d3050e347a473684eff035d160bb8adc659d281ff7b21fd61",
+        "parity/run.sh": "ca205680f5dfea64e7309e29a1edec7b9c5c506e7043f3ce1765e3f26088b30e",
+        "parity/runner.py": "c23d51808d0440f94114249f8a7a07006c67dfdd95d15da96fbcce45a6e76198",
+        "parity/src/lib.rs": "f1c29904291f175429eaf1041c9a6ddd5432fa094d54350a28aa1e36ff45bd19",
+        "parity/src/main.rs": "ee2b00442b48b66099b26bc5d19b75fbf3a529fee9a857663bf846252af2b866",
+        "parity/sweep.sh": "7787f5d059a360265372d9fd48188679e29f4c8fea1fabf4b4a5120790ad8159",
+        "parity/wasm.cjs": "4ebb96263f7cc058c81e8a546908eb8f18d9ec6c4e64ee1b217c4c916b262865",
+        "src/cache.rs": "2b76548701ce25eba5d8da6dcfbf8feeb9682cd17e50be4073a50d29d6b5e53f",
+        "src/error.rs": "14bbb10f795908c0af7fcc4c29adf1cdf8dae022ceebd539b3fe155b463f3d02",
+        "src/input.rs": "4da6d4deaa6712e9617044828d465f9d5f887212488bd34b6fa5148dc4acc5c3",
+        "src/lib.rs": "ce2e008b1ce766765c97e26457fffd7a106bdede9a3db669ae4d0fee21876e2e",
+        "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
+        "src/overdraw.rs": "23cca595d4a7879ca0b7020b78817166e020a759807279d7e41ec118b11d45c5",
+        "src/workspace.rs": "58c45d6fc1607d536f8eb884e3ced56b8a4e2281976f6ada0c765338e2acbc4b",
+        "tests/api.rs": "4b80db5b00be1d9a7e0e3a1cb784f4117cf43a49b691de24564131926e2bab33"
+      },
+      "upstream": {
+        "LICENSE.md": "f03037ca7bad1e3eb7f4a63fa6084a8baabd5ba30d3c239a9a7f35705d873e26",
+        "demo/tests.cpp": "e90c5df545cac717d9eb8b04507fed6a4de3c38173f6f0898ac065624028fe07",
+        "js/README.md": "72162d4a46a34622d12914bc47d94ca36e88a4be5ffdf009d89fc1c6e7c47e03",
+        "js/benchmark.js": "bcb8f5a5ae81a82c57f234bbff0e8d9b30207b67ca23155046c1e2c039b6af0f",
+        "js/index.d.ts": "917002075ea95a08edefc5102ff3bd1e920f17e623ea35e6f44150d95f5d81f0",
+        "js/index.js": "0afb975db2733391c2d0cabfbe707ee6d9a9651dddc221aeda5d819379958a89",
+        "js/meshopt_clusterizer.d.ts": "0106567d192becc7894a7be4cce986cbc4ef5a6bccb61be0e2f646315e84bd8d",
+        "js/meshopt_clusterizer.js": "ab1841427630c3c7be0fa53cf8f0a5c6b8b284618200be9d7762b807b45cec01",
+        "js/meshopt_clusterizer.test.js": "8c6ad6888b3ad5ef6d5670bd4ae832b3a0ac408693f3668e2896267fdad2a990",
+        "js/meshopt_decoder.cjs": "fabafaaa29cbb1cfa367f20e896d7f6e95b86e575e2ea86ddb6f8cca1a87152d",
+        "js/meshopt_decoder.d.ts": "804e95c2fea13467a2e8002a8aa41fb470a17b3fea5a8d7eaaa156c635c03a70",
+        "js/meshopt_decoder.mjs": "10b313edaa0e322b0c1b46443f6c8b186b42139fe1eca189d50c09511d0ebedc",
+        "js/meshopt_decoder.test.js": "70488d804844802804fc8d4eb302779ea392f746f97df654cc2fabe0ca72c6ac",
+        "js/meshopt_decoder_reference.js": "207f64595be3d5d0c0d728a981673c3fee8b4d9e671341831d556485d96de8dc",
+        "js/meshopt_encoder.d.ts": "4c769e430f99a67a55ed23c981ab6b51e1587a93479d328ba16ffc08289d39a9",
+        "js/meshopt_encoder.js": "22c128be3e22b187e2d2661882fc62f51e995f409c0fe14c9f6358cfbaff1611",
+        "js/meshopt_encoder.test.js": "532a04b27a8631f53696a82b949b3bd9155e10e9f410663970ae206f4aca593b",
+        "js/meshopt_simplifier.d.ts": "5ee7a8c862d8b73f138365fbc50a20ccad8822c397e73c76664a7b9c158edab9",
+        "js/meshopt_simplifier.js": "c3098ee4cb4fc242b84f064c88898e76e44bf58b0e1f693507f323c08cdbb5ed",
+        "js/meshopt_simplifier.test.js": "62ed9a054a129e11afdba2d5f9e3ee55511fd33923fa45d07bb0a58b605e30c9",
+        "js/meshopt_tangents.d.ts": "0fc8187d59f0a6a2978186849e9debe64c547ec5d7283b8d5a9686b8ef1c271c",
+        "js/meshopt_tangents.js": "1f62e72b02bf0abae3151a49af5e62b92a4ee3bcedc1386d8425a24bb5da6d1f",
+        "js/meshopt_tangents.test.js": "91fb5867d117a830d2c62078a30501d1a2a5d50dd7cad4b27fd0124328404a38",
+        "js/package.json": "7c0b926331466962d22ab250359fcdea20c225ab243d78474b955fb6af23f74c",
+        "js/wasi_trace.js": "26c6ddf615a448f2de2d5f46d75f1d639470c14011bb27c469f2642bd9f37d85",
+        "src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+        "src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+        "src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+        "src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+        "src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+        "src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+        "src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+        "src/meshoptimizer.h": "e3688ef553f603391747895a5c221ef1528574cc7f8173782417a96cb531f61b",
+        "src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+        "src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+        "src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+        "src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+        "src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+        "src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+        "src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+        "src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+        "src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+        "src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+        "src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+        "src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+        "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+        "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
+      },
+      "dependencies": {
+        "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
+        "libm-0.2.16/.cargo_vcs_info.json": "c4af01b6d9f9aeba821535464ed43af66b84c3aac39efc562d368dc0c600be74",
+        "libm-0.2.16/CHANGELOG.md": "c84ee59547a973f86a4bd5c695e99274ad69b8c0136f05c5b5a17033b8987f71",
+        "libm-0.2.16/Cargo.lock": "2eab9eb71d05a09ed3cf919a41418052039b74d30a4663a74c4efd4daec5be8f",
+        "libm-0.2.16/Cargo.toml": "a2d94f9cbaa4a177bacde9737bfcc7b2ed9de5bddadafe507923a5b5748f9bd7",
+        "libm-0.2.16/Cargo.toml.orig": "5cef83cc9b297dcf1b6853237371d839a8c3ece4adb0e7fe9f7ba8958f319b0e",
+        "libm-0.2.16/LICENSE.txt": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7",
+        "libm-0.2.16/README.md": "fa3f1ab09e50179c981d6373624d5e363ae429f75f1c6103db39db143057a4c4",
+        "libm-0.2.16/build.rs": "85dfa93693f40e282ecf2d9a3115280d8f508f056063862add9e529b8143b71b",
+        "libm-0.2.16/configure.rs": "884fa9c05c600d03450b15651665848e88b09cf602f86c843e55e5e1ee0a4772",
+        "libm-0.2.16/src/lib.rs": "d565c5f29ae9f502edca78d536436e85bbc4b955595328a6cfd4a97c1dbbac9b",
+        "libm-0.2.16/src/libm_helper.rs": "b59f5c3e0aca4cfa6dc996ec308a8eab9102c833a9b1c5372d874fb57dd0a98e",
+        "libm-0.2.16/src/math/acos.rs": "efd83a6138061209867f06421c6a756b8ca3aab5c6c0a85c4aba31bedb299da5",
+        "libm-0.2.16/src/math/acosf.rs": "c5c9c74d267725bbe5f9319e6f4a396af6ce46c890b601d3f963a5d74d12e4c3",
+        "libm-0.2.16/src/math/acosh.rs": "c3d9de791399f7d6c946bee5642ac1357783eb3d1a9d226e2f514979c764bfdc",
+        "libm-0.2.16/src/math/acoshf.rs": "190eb2dd2ba6750d7e7a3ff97d6b3e90dc793dff8d760ece66cfcc594f69200a",
+        "libm-0.2.16/src/math/arch/aarch64.rs": "deb850d77df93beed6dcfcaf67c7665256ae49fc5019fdebc180714ec840cd80",
+        "libm-0.2.16/src/math/arch/i586.rs": "fe087a006d5efc385c3ab877cb60de7b674681760728d2ef7ca231e7c313b51b",
+        "libm-0.2.16/src/math/arch/mod.rs": "475d65b49fab27a20690fc5d423e83c1b0e025ae226c252e4da233f3560b5894",
+        "libm-0.2.16/src/math/arch/wasm32.rs": "93526505f6fbf97a5e96004fe49eb715c152948cb86e52b9f396899d3180f615",
+        "libm-0.2.16/src/math/arch/x86/detect.rs": "1595d4416936b717ab10f6010aa944f945287ff774b945e55df9efa93e70ccdf",
+        "libm-0.2.16/src/math/arch/x86/fma.rs": "c5fb77e560e1012f211532c5668c8b8022d04d55a2489419a32e843c16267ad9",
+        "libm-0.2.16/src/math/arch/x86.rs": "9d305f59b9886689be7920ae1543bb588738a1d7173a9a8e5a74eae0cf3b0b2a",
+        "libm-0.2.16/src/math/asin.rs": "9693a7cb61674ec6fe22be9db8fe20276729c48b1562fd86d5421e372a0a12e4",
+        "libm-0.2.16/src/math/asinf.rs": "25f6b7bbf46fc5aac4ebdd9e00118239747dcd28a79b90b858ddc4633d773d65",
+        "libm-0.2.16/src/math/asinh.rs": "8fd9431978e06904ed810d873f3de5bc097130d4b681a727644aa82d4f0fc627",
+        "libm-0.2.16/src/math/asinhf.rs": "ce78c74e4c806c68cbf974c1d2be131ce70aee6e27f178bcc9d082cfe4768799",
+        "libm-0.2.16/src/math/atan.rs": "54181dbddf4f77b90b32b9f6819ac989da570dc02b791f3685d20a23d51324be",
+        "libm-0.2.16/src/math/atan2.rs": "7d028d4d397f7484b8feed7b228eda65b84acac94d27729d236d5df95e38d8f0",
+        "libm-0.2.16/src/math/atan2f.rs": "b9497b5adb75e2788c404fd121aa64dcfa0e9357b67af3b3e7e6d4624dae1ca1",
+        "libm-0.2.16/src/math/atanf.rs": "197762f16ed5951236e17d0869c529e857acc329cc287df019ff69e5401f3b4d",
+        "libm-0.2.16/src/math/atanh.rs": "84d3fe8b2674a9681f553b7afd950bea47f498c38f81af9d58115d52e833178e",
+        "libm-0.2.16/src/math/atanhf.rs": "3a0643b0a4c7a112c0069f2ed455c7f295df88eef01bc76327173e74b0870d0c",
+        "libm-0.2.16/src/math/cbrt.rs": "1ed98a0943c46ca48e32af54b6baeb80b6e8da5dda550005711fcb26bfcf12c2",
+        "libm-0.2.16/src/math/cbrtf.rs": "7a2b4f190e8618c52cb23b47c040a4b4eacca739c68393cf14fb3f5d73988127",
+        "libm-0.2.16/src/math/ceil.rs": "5a1442f99be963722f222c211f03d2e018832f1ec2e309375cd26ece268d70d2",
+        "libm-0.2.16/src/math/copysign.rs": "40e2d5e1dcfaad56bcfce1d708ed929c3130411faf4f95477a0eedcd4cbb21a8",
+        "libm-0.2.16/src/math/cos.rs": "6e81752899c471bd42d04bdf08e0b22bc10a29f92fa2a343281b995fd342f035",
+        "libm-0.2.16/src/math/cosf.rs": "f48aa954f199fe4f54fd73b4e7886a75f2c08afba7fc31c6a36db5b5f90ced69",
+        "libm-0.2.16/src/math/cosh.rs": "71aed40077a04e659c15c2d2cc6e4faba89a89957e61ecacb7f6f5516bed1753",
+        "libm-0.2.16/src/math/coshf.rs": "fdf0524d221c62ecaa0b4e2fdaa3eb5194c4d84f0c1e3afaa04dc58cd3692834",
+        "libm-0.2.16/src/math/erf.rs": "5a69f440d5ca88a5c4a45119837c45b14238836a036675230e10fec41d293a3b",
+        "libm-0.2.16/src/math/erff.rs": "62c30876390e532d7dc9ac1f1f1c1f654065fba2b2e534e531964d79e1766196",
+        "libm-0.2.16/src/math/exp.rs": "1d486e847e1752fb9ce74a714096a11adcac935dacd4f17625ff63819103a80d",
+        "libm-0.2.16/src/math/exp10.rs": "44a819a0b1c1f61abfb365e0e034756bca2d5a613718c6379693230ac03c8b74",
+        "libm-0.2.16/src/math/exp10f.rs": "812119a900ccc1119c67597867d44d391b71ff3facdfb15776aa7016210ffa82",
+        "libm-0.2.16/src/math/exp2.rs": "e7270f15a682b69a49e042c80503c206d37c6c895f2c63da59a5e2431fa5fedc",
+        "libm-0.2.16/src/math/exp2f.rs": "3b4b5cb2e5674e1ce66a6051710738c1a6edc1d1638686fe9c78f0af4792a634",
+        "libm-0.2.16/src/math/expf.rs": "33b01180ebd01bb2911379476c5411fd05b066f2e17ef66e48c4dde83a7f01c0",
+        "libm-0.2.16/src/math/expm1.rs": "6cc612ca7cf1384dc15f541b301a1f176efbc79536aff1293408b3121cc30ad3",
+        "libm-0.2.16/src/math/expm1f.rs": "2b517f1bcb6279c906aad737f08c83ac30d7871e3beff266ea50a01fa18ccc81",
+        "libm-0.2.16/src/math/expo2.rs": "abd80ec291bebe24d3e0401f5600469f6248052be97f06885c32451fae57d3a8",
+        "libm-0.2.16/src/math/fabs.rs": "17bcbb25ac98e6b2ebc10c5eb39bda7590825b66d484c36f2ef74dce2a8a69dd",
+        "libm-0.2.16/src/math/fdim.rs": "2531e8f3537ecd75c773fa6b036a2f1988c62946acfa597678e65c4679998300",
+        "libm-0.2.16/src/math/floor.rs": "a9824d7c14b0850f088192305364a36f7ae59e06075ae4232e5fbb871bcff3bc",
+        "libm-0.2.16/src/math/fma.rs": "16e72470f5c4407c44183cf06f5868f216c92e0532f3fb387b57dbccf815e2a7",
+        "libm-0.2.16/src/math/fmin_fmax.rs": "ff112ea9cbb537a47721c51f318a874acbfe1e62e3037f709f209d69b5e8e624",
+        "libm-0.2.16/src/math/fminimum_fmaximum.rs": "cb7fa3b3826b95e257e6fd570dd240ee3270dc92e1d0aa04dcb5b44f21e4a23e",
+        "libm-0.2.16/src/math/fminimum_fmaximum_num.rs": "6a25d758b76c5e1b5946945f9b175dbf687d1065186f5deb72d5a9395b0ba65c",
+        "libm-0.2.16/src/math/fmod.rs": "8f4ca9162b8520e9b4b3e7fca6284b4c43573136b36e2edeb06faa45d606bf81",
+        "libm-0.2.16/src/math/frexp.rs": "8cb5eab9fc57ce798b5c4cea5532fccd31b7e875cf188c97623eb143aecf0116",
+        "libm-0.2.16/src/math/frexpf.rs": "1a6160faf0b8537c5fe3f7f63d15c29c6b4818803ef9a656a66e955e6188d262",
+        "libm-0.2.16/src/math/generic/ceil.rs": "66b3def2b00ed9dd6a4f59c73765a050853dfe06c828fdf731987ac99e7c2a88",
+        "libm-0.2.16/src/math/generic/copysign.rs": "c3fac45e8d84876204e5b11363ec77d6fc30010e0c32ab7558f2da538747e9d3",
+        "libm-0.2.16/src/math/generic/fabs.rs": "1381a8807d2c27b76996248bfcce6a2dc8982bdceee26febb15218e571b87908",
+        "libm-0.2.16/src/math/generic/fdim.rs": "5fbb1f6a4022aeb8989967e7957b82ef589875ec09860027c241c4083e2b3525",
+        "libm-0.2.16/src/math/generic/floor.rs": "7d4f15369abefa27645d6deda51d30febbe60ee9dca76e72a9364d574d0711c0",
+        "libm-0.2.16/src/math/generic/fma.rs": "ba44930a56d7c1953ab0c96c7c767911c9dc6967083700c8ef02f43672c8482f",
+        "libm-0.2.16/src/math/generic/fma_wide.rs": "2cf995ff5646c019b46661061c13b42ed3409ff3ce406782c94e2183245bd7d3",
+        "libm-0.2.16/src/math/generic/fmax.rs": "68d923950c3f1eab68baeab24679ab50918b663904839bc349ef666d9467518f",
+        "libm-0.2.16/src/math/generic/fmaximum.rs": "c4b8b7080821a2dc65d0a50baf717ccd9ee20b813ce6d6d3f9f01b5700b674fa",
+        "libm-0.2.16/src/math/generic/fmaximum_num.rs": "2f2d41e1f0160eb73469fa63db27d881b5b8eabc6d62fae7ca1b4b03eb35c5d5",
+        "libm-0.2.16/src/math/generic/fmin.rs": "9bbdece9606e5eac57f3a91a5db7aab814c8e2b28b6df1813723c6b5715efc55",
+        "libm-0.2.16/src/math/generic/fminimum.rs": "a6a33085356610eced23957ca86456b7dbe95e0f9d916298d59ce8bd90076b02",
+        "libm-0.2.16/src/math/generic/fminimum_num.rs": "f5db65654e690adea16da83839d62a707cc814c998fd4a77e63caaaea1472256",
+        "libm-0.2.16/src/math/generic/fmod.rs": "11aae62d08d656d815184eafd78a3b2d5764b6ce308b89e3819cd049bc491fe7",
+        "libm-0.2.16/src/math/generic/mod.rs": "4220c6f8114bfc0a34df44f597d9f7f5c3cc5b64644aebb89689a25c496551e1",
+        "libm-0.2.16/src/math/generic/rint.rs": "deec183fd0da6c0a47ab272a256990cea4f9231db7faff314697886457d6841a",
+        "libm-0.2.16/src/math/generic/round.rs": "eee638a88d4ff90bbcb779f37761a4335a3ef5878ae67391bb653990c9792c5f",
+        "libm-0.2.16/src/math/generic/scalbn.rs": "986e37f19c6cdf76867a365e1bc936050c238accda3fb327abccc488551ebf28",
+        "libm-0.2.16/src/math/generic/sqrt.rs": "c58e48ec07404d618109ad45332efe46c5246f42a2ddefdf5b25ba19e4ca9a0f",
+        "libm-0.2.16/src/math/generic/trunc.rs": "46dd2cc35f6da25099ea2202264d8da3330b5ff1a962a8afb671b54b6ef6002d",
+        "libm-0.2.16/src/math/hypot.rs": "411edd6d95d4d5efc4b0ebfcd97820e337f4c8108dfea53957258cd411c7cd58",
+        "libm-0.2.16/src/math/hypotf.rs": "285a8b7e7d2869d5068857637b934dd237684b6c493a0535064d6537559a87a1",
+        "libm-0.2.16/src/math/ilogb.rs": "1cd9a43b70af7b6a55bccd5e3fc5021569fbc22fe5b8a4ae7fbd5ea62bffab89",
+        "libm-0.2.16/src/math/ilogbf.rs": "1d52c89413383899abb9500d22d6437b15b4764d7ea89ab66fa51063552f1ed7",
+        "libm-0.2.16/src/math/j0.rs": "1cb991f0151a626744ad1832d4aedfaca681bcfcecc797de5ac5e9baf2342006",
+        "libm-0.2.16/src/math/j0f.rs": "de97374b6a0019fd8b3d1f553be1708018546491d3b4a5fc650ee2dcdfc9620e",
+        "libm-0.2.16/src/math/j1.rs": "e0a10746fd11a458d55ee61e758d9f016ff0f2203a07eb9907b5aca709a40469",
+        "libm-0.2.16/src/math/j1f.rs": "27b586c94d510aa653923b6b83cfec174e1f5da326d9120b0a0135b1190e32dc",
+        "libm-0.2.16/src/math/jn.rs": "ba36d25d4bbada83aadb3b2986879b7d88b91adb7b502061d21bf96ff3942194",
+        "libm-0.2.16/src/math/jnf.rs": "b3861e19644ae669fe17db81d91aeaee9c9f9051b59957ab674017684c98fe32",
+        "libm-0.2.16/src/math/k_cos.rs": "d4867527877c846aa8e2a0b43cf06f03e2d94c321a548acaf8d5171c09ff4057",
+        "libm-0.2.16/src/math/k_cosf.rs": "8f76089d014e217b96c9eca520271e64d467dc0d6542bf313dd70eb96c040f7f",
+        "libm-0.2.16/src/math/k_expo2.rs": "0e08b00b774731da6f16fd3ac8282a727a493e47b7a7292172b6136c04bd5dd4",
+        "libm-0.2.16/src/math/k_expo2f.rs": "bdbde40f3a4bd0bee11f7d8bcbba2f5df2dbf6378f0eec7a54de4e03c3d00828",
+        "libm-0.2.16/src/math/k_sin.rs": "dfe6524cb2d530ec51eb1a2ab233aeb65b3f12177c1fb2f50f044ea41170f5d8",
+        "libm-0.2.16/src/math/k_sinf.rs": "cf0e8bbe8d73a6704b7f1f710f5b9d31f190f1c633e894d4f69c4e3bc359eba3",
+        "libm-0.2.16/src/math/k_tan.rs": "dc3f8ece9187bbd65792a7d1068e676092e9c2a0886f28c80579f9bd94d744b7",
+        "libm-0.2.16/src/math/k_tanf.rs": "3381d2d4865bfc98e87aadb96bd8986f7691a389569a58fb1cb8db74fb5d9c20",
+        "libm-0.2.16/src/math/ldexp.rs": "8d1a7e01d36fd1ce08810d90d011c357cf2a71eeba8a57b1ac762322828323a3",
+        "libm-0.2.16/src/math/lgamma.rs": "669b3da03c58ffbe702f18c0fd99dc9e7226049ec84b92c8f1cb92a28c3991b7",
+        "libm-0.2.16/src/math/lgamma_r.rs": "5d56169c077b5b9f88902e2d243a7a4b4d06b89295aa84283d6fa15d9c244032",
+        "libm-0.2.16/src/math/lgammaf.rs": "9f0dcde424de7f678208b0c8a1f63b6574d2abbf9e335c926cd6b027ec9ac3db",
+        "libm-0.2.16/src/math/lgammaf_r.rs": "0bc2b5e0eec7666973adaca536f4d5fe978c8793bb340484fff9e5e7abb425f0",
+        "libm-0.2.16/src/math/log.rs": "df5f4d1325e89621bfcd9cf7788d0d7e20a6ef7f429110fe35b370b3c9362615",
+        "libm-0.2.16/src/math/log10.rs": "4a96dd2b6a2a505497f2bb7ea956a50491d068dab1b6055a573aec1724a52e40",
+        "libm-0.2.16/src/math/log10f.rs": "784a576dd4a4071f4f67c670eb9b221cb03014818c4b2d71afbcbd2211431caf",
+        "libm-0.2.16/src/math/log1p.rs": "bb8ce741e54d8f001d9c12450a14a663bd413014da2ade9ba1f5fbc9ff0c9a88",
+        "libm-0.2.16/src/math/log1pf.rs": "8736222a9b9004b061f1339bb819c63c6b54414d4a01ef79d5f5a5f0a70677b5",
+        "libm-0.2.16/src/math/log2.rs": "1ec0cdd94bf4435ff0402d209089b1bdbcb1ba9a4cd5f77807f9c84cf534f980",
+        "libm-0.2.16/src/math/log2f.rs": "7b3b17ba08df6b5a57dacf6f945bfe1a3c088bee0eb11e201ac5affc7f65925a",
+        "libm-0.2.16/src/math/logf.rs": "c7dfa5e89fcca0411624fdc594f64c62d5dfa3b91f061fcb7ac3aea18414f238",
+        "libm-0.2.16/src/math/mod.rs": "c4ae2e62996ac9d7d6fdc0f7cb57ac0a815e639374b24068516ae3f092b0c59e",
+        "libm-0.2.16/src/math/modf.rs": "4bbf583606b7a2da0ddab13092c23e561daae87c4940cb059beae4e9a365edbd",
+        "libm-0.2.16/src/math/modff.rs": "b5dc061b852f8dc84a45ec4269f596a07606a3eaba86ad254897199c7aebc860",
+        "libm-0.2.16/src/math/nextafter.rs": "7fed9cbc58b41ef391a016ee361d3c3f315cc7e12c2d35d46bbeed832f2519e4",
+        "libm-0.2.16/src/math/nextafterf.rs": "d3b2b7bd9bc2f762408d1231ae3e7a2a059668918cd4bcc519b04b5d36c81e6a",
+        "libm-0.2.16/src/math/pow.rs": "c5566d0f48682d107e8803b0ed204ff3521503348f18a4f26cbe3f47fef15192",
+        "libm-0.2.16/src/math/powf.rs": "819971cb8e927d80113aded3cfe90dcd501c031e0eb1c562b58842fddd1751be",
+        "libm-0.2.16/src/math/rem_pio2.rs": "5a040ab09dc356bca6d57712327151ed43003e2bac156553e3eb87d1cdefd2d1",
+        "libm-0.2.16/src/math/rem_pio2_large.rs": "986b5b9ad2c8fba828aee47bf198eab97fab243359ab03eb09783d98ca5847b5",
+        "libm-0.2.16/src/math/rem_pio2f.rs": "fb34bab63f8d143dfefa4ef2e31e8166bf21f3c67f1519bfc3ca4fb8eb28cafe",
+        "libm-0.2.16/src/math/remainder.rs": "23584372f9438cf02d163d48ce24d64b2d2151f2a2c5e5ef949cd8ad4b8832c2",
+        "libm-0.2.16/src/math/remainderf.rs": "0e3cc8ae3f8143eaab628e1c647267dc8d20c1e70d2a1534a3f109e974cae4e8",
+        "libm-0.2.16/src/math/remquo.rs": "e1739d4247337aab9924e5e5c3488ffff11f39a22699531b20237f22f08c8cfb",
+        "libm-0.2.16/src/math/remquof.rs": "e957bd96aa7c4e8a26b6959743fb22d24f2822715d7bbaf974b67b7a8ae3a197",
+        "libm-0.2.16/src/math/rint.rs": "78e325106c309d416ae2ef0705f778fea3efefead7b0b51a731ed9207b0d35a1",
+        "libm-0.2.16/src/math/round.rs": "dfb932a15ec18de57126740cb3c4f04cd7244078b80491e992385898e8a2c75b",
+        "libm-0.2.16/src/math/roundeven.rs": "918301bc7297371c1d01b5d4e05146cf997ad902fd50f39cae89ac5142d6e9af",
+        "libm-0.2.16/src/math/scalbn.rs": "9b0297d108a8dcc38abf8c10d391d990bca7a503e3cfcb7afd66378541125c05",
+        "libm-0.2.16/src/math/sin.rs": "b48cebd120fc2ac93a6563059cabda28a72c8680304eb8335b92b412235cc232",
+        "libm-0.2.16/src/math/sincos.rs": "a9c414e828c2e78b6bce4d5e4237b1baa93e81d78421aed5cedeab43df64067f",
+        "libm-0.2.16/src/math/sincosf.rs": "c39b6e3b52be83ccf4015ff105dab55e693577ebfc43745881750e73eebc6fa6",
+        "libm-0.2.16/src/math/sinf.rs": "b17db34d5da39a0f336d831abcb700fab69402c915321823870f1845e66c03d2",
+        "libm-0.2.16/src/math/sinh.rs": "95cb1019a76c82312a5a65b3dd5f8a6a8b9b77aed1934c7254eafb94604b94a0",
+        "libm-0.2.16/src/math/sinhf.rs": "bc447f1b913c90de2b7d3ca58c0734992e8d932a4a0f1525288bbe24888fabdd",
+        "libm-0.2.16/src/math/sqrt.rs": "a9a82063eba9cd3467a9b37a1caf13b14106570f03a28e12419a4957f9b705eb",
+        "libm-0.2.16/src/math/support/big/tests.rs": "5875b857ddcc2e32be02c0326789cc8221e4127a77b96c2d42342f8650b4d509",
+        "libm-0.2.16/src/math/support/big.rs": "b10d80297257afc1fe2554d52197d017e4f9c32cad32c40323ed6d1a1c649530",
+        "libm-0.2.16/src/math/support/env.rs": "e8bd76e77f562926bf4570352bb7ab91038be7703984619a2472683feafb268e",
+        "libm-0.2.16/src/math/support/feature_detect.rs": "a1d08bbc2db9fcfe7e9ad94f11ccebf79841826f9315b0ecb43d851c658cbf98",
+        "libm-0.2.16/src/math/support/float_traits.rs": "510b4eb2f3c226eb78e332fe25060fc1d535da4c9f58ca0e047eff51c41da29b",
+        "libm-0.2.16/src/math/support/hex_float.rs": "d9c9503a61d72123ea41c418672fa906103d24d93f278f6076fb99ea000a22b1",
+        "libm-0.2.16/src/math/support/int_traits/narrowing_div.rs": "5f5378e33f1da56090d0dce2514926ab465dce65b89ad4ee2f7da07a92f8d5de",
+        "libm-0.2.16/src/math/support/int_traits.rs": "a48183da0f12c68a44ad664fb52fb0ddaa0e1b2437cb171d05eafd9e700355eb",
+        "libm-0.2.16/src/math/support/macros.rs": "cf162c2cb6c2db5b0959e800116290f5c8b60c6bbccfc64651444713fa2d16c1",
+        "libm-0.2.16/src/math/support/mod.rs": "cb55f78a408dc5b736435354a8de620e0a2d02820e931b9845a28fce043a5f9e",
+        "libm-0.2.16/src/math/support/modular.rs": "cf6a562d6bdf16336f31d41c59e828ad47f85388849d20d6d3b59fc1c3e388a2",
+        "libm-0.2.16/src/math/tan.rs": "2ea87ca18526753db6d149635ed6c895c8fbafd1e0fa7a9c04f7dc44b4eae986",
+        "libm-0.2.16/src/math/tanf.rs": "f7140c4193a57709acde5d290c8f83435562da42924c54cab0aa3a4f26095190",
+        "libm-0.2.16/src/math/tanh.rs": "c81ff9f4aa902d8fc63922f17d7d9e395983a6582c4587cbbeb194b613dd90c6",
+        "libm-0.2.16/src/math/tanhf.rs": "41f6703a0ad8f032b0468fbd70c9ebc470fc6a6b3fd190522cca4cb34eeb4d9a",
+        "libm-0.2.16/src/math/tgamma.rs": "c6c1ab4951d58dc4999f4302274ef155e34b419b09b9d406fda0c299fd0f07fb",
+        "libm-0.2.16/src/math/tgammaf.rs": "9bca4ea70be9fa1d8088e7dee325c15ca611c48f33fe0942b01b64a26aee5763",
+        "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
+      }
+    },
+    "executable_sha256": {
+      "cpp": "8172a5cc02c4c7e86e57964b3868b0044d1e5a9d6b6bbd0a0dc3a114e6f9d1db",
+      "rust": "0b962b2d69b82b8c7d96405daff0a7839672d95a8e3b69d201d64ff7a5c12319",
+      "wasm": "b39692f728a114071b6a2a67e7ba754b8bb9475f52be1b8793b7438b0df04034"
+    },
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+    "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+    "cxx": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+    "cxx_command": [
+      "c++",
+      "-std=c++17",
+      "-O3",
+      "-DNDEBUG",
+      "-DMESHOPTIMIZER_NO_SIMD",
+      "-fno-fast-math",
+      "-ffp-contract=off",
+      "-I",
+      "$MESHOPT_REFERENCE/src",
+      "./parity/reference.cpp",
+      "$MESHOPT_REFERENCE/src/vcacheoptimizer.cpp",
+      "$MESHOPT_REFERENCE/src/overdrawoptimizer.cpp",
+      "$MESHOPT_REFERENCE/src/allocator.cpp",
+      "-o",
+      "$CARGO_TARGET_DIR/qualification-build/reference"
+    ],
+    "rust_profile": "release; default generic target; no fast math or contraction; Rust flags and compiler wrappers empty",
+    "math": "libm 0.2.16 sqrtf in std and no_std; exact f32 bits",
+    "fp_environment": "C++ driver checks FE_TONEAREST and gradual underflow; no x87 target",
+    "hardware": {
+      "system": "Linux",
+      "node": "redacted",
+      "release": "7.0.0-28-generic",
+      "version": "#28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
+    "logical_cpus": 32,
+    "node": "v22.22.0",
+    "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
+    "upstream_tag": "v1.3",
+    "upstream_src_identical_to_tag": true,
+    "rust_revision": "uncommitted working sources; identity is the SHA-256 manifest"
+  },
+  "cases": [
+    {
+      "id": "upstream-emptyMesh",
+      "family": "vertex_cache",
+      "vertices": 0,
+      "indices": 0,
+      "threshold_bits": 1065353216,
+      "input": {
+        "member": "vertex_cache/upstream-emptyMesh.input",
+        "bytes": 28,
+        "sha256": "dab39bedf15f92c653f4108911eb96eb26e727094038794cac4df33945b13441"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/upstream-emptyMesh.cpp",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "rust": {
+          "member": "vertex_cache/upstream-emptyMesh.rust",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "wasm": {
+          "member": "vertex_cache/upstream-emptyMesh.wasm",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "upstream-emptyMesh",
+      "family": "overdraw",
+      "vertices": 0,
+      "indices": 0,
+      "threshold_bits": 1065353216,
+      "input": {
+        "member": "overdraw/upstream-emptyMesh.input",
+        "bytes": 28,
+        "sha256": "2f89b4e0825fe9ee93fdc9ca99468d0ca0b11f319bddff8fc95faff94f553b10"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/upstream-emptyMesh.cpp",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "rust": {
+          "member": "overdraw/upstream-emptyMesh.rust",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "wasm": {
+          "member": "overdraw/upstream-emptyMesh.wasm",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "empty-with-unused-vertices",
+      "family": "vertex_cache",
+      "vertices": 1,
+      "indices": 0,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/empty-with-unused-vertices.input",
+        "bytes": 40,
+        "sha256": "e00a42796548a17d83ea6885d65aedebcdeecfa4fa227fb78075394fa21cc0ea"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/empty-with-unused-vertices.cpp",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "rust": {
+          "member": "vertex_cache/empty-with-unused-vertices.rust",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "wasm": {
+          "member": "vertex_cache/empty-with-unused-vertices.wasm",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "empty-with-unused-vertices",
+      "family": "overdraw",
+      "vertices": 1,
+      "indices": 0,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/empty-with-unused-vertices.input",
+        "bytes": 40,
+        "sha256": "1876bd2f5d767676c01b78e01146b999c275f562e4b52c335140141a24a4db0c"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/empty-with-unused-vertices.cpp",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "rust": {
+          "member": "overdraw/empty-with-unused-vertices.rust",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        },
+        "wasm": {
+          "member": "overdraw/empty-with-unused-vertices.wasm",
+          "bytes": 16,
+          "sha256": "7274983b38f6887f5aa954485b15b824c25567c9a8848dd5ec3fb0952506e1fc"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "single",
+      "family": "vertex_cache",
+      "vertices": 3,
+      "indices": 3,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/single.input",
+        "bytes": 76,
+        "sha256": "c854f6ccc59d94bf1cb81a965f3771b1316df1ba669f8556002d10bccb5f5ff6"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/single.cpp",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "rust": {
+          "member": "vertex_cache/single.rust",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "wasm": {
+          "member": "vertex_cache/single.wasm",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "single",
+      "family": "overdraw",
+      "vertices": 3,
+      "indices": 3,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/single.input",
+        "bytes": 76,
+        "sha256": "2681a7d05168ca3ec574211d19b878914b2ecbda019fa1201f888a076808abf0"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/single.cpp",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "rust": {
+          "member": "overdraw/single.rust",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "wasm": {
+          "member": "overdraw/single.wasm",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "degenerate",
+      "family": "vertex_cache",
+      "vertices": 3,
+      "indices": 9,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/degenerate.input",
+        "bytes": 100,
+        "sha256": "8d8276d30754560b77bcd0f8b845b0788c3ab46944d3faaceb965a4af2aadc12"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/degenerate.cpp",
+          "bytes": 52,
+          "sha256": "d7ddd8689e7608b8b539e90ba44867d8bb5c4eb16891b0676291c26c493abae9"
+        },
+        "rust": {
+          "member": "vertex_cache/degenerate.rust",
+          "bytes": 52,
+          "sha256": "d7ddd8689e7608b8b539e90ba44867d8bb5c4eb16891b0676291c26c493abae9"
+        },
+        "wasm": {
+          "member": "vertex_cache/degenerate.wasm",
+          "bytes": 52,
+          "sha256": "d7ddd8689e7608b8b539e90ba44867d8bb5c4eb16891b0676291c26c493abae9"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "degenerate",
+      "family": "overdraw",
+      "vertices": 3,
+      "indices": 9,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/degenerate.input",
+        "bytes": 100,
+        "sha256": "495275dfa921d7008bdcb2babbc613ef107a605c514f31d46d0946a0ec4f78e2"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/degenerate.cpp",
+          "bytes": 52,
+          "sha256": "d7ddd8689e7608b8b539e90ba44867d8bb5c4eb16891b0676291c26c493abae9"
+        },
+        "rust": {
+          "member": "overdraw/degenerate.rust",
+          "bytes": 52,
+          "sha256": "d7ddd8689e7608b8b539e90ba44867d8bb5c4eb16891b0676291c26c493abae9"
+        },
+        "wasm": {
+          "member": "overdraw/degenerate.wasm",
+          "bytes": 52,
+          "sha256": "d7ddd8689e7608b8b539e90ba44867d8bb5c4eb16891b0676291c26c493abae9"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "js-encoder-reorderMesh-topology",
+      "family": "vertex_cache",
+      "vertices": 6,
+      "indices": 12,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/js-encoder-reorderMesh-topology.input",
+        "bytes": 148,
+        "sha256": "41f3d95d973065448ec595a5438d1801ead1d0161372aaed94191aa531f383e6"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/js-encoder-reorderMesh-topology.cpp",
+          "bytes": 64,
+          "sha256": "93f21e4709cdedbebeaf660ef0352e35526c8d04063918f3c9ddf8ad87e90946"
+        },
+        "rust": {
+          "member": "vertex_cache/js-encoder-reorderMesh-topology.rust",
+          "bytes": 64,
+          "sha256": "93f21e4709cdedbebeaf660ef0352e35526c8d04063918f3c9ddf8ad87e90946"
+        },
+        "wasm": {
+          "member": "vertex_cache/js-encoder-reorderMesh-topology.wasm",
+          "bytes": 64,
+          "sha256": "93f21e4709cdedbebeaf660ef0352e35526c8d04063918f3c9ddf8ad87e90946"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "js-encoder-reorderMesh-topology",
+      "family": "overdraw",
+      "vertices": 6,
+      "indices": 12,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/js-encoder-reorderMesh-topology.input",
+        "bytes": 148,
+        "sha256": "f3cd89b09921a6d5de91d16e5fbca64e77707f85b55cea64933587060d18e05d"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/js-encoder-reorderMesh-topology.cpp",
+          "bytes": 64,
+          "sha256": "93f21e4709cdedbebeaf660ef0352e35526c8d04063918f3c9ddf8ad87e90946"
+        },
+        "rust": {
+          "member": "overdraw/js-encoder-reorderMesh-topology.rust",
+          "bytes": 64,
+          "sha256": "93f21e4709cdedbebeaf660ef0352e35526c8d04063918f3c9ddf8ad87e90946"
+        },
+        "wasm": {
+          "member": "overdraw/js-encoder-reorderMesh-topology.wasm",
+          "bytes": 64,
+          "sha256": "93f21e4709cdedbebeaf660ef0352e35526c8d04063918f3c9ddf8ad87e90946"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold--1.0",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 3212836864,
+      "input": {
+        "member": "vertex_cache/grid-threshold--1.0.input",
+        "bytes": 2536,
+        "sha256": "1814a1444419c2a5aa649da720faca72ce9f1ae342739d1aefe3d5d1e5b84671"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold--1.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold--1.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold--1.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold--1.0",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 3212836864,
+      "input": {
+        "member": "overdraw/grid-threshold--1.0.input",
+        "bytes": 2536,
+        "sha256": "d81c0b4663351f3c995acb103829089656ca374a97affb9b8dd2283ee74fd3ed"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold--1.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold--1.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold--1.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-0.0",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 0,
+      "input": {
+        "member": "vertex_cache/grid-threshold-0.0.input",
+        "bytes": 2536,
+        "sha256": "4d2b9f63c3c36fea0d70b7c2799deb004f32f75879e59c0edabea40905577bef"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-0.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-0.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-0.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-0.0",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 0,
+      "input": {
+        "member": "overdraw/grid-threshold-0.0.input",
+        "bytes": 2536,
+        "sha256": "9b039ecfe53f0a2f5802b6a170bcba64d4560ab82b8a16e9654fb130cce7e3cb"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-0.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-0.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-0.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-0.5",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1056964608,
+      "input": {
+        "member": "vertex_cache/grid-threshold-0.5.input",
+        "bytes": 2536,
+        "sha256": "e93ce6c6084cacbc997410162c225359b6589158cb1707287061619d3a66f431"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-0.5.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-0.5.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-0.5.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-0.5",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1056964608,
+      "input": {
+        "member": "overdraw/grid-threshold-0.5.input",
+        "bytes": 2536,
+        "sha256": "20612648fa828f2bf4b5bd36cdc3d3fe0fb3a3419f80cb312f9a180c65581007"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-0.5.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-0.5.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-0.5.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.0",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1065353216,
+      "input": {
+        "member": "vertex_cache/grid-threshold-1.0.input",
+        "bytes": 2536,
+        "sha256": "1dc2372c39942748884ea1f398e4ba59a28e3c20a4b1939fe9a4e090c1ff9f32"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-1.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-1.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-1.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.0",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1065353216,
+      "input": {
+        "member": "overdraw/grid-threshold-1.0.input",
+        "bytes": 2536,
+        "sha256": "5ab53d42dfe8f304850f2ae846d1f0b517c67acb54e8642f9199e276efa4d337"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-1.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-1.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-1.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.01",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1065437102,
+      "input": {
+        "member": "vertex_cache/grid-threshold-1.01.input",
+        "bytes": 2536,
+        "sha256": "dc74059d7118705645575f6910855596c3bb8363a402378736af01285237959a"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-1.01.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-1.01.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-1.01.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.01",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1065437102,
+      "input": {
+        "member": "overdraw/grid-threshold-1.01.input",
+        "bytes": 2536,
+        "sha256": "9ed7d038ee6935b4c5821970a300508acb45f15702cd818621ddea0ca7cc2e3f"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-1.01.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-1.01.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-1.01.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.05",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/grid-threshold-1.05.input",
+        "bytes": 2536,
+        "sha256": "7e93117316716bafc8983bb02dc92d1f9c7b6d037fdd9cf869c9fbfc355fa425"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-1.05.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-1.05.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-1.05.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.05",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/grid-threshold-1.05.input",
+        "bytes": 2536,
+        "sha256": "63e0bd0ecb82091a2aee4c119b4eecad982070cb82b682b53514e1be16028c6b"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-1.05.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-1.05.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-1.05.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.1",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1066192077,
+      "input": {
+        "member": "vertex_cache/grid-threshold-1.1.input",
+        "bytes": 2536,
+        "sha256": "5d5d9d35b2a804cae81afcef50d2b88478f3e1c181c2af791bd059be1ece1392"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-1.1.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-1.1.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-1.1.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-1.1",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1066192077,
+      "input": {
+        "member": "overdraw/grid-threshold-1.1.input",
+        "bytes": 2536,
+        "sha256": "29789e339800d566c84aa8287e4a9e0e6ff4b8350aaa4edcdc3f65c7cd35bf2d"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-1.1.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-1.1.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-1.1.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-2.0",
+      "family": "vertex_cache",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1073741824,
+      "input": {
+        "member": "vertex_cache/grid-threshold-2.0.input",
+        "bytes": 2536,
+        "sha256": "1101855bc935c65aa7e3154f0388235826fa7e28c709d392eeb6bb87f902a56b"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/grid-threshold-2.0.cpp",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "rust": {
+          "member": "vertex_cache/grid-threshold-2.0.rust",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        },
+        "wasm": {
+          "member": "vertex_cache/grid-threshold-2.0.wasm",
+          "bytes": 1552,
+          "sha256": "5f5b6267e3d2c6f0290bf3daa1ac1ce6d94c096dfa0863d37886d19778070711"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "grid-threshold-2.0",
+      "family": "overdraw",
+      "vertices": 81,
+      "indices": 384,
+      "threshold_bits": 1073741824,
+      "input": {
+        "member": "overdraw/grid-threshold-2.0.input",
+        "bytes": 2536,
+        "sha256": "bdf2b3c846720a5fab215bece856a23274dd81adc5f63cd280f0b5d232ceb7e6"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/grid-threshold-2.0.cpp",
+          "bytes": 1552,
+          "sha256": "c475f03c85e7e8661d0548818b57b42b5366d29d32b6271d50ae56b1c5ea0d66"
+        },
+        "rust": {
+          "member": "overdraw/grid-threshold-2.0.rust",
+          "bytes": 1552,
+          "sha256": "c475f03c85e7e8661d0548818b57b42b5366d29d32b6271d50ae56b1c5ea0d66"
+        },
+        "wasm": {
+          "member": "overdraw/grid-threshold-2.0.wasm",
+          "bytes": 1552,
+          "sha256": "c475f03c85e7e8661d0548818b57b42b5366d29d32b6271d50ae56b1c5ea0d66"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "disconnected-with-unused-vertex",
+      "family": "vertex_cache",
+      "vertices": 31,
+      "indices": 30,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/disconnected-with-unused-vertex.input",
+        "bytes": 520,
+        "sha256": "a72e14b049cc0a9f285688ec10fa443ace6d55975c295e665acac2ad77547eda"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/disconnected-with-unused-vertex.cpp",
+          "bytes": 136,
+          "sha256": "3e16082382ed4a3a241338b3dece13a7dc0dd1d965062932e3f7ca2b9a8c1c41"
+        },
+        "rust": {
+          "member": "vertex_cache/disconnected-with-unused-vertex.rust",
+          "bytes": 136,
+          "sha256": "3e16082382ed4a3a241338b3dece13a7dc0dd1d965062932e3f7ca2b9a8c1c41"
+        },
+        "wasm": {
+          "member": "vertex_cache/disconnected-with-unused-vertex.wasm",
+          "bytes": 136,
+          "sha256": "3e16082382ed4a3a241338b3dece13a7dc0dd1d965062932e3f7ca2b9a8c1c41"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "disconnected-with-unused-vertex",
+      "family": "overdraw",
+      "vertices": 31,
+      "indices": 30,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/disconnected-with-unused-vertex.input",
+        "bytes": 520,
+        "sha256": "346e54074cf78258ea24db4b43f8684ab6b5633e15f765e03654c4a9436d8a0f"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/disconnected-with-unused-vertex.cpp",
+          "bytes": 136,
+          "sha256": "a4c89a0693257ba2509eaa3aa6db916f18a5fa7fd737143fadc15f2418ce0331"
+        },
+        "rust": {
+          "member": "overdraw/disconnected-with-unused-vertex.rust",
+          "bytes": 136,
+          "sha256": "a4c89a0693257ba2509eaa3aa6db916f18a5fa7fd737143fadc15f2418ce0331"
+        },
+        "wasm": {
+          "member": "overdraw/disconnected-with-unused-vertex.wasm",
+          "bytes": 136,
+          "sha256": "a4c89a0693257ba2509eaa3aa6db916f18a5fa7fd737143fadc15f2418ce0331"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "duplicate-triangles",
+      "family": "vertex_cache",
+      "vertices": 3,
+      "indices": 300,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/duplicate-triangles.input",
+        "bytes": 1264,
+        "sha256": "f9a247fea1314c36cbfe2d2006ba432f073471b07e44c2af2242007974500dde"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/duplicate-triangles.cpp",
+          "bytes": 1216,
+          "sha256": "b4d23cf9bb9febcd0b496d737b3894ee7d609015cb907d8769a81544a4c4d73a"
+        },
+        "rust": {
+          "member": "vertex_cache/duplicate-triangles.rust",
+          "bytes": 1216,
+          "sha256": "b4d23cf9bb9febcd0b496d737b3894ee7d609015cb907d8769a81544a4c4d73a"
+        },
+        "wasm": {
+          "member": "vertex_cache/duplicate-triangles.wasm",
+          "bytes": 1216,
+          "sha256": "b4d23cf9bb9febcd0b496d737b3894ee7d609015cb907d8769a81544a4c4d73a"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "duplicate-triangles",
+      "family": "overdraw",
+      "vertices": 3,
+      "indices": 300,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/duplicate-triangles.input",
+        "bytes": 1264,
+        "sha256": "3cd706a3b6f372ec012f7d8e7249ad800429628758d82384422e51a4d05b355d"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/duplicate-triangles.cpp",
+          "bytes": 1216,
+          "sha256": "b4d23cf9bb9febcd0b496d737b3894ee7d609015cb907d8769a81544a4c4d73a"
+        },
+        "rust": {
+          "member": "overdraw/duplicate-triangles.rust",
+          "bytes": 1216,
+          "sha256": "b4d23cf9bb9febcd0b496d737b3894ee7d609015cb907d8769a81544a4c4d73a"
+        },
+        "wasm": {
+          "member": "overdraw/duplicate-triangles.wasm",
+          "bytes": 1216,
+          "sha256": "b4d23cf9bb9febcd0b496d737b3894ee7d609015cb907d8769a81544a4c4d73a"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "signed-zero-and-subnormal",
+      "family": "vertex_cache",
+      "vertices": 3,
+      "indices": 3,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/signed-zero-and-subnormal.input",
+        "bytes": 76,
+        "sha256": "bebe2e147dd9865edecef241eca457081ddb7ffb76ad76482c280cecfffe1e41"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/signed-zero-and-subnormal.cpp",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "rust": {
+          "member": "vertex_cache/signed-zero-and-subnormal.rust",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "wasm": {
+          "member": "vertex_cache/signed-zero-and-subnormal.wasm",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "signed-zero-and-subnormal",
+      "family": "overdraw",
+      "vertices": 3,
+      "indices": 3,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/signed-zero-and-subnormal.input",
+        "bytes": 76,
+        "sha256": "47c0ca50ab12e2785d0536e2b2d6fe41ce1dd9bd41be08636dc9f1d6f4ac8626"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/signed-zero-and-subnormal.cpp",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "rust": {
+          "member": "overdraw/signed-zero-and-subnormal.rust",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        },
+        "wasm": {
+          "member": "overdraw/signed-zero-and-subnormal.wasm",
+          "bytes": 28,
+          "sha256": "0ca3e6a7032cb1275cbd85b1311751f18ffad48e079370e3655e38bdc6385570"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "million-indices-grid",
+      "family": "vertex_cache",
+      "vertices": 168100,
+      "indices": 1000002,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "vertex_cache/million-indices-grid.input",
+        "bytes": 6017236,
+        "sha256": "2da11b1077aed76c3984fb4512678640c5d9af3a288a713463e2be1ad38925df"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "vertex_cache/million-indices-grid.cpp",
+          "bytes": 4000024,
+          "sha256": "e167597b634f7341d4b14e621262d4d8b74dd64787782915f84651c56875f6e5"
+        },
+        "rust": {
+          "member": "vertex_cache/million-indices-grid.rust",
+          "bytes": 4000024,
+          "sha256": "e167597b634f7341d4b14e621262d4d8b74dd64787782915f84651c56875f6e5"
+        },
+        "wasm": {
+          "member": "vertex_cache/million-indices-grid.wasm",
+          "bytes": 4000024,
+          "sha256": "e167597b634f7341d4b14e621262d4d8b74dd64787782915f84651c56875f6e5"
+        }
+      },
+      "match": true
+    },
+    {
+      "id": "million-indices-grid",
+      "family": "overdraw",
+      "vertices": 168100,
+      "indices": 1000002,
+      "threshold_bits": 1065772646,
+      "input": {
+        "member": "overdraw/million-indices-grid.input",
+        "bytes": 6017236,
+        "sha256": "b448ea8e2d722d8cd63c5142e888623c96b262ec419f140b2baf41b31385e7f0"
+      },
+      "outputs": {
+        "cpp": {
+          "member": "overdraw/million-indices-grid.cpp",
+          "bytes": 4000024,
+          "sha256": "92354068564cdd3236b7a278d771f1ef16fcddfe5e59439a28ef3b6bb4b1ed65"
+        },
+        "rust": {
+          "member": "overdraw/million-indices-grid.rust",
+          "bytes": 4000024,
+          "sha256": "92354068564cdd3236b7a278d771f1ef16fcddfe5e59439a28ef3b6bb4b1ed65"
+        },
+        "wasm": {
+          "member": "overdraw/million-indices-grid.wasm",
+          "bytes": 4000024,
+          "sha256": "92354068564cdd3236b7a278d771f1ef16fcddfe5e59439a28ef3b6bb4b1ed65"
+        }
+      },
+      "match": true
+    }
+  ],
+  "mismatches": 0,
+  "counts": {
+    "vertex_cache": 17,
+    "overdraw": 17
+  },
+  "required_cases_per_family": null,
+  "wasm_reference": "qualified native Rust on identical messages",
+  "passed": true,
+  "math_probe": {
+    "count": 65543,
+    "match": true,
+    "input": {
+      "member": "math.input",
+      "bytes": 262200,
+      "sha256": "aff9145ad5b54ba02024ea12d51339060409b84e1cedaba36725f0ba170f863a"
+    },
+    "outputs": {
+      "cpp": {
+        "member": "math.cpp",
+        "bytes": 262188,
+        "sha256": "d6bd51cfacf3261f0826c0620fbdb6bda0512b65ab5fe06a5dce4df3a51c2cc1"
+      },
+      "rust": {
+        "member": "math.rust",
+        "bytes": 262188,
+        "sha256": "d6bd51cfacf3261f0826c0620fbdb6bda0512b65ab5fe06a5dce4df3a51c2cc1"
+      },
+      "wasm": {
+        "member": "math.wasm",
+        "bytes": 262188,
+        "sha256": "d6bd51cfacf3261f0826c0620fbdb6bda0512b65ab5fe06a5dce4df3a51c2cc1"
+      }
+    }
+  },
+  "protocol_negative_controls": {
+    "cases": [
+      "truncated-header",
+      "wrong-version",
+      "truncated-body",
+      "extra-byte",
+      "invalid-topology",
+      "invalid-index",
+      "nonfinite-threshold",
+      "nonfinite-position",
+      "overflow-count"
+    ],
+    "backends": [
+      "rust",
+      "cpp"
+    ],
+    "passed": true
+  },
+  "finished_unix": 1790933768.119668,
+  "artifacts": {
+    "run-buffers.zip": "eca5f83001a65f9c17ce4d13ab6fa1e8dd7ff25650e8ab7e422944280427830f"
+  }
+}

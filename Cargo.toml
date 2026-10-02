@@ -1,0 +1,24 @@
+[package]
+name = "meshoptimizer-rs"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Independent safe Rust port of meshoptimizer 1.3: vertex-cache and overdraw optimization"
+authors = ["meshoptimizer-rs contributors"]
+license = "MIT"
+repository = "https://github.com/Tavrin/meshoptimizer-rs"
+readme = "README.md"
+keywords = ["mesh", "optimization", "graphics", "geometry", "no-std"]
+categories = ["graphics", "no-std"]
+include = ["/src/**/*.rs", "/tests/api.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
+
+[features]
+default = ["std"]
+std = []
+experimental = []
+
+[dependencies]
+libm = { version = "=0.2.16", default-features = false }
+
+[package.metadata.docs.rs]
+all-features = true

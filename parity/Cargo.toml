@@ -1,0 +1,17 @@
+[package]
+name = "meshoptimizer-parity"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+
+[dependencies]
+meshoptimizer-rs = { path = "..", default-features = false }
+libm = { version = "=0.2.16", default-features = false }
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[[bin]]
+name = "meshopt-driver"
+path = "src/main.rs"

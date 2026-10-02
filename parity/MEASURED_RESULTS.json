@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "scope": "lane 1 foundation; not complete release 0.1",
+  "passed": true,
+  "counts": {
+    "run": {
+      "vertex_cache": 17,
+      "overdraw": 17
+    },
+    "sweep": {
+      "vertex_cache": 2000,
+      "overdraw": 2000
+    }
+  },
+  "mismatches": 0,
+  "record_sha256": {
+    "run.json": "1b5a6511277838a86b209a902a8d4de2103536184051675cfa0da32f0ed9ff18",
+    "sweep.json": "864c672a6f5d390ebed64a505f3ff8ec5948328f4e4fbba411333db927ea5d3c",
+    "benchmark.json": "9d5ca8666ae1f3e1d5fcf707bcc4d13c9698cde099724e6405710e9256ea2caf",
+    "js.json": "0991aa6e93f71a0cc2aea7d057f7990aff1951d526c1e6f8556ec081f345dee6",
+    "fuzz.json": "e94cac0caa397659483ef57639543aea09a3b569f9d69039d9025be62fc96374",
+    "gates.json": "0669656098ee19ef390de859fe3a89fa86efdac4630f55f6b95eb5d5f1f2fe04"
+  },
+  "targets": [
+    "linux-x86_64",
+    "wasm32 (native Rust identity)"
+  ],
+  "benchmark": {
+    "vertex_cache": {
+      "stats": {
+        "rust": {
+          "median_seconds": 0.10757212599999999,
+          "min_seconds": 0.09494966,
+          "max_seconds": 0.114363461,
+          "stdev_seconds": 0.005438951139575439,
+          "raw_seconds": [
+            0.114363461,
+            0.111461451,
+            0.107144247,
+            0.107000005,
+            0.108000005,
+            0.107000005,
+            0.108000005,
+            0.110000005,
+            0.09494966,
+            0.101000005
+          ]
+        },
+        "cpp": {
+          "median_seconds": 0.071254931,
+          "min_seconds": 0.066085079,
+          "max_seconds": 0.074000003,
+          "stdev_seconds": 0.002593606601346602,
+          "raw_seconds": [
+            0.069000003,
+            0.07294536,
+            0.074000003,
+            0.066085079,
+            0.067660454,
+            0.070509859,
+            0.072000003,
+            0.069259013,
+            0.072151099,
+            0.073000004
+          ]
+        }
+      },
+      "rust_cpp_ratio": 1.509679744128866,
+      "input": {
+        "member": "vertex_cache.input",
+        "bytes": 18032200,
+        "sha256": "20b17e2488a1eef9e361004e29fde18ff142303d2b60d907b8f62b7418ee7dd9"
+      },
+      "outputs": [
+        {
+          "member": "vertex_cache-0-rust.output",
+          "bytes": 12000024,
+          "sha256": "d0803ab5cf61b122c25a929899d12f733b52dcedd766721820bfb3859c2dcb63"
+        },
+        {
+          "member": "vertex_cache-0-cpp.output",
+          "bytes": 12000024,
+          "sha256": "cf5f94e35f46e46eaa1d956daad8fedec4ecf6d14d55107e81fd9ea47ebd479d"
+        },
+        {
+          "member": "vertex_cache-1-cpp.output",
+          "bytes": 12000024,
+          "sha256": "828abc6dedfabb13d69ba235fa70221428e1c8a688d6c5d9412d9c7450e7a8e8"
+        },
+        {
+          "member": "vertex_cache-1-rust.output",
+          "bytes": 12000024,
+          "sha256": "dddfb105f71fe29ef4c23a796a61ebb033339af015fadc9f4b29d65866fca322"
+        },
+        {
+          "member": "vertex_cache-2-rust.output",
+          "bytes": 12000024,
+          "sha256": "62b3e483ba6b9dd5815d7bd070e6a3947457a6281486b30a37012a3ab5cbaa8e"
+        },
+        {
+          "member": "vertex_cache-2-cpp.output",
+          "bytes": 12000024,
+          "sha256": "bce412f92d841b1552b55e7474694e0b8e0d1b71d34279f8283d79b104b38144"
+        },
+        {
+          "member": "vertex_cache-3-cpp.output",
+          "bytes": 12000024,
+          "sha256": "114a2c9124085ea5bed238cbe15926c002763aba71b2d257beded7e82bd0bdd3"
+        },
+        {
+          "member": "vertex_cache-3-rust.output",
+          "bytes": 12000024,
+          "sha256": "c15df97bce95872f48c7d1808c3023fdfeb895e7ca7a1637905b2b221e4c6eab"
+        },
+        {
+          "member": "vertex_cache-4-rust.output",
+          "bytes": 12000024,
+          "sha256": "de080ce0a77d5ef8bd28851bff7e2e5d05d94ef21c4b17a9b5604fb6201372a0"
+        },
+        {
+          "member": "vertex_cache-4-cpp.output",
+          "bytes": 12000024,
+          "sha256": "8f67ff54ea4d1b402a54b9a11ae5f911f1a450bb72241d667a91af9d75a58a87"
+        },
+        {
+          "member": "vertex_cache-5-cpp.output",
+          "bytes": 12000024,
+          "sha256": "4e086d0cd59fbbc1851733e5cb5e3ac4518d52c50a8009589ea596cf9c7e747e"
+        },
+        {
+          "member": "vertex_cache-5-rust.output",
+          "bytes": 12000024,
+          "sha256": "c15df97bce95872f48c7d1808c3023fdfeb895e7ca7a1637905b2b221e4c6eab"
+        },
+        {
+          "member": "vertex_cache-6-rust.output",
+          "bytes": 12000024,
+          "sha256": "de080ce0a77d5ef8bd28851bff7e2e5d05d94ef21c4b17a9b5604fb6201372a0"
+        },
+        {
+          "member": "vertex_cache-6-cpp.output",
+          "bytes": 12000024,
+          "sha256": "309ab09adcb146fb23c1049d153701d76ada10e780ed4c7cc1565e4e0e6caa80"
+        },
+        {
+          "member": "vertex_cache-7-cpp.output",
+          "bytes": 12000024,
+          "sha256": "367050828526ae7c28f304446dc1273799b1a9dc2afbe640db4e8eab3cfcede0"
+        },
+        {
+          "member": "vertex_cache-7-rust.output",
+          "bytes": 12000024,
+          "sha256": "03ca92a32d51445d9a4f29a9bb5fd2b19e02a7d5172e482fd854c355419bcb52"
+        },
+        {
+          "member": "vertex_cache-8-rust.output",
+          "bytes": 12000024,
+          "sha256": "573b8e4052362275e50751d0366c0ed8f99245fab1e4e4db8d74dfad3cc83c09"
+        },
+        {
+          "member": "vertex_cache-8-cpp.output",
+          "bytes": 12000024,
+          "sha256": "fc85e0a1557baadd51adf28e81acfb9395ede3c7c79875d31555b689c55a5244"
+        },
+        {
+          "member": "vertex_cache-9-cpp.output",
+          "bytes": 12000024,
+          "sha256": "1eb440887b5ca935fbeddf480e500a88aa3b4b680d5cb1ef39a07286ef68c354"
+        },
+        {
+          "member": "vertex_cache-9-rust.output",
+          "bytes": 12000024,
+          "sha256": "bc472d438cab0074cb248e063bd001893b0148a89b1d52ced7ee125fd099d00b"
+        }
+      ]
+    },
+    "overdraw": {
+      "stats": {
+        "rust": {
+          "median_seconds": 0.0477577255,
+          "min_seconds": 0.045790265,
+          "max_seconds": 0.051467325,
+          "stdev_seconds": 0.00203817097063477,
+          "raw_seconds": [
+            0.051467325,
+            0.047761112,
+            0.045790265,
+            0.047000003,
+            0.050113855,
+            0.046596007,
+            0.049000002,
+            0.051000003,
+            0.047754339,
+            0.046104144
+          ]
+        },
+        "cpp": {
+          "median_seconds": 0.018203647000000003,
+          "min_seconds": 0.016946032,
+          "max_seconds": 0.022733248,
+          "stdev_seconds": 0.002223612386132182,
+          "raw_seconds": [
+            0.020467919,
+            0.021199641,
+            0.017946598,
+            0.016946032,
+            0.018407293,
+            0.022454526,
+            0.017000001,
+            0.022733248,
+            0.018000001,
+            0.017674488
+          ]
+        }
+      },
+      "rust_cpp_ratio": 2.623525137572707,
+      "input": {
+        "member": "overdraw.input",
+        "bytes": 18032200,
+        "sha256": "c72cc07e993ccd1c5a9da128f6454e159d7606d8980cb5dc8fd6b49f5bda004a"
+      },
+      "outputs": [
+        {
+          "member": "overdraw-0-rust.output",
+          "bytes": 12000024,
+          "sha256": "b2707cf50c554535ffb0d946d6271a5908140f84a9b16e7991cb6c068e5ae50d"
+        },
+        {
+          "member": "overdraw-0-cpp.output",
+          "bytes": 12000024,
+          "sha256": "93388b3892b73eca4d1a9f78af38549351a055e4b18d51543fa084cf12a4144e"
+        },
+        {
+          "member": "overdraw-1-cpp.output",
+          "bytes": 12000024,
+          "sha256": "4faad697e7bbe80d8b3f59dc51c1595d28c2eb599111e723df9e79c5e15607e4"
+        },
+        {
+          "member": "overdraw-1-rust.output",
+          "bytes": 12000024,
+          "sha256": "54ec077f7b7f2aaadf6d9780f197549c1fe8ed4cc635b6f46559188008b72f19"
+        },
+        {
+          "member": "overdraw-2-rust.output",
+          "bytes": 12000024,
+          "sha256": "bb5dba395c515ae5cf86c1f4cd60a6495d057b74cb8b6c82351b6f06301c28ca"
+        },
+        {
+          "member": "overdraw-2-cpp.output",
+          "bytes": 12000024,
+          "sha256": "2b0edeba285d893ad556885447afa5a1362d2b317647890881fe9fac09173709"
+        },
+        {
+          "member": "overdraw-3-cpp.output",
+          "bytes": 12000024,
+          "sha256": "c6b59458ba528e553ae9319ad1f34b4fd6bdbf42c4418fea0c41d599e136ac77"
+        },
+        {
+          "member": "overdraw-3-rust.output",
+          "bytes": 12000024,
+          "sha256": "820596a360386aa011b5e6bfd3922f7f89a3a7b278ecc476fba8f10146a1569c"
+        },
+        {
+          "member": "overdraw-4-rust.output",
+          "bytes": 12000024,
+          "sha256": "943f5cfd67a869392505af549c82def4f506dd0ee4a22a80077681d36d546dfc"
+        },
+        {
+          "member": "overdraw-4-cpp.output",
+          "bytes": 12000024,
+          "sha256": "d39a4ea1eee6fc5046cb8f3a26917fee53811bfa7c20e073ba2d6f8548101fc0"
+        },
+        {
+          "member": "overdraw-5-cpp.output",
+          "bytes": 12000024,
+          "sha256": "3b139069092bf6ab5242a2f2f9decd97dbf19ac4485fa04e09c4e3072fca8022"
+        },
+        {
+          "member": "overdraw-5-rust.output",
+          "bytes": 12000024,
+          "sha256": "596e744642e8e82909999f98ec89c8fd8ab5d11eccd319bf413307f2e8aea8a9"
+        },
+        {
+          "member": "overdraw-6-rust.output",
+          "bytes": 12000024,
+          "sha256": "6945fec6a12f9a86cbefdbc0e2ca659ec15a5f397c8aa104283b881ffcaef637"
+        },
+        {
+          "member": "overdraw-6-cpp.output",
+          "bytes": 12000024,
+          "sha256": "832ba6290ff7629cf5267b6bcd10035e1a1a4bb3835fc77e367bbbe6ba02b0cd"
+        },
+        {
+          "member": "overdraw-7-cpp.output",
+          "bytes": 12000024,
+          "sha256": "1748cfae8c83fa2cda531004c661f46f5bda2662afdb282fa716a24508c4538e"
+        },
+        {
+          "member": "overdraw-7-rust.output",
+          "bytes": 12000024,
+          "sha256": "94c226a52ac06d53351521302223fff4e036179d3cd0daeb64658847ff26011c"
+        },
+        {
+          "member": "overdraw-8-rust.output",
+          "bytes": 12000024,
+          "sha256": "134a6372323f6de8d43b4ea6acfdff072b7bc791678652f82e4c3ff1aadffc1f"
+        },
+        {
+          "member": "overdraw-8-cpp.output",
+          "bytes": 12000024,
+          "sha256": "e764171001bcd83a678f3c923c96a1c4405759afe04a1b769f2e53d8668b06eb"
+        },
+        {
+          "member": "overdraw-9-cpp.output",
+          "bytes": 12000024,
+          "sha256": "2e93e9162b09717dbe118bff79377ceb412b39d0c81cb854e6725ad1d4679b84"
+        },
+        {
+          "member": "overdraw-9-rust.output",
+          "bytes": 12000024,
+          "sha256": "ecc3e782a46f4af148b01c287040065a9426919d98eb17a9317d76ac72bfee7f"
+        }
+      ]
+    }
+  }
+}
