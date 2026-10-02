@@ -30,6 +30,13 @@ pub struct Usage {
     pub work: u64,
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct CacheVertex {
+    pub(crate) live: u32,
+    pub(crate) offset: u32,
+    pub(crate) score: f32,
+}
+
 /// Reusable fallibly allocated scratch storage and per-call resource limits.
 ///
 /// Cache work counts topology/index validation, each adjacency initialization,
@@ -47,6 +54,7 @@ pub struct Usage {
 pub struct Workspace {
     limits: Limits,
     usage: Usage,
+    pub(crate) vertices: Vec<CacheVertex>,
     pub(crate) integers: Vec<u32>,
     pub(crate) floats: Vec<f32>,
     pub(crate) flags: Vec<u8>,
@@ -72,6 +80,7 @@ impl Workspace {
     }
     /// Release all retained scratch allocations and reset measurements.
     pub fn clear(&mut self) {
+        self.vertices = Vec::new();
         self.integers = Vec::new();
         self.floats = Vec::new();
         self.flags = Vec::new();
@@ -85,15 +94,30 @@ impl Workspace {
     pub(crate) fn begin(&mut self) -> Work {
         self.usage = Usage::default();
         Work {
-            used: 0,
+            remaining: self.limits.max_work,
             limit: self.limits.max_work,
         }
     }
     pub(crate) fn finish(&mut self, work: &Work) {
-        self.usage.work = work.used;
+        self.usage.work = work.limit - work.remaining;
     }
     pub(crate) fn prepare(&mut self, lengths: [usize; 4], output: usize) -> Result<(), Error> {
+        self.prepare_cache(lengths, 0, output)
+    }
+    pub(crate) fn prepare_cache(
+        &mut self,
+        lengths: [usize; 4],
+        vertices: usize,
+        output: usize,
+    ) -> Result<(), Error> {
         let [i, f, b, k] = lengths;
+        let vertex_bytes = checked_bytes(
+            vertices.max(self.vertices.capacity()),
+            size_of::<CacheVertex>(),
+        )?;
+        let owned = output
+            .checked_add(vertex_bytes)
+            .ok_or(Error::SizeOverflow)?;
         let bytes = total(
             [
                 i.max(self.integers.capacity()),
@@ -101,11 +125,12 @@ impl Workspace {
                 b.max(self.flags.capacity()),
                 k.max(self.keys.capacity()),
             ],
-            output,
+            owned,
         )?;
         if bytes > self.limits.max_bytes {
             return Err(Error::LimitExceeded);
         }
+        reserve(&mut self.vertices, vertices)?;
         reserve(&mut self.integers, i)?;
         reserve(&mut self.floats, f)?;
         reserve(&mut self.flags, b)?;
@@ -117,7 +142,12 @@ impl Workspace {
                 self.flags.capacity(),
                 self.keys.capacity(),
             ],
-            output,
+            output
+                .checked_add(checked_bytes(
+                    self.vertices.capacity(),
+                    size_of::<CacheVertex>(),
+                )?)
+                .ok_or(Error::SizeOverflow)?,
         )?;
         if actual > self.limits.max_bytes {
             self.clear();
@@ -163,17 +193,21 @@ pub(crate) fn output(len: usize) -> Result<Vec<u32>, Error> {
 }
 
 pub(crate) struct Work {
-    used: u64,
+    remaining: u64,
     limit: u64,
 }
 impl Work {
+    #[inline]
     pub(crate) fn add(&mut self, count: usize) -> Result<(), Error> {
         let count = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
-        let next = self.used.checked_add(count).ok_or(Error::SizeOverflow)?;
-        if next > self.limit {
+        if count > self.remaining {
+            // Preserve the overflow error on the cold exhaustion path.
+            (self.limit - self.remaining)
+                .checked_add(count)
+                .ok_or(Error::SizeOverflow)?;
             return Err(Error::LimitExceeded);
         }
-        self.used = next;
+        self.remaining -= count;
         Ok(())
     }
 }

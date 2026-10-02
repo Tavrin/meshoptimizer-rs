@@ -12,14 +12,14 @@
     "fuzz/src/bin/simplify_with_attributes.rs": "0757292b85d452ccf6ea591cd147c00387727d123df782d6168359402ccd2460",
     "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
     "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
-    "src/cache.rs": "2b76548701ce25eba5d8da6dcfbf8feeb9682cd17e50be4073a50d29d6b5e53f",
+    "src/cache.rs": "503786282958db778a80c5dd3ffff67e13f06bf87e9679b1ba691021082cba0d",
     "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
-    "src/input.rs": "4da6d4deaa6712e9617044828d465f9d5f887212488bd34b6fa5148dc4acc5c3",
+    "src/input.rs": "3db6de02c2f2d68076d3ae275c2584cbca0239323ebada380bbb5d2e607d62b3",
     "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
     "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
-    "src/overdraw.rs": "23cca595d4a7879ca0b7020b78817166e020a759807279d7e41ec118b11d45c5",
-    "src/simplify.rs": "cc60975a9c120493494052042d7463108ca5d0243bd291a11af4f070ee8ac86b",
-    "src/workspace.rs": "7800ef27614813de29e5e11e5bc96970e84afcae6989951d6e9f824c1222e435"
+    "src/overdraw.rs": "99ee6ad978f1691372e19abeb6c0fd551b1dbe5eb763a0bff27ca8623d4122e3",
+    "src/simplify.rs": "a193f503ef74e906c9e8a59151fd205b11364bed33a342510fb841b21d6c0da7",
+    "src/workspace.rs": "176589790a20010f9d181149696fc5aae9ec355607821e709dc4b71f52bdea5e"
   },
   "dependency_sha256": {
     "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
@@ -180,11 +180,11 @@
     "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
   },
   "executable_sha256": {
-    "vertex_cache": "1f3c00091d2053120b8f5faab92c1fc4addaea3c994021641604cea3cca51588",
-    "overdraw": "5369eca5ae5cbb95674d9888ab1aaf99add834f50ef8a456a88c4c9b61f2fa84",
-    "simplify": "19e126746c89e367a049abe37a95ff0a657c809f6ecedb1d2489641411175e85",
-    "simplify_with_attributes": "75b1e5566497348d024288dea5e18a4ee935d2b8f83c25876d8a1c9c9d6a0c7c",
-    "simplify_scale": "d7c8c5c21c01cf46c7b2179cfeb7b4aedcf19d37f0a3ca767aaee58469ec7eae"
+    "vertex_cache": "98a895cacee3bb9332e46ff4ff00c4e87588ef387630a857829edbb3f0bd5d89",
+    "overdraw": "222c67e394fd221a695b5f9fd2191f34e4050da26036f33adefa48d8f83c825d",
+    "simplify": "d606fefab40fd10a7912201bf9ce5fb8e08f6bc7ed91edb8815ae299ffda0547",
+    "simplify_with_attributes": "3a2c3f021cb2fe1e361b436b01bcb9515519a2bd84f330cd967a28b114f40b43",
+    "simplify_scale": "001bca87560741a5212fde8b3d6f096b89e5be6942a03cb5eb770a04385b5f6f"
   },
   "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
   "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -195,112 +195,112 @@
     "machine": "x86_64",
     "processor": "x86_64"
   },
-  "started_unix": 1790936926.1550446,
-  "budget_seconds": 600,
+  "started_unix": 1790943768.6427038,
+  "budget_seconds": 300,
   "seed": 20261002,
   "rustflags": "",
   "runs": [
     {
       "target": "vertex_cache",
       "exit": 0,
-      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":600.00003137,\"executions\":35800198,\"successes\":19475920,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":300.000022804,\"executions\":21432212,\"successes\":11659926,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "vertex_cache",
-        "seconds": 600.00003137,
-        "executions": 35800198,
-        "successes": 19475920,
+        "seconds": 300.000022804,
+        "executions": 21432212,
+        "successes": 11659926,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 596.8,
-        "system_seconds": 0.13,
-        "elapsed_seconds": 600.0,
-        "max_rss_kib": 2220
+        "user_seconds": 298.51,
+        "system_seconds": 0.04,
+        "elapsed_seconds": 300.0,
+        "max_rss_kib": 2164
       }
     },
     {
       "target": "overdraw",
       "exit": 0,
-      "stdout": "{\"target\":\"overdraw\",\"seconds\":600.000009028,\"executions\":59129202,\"successes\":24712166,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"overdraw\",\"seconds\":300.000003598,\"executions\":48728510,\"successes\":20525368,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "overdraw",
-        "seconds": 600.000009028,
-        "executions": 59129202,
-        "successes": 24712166,
+        "seconds": 300.000003598,
+        "executions": 48728510,
+        "successes": 20525368,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 596.46,
-        "system_seconds": 0.14,
-        "elapsed_seconds": 600.0,
-        "max_rss_kib": 2172
+        "user_seconds": 298.42,
+        "system_seconds": 0.07,
+        "elapsed_seconds": 300.0,
+        "max_rss_kib": 2116
       }
     },
     {
       "target": "simplify",
       "exit": 0,
-      "stdout": "{\"target\":\"simplify\",\"seconds\":600.00005771,\"executions\":36161435,\"successes\":18320639,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"simplify\",\"seconds\":300.000005411,\"executions\":21703470,\"successes\":11056150,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "simplify",
-        "seconds": 600.00005771,
-        "executions": 36161435,
-        "successes": 18320639,
+        "seconds": 300.000005411,
+        "executions": 21703470,
+        "successes": 11056150,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 597.09,
-        "system_seconds": 0.2,
-        "elapsed_seconds": 600.0,
-        "max_rss_kib": 1944
+        "user_seconds": 299.06,
+        "system_seconds": 0.05,
+        "elapsed_seconds": 300.0,
+        "max_rss_kib": 1936
       }
     },
     {
       "target": "simplify_with_attributes",
       "exit": 0,
-      "stdout": "{\"target\":\"simplify_with_attributes\",\"seconds\":600.000011973,\"executions\":26343347,\"successes\":10217739,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"simplify_with_attributes\",\"seconds\":300.000024647,\"executions\":17004808,\"successes\":6603381,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "simplify_with_attributes",
-        "seconds": 600.000011973,
-        "executions": 26343347,
-        "successes": 10217739,
+        "seconds": 300.000024647,
+        "executions": 17004808,
+        "successes": 6603381,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 598.02,
-        "system_seconds": 0.12,
-        "elapsed_seconds": 600.0,
-        "max_rss_kib": 2144
+        "user_seconds": 299.24,
+        "system_seconds": 0.06,
+        "elapsed_seconds": 300.0,
+        "max_rss_kib": 1904
       }
     },
     {
       "target": "simplify_scale",
       "exit": 0,
-      "stdout": "{\"target\":\"simplify_scale\",\"seconds\":600.000000452,\"executions\":769673693,\"successes\":725430906,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"simplify_scale\",\"seconds\":300.000601983,\"executions\":445221714,\"successes\":419627828,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "simplify_scale",
-        "seconds": 600.000000452,
-        "executions": 769673693,
-        "successes": 725430906,
+        "seconds": 300.000601983,
+        "executions": 445221714,
+        "successes": 419627828,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 597.5,
-        "system_seconds": 0.15,
-        "elapsed_seconds": 600.0,
-        "max_rss_kib": 1896
+        "user_seconds": 299.0,
+        "system_seconds": 0.06,
+        "elapsed_seconds": 300.0,
+        "max_rss_kib": 1920
       }
     }
   ],
-  "finished_unix": 1790937526.1591284,
+  "finished_unix": 1790944068.652786,
   "identities_unchanged": true
 }

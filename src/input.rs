@@ -170,6 +170,7 @@ impl<'a> View<'a> {
             offset,
         })
     }
+    #[inline]
     fn get(self, vertex: usize, component: usize) -> Option<f32> {
         if vertex >= self.count || component >= self.width {
             return None;
@@ -250,6 +251,7 @@ impl<'a> Positions<'a> {
         self.len() == 0
     }
     /// Read XYZ for a vertex, or `None` if its index is outside this view.
+    #[inline(always)]
     pub fn get(self, index: usize) -> Option<[f32; 3]> {
         match self.0 {
             PositionStorage::Packed(p) => p.get(index).copied(),
@@ -258,6 +260,26 @@ impl<'a> Positions<'a> {
             }
         }
     }
+    /// Dispatch the storage layout once for sequential scans.
+    pub(crate) fn for_each(
+        self,
+        mut visit: impl FnMut([f32; 3]) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        match self.0 {
+            PositionStorage::Packed(values) => {
+                for &value in values {
+                    visit(value)?;
+                }
+            }
+            PositionStorage::View(_) => {
+                for i in 0..self.len() {
+                    visit(self.at(i)?)?;
+                }
+            }
+        }
+        Ok(())
+    }
+    #[inline(always)]
     pub(crate) fn at(self, index: usize) -> Result<[f32; 3], Error> {
         self.get(index).ok_or(Error::IndexOutOfBounds)
     }
@@ -312,6 +334,7 @@ impl<'a> Attributes<'a> {
         self.0.width
     }
     /// Read a component, or `None` for an out-of-range vertex or component.
+    #[inline]
     pub fn get(self, vertex: usize, component: usize) -> Option<f32> {
         self.0.get(vertex, component)
     }

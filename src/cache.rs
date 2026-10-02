@@ -85,12 +85,8 @@ fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Err
     if n == 0 {
         return ws.prepare([0; 4], out);
     }
-    let ints = v
-        .checked_mul(2)
-        .and_then(|x| x.checked_add(n))
-        .ok_or(Error::SizeOverflow)?;
-    let floats = v.checked_add(n / 3).ok_or(Error::SizeOverflow)?;
-    ws.prepare([ints, floats, n / 3, 0], out)
+    let faces = n / 3;
+    ws.prepare_cache([n, faces, faces, 0], v, out)
 }
 
 fn kernel(
@@ -104,42 +100,45 @@ fn kernel(
         return Ok(());
     }
     let faces = indices.len() / 3;
-    let (counts, rest) = ws.integers.split_at_mut(v);
-    let (offsets, adjacency) = rest.split_at_mut(v);
-    let (vertex_scores, triangle_scores) = ws.floats.split_at_mut(v);
+    let vertices = &mut ws.vertices[..v];
+    let adjacency = &mut ws.integers;
+    let triangle_scores = &mut ws.floats;
     let emitted = &mut ws.flags;
     work.add(v)?;
-    counts.fill(0);
+    for vertex in vertices.iter_mut() {
+        vertex.live = 0;
+    }
     for &index in indices {
         work.add(1)?;
-        counts[index as usize] += 1;
+        vertices[index as usize].live += 1;
     }
     let mut offset = 0;
-    for i in 0..v {
+    for vertex in vertices.iter_mut() {
         work.add(1)?;
-        offsets[i] = offset;
-        offset += counts[i];
+        vertex.offset = offset;
+        offset += vertex.live;
     }
     for (i, triangle) in indices.as_chunks::<3>().0.iter().enumerate() {
         for &index in triangle {
             work.add(1)?;
             let j = index as usize;
-            adjacency[offsets[j] as usize] = i as u32;
-            offsets[j] += 1;
+            let vertex = &mut vertices[j];
+            adjacency[vertex.offset as usize] = i as u32;
+            vertex.offset += 1;
         }
     }
-    for i in 0..v {
+    for vertex in vertices.iter_mut() {
         work.add(1)?;
-        offsets[i] -= counts[i];
-        vertex_scores[i] = score(0, counts[i]);
+        vertex.offset -= vertex.live;
+        vertex.score = score(0, vertex.live);
     }
     work.add(faces)?;
     emitted.fill(0);
     for i in 0..faces {
         work.add(1)?;
-        triangle_scores[i] = vertex_scores[indices[i * 3] as usize]
-            + vertex_scores[indices[i * 3 + 1] as usize]
-            + vertex_scores[indices[i * 3 + 2] as usize];
+        triangle_scores[i] = vertices[indices[i * 3] as usize].score
+            + vertices[indices[i * 3 + 1] as usize].score
+            + vertices[indices[i * 3 + 2] as usize].score;
     }
     let mut cache = [0u32; 20];
     let mut next = [0u32; 20];
@@ -167,15 +166,21 @@ fn kernel(
         cache_count = write.min(16);
         for &index in triangle {
             let j = index as usize;
-            let start = offsets[j] as usize;
-            let count = counts[j] as usize;
-            for i in 0..count {
+            let vertex = &mut vertices[j];
+            let start = vertex.offset as usize;
+            let count = vertex.live as usize;
+            let adjacent = &mut adjacency[start..start + count];
+            let mut found = None;
+            for (i, &triangle) in adjacent.iter().enumerate() {
                 work.add(1)?;
-                if adjacency[start + i] == current as u32 {
-                    adjacency[start + i] = adjacency[start + count - 1];
-                    counts[j] -= 1;
+                if triangle == current as u32 {
+                    found = Some(i);
                     break;
                 }
+            }
+            if let Some(i) = found {
+                adjacent[i] = adjacent[count - 1];
+                vertex.live -= 1;
             }
         }
         let mut best = usize::MAX;
@@ -183,13 +188,16 @@ fn kernel(
         for (i, &index) in cache[..write].iter().enumerate() {
             work.add(1)?;
             let j = index as usize;
-            if counts[j] == 0 {
+            let vertex = &mut vertices[j];
+            if vertex.live == 0 {
                 continue;
             }
-            let s = score(if i >= 16 { 0 } else { i + 1 }, counts[j]);
-            let diff = s - vertex_scores[j];
-            vertex_scores[j] = s;
-            for &tri in &adjacency[offsets[j] as usize..offsets[j] as usize + counts[j] as usize] {
+            let s = score(if i >= 16 { 0 } else { i + 1 }, vertex.live);
+            let diff = s - vertex.score;
+            vertex.score = s;
+            for &tri in
+                &adjacency[vertex.offset as usize..vertex.offset as usize + vertex.live as usize]
+            {
                 work.add(1)?;
                 let tri = tri as usize;
                 let s = triangle_scores[tri] + diff;

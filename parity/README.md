@@ -35,23 +35,25 @@ parallel reduction is used. The driver checks nearest rounding and gradual
 underflow. Compiler, dependency, source, binary, runtime and hardware identities
 are captured before execution and checked afterward.
 
-`benchmark.sh` records allocating API timings on 1,000,000 triangles. It
-alternates Rust/C++ order for ten paired samples; each timed call follows a
-warm-up within its process. Input generation, I/O and startup are excluded.
-Validation, allocation and execution are included. `--enforce` fails because
-release performance acceptance is outside this lane.
+`benchmark.sh` measures the full lane 3 geometry matrix described below.
+Input generation, I/O and startup are excluded; validation, required copies,
+allocation and execution are included. `--enforce` returns nonzero if any
+registered time or memory bar fails.
 
-`report.sh` verifies current source and dependency identities, required counts
+The earlier lane 2 `report.sh` verifies current source and dependency identities, required counts
 and every archived buffer hash before generating the measured reports.
 `qualify.sh` provides the same lane-specific verification; neither command
-claims complete release 0.1 or unavailable target qualification. Unimplemented
+claims complete release 0.1 or unavailable target qualification. Lane 3 keeps
+its narrower command evidence in `results/lane3-gates.json` and its combined
+verdict in `MEASURED_RESULTS.json`; the earlier release/package checks are
+not silently promoted to current evidence. Unimplemented
 phases, profiles and command options are rejected.
 
 Records default to `parity/results/`; `MESHOPT_RESULTS` can override the retained
 destination. Large ZIP artifacts go to `MESHOPT_ARTIFACTS`, defaulting to
 `$CARGO_TARGET_DIR/parity-artifacts`, outside the repository. Set it to a durable
 external directory before deleting the build target; this lane uses
-`/mnt/linux-extra/moss-capture-archive/meshopt-lane2`. JSON records retain archive
+`/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final`. JSON records retain archive
 and member hashes, not archive contents. Hostnames are excluded from hardware
 metadata. ZIP artifacts preserve explicit little-endian input and response
 bytes. Build outputs stay in `CARGO_TARGET_DIR`. After verification, delete that
@@ -76,7 +78,7 @@ are simplify/attributes/scale. They append target index count, error bits,
 option bits, component count, component weights, packed attributes and one
 u32 flag value per vertex. Simplifier responses contain error bits followed by
 result indices; scale responds with one f32 bit pattern. Mode 0 compares
-outputs; mode 1 records one to 100 native timing samples. Exact message sizes
+outputs; modes 1 and 2 record one to 100 native timing samples. Exact message sizes
 and a 128 MiB ceiling are checked before allocation.
 
 Responses begin with `MR01`, then u32 status (zero), output count and timing
@@ -88,3 +90,34 @@ checked exports without pointer reinterpretation.
 
 See [COVERAGE.md](COVERAGE.md) for scope and upstream fixture applicability,
 [DECISIONS.md](DECISIONS.md) for choices, and the measured reports for results.
+
+## Lane 3 performance
+
+`benchmark.sh --phase 0.1` measures the 204-case RFC geometry matrix and writes
+`results/benchmark.json` and `MEASURED_PERFORMANCE.md`. Add `--enforce` to return
+nonzero when the geometric-mean, per-case or memory bar fails. Each case records
+raw paired timings, dispersion, peak output-plus-scratch bytes and start/end
+load. High-load cases are repeated once; both attempts remain in the record.
+Tiny timings average 64 calls per sample. See decisions D16 onward for limits.
+
+Mode 1 selects allocating APIs; mode 2 selects caller-buffer APIs with a warm
+Workspace and output. Timing responses append one little-endian u64 with peak
+requested output-plus-scratch bytes after the f64 samples. Mode 0 is unchanged.
+Serialization is outside timing. The C++ allocator callback counts requested
+scratch during warm-up only; timing uses the same callback with tracking off.
+
+`python3 parity/profile.py` profiles the slowest measured million-triangle case in each family
+using gprofng and verifies the output against the benchmark. It requires a
+current benchmark and its original executable. It collects 10 to 100 calls,
+targeting approximately 30 seconds per profile. Release harness builds include
+line-table debug information for attribution. Experiments and raw buffers go
+under `$MESHOPT_ARTIFACTS`; compact records go in `results/profiles.json`.
+
+The benchmark now launches each native driver with the retained input file as
+its argument. The driver sends `R` after one warm-up. Each `R` command on stdin
+runs one sample and returns `T` followed by a little-endian f64; `S` ends the attempt and returns
+the ordinary response with its complete timing stream and peak memory. The
+parent alternates backends and verifies streamed times against final responses.
+Normal stdin-message execution and wasm32 mode-0 transport remain unchanged.
+Timing replies are framed as `T` followed by the f64 value. Both resident
+backends are pinned to the same allowed CPU, recorded in `benchmark.json`.

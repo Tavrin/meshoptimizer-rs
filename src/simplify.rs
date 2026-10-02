@@ -83,8 +83,7 @@ pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {
 fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
     let mut lo = [f32::MAX; 3];
     let mut hi = [-f32::MAX; 3];
-    for i in 0..p.len() {
-        let v = p.at(i)?;
+    p.for_each(|v| {
         for j in 0..3 {
             if !v[j].is_finite() {
                 return Err(Error::InvalidParameter);
@@ -96,7 +95,8 @@ fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
                 hi[j] = v[j];
             }
         }
-    }
+        Ok(())
+    })?;
     if p.is_empty() {
         return Ok((lo, 0.0));
     }
@@ -444,17 +444,16 @@ impl G {
 }
 #[derive(Clone, Copy, Default)]
 struct Edge {
-    next: usize,
-    prev: usize,
+    next: u32,
+    prev: u32,
 }
 #[derive(Clone, Copy, Default)]
 struct Collapse {
-    a: usize,
-    b: usize,
-    bidi: bool,
+    a: u32,
+    b: u32,
     error: f32,
 }
-const NONE: usize = usize::MAX;
+const NONE: usize = u32::MAX as usize;
 const MAN: u8 = 0;
 const BORDER: u8 = 1;
 const SEAM: u8 = 2;
@@ -477,32 +476,60 @@ const OPP: [[u8; 6]; 6] = [
     [1, 0, 0, 0, 0, 0],
     [1, 0, 1, 0, 0, 0],
 ];
+// Topology validation bounds every stored index by u32::MAX. Conversions
+// occur at slice access boundaries, keeping heap records identical in width to C++.
+struct Indices(Vec<u32>);
+impl Indices {
+    #[inline]
+    fn get(&self, i: usize) -> usize {
+        self.0[i] as usize
+    }
+    #[inline]
+    fn set(&mut self, i: usize, value: usize) {
+        self.0[i] = value as u32;
+    }
+    fn fill(&mut self, value: usize) {
+        self.0.fill(value as u32);
+    }
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+}
 struct State {
-    offsets: Vec<usize>,
+    offsets: Indices,
     edges: Vec<Edge>,
-    remap: Vec<usize>,
-    wedge: Vec<usize>,
+    remap: Indices,
+    wedge: Indices,
     kind: Vec<u8>,
-    forward: Vec<usize>,
-    back: Vec<usize>,
+    forward: Indices,
+    back: Indices,
     p: Vec<V>,
     a: Vec<f32>,
     q: Vec<Q>,
     aq: Vec<Q>,
     g: Vec<G>,
     collapses: Vec<Collapse>,
-    order: Vec<usize>,
-    cr: Vec<usize>,
+    order: Indices,
+    cr: Indices,
     locked: Vec<bool>,
-    table: Vec<usize>,
+    table: Indices,
     ac: usize,
+    bytes: usize,
 }
 struct Budget<'a> {
     ws: &'a mut Workspace,
     bytes: usize,
 }
 impl Budget<'_> {
+    fn indices(&mut self, n: usize) -> Result<Indices, Error> {
+        Ok(Indices(self.vec(n)?))
+    }
     fn vec<T: Default + Clone>(&mut self, n: usize) -> Result<Vec<T>, Error> {
+        let mut v = self.reserve(n)?;
+        v.resize(n, T::default());
+        Ok(v)
+    }
+    fn reserve<T>(&mut self, n: usize) -> Result<Vec<T>, Error> {
         let b = checked_bytes(n, core::mem::size_of::<T>())?;
         self.ws.prepare(
             [0; 4],
@@ -516,7 +543,6 @@ impl Budget<'_> {
             .checked_add(checked_bytes(v.capacity(), core::mem::size_of::<T>())?)
             .ok_or(Error::SizeOverflow)?;
         self.ws.prepare([0; 4], self.bytes)?;
-        v.resize(n, T::default());
         Ok(v)
     }
 }
@@ -535,26 +561,29 @@ impl State {
             .ok_or(Error::SizeOverflow)?
             .checked_next_power_of_two()
             .ok_or(Error::SizeOverflow)?;
-        Ok(Self {
-            offsets: b.vec(n + 1)?,
+        let mut state = Self {
+            offsets: b.indices(n + 1)?,
             edges: b.vec(m)?,
-            remap: b.vec(n)?,
-            wedge: b.vec(n)?,
+            remap: b.indices(n)?,
+            wedge: b.indices(n)?,
             kind: b.vec(n)?,
-            forward: b.vec(n)?,
-            back: b.vec(n)?,
+            forward: b.indices(n)?,
+            back: b.indices(n)?,
             p: b.vec(n)?,
             a: b.vec(na)?,
             q: b.vec(n)?,
             aq: b.vec(if ac > 0 { n } else { 0 })?,
             g: b.vec(na)?,
-            collapses: b.vec(m.checked_add(3).ok_or(Error::SizeOverflow)?)?,
-            order: b.vec(m + 3)?,
-            cr: b.vec(n)?,
+            collapses: Vec::new(),
+            order: Indices(Vec::new()),
+            cr: b.indices(n)?,
             locked: b.vec(n)?,
-            table: b.vec(buckets)?,
+            table: b.indices(buckets)?,
             ac,
-        })
+            bytes: 0,
+        };
+        state.bytes = b.bytes;
+        Ok(state)
     }
     fn adjacency(&mut self, indices: &[u32], weld: bool, work: &mut Work) -> Result<(), Error> {
         work.add(self.p.len())?;
@@ -562,14 +591,14 @@ impl State {
         for &i in indices {
             work.add(1)?;
             let v = if weld {
-                self.remap[i as usize]
+                self.remap.get(i as usize)
             } else {
                 i as usize
             };
-            self.offsets[v + 1] += 1;
+            self.offsets.set(v + 1, self.offsets.get(v + 1) + (1));
         }
         let mut offset = 0;
-        for v in &mut self.offsets[1..] {
+        for v in &mut self.offsets.0[1..] {
             let count = *v;
             *v = offset;
             offset += count;
@@ -579,16 +608,16 @@ impl State {
             let mut v = [t[0] as usize, t[1] as usize, t[2] as usize];
             if weld {
                 for x in &mut v {
-                    *x = self.remap[*x];
+                    *x = self.remap.get(*x);
                 }
             }
             for e in 0..3 {
                 let a = v[e];
-                self.edges[self.offsets[a + 1]] = Edge {
-                    next: v[(e + 1) % 3],
-                    prev: v[(e + 2) % 3],
+                self.edges[self.offsets.get(a + 1)] = Edge {
+                    next: v[(e + 1) % 3] as u32,
+                    prev: v[(e + 2) % 3] as u32,
                 };
-                self.offsets[a + 1] += 1;
+                self.offsets.set(a + 1, self.offsets.get(a + 1) + (1));
             }
         }
         Ok(())
@@ -596,12 +625,12 @@ impl State {
     fn has_edge(&self, a: usize, b: usize, weld: bool, work: &mut Work) -> Result<bool, Error> {
         let mut v = a;
         loop {
-            for e in &self.edges[self.offsets[v]..self.offsets[v + 1]] {
+            for e in &self.edges[self.offsets.get(v)..self.offsets.get(v + 1)] {
                 work.add(1)?;
                 if if weld {
-                    self.remap[e.next] == self.remap[b]
+                    self.remap.get(e.next as usize) == self.remap.get(b)
                 } else {
-                    e.next == b
+                    e.next as usize == b
                 } {
                     return Ok(true);
                 }
@@ -609,7 +638,7 @@ impl State {
             if !weld {
                 break;
             }
-            v = self.wedge[v];
+            v = self.wedge.get(v);
             if v == a {
                 break;
             }
@@ -632,9 +661,9 @@ impl State {
             let mut bucket = hash as usize & mask;
             for probe in 0..=mask {
                 work.add(1)?;
-                let j = self.table[bucket];
+                let j = self.table.get(bucket);
                 if j == NONE {
-                    self.table[bucket] = i;
+                    self.table.set(bucket, i);
                     break;
                 }
                 if p.at(j)? == v {
@@ -642,15 +671,15 @@ impl State {
                 }
                 bucket = (bucket + probe + 1) & mask;
             }
-            self.remap[i] = self.table[bucket];
-            self.wedge[i] = i;
+            self.remap.set(i, self.table.get(bucket));
+            self.wedge.set(i, i);
         }
         for i in 0..p.len() {
             work.add(1)?;
-            let r = self.remap[i];
+            let r = self.remap.get(i);
             if r != i {
-                self.wedge[i] = self.wedge[r];
-                self.wedge[r] = i;
+                self.wedge.set(i, self.wedge.get(r));
+                self.wedge.set(r, i);
             }
         }
         Ok(())
@@ -666,40 +695,43 @@ impl State {
         self.back.fill(NONE);
         for i in 0..n {
             work.add(1)?;
-            for j in self.offsets[i]..self.offsets[i + 1] {
+            for j in self.offsets.get(i)..self.offsets.get(i + 1) {
                 work.add(1)?;
-                let t = self.edges[j].next;
+                let t = self.edges[j].next as usize;
                 if t == i {
-                    self.forward[i] = i;
-                    self.back[i] = i;
+                    self.forward.set(i, i);
+                    self.back.set(i, i);
                 } else if !self.has_edge(t, i, false, work)? {
-                    self.back[t] = if self.back[t] == NONE { i } else { t };
-                    self.forward[i] = if self.forward[i] == NONE { t } else { i };
+                    self.back
+                        .set(t, if self.back.get(t) == NONE { i } else { t });
+                    self.forward
+                        .set(i, if self.forward.get(i) == NONE { t } else { i });
                 }
             }
         }
         for i in 0..n {
             work.add(1)?;
-            self.kind[i] = if self.remap[i] != i {
-                self.kind[self.remap[i]]
-            } else if self.wedge[i] == i {
-                let a = self.back[i];
-                let b = self.forward[i];
+            self.kind[i] = if self.remap.get(i) != i {
+                self.kind[self.remap.get(i)]
+            } else if self.wedge.get(i) == i {
+                let a = self.back.get(i);
+                let b = self.forward.get(i);
                 if a == NONE && b == NONE {
                     MAN
-                } else if a != NONE && b != NONE && self.remap[a] == self.remap[b] && a != i {
+                } else if a != NONE && b != NONE && self.remap.get(a) == self.remap.get(b) && a != i
+                {
                     SEAM
                 } else if a != i && b != i {
                     BORDER
                 } else {
                     LOCKED
                 }
-            } else if self.wedge[self.wedge[i]] == i {
-                let w = self.wedge[i];
-                let a = self.back[i];
-                let b = self.forward[i];
-                let c = self.back[w];
-                let d = self.forward[w];
+            } else if self.wedge.get(self.wedge.get(i)) == i {
+                let w = self.wedge.get(i);
+                let a = self.back.get(i);
+                let b = self.forward.get(i);
+                let c = self.back.get(w);
+                let d = self.forward.get(w);
                 if a != NONE
                     && a != i
                     && b != NONE
@@ -708,9 +740,9 @@ impl State {
                     && c != w
                     && d != NONE
                     && d != w
-                    && self.remap[a] == self.remap[d]
-                    && self.remap[b] == self.remap[c]
-                    && self.remap[a] != self.remap[b]
+                    && self.remap.get(a) == self.remap.get(d)
+                    && self.remap.get(b) == self.remap.get(c)
+                    && self.remap.get(a) != self.remap.get(b)
                 {
                     SEAM
                 } else {
@@ -726,8 +758,8 @@ impl State {
                 if self.kind[i] != SEAM && self.kind[i] != LOCKED {
                     continue;
                 }
-                if self.remap[i] != i {
-                    self.kind[i] = self.kind[self.remap[i]];
+                if self.remap.get(i) != i {
+                    self.kind[i] = self.kind[self.remap.get(i)];
                     continue;
                 }
                 let mut protect = false;
@@ -736,11 +768,11 @@ impl State {
                 loop {
                     work.add(1)?;
                     protect |= flag(flags, v, VertexFlags::PROTECT);
-                    for j in self.offsets[v]..self.offsets[v + 1] {
+                    for j in self.offsets.get(v)..self.offsets.get(v + 1) {
                         work.add(1)?;
-                        border |= !self.has_edge(self.edges[j].next, v, true, work)?;
+                        border |= !self.has_edge(self.edges[j].next as usize, v, true, work)?;
                     }
-                    v = self.wedge[v];
+                    v = self.wedge.get(v);
                     if v == i {
                         break;
                     }
@@ -754,12 +786,12 @@ impl State {
             for (i, &f) in flags.iter().enumerate() {
                 work.add(1)?;
                 if f.contains(VertexFlags::LOCK) {
-                    self.kind[self.remap[i]] = LOCKED;
+                    self.kind[self.remap.get(i)] = LOCKED;
                 }
             }
             for i in 0..n {
                 work.add(1)?;
-                if self.kind[self.remap[i]] == LOCKED {
+                if self.kind[self.remap.get(i)] == LOCKED {
                     self.kind[i] = LOCKED;
                 }
             }
@@ -838,7 +870,7 @@ impl State {
             let [a, b, c] = [t[0] as usize, t[1] as usize, t[2] as usize];
             let q = Q::triangle(self.p[a], self.p[b], self.p[c], 1.0);
             for i in [a, b, c] {
-                self.q[self.remap[i]].add(q);
+                self.q[self.remap.get(i)].add(q);
             }
         }
         let factor = if options.contains(SimplifyOptions::REGULARIZE_LIGHT) {
@@ -850,7 +882,7 @@ impl State {
         };
         for i in 0..self.p.len() {
             work.add(1)?;
-            if self.remap[i] != i {
+            if self.remap.get(i) != i {
                 continue;
             }
             let w = self.q[i].w
@@ -875,10 +907,10 @@ impl State {
                 if ![BORDER, SEAM, FRINGE].contains(&k0) && ![BORDER, SEAM, FRINGE].contains(&k1) {
                     continue;
                 }
-                if (k0 == BORDER || k0 == SEAM) && self.forward[a] != b {
+                if (k0 == BORDER || k0 == SEAM) && self.forward.get(a) != b {
                     continue;
                 }
-                if (k1 == BORDER || k1 == SEAM) && self.back[b] != a {
+                if (k1 == BORDER || k1 == SEAM) && self.back.get(b) != a {
                     continue;
                 }
                 if (k0 == FRINGE || k1 == FRINGE) && (k0 == COMPLEX || k1 == COMPLEX) {
@@ -889,8 +921,8 @@ impl State {
                 let mut qt = Q::triangle(self.p[a], self.p[b], self.p[c], w);
                 qt.w = 0.0;
                 q.add(qt);
-                self.q[self.remap[a]].add(q);
-                self.q[self.remap[b]].add(q);
+                self.q[self.remap.get(a)].add(q);
+                self.q[self.remap.get(b)].add(q);
             }
         }
         if self.ac > 0 {
@@ -918,6 +950,7 @@ impl State {
     }
     fn pick(&mut self, indices: &[u32], capacity: usize, work: &mut Work) -> Result<usize, Error> {
         let mut count = 0;
+        self.collapses.clear();
         for t in indices.as_chunks::<3>().0 {
             if count + 3 > capacity {
                 break;
@@ -926,7 +959,7 @@ impl State {
                 work.add(1)?;
                 let a = t[e] as usize;
                 let b = t[(e + 1) % 3] as usize;
-                if self.remap[a] == self.remap[b] {
+                if self.remap.get(a) == self.remap.get(b) {
                     continue;
                 }
                 let k0 = self.kind[a] as usize;
@@ -934,81 +967,80 @@ impl State {
                 if CAN[k0][k1] | CAN[k1][k0] == 0 {
                     continue;
                 }
-                if OPP[k0][k1] != 0 && self.remap[b] > self.remap[a] {
+                if OPP[k0][k1] != 0 && self.remap.get(b) > self.remap.get(a) {
                     continue;
                 }
                 if (k0 == BORDER as usize || k0 == SEAM as usize)
                     && k1 != MAN as usize
-                    && self.forward[a] != b
+                    && self.forward.get(a) != b
                 {
                     continue;
                 }
                 if (k1 == BORDER as usize || k1 == SEAM as usize)
                     && k0 != MAN as usize
-                    && self.back[b] != a
+                    && self.back.get(b) != a
                 {
                     continue;
                 }
-                self.collapses[count] = if CAN[k0][k1] & CAN[k1][k0] != 0 {
+                self.collapses.push(if CAN[k0][k1] & CAN[k1][k0] != 0 {
                     Collapse {
-                        a,
-                        b,
-                        bidi: true,
-                        error: 0.0,
+                        a: a as u32,
+                        b: b as u32,
+                        error: f32::from_bits(1),
                     }
                 } else if CAN[k0][k1] != 0 {
                     Collapse {
-                        a,
-                        b,
+                        a: a as u32,
+                        b: b as u32,
                         ..Collapse::default()
                     }
                 } else {
                     Collapse {
-                        a: b,
-                        b: a,
+                        a: b as u32,
+                        b: a as u32,
                         ..Collapse::default()
                     }
-                };
+                });
                 count += 1;
             }
         }
         Ok(count)
     }
     fn complex_target(&self, v: usize, t: usize) -> usize {
-        let r = self.remap[t];
-        if self.forward[v] != NONE && self.remap[self.forward[v]] == r {
-            self.forward[v]
-        } else if self.back[v] != NONE && self.remap[self.back[v]] == r {
-            self.back[v]
+        let r = self.remap.get(t);
+        if self.forward.get(v) != NONE && self.remap.get(self.forward.get(v)) == r {
+            self.forward.get(v)
+        } else if self.back.get(v) != NONE && self.remap.get(self.back.get(v)) == r {
+            self.back.get(v)
         } else {
             t
         }
     }
     fn seam_target(&self, a: usize, b: usize) -> (usize, usize) {
-        let s0 = self.wedge[a];
-        let s1 = if self.forward[a] == b {
-            self.back[s0]
+        let s0 = self.wedge.get(a);
+        let s1 = if self.forward.get(a) == b {
+            self.back.get(s0)
         } else {
-            self.forward[s0]
+            self.forward.get(s0)
         };
-        (s0, if s1 != NONE { s1 } else { self.wedge[b] })
+        (s0, if s1 != NONE { s1 } else { self.wedge.get(b) })
     }
     fn rank(&mut self, count: usize, work: &mut Work) -> Result<(), Error> {
         for i in 0..count {
             work.add(1)?;
             let c = self.collapses[i];
-            let a = c.a;
-            let b = c.b;
-            let mut ei = self.q[self.remap[a]].error(self.p[b]);
-            let mut ej = if c.bidi {
-                self.q[self.remap[b]].error(self.p[a])
+            let a = c.a as usize;
+            let b = c.b as usize;
+            let mut ei = self.q[self.remap.get(a)].error(self.p[b]);
+            let mut ej = if c.error.to_bits() != 0 {
+                self.q[self.remap.get(b)].error(self.p[a])
             } else {
                 f32::MAX
             };
             if self.ac > 0 {
                 work.add(self.ac * 2)?;
                 ei += self.attribute_error(a, b);
-                ej += if c.bidi {
+                ej += if c.error.to_bits() != 0 {
                     self.attribute_error(b, a)
                 } else {
                     0.0
@@ -1017,26 +1049,28 @@ impl State {
                     work.add(self.ac * 2)?;
                     let (s0, s1) = self.seam_target(a, b);
                     ei += self.attribute_error(s0, s1);
-                    ej += if c.bidi {
+                    ej += if c.error.to_bits() != 0 {
                         self.attribute_error(s1, s0)
                     } else {
                         0.0
                     };
                 } else {
                     if self.kind[a] == COMPLEX || self.kind[a] == FRINGE {
-                        let mut v = self.wedge[a];
+                        let mut v = self.wedge.get(a);
                         while v != a {
                             work.add(self.ac)?;
                             ei += self.attribute_error(v, self.complex_target(v, b));
-                            v = self.wedge[v];
+                            v = self.wedge.get(v);
                         }
                     }
-                    if (self.kind[b] == COMPLEX || self.kind[b] == FRINGE) && c.bidi {
-                        let mut v = self.wedge[b];
+                    if (self.kind[b] == COMPLEX || self.kind[b] == FRINGE)
+                        && (c.error.to_bits() != 0)
+                    {
+                        let mut v = self.wedge.get(b);
                         while v != b {
                             work.add(self.ac)?;
                             ej += self.attribute_error(v, self.complex_target(v, a));
-                            v = self.wedge[v];
+                            v = self.wedge.get(v);
                         }
                     }
                 }
@@ -1044,25 +1078,43 @@ impl State {
             if !ei.is_finite() || !ej.is_finite() {
                 return Err(Error::NumericalFailure);
             }
-            let rev = c.bidi && ej < ei;
+            let rev = (c.error.to_bits() != 0) && ej < ei;
             self.collapses[i] = Collapse {
-                a: if rev { b } else { a },
-                b: if rev { a } else { b },
+                a: (if rev { b } else { a }) as u32,
+                b: (if rev { a } else { b }) as u32,
                 error: if ej < ei { ej } else { ei },
-                bidi: c.bidi,
             };
         }
         Ok(())
     }
+    #[inline(always)]
     fn attribute_error(&self, source: usize, target: usize) -> f32 {
         let v = self.p[target];
         let q = self.aq[source];
         let mut r = q.eval(v);
-        for k in 0..self.ac {
-            let a = self.a[target * self.ac + k];
-            let g = self.g[source * self.ac + k];
+        let attributes = &self.a[target * self.ac..][..self.ac];
+        let gradients = &self.g[source * self.ac..][..self.ac];
+        let term = |a: f32, g: G| {
             let g = v.x * g.x + v.y * g.y + v.z * g.z + g.w;
-            r += a * (a * q.w - 2.0 * g);
+            a * (a * q.w - 2.0 * g)
+        };
+        let (a4, at) = attributes.as_chunks::<4>();
+        let (g4, gt) = gradients.as_chunks::<4>();
+        for (a, g) in a4.iter().zip(g4) {
+            // Independent terms can vectorize; accumulation remains in the
+            // exact upstream component order, with no horizontal reduction.
+            let terms = [
+                term(a[0], g[0]),
+                term(a[1], g[1]),
+                term(a[2], g[2]),
+                term(a[3], g[3]),
+            ];
+            for t in terms {
+                r += t;
+            }
+        }
+        for (&a, &g) in at.iter().zip(gt) {
+            r += term(a, g);
         }
         r.abs()
     }
@@ -1081,16 +1133,16 @@ impl State {
         for i in 0..count {
             work.add(1)?;
             let k = sort_key(self.collapses[i].error);
-            self.order[h[k]] = i;
+            self.order.set(h[k], i);
             h[k] += 1;
         }
         Ok(())
     }
     fn flips(&self, a: usize, b: usize, work: &mut Work) -> Result<bool, Error> {
-        for e in &self.edges[self.offsets[a]..self.offsets[a + 1]] {
+        for e in &self.edges[self.offsets.get(a)..self.offsets.get(a + 1)] {
             work.add(1)?;
-            let x = self.cr[e.next];
-            let y = self.cr[e.prev];
+            let x = self.cr.get(e.next as usize);
+            let y = self.cr.get(e.prev as usize);
             if x == b || y == b || x == y {
                 continue;
             }
@@ -1119,27 +1171,27 @@ impl State {
         let mut edge_goal = goal / 2;
         for i in 0..self.p.len() {
             work.add(1)?;
-            self.cr[i] = i;
+            self.cr.set(i, i);
             self.locked[i] = false;
         }
         for i in 0..count {
             work.add(1)?;
-            let c = self.collapses[self.order[i]];
+            let c = self.collapses[self.order.get(i)];
             if c.error > limit || triangles >= goal {
                 break;
             }
             let error_goal = if edge_goal < count {
-                1.5 * self.collapses[self.order[edge_goal]].error
+                1.5 * self.collapses[self.order.get(edge_goal)].error
             } else {
                 f32::MAX
             };
             if c.error > error_goal && c.error > *error && triangles > goal / 6 {
                 break;
             }
-            let a = c.a;
-            let b = c.b;
-            let r0 = self.remap[a];
-            let r1 = self.remap[b];
+            let a = c.a as usize;
+            let b = c.b as usize;
+            let r0 = self.remap.get(a);
+            let r1 = self.remap.get(b);
             let kind = self.kind[a];
             if self.locked[r0] || self.locked[r1] {
                 continue;
@@ -1148,17 +1200,17 @@ impl State {
                 edge_goal += 1;
                 continue;
             }
-            self.cr[a] = b;
+            self.cr.set(a, b);
             if kind == COMPLEX || kind == FRINGE {
-                let mut v = self.wedge[a];
+                let mut v = self.wedge.get(a);
                 while v != a {
                     work.add(1)?;
-                    self.cr[v] = self.complex_target(v, b);
-                    v = self.wedge[v];
+                    self.cr.set(v, self.complex_target(v, b));
+                    v = self.wedge.get(v);
                 }
             } else if kind == SEAM {
                 let (s0, s1) = self.seam_target(a, b);
-                self.cr[s0] = s1;
+                self.cr.set(s0, s1);
             }
             self.locked[r0] = true;
             self.locked[r1] = true;
@@ -1173,12 +1225,12 @@ impl State {
     fn update(&mut self, work: &mut Work) -> Result<(), Error> {
         for i in 0..self.p.len() {
             work.add(1)?;
-            let t = self.cr[i];
+            let t = self.cr.get(i);
             if t == i {
                 continue;
             }
-            let r0 = self.remap[i];
-            let r1 = self.remap[t];
+            let r0 = self.remap.get(i);
+            let r1 = self.remap.get(t);
             if i == r0 {
                 let q = self.q[r0];
                 self.q[r1].add(q);
@@ -1202,18 +1254,21 @@ impl State {
         for loops in [&mut self.forward, &mut self.back] {
             for i in 0..loops.len() {
                 work.add(1)?;
-                let l = loops[i];
+                let l = loops.get(i);
                 if l != NONE {
-                    let r = self.cr[l];
-                    loops[i] = if i == r {
-                        if loops[l] != NONE {
-                            self.cr[loops[l]]
+                    let r = self.cr.get(l);
+                    loops.set(
+                        i,
+                        if i == r {
+                            if loops.get(l) != NONE {
+                                self.cr.get(loops.get(l))
+                            } else {
+                                NONE
+                            }
                         } else {
-                            NONE
-                        }
-                    } else {
-                        r
-                    };
+                            r
+                        },
+                    );
                 }
             }
         }
@@ -1277,10 +1332,13 @@ fn run(
     for i in 0..n {
         work.add(1)?;
         if s.kind[i] == MAN || s.kind[i] == SEAM {
-            dual += s.offsets[i + 1] - s.offsets[i];
+            dual += s.offsets.get(i + 1) - s.offsets.get(i);
         }
     }
     let capacity = m - dual / 2 + 3;
+    let mut budget = Budget { ws, bytes: s.bytes };
+    s.collapses = budget.reserve(capacity)?;
+    s.order = budget.indices(capacity)?;
     let mut count = m;
     let mut error = 0.0;
     let error_scale = if settings.options.contains(SimplifyOptions::ERROR_ABSOLUTE) {
@@ -1313,12 +1371,12 @@ fn run(
         let mut write = 0;
         for i in (0..count).step_by(3) {
             work.add(3)?;
-            let a = s.cr[out[i] as usize];
-            let b = s.cr[out[i + 1] as usize];
-            let c = s.cr[out[i + 2] as usize];
-            let r0 = s.remap[a];
-            let r1 = s.remap[b];
-            let r2 = s.remap[c];
+            let a = s.cr.get(out[i] as usize);
+            let b = s.cr.get(out[i + 1] as usize);
+            let c = s.cr.get(out[i + 2] as usize);
+            let r0 = s.remap.get(a);
+            let r1 = s.remap.get(b);
+            let r2 = s.remap.get(c);
             if r0 != r1 && r0 != r2 && r1 != r2 {
                 out[write] = a as u32;
                 out[write + 1] = b as u32;

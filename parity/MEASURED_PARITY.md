@@ -1,6 +1,6 @@
 # Measured geometry parity
 
-Exact output comparison with scalar-strict C++ 1.3 and executed wasm32 Rust.
+Final lane 3 sources: exact scalar-strict C++ and executed wasm32/native Rust identity.
 
 | Function | Corpus | Seeded sweep | Mismatches |
 |---|---:|---:|---:|
@@ -10,14 +10,8 @@ Exact output comparison with scalar-strict C++ 1.3 and executed wasm32 Rust.
 | simplify_with_attributes | 62 | 2000 | 0 |
 | simplify_scale | 52 | 2000 | 0 |
 
-Seed: 20261002. All five functions include 1,000,002-index cases.
-
-Square-root probe: 65543 exact f32 results, including signed zero and subnormals.
-
-All five upstream JS suites passed unchanged; their applicable-input inventory is in COVERAGE.md.
-
-Stable fuzz smoke ran 600 seconds per module. See results/fuzz.json for executions and the instrumentation limits.
-
-These are Linux x86-64 and wasm32 lane records. AArch64 and the release fuzz/performance gates remain outside this lane.
-
-The records and external compressed input/output buffers retain SHA-256 identities. report.sh rejects stale source and missing or changed artifacts.
+Square-root probe: 65543 exact results. Both feature modes pass all 45 API tests.
+Five stable fuzz targets ran 300 seconds each with zero crashes (554,090,714 executions).
+All five unchanged upstream JS suites passed. Build/format/clippy and the wasm32 build passed.
+See `results/lane3-gates.json`, `results/fuzz.json`, `results/run.json` and `results/sweep.json` for identities and command evidence.
+Performance has a separate verdict in `MEASURED_PERFORMANCE.md`. AArch64 and release qualification are not claimed.

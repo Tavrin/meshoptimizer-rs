@@ -716,3 +716,35 @@ fn protect_prevents_permissive_discontinuity_collapses() {
     assert_eq!(protected.indices, ib);
     assert_eq!(protected.error.to_bits(), 0);
 }
+
+#[test]
+fn overdraw_rejects_squared_area_overflow_with_finite_normal() {
+    let p = [[0.0, 0.0, 0.0], [1e10, 0.0, 0.0], [0.0, 1e10, 0.0]];
+    // Edges and the cross product are finite, but its squared length is not.
+    assert_eq!(
+        optimize_overdraw(
+            &[0, 1, 2],
+            Positions::from_packed(&p),
+            1.05,
+            &mut Workspace::default()
+        ),
+        Err(Error::NumericalFailure)
+    );
+}
+
+#[test]
+fn other_algorithms_charge_retained_cache_vertex_storage() {
+    let indices = [0, 1, 1];
+    let p = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]];
+    let mut ws = Workspace::new(Limits {
+        max_bytes: 62,
+        max_work: u64::MAX,
+    });
+    assert!(optimize_vertex_cache(&indices, p.len(), &mut ws).is_ok());
+    assert_eq!(
+        optimize_overdraw(&indices, Positions::from_packed(&p), 1.05, &mut ws),
+        Err(Error::LimitExceeded)
+    );
+    ws.clear();
+    assert!(optimize_overdraw(&indices, Positions::from_packed(&p), 1.05, &mut ws).is_ok());
+}

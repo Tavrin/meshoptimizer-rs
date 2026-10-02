@@ -1,7 +1,4 @@
 {
-  "schema": 1,
-  "passed": true,
-  "node": "v22.22.0",
   "source_sha256": {
     "rust_and_harness": {
       "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
@@ -254,47 +251,98 @@
       "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
     }
   },
-  "suites": [
+  "commands": [
     {
-      "suite": "encoder",
-      "source_sha256": "532a04b27a8631f53696a82b949b3bd9155e10e9f410663970ae206f4aca593b",
+      "command": [
+        "cargo",
+        "fmt",
+        "--check"
+      ],
       "exit": 0,
-      "stdout": "19 tests passed\n",
-      "stderr": "",
-      "coverage": "upstream sanity only; no direct shipped-module fixture"
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-0.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "suite": "decoder",
-      "source_sha256": "70488d804844802804fc8d4eb302779ea392f746f97df654cc2fabe0ca72c6ac",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
       "exit": 0,
-      "stdout": "21 tests passed\n",
-      "stderr": "",
-      "coverage": "upstream sanity only; no direct shipped-module fixture"
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-1.log",
+      "sha256": "02db5a66fa0c60ca8618bd08aac556eac4f3ec863e8630a0d353dba6a0f6e126"
     },
     {
-      "suite": "simplifier",
-      "source_sha256": "62ed9a054a129e11afdba2d5f9e3ee55511fd33923fa45d07bb0a58b605e30c9",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--all-features"
+      ],
       "exit": 0,
-      "stdout": "10 tests passed\n",
-      "stderr": "",
-      "coverage": "upstream sanity only; no direct shipped-module fixture"
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-2.log",
+      "sha256": "97102ec637d25ef541b8cfaf12467458d6a1cd1832139376a18bae4102c41ddf"
     },
     {
-      "suite": "clusterizer",
-      "source_sha256": "8c6ad6888b3ad5ef6d5670bd4ae832b3a0ac408693f3668e2896267fdad2a990",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--no-default-features"
+      ],
       "exit": 0,
-      "stdout": "4 tests passed\n",
-      "stderr": "",
-      "coverage": "upstream sanity only; no direct shipped-module fixture"
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-3.log",
+      "sha256": "3e246380f97b9ec8a57d90d8f41256d5389ac5942117d159acf97f614ba6bdde"
     },
     {
-      "suite": "tangents",
-      "source_sha256": "91fb5867d117a830d2c62078a30501d1a2a5d50dd7cad4b27fd0124328404a38",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features"
+      ],
       "exit": 0,
-      "stdout": "3 tests passed\n",
-      "stderr": "",
-      "coverage": "upstream sanity only; no direct shipped-module fixture"
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-4.log",
+      "sha256": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
+    },
+    {
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.1"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-5.log",
+      "sha256": "51f3be81ca6c11c361cd8c35acf83b24fda8971a47d5206d1b94de491f7444f2"
+    },
+    {
+      "command": [
+        "parity/sweep.sh"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-6.log",
+      "sha256": "604f7c13adb038cb1b223b80813e5d4bb1a3e2165c811dafe41eae350f6dbc17"
+    },
+    {
+      "command": [
+        "parity/js.sh",
+        "--phase",
+        "0.1"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/gate-7.log",
+      "sha256": "5b4bbaf5571af23bcc0b943759daff9a891ad31c6006abf45f22d9ca714b09aa"
     }
   ],
-  "applicability": "Six applicable simplifier calls are captured by js-fixtures.cjs and compared through Rust/native/WASM. reorderMesh uses Strip (0.1.x); only its topology is reused for standard cache. Other JS operations remain upstream sanity checks."
+  "started_unix": 1790944186.1509967,
+  "finished_unix": 1790944278.051352,
+  "identities_unchanged": true,
+  "passed": true
 }

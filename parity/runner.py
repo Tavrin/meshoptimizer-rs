@@ -426,56 +426,8 @@ def protocol_checks(binaries):
 
 
 def benchmark(args):
-    if args.enforce:
-        raise ValueError("lane 2 records performance; enforcement is a later qualification gate")
-    reference, target, results = paths()
-    binaries, identities = build(reference, target, wasm=False)
-    p, ib = grid(1000000)
-    record = {"schema": 1, "command": "benchmark", "identities": identities, "started_unix": time.time(),
-              "triangles": 1000000, "vertices": len(p) // 3, "samples": 10, "threads": 1,
-              "timing": "validation, output/scratch allocation and algorithm; excludes generation, I/O and startup",
-              "cpp_reference": "scalar-strict; shipped lane modules have no explicit SIMD paths", "workloads": {}, "passed": False}
-    artifact = artifacts_path() / "benchmark-buffers.zip"
-    with zipfile.ZipFile(artifact, "w", zipfile.ZIP_DEFLATED) as archive:
-        workloads = [(op, family, None) for op, family in FAMILIES.items() if op not in {4, 5}]
-        workloads += [(op, f"{FAMILIES[op]}-ratio-{ratio}", ratio) for op in [4, 5] for ratio in [.5, .25, .125]]
-        for op, family, target_ratio in workloads:
-            if op == 2:
-                cached, _ = response(execute(binaries["rust"], message(1, p, ib)), len(ib))
-                ib = array.array("I")
-                ib.frombytes(cached)
-                if sys.byteorder != "little":
-                    ib.byteswap()
-            samples = {"rust": [], "cpp": []}
-            data = message(op, p, ib, mode=1, samples=1, variant=4)
-            if target_ratio is not None:
-                data = bytearray(data)
-                struct.pack_into("<IfI", data, 28+len(p)*4+len(ib)*4, int(len(ib)*target_ratio), max(1.-target_ratio,.05), 32 if op==5 else 0)
-                data = bytes(data)
-            input_artifact = retain(archive, family + ".input", data)
-            outputs = []
-            for pair in range(10):
-                order = ["rust", "cpp"] if pair % 2 == 0 else ["cpp", "rust"]
-                pair_outputs = {}
-                for backend in order:
-                    raw = execute(binaries[backend], data)
-                    out, times = response(raw, len(ib) if op <= 2 else None, 1)
-                    if not all(math.isfinite(t) and t > 0 for t in times):
-                        raise ValueError("invalid benchmark time")
-                    samples[backend] += times
-                    pair_outputs[backend] = out
-                    outputs.append(retain(archive, f"{family}-{pair}-{backend}.output", raw))
-                if pair_outputs["rust"] != pair_outputs["cpp"]:
-                    raise ValueError("benchmark outputs differ")
-            stats = {n: {"median_seconds": statistics.median(ts), "min_seconds": min(ts), "max_seconds": max(ts),
-                         "stdev_seconds": statistics.stdev(ts), "raw_seconds": ts} for n, ts in samples.items()}
-            ratio = stats["rust"]["median_seconds"] / stats["cpp"]["median_seconds"]
-            record["workloads"][family] = {"stats": stats, "rust_cpp_ratio": ratio, "target_ratio": target_ratio, "input": input_artifact, "outputs": outputs}
-    check_unchanged(reference, binaries, identities)
-    record.update(passed=True, finished_unix=time.time(), artifacts={artifact.name: sha(artifact)})
-    (results / "benchmark.json").write_text(json.dumps(record, indent=2) + "\n")
-    for family, result in record["workloads"].items():
-        print(f'{family}: Rust {result["stats"]["rust"]["median_seconds"]:.6f}s, C++ {result["stats"]["cpp"]["median_seconds"]:.6f}s, ratio {result["rust_cpp_ratio"]:.3f}')
+    import performance
+    performance.run(sys.modules[__name__], args)
 
 
 def js(args):
@@ -536,7 +488,19 @@ def verify_record(record, results):
                 verify(work["input"])
                 for out in work["outputs"]:
                     verify(out)
-                if len(work["outputs"]) != 20 or any(len(s["raw_seconds"]) != 10 for s in work["stats"].values()):
+                if record.get("schema") == 2:
+                    if len(work["outputs"]) != 2 * len(work["attempts"]) or any(len(s["raw_seconds"]) < 10 for s in work["stats"].values()):
+                        raise ValueError("missing benchmark samples")
+                    outputs = []
+                    for out in work["outputs"]:
+                        data = archive.read(out["member"])
+                        outputs.append(response(data[:-8], samples=struct.unpack_from("<I", data, 12)[0])[0])
+                    if len(set(outputs)) != 1:
+                        raise ValueError("benchmark output mismatch")
+                    for attempt in work["attempts"]:
+                        for invalid in attempt["invalid_clock_samples"]:
+                            if "response" in invalid: verify(invalid["response"])
+                elif len(work["outputs"]) != 20 or any(len(s["raw_seconds"]) != 10 for s in work["stats"].values()):
                     raise ValueError("missing benchmark samples")
 
 
@@ -602,6 +566,11 @@ def report(args):
               "These are Linux x86-64 and wasm32 lane records. AArch64 and the release fuzz/performance gates remain outside this lane.", "",
               "The records and external compressed input/output buffers retain SHA-256 identities. report.sh rejects stale source and missing or changed artifacts."]
     (ROOT / "parity/MEASURED_PARITY.md").write_text("\n".join(lines) + "\n")
+    if records["benchmark"].get("schema") == 2:
+        import performance
+        performance.write_report(sys.modules[__name__], records["benchmark"], results)
+        print("verified source identities, required counts and retained artifacts; generated measured reports")
+        return
     lines = ["# Measured geometry performance", "", "Single thread, 1,000,000 triangles; medians of ten interleaved pairs after warm-up.", "",
              "Validation, output and scratch allocation and execution are timed; generation, I/O and process startup are excluded.", "",
              "| Function | Rust (ms) | C++ (ms) | Rust/C++ |", "|---|---:|---:|---:|"]

@@ -33,6 +33,7 @@ pub fn optimize_overdraw(
             threshold,
             workspace,
             &mut work,
+            checked_bytes(indices.len(), 4)?,
         )?;
         Ok(destination)
     })();
@@ -66,6 +67,7 @@ pub fn optimize_overdraw_into(
             threshold,
             workspace,
             &mut work,
+            0,
         )
     })();
     workspace.finish(&work);
@@ -95,13 +97,13 @@ fn validate(
     if !threshold.is_finite() {
         return Err(Error::InvalidParameter);
     }
-    for i in 0..positions.len() {
+    positions.for_each(|p| {
         work.add(1)?;
-        if !positions.at(i)?.iter().all(|x| x.is_finite()) {
+        if !p.iter().all(|x| x.is_finite()) {
             return Err(Error::NumericalFailure);
         }
-    }
-    Ok(())
+        Ok(())
+    })
 }
 
 fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Error> {
@@ -110,11 +112,11 @@ fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Err
     }
     let f = n / 3;
     let ints = f
-        .checked_mul(3)
+        .checked_mul(2)
         .and_then(|x| x.checked_add(v))
         .and_then(|x| x.checked_add(1))
         .ok_or(Error::SizeOverflow)?;
-    ws.prepare([ints, f, 0, f], out)
+    ws.prepare([ints, 0, 0, 0], out)
 }
 
 fn update(triangle: &[u32], stamps: &mut [u32], time: &mut u32) -> u32 {
@@ -145,6 +147,7 @@ fn kernel(
     threshold: f32,
     ws: &mut Workspace,
     work: &mut Work,
+    output_bytes: usize,
 ) -> Result<(), Error> {
     if indices.is_empty() {
         return Ok(());
@@ -153,7 +156,7 @@ fn kernel(
     let v = positions.len();
     let (stamps, rest) = ws.integers.split_at_mut(v);
     let (hard, rest) = rest.split_at_mut(faces);
-    let (soft, order) = rest.split_at_mut(faces + 1);
+    let soft = rest;
     work.add(v)?;
     stamps.fill(0);
     let mut time = 17;
@@ -206,16 +209,22 @@ fn kernel(
             soft_count -= 1;
         }
     }
+    // Hard boundaries are dead after soft clustering; reuse their storage for
+    // sort order. Only live clusters need keys and floating-point sort data.
+    let ints = ws.integers.len();
+    ws.prepare([ints, soft_count, 0, soft_count], output_bytes)?;
+    let (_, rest) = ws.integers.split_at_mut(v);
+    let (order, soft) = rest.split_at_mut(faces);
     let mut mesh_centroid = [0f32; 3];
-    for i in 0..v {
+    positions.for_each(|p| {
         work.add(1)?;
-        let p = positions.at(i)?;
         for j in 0..3 {
-            mesh_centroid[j] = finite(mesh_centroid[j] + p[j])?;
+            mesh_centroid[j] += p[j];
         }
-    }
+        Ok(())
+    })?;
     for x in &mut mesh_centroid {
-        *x /= v as f32;
+        *x = finite(*x)? / v as f32;
     }
     let data = &mut ws.floats;
     for cluster in 0..soft_count {
@@ -237,21 +246,24 @@ fn kernel(
             let mut p10 = [0f32; 3];
             let mut p20 = [0f32; 3];
             for j in 0..3 {
-                p10[j] = finite(p1[j] - p0[j])?;
-                p20[j] = finite(p2[j] - p0[j])?;
+                p10[j] = p1[j] - p0[j];
+                p20[j] = p2[j] - p0[j];
             }
             let n = [
-                finite(p10[1] * p20[2] - p10[2] * p20[1])?,
-                finite(p10[2] * p20[0] - p10[0] * p20[2])?,
-                finite(p10[0] * p20[1] - p10[1] * p20[0])?,
+                p10[1] * p20[2] - p10[2] * p20[1],
+                p10[2] * p20[0] - p10[0] * p20[2],
+                p10[0] * p20[1] - p10[1] * p20[0],
             ];
-            let area = crate::math::sqrt(finite(n[0] * n[0] + n[1] * n[1] + n[2] * n[2])?);
+            // A nonfinite squared norm produces a nonfinite area. Areas are
+            // nonnegative, so the checked cluster sum below cannot hide it.
+            let area = crate::math::sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
             for j in 0..3 {
-                centroid[j] = finite(centroid[j] + (p0[j] + p1[j] + p2[j]) * (area / 3.))?;
-                normal[j] = finite(normal[j] + n[j])?;
+                centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
+                normal[j] += n[j];
             }
-            area_sum = finite(area_sum + area)?;
+            area_sum += area;
         }
+        finite(area_sum)?;
         let inv_area = if area_sum == 0. {
             0.
         } else {
@@ -294,8 +306,8 @@ fn kernel(
         histogram[ws.keys[i] as usize] += 1;
     }
     let mut sum = 0;
+    work.add(histogram.len())?;
     for h in &mut histogram {
-        work.add(1)?;
         let count = *h;
         *h = sum;
         sum += count;
