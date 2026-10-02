@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MESHOPT_REFERENCE: ${{ github.workspace }}/reference
-      CARGO_TARGET_DIR: ${{ runner.temp }}/meshopt-lane1
+      CARGO_TARGET_DIR: ${{ github.workspace }}/target-parity
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
