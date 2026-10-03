@@ -22,3 +22,7 @@ libm = { version = "=0.2.16", default-features = false }
 
 [package.metadata.docs.rs]
 all-features = true
+
+[profile.release]
+codegen-units = 1
+lto = "fat"

@@ -97,8 +97,7 @@ fn validate(
     if !threshold.is_finite() {
         return Err(Error::InvalidParameter);
     }
-    positions.for_each(|p| {
-        work.add(1)?;
+    positions.for_each_counted(work, |p| {
         if !p.iter().all(|x| x.is_finite()) {
             return Err(Error::NumericalFailure);
         }
@@ -119,7 +118,8 @@ fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Err
     ws.prepare([ints, 0, 0, 0], out)
 }
 
-fn update(triangle: &[u32], stamps: &mut [u32], time: &mut u32) -> u32 {
+#[inline(always)]
+fn update(triangle: &[u32; 3], stamps: &mut [u32], time: &mut u32) -> u32 {
     let mut misses = 0;
     for &index in triangle {
         let stamp = &mut stamps[index as usize];
@@ -153,6 +153,7 @@ fn kernel(
         return Ok(());
     }
     let faces = indices.len() / 3;
+    let triangles = indices.as_chunks::<3>().0;
     let v = positions.len();
     let (stamps, rest) = ws.integers.split_at_mut(v);
     let (hard, rest) = rest.split_at_mut(faces);
@@ -161,14 +162,14 @@ fn kernel(
     stamps.fill(0);
     let mut time = 17;
     let mut hard_count = 0;
-    for (i, tri) in indices.as_chunks::<3>().0.iter().enumerate() {
-        work.add(1)?;
+    work.scan(triangles.iter().enumerate(), |(i, tri)| {
         let misses = update(tri, stamps, &mut time);
         if i == 0 || misses == 3 {
             hard[hard_count] = i as u32;
             hard_count += 1;
         }
-    }
+        Ok(())
+    })?;
     work.add(v)?;
     stamps.fill(0);
     time = 0;
@@ -183,28 +184,28 @@ fn kernel(
         };
         time = time.wrapping_add(17);
         let mut misses = 0u32;
-        for i in start..end {
-            work.add(1)?;
-            misses += update(&indices[i * 3..i * 3 + 3], stamps, &mut time);
-        }
+        work.scan(triangles[start..end].iter(), |tri| {
+            misses += update(tri, stamps, &mut time);
+            Ok(())
+        })?;
         let target = finite(threshold * (misses as f32 / (end - start) as f32))?;
         soft[soft_count] = start as u32;
         soft_count += 1;
         time = time.wrapping_add(17);
         let mut running_misses = 0;
         let mut running_faces = 0;
-        for i in start..end {
-            work.add(1)?;
-            running_misses += update(&indices[i * 3..i * 3 + 3], stamps, &mut time);
+        work.scan(triangles[start..end].iter().enumerate(), |(offset, tri)| {
+            running_misses += update(tri, stamps, &mut time);
             running_faces += 1;
             if running_misses as f32 / running_faces as f32 <= target {
-                soft[soft_count] = (i + 1) as u32;
+                soft[soft_count] = (start + offset + 1) as u32;
                 soft_count += 1;
                 time = time.wrapping_add(17);
                 running_misses = 0;
                 running_faces = 0;
             }
-        }
+            Ok(())
+        })?;
         if soft[soft_count - 1] != start as u32 {
             soft_count -= 1;
         }
@@ -216,8 +217,7 @@ fn kernel(
     let (_, rest) = ws.integers.split_at_mut(v);
     let (order, soft) = rest.split_at_mut(faces);
     let mut mesh_centroid = [0f32; 3];
-    positions.for_each(|p| {
-        work.add(1)?;
+    positions.for_each_counted(work, |p| {
         for j in 0..3 {
             mesh_centroid[j] += p[j];
         }
@@ -227,6 +227,7 @@ fn kernel(
         *x = finite(*x)? / v as f32;
     }
     let data = &mut ws.floats;
+    let mut sqrt_cache = crate::math::SqrtCache::new();
     for cluster in 0..soft_count {
         work.add(1)?;
         let start = soft[cluster] as usize * 3;
@@ -256,7 +257,7 @@ fn kernel(
             ];
             // A nonfinite squared norm produces a nonfinite area. Areas are
             // nonnegative, so the checked cluster sum below cannot hide it.
-            let area = crate::math::sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+            let area = sqrt_cache.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
             for j in 0..3 {
                 centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
                 normal[j] += n[j];
@@ -272,7 +273,7 @@ fn kernel(
         for x in &mut centroid {
             *x = finite(*x * inv_area)?;
         }
-        let length = crate::math::sqrt(finite(
+        let length = sqrt_cache.sqrt(finite(
             normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2],
         )?);
         let inv_length = if length == 0. {

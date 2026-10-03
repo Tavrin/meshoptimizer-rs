@@ -104,20 +104,22 @@ fn kernel(
     let adjacency = &mut ws.integers;
     let triangle_scores = &mut ws.floats;
     let emitted = &mut ws.flags;
+    let triangles = indices.as_chunks::<3>().0;
+    let destination = dest[..indices.len()].as_chunks_mut::<3>().0;
     work.add(v)?;
     for vertex in vertices.iter_mut() {
         vertex.live = 0;
     }
-    for &index in indices {
-        work.add(1)?;
+    work.scan(indices.iter().copied(), |index| {
         vertices[index as usize].live += 1;
-    }
+        Ok(())
+    })?;
     let mut offset = 0;
-    for vertex in vertices.iter_mut() {
-        work.add(1)?;
+    work.scan(vertices.iter_mut(), |vertex| {
         vertex.offset = offset;
         offset += vertex.live;
-    }
+        Ok(())
+    })?;
     for (i, triangle) in indices.as_chunks::<3>().0.iter().enumerate() {
         for &index in triangle {
             work.add(1)?;
@@ -127,29 +129,35 @@ fn kernel(
             vertex.offset += 1;
         }
     }
-    for vertex in vertices.iter_mut() {
-        work.add(1)?;
+    work.scan(vertices.iter_mut(), |vertex| {
         vertex.offset -= vertex.live;
         vertex.score = score(0, vertex.live);
-    }
+        Ok(())
+    })?;
     work.add(faces)?;
     emitted.fill(0);
-    for i in 0..faces {
-        work.add(1)?;
-        triangle_scores[i] = vertices[indices[i * 3] as usize].score
-            + vertices[indices[i * 3 + 1] as usize].score
-            + vertices[indices[i * 3 + 2] as usize].score;
-    }
-    let mut cache = [0u32; 20];
-    let mut next = [0u32; 20];
+    work.scan(
+        triangle_scores[..faces].iter_mut().zip(triangles),
+        |(s, triangle)| {
+            *s = vertices[triangle[0] as usize].score
+                + vertices[triangle[1] as usize].score
+                + vertices[triangle[2] as usize].score;
+            Ok(())
+        },
+    )?;
+    let mut cache_storage = [0u32; 20];
+    let mut next_storage = [0u32; 20];
+    // Upstream exchanges pointers, not the contents of its two cache arrays.
+    let mut cache = &mut cache_storage;
+    let mut next = &mut next_storage;
     let mut cache_count = 0;
     let mut current = 0usize;
     let mut cursor = 1usize;
     let mut emitted_count = 0;
     while current != usize::MAX {
         work.add(1)?;
-        let triangle = &indices[current * 3..current * 3 + 3];
-        dest[emitted_count * 3..emitted_count * 3 + 3].copy_from_slice(triangle);
+        let triangle = &triangles[current];
+        destination[emitted_count].copy_from_slice(triangle);
         emitted_count += 1;
         emitted[current] = 1;
         triangle_scores[current] = 0.;

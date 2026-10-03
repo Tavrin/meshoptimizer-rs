@@ -198,17 +198,54 @@ pub(crate) struct Work {
 }
 impl Work {
     #[inline]
+    pub(crate) fn covers(&self, count: usize) -> Result<bool, Error> {
+        Ok(u64::try_from(count).map_err(|_| Error::SizeOverflow)? <= self.remaining)
+    }
+
+    #[inline]
+    pub(crate) fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        mut visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        let count = values.len();
+        let visits = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
+        if visits <= self.remaining {
+            // Charge the complete scan once. On a callback failure, charge only
+            // its visited prefix, including the failing record as add(1) did.
+            for (i, value) in values.enumerate() {
+                if let Err(error) = visit(value) {
+                    self.add(i + 1)?;
+                    return Err(error);
+                }
+            }
+            self.add(count)
+        } else {
+            // Preserve the original exhaustion point and partial side effects.
+            for value in values {
+                self.add(1)?;
+                visit(value)?;
+            }
+            Ok(())
+        }
+    }
+    #[inline]
     pub(crate) fn add(&mut self, count: usize) -> Result<(), Error> {
         let count = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
         if count > self.remaining {
-            // Preserve the overflow error on the cold exhaustion path.
-            (self.limit - self.remaining)
-                .checked_add(count)
-                .ok_or(Error::SizeOverflow)?;
-            return Err(Error::LimitExceeded);
+            return self.exhausted(count);
         }
         self.remaining -= count;
         Ok(())
+    }
+    #[cold]
+    #[inline(never)]
+    fn exhausted(&self, count: u64) -> Result<(), Error> {
+        // Preserve both the failed visit's count and the overflow error.
+        (self.limit - self.remaining)
+            .checked_add(count)
+            .ok_or(Error::SizeOverflow)?;
+        Err(Error::LimitExceeded)
     }
 }
 
@@ -222,11 +259,52 @@ pub(crate) fn topology(indices: &[u32], vertices: usize, work: &mut Work) -> Res
     }
     checked_bytes(vertices, 4)?;
     checked_bytes(indices.len(), 4)?;
-    for &index in indices {
-        work.add(1)?;
+    work.scan(indices.iter().copied(), |index| {
         if index as usize >= vertices {
             return Err(Error::IndexOutOfBounds);
         }
+        Ok(())
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scan_preserves_failures_work_and_side_effects() {
+        for limit in 0..=8 {
+            for fail_at in 0usize..=5 {
+                let mut scalar = Work {
+                    remaining: limit,
+                    limit,
+                };
+                let mut scanned = Work {
+                    remaining: limit,
+                    limit,
+                };
+                let mut scalar_sum = 0;
+                let mut scanned_sum = 0;
+                let visit = |i, sum: &mut usize| {
+                    *sum += i + 1;
+                    if i == fail_at {
+                        Err(Error::NumericalFailure)
+                    } else {
+                        Ok(())
+                    }
+                };
+                let expected = (|| {
+                    for i in 0..5 {
+                        scalar.add(1)?;
+                        visit(i, &mut scalar_sum)?;
+                    }
+                    Ok(())
+                })();
+                let actual = scanned.scan(0..5, |i| visit(i, &mut scanned_sum));
+                assert_eq!(actual, expected);
+                assert_eq!(scanned.remaining, scalar.remaining);
+                assert_eq!(scanned_sum, scalar_sum);
+            }
+        }
     }
-    Ok(())
 }

@@ -272,11 +272,20 @@ fn validate(
             return Err(Error::InvalidLayout);
         }
     }
-    for &w in weights {
-        work.add(1)?;
+    work.scan(weights.iter().copied(), |w| {
         if !w.is_finite() || w < 0.0 {
             return Err(Error::InvalidParameter);
         }
+        Ok(())
+    })?;
+    if a.is_none() {
+        return p.for_each_counted(work, |v| {
+            if v.iter().any(|v| !v.is_finite()) {
+                Err(Error::InvalidParameter)
+            } else {
+                Ok(())
+            }
+        });
     }
     for i in 0..p.len() {
         work.add(1)?;
@@ -284,12 +293,12 @@ fn validate(
             return Err(Error::InvalidParameter);
         }
         if let Some(a) = a {
-            for k in 0..a.components() {
-                work.add(1)?;
+            work.scan(0..a.components(), |k| {
                 if !a.get(i, k).ok_or(Error::InvalidLayout)?.is_finite() {
                     return Err(Error::InvalidParameter);
                 }
-            }
+                Ok(())
+            })?;
         }
     }
     Ok(())
@@ -318,8 +327,8 @@ impl V {
             z: self.x * b.y - self.y * b.x,
         }
     }
-    fn normalize(&mut self) -> f32 {
-        let l = sqrt(self.dot(*self));
+    fn normalize(&mut self, cache: &mut crate::math::SqrtCache) -> f32 {
+        let l = cache.sqrt(self.dot(*self));
         if l > 0.0 {
             self.x /= l;
             self.y /= l;
@@ -341,6 +350,8 @@ struct Q {
     b2: f32,
     c: f32,
     w: f32,
+    // Used only by positional quadrics after their accumulation phase.
+    inverse_weight: f32,
 }
 impl Q {
     fn add(&mut self, r: Self) {
@@ -366,7 +377,10 @@ impl Q {
         self.c + rx * v.x + ry * v.y + rz * v.z
     }
     fn error(self, v: V) -> f32 {
-        self.eval(v).abs() * if self.w == 0.0 { 0.0 } else { 1.0 / self.w }
+        self.eval(v).abs() * self.inverse_weight
+    }
+    fn cache_inverse_weight(&mut self) {
+        self.inverse_weight = if self.w == 0.0 { 0.0 } else { 1.0 / self.w };
     }
     fn plane(n: V, d: f32, w: f32) -> Self {
         let aw = n.x * w;
@@ -385,6 +399,7 @@ impl Q {
             b2: n.z * dw,
             c: d * dw,
             w,
+            inverse_weight: 0.0,
         }
     }
     fn point(p: V, w: f32) -> Self {
@@ -400,12 +415,12 @@ impl Q {
             ..Self::default()
         }
     }
-    fn triangle(a: V, b: V, c: V, w: f32) -> Self {
+    fn triangle(a: V, b: V, c: V, w: f32, cache: &mut crate::math::SqrtCache) -> Self {
         let mut n = b.sub(a).cross(c.sub(a));
-        let area = n.normalize();
-        Self::plane(n, -n.dot(a), sqrt(area) * w)
+        let area = n.normalize(cache);
+        Self::plane(n, -n.dot(a), cache.sqrt(area) * w)
     }
-    fn edge(a: V, b: V, c: V, w: f32) -> Self {
+    fn edge(a: V, b: V, c: V, w: f32, cache: &mut crate::math::SqrtCache) -> Self {
         let p10 = b.sub(a);
         let ls = p10.dot(p10);
         let p20 = c.sub(a);
@@ -415,8 +430,8 @@ impl Q {
             y: p20.y * ls - p10.y * proj,
             z: p20.z * ls - p10.z * proj,
         };
-        perp.normalize();
-        Self::plane(perp, -perp.dot(a), sqrt(ls) * w)
+        perp.normalize(cache);
+        Self::plane(perp, -perp.dot(a), cache.sqrt(ls) * w)
     }
     fn finite(self) -> bool {
         [
@@ -496,6 +511,8 @@ impl Indices {
     }
 }
 struct State {
+    vertex_count: usize,
+    sqrt_cache: crate::math::SqrtCache,
     offsets: Indices,
     edges: Vec<Edge>,
     remap: Indices,
@@ -525,8 +542,11 @@ impl Budget<'_> {
         Ok(Indices(self.vec(n)?))
     }
     fn vec<T: Default + Clone>(&mut self, n: usize) -> Result<Vec<T>, Error> {
+        self.filled(n, T::default())
+    }
+    fn filled<T: Clone>(&mut self, n: usize, value: T) -> Result<Vec<T>, Error> {
         let mut v = self.reserve(n)?;
-        v.resize(n, T::default());
+        v.resize(n, value);
         Ok(v)
     }
     fn reserve<T>(&mut self, n: usize) -> Result<Vec<T>, Error> {
@@ -562,14 +582,16 @@ impl State {
             .checked_next_power_of_two()
             .ok_or(Error::SizeOverflow)?;
         let mut state = Self {
+            vertex_count: n,
+            sqrt_cache: crate::math::SqrtCache::new(),
             offsets: b.indices(n + 1)?,
             edges: b.vec(m)?,
-            remap: b.indices(n)?,
-            wedge: b.indices(n)?,
+            remap: Indices(b.reserve(n)?),
+            wedge: Indices(b.reserve(n)?),
             kind: b.vec(n)?,
-            forward: b.indices(n)?,
-            back: b.indices(n)?,
-            p: b.vec(n)?,
+            forward: Indices(b.filled(n, NONE as u32)?),
+            back: Indices(b.filled(n, NONE as u32)?),
+            p: b.reserve(n)?,
             a: b.vec(na)?,
             q: b.vec(n)?,
             aq: b.vec(if ac > 0 { n } else { 0 })?,
@@ -578,7 +600,7 @@ impl State {
             order: Indices(Vec::new()),
             cr: b.indices(n)?,
             locked: b.vec(n)?,
-            table: b.indices(buckets)?,
+            table: Indices(b.filled(buckets, NONE as u32)?),
             ac,
             bytes: 0,
         };
@@ -586,19 +608,20 @@ impl State {
         Ok(state)
     }
     fn adjacency(&mut self, indices: &[u32], weld: bool, work: &mut Work) -> Result<(), Error> {
-        work.add(self.p.len())?;
+        work.add(self.vertex_count)?;
         self.offsets.fill(0);
-        for &i in indices {
-            work.add(1)?;
+        let counters = &mut self.offsets.0[1..];
+        work.scan(indices.iter().copied(), |i| {
             let v = if weld {
                 self.remap.get(i as usize)
             } else {
                 i as usize
             };
-            self.offsets.set(v + 1, self.offsets.get(v + 1) + (1));
-        }
+            counters[v] += 1;
+            Ok(())
+        })?;
         let mut offset = 0;
-        for v in &mut self.offsets.0[1..] {
+        for v in counters.iter_mut() {
             let count = *v;
             *v = offset;
             offset += count;
@@ -613,11 +636,12 @@ impl State {
             }
             for e in 0..3 {
                 let a = v[e];
-                self.edges[self.offsets.get(a + 1)] = Edge {
+                let offset = &mut counters[a];
+                self.edges[*offset as usize] = Edge {
                     next: v[(e + 1) % 3] as u32,
                     prev: v[(e + 2) % 3] as u32,
                 };
-                self.offsets.set(a + 1, self.offsets.get(a + 1) + (1));
+                *offset += 1;
             }
         }
         Ok(())
@@ -646,7 +670,6 @@ impl State {
         Ok(false)
     }
     fn position_remap(&mut self, p: Positions<'_>, work: &mut Work) -> Result<(), Error> {
-        self.table.fill(NONE);
         let mask = self.table.len() - 1;
         for i in 0..p.len() {
             work.add(1)?;
@@ -671,8 +694,8 @@ impl State {
                 }
                 bucket = (bucket + probe + 1) & mask;
             }
-            self.remap.set(i, self.table.get(bucket));
-            self.wedge.set(i, i);
+            self.remap.0.push(self.table.get(bucket) as u32);
+            self.wedge.0.push(i as u32);
         }
         for i in 0..p.len() {
             work.add(1)?;
@@ -690,9 +713,7 @@ impl State {
         options: SimplifyOptions,
         work: &mut Work,
     ) -> Result<(), Error> {
-        let n = self.p.len();
-        self.forward.fill(NONE);
-        self.back.fill(NONE);
+        let n = self.vertex_count;
         for i in 0..n {
             work.add(1)?;
             for j in self.offsets.get(i)..self.offsets.get(i + 1) {
@@ -811,13 +832,13 @@ fn flag(flags: Option<&[VertexFlags]>, i: usize, f: VertexFlags) -> bool {
     flags.is_some_and(|flags| flags[i].contains(f))
 }
 impl State {
-    fn attribute_quadric(&self, t: [usize; 3]) -> (Q, [G; 32]) {
+    fn attribute_quadric(&mut self, t: [usize; 3]) -> Q {
         let [i0, i1, i2] = t;
         let p0 = self.p[i0];
         let v0 = self.p[i1].sub(p0);
         let v1 = self.p[i2].sub(p0);
         let normal = v0.cross(v1);
-        let w = sqrt(normal.dot(normal)) * 0.5;
+        let w = self.sqrt_cache.sqrt(normal.dot(normal)) * 0.5;
         let d00 = v0.dot(v0);
         let d01 = v0.dot(v1);
         let d11 = v1.dot(v1);
@@ -830,11 +851,15 @@ impl State {
         let gz1 = (d11 * v0.z - d01 * v1.z) * dr;
         let gz2 = (d00 * v1.z - d01 * v0.z) * dr;
         let mut q = Q { w, ..Q::default() };
-        let mut g = [G::default(); 32];
-        for (k, g) in g.iter_mut().enumerate().take(self.ac) {
-            let a0 = self.a[i0 * self.ac + k];
-            let a1 = self.a[i1 * self.ac + k];
-            let a2 = self.a[i2 * self.ac + k];
+        let attributes0 = &self.a[i0 * self.ac..][..self.ac];
+        let attributes1 = &self.a[i1 * self.ac..][..self.ac];
+        let attributes2 = &self.a[i2 * self.ac..][..self.ac];
+        for (k, ((&a0, &a1), &a2)) in attributes0
+            .iter()
+            .zip(attributes1)
+            .zip(attributes2)
+            .enumerate()
+        {
             let gx = gx1 * (a1 - a0) + gx2 * (a2 - a0);
             let gy = gy1 * (a1 - a0) + gy2 * (a2 - a0);
             let gz = gz1 * (a1 - a0) + gz2 * (a2 - a0);
@@ -849,14 +874,19 @@ impl State {
             q.b1 += w * (gy * gw);
             q.b2 += w * (gz * gw);
             q.c += w * (gw * gw);
-            *g = G {
+            let g = G {
                 x: w * gx,
                 y: w * gy,
                 z: w * gz,
                 w: w * gw,
             };
+            // Components are independent. Keep each component's three vertex
+            // additions in the original order, including repeated vertices.
+            for i in t {
+                self.g[i * self.ac + k].add(g);
+            }
         }
-        (q, g)
+        q
     }
     fn quadrics(
         &mut self,
@@ -865,12 +895,16 @@ impl State {
         options: SimplifyOptions,
         work: &mut Work,
     ) -> Result<(), Error> {
+        let n = self.p.len();
+        let p = &self.p[..n];
+        let remap = &self.remap.0[..n];
+        let qv = &mut self.q[..n];
         for t in indices.as_chunks::<3>().0 {
             work.add(3)?;
             let [a, b, c] = [t[0] as usize, t[1] as usize, t[2] as usize];
-            let q = Q::triangle(self.p[a], self.p[b], self.p[c], 1.0);
+            let q = Q::triangle(p[a], p[b], p[c], 1.0, &mut self.sqrt_cache);
             for i in [a, b, c] {
-                self.q[self.remap.get(i)].add(q);
+                qv[remap[i] as usize].add(q);
             }
         }
         let factor = if options.contains(SimplifyOptions::REGULARIZE_LIGHT) {
@@ -880,19 +914,21 @@ impl State {
         } else {
             1e-7
         };
-        for i in 0..self.p.len() {
-            work.add(1)?;
-            if self.remap.get(i) != i {
-                continue;
-            }
-            let w = self.q[i].w
-                * if flag(flags, i, VertexFlags::PRIORITY) {
-                    1.0
-                } else {
-                    factor
-                };
-            self.q[i].add(Q::point(self.p[i], w));
-        }
+        work.scan(
+            qv.iter_mut().zip(p).zip(remap).enumerate(),
+            |(i, ((q, &position), &r))| {
+                if r as usize == i {
+                    let w = q.w
+                        * if flag(flags, i, VertexFlags::PRIORITY) {
+                            1.0
+                        } else {
+                            factor
+                        };
+                    q.add(Q::point(position, w));
+                }
+                Ok(())
+            },
+        )?;
         for t in indices.as_chunks::<3>().0 {
             for e in 0..3 {
                 work.add(1)?;
@@ -917,24 +953,21 @@ impl State {
                     continue;
                 }
                 let w = if k0 == SEAM || k1 == SEAM { 0.5 } else { 10.0 };
-                let mut q = Q::edge(self.p[a], self.p[b], self.p[c], w);
-                let mut qt = Q::triangle(self.p[a], self.p[b], self.p[c], w);
+                let mut q = Q::edge(p[a], p[b], p[c], w, &mut self.sqrt_cache);
+                let mut qt = Q::triangle(p[a], p[b], p[c], w, &mut self.sqrt_cache);
                 qt.w = 0.0;
                 q.add(qt);
-                self.q[self.remap.get(a)].add(q);
-                self.q[self.remap.get(b)].add(q);
+                qv[remap[a] as usize].add(q);
+                qv[remap[b] as usize].add(q);
             }
         }
         if self.ac > 0 {
             for t in indices.as_chunks::<3>().0 {
                 work.add(3 + self.ac * 3)?;
                 let t = [t[0] as usize, t[1] as usize, t[2] as usize];
-                let (q, g) = self.attribute_quadric(t);
+                let q = self.attribute_quadric(t);
                 for i in t {
                     self.aq[i].add(q);
-                    for (k, &g) in g.iter().enumerate().take(self.ac) {
-                        self.g[i * self.ac + k].add(g);
-                    }
                 }
             }
         }
@@ -945,6 +978,13 @@ impl State {
                 .any(|g| ![g.x, g.y, g.z, g.w].iter().all(|x| x.is_finite()))
         {
             return Err(Error::NumericalFailure);
+        }
+        // Ranking reads each weight many times. Cache the identical division
+        // once, then refresh it whenever update merges positional quadrics.
+        // An overflowing reciprocal is checked when its error is ranked, as
+        // before; it is not an additional quadric validation condition.
+        for q in &mut self.q {
+            q.cache_inverse_weight();
         }
         Ok(())
     }
@@ -1026,6 +1066,50 @@ impl State {
         (s0, if s1 != NONE { s1 } else { self.wedge.get(b) })
     }
     fn rank(&mut self, count: usize, work: &mut Work) -> Result<(), Error> {
+        if self.ac == 0 {
+            // All three vertex tables have the same length. Re-borrow that
+            // common prefix once, and iterate the initialized candidate slice.
+            let n = self.p.len();
+            let p = &self.p[..n];
+            let q = &self.q[..n];
+            let remap = &self.remap.0[..n];
+            #[inline(always)]
+            fn rank_one(c: &mut Collapse, p: &[V], q: &[Q], remap: &[u32]) -> Result<(), Error> {
+                let a = c.a as usize;
+                let b = c.b as usize;
+                let bidirectional = c.error.to_bits() != 0;
+                let ei = q[remap[a] as usize].error(p[b]);
+                let ej = if bidirectional {
+                    q[remap[b] as usize].error(p[a])
+                } else {
+                    f32::MAX
+                };
+                if !ei.is_finite() || !ej.is_finite() {
+                    return Err(Error::NumericalFailure);
+                }
+                if bidirectional && ej < ei {
+                    core::mem::swap(&mut c.a, &mut c.b);
+                }
+                c.error = if ej < ei { ej } else { ei };
+                Ok(())
+            }
+            let values = &mut self.collapses[..count];
+            return if work.covers(count)? {
+                for (i, c) in values.iter_mut().enumerate() {
+                    if let Err(error) = rank_one(c, p, q, remap) {
+                        work.add(i + 1)?;
+                        return Err(error);
+                    }
+                }
+                work.add(count)
+            } else {
+                for c in values {
+                    work.add(1)?;
+                    rank_one(c, p, q, remap)?;
+                }
+                Ok(())
+            };
+        }
         for i in 0..count {
             work.add(1)?;
             let c = self.collapses[i];
@@ -1119,26 +1203,30 @@ impl State {
         r.abs()
     }
     fn sort(&mut self, count: usize, work: &mut Work) -> Result<(), Error> {
-        let mut h = [0usize; 2560];
-        for c in &self.collapses[..count] {
-            work.add(1)?;
+        // pick emits at most one candidate per input index; topology already
+        // bounds that count by u32::MAX. Match upstream's bucket storage width.
+        let mut h = [0u32; 2560];
+        let collapses = &self.collapses[..count];
+        work.scan(collapses.iter(), |c| {
             h[sort_key(c.error)] += 1;
-        }
+            Ok(())
+        })?;
         let mut sum = 0;
         for v in &mut h {
             let n = *v;
-            *v = sum;
-            sum += n;
+            *v = sum as u32;
+            sum += n as usize;
         }
-        for i in 0..count {
-            work.add(1)?;
-            let k = sort_key(self.collapses[i].error);
-            self.order.set(h[k], i);
+        let order = &mut self.order.0[..count];
+        work.scan(collapses.iter().enumerate(), |(i, c)| {
+            let k = sort_key(c.error);
+            order[h[k] as usize] = i as u32;
             h[k] += 1;
-        }
+            Ok(())
+        })?;
         Ok(())
     }
-    fn flips(&self, a: usize, b: usize, work: &mut Work) -> Result<bool, Error> {
+    fn flips(&mut self, a: usize, b: usize, work: &mut Work) -> Result<bool, Error> {
         for e in &self.edges[self.offsets.get(a)..self.offsets.get(a + 1)] {
             work.add(1)?;
             let x = self.cr.get(e.next as usize);
@@ -1152,7 +1240,7 @@ impl State {
             let ed = self.p[b].sub(pa);
             let nbc = eb.cross(ec);
             let nbd = eb.cross(ed);
-            if nbc.dot(nbd) <= 0.25 * sqrt(nbc.dot(nbc) * nbd.dot(nbd)) {
+            if nbc.dot(nbd) <= 0.25 * self.sqrt_cache.sqrt(nbc.dot(nbc) * nbd.dot(nbd)) {
                 return Ok(true);
             }
         }
@@ -1169,11 +1257,18 @@ impl State {
         let mut edges = 0;
         let mut triangles = 0;
         let mut edge_goal = goal / 2;
-        for i in 0..self.p.len() {
-            work.add(1)?;
-            self.cr.set(i, i);
-            self.locked[i] = false;
-        }
+        let n = self.p.len();
+        work.scan(
+            self.cr.0[..n]
+                .iter_mut()
+                .zip(&mut self.locked[..n])
+                .enumerate(),
+            |(i, (remap, locked))| {
+                *remap = i as u32;
+                *locked = false;
+                Ok(())
+            },
+        )?;
         for i in 0..count {
             work.add(1)?;
             let c = self.collapses[self.order.get(i)];
@@ -1237,6 +1332,7 @@ impl State {
                 if !self.q[r1].finite() {
                     return Err(Error::NumericalFailure);
                 }
+                self.q[r1].cache_inverse_weight();
             }
             if self.ac > 0 {
                 work.add(self.ac)?;
@@ -1304,11 +1400,11 @@ fn run(
     for i in 0..n {
         work.add(1)?;
         let p = positions.at(i)?;
-        s.p[i] = V {
+        s.p.push(V {
             x: (p[0] - lo[0]) * scale,
             y: (p[1] - lo[1]) * scale,
             z: (p[2] - lo[2]) * scale,
-        };
+        });
         if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
             return Err(Error::NumericalFailure);
         }
@@ -1394,4 +1490,58 @@ fn run(
         index_count: count,
         error,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Limits;
+
+    #[test]
+    fn ranking_preserves_numerical_failure_and_budget_prefix() {
+        for limit in 0..=6 {
+            for fail_at in 0..=5 {
+                let mut ws = Workspace::new(Limits {
+                    max_bytes: 1 << 20,
+                    max_work: limit,
+                });
+                let mut state = State::new(2, 0, 0, &mut ws, 0).unwrap();
+                state.p.extend([V::default(); 2]);
+                state.remap.0.extend([0, 1]);
+                state.q[0] = Q {
+                    c: f32::MAX,
+                    w: 0.5,
+                    inverse_weight: 2.0,
+                    ..Q::default()
+                };
+                state.q[1] = Q {
+                    w: 1.0,
+                    inverse_weight: 1.0,
+                    ..Q::default()
+                };
+                for i in 0..5 {
+                    state.collapses.push(Collapse {
+                        a: if i == fail_at { 0 } else { 1 },
+                        b: 1,
+                        error: f32::from_bits(1),
+                    });
+                }
+                let mut work = ws.begin();
+                let result = state.rank(5, &mut work);
+                let (expected, visited, changed) = if limit <= fail_at as u64 && limit < 5 {
+                    (Err(Error::LimitExceeded), limit, limit as usize)
+                } else if fail_at < 5 {
+                    (Err(Error::NumericalFailure), fail_at as u64 + 1, fail_at)
+                } else {
+                    (Ok(()), 5, 5)
+                };
+                assert_eq!(result, expected);
+                ws.finish(&work);
+                assert_eq!(ws.usage().work, visited);
+                for (i, c) in state.collapses.iter().enumerate() {
+                    assert_eq!(c.error.to_bits(), if i < changed { 0 } else { 1 });
+                }
+            }
+        }
+    }
 }

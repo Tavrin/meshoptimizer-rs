@@ -1,0 +1,1316 @@
+{
+  "source_sha256": {
+    "rust_and_harness": {
+      "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
+      "Cargo.toml": "aa4d3f8d3939458620f9e2918efd7a16db4c9eeb33b564585a568b90f7f16932",
+      "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
+      "fuzz/Cargo.toml": "e2b6882a7d26258bc28c51e3ce3a27f799d7beea26b3c4252ff5370b78d55ade",
+      "fuzz/smoke.py": "6f3f93b51aa243069d204bb538185022d19c77114608e065822daa7c38d31ce8",
+      "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
+      "fuzz/src/bin/simplify.rs": "8e8254d7bf3c96f8d3ee118fc9406a441217d458a63f5a38a0b0a36deb6919e0",
+      "fuzz/src/bin/simplify_scale.rs": "0816ba3c1d598bf6e0476ec3808d925779a0e7c297d56d557e292a2b644743df",
+      "fuzz/src/bin/simplify_with_attributes.rs": "0757292b85d452ccf6ea591cd147c00387727d123df782d6168359402ccd2460",
+      "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
+      "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
+      "parity/Cargo.lock": "112cd885caf73df56e35b83e6b262a1cd9e629c79f678fd9c85be8cf16f6a894",
+      "parity/Cargo.toml": "db88797782c6372b70f4a4b1f6c0c212469baec87bb1e8ce945b55a0010ff5e9",
+      "parity/benchmark.sh": "c6b216f063c8a0ed4bcc1acb9442e06e15b6ed4efff324f7d3cf4402dd159ace",
+      "parity/check-reference.sh": "ad4860d87be254b01958512287d31c8e056b49aaaef368b2548f01fca3ecf202",
+      "parity/fuzz.sh": "3df71ce7a8450d05b9b3e9dbd09e2db01bd49f994c9850013bc1877d09ec902f",
+      "parity/gates.py": "bf19996eafa9cf7d644e93611758dd5f6c69ae62344724856512df3eae2523e4",
+      "parity/gates.sh": "487e1de5c2c308bd94d56518beb3187b7a8a6abb72484398f7371c1d49c48431",
+      "parity/js-fixtures.cjs": "eead629f8648f57265fdfd76cc4cc891617f6b1055bb7678401b07338b6576c7",
+      "parity/js.sh": "033919e1d016f1319159cb96bad65c09beacc158793c8c9c62415a983ebac86f",
+      "parity/native-fixtures.py": "a1084c57cc353a4fccbb16dca7eb0f6d210dc5bf4f4007364f285c5ce7a881c3",
+      "parity/perf_profile.py": "0af9456d199668e2b5d3c5651843253690b5bd971c4d7e7ddb2b8e77fa3268dd",
+      "parity/performance.py": "fbdbc94c474f803dda95bcc2e4f4ebfd2180bfaf2efd571fc8f6c10947a53839",
+      "parity/profile.py": "a7cfaef355bd9d96978dbae8c4675b05367b596f3131e525c26ea9de8f4a7b3a",
+      "parity/qualify.sh": "228fc2bc3bec9d48ede3292ef86412d7435fafb4363f0359aa0275682fc8c646",
+      "parity/quiet.py": "45ff8df302acd61dcc360d925c73774958a273056c11e9849e0bf799f2f19505",
+      "parity/reference.cpp": "8f2d14b3584653ca4d45beca2295058c32839abfc5094e354ae008e438ce5172",
+      "parity/report.sh": "17be39ff819b008d3050e347a473684eff035d160bb8adc659d281ff7b21fd61",
+      "parity/run.sh": "ca205680f5dfea64e7309e29a1edec7b9c5c506e7043f3ce1765e3f26088b30e",
+      "parity/runner.py": "3c5f1ef08466aa0b1491110e176913156d0efe4b698d8077574ae80a2bef0d50",
+      "parity/src/lib.rs": "8b490d6e2a1f4cfb3c04b41083120113c5a0a11c8aec36ec3a08bf4aeb0e39ab",
+      "parity/src/main.rs": "e0e590c58dc8a556014f17f0a5e4e6be9714ff20cc8297080da66524e4682abf",
+      "parity/sweep.sh": "7787f5d059a360265372d9fd48188679e29f4c8fea1fabf4b4a5120790ad8159",
+      "parity/test_measurement.py": "4bcf17fdb972b76377732c217829891271f4d60692896b2838e9cb1af99b2f20",
+      "parity/test_quiet.py": "c1f85e84874d58bbe71c445a10ee909f48e65c12fcb4da8b04916e3f62a54d9c",
+      "parity/wasm.cjs": "4ebb96263f7cc058c81e8a546908eb8f18d9ec6c4e64ee1b217c4c916b262865",
+      "src/cache.rs": "28b9ba67042668c4790f92d2c85c7d21315d2501f3543d6a59ada0378459f4af",
+      "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+      "src/input.rs": "3db6de02c2f2d68076d3ae275c2584cbca0239323ebada380bbb5d2e607d62b3",
+      "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
+      "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
+      "src/overdraw.rs": "99ee6ad978f1691372e19abeb6c0fd551b1dbe5eb763a0bff27ca8623d4122e3",
+      "src/simplify.rs": "fc52067b5104d3b7f845924cb83db27a3bde7f92d9bee115aabb8484a7de3a1f",
+      "src/workspace.rs": "176589790a20010f9d181149696fc5aae9ec355607821e709dc4b71f52bdea5e",
+      "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
+    },
+    "upstream": {
+      "LICENSE.md": "f03037ca7bad1e3eb7f4a63fa6084a8baabd5ba30d3c239a9a7f35705d873e26",
+      "demo/tests.cpp": "e90c5df545cac717d9eb8b04507fed6a4de3c38173f6f0898ac065624028fe07",
+      "js/README.md": "72162d4a46a34622d12914bc47d94ca36e88a4be5ffdf009d89fc1c6e7c47e03",
+      "js/benchmark.js": "bcb8f5a5ae81a82c57f234bbff0e8d9b30207b67ca23155046c1e2c039b6af0f",
+      "js/index.d.ts": "917002075ea95a08edefc5102ff3bd1e920f17e623ea35e6f44150d95f5d81f0",
+      "js/index.js": "0afb975db2733391c2d0cabfbe707ee6d9a9651dddc221aeda5d819379958a89",
+      "js/meshopt_clusterizer.d.ts": "0106567d192becc7894a7be4cce986cbc4ef5a6bccb61be0e2f646315e84bd8d",
+      "js/meshopt_clusterizer.js": "ab1841427630c3c7be0fa53cf8f0a5c6b8b284618200be9d7762b807b45cec01",
+      "js/meshopt_clusterizer.test.js": "8c6ad6888b3ad5ef6d5670bd4ae832b3a0ac408693f3668e2896267fdad2a990",
+      "js/meshopt_decoder.cjs": "fabafaaa29cbb1cfa367f20e896d7f6e95b86e575e2ea86ddb6f8cca1a87152d",
+      "js/meshopt_decoder.d.ts": "804e95c2fea13467a2e8002a8aa41fb470a17b3fea5a8d7eaaa156c635c03a70",
+      "js/meshopt_decoder.mjs": "10b313edaa0e322b0c1b46443f6c8b186b42139fe1eca189d50c09511d0ebedc",
+      "js/meshopt_decoder.test.js": "70488d804844802804fc8d4eb302779ea392f746f97df654cc2fabe0ca72c6ac",
+      "js/meshopt_decoder_reference.js": "207f64595be3d5d0c0d728a981673c3fee8b4d9e671341831d556485d96de8dc",
+      "js/meshopt_encoder.d.ts": "4c769e430f99a67a55ed23c981ab6b51e1587a93479d328ba16ffc08289d39a9",
+      "js/meshopt_encoder.js": "22c128be3e22b187e2d2661882fc62f51e995f409c0fe14c9f6358cfbaff1611",
+      "js/meshopt_encoder.test.js": "532a04b27a8631f53696a82b949b3bd9155e10e9f410663970ae206f4aca593b",
+      "js/meshopt_simplifier.d.ts": "5ee7a8c862d8b73f138365fbc50a20ccad8822c397e73c76664a7b9c158edab9",
+      "js/meshopt_simplifier.js": "c3098ee4cb4fc242b84f064c88898e76e44bf58b0e1f693507f323c08cdbb5ed",
+      "js/meshopt_simplifier.test.js": "62ed9a054a129e11afdba2d5f9e3ee55511fd33923fa45d07bb0a58b605e30c9",
+      "js/meshopt_tangents.d.ts": "0fc8187d59f0a6a2978186849e9debe64c547ec5d7283b8d5a9686b8ef1c271c",
+      "js/meshopt_tangents.js": "1f62e72b02bf0abae3151a49af5e62b92a4ee3bcedc1386d8425a24bb5da6d1f",
+      "js/meshopt_tangents.test.js": "91fb5867d117a830d2c62078a30501d1a2a5d50dd7cad4b27fd0124328404a38",
+      "js/package.json": "7c0b926331466962d22ab250359fcdea20c225ab243d78474b955fb6af23f74c",
+      "js/wasi_trace.js": "26c6ddf615a448f2de2d5f46d75f1d639470c14011bb27c469f2642bd9f37d85",
+      "src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+      "src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+      "src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+      "src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+      "src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+      "src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+      "src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+      "src/meshoptimizer.h": "e3688ef553f603391747895a5c221ef1528574cc7f8173782417a96cb531f61b",
+      "src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+      "src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+      "src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+      "src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+      "src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+      "src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+      "src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+      "src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+      "src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+      "src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+      "src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+      "src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+      "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+      "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
+    },
+    "dependencies": {
+      "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
+      "libm-0.2.16/.cargo_vcs_info.json": "c4af01b6d9f9aeba821535464ed43af66b84c3aac39efc562d368dc0c600be74",
+      "libm-0.2.16/CHANGELOG.md": "c84ee59547a973f86a4bd5c695e99274ad69b8c0136f05c5b5a17033b8987f71",
+      "libm-0.2.16/Cargo.lock": "2eab9eb71d05a09ed3cf919a41418052039b74d30a4663a74c4efd4daec5be8f",
+      "libm-0.2.16/Cargo.toml": "a2d94f9cbaa4a177bacde9737bfcc7b2ed9de5bddadafe507923a5b5748f9bd7",
+      "libm-0.2.16/Cargo.toml.orig": "5cef83cc9b297dcf1b6853237371d839a8c3ece4adb0e7fe9f7ba8958f319b0e",
+      "libm-0.2.16/LICENSE.txt": "3823dda7cf046602f4b4e77ec8e227863dc4736037cc85bb33d9f19febe16bb7",
+      "libm-0.2.16/README.md": "fa3f1ab09e50179c981d6373624d5e363ae429f75f1c6103db39db143057a4c4",
+      "libm-0.2.16/build.rs": "85dfa93693f40e282ecf2d9a3115280d8f508f056063862add9e529b8143b71b",
+      "libm-0.2.16/configure.rs": "884fa9c05c600d03450b15651665848e88b09cf602f86c843e55e5e1ee0a4772",
+      "libm-0.2.16/src/lib.rs": "d565c5f29ae9f502edca78d536436e85bbc4b955595328a6cfd4a97c1dbbac9b",
+      "libm-0.2.16/src/libm_helper.rs": "b59f5c3e0aca4cfa6dc996ec308a8eab9102c833a9b1c5372d874fb57dd0a98e",
+      "libm-0.2.16/src/math/acos.rs": "efd83a6138061209867f06421c6a756b8ca3aab5c6c0a85c4aba31bedb299da5",
+      "libm-0.2.16/src/math/acosf.rs": "c5c9c74d267725bbe5f9319e6f4a396af6ce46c890b601d3f963a5d74d12e4c3",
+      "libm-0.2.16/src/math/acosh.rs": "c3d9de791399f7d6c946bee5642ac1357783eb3d1a9d226e2f514979c764bfdc",
+      "libm-0.2.16/src/math/acoshf.rs": "190eb2dd2ba6750d7e7a3ff97d6b3e90dc793dff8d760ece66cfcc594f69200a",
+      "libm-0.2.16/src/math/arch/aarch64.rs": "deb850d77df93beed6dcfcaf67c7665256ae49fc5019fdebc180714ec840cd80",
+      "libm-0.2.16/src/math/arch/i586.rs": "fe087a006d5efc385c3ab877cb60de7b674681760728d2ef7ca231e7c313b51b",
+      "libm-0.2.16/src/math/arch/mod.rs": "475d65b49fab27a20690fc5d423e83c1b0e025ae226c252e4da233f3560b5894",
+      "libm-0.2.16/src/math/arch/wasm32.rs": "93526505f6fbf97a5e96004fe49eb715c152948cb86e52b9f396899d3180f615",
+      "libm-0.2.16/src/math/arch/x86/detect.rs": "1595d4416936b717ab10f6010aa944f945287ff774b945e55df9efa93e70ccdf",
+      "libm-0.2.16/src/math/arch/x86/fma.rs": "c5fb77e560e1012f211532c5668c8b8022d04d55a2489419a32e843c16267ad9",
+      "libm-0.2.16/src/math/arch/x86.rs": "9d305f59b9886689be7920ae1543bb588738a1d7173a9a8e5a74eae0cf3b0b2a",
+      "libm-0.2.16/src/math/asin.rs": "9693a7cb61674ec6fe22be9db8fe20276729c48b1562fd86d5421e372a0a12e4",
+      "libm-0.2.16/src/math/asinf.rs": "25f6b7bbf46fc5aac4ebdd9e00118239747dcd28a79b90b858ddc4633d773d65",
+      "libm-0.2.16/src/math/asinh.rs": "8fd9431978e06904ed810d873f3de5bc097130d4b681a727644aa82d4f0fc627",
+      "libm-0.2.16/src/math/asinhf.rs": "ce78c74e4c806c68cbf974c1d2be131ce70aee6e27f178bcc9d082cfe4768799",
+      "libm-0.2.16/src/math/atan.rs": "54181dbddf4f77b90b32b9f6819ac989da570dc02b791f3685d20a23d51324be",
+      "libm-0.2.16/src/math/atan2.rs": "7d028d4d397f7484b8feed7b228eda65b84acac94d27729d236d5df95e38d8f0",
+      "libm-0.2.16/src/math/atan2f.rs": "b9497b5adb75e2788c404fd121aa64dcfa0e9357b67af3b3e7e6d4624dae1ca1",
+      "libm-0.2.16/src/math/atanf.rs": "197762f16ed5951236e17d0869c529e857acc329cc287df019ff69e5401f3b4d",
+      "libm-0.2.16/src/math/atanh.rs": "84d3fe8b2674a9681f553b7afd950bea47f498c38f81af9d58115d52e833178e",
+      "libm-0.2.16/src/math/atanhf.rs": "3a0643b0a4c7a112c0069f2ed455c7f295df88eef01bc76327173e74b0870d0c",
+      "libm-0.2.16/src/math/cbrt.rs": "1ed98a0943c46ca48e32af54b6baeb80b6e8da5dda550005711fcb26bfcf12c2",
+      "libm-0.2.16/src/math/cbrtf.rs": "7a2b4f190e8618c52cb23b47c040a4b4eacca739c68393cf14fb3f5d73988127",
+      "libm-0.2.16/src/math/ceil.rs": "5a1442f99be963722f222c211f03d2e018832f1ec2e309375cd26ece268d70d2",
+      "libm-0.2.16/src/math/copysign.rs": "40e2d5e1dcfaad56bcfce1d708ed929c3130411faf4f95477a0eedcd4cbb21a8",
+      "libm-0.2.16/src/math/cos.rs": "6e81752899c471bd42d04bdf08e0b22bc10a29f92fa2a343281b995fd342f035",
+      "libm-0.2.16/src/math/cosf.rs": "f48aa954f199fe4f54fd73b4e7886a75f2c08afba7fc31c6a36db5b5f90ced69",
+      "libm-0.2.16/src/math/cosh.rs": "71aed40077a04e659c15c2d2cc6e4faba89a89957e61ecacb7f6f5516bed1753",
+      "libm-0.2.16/src/math/coshf.rs": "fdf0524d221c62ecaa0b4e2fdaa3eb5194c4d84f0c1e3afaa04dc58cd3692834",
+      "libm-0.2.16/src/math/erf.rs": "5a69f440d5ca88a5c4a45119837c45b14238836a036675230e10fec41d293a3b",
+      "libm-0.2.16/src/math/erff.rs": "62c30876390e532d7dc9ac1f1f1c1f654065fba2b2e534e531964d79e1766196",
+      "libm-0.2.16/src/math/exp.rs": "1d486e847e1752fb9ce74a714096a11adcac935dacd4f17625ff63819103a80d",
+      "libm-0.2.16/src/math/exp10.rs": "44a819a0b1c1f61abfb365e0e034756bca2d5a613718c6379693230ac03c8b74",
+      "libm-0.2.16/src/math/exp10f.rs": "812119a900ccc1119c67597867d44d391b71ff3facdfb15776aa7016210ffa82",
+      "libm-0.2.16/src/math/exp2.rs": "e7270f15a682b69a49e042c80503c206d37c6c895f2c63da59a5e2431fa5fedc",
+      "libm-0.2.16/src/math/exp2f.rs": "3b4b5cb2e5674e1ce66a6051710738c1a6edc1d1638686fe9c78f0af4792a634",
+      "libm-0.2.16/src/math/expf.rs": "33b01180ebd01bb2911379476c5411fd05b066f2e17ef66e48c4dde83a7f01c0",
+      "libm-0.2.16/src/math/expm1.rs": "6cc612ca7cf1384dc15f541b301a1f176efbc79536aff1293408b3121cc30ad3",
+      "libm-0.2.16/src/math/expm1f.rs": "2b517f1bcb6279c906aad737f08c83ac30d7871e3beff266ea50a01fa18ccc81",
+      "libm-0.2.16/src/math/expo2.rs": "abd80ec291bebe24d3e0401f5600469f6248052be97f06885c32451fae57d3a8",
+      "libm-0.2.16/src/math/fabs.rs": "17bcbb25ac98e6b2ebc10c5eb39bda7590825b66d484c36f2ef74dce2a8a69dd",
+      "libm-0.2.16/src/math/fdim.rs": "2531e8f3537ecd75c773fa6b036a2f1988c62946acfa597678e65c4679998300",
+      "libm-0.2.16/src/math/floor.rs": "a9824d7c14b0850f088192305364a36f7ae59e06075ae4232e5fbb871bcff3bc",
+      "libm-0.2.16/src/math/fma.rs": "16e72470f5c4407c44183cf06f5868f216c92e0532f3fb387b57dbccf815e2a7",
+      "libm-0.2.16/src/math/fmin_fmax.rs": "ff112ea9cbb537a47721c51f318a874acbfe1e62e3037f709f209d69b5e8e624",
+      "libm-0.2.16/src/math/fminimum_fmaximum.rs": "cb7fa3b3826b95e257e6fd570dd240ee3270dc92e1d0aa04dcb5b44f21e4a23e",
+      "libm-0.2.16/src/math/fminimum_fmaximum_num.rs": "6a25d758b76c5e1b5946945f9b175dbf687d1065186f5deb72d5a9395b0ba65c",
+      "libm-0.2.16/src/math/fmod.rs": "8f4ca9162b8520e9b4b3e7fca6284b4c43573136b36e2edeb06faa45d606bf81",
+      "libm-0.2.16/src/math/frexp.rs": "8cb5eab9fc57ce798b5c4cea5532fccd31b7e875cf188c97623eb143aecf0116",
+      "libm-0.2.16/src/math/frexpf.rs": "1a6160faf0b8537c5fe3f7f63d15c29c6b4818803ef9a656a66e955e6188d262",
+      "libm-0.2.16/src/math/generic/ceil.rs": "66b3def2b00ed9dd6a4f59c73765a050853dfe06c828fdf731987ac99e7c2a88",
+      "libm-0.2.16/src/math/generic/copysign.rs": "c3fac45e8d84876204e5b11363ec77d6fc30010e0c32ab7558f2da538747e9d3",
+      "libm-0.2.16/src/math/generic/fabs.rs": "1381a8807d2c27b76996248bfcce6a2dc8982bdceee26febb15218e571b87908",
+      "libm-0.2.16/src/math/generic/fdim.rs": "5fbb1f6a4022aeb8989967e7957b82ef589875ec09860027c241c4083e2b3525",
+      "libm-0.2.16/src/math/generic/floor.rs": "7d4f15369abefa27645d6deda51d30febbe60ee9dca76e72a9364d574d0711c0",
+      "libm-0.2.16/src/math/generic/fma.rs": "ba44930a56d7c1953ab0c96c7c767911c9dc6967083700c8ef02f43672c8482f",
+      "libm-0.2.16/src/math/generic/fma_wide.rs": "2cf995ff5646c019b46661061c13b42ed3409ff3ce406782c94e2183245bd7d3",
+      "libm-0.2.16/src/math/generic/fmax.rs": "68d923950c3f1eab68baeab24679ab50918b663904839bc349ef666d9467518f",
+      "libm-0.2.16/src/math/generic/fmaximum.rs": "c4b8b7080821a2dc65d0a50baf717ccd9ee20b813ce6d6d3f9f01b5700b674fa",
+      "libm-0.2.16/src/math/generic/fmaximum_num.rs": "2f2d41e1f0160eb73469fa63db27d881b5b8eabc6d62fae7ca1b4b03eb35c5d5",
+      "libm-0.2.16/src/math/generic/fmin.rs": "9bbdece9606e5eac57f3a91a5db7aab814c8e2b28b6df1813723c6b5715efc55",
+      "libm-0.2.16/src/math/generic/fminimum.rs": "a6a33085356610eced23957ca86456b7dbe95e0f9d916298d59ce8bd90076b02",
+      "libm-0.2.16/src/math/generic/fminimum_num.rs": "f5db65654e690adea16da83839d62a707cc814c998fd4a77e63caaaea1472256",
+      "libm-0.2.16/src/math/generic/fmod.rs": "11aae62d08d656d815184eafd78a3b2d5764b6ce308b89e3819cd049bc491fe7",
+      "libm-0.2.16/src/math/generic/mod.rs": "4220c6f8114bfc0a34df44f597d9f7f5c3cc5b64644aebb89689a25c496551e1",
+      "libm-0.2.16/src/math/generic/rint.rs": "deec183fd0da6c0a47ab272a256990cea4f9231db7faff314697886457d6841a",
+      "libm-0.2.16/src/math/generic/round.rs": "eee638a88d4ff90bbcb779f37761a4335a3ef5878ae67391bb653990c9792c5f",
+      "libm-0.2.16/src/math/generic/scalbn.rs": "986e37f19c6cdf76867a365e1bc936050c238accda3fb327abccc488551ebf28",
+      "libm-0.2.16/src/math/generic/sqrt.rs": "c58e48ec07404d618109ad45332efe46c5246f42a2ddefdf5b25ba19e4ca9a0f",
+      "libm-0.2.16/src/math/generic/trunc.rs": "46dd2cc35f6da25099ea2202264d8da3330b5ff1a962a8afb671b54b6ef6002d",
+      "libm-0.2.16/src/math/hypot.rs": "411edd6d95d4d5efc4b0ebfcd97820e337f4c8108dfea53957258cd411c7cd58",
+      "libm-0.2.16/src/math/hypotf.rs": "285a8b7e7d2869d5068857637b934dd237684b6c493a0535064d6537559a87a1",
+      "libm-0.2.16/src/math/ilogb.rs": "1cd9a43b70af7b6a55bccd5e3fc5021569fbc22fe5b8a4ae7fbd5ea62bffab89",
+      "libm-0.2.16/src/math/ilogbf.rs": "1d52c89413383899abb9500d22d6437b15b4764d7ea89ab66fa51063552f1ed7",
+      "libm-0.2.16/src/math/j0.rs": "1cb991f0151a626744ad1832d4aedfaca681bcfcecc797de5ac5e9baf2342006",
+      "libm-0.2.16/src/math/j0f.rs": "de97374b6a0019fd8b3d1f553be1708018546491d3b4a5fc650ee2dcdfc9620e",
+      "libm-0.2.16/src/math/j1.rs": "e0a10746fd11a458d55ee61e758d9f016ff0f2203a07eb9907b5aca709a40469",
+      "libm-0.2.16/src/math/j1f.rs": "27b586c94d510aa653923b6b83cfec174e1f5da326d9120b0a0135b1190e32dc",
+      "libm-0.2.16/src/math/jn.rs": "ba36d25d4bbada83aadb3b2986879b7d88b91adb7b502061d21bf96ff3942194",
+      "libm-0.2.16/src/math/jnf.rs": "b3861e19644ae669fe17db81d91aeaee9c9f9051b59957ab674017684c98fe32",
+      "libm-0.2.16/src/math/k_cos.rs": "d4867527877c846aa8e2a0b43cf06f03e2d94c321a548acaf8d5171c09ff4057",
+      "libm-0.2.16/src/math/k_cosf.rs": "8f76089d014e217b96c9eca520271e64d467dc0d6542bf313dd70eb96c040f7f",
+      "libm-0.2.16/src/math/k_expo2.rs": "0e08b00b774731da6f16fd3ac8282a727a493e47b7a7292172b6136c04bd5dd4",
+      "libm-0.2.16/src/math/k_expo2f.rs": "bdbde40f3a4bd0bee11f7d8bcbba2f5df2dbf6378f0eec7a54de4e03c3d00828",
+      "libm-0.2.16/src/math/k_sin.rs": "dfe6524cb2d530ec51eb1a2ab233aeb65b3f12177c1fb2f50f044ea41170f5d8",
+      "libm-0.2.16/src/math/k_sinf.rs": "cf0e8bbe8d73a6704b7f1f710f5b9d31f190f1c633e894d4f69c4e3bc359eba3",
+      "libm-0.2.16/src/math/k_tan.rs": "dc3f8ece9187bbd65792a7d1068e676092e9c2a0886f28c80579f9bd94d744b7",
+      "libm-0.2.16/src/math/k_tanf.rs": "3381d2d4865bfc98e87aadb96bd8986f7691a389569a58fb1cb8db74fb5d9c20",
+      "libm-0.2.16/src/math/ldexp.rs": "8d1a7e01d36fd1ce08810d90d011c357cf2a71eeba8a57b1ac762322828323a3",
+      "libm-0.2.16/src/math/lgamma.rs": "669b3da03c58ffbe702f18c0fd99dc9e7226049ec84b92c8f1cb92a28c3991b7",
+      "libm-0.2.16/src/math/lgamma_r.rs": "5d56169c077b5b9f88902e2d243a7a4b4d06b89295aa84283d6fa15d9c244032",
+      "libm-0.2.16/src/math/lgammaf.rs": "9f0dcde424de7f678208b0c8a1f63b6574d2abbf9e335c926cd6b027ec9ac3db",
+      "libm-0.2.16/src/math/lgammaf_r.rs": "0bc2b5e0eec7666973adaca536f4d5fe978c8793bb340484fff9e5e7abb425f0",
+      "libm-0.2.16/src/math/log.rs": "df5f4d1325e89621bfcd9cf7788d0d7e20a6ef7f429110fe35b370b3c9362615",
+      "libm-0.2.16/src/math/log10.rs": "4a96dd2b6a2a505497f2bb7ea956a50491d068dab1b6055a573aec1724a52e40",
+      "libm-0.2.16/src/math/log10f.rs": "784a576dd4a4071f4f67c670eb9b221cb03014818c4b2d71afbcbd2211431caf",
+      "libm-0.2.16/src/math/log1p.rs": "bb8ce741e54d8f001d9c12450a14a663bd413014da2ade9ba1f5fbc9ff0c9a88",
+      "libm-0.2.16/src/math/log1pf.rs": "8736222a9b9004b061f1339bb819c63c6b54414d4a01ef79d5f5a5f0a70677b5",
+      "libm-0.2.16/src/math/log2.rs": "1ec0cdd94bf4435ff0402d209089b1bdbcb1ba9a4cd5f77807f9c84cf534f980",
+      "libm-0.2.16/src/math/log2f.rs": "7b3b17ba08df6b5a57dacf6f945bfe1a3c088bee0eb11e201ac5affc7f65925a",
+      "libm-0.2.16/src/math/logf.rs": "c7dfa5e89fcca0411624fdc594f64c62d5dfa3b91f061fcb7ac3aea18414f238",
+      "libm-0.2.16/src/math/mod.rs": "c4ae2e62996ac9d7d6fdc0f7cb57ac0a815e639374b24068516ae3f092b0c59e",
+      "libm-0.2.16/src/math/modf.rs": "4bbf583606b7a2da0ddab13092c23e561daae87c4940cb059beae4e9a365edbd",
+      "libm-0.2.16/src/math/modff.rs": "b5dc061b852f8dc84a45ec4269f596a07606a3eaba86ad254897199c7aebc860",
+      "libm-0.2.16/src/math/nextafter.rs": "7fed9cbc58b41ef391a016ee361d3c3f315cc7e12c2d35d46bbeed832f2519e4",
+      "libm-0.2.16/src/math/nextafterf.rs": "d3b2b7bd9bc2f762408d1231ae3e7a2a059668918cd4bcc519b04b5d36c81e6a",
+      "libm-0.2.16/src/math/pow.rs": "c5566d0f48682d107e8803b0ed204ff3521503348f18a4f26cbe3f47fef15192",
+      "libm-0.2.16/src/math/powf.rs": "819971cb8e927d80113aded3cfe90dcd501c031e0eb1c562b58842fddd1751be",
+      "libm-0.2.16/src/math/rem_pio2.rs": "5a040ab09dc356bca6d57712327151ed43003e2bac156553e3eb87d1cdefd2d1",
+      "libm-0.2.16/src/math/rem_pio2_large.rs": "986b5b9ad2c8fba828aee47bf198eab97fab243359ab03eb09783d98ca5847b5",
+      "libm-0.2.16/src/math/rem_pio2f.rs": "fb34bab63f8d143dfefa4ef2e31e8166bf21f3c67f1519bfc3ca4fb8eb28cafe",
+      "libm-0.2.16/src/math/remainder.rs": "23584372f9438cf02d163d48ce24d64b2d2151f2a2c5e5ef949cd8ad4b8832c2",
+      "libm-0.2.16/src/math/remainderf.rs": "0e3cc8ae3f8143eaab628e1c647267dc8d20c1e70d2a1534a3f109e974cae4e8",
+      "libm-0.2.16/src/math/remquo.rs": "e1739d4247337aab9924e5e5c3488ffff11f39a22699531b20237f22f08c8cfb",
+      "libm-0.2.16/src/math/remquof.rs": "e957bd96aa7c4e8a26b6959743fb22d24f2822715d7bbaf974b67b7a8ae3a197",
+      "libm-0.2.16/src/math/rint.rs": "78e325106c309d416ae2ef0705f778fea3efefead7b0b51a731ed9207b0d35a1",
+      "libm-0.2.16/src/math/round.rs": "dfb932a15ec18de57126740cb3c4f04cd7244078b80491e992385898e8a2c75b",
+      "libm-0.2.16/src/math/roundeven.rs": "918301bc7297371c1d01b5d4e05146cf997ad902fd50f39cae89ac5142d6e9af",
+      "libm-0.2.16/src/math/scalbn.rs": "9b0297d108a8dcc38abf8c10d391d990bca7a503e3cfcb7afd66378541125c05",
+      "libm-0.2.16/src/math/sin.rs": "b48cebd120fc2ac93a6563059cabda28a72c8680304eb8335b92b412235cc232",
+      "libm-0.2.16/src/math/sincos.rs": "a9c414e828c2e78b6bce4d5e4237b1baa93e81d78421aed5cedeab43df64067f",
+      "libm-0.2.16/src/math/sincosf.rs": "c39b6e3b52be83ccf4015ff105dab55e693577ebfc43745881750e73eebc6fa6",
+      "libm-0.2.16/src/math/sinf.rs": "b17db34d5da39a0f336d831abcb700fab69402c915321823870f1845e66c03d2",
+      "libm-0.2.16/src/math/sinh.rs": "95cb1019a76c82312a5a65b3dd5f8a6a8b9b77aed1934c7254eafb94604b94a0",
+      "libm-0.2.16/src/math/sinhf.rs": "bc447f1b913c90de2b7d3ca58c0734992e8d932a4a0f1525288bbe24888fabdd",
+      "libm-0.2.16/src/math/sqrt.rs": "a9a82063eba9cd3467a9b37a1caf13b14106570f03a28e12419a4957f9b705eb",
+      "libm-0.2.16/src/math/support/big/tests.rs": "5875b857ddcc2e32be02c0326789cc8221e4127a77b96c2d42342f8650b4d509",
+      "libm-0.2.16/src/math/support/big.rs": "b10d80297257afc1fe2554d52197d017e4f9c32cad32c40323ed6d1a1c649530",
+      "libm-0.2.16/src/math/support/env.rs": "e8bd76e77f562926bf4570352bb7ab91038be7703984619a2472683feafb268e",
+      "libm-0.2.16/src/math/support/feature_detect.rs": "a1d08bbc2db9fcfe7e9ad94f11ccebf79841826f9315b0ecb43d851c658cbf98",
+      "libm-0.2.16/src/math/support/float_traits.rs": "510b4eb2f3c226eb78e332fe25060fc1d535da4c9f58ca0e047eff51c41da29b",
+      "libm-0.2.16/src/math/support/hex_float.rs": "d9c9503a61d72123ea41c418672fa906103d24d93f278f6076fb99ea000a22b1",
+      "libm-0.2.16/src/math/support/int_traits/narrowing_div.rs": "5f5378e33f1da56090d0dce2514926ab465dce65b89ad4ee2f7da07a92f8d5de",
+      "libm-0.2.16/src/math/support/int_traits.rs": "a48183da0f12c68a44ad664fb52fb0ddaa0e1b2437cb171d05eafd9e700355eb",
+      "libm-0.2.16/src/math/support/macros.rs": "cf162c2cb6c2db5b0959e800116290f5c8b60c6bbccfc64651444713fa2d16c1",
+      "libm-0.2.16/src/math/support/mod.rs": "cb55f78a408dc5b736435354a8de620e0a2d02820e931b9845a28fce043a5f9e",
+      "libm-0.2.16/src/math/support/modular.rs": "cf6a562d6bdf16336f31d41c59e828ad47f85388849d20d6d3b59fc1c3e388a2",
+      "libm-0.2.16/src/math/tan.rs": "2ea87ca18526753db6d149635ed6c895c8fbafd1e0fa7a9c04f7dc44b4eae986",
+      "libm-0.2.16/src/math/tanf.rs": "f7140c4193a57709acde5d290c8f83435562da42924c54cab0aa3a4f26095190",
+      "libm-0.2.16/src/math/tanh.rs": "c81ff9f4aa902d8fc63922f17d7d9e395983a6582c4587cbbeb194b613dd90c6",
+      "libm-0.2.16/src/math/tanhf.rs": "41f6703a0ad8f032b0468fbd70c9ebc470fc6a6b3fd190522cca4cb34eeb4d9a",
+      "libm-0.2.16/src/math/tgamma.rs": "c6c1ab4951d58dc4999f4302274ef155e34b419b09b9d406fda0c299fd0f07fb",
+      "libm-0.2.16/src/math/tgammaf.rs": "9bca4ea70be9fa1d8088e7dee325c15ca611c48f33fe0942b01b64a26aee5763",
+      "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
+    }
+  },
+  "executable_sha256": {
+    "rust": "3ca5daedbe78c93611e46069a35a8a58c097854d54f41337299653b4a061a845",
+    "cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+  },
+  "physical_core": {
+    "cpu": 11,
+    "package_id": 0,
+    "core_id": 5,
+    "busy_percent": 2.0,
+    "thread_siblings": "10-11",
+    "allowed_cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "method": "three one-second /proc/stat intervals; least aggregate-busy physical core, then least-busy allowed sibling; taskset before driver startup",
+    "selection_samples": [
+      {
+        "started_unix": 1790953735.8100545,
+        "finished_unix": 1790953736.8105574,
+        "cpus": {
+          "0": {
+            "total_ticks": 98,
+            "busy_ticks": 10,
+            "busy_percent": 10.204081632653061
+          },
+          "1": {
+            "total_ticks": 100,
+            "busy_ticks": 77,
+            "busy_percent": 77.0
+          },
+          "2": {
+            "total_ticks": 99,
+            "busy_ticks": 0,
+            "busy_percent": 0.0
+          },
+          "3": {
+            "total_ticks": 100,
+            "busy_ticks": 100,
+            "busy_percent": 100.0
+          },
+          "4": {
+            "total_ticks": 98,
+            "busy_ticks": 9,
+            "busy_percent": 9.183673469387756
+          },
+          "5": {
+            "total_ticks": 99,
+            "busy_ticks": 2,
+            "busy_percent": 2.0202020202020203
+          },
+          "6": {
+            "total_ticks": 99,
+            "busy_ticks": 12,
+            "busy_percent": 12.121212121212121
+          },
+          "7": {
+            "total_ticks": 100,
+            "busy_ticks": 0,
+            "busy_percent": 0.0
+          },
+          "8": {
+            "total_ticks": 99,
+            "busy_ticks": 11,
+            "busy_percent": 11.11111111111111
+          },
+          "9": {
+            "total_ticks": 100,
+            "busy_ticks": 1,
+            "busy_percent": 1.0
+          },
+          "10": {
+            "total_ticks": 98,
+            "busy_ticks": 5,
+            "busy_percent": 5.1020408163265305
+          },
+          "11": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "12": {
+            "total_ticks": 100,
+            "busy_ticks": 50,
+            "busy_percent": 50.0
+          },
+          "13": {
+            "total_ticks": 100,
+            "busy_ticks": 25,
+            "busy_percent": 25.0
+          },
+          "14": {
+            "total_ticks": 100,
+            "busy_ticks": 24,
+            "busy_percent": 24.0
+          },
+          "15": {
+            "total_ticks": 99,
+            "busy_ticks": 11,
+            "busy_percent": 11.11111111111111
+          },
+          "16": {
+            "total_ticks": 99,
+            "busy_ticks": 12,
+            "busy_percent": 12.121212121212121
+          },
+          "17": {
+            "total_ticks": 100,
+            "busy_ticks": 3,
+            "busy_percent": 3.0
+          },
+          "18": {
+            "total_ticks": 99,
+            "busy_ticks": 25,
+            "busy_percent": 25.252525252525253
+          },
+          "19": {
+            "total_ticks": 97,
+            "busy_ticks": 9,
+            "busy_percent": 9.278350515463918
+          },
+          "20": {
+            "total_ticks": 99,
+            "busy_ticks": 15,
+            "busy_percent": 15.151515151515152
+          },
+          "21": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "22": {
+            "total_ticks": 96,
+            "busy_ticks": 28,
+            "busy_percent": 29.166666666666668
+          },
+          "23": {
+            "total_ticks": 99,
+            "busy_ticks": 9,
+            "busy_percent": 9.090909090909092
+          },
+          "24": {
+            "total_ticks": 100,
+            "busy_ticks": 22,
+            "busy_percent": 22.0
+          },
+          "25": {
+            "total_ticks": 100,
+            "busy_ticks": 1,
+            "busy_percent": 1.0
+          },
+          "26": {
+            "total_ticks": 98,
+            "busy_ticks": 25,
+            "busy_percent": 25.510204081632654
+          },
+          "27": {
+            "total_ticks": 100,
+            "busy_ticks": 4,
+            "busy_percent": 4.0
+          },
+          "28": {
+            "total_ticks": 100,
+            "busy_ticks": 17,
+            "busy_percent": 17.0
+          },
+          "29": {
+            "total_ticks": 99,
+            "busy_ticks": 3,
+            "busy_percent": 3.0303030303030303
+          },
+          "30": {
+            "total_ticks": 97,
+            "busy_ticks": 51,
+            "busy_percent": 52.577319587628864
+          },
+          "31": {
+            "total_ticks": 99,
+            "busy_ticks": 1,
+            "busy_percent": 1.0101010101010102
+          }
+        }
+      },
+      {
+        "started_unix": 1790953736.8105605,
+        "finished_unix": 1790953737.8111284,
+        "cpus": {
+          "0": {
+            "total_ticks": 98,
+            "busy_ticks": 79,
+            "busy_percent": 80.61224489795919
+          },
+          "1": {
+            "total_ticks": 98,
+            "busy_ticks": 3,
+            "busy_percent": 3.061224489795918
+          },
+          "2": {
+            "total_ticks": 100,
+            "busy_ticks": 1,
+            "busy_percent": 1.0
+          },
+          "3": {
+            "total_ticks": 100,
+            "busy_ticks": 100,
+            "busy_percent": 100.0
+          },
+          "4": {
+            "total_ticks": 99,
+            "busy_ticks": 14,
+            "busy_percent": 14.141414141414142
+          },
+          "5": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "6": {
+            "total_ticks": 98,
+            "busy_ticks": 16,
+            "busy_percent": 16.3265306122449
+          },
+          "7": {
+            "total_ticks": 100,
+            "busy_ticks": 1,
+            "busy_percent": 1.0
+          },
+          "8": {
+            "total_ticks": 100,
+            "busy_ticks": 13,
+            "busy_percent": 13.0
+          },
+          "9": {
+            "total_ticks": 100,
+            "busy_ticks": 0,
+            "busy_percent": 0.0
+          },
+          "10": {
+            "total_ticks": 99,
+            "busy_ticks": 7,
+            "busy_percent": 7.070707070707071
+          },
+          "11": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "12": {
+            "total_ticks": 100,
+            "busy_ticks": 0,
+            "busy_percent": 0.0
+          },
+          "13": {
+            "total_ticks": 99,
+            "busy_ticks": 99,
+            "busy_percent": 100.0
+          },
+          "14": {
+            "total_ticks": 100,
+            "busy_ticks": 26,
+            "busy_percent": 26.0
+          },
+          "15": {
+            "total_ticks": 100,
+            "busy_ticks": 40,
+            "busy_percent": 40.0
+          },
+          "16": {
+            "total_ticks": 99,
+            "busy_ticks": 18,
+            "busy_percent": 18.181818181818183
+          },
+          "17": {
+            "total_ticks": 100,
+            "busy_ticks": 6,
+            "busy_percent": 6.0
+          },
+          "18": {
+            "total_ticks": 97,
+            "busy_ticks": 29,
+            "busy_percent": 29.896907216494846
+          },
+          "19": {
+            "total_ticks": 101,
+            "busy_ticks": 17,
+            "busy_percent": 16.831683168316832
+          },
+          "20": {
+            "total_ticks": 98,
+            "busy_ticks": 20,
+            "busy_percent": 20.408163265306122
+          },
+          "21": {
+            "total_ticks": 100,
+            "busy_ticks": 7,
+            "busy_percent": 7.0
+          },
+          "22": {
+            "total_ticks": 101,
+            "busy_ticks": 42,
+            "busy_percent": 41.584158415841586
+          },
+          "23": {
+            "total_ticks": 99,
+            "busy_ticks": 9,
+            "busy_percent": 9.090909090909092
+          },
+          "24": {
+            "total_ticks": 99,
+            "busy_ticks": 24,
+            "busy_percent": 24.242424242424242
+          },
+          "25": {
+            "total_ticks": 98,
+            "busy_ticks": 4,
+            "busy_percent": 4.081632653061225
+          },
+          "26": {
+            "total_ticks": 97,
+            "busy_ticks": 25,
+            "busy_percent": 25.77319587628866
+          },
+          "27": {
+            "total_ticks": 101,
+            "busy_ticks": 9,
+            "busy_percent": 8.910891089108912
+          },
+          "28": {
+            "total_ticks": 97,
+            "busy_ticks": 26,
+            "busy_percent": 26.804123711340207
+          },
+          "29": {
+            "total_ticks": 99,
+            "busy_ticks": 8,
+            "busy_percent": 8.080808080808081
+          },
+          "30": {
+            "total_ticks": 98,
+            "busy_ticks": 58,
+            "busy_percent": 59.183673469387756
+          },
+          "31": {
+            "total_ticks": 101,
+            "busy_ticks": 9,
+            "busy_percent": 8.910891089108912
+          }
+        }
+      },
+      {
+        "started_unix": 1790953737.8111317,
+        "finished_unix": 1790953738.8115852,
+        "cpus": {
+          "0": {
+            "total_ticks": 100,
+            "busy_ticks": 90,
+            "busy_percent": 90.0
+          },
+          "1": {
+            "total_ticks": 96,
+            "busy_ticks": 7,
+            "busy_percent": 7.291666666666667
+          },
+          "2": {
+            "total_ticks": 98,
+            "busy_ticks": 0,
+            "busy_percent": 0.0
+          },
+          "3": {
+            "total_ticks": 100,
+            "busy_ticks": 100,
+            "busy_percent": 100.0
+          },
+          "4": {
+            "total_ticks": 99,
+            "busy_ticks": 10,
+            "busy_percent": 10.1010101010101
+          },
+          "5": {
+            "total_ticks": 100,
+            "busy_ticks": 4,
+            "busy_percent": 4.0
+          },
+          "6": {
+            "total_ticks": 100,
+            "busy_ticks": 16,
+            "busy_percent": 16.0
+          },
+          "7": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "8": {
+            "total_ticks": 100,
+            "busy_ticks": 9,
+            "busy_percent": 9.0
+          },
+          "9": {
+            "total_ticks": 100,
+            "busy_ticks": 1,
+            "busy_percent": 1.0
+          },
+          "10": {
+            "total_ticks": 100,
+            "busy_ticks": 6,
+            "busy_percent": 6.0
+          },
+          "11": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "12": {
+            "total_ticks": 100,
+            "busy_ticks": 26,
+            "busy_percent": 26.0
+          },
+          "13": {
+            "total_ticks": 101,
+            "busy_ticks": 73,
+            "busy_percent": 72.27722772277228
+          },
+          "14": {
+            "total_ticks": 98,
+            "busy_ticks": 31,
+            "busy_percent": 31.632653061224488
+          },
+          "15": {
+            "total_ticks": 100,
+            "busy_ticks": 29,
+            "busy_percent": 29.0
+          },
+          "16": {
+            "total_ticks": 99,
+            "busy_ticks": 10,
+            "busy_percent": 10.1010101010101
+          },
+          "17": {
+            "total_ticks": 98,
+            "busy_ticks": 3,
+            "busy_percent": 3.061224489795918
+          },
+          "18": {
+            "total_ticks": 99,
+            "busy_ticks": 15,
+            "busy_percent": 15.151515151515152
+          },
+          "19": {
+            "total_ticks": 99,
+            "busy_ticks": 7,
+            "busy_percent": 7.070707070707071
+          },
+          "20": {
+            "total_ticks": 99,
+            "busy_ticks": 12,
+            "busy_percent": 12.121212121212121
+          },
+          "21": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "22": {
+            "total_ticks": 97,
+            "busy_ticks": 17,
+            "busy_percent": 17.52577319587629
+          },
+          "23": {
+            "total_ticks": 101,
+            "busy_ticks": 15,
+            "busy_percent": 14.851485148514852
+          },
+          "24": {
+            "total_ticks": 98,
+            "busy_ticks": 12,
+            "busy_percent": 12.244897959183673
+          },
+          "25": {
+            "total_ticks": 100,
+            "busy_ticks": 2,
+            "busy_percent": 2.0
+          },
+          "26": {
+            "total_ticks": 97,
+            "busy_ticks": 10,
+            "busy_percent": 10.309278350515465
+          },
+          "27": {
+            "total_ticks": 99,
+            "busy_ticks": 4,
+            "busy_percent": 4.040404040404041
+          },
+          "28": {
+            "total_ticks": 99,
+            "busy_ticks": 19,
+            "busy_percent": 19.19191919191919
+          },
+          "29": {
+            "total_ticks": 100,
+            "busy_ticks": 16,
+            "busy_percent": 16.0
+          },
+          "30": {
+            "total_ticks": 100,
+            "busy_ticks": 51,
+            "busy_percent": 51.0
+          },
+          "31": {
+            "total_ticks": 98,
+            "busy_ticks": 2,
+            "busy_percent": 2.0408163265306123
+          }
+        }
+      }
+    ],
+    "physical_core_usage": [
+      {
+        "package_id": 0,
+        "core_id": 0,
+        "cpus": [
+          0,
+          1
+        ],
+        "busy_percent": 45.08474576271186
+      },
+      {
+        "package_id": 0,
+        "core_id": 1,
+        "cpus": [
+          2,
+          3
+        ],
+        "busy_percent": 50.41876046901172
+      },
+      {
+        "package_id": 0,
+        "core_id": 2,
+        "cpus": [
+          4,
+          5
+        ],
+        "busy_percent": 6.890756302521009
+      },
+      {
+        "package_id": 0,
+        "core_id": 3,
+        "cpus": [
+          6,
+          7
+        ],
+        "busy_percent": 7.872696817420436
+      },
+      {
+        "package_id": 0,
+        "core_id": 4,
+        "cpus": [
+          8,
+          9
+        ],
+        "busy_percent": 5.843071786310517
+      },
+      {
+        "package_id": 0,
+        "core_id": 5,
+        "cpus": [
+          10,
+          11
+        ],
+        "busy_percent": 4.0201005025125625
+      },
+      {
+        "package_id": 0,
+        "core_id": 6,
+        "cpus": [
+          12,
+          13
+        ],
+        "busy_percent": 45.5
+      },
+      {
+        "package_id": 0,
+        "core_id": 7,
+        "cpus": [
+          14,
+          15
+        ],
+        "busy_percent": 26.96817420435511
+      },
+      {
+        "package_id": 0,
+        "core_id": 8,
+        "cpus": [
+          16,
+          17
+        ],
+        "busy_percent": 8.739495798319327
+      },
+      {
+        "package_id": 0,
+        "core_id": 9,
+        "cpus": [
+          18,
+          19
+        ],
+        "busy_percent": 17.22972972972973
+      },
+      {
+        "package_id": 0,
+        "core_id": 10,
+        "cpus": [
+          20,
+          21
+        ],
+        "busy_percent": 9.731543624161073
+      },
+      {
+        "package_id": 0,
+        "core_id": 11,
+        "cpus": [
+          22,
+          23
+        ],
+        "busy_percent": 20.236087689713322
+      },
+      {
+        "package_id": 0,
+        "core_id": 12,
+        "cpus": [
+          24,
+          25
+        ],
+        "busy_percent": 10.92436974789916
+      },
+      {
+        "package_id": 0,
+        "core_id": 13,
+        "cpus": [
+          26,
+          27
+        ],
+        "busy_percent": 13.006756756756756
+      },
+      {
+        "package_id": 0,
+        "core_id": 14,
+        "cpus": [
+          28,
+          29
+        ],
+        "busy_percent": 14.983164983164983
+      },
+      {
+        "package_id": 0,
+        "core_id": 15,
+        "cpus": [
+          30,
+          31
+        ],
+        "busy_percent": 29.005059021922428
+      }
+    ]
+  },
+  "cases": {
+    "vertex_cache/medium/seam-heavy/caller-buffer/a0/rNone": {
+      "before": 1.4065640059231326,
+      "after": {
+        "median": 1.290715969994709,
+        "min": 1.2238391179428965,
+        "max": 1.3903771287108946,
+        "quartiles": [
+          1.274023206624717,
+          1.290715969994709,
+          1.3364227999065847
+        ],
+        "stdev": 0.044113974242582926,
+        "coefficient_of_variation": 0.03394150491624002,
+        "median_absolute_deviation": 0.029157177878460505,
+        "raw_ratios": [
+          1.2449975370096704,
+          1.3903771287108946,
+          1.2238391179428965,
+          1.2909275318379512,
+          1.3083951398731304,
+          1.2859827177278353,
+          1.290504408151467,
+          1.2732684634108387,
+          1.3644201365969313,
+          1.343783906129869,
+          1.276287436266352,
+          1.2904214093318271,
+          1.2826529309238293,
+          1.324607719434469,
+          1.2248172610928085,
+          1.3004557534397752,
+          1.3463941651751234,
+          1.266293363677548,
+          1.3399996490181283,
+          1.325692252571955
+        ]
+      },
+      "samples": {
+        "rust": [
+          0.000720312,
+          0.000696426,
+          0.000728817,
+          0.00082604,
+          0.000855765,
+          0.000866436,
+          0.000875042,
+          0.000867297,
+          0.00081028,
+          0.000748063,
+          0.000769974,
+          0.000742573,
+          0.000773441,
+          0.000818846,
+          0.000841338,
+          0.000872005,
+          0.000873348,
+          0.000830168,
+          0.000763572,
+          0.000777028
+        ],
+        "cpp": [
+          0.000578565,
+          0.00050089,
+          0.000595517,
+          0.000639881,
+          0.000654057,
+          0.000673754,
+          0.000678062,
+          0.000681158,
+          0.000593864,
+          0.000556684,
+          0.000603292,
+          0.00057545,
+          0.000603001,
+          0.00061818,
+          0.000686909,
+          0.000670538,
+          0.000648657,
+          0.000655589,
+          0.00056983,
+          0.00058613
+        ]
+      },
+      "load": [
+        12.16,
+        13.85,
+        11.16
+      ],
+      "match": true
+    },
+    "overdraw/million/seam-heavy/allocating/a0/rNone": {
+      "before": 1.4622162603492956,
+      "after": {
+        "median": 1.4198343574168852,
+        "min": 1.2262917553275423,
+        "max": 1.709762855597441,
+        "quartiles": [
+          1.3425723173466573,
+          1.4198343574168852,
+          1.5731470389107967
+        ],
+        "stdev": 0.12850140598889812,
+        "coefficient_of_variation": 0.08866804525508351,
+        "median_absolute_deviation": 0.08095398795738995,
+        "raw_ratios": [
+          1.5049284049889644,
+          1.6116604569578914,
+          1.709762855597441,
+          1.479069483264133,
+          1.336416164895132,
+          1.655135503190458,
+          1.350196047752491,
+          1.6122412645519406,
+          1.3377296650409447,
+          1.3964875743875358,
+          1.3911047001961023,
+          1.4196791218552083,
+          1.3400310738780459,
+          1.2262917553275423,
+          1.5958865835514073,
+          1.419989592978562,
+          1.4534295279931069,
+          1.4067168093891316,
+          1.3150017791409787,
+          1.4230705256109861
+        ]
+      },
+      "samples": {
+        "rust": [
+          0.04054835,
+          0.032874484,
+          0.03300068,
+          0.027863483,
+          0.028781986,
+          0.035630625,
+          0.032757695,
+          0.039518879,
+          0.029796319,
+          0.031877964,
+          0.031963115,
+          0.029747688,
+          0.029741786,
+          0.026694911,
+          0.026237242,
+          0.022581704,
+          0.022895153,
+          0.023758963,
+          0.024442756,
+          0.026599031
+        ],
+        "cpp": [
+          0.026943707,
+          0.020397897,
+          0.01930132,
+          0.018838522,
+          0.021536694,
+          0.021527316,
+          0.024261436,
+          0.024511765,
+          0.022273797,
+          0.022827245,
+          0.022976786,
+          0.020953811,
+          0.022194848,
+          0.021768809,
+          0.016440543,
+          0.015902725,
+          0.015752503,
+          0.016889656,
+          0.018587622,
+          0.018691295
+        ]
+      },
+      "load": [
+        11.91,
+        13.77,
+        11.14
+      ],
+      "match": true
+    },
+    "simplify/medium/sparse/caller-buffer/a0/r0.5": {
+      "before": 1.5111564586192632,
+      "after": {
+        "median": 1.4621517294722421,
+        "min": 1.2871287394057151,
+        "max": 1.635421655239576,
+        "quartiles": [
+          1.341973615202904,
+          1.4621517294722421,
+          1.5204329269518044
+        ],
+        "stdev": 0.11158110036625322,
+        "coefficient_of_variation": 0.07692132745738292,
+        "median_absolute_deviation": 0.10931287382988364,
+        "raw_ratios": [
+          1.2871287394057151,
+          1.4278527984066052,
+          1.4949060020182796,
+          1.4710467106373812,
+          1.3378314498905541,
+          1.635421655239576,
+          1.380637869553256,
+          1.3560852834924826,
+          1.4939070157003427,
+          1.453256748307103,
+          1.501078340079995,
+          1.6168176502329223,
+          1.3394340110064606,
+          1.6251478798868144,
+          1.3191891028614515,
+          1.5815514704230413,
+          1.3145087219714244,
+          1.5268844559090742,
+          1.3495924277922344,
+          1.4994675781156501
+        ]
+      },
+      "samples": {
+        "rust": [
+          0.001921104,
+          0.002041691,
+          0.002182053,
+          0.002021583,
+          0.001961289,
+          0.002038715,
+          0.002087657,
+          0.002016172,
+          0.002129675,
+          0.002184739,
+          0.002177826,
+          0.002238269,
+          0.002260611,
+          0.00245756,
+          0.002118714,
+          0.002252686,
+          0.002224062,
+          0.002190699,
+          0.002331815,
+          0.002443153
+        ],
+        "cpp": [
+          0.00149255,
+          0.001429903,
+          0.001459659,
+          0.001374248,
+          0.001466021,
+          0.001246599,
+          0.001512096,
+          0.001486759,
+          0.001425574,
+          0.00150334,
+          0.001450841,
+          0.001384367,
+          0.001687736,
+          0.001512207,
+          0.001606073,
+          0.001424352,
+          0.001691934,
+          0.001434751,
+          0.001727792,
+          0.001629347
+        ]
+      },
+      "load": [
+        11.91,
+        13.77,
+        11.14
+      ],
+      "match": true
+    },
+    "simplify_with_attributes/tiny/disconnected/allocating/a12/r0.125": {
+      "before": 1.4946125651614173,
+      "after": {
+        "median": 1.2835228436706934,
+        "min": 0.7839864426962041,
+        "max": 1.4849787621482309,
+        "quartiles": [
+          1.0773754475602542,
+          1.2835228436706934,
+          1.389452628593923
+        ],
+        "stdev": 0.19541126666093445,
+        "coefficient_of_variation": 0.15736269311250128,
+        "median_absolute_deviation": 0.10537289881242384,
+        "raw_ratios": [
+          1.3027695900217362,
+          1.276824406117692,
+          1.2625605573060465,
+          1.4389603125816213,
+          1.390009514704729,
+          1.0328394049477534,
+          1.4849787621482309,
+          1.2726355686388682,
+          1.2639257239877426,
+          1.3646045474181632,
+          1.2902212812236946,
+          1.3877819702615053,
+          1.2109835753977571,
+          0.9435682725117557,
+          0.7839864426962041,
+          0.9452878565465619,
+          1.3953590046127125,
+          1.0160773442412436,
+          1.4658747969528456,
+          1.3065317468091073
+        ]
+      },
+      "samples": {
+        "rust": [
+          3.692584375e-05,
+          3.60429375e-05,
+          3.419728125e-05,
+          4.2610875e-05,
+          4.7913171875e-05,
+          4.1411921875e-05,
+          4.0035421875e-05,
+          3.6882171875e-05,
+          4.3211546875e-05,
+          4.5951203125e-05,
+          4.248565625e-05,
+          4.4009125e-05,
+          4.2308265625e-05,
+          3.844571875e-05,
+          3.9503484375e-05,
+          4.2179453125e-05,
+          4.039359375e-05,
+          3.347984375e-05,
+          3.362934375e-05,
+          3.62656875e-05
+        ],
+        "cpp": [
+          2.8344109375e-05,
+          2.8228578125e-05,
+          2.708565625e-05,
+          2.9612265625e-05,
+          3.4469671875e-05,
+          4.009521875e-05,
+          2.6960265625e-05,
+          2.89809375e-05,
+          3.4188359375e-05,
+          3.3673640625e-05,
+          3.292896875e-05,
+          3.171184375e-05,
+          3.4937109375e-05,
+          4.074503125e-05,
+          5.038796875e-05,
+          4.462075e-05,
+          2.894853125e-05,
+          3.295009375e-05,
+          2.2941484375e-05,
+          2.775721875e-05
+        ]
+      },
+      "load": [
+        11.91,
+        13.77,
+        11.14
+      ],
+      "match": true
+    }
+  },
+  "started_unix": 1790953738.8152502,
+  "metric": "median of 20 alternating same-core paired ratios; diagnostic selection only, not full-matrix acceptance",
+  "finished_unix": 1790953740.5879216,
+  "identities_unchanged": true
+}

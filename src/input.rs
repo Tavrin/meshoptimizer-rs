@@ -279,6 +279,16 @@ impl<'a> Positions<'a> {
         }
         Ok(())
     }
+    pub(crate) fn for_each_counted(
+        self,
+        work: &mut crate::workspace::Work,
+        mut visit: impl FnMut([f32; 3]) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        match self.0 {
+            PositionStorage::Packed(values) => work.scan(values.iter().copied(), visit),
+            PositionStorage::View(_) => work.scan(0..self.len(), |i| visit(self.at(i)?)),
+        }
+    }
     #[inline(always)]
     pub(crate) fn at(self, index: usize) -> Result<[f32; 3], Error> {
         self.get(index).ok_or(Error::IndexOutOfBounds)

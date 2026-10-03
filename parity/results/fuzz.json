@@ -2,9 +2,9 @@
   "profile": "stable-seeded-mutation; no sanitizer or coverage instrumentation",
   "source_sha256": {
     "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-    "Cargo.toml": "fe6e0806ef0ad81dce8a1bb7005118935528aebad7a7f4bc682e432ffec07094",
+    "Cargo.toml": "aa4d3f8d3939458620f9e2918efd7a16db4c9eeb33b564585a568b90f7f16932",
     "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
-    "fuzz/Cargo.toml": "73f481cd3db91c00356c28768c6eba511e670bc03ee65c387612e0a91a255f88",
+    "fuzz/Cargo.toml": "e2b6882a7d26258bc28c51e3ce3a27f799d7beea26b3c4252ff5370b78d55ade",
     "fuzz/smoke.py": "6f3f93b51aa243069d204bb538185022d19c77114608e065822daa7c38d31ce8",
     "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
     "fuzz/src/bin/simplify.rs": "8e8254d7bf3c96f8d3ee118fc9406a441217d458a63f5a38a0b0a36deb6919e0",
@@ -12,14 +12,14 @@
     "fuzz/src/bin/simplify_with_attributes.rs": "0757292b85d452ccf6ea591cd147c00387727d123df782d6168359402ccd2460",
     "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
     "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
-    "src/cache.rs": "503786282958db778a80c5dd3ffff67e13f06bf87e9679b1ba691021082cba0d",
+    "src/cache.rs": "81451bb46ef7d18564ea1e36d837cd9822b68af157ebad0e21a07400b149c3c9",
     "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
-    "src/input.rs": "3db6de02c2f2d68076d3ae275c2584cbca0239323ebada380bbb5d2e607d62b3",
+    "src/input.rs": "69dfb8529a3624462ccd648cc341dd552cd296eab069383f2ae65a4083b0691b",
     "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
-    "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
-    "src/overdraw.rs": "99ee6ad978f1691372e19abeb6c0fd551b1dbe5eb763a0bff27ca8623d4122e3",
-    "src/simplify.rs": "a193f503ef74e906c9e8a59151fd205b11364bed33a342510fb841b21d6c0da7",
-    "src/workspace.rs": "176589790a20010f9d181149696fc5aae9ec355607821e709dc4b71f52bdea5e"
+    "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+    "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
+    "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934"
   },
   "dependency_sha256": {
     "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
@@ -180,11 +180,11 @@
     "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
   },
   "executable_sha256": {
-    "vertex_cache": "98a895cacee3bb9332e46ff4ff00c4e87588ef387630a857829edbb3f0bd5d89",
-    "overdraw": "222c67e394fd221a695b5f9fd2191f34e4050da26036f33adefa48d8f83c825d",
-    "simplify": "d606fefab40fd10a7912201bf9ce5fb8e08f6bc7ed91edb8815ae299ffda0547",
-    "simplify_with_attributes": "3a2c3f021cb2fe1e361b436b01bcb9515519a2bd84f330cd967a28b114f40b43",
-    "simplify_scale": "001bca87560741a5212fde8b3d6f096b89e5be6942a03cb5eb770a04385b5f6f"
+    "vertex_cache": "2b49354110252f819b29de8ce747dcf53ffcea3f33d7848309aba48d35f5bf20",
+    "overdraw": "84c71c9b951083b6c360c469d07d14b17e13fe61c2c43de4657938fceed4e781",
+    "simplify": "b79d467548f2e7a02e6d93b464096e74a4d1c22771d129f89062416fa2dcc0ba",
+    "simplify_with_attributes": "3ccfab18f72e2ecc6b0192580dbb89ac472d7d16cfa114074e00363703220ac2",
+    "simplify_scale": "747aeeea0d95d625329e78861d5d757a19579178832e6c14d8dbe60d91e0755a"
   },
   "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
   "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -195,7 +195,7 @@
     "machine": "x86_64",
     "processor": "x86_64"
   },
-  "started_unix": 1790943768.6427038,
+  "started_unix": 1791053794.541881,
   "budget_seconds": 300,
   "seed": 20261002,
   "rustflags": "",
@@ -203,104 +203,151 @@
     {
       "target": "vertex_cache",
       "exit": 0,
-      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":300.000022804,\"executions\":21432212,\"successes\":11659926,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":300.000075782,\"executions\":5789042,\"successes\":3148685,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "vertex_cache",
-        "seconds": 300.000022804,
-        "executions": 21432212,
-        "successes": 11659926,
+        "seconds": 300.000075782,
+        "executions": 5789042,
+        "successes": 3148685,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 298.51,
-        "system_seconds": 0.04,
+        "user_seconds": 288.41,
+        "system_seconds": 0.27,
         "elapsed_seconds": 300.0,
-        "max_rss_kib": 2164
+        "max_rss_kib": 2144
       }
     },
     {
       "target": "overdraw",
       "exit": 0,
-      "stdout": "{\"target\":\"overdraw\",\"seconds\":300.000003598,\"executions\":48728510,\"successes\":20525368,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"overdraw\",\"seconds\":300.000004518,\"executions\":12238588,\"successes\":5154472,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "overdraw",
-        "seconds": 300.000003598,
-        "executions": 48728510,
-        "successes": 20525368,
+        "seconds": 300.000004518,
+        "executions": 12238588,
+        "successes": 5154472,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 298.42,
-        "system_seconds": 0.07,
+        "user_seconds": 288.38,
+        "system_seconds": 0.17,
         "elapsed_seconds": 300.0,
-        "max_rss_kib": 2116
+        "max_rss_kib": 2152
       }
     },
     {
       "target": "simplify",
       "exit": 0,
-      "stdout": "{\"target\":\"simplify\",\"seconds\":300.000005411,\"executions\":21703470,\"successes\":11056150,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"simplify\",\"seconds\":300.00004338,\"executions\":5406683,\"successes\":2752959,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "simplify",
-        "seconds": 300.000005411,
-        "executions": 21703470,
-        "successes": 11056150,
+        "seconds": 300.00004338,
+        "executions": 5406683,
+        "successes": 2752959,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 299.06,
-        "system_seconds": 0.05,
+        "user_seconds": 289.61,
+        "system_seconds": 0.24,
         "elapsed_seconds": 300.0,
-        "max_rss_kib": 1936
+        "max_rss_kib": 1872
       }
     },
     {
       "target": "simplify_with_attributes",
       "exit": 0,
-      "stdout": "{\"target\":\"simplify_with_attributes\",\"seconds\":300.000024647,\"executions\":17004808,\"successes\":6603381,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"simplify_with_attributes\",\"seconds\":300.000125904,\"executions\":4595175,\"successes\":1784511,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "simplify_with_attributes",
-        "seconds": 300.000024647,
-        "executions": 17004808,
-        "successes": 6603381,
+        "seconds": 300.000125904,
+        "executions": 4595175,
+        "successes": 1784511,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 299.24,
-        "system_seconds": 0.06,
-        "elapsed_seconds": 300.0,
-        "max_rss_kib": 1904
+        "user_seconds": 286.82,
+        "system_seconds": 0.28,
+        "elapsed_seconds": 300.01,
+        "max_rss_kib": 1912
       }
     },
     {
       "target": "simplify_scale",
       "exit": 0,
-      "stdout": "{\"target\":\"simplify_scale\",\"seconds\":300.000601983,\"executions\":445221714,\"successes\":419627828,\"crashes\":0,\"seed\":20261002}\n",
+      "stdout": "{\"target\":\"simplify_scale\",\"seconds\":300.00000133,\"executions\":119636010,\"successes\":112757276,\"crashes\":0,\"seed\":20261002}\n",
       "stderr": "",
       "statistics": {
         "target": "simplify_scale",
-        "seconds": 300.000601983,
-        "executions": 445221714,
-        "successes": 419627828,
+        "seconds": 300.00000133,
+        "executions": 119636010,
+        "successes": 112757276,
         "crashes": 0,
         "seed": 20261002
       },
       "usage": {
-        "user_seconds": 299.0,
-        "system_seconds": 0.06,
-        "elapsed_seconds": 300.0,
-        "max_rss_kib": 1920
+        "user_seconds": 288.36,
+        "system_seconds": 0.18,
+        "elapsed_seconds": 300.01,
+        "max_rss_kib": 1912
       }
     }
   ],
-  "finished_unix": 1790944068.652786,
-  "identities_unchanged": true
+  "finished_unix": 1791054094.5840583,
+  "identities_unchanged": true,
+  "lane3b_affinity": {
+    "command": [
+      "taskset",
+      "-c",
+      "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,22,23,24,25,26,27,28,29,30,31",
+      "parity/fuzz.sh",
+      "--seconds",
+      "300"
+    ],
+    "started_unix": 1791053766.5766666,
+    "excluded_benchmark_cpus": [
+      20,
+      21
+    ],
+    "fuzz_cpu_affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ]
+  }
 }

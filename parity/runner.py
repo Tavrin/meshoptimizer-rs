@@ -15,6 +15,7 @@ import struct
 import subprocess
 import sys
 import time
+import tomllib
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -130,6 +131,8 @@ def build(reference, target, wasm=True):
         "rustc": text_command(["rustc", "-Vv"]), "cargo": text_command(["cargo", "-V"]),
         "cxx": text_command([compiler, "--version"]), "cxx_command": [redact(a) for a in cpp_command],
         "rust_profile": "release; default generic target; no fast math or contraction; Rust flags and compiler wrappers empty",
+        "release_profile_configuration": {name: tomllib.loads((ROOT/name).read_text()).get('profile', {}).get('release', {})
+                                           for name in ['Cargo.toml', 'parity/Cargo.toml', 'fuzz/Cargo.toml']},
         "math": "libm 0.2.16 sqrtf in std and no_std; exact f32 bits",
         "fp_environment": "C++ driver checks FE_TONEAREST and gradual underflow; no x87 target",
         "hardware": {k: v for k, v in platform.uname()._asdict().items() if k != "node"}, "cpu": cpu(), "logical_cpus": os.cpu_count(),
@@ -566,7 +569,7 @@ def report(args):
               "These are Linux x86-64 and wasm32 lane records. AArch64 and the release fuzz/performance gates remain outside this lane.", "",
               "The records and external compressed input/output buffers retain SHA-256 identities. report.sh rejects stale source and missing or changed artifacts."]
     (ROOT / "parity/MEASURED_PARITY.md").write_text("\n".join(lines) + "\n")
-    if records["benchmark"].get("schema") == 2:
+    if records["benchmark"].get("schema") in {2, 3, 4}:
         import performance
         performance.write_report(sys.modules[__name__], records["benchmark"], results)
         print("verified source identities, required counts and retained artifacts; generated measured reports")
