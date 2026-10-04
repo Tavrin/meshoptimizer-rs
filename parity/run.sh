@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd -- "$(dirname -- "$0")/.."
-exec python3 parity/runner.py run "$@"
+exec parity/report.sh --execute run "$@"

@@ -1,0 +1,52 @@
+name: Background robustness
+
+on:
+  schedule:
+    - cron: '17 2 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fuzz-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Bind saved executables to the compiler
+        id: compiler
+        run: echo "identity=$(rustc -Vv | sha256sum | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+      - name: Set isolated storage
+        run: |
+          echo "CARGO_TARGET_DIR=$RUNNER_TEMP/meshopt-fuzz-build" >> "$GITHUB_ENV"
+          echo "MESHOPT_ARTIFACTS=$RUNNER_TEMP/meshopt-fuzz-artifacts" >> "$GITHUB_ENV"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/meshopt-fuzz-artifacts
+          key: fuzz-${{ runner.os }}-${{ steps.compiler.outputs.identity }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'src/**', 'fuzz/**') }}-${{ github.run_id }}
+          restore-keys: |
+            fuzz-${{ runner.os }}-${{ steps.compiler.outputs.identity }}-${{ hashFiles('Cargo.toml', 'Cargo.lock', 'src/**', 'fuzz/**') }}-
+      - run: cargo fetch --locked --manifest-path fuzz/Cargo.toml
+      - name: Add one measured CPU-hour per target
+        run: parity/fuzz-continuous.sh --wall-seconds 12600 --cores 4 --cpu-hours-per-target 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fuzz-findings-and-ledger
+          path: |
+            ${{ runner.temp }}/meshopt-fuzz-artifacts/fuzz-continuous/crashes/
+            ${{ runner.temp }}/meshopt-fuzz-artifacts/fuzz-continuous/corpus/
+            ${{ runner.temp }}/meshopt-fuzz-artifacts/fuzz-continuous/record.json
+            ${{ runner.temp }}/meshopt-fuzz-artifacts/fuzz-continuous/ledger.jsonl
+            ${{ runner.temp }}/meshopt-fuzz-artifacts/fuzz-continuous/sources.tar.gz
+            ${{ runner.temp }}/meshopt-fuzz-artifacts/fuzz-continuous/binaries/
+          if-no-files-found: error
+      - name: Remove build output
+        if: always()
+        run: rm -rf -- "$CARGO_TARGET_DIR"

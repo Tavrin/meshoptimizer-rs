@@ -1,13 +1,13 @@
 {
-  "moved_unix": 1790951186.4408715,
-  "source": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b",
-  "requested_destination": "/mnt/linux-extra/meshopt-artifacts/lane3b",
-  "actual_temporary_destination": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b",
-  "reason": "requested destination remains read-only after coordinator correction; preserving evidence and clearing reserved archive",
-  "reserved_directory_removed": true,
-  "_artifact_relocation": {
-    "original_record": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/relocation-originals/records/repository/parity/results/lane3b-artifact-relocation.json",
-    "original_record_sha256": "698badc87386a82c614baec8eda3630121fb0266fff80cccc2963ecb66ca4e0d",
-    "note": "Location fields updated; original file bytes, measurement hashes and immutable buffers remain available through record-relocation.json."
+  "schema": "meshopt-summary/1",
+  "historical": true,
+  "command": "lane3b-artifact-relocation",
+  "passed": null,
+  "phase": "0.1",
+  "seed": null,
+  "profile": null,
+  "detail_artifact": "historical/lane3b-artifact-relocation.json",
+  "artifacts": {
+    "historical/lane3b-artifact-relocation.json": "971307b36efc43423bcd7be9e37921bde0db5b94e63fc25bf2fe7032901de38d"
   }
 }

@@ -1,20 +1,19 @@
 {
   "schema": "meshopt-summary/1",
   "historical": false,
-  "command": "run",
-  "passed": true,
+  "command": "benchmark",
+  "passed": false,
   "phase": "0.1",
-  "seed": 20261002,
-  "profile": "scalar-strict",
-  "detail_artifact": "run-final-verifier/run.json",
+  "seed": null,
+  "profile": "moss",
+  "detail_artifact": "benchmark-moss-verifier-final/benchmark.json",
   "artifacts": {
-    "run-final-verifier/run.json": "232200bdd4662d53dd33048ac80a26344d23ab5fe8fdc6dd657aef661ab42d5e",
-    "run-final-verifier/run-buffers.zip": "aa843a82963bf16ce6236f03b2526caee1e536fe67c0155a4dcfabfc8ae8512e",
-    "run-final-verifier/sources.tar.gz": "35ab51cb987acf182465548f8cfe56bf606bc0187fbb5c49616e7bfc4a0e39aa",
-    "run-final-verifier/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
-    "run-final-verifier/binaries/rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-    "run-final-verifier/binaries/wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-    "run-final-verifier/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+    "benchmark-moss-verifier-final/benchmark.json": "cc36db69ea7799f1fa8bffff22b1dfa88bb0d934cf4b484320a569bd9e526755",
+    "benchmark-moss-verifier-final/benchmark-buffers.zip": "db5b7c7bc4bdbea3728323b328152b0bf2d8a7aeae44b718db50148c9bb2c497",
+    "benchmark-moss-verifier-final/sources.tar.gz": "0738bf81ee204ae36b56815dd22e304a70fa4fe6c47fb17843206494057f28b1",
+    "benchmark-moss-verifier-final/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
+    "benchmark-moss-verifier-final/binaries/rust": "6002c42d3aeedd4a29d0734c16227ccd3e6dd0f57f5656ec63cde8c52cf5bd77",
+    "benchmark-moss-verifier-final/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
   },
   "identities": {
     "source_sha256": {
@@ -276,8 +275,7 @@
     },
     "executable_sha256": {
       "cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e",
-      "rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-      "wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
+      "rust": "6002c42d3aeedd4a29d0734c16227ccd3e6dd0f57f5656ec63cde8c52cf5bd77",
       "fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d"
     },
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
@@ -328,199 +326,77 @@
     },
     "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
     "logical_cpus": 32,
-    "node": "v22.22.0",
+    "node": null,
     "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
     "upstream_tag": "v1.3",
     "upstream_src_identical_to_tag": true,
     "rust_revision": "uncommitted working sources; identity is the SHA-256 manifest",
-    "effective_profile_overrides": {}
-  },
-  "required_cases_per_family": null,
-  "mismatches": 0,
-  "started_unix": 1791075005.1674178,
-  "finished_unix": 1791075015.8672054,
-  "functions": {
-    "vertex_cache": {
-      "count": 50,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "million-indices-grid": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
-    },
-    "overdraw": {
-      "count": 50,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "million-indices-grid": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
-    },
-    "simplify": {
-      "count": 65,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "js-simplify": 2,
-        "js-simplify16": 1,
-        "million-indices-grid": 1,
-        "native-simplify": 1,
-        "native-simplifyDegenerate": 1,
-        "native-simplifyErrorAbsolute": 1,
-        "native-simplifyFlip": 1,
-        "native-simplifyLockBorder": 1,
-        "native-simplifySeam": 1,
-        "native-simplifySeamFake": 1,
-        "native-simplifyStuck": 5,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
-    },
-    "simplify_with_attributes": {
-      "count": 62,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "js-simplifyWithAttributes": 2,
-        "million-indices-grid": 1,
-        "native-simplifyAttr": 1,
-        "native-simplifyAttr-zero-weight": 1,
-        "native-simplifyLockFlags": 1,
-        "native-simplifyLockFlagsSeam": 5,
-        "native-simplifySeam": 1,
-        "native-simplifySeamAttr": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
-    },
-    "simplify_scale": {
-      "count": 52,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "js-getScale": 1,
-        "million-indices-grid": 1,
-        "native-simplifyScale": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
+    "effective_profile_overrides": {
+      "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
+      "CARGO_PROFILE_RELEASE_DEBUG": "0",
+      "CARGO_PROFILE_RELEASE_LTO": "thin",
+      "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "1"
     }
   },
-  "counts": {
-    "vertex_cache": 50,
-    "overdraw": 50,
-    "simplify": 65,
-    "simplify_with_attributes": 62,
-    "simplify_scale": 52
+  "started_unix": 1791068425.2436652,
+  "finished_unix": 1791074912.3453062,
+  "identities_unchanged": true,
+  "functions": {
+    "vertex_cache": {
+      "cases": 24,
+      "geometric_mean": 1.2433795037066138,
+      "maximum": 1.3153836579170066,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
+    },
+    "overdraw": {
+      "cases": 24,
+      "geometric_mean": 1.1302307436377994,
+      "maximum": 1.3613192843288382,
+      "maximum_memory_ratio": 0.9989704976937129,
+      "passed": true
+    },
+    "simplify": {
+      "cases": 72,
+      "geometric_mean": 1.258399430860437,
+      "maximum": 1.4293039021783018,
+      "maximum_memory_ratio": 1.095090670882574,
+      "passed": false
+    },
+    "simplify_with_attributes": {
+      "cases": 72,
+      "geometric_mean": 1.2427088566920372,
+      "maximum": 1.355710648798913,
+      "maximum_memory_ratio": 1.0843286556888025,
+      "passed": true
+    },
+    "simplify_scale": {
+      "cases": 12,
+      "geometric_mean": 0.7819698069218696,
+      "maximum": 0.9350394868272315,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
+    }
   },
-  "upstream_fixture_counts": {
-    "simplify_scale": 2,
-    "simplify": 15,
-    "simplify_with_attributes": 12
+  "performance_bars": {
+    "geometric_mean": 1.25,
+    "maximum": 1.5,
+    "maximum_memory_ratio": 1.25
   },
-  "math_probe_match": true
+  "input_families": [
+    "disconnected",
+    "seam-heavy",
+    "smooth",
+    "sparse"
+  ],
+  "sizes": [
+    "medium",
+    "million",
+    "tiny"
+  ],
+  "apis": [
+    "allocating",
+    "allocation-free",
+    "caller-buffer"
+  ]
 }

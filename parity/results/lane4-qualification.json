@@ -1,0 +1,202 @@
+{
+  "schema": "meshopt-lane4-qualification/1",
+  "done_when_passed": true,
+  "evidence_complete": true,
+  "release_performance_accepted": false,
+  "moss_performance_accepted": false,
+  "consumer_performance": {
+    "benchmark-moss": {
+      "vertex_cache": {
+        "cases": 24,
+        "geometric_mean": 1.2433795037066138,
+        "maximum": 1.3153836579170066,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      },
+      "overdraw": {
+        "cases": 24,
+        "geometric_mean": 1.1302307436377994,
+        "maximum": 1.3613192843288382,
+        "maximum_memory_ratio": 0.9989704976937129,
+        "passed": true
+      },
+      "simplify": {
+        "cases": 72,
+        "geometric_mean": 1.258399430860437,
+        "maximum": 1.4293039021783018,
+        "maximum_memory_ratio": 1.095090670882574,
+        "passed": false
+      },
+      "simplify_with_attributes": {
+        "cases": 72,
+        "geometric_mean": 1.2427088566920372,
+        "maximum": 1.355710648798913,
+        "maximum_memory_ratio": 1.0843286556888025,
+        "passed": true
+      },
+      "simplify_scale": {
+        "cases": 12,
+        "geometric_mean": 0.7819698069218696,
+        "maximum": 0.9350394868272315,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      }
+    },
+    "benchmark-default": {
+      "vertex_cache": {
+        "cases": 24,
+        "geometric_mean": 1.2399806186014324,
+        "maximum": 1.3096130252935492,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      },
+      "overdraw": {
+        "cases": 24,
+        "geometric_mean": 1.0633884460635452,
+        "maximum": 1.39769577443152,
+        "maximum_memory_ratio": 0.9989704976937129,
+        "passed": true
+      },
+      "simplify": {
+        "cases": 72,
+        "geometric_mean": 1.2838099797372862,
+        "maximum": 1.4202421349892562,
+        "maximum_memory_ratio": 1.095090670882574,
+        "passed": false
+      },
+      "simplify_with_attributes": {
+        "cases": 72,
+        "geometric_mean": 1.2567802127822754,
+        "maximum": 1.6506913494914492,
+        "maximum_memory_ratio": 1.0843286556888025,
+        "passed": false
+      },
+      "simplify_scale": {
+        "cases": 12,
+        "geometric_mean": 1.0299048782340534,
+        "maximum": 1.1869728273012945,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      }
+    }
+  },
+  "fixture_counts": {
+    "vertex_cache": 50,
+    "overdraw": 50,
+    "simplify": 65,
+    "simplify_with_attributes": 62,
+    "simplify_scale": 52
+  },
+  "sweep_counts": {
+    "vertex_cache": 10000,
+    "overdraw": 10000,
+    "simplify": 10000,
+    "simplify_with_attributes": 10000,
+    "simplify_scale": 10000
+  },
+  "mismatches": 0,
+  "fuzz": {
+    "required_cpu_hours_per_target": 4,
+    "owner_amendment_date": "2026-10-04",
+    "findings": 0,
+    "runs": [
+      {
+        "target": "vertex_cache",
+        "cpu_seconds": 14886.279999999999,
+        "elapsed_seconds": 17700.840000000004,
+        "executions": 514879257,
+        "successes": 280106603,
+        "crashes": 0,
+        "shards": 59
+      },
+      {
+        "target": "overdraw",
+        "cpu_seconds": 15336.689999999997,
+        "elapsed_seconds": 21000.989999999998,
+        "executions": 1134220054,
+        "successes": 477732559,
+        "crashes": 0,
+        "shards": 70
+      },
+      {
+        "target": "simplify",
+        "cpu_seconds": 14763.2,
+        "elapsed_seconds": 17701.22,
+        "executions": 480491171,
+        "successes": 244687672,
+        "crashes": 0,
+        "shards": 59
+      },
+      {
+        "target": "simplify_with_attributes",
+        "cpu_seconds": 14879.549999999997,
+        "elapsed_seconds": 17700.680000000004,
+        "executions": 415134040,
+        "successes": 161159084,
+        "crashes": 0,
+        "shards": 59
+      },
+      {
+        "target": "simplify_scale",
+        "cpu_seconds": 15223.599999999995,
+        "elapsed_seconds": 17701.520000000004,
+        "executions": 11309597748,
+        "successes": 10659509129,
+        "crashes": 0,
+        "shards": 59
+      }
+    ],
+    "coverage": null
+  },
+  "build_package_commands": 16,
+  "package_artifact": {
+    "name": "meshoptimizer-rs-0.1.0.crate",
+    "sha256": "5d87454a0379189b917e6b928f153f8e179a665d96af766bbbefcc60606f6601"
+  },
+  "cleanup": {
+    "passed": true,
+    "removed": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane4",
+    "target_absent": true,
+    "report_after_cleanup_exit": 0,
+    "retained_artifacts": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4",
+    "report_log_sha256": "181d99aa001b79cc7b493de46c045f62c25e03b7065fa1c92f851a482654384b",
+    "finished_unix": 1791075898.937488
+  },
+  "artifact_directory_requested": "/mnt/linux-extra/meshopt-artifacts/lane4",
+  "artifact_directory_retained": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4",
+  "exact_artifact_placement_complete": false,
+  "decision_ids": [
+    "D40",
+    "D41",
+    "D43",
+    "D44",
+    "D45",
+    "D46",
+    "D47",
+    "D48",
+    "D49"
+  ],
+  "proof_limits": [
+    "Shared-load consumer timing; Moss simplification mean fails the unchanged bar.",
+    "Existing stable seeded targets; no coverage instrumentation or sanitizer.",
+    "Remote platform jobs configured; execution not established locally.",
+    "Real publish dry-run validates packaging through the recorded offline registry fallback.",
+    "Absent historical buffers are explicit and not current evidence."
+  ],
+  "out_of_scope_findings": [
+    {
+      "file": "parity/check-reference.sh",
+      "line": 13,
+      "finding": "Failed git diff can be ignored when v1.3 tag is absent.",
+      "mitigation": "Full history and tags in CI; local tag and source equality verified."
+    }
+  ],
+  "artifact_index": {
+    "path": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4/artifact-index-final.json",
+    "sha256": "2ce3f53ae6204a0244e2284cd5d84fb0b8733a28176fbe3bba694d0b998892f9",
+    "entries": 1271
+  },
+  "scope_verification_sha256": "cbe39c5b271e856e1fdbfe1a0c679f205d1eb66db579f6d2d4cf2374ee62e072",
+  "decisions_sha256": "f65f43051637819d3189466c8c37e2e74d072c131b47697ea7aa87324f9062ad",
+  "measured_release_summary_sha256": "f0c7599434f9048bb2e1eb97c9fec46c0dea7608cc34e7640f655ad0a04fc072"
+}

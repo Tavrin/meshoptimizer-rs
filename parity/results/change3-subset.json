@@ -1,21 +1,21 @@
 {
   "schema": "meshopt-summary/1",
   "historical": true,
-  "command": "lane3-gates",
-  "passed": true,
+  "command": "change3-subset",
+  "passed": null,
   "phase": "0.1",
   "seed": null,
   "profile": null,
-  "detail_artifact": "historical/lane3-gates.json",
+  "detail_artifact": "historical/change3-subset.json",
   "artifacts": {
-    "historical/lane3-gates.json": "f5616a8c49cbf639d0fbf2f1222c9b9ac82e189b6e9fa86e52fd9049df65d2d4"
+    "historical/change3-subset.json": "8d7302c3a9b6947d7fd1f4e9a1cbb77434dce1af50f0f9febda50998eb1e3c2c"
   },
   "source_sha256": {
     "rust_and_harness": {
       "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-      "Cargo.toml": "fe6e0806ef0ad81dce8a1bb7005118935528aebad7a7f4bc682e432ffec07094",
+      "Cargo.toml": "aa4d3f8d3939458620f9e2918efd7a16db4c9eeb33b564585a568b90f7f16932",
       "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
-      "fuzz/Cargo.toml": "73f481cd3db91c00356c28768c6eba511e670bc03ee65c387612e0a91a255f88",
+      "fuzz/Cargo.toml": "e2b6882a7d26258bc28c51e3ce3a27f799d7beea26b3c4252ff5370b78d55ade",
       "fuzz/smoke.py": "6f3f93b51aa243069d204bb538185022d19c77114608e065822daa7c38d31ce8",
       "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
       "fuzz/src/bin/simplify.rs": "8e8254d7bf3c96f8d3ee118fc9406a441217d458a63f5a38a0b0a36deb6919e0",
@@ -24,7 +24,7 @@
       "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
       "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
       "parity/Cargo.lock": "112cd885caf73df56e35b83e6b262a1cd9e629c79f678fd9c85be8cf16f6a894",
-      "parity/Cargo.toml": "6a30033246b14fd7b45d85df9272802a2d9e3f7965709d9a699be8809fb05339",
+      "parity/Cargo.toml": "db88797782c6372b70f4a4b1f6c0c212469baec87bb1e8ce945b55a0010ff5e9",
       "parity/benchmark.sh": "c6b216f063c8a0ed4bcc1acb9442e06e15b6ed4efff324f7d3cf4402dd159ace",
       "parity/check-reference.sh": "ad4860d87be254b01958512287d31c8e056b49aaaef368b2548f01fca3ecf202",
       "parity/fuzz.sh": "3df71ce7a8450d05b9b3e9dbd09e2db01bd49f994c9850013bc1877d09ec902f",
@@ -33,25 +33,29 @@
       "parity/js-fixtures.cjs": "eead629f8648f57265fdfd76cc4cc891617f6b1055bb7678401b07338b6576c7",
       "parity/js.sh": "033919e1d016f1319159cb96bad65c09beacc158793c8c9c62415a983ebac86f",
       "parity/native-fixtures.py": "a1084c57cc353a4fccbb16dca7eb0f6d210dc5bf4f4007364f285c5ce7a881c3",
-      "parity/performance.py": "04c62b6e0b97122966532862a496f0098dab3d7bae900a7df864426926e45f9d",
+      "parity/perf_profile.py": "0af9456d199668e2b5d3c5651843253690b5bd971c4d7e7ddb2b8e77fa3268dd",
+      "parity/performance.py": "fbdbc94c474f803dda95bcc2e4f4ebfd2180bfaf2efd571fc8f6c10947a53839",
       "parity/profile.py": "a7cfaef355bd9d96978dbae8c4675b05367b596f3131e525c26ea9de8f4a7b3a",
       "parity/qualify.sh": "228fc2bc3bec9d48ede3292ef86412d7435fafb4363f0359aa0275682fc8c646",
+      "parity/quiet.py": "45ff8df302acd61dcc360d925c73774958a273056c11e9849e0bf799f2f19505",
       "parity/reference.cpp": "8f2d14b3584653ca4d45beca2295058c32839abfc5094e354ae008e438ce5172",
       "parity/report.sh": "17be39ff819b008d3050e347a473684eff035d160bb8adc659d281ff7b21fd61",
       "parity/run.sh": "ca205680f5dfea64e7309e29a1edec7b9c5c506e7043f3ce1765e3f26088b30e",
-      "parity/runner.py": "54cbae978a5d4c651e29255a633fa2b8f2653b02180d9e5e1d28f95c7e4f798b",
+      "parity/runner.py": "3c5f1ef08466aa0b1491110e176913156d0efe4b698d8077574ae80a2bef0d50",
       "parity/src/lib.rs": "8b490d6e2a1f4cfb3c04b41083120113c5a0a11c8aec36ec3a08bf4aeb0e39ab",
       "parity/src/main.rs": "e0e590c58dc8a556014f17f0a5e4e6be9714ff20cc8297080da66524e4682abf",
       "parity/sweep.sh": "7787f5d059a360265372d9fd48188679e29f4c8fea1fabf4b4a5120790ad8159",
+      "parity/test_measurement.py": "4bcf17fdb972b76377732c217829891271f4d60692896b2838e9cb1af99b2f20",
+      "parity/test_quiet.py": "c1f85e84874d58bbe71c445a10ee909f48e65c12fcb4da8b04916e3f62a54d9c",
       "parity/wasm.cjs": "4ebb96263f7cc058c81e8a546908eb8f18d9ec6c4e64ee1b217c4c916b262865",
-      "src/cache.rs": "503786282958db778a80c5dd3ffff67e13f06bf87e9679b1ba691021082cba0d",
+      "src/cache.rs": "4dc686f2c758d0d30c7e4b642dae57440ba0d963eda5ecb1a653add013a9860e",
       "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
       "src/input.rs": "3db6de02c2f2d68076d3ae275c2584cbca0239323ebada380bbb5d2e607d62b3",
       "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
       "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
-      "src/overdraw.rs": "99ee6ad978f1691372e19abeb6c0fd551b1dbe5eb763a0bff27ca8623d4122e3",
-      "src/simplify.rs": "a193f503ef74e906c9e8a59151fd205b11364bed33a342510fb841b21d6c0da7",
-      "src/workspace.rs": "176589790a20010f9d181149696fc5aae9ec355607821e709dc4b71f52bdea5e",
+      "src/overdraw.rs": "21f2467f583a76526443c759b47a2cfa4fa7722be3f4ae4d2f0c777bcef958ab",
+      "src/simplify.rs": "c90c6fe86160f01b75159b65d02792dcaa7c54d78ae59f0186d89a27acb35971",
+      "src/workspace.rs": "d151bdf3c119f2e02482353137e02ea237500747275da9bbc8770c63a352292f",
       "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
     },
     "upstream": {
@@ -262,7 +266,7 @@
       "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
     }
   },
-  "started_unix": 1790944186.1509967,
-  "finished_unix": 1790944278.051352,
+  "started_unix": 1790954959.652909,
+  "finished_unix": 1790955142.681759,
   "identities_unchanged": true
 }

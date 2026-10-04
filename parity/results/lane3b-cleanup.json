@@ -1,14 +1,14 @@
 {
-  "finished_unix": 1791058507.1069689,
-  "build_target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane3b",
-  "build_target_removed": true,
-  "artifacts": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b",
-  "requested_artifacts": "/mnt/linux-extra/meshopt-artifacts/lane3b",
-  "requested_destination_error": "[Errno 30] Read-only file system: '/mnt/linux-extra/meshopt-artifacts/lane3b'",
-  "git_metadata_unchanged": true,
-  "git_metadata_files": 125,
-  "source_hashes_verified": true,
-  "archive_hashes_verified": true,
-  "temporary_artifacts_removed": true,
-  "reserved_artifacts_removed": true
+  "schema": "meshopt-summary/1",
+  "historical": true,
+  "command": "lane3b-cleanup",
+  "passed": null,
+  "phase": "0.1",
+  "seed": null,
+  "profile": null,
+  "detail_artifact": "historical/lane3b-cleanup.json",
+  "artifacts": {
+    "historical/lane3b-cleanup.json": "d52818a0f8e2e99a62b1aab04261d26f9a5081b1d1b252ef7ec19404f5a5be28"
+  },
+  "finished_unix": 1791058507.1069689
 }

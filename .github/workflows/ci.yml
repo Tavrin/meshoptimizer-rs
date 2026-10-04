@@ -65,8 +65,11 @@ jobs:
         with:
           repository: zeux/meshoptimizer
           ref: 4c203430ca565cb59a468a91922c76c208169536
+          fetch-depth: 0
           path: reference
-      - run: echo "CARGO_TARGET_DIR=$RUNNER_TEMP/meshopt-parity" >> "$GITHUB_ENV"
+      - run: |
+          echo "CARGO_TARGET_DIR=$RUNNER_TEMP/meshopt-parity" >> "$GITHUB_ENV"
+          echo "MESHOPT_ARTIFACTS=$RUNNER_TEMP/meshopt-artifacts" >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
@@ -74,15 +77,103 @@ jobs:
       - run: parity/check-reference.sh
       - run: parity/run.sh --phase 0.1
       - run: parity/sweep.sh --cases-per-family 2000 --seed 20261002
-      - run: parity/js.sh --require-coverage
+      - run: parity/report.sh --execute js --require-coverage
+      - name: Record qualified Linux outputs for cross-target execution
+        run: parity/report.sh --export-identity "$RUNNER_TEMP/native-identity"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-linux-identity
+          path: ${{ runner.temp }}/native-identity/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: parity-geometry
           path: |
             parity/results/
-            ${{ runner.temp }}/meshopt-parity/parity-artifacts/
+            ${{ runner.temp }}/meshopt-artifacts/
       - name: Remove temporary build output
         if: always()
         shell: bash
         run: rm -rf -- "$CARGO_TARGET_DIR"
+
+  cross-target-identity:
+    needs: parity
+    env:
+      MESHOPT_PYTHON: python
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: windows-2022
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-linux-identity
+          path: native-identity
+      - name: Check runner architecture
+        env:
+          EXPECTED_TARGET: ${{ matrix.target }}
+        run: |
+          rustc -Vv | grep -Fx "host: $EXPECTED_TARGET"
+      - name: Execute exact Rust identity against recorded Linux native outputs
+        run: |
+          echo "CARGO_TARGET_DIR=$RUNNER_TEMP/meshopt-identity" >> "$GITHUB_ENV"
+          cargo fetch --locked --manifest-path parity/Cargo.toml
+      - run: parity/report.sh --identity-check native-identity
+      - uses: actions/checkout@v4
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        with:
+          repository: zeux/meshoptimizer
+          ref: 4c203430ca565cb59a468a91922c76c208169536
+          fetch-depth: 0
+          path: reference
+      - name: Qualify native Linux arm64 C++ against the same recorded outputs
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        env:
+          MESHOPT_REFERENCE: ${{ github.workspace }}/reference
+        run: |
+          parity/check-reference.sh
+          c++ -std=c++17 -O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off \
+            -I reference/src parity/reference.cpp reference/src/vcacheoptimizer.cpp \
+            reference/src/overdrawoptimizer.cpp reference/src/allocator.cpp reference/src/simplifier.cpp \
+            -o "$CARGO_TARGET_DIR/reference-arm64"
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, zipfile
+          from pathlib import Path
+          corpus = Path('native-identity')
+          manifest = json.loads((corpus / 'manifest.json').read_text())
+          binary = Path(os.environ['CARGO_TARGET_DIR']) / 'reference-arm64'
+          with zipfile.ZipFile(corpus / 'native.zip') as archive:
+              for pair in manifest['pairs']:
+                  data = archive.read(pair['input']['member'])
+                  expected = archive.read(pair['output']['member'])
+                  actual = subprocess.run([str(binary)], input=data, capture_output=True, check=True).stdout
+                  if actual != expected:
+                      raise SystemExit('native arm64 C++ mismatch: ' + pair['input']['member'])
+          record = {'passed': True, 'pairs': len(manifest['pairs']), 'archive_sha256': manifest['archive_sha256'],
+                    'executable_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+                    'cxx': subprocess.check_output(['c++', '--version'], text=True),
+                    'profile': '-O3 -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off'}
+          (corpus / 'identity-linux-cpp.json').write_text(json.dumps(record, indent=2) + '\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: identity-${{ matrix.target }}
+          path: native-identity/identity-*.json
+          if-no-files-found: warn

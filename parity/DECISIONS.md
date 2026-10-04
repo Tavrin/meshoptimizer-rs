@@ -842,3 +842,255 @@ file hashes remain unchanged. A final relocation audit resolves and verifies
 all 612 original file hashes, including the closed benchmark and records whose
 original bytes are retained separately. `lane3b-cleanup.json` records removal;
 `lane3b-urgent-relocation.json` records each original file's final location.
+
+## D40 — Lane 4 scope and artifact placement
+
+The checkout starts clean on main at 8ec3b3d0ca78caedd445dfb827a9579e2b8d7fef.
+Do not change Git metadata or the parallel 0.1.x checkout. Keep implementation
+inside the named shell interfaces (run.sh, sweep.sh, benchmark.sh, fuzz.sh and
+report.sh), qualification records, CI workflow, README and CHANGELOG. Leave
+library, test, Rust harness and fuzz-target sources unchanged. The report
+interface owns the external-record adapter so this lane does not broaden its
+source-file ownership to runner.py or performance.py.
+
+Creating /mnt/linux-extra/meshopt-artifacts/lane4 fails with Read-only file
+system: that path is outside this sandbox's writable roots. As in D38, retain
+artifacts at /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4 on the
+large volume, separate from the exact disposable build target. Exact requested
+placement remains a filesystem blocker. Do not put fuzz artifacts on root,
+in the repository, /tmp or home. Preserve every migrated record's original
+bytes and SHA-256; summarize historical evidence without promoting it to a
+current source-bound pass. Unavailable historical buffer hashes remain explicit.
+
+## D41 — Profiles and unchanged performance bars
+
+Keep the crate's own fat-LTO, one-codegen-unit release profile as its local
+measurement baseline. It does not configure dependents. Override the dependent
+parity harness's effective Cargo profile explicitly for Moss (thin LTO, one
+codegen unit, optimization level 3) and defaults (LTO false, 16 codegen units,
+optimization level 3), with release debug disabled in both. Record these exact
+environment overrides alongside the source manifests and executable hashes.
+Run both complete 204-case paired matrices even if either fails. Keep the RFC
+1.25 family geometric mean, 1.50 maximum and 1.25 memory limits unchanged;
+report each family and do no performance work in this lane. Retain D39's
+shared-load protocol and uncertainty limits.
+
+## D42 — CPU-accounted long mutation fuzzing
+
+RFC 5.4 requires 24 CPU-hours per exposed target: five targets require at least
+120 process CPU-hours. Use at most eight workers, pinned to separate physical
+cores; consumer benchmarks select among the remaining physical cores. Each
+seeded chunk records actual user plus system CPU seconds from /usr/bin/time.
+Only their per-target sum counts toward release; elapsed time is retained
+separately. Completed chunks are resumable only with identical source,
+dependencies, executable hashes, seed and required budget. Keep the final
+source and executable copies outside the target that must be deleted.
+
+Use the existing stable seeded mutation targets without expanding their source
+ownership. Their replay corpus consists of seed/execution-count descriptors
+bound to exact archived source and binaries; these reproduce every generated
+input. This is mutation/invariant testing without coverage or sanitizer
+instrumentation, and finite fuzzing does not establish absence of bugs. Retain
+stderr, usage, stdout and a replay descriptor for every shard; copy failure
+records to crashes and block qualification. Do not relabel a short smoke as
+release fuzzing.
+
+## D43 — Native-output transport and target claims
+
+The Linux x86-64 CI oracle job records C++/Rust/executed-WASM exact outputs.
+Export the same input/native Rust output bytes into a deterministic ZIP with
+fixed timestamps and a manifest of each member SHA-256, ZIP SHA-256, source
+hashes and counts. CI artifact upload/download transports that corpus to
+macOS arm64, Windows x86-64 and Linux arm64. Rust executes the complete corpus
+and math probe and compares full bytes, without tolerance or contraction.
+C++ stays in the Linux oracle job. Explicit runner host checks prevent an
+architecture label from substituting for the requested execution target.
+
+The workflow uses macos-14, windows-2022 and ubuntu-24.04-arm, checked against
+GitHub's documented runner labels. Local actionlint is a syntax/static workflow
+gate; it is not a remote platform execution pass. Native Linux arm64 C++
+qualification required by RFC 5.3 remains distinct from the Rust cross-target
+identity matrix and is not inferred from it. Do not advertise remote parity
+until actual execution records pass. No publishing or Git action is authorized.
+
+D43 continuation: the Linux arm64 matrix also compiles the pinned scalar-strict
+C++ driver and compares every transported input's full output against qualified
+Linux x86-64 native Rust. This implements RFC 5.3's native arm64 oracle route
+while keeping C++ Linux-only. No remote execution pass is claimed locally.
+
+D40 continuation: strengthen report verification to follow the fuzz record into
+every replay descriptor, executable identity, dependency identity and shard
+budget/execution sum. Retain the preceding report script and initial Moss
+matrix as diagnostic evidence because the source manifest includes this script;
+rerun Moss against the final verifier rather than accepting changed harness
+sources. No library or fuzz-target code changed.
+
+## D44 — Apply the owner's four-hour release amendment
+
+The owner set the release budget to **4 CPU-hours per target on 2026-10-04**,
+RFC amendment §14. This supersedes D42's 24-hour requirement. Accumulated user
+plus system CPU time counts without rerunning sound completed shards. Preserve
+the pre-amendment record and orchestration script in the continuation baseline.
+Require unchanged algorithm sources, dependencies, executable hashes and seed;
+an orchestration-only update does not discard that evidence. Record the old and
+new budget explicitly. No performance bar or output-equality rule changes.
+
+The repository's five existing targets are stable seeded mutation/invariant
+programs, not cargo-fuzz targets. Retain them within this lane's source boundary
+and identify that limit in records and README. Their seed and exact execution
+count regenerate every input; coverage is unavailable, not zero or measured.
+No sanitizer or coverage-guided qualification is claimed.
+
+## D45 — Resume verified measurements and retain background robustness
+
+An interrupted benchmark ZIP lacks its central directory. Recover only complete
+local-header entries whose sizes, CRCs and SHA-256 hashes match the saved records;
+retain the original ZIP and a recovery manifest. Adopt 197 verified workloads
+into an isolated continuation directory because the old process was still
+writing after the previous agent turn stopped. Never combine unrecorded partial
+entries with completed evidence. Resume only when the rebuilt native executable,
+oracle, dependencies, compiler and effective profile match exactly. The only
+accepted source differences are the lane-owned shell orchestration. Keep the
+old source manifest and per-session CPU selection beside the final identities.
+Measure every remaining case and the complete Cargo-default matrix.
+
+Keep the crate's own fat-LTO profile for its existing measurement baseline;
+dependents select their own profiles. Moss means, maxima and memory bars remain
+1.25, 1.50 and 1.25 respectively. A failed consumer family is reported without
+performance edits or altered acceptance thresholds.
+
+Background continuation uses nice 19, an explicit wall budget and a core cap
+(default four, maximum eight), with one worker per available physical core.
+Resume saved replay ranges and use unused seeds. Finish bounded active chunks
+on SIGTERM, persist real process CPU usage, and append a cumulative ledger.
+Save failure replay descriptors and logs; chunk timeouts are findings. Emit null
+new coverage because the existing targets have no coverage instrumentation.
+Weekly/manual CI adds one measured CPU-hour per target and uploads the evidence;
+its cache is bound to algorithm sources and compiler. Any finding blocks the
+next release. Local workflow lint and fixtures do not claim remote execution.
+
+D40's filesystem limitation persists: the requested artifact directory is absent
+and outside the session's writable roots. Retain artifacts at the already
+recorded large-volume fallback, separate from the disposable build target.
+Exact placement and remote execution cannot be inferred from local gates.
+
+## D46 — Isolate surviving processes and retain timeout replay
+
+The old benchmark process also shares the disposable target's scratch-input
+path. It removed the continuation's input after two new cases, stopping the
+run. Discard those two timing cases because their input could have raced; keep
+the 197 pre-continuation cases whose buffers were verified. Give each record
+directory its own scratch input and run immutable archived binaries. Rebuild
+and require the same executable hashes before adopting the original cases.
+The failed attempt and its logs remain diagnostic artifacts. No library or
+measurement-protocol arithmetic changed.
+
+A forced timeout exposes a wrapper defect: without a printed execution counter,
+the saved replay descriptor requests zero executions. Save the deterministic
+seed with an unbounded execution range instead, mark its counter unknown, and
+retain the exact source and executable. Known panic counters still retain the
+precise failing prefix. Check both paths with injected failures outside the
+release corpus. These wrapper fixtures are not library findings.
+
+D43 continuation: fetch the pinned reference's full history and tags in both
+Linux oracle jobs. The checker compares HEAD with v1.3; a depth-one checkout
+does not provide that tag. The checker itself is outside this lane's file
+ownership. Its conditional currently ignores a failed git diff when the tag
+is missing, so CI must supply the tag. Record that checker hardening separately
+as an out-of-scope finding; the local oracle has the tag and the required diff
+is empty.
+
+## D47 — Require a complete matrix with immutable execution paths
+
+The resumed Moss matrix completes with family GM (maximum): cache 1.182
+(1.464), overdraw 1.131 (1.554), plain simplification 1.213 (1.420), attributes
+1.211 (1.429), and scale 0.766 (0.869). Its overdraw maximum exceeds 1.50;
+memory passes. Preserve the complete failed record and its per-family numbers.
+
+D45's adoption is insufficient for consumer-profile qualification. The old
+cases ran binaries from a shared target, and an interrupted default-profile
+matrix also existed there. Rebuilding an identical executable afterward does
+not prove that every preceding case executed that profile. The surviving
+scratch-file race confirms that the old execution paths were shared. Supersede
+the performance adoption: retain all old buffers and timing records as
+diagnostics, and rerun the complete Moss matrix using immutable archived
+executables and a unique scratch path, as D40's continuation requires. This
+rerun addresses provenance, with no load admission, load-based repetition,
+performance code changes or relaxed bars. The saved fuzz binaries and
+source-bound CPU accounting remain valid and their accumulated time counts.
+
+## D48 — Verify retained attachments and distinguish a completed report
+
+The native buffer verifier expects exactly one buffer ZIP in its artifact map.
+The lane adapter also retains source and executable attachments there, so pass
+only the required buffer entry to that verifier after checking every attachment
+SHA-256 in the outer adapter. Require archived executable hashes to match the
+recorded build identities. Do not edit the shared Python verifier.
+
+Finish the active immutable Moss matrix before changing the adapter. Preserve
+its complete original record, ZIP, sources and executable copies. Rebind the
+closed consumer matrices through the verified continuation interface: require
+identical executable hashes, effective profiles, compiler, dependencies and
+oracle, retain previous identities and record hashes, and permit only the
+report adapter change. Reuse all 204 measurements without new timing samples.
+Rerun native/WASM parity and the release sweep with the final verifier.
+
+The spec requires the verification report to exit zero when complete and also
+requires reporting a failed Moss bar without performance work. Therefore the
+report command's exit status describes evidence verification. Missing, changed,
+stale, incomplete or incorrect evidence remains nonzero. A fully verified
+failed Moss matrix is reported explicitly with release summary passed=false
+and moss_performance_accepted=false; it blocks release acceptance but does not
+make a complete verification command fail. Benchmark --enforce remains
+nonzero for either failed consumer matrix. No acceptance bar changes, no
+performance edits, and no release-performance pass is inferred from exit zero.
+
+## D49 — Final lane 4 outcome
+
+The complete immutable Moss matrix has 204 cases. Family mean (maximum)
+Rust/C++ ratios are cache 1.243 (1.315), overdraw 1.130 (1.361), plain
+simplification 1.258 (1.429), attribute simplification 1.243 (1.356), and
+scale 0.782 (0.935). Plain simplification exceeds the 1.25 mean bar;
+release-performance acceptance is blocked. All memory bars pass. Cargo
+release defaults also complete 204 cases: cache 1.240 (1.310), overdraw
+1.063 (1.398), plain simplification 1.284 (1.420), attributes 1.257 (1.651),
+and scale 1.030 (1.187). The default simplification means and attribute
+maximum fail; memory passes. Keep the own-crate fat profile and all RFC bars.
+No performance or library changes are made in this lane.
+
+Final fixture parity has 279 cases and a 65,543-value math probe; the release
+sweep has 10,000 cases for each of five functions. Native C++, native Rust and
+executed wasm32 have zero mismatches. Each stable mutation target retains
+4.101–4.260 process CPU-hours and zero findings. All 306 release shards match
+their replay descriptors, execution statistics and measured CPU-usage files.
+A background continuation retains those descriptors and appends ten new
+chunks with unused seeds; the original release record is unchanged. SIGTERM,
+ledger and injected panic/timeout replay checks pass. Coverage remains
+unavailable; no cargo-fuzz, sanitizer or coverage-guided acceptance is claimed.
+
+All sixteen build/package gates, both feature modes, MSRV, native/WASM
+identity, upstream JS sanity, actionlint and the Done-when verification
+commands exit zero. The real Cargo publish dry-run uses D9's offline loopback
+registry fallback; it proves packaging/build behavior, not crates.io naming
+or registry readiness. The package contains only source, tests and metadata;
+its source and release-document bytes match the working tree. It is retained
+with its SHA-256 outside the build target.
+
+Delete only /mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane4 after
+retaining sources, executables, records and corpora. Verification after that
+cleanup exits zero and does not recreate the target. Record complete verified
+evidence separately from failed release-performance acceptance. All preexisting
+Git metadata remains byte-identical; new metadata belongs to the concurrent
+phase/0.2 and phase/0.3 worktrees. No Git state changes are performed here.
+The final status contains only lane-owned files and none over 5 MB.
+
+D40's exact artifact-placement blocker remains: use the retained large-volume
+fallback /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4 because
+the requested /mnt/linux-extra/meshopt-artifacts/lane4 is not writable in this
+session. Missing historical buffer archives are explicit and are not current
+qualification evidence. Remote macOS, Windows and Linux arm64 execution is
+configured, not locally established. The out-of-scope checker finding remains
+parity/check-reference.sh:13: a failed git diff with an absent v1.3 tag can be
+ignored by its conditional. CI supplies full history and tags; the local
+oracle has the tag and the required empty diff. Keep the injected reproduction
+and leave that checker outside this lane's file ownership.

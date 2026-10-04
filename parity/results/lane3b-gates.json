@@ -1,5 +1,15 @@
 {
-  "started_unix": 1791053557.368938,
+  "schema": "meshopt-summary/1",
+  "historical": true,
+  "command": "lane3b-gates",
+  "passed": true,
+  "phase": "0.1",
+  "seed": null,
+  "profile": null,
+  "detail_artifact": "historical/lane3b-gates.json",
+  "artifacts": {
+    "historical/lane3b-gates.json": "7cb465982ef4ebf2636f344f9023afa2c361b8b483b8049db465795481301552"
+  },
   "source_sha256": {
     "rust_and_harness": {
       "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
@@ -256,161 +266,7 @@
       "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
     }
   },
-  "commands": [
-    {
-      "command": [
-        "cargo",
-        "fmt",
-        "--check"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.10119318962097168,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-0.log",
-      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "command": [
-        "cargo",
-        "clippy",
-        "--offline",
-        "--locked",
-        "--all-targets",
-        "--all-features",
-        "--",
-        "-D",
-        "warnings"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.4241452217102051,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-1.log",
-      "log_sha256": "710023b7fcb5cff01ce7817f79fb8bc0646cec33f8fc3cca5615b3062489245a"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--offline",
-        "--locked",
-        "--all-features"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 1.0612702369689941,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-2.log",
-      "log_sha256": "83b309a7b39b518e9e5ca5fe669be311c78f262813c0251cbe5f18e451b8244c"
-    },
-    {
-      "command": [
-        "cargo",
-        "test",
-        "--offline",
-        "--locked",
-        "--no-default-features"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 1.1142194271087646,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-3.log",
-      "log_sha256": "fe64cf6a7d38b263412d83d97d6788b4b354cef737fc246e4c027847536fcc94"
-    },
-    {
-      "command": [
-        "cargo",
-        "build",
-        "--offline",
-        "--locked",
-        "--target",
-        "wasm32-unknown-unknown",
-        "--no-default-features"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.5387215614318848,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-4.log",
-      "log_sha256": "28ae6696600b595c086d3c28f4aae302afef2d459da820a71e5920c00abb6d37"
-    },
-    {
-      "command": [
-        "cargo",
-        "clippy",
-        "--offline",
-        "--locked",
-        "--manifest-path",
-        "parity/Cargo.toml",
-        "--all-targets",
-        "--",
-        "-D",
-        "warnings"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.7549479007720947,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-5.log",
-      "log_sha256": "d8948d92280675a40820758bfe670e7c42c76ad7415b7f9e98473c0cd8592af6"
-    },
-    {
-      "command": [
-        "cargo",
-        "fmt",
-        "--manifest-path",
-        "parity/Cargo.toml",
-        "--check"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.09973549842834473,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-6.log",
-      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "command": [
-        "cargo",
-        "clippy",
-        "--offline",
-        "--locked",
-        "--manifest-path",
-        "fuzz/Cargo.toml",
-        "--all-targets",
-        "--",
-        "-D",
-        "warnings"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.6147675514221191,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-7.log",
-      "log_sha256": "4184069fa9ae413367b62981e603cd91cef1391e558c43d7e732779cc6e3ca26"
-    },
-    {
-      "command": [
-        "cargo",
-        "fmt",
-        "--manifest-path",
-        "fuzz/Cargo.toml",
-        "--check"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.08672833442687988,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-8.log",
-      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    {
-      "command": [
-        "python3",
-        "-m",
-        "unittest",
-        "discover",
-        "-s",
-        "parity",
-        "-p",
-        "test_*.py"
-      ],
-      "exit": 0,
-      "elapsed_seconds": 0.17363476753234863,
-      "log": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/final-gate-9.log",
-      "log_sha256": "674297720c599b362629057bb9be68e28dc0f2750d86f801b68e7172a6b5ea0c"
-    }
-  ],
-  "passed": true,
+  "started_unix": 1791053557.368938,
   "finished_unix": 1791053562.3413107,
-  "identities_unchanged": true,
-  "_artifact_relocation": {
-    "original_record": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b/relocation-originals/records/repository/parity/results/lane3b-gates.json",
-    "original_record_sha256": "64e75e18fdee261a8afd29d251aff8114dc9577ca1a64ee980c0316505e63e33",
-    "note": "Location fields updated; original file bytes, measurement hashes and immutable buffers remain available through record-relocation.json."
-  }
+  "identities_unchanged": true
 }

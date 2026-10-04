@@ -1,11 +1,78 @@
 {
-  "schema": 2,
-  "scope": "lane 3 geometry performance; Linux x86-64 and wasm32 identity",
+  "schema": "meshopt-release-summary/1",
+  "phase": "0.1",
   "passed": false,
-  "parity_passed": true,
-  "build_gates_passed": true,
-  "fuzz_passed": true,
-  "temporary_memory_passed": true,
+  "evidence_complete": true,
+  "moss_performance_accepted": false,
+  "report_exit_policy": "complete verified evidence exits zero; failed Moss bars block release acceptance",
+  "incomplete": [],
+  "absent_current_artifacts": [],
+  "local_execution_targets": [
+    "linux-x86_64",
+    "wasm32 (qualified native Rust reference)"
+  ],
+  "remote_execution": "CI configured; local records do not establish remote execution",
+  "records": {
+    "benchmark-default": {
+      "summary_sha256": "cf54735bbaf76271d7ff4f6816ac8b6283683bde5e46afd997af93f6c3d5e737",
+      "artifacts": {
+        "benchmark-default-verifier-final/benchmark.json": "768476891cf98d886303c8ea92a30720954028566d9c2551447c1f7471d64e4c",
+        "benchmark-default-verifier-final/benchmark-buffers.zip": "ff611c122165bdc5dfc92ce9b89f71d010295d08261b7218f5eb1c06171a9878",
+        "benchmark-default-verifier-final/sources.tar.gz": "42c7a97a84b06fc2012835590a800869da8815acea3d781498c913307073cd34",
+        "benchmark-default-verifier-final/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
+        "benchmark-default-verifier-final/binaries/rust": "d5a621cc676198ed16531a4dfc434f5c208e2ea9142e30caad15205ebafdf39c",
+        "benchmark-default-verifier-final/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+      }
+    },
+    "benchmark-moss": {
+      "summary_sha256": "a391b09d5f721c8146418b0ba298622b8f77dc37bfa7f121da930eb276f8c8ad",
+      "artifacts": {
+        "benchmark-moss-verifier-final/benchmark.json": "cc36db69ea7799f1fa8bffff22b1dfa88bb0d934cf4b484320a569bd9e526755",
+        "benchmark-moss-verifier-final/benchmark-buffers.zip": "db5b7c7bc4bdbea3728323b328152b0bf2d8a7aeae44b718db50148c9bb2c497",
+        "benchmark-moss-verifier-final/sources.tar.gz": "0738bf81ee204ae36b56815dd22e304a70fa4fe6c47fb17843206494057f28b1",
+        "benchmark-moss-verifier-final/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
+        "benchmark-moss-verifier-final/binaries/rust": "6002c42d3aeedd4a29d0734c16227ccd3e6dd0f57f5656ec63cde8c52cf5bd77",
+        "benchmark-moss-verifier-final/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+      }
+    },
+    "gates": {
+      "summary_sha256": "1db9d5d8ff4262424c86480fad7bbeff7d1dfc811e7a2e72d8994a33096003ed",
+      "artifacts": {
+        "gates-final/gates.json": "8453d1d1204db6a26cc1a0a774347c48ab4ecd0c20ae1ee1d8ac051a04e55f22",
+        "gates-final/meshoptimizer-rs-0.1.0.crate": "5d87454a0379189b917e6b928f153f8e179a665d96af766bbbefcc60606f6601"
+      }
+    },
+    "js": {
+      "summary_sha256": "3fde074719351e85ffb94ad0b88c7475ca4f5c0d88c6877d07d2750f15c51162",
+      "artifacts": {
+        "js-final/js.json": "634d475bd0245b87898185ae20832bb2a1585ec36fcf044ab57bf11ac7db0c55"
+      }
+    },
+    "run": {
+      "summary_sha256": "1096aa46e3600c9c1789780b61d0741386f71d0261e822e2bdddc3fd745dd27a",
+      "artifacts": {
+        "run-final-verifier/run.json": "232200bdd4662d53dd33048ac80a26344d23ab5fe8fdc6dd657aef661ab42d5e",
+        "run-final-verifier/run-buffers.zip": "aa843a82963bf16ce6236f03b2526caee1e536fe67c0155a4dcfabfc8ae8512e",
+        "run-final-verifier/sources.tar.gz": "35ab51cb987acf182465548f8cfe56bf606bc0187fbb5c49616e7bfc4a0e39aa",
+        "run-final-verifier/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
+        "run-final-verifier/binaries/rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
+        "run-final-verifier/binaries/wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
+        "run-final-verifier/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+      }
+    },
+    "sweep": {
+      "summary_sha256": "1c924021f8f09847be9a4dd343a5e5892c999cb1084c72f090b41e8dd008caf8",
+      "artifacts": {
+        "sweep-final-verifier/sweep.json": "efb756ef32cb516cc8447c5cb23572aad36de5cc0f1756f57555b9383d6f28d5",
+        "sweep-final-verifier/sweep-buffers.zip": "4fd4334967d10d29e2250a6e768adcdd6947e2019f81bcc7c4f8f57be5c26643",
+        "sweep-final-verifier/sources.tar.gz": "d91b5983bbb920638635ec265d490c97d0ebc300ab638366a73de4dcb1508e63",
+        "sweep-final-verifier/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
+        "sweep-final-verifier/binaries/rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
+        "sweep-final-verifier/binaries/wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
+        "sweep-final-verifier/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+      }
+    }
+  },
   "counts": {
     "run": {
       "vertex_cache": 50,
@@ -15,93 +82,141 @@
       "simplify_scale": 52
     },
     "sweep": {
-      "vertex_cache": 2000,
-      "overdraw": 2000,
-      "simplify": 2000,
-      "simplify_with_attributes": 2000,
-      "simplify_scale": 2000
+      "vertex_cache": 10000,
+      "overdraw": 10000,
+      "simplify": 10000,
+      "simplify_with_attributes": 10000,
+      "simplify_scale": 10000
     }
   },
-  "mismatches": 0,
-  "benchmark_cases": 204,
-  "performance": {
-    "vertex_cache": {
-      "cases": 24,
-      "geometric_mean": 1.32245398886094,
-      "maximum": 1.4767708215708732,
-      "maximum_memory_ratio": 1.0,
-      "passed": false
+  "consumer_performance": {
+    "benchmark-moss": {
+      "vertex_cache": {
+        "cases": 24,
+        "geometric_mean": 1.2433795037066138,
+        "maximum": 1.3153836579170066,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      },
+      "overdraw": {
+        "cases": 24,
+        "geometric_mean": 1.1302307436377994,
+        "maximum": 1.3613192843288382,
+        "maximum_memory_ratio": 0.9989704976937129,
+        "passed": true
+      },
+      "simplify": {
+        "cases": 72,
+        "geometric_mean": 1.258399430860437,
+        "maximum": 1.4293039021783018,
+        "maximum_memory_ratio": 1.095090670882574,
+        "passed": false
+      },
+      "simplify_with_attributes": {
+        "cases": 72,
+        "geometric_mean": 1.2427088566920372,
+        "maximum": 1.355710648798913,
+        "maximum_memory_ratio": 1.0843286556888025,
+        "passed": true
+      },
+      "simplify_scale": {
+        "cases": 12,
+        "geometric_mean": 0.7819698069218696,
+        "maximum": 0.9350394868272315,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      }
     },
-    "overdraw": {
-      "cases": 24,
-      "geometric_mean": 1.271847879114839,
-      "maximum": 1.4772943908234533,
-      "maximum_memory_ratio": 0.9989704976937129,
-      "passed": false
-    },
-    "simplify": {
-      "cases": 72,
-      "geometric_mean": 1.3127852536809248,
-      "maximum": 1.5741818309755213,
-      "maximum_memory_ratio": 1.064276773810765,
-      "passed": false
-    },
-    "simplify_with_attributes": {
-      "cases": 72,
-      "geometric_mean": 1.3132034938325596,
-      "maximum": 1.4901177904941694,
-      "maximum_memory_ratio": 1.0430514477396795,
-      "passed": false
-    },
-    "simplify_scale": {
-      "cases": 12,
-      "geometric_mean": 0.9288060602545609,
-      "maximum": 1.0626423690205011,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
+    "benchmark-default": {
+      "vertex_cache": {
+        "cases": 24,
+        "geometric_mean": 1.2399806186014324,
+        "maximum": 1.3096130252935492,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      },
+      "overdraw": {
+        "cases": 24,
+        "geometric_mean": 1.0633884460635452,
+        "maximum": 1.39769577443152,
+        "maximum_memory_ratio": 0.9989704976937129,
+        "passed": true
+      },
+      "simplify": {
+        "cases": 72,
+        "geometric_mean": 1.2838099797372862,
+        "maximum": 1.4202421349892562,
+        "maximum_memory_ratio": 1.095090670882574,
+        "passed": false
+      },
+      "simplify_with_attributes": {
+        "cases": 72,
+        "geometric_mean": 1.2567802127822754,
+        "maximum": 1.6506913494914492,
+        "maximum_memory_ratio": 1.0843286556888025,
+        "passed": false
+      },
+      "simplify_scale": {
+        "cases": 12,
+        "geometric_mean": 1.0299048782340534,
+        "maximum": 1.1869728273012945,
+        "maximum_memory_ratio": 1.0,
+        "passed": true
+      }
     }
   },
-  "fuzz_seconds_per_target": 300,
-  "fuzz_executions": 554090714,
-  "commands": [
-    {
-      "command": "parity/benchmark.sh --phase 0.1",
-      "exit": 0
-    },
-    {
-      "command": "python3 parity/profile.py",
-      "exit": 0
+  "fuzz": {
+    "passed": true,
+    "required_cpu_seconds_per_target": 14400,
+    "runs": [
+      {
+        "target": "vertex_cache",
+        "cpu_seconds": 14886.279999999999,
+        "elapsed_seconds": 17700.840000000004,
+        "executions": 514879257,
+        "successes": 280106603,
+        "crashes": 0,
+        "shards": 59
+      },
+      {
+        "target": "overdraw",
+        "cpu_seconds": 15336.689999999997,
+        "elapsed_seconds": 21000.989999999998,
+        "executions": 1134220054,
+        "successes": 477732559,
+        "crashes": 0,
+        "shards": 70
+      },
+      {
+        "target": "simplify",
+        "cpu_seconds": 14763.2,
+        "elapsed_seconds": 17701.22,
+        "executions": 480491171,
+        "successes": 244687672,
+        "crashes": 0,
+        "shards": 59
+      },
+      {
+        "target": "simplify_with_attributes",
+        "cpu_seconds": 14879.549999999997,
+        "elapsed_seconds": 17700.680000000004,
+        "executions": 415134040,
+        "successes": 161159084,
+        "crashes": 0,
+        "shards": 59
+      },
+      {
+        "target": "simplify_scale",
+        "cpu_seconds": 15223.599999999995,
+        "elapsed_seconds": 17701.520000000004,
+        "executions": 11309597748,
+        "successes": 10659509129,
+        "crashes": 0,
+        "shards": 59
+      }
+    ],
+    "artifacts": {
+      "fuzz/record.json": "a64a402badda5e738d00415715ce5f39ecf5f44b850053022b3b69444b44af6d"
     }
-  ],
-  "record_sha256": {
-    "run.json": "4213e0b53e134b21e326286e74a022604ee26de25683e02947cb01d61fb50131",
-    "sweep.json": "0f7a07ecce005b6ad32b41387e8b35f339eb7e7d17d1b802492d00c63d0d008e",
-    "benchmark.json": "53d15f454ace8a0aad63b52f6ec61c3ffee9992b0f8440e2c0bf075ad5db4695",
-    "js.json": "745989629c70360cd5ce9eec7e2eb08fcd07e4f940170410072f7dd75ca5a5d0",
-    "fuzz.json": "302a076ac263ef95c3a448c5d29b9c01cc25bde221f61c4b38e2605feeb25081",
-    "lane3-gates.json": "f5616a8c49cbf639d0fbf2f1222c9b9ac82e189b6e9fa86e52fd9049df65d2d4",
-    "profiles.json": "aae25084261d564576386f0c5a3a9c1e5e02e538838d2c214d43bc6b2fd81060",
-    "medium-residual-profile.json": "c5e775704cb96a938c17c4b4c0f2630b40c9be80dd23809f0974647615241eda"
-  },
-  "retained_artifacts": "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final",
-  "binary_sha256": {
-    "meshopt-driver": "ff57c4517c8d9dcf75b09d098e2fd382988b52a0c78115099c7aa5a9070dc5d6",
-    "reference": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e",
-    "native-fixtures": "9f9c8cab7805a430eb6608ad25e2367a3a733dbf3928b36af8b90fe912f9134e",
-    "meshoptimizer_parity.wasm": "5acf2f47631095d030928d99b54b6663432a73caebd153fc59feb21a950751bd",
-    "vertex_cache": "98a895cacee3bb9332e46ff4ff00c4e87588ef387630a857829edbb3f0bd5d89",
-    "overdraw": "222c67e394fd221a695b5f9fd2191f34e4050da26036f33adefa48d8f83c825d",
-    "simplify": "d606fefab40fd10a7912201bf9ce5fb8e08f6bc7ed91edb8815ae299ffda0547",
-    "simplify_with_attributes": "3a2c3f021cb2fe1e361b436b01bcb9515519a2bd84f330cd967a28b114f40b43",
-    "simplify_scale": "001bca87560741a5212fde8b3d6f096b89e5be6942a03cb5eb770a04385b5f6f"
-  },
-  "source_archive_sha256": "9294f4104187fde9f6f3c27a08c7482f465483bcc3938c6ce352281ebead191b",
-  "limits": [
-    "Performance verdict uses the complete matrix, without relaxing any bar.",
-    "Persistent load above four is disclosed per attempt.",
-    "Stable fuzz smoke has no sanitizer or coverage instrumentation.",
-    "No AArch64 execution or release qualification is claimed.",
-    "Collector timer-period warnings limit profiles to diagnostic attribution; no safe-Rust impossibility proof was established.",
-    "The requested performance goal remains unmet."
-  ]
+  }
 }

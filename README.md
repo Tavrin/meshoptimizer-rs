@@ -1,7 +1,7 @@
 # meshoptimizer-rs
 
 Pure-Rust port of meshoptimizer 1.3, with no C/C++ in the published package.
-This is an independent project, unaffiliated with upstream meshoptimizer.
+This is an independent project, not affiliated with meshoptimizer's author.
 The crate forbids unsafe code and supports `no_std` with `alloc`.
 
 Work in progress, not yet published. Implements `simplify`,
@@ -50,7 +50,7 @@ standard error integration. Disable defaults for `no_std` with an allocator.
 `experimental` is reserved and exposes no additional functions in this lane.
 Both builds use pinned `libm` 0.2.16 through the same internal math interface.
 
-## Evidence
+## Parity
 
 The oracle is meshoptimizer commit
 `4c203430ca565cb59a468a91922c76c208169536`; its `src` tree matches v1.3.
@@ -63,11 +63,137 @@ disabled. Measured results and exact input/output records live in
 - [Measured performance](parity/MEASURED_PERFORMANCE.md)
 - [API and qualification decisions](parity/DECISIONS.md)
 
-Local execution qualifies Linux x86-64 against C++ and wasm32 against the
-same native Rust buffers. Other platforms are covered by the CI build/test
-matrix; no parity execution is claimed for them. Full release qualification,
-AArch64 execution, the 24-CPU-hour fuzz budgets, performance acceptance and
-Moss migration remain later work.
+The recorded fixture corpus compares every meaningful output bit: index order,
+result-error bits, scale bits and statuses. WASM executes in Node and compares
+with qualified native Rust on identical inputs; it does not use a C++ WASM oracle.
+
+| Function | Fixture corpus | Release sweep | Mismatches |
+|---|---:|---:|---:|
+| Vertex-cache optimization | 50 | 10,000 | 0 |
+| Overdraw optimization | 50 | 10,000 | 0 |
+| Simplification | 65 | 10,000 | 0 |
+| Attribute simplification | 62 | 10,000 | 0 |
+| Simplifier scale | 52 | 10,000 | 0 |
+
+The fixture counts come from [run.json](parity/results/run.json). The sweep
+uses seed 20261002 and includes large and medium grids, spheres with seams,
+degenerate geometry, small and large coordinate scales, disconnected and
+sparsely referenced meshes. Records distinguish finite qualification from a
+proof for all inputs.
+
+CI records a qualified Linux x86-64 corpus after exact C++/Rust/WASM comparison.
+`parity/report.sh --export-identity DIRECTORY` extracts its input bytes and
+native Rust outputs into a deterministic ZIP and writes a manifest containing
+the archive SHA-256, each member SHA-256, source hashes and per-function counts.
+The macOS arm64, Windows x86-64 and Linux arm64 matrix downloads that same
+artifact and executes `parity/report.sh --identity-check DIRECTORY`. These jobs
+compare complete output bytes, including a 65,543-value square-root probe,
+without tolerance or FMA contraction. C++ runs only in Linux jobs, including
+a native arm64 comparison against the same recorded outputs.
+Adding these jobs does not establish their execution results: only Linux
+x86-64 and wasm32 are locally verified. Remote platform execution remains
+separate release evidence.
+
+## Performance
+
+The single-thread benchmark includes validation, required copies, allocation,
+scratch and the algorithm. Both resident drivers use one physical core, with
+20 or 30 alternating sample pairs per case. Families cover tiny, medium and
+million-triangle smooth, seam-heavy and disconnected meshes, allocating and
+caller-buffer APIs, attribute widths and simplification ratios. Ratios below
+are Rust/C++ time: smaller is faster. Parentheses give the maximum case ratio.
+
+| Function | Fat LTO, lane 3b | Moss thin LTO | Cargo release defaults |
+|---|---:|---:|---:|
+| Vertex-cache optimization | 1.123 (1.201) | 1.243 (1.315) | 1.240 (1.310) |
+| Overdraw optimization | 1.098 (1.417) | 1.130 (1.361) | 1.063 (1.398) |
+| Simplification | 1.212 (1.385) | 1.258 (1.429) | 1.284 (1.420) |
+| Attribute simplification | 1.208 (1.342) | 1.243 (1.356) | 1.257 (1.651) |
+| Simplifier scale | 0.748 (0.884) | 0.782 (0.935) | 1.030 (1.187) |
+
+The [fat-LTO record](parity/results/benchmark.json) uses a geometric mean of
+per-case median paired ratios. The RFC bars are a family mean at most 1.25,
+no case above 1.50, and requested output-plus-scratch memory at most 1.25
+times C++. These are shared-host measurements with retained raw samples,
+dispersion and load telemetry, not quiet-host or universal speedup claims.
+
+The crate retains fat LTO and one codegen unit for its own release builds.
+Cargo does not apply a dependency's profile to its consumer. Moss-like builds
+use thin LTO, one codegen unit and optimization level 3; Cargo defaults use
+LTO disabled, 16 codegen units and optimization level 3. Consumer results are
+recorded separately and do not inherit the fat-LTO qualification claim.
+Both consumer matrices contain 204 cases. Moss passes four families; plain
+simplification exceeds the 1.25 mean bar (1.258), so release performance
+acceptance is blocked. Cargo defaults fail the mean bars for plain and
+attribute simplification and the attribute maximum bar. All memory bars pass.
+The thresholds remain unchanged; this lane makes no performance changes.
+
+## Qualification records
+
+Repository JSON files contain per-function counts, mismatches, seeds, input
+coverage and SHA-256 identities. Per-case records, input/output ZIPs, fuzz replay
+corpora, crashes and executables live in `$MESHOPT_ARTIFACTS`, defaulting to
+`$CARGO_TARGET_DIR/parity-artifacts` (or `target/parity-artifacts`). They are
+excluded from the package. Release fuzz artifacts must be outside both the
+repository and the disposable build target.
+
+```sh
+export MESHOPT_REFERENCE=/path/to/pinned/meshoptimizer
+export CARGO_TARGET_DIR=/path/to/isolated/build
+export MESHOPT_ARTIFACTS=/path/to/retained/artifacts
+parity/run.sh --phase 0.1
+parity/sweep.sh --phase 0.1                    # 10,000 cases per function
+parity/benchmark.sh --phase 0.1 --consumer-profile moss --enforce
+parity/benchmark.sh --phase 0.1 --consumer-profile default --enforce
+parity/fuzz.sh --phase 0.1 --cpu-hours-per-target 4 --jobs 8
+parity/report.sh --phase 0.1 --verify-artifacts
+```
+
+Existing detailed records can be moved with `parity/report.sh --archive-records`.
+Existing immutable runs require a fresh artifact directory; interrupted fuzz
+runs use `--resume` with identical algorithm sources, binaries, dependencies and seed. Fuzz
+budgets accumulate user and system CPU seconds per target, rather than counting
+wall time eight times. The existing targets use stable seeded mutations with
+invariant checks and no sanitizer or coverage instrumentation. Replay descriptors
+retain the seed, execution count and exact source/binary identity needed to
+regenerate their corpus. Any target failure is a release blocker.
+
+The owner set the release budget to four CPU-hours per target on 2026-10-04
+(RFC amendment §14). Completed CPU time counts toward the amended budget.
+The [release record](parity/results/fuzz.json) contains 4.101–4.260 process
+CPU-hours per target with zero findings. This is finite invariant testing.
+
+For a local nightly continuation, use the same retained artifact directory:
+
+```sh
+parity/fuzz-continuous.sh --wall-seconds 28800 --cores 4
+```
+
+The script runs at `nice -n 19`, retains saved seed/execution ranges, and starts
+new ranges with unused seeds. It defaults to a four-core cap and an eight-hour
+wall budget. SIGTERM stops new chunks and lets the bounded active chunks finish
+so CPU usage and exact execution counts can be saved. Each completed chunk
+appends cumulative CPU-hours, executions, findings and corpus identity to
+`$MESHOPT_ARTIFACTS/fuzz-continuous/ledger.jsonl`. New coverage is `null` because
+these existing targets have no coverage instrumentation. A panic, invariant
+failure or chunk timeout saves its replay descriptor and logs in `crashes/`
+and returns nonzero. Seeded replay regenerates inputs; this is not cargo-fuzz
+coverage-guided testing.
+
+[Background robustness](.github/workflows/fuzz.yml) runs weekly or through
+`workflow_dispatch`, adding one measured CPU-hour per target with at most four
+cores. It restores corpora bound to the sources and compiler, and uploads
+replay descriptors, findings, source identities and the ledger. A finding
+blocks the next release. The finite runs do not prove absence of bugs.
+
+`report.sh --verify-artifacts` checks available SHA-256 identities and identifies
+absent historical artifacts. Missing current release evidence, changed hashes,
+stale source, incomplete budgets or incorrect outputs return nonzero. Complete
+verified evidence exits zero even when the measured Moss performance bar fails;
+`MEASURED_RESULTS.json` then retains `passed: false` and
+`moss_performance_accepted: false`. Benchmark `--enforce` returns nonzero for
+failed bars. Report completion does not establish release-performance acceptance,
+remote platform results or Moss migration.
 
 ## Credit and alternatives
 

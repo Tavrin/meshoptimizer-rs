@@ -1,28 +1,23 @@
 {
   "schema": "meshopt-summary/1",
-  "historical": false,
-  "command": "run",
-  "passed": true,
+  "historical": true,
+  "command": "benchmark",
+  "passed": false,
   "phase": "0.1",
-  "seed": 20261002,
-  "profile": "scalar-strict",
-  "detail_artifact": "run-final-verifier/run.json",
+  "seed": null,
+  "profile": null,
+  "detail_artifact": "historical/benchmark-lane3-high-load.json",
   "artifacts": {
-    "run-final-verifier/run.json": "232200bdd4662d53dd33048ac80a26344d23ab5fe8fdc6dd657aef661ab42d5e",
-    "run-final-verifier/run-buffers.zip": "aa843a82963bf16ce6236f03b2526caee1e536fe67c0155a4dcfabfc8ae8512e",
-    "run-final-verifier/sources.tar.gz": "35ab51cb987acf182465548f8cfe56bf606bc0187fbb5c49616e7bfc4a0e39aa",
-    "run-final-verifier/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
-    "run-final-verifier/binaries/rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-    "run-final-verifier/binaries/wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-    "run-final-verifier/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+    "historical/benchmark-lane3-high-load.json": "53d15f454ace8a0aad63b52f6ec61c3ffee9992b0f8440e2c0bf075ad5db4695",
+    "unavailable-historical/benchmark-lane3-high-load/benchmark-buffers.zip": "45bbe946174364b3929e4d0424564ef71f0f46ccf33f56f8f1d8763ee179c866"
   },
   "identities": {
     "source_sha256": {
       "rust_and_harness": {
         "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-        "Cargo.toml": "aa4d3f8d3939458620f9e2918efd7a16db4c9eeb33b564585a568b90f7f16932",
+        "Cargo.toml": "fe6e0806ef0ad81dce8a1bb7005118935528aebad7a7f4bc682e432ffec07094",
         "fuzz/Cargo.lock": "ba076e245aae8a4b937d0b94854855c373ba4fc9d31847281bb238282ab9c3ac",
-        "fuzz/Cargo.toml": "e2b6882a7d26258bc28c51e3ce3a27f799d7beea26b3c4252ff5370b78d55ade",
+        "fuzz/Cargo.toml": "73f481cd3db91c00356c28768c6eba511e670bc03ee65c387612e0a91a255f88",
         "fuzz/smoke.py": "6f3f93b51aa243069d204bb538185022d19c77114608e065822daa7c38d31ce8",
         "fuzz/src/bin/overdraw.rs": "02d34807a1c0439520e917aacb056f057a9cc6b64ebf143844787957782da44d",
         "fuzz/src/bin/simplify.rs": "8e8254d7bf3c96f8d3ee118fc9406a441217d458a63f5a38a0b0a36deb6919e0",
@@ -31,39 +26,34 @@
         "fuzz/src/bin/vertex_cache.rs": "30da87840e173c52ae6ee361b77986ee823984f897d4922288ee24b8c94fdbc6",
         "fuzz/src/lib.rs": "88198ad8816aa428cf8fe0a23e9bbb3bf9cf09e5acfb4d6a498f9908c6f2ff45",
         "parity/Cargo.lock": "112cd885caf73df56e35b83e6b262a1cd9e629c79f678fd9c85be8cf16f6a894",
-        "parity/Cargo.toml": "db88797782c6372b70f4a4b1f6c0c212469baec87bb1e8ce945b55a0010ff5e9",
-        "parity/benchmark.sh": "3c0ff637e52ea6a7b2b1aad9be7a14cd04de81fc0899d2235de46b72f0ca0154",
+        "parity/Cargo.toml": "6a30033246b14fd7b45d85df9272802a2d9e3f7965709d9a699be8809fb05339",
+        "parity/benchmark.sh": "c6b216f063c8a0ed4bcc1acb9442e06e15b6ed4efff324f7d3cf4402dd159ace",
         "parity/check-reference.sh": "ad4860d87be254b01958512287d31c8e056b49aaaef368b2548f01fca3ecf202",
-        "parity/fuzz-continuous.sh": "d829319e44ed600fbc0442daca4c9eb112d0800c45f6a6b5d643b77f96b484cb",
-        "parity/fuzz.sh": "6f6341886c5ff7731066e96bf4e1123a1361d613a7721f7e62d70d8c63fdf9f6",
+        "parity/fuzz.sh": "3df71ce7a8450d05b9b3e9dbd09e2db01bd49f994c9850013bc1877d09ec902f",
         "parity/gates.py": "bf19996eafa9cf7d644e93611758dd5f6c69ae62344724856512df3eae2523e4",
         "parity/gates.sh": "487e1de5c2c308bd94d56518beb3187b7a8a6abb72484398f7371c1d49c48431",
         "parity/js-fixtures.cjs": "eead629f8648f57265fdfd76cc4cc891617f6b1055bb7678401b07338b6576c7",
         "parity/js.sh": "033919e1d016f1319159cb96bad65c09beacc158793c8c9c62415a983ebac86f",
         "parity/native-fixtures.py": "a1084c57cc353a4fccbb16dca7eb0f6d210dc5bf4f4007364f285c5ce7a881c3",
-        "parity/perf_profile.py": "8379a785944e50aaa8bab8e5216a4a574f9f3d625405081363d4a23a6204b39e",
-        "parity/performance.py": "fbdbc94c474f803dda95bcc2e4f4ebfd2180bfaf2efd571fc8f6c10947a53839",
+        "parity/performance.py": "04c62b6e0b97122966532862a496f0098dab3d7bae900a7df864426926e45f9d",
         "parity/profile.py": "a7cfaef355bd9d96978dbae8c4675b05367b596f3131e525c26ea9de8f4a7b3a",
         "parity/qualify.sh": "228fc2bc3bec9d48ede3292ef86412d7435fafb4363f0359aa0275682fc8c646",
-        "parity/quiet.py": "45ff8df302acd61dcc360d925c73774958a273056c11e9849e0bf799f2f19505",
         "parity/reference.cpp": "8f2d14b3584653ca4d45beca2295058c32839abfc5094e354ae008e438ce5172",
-        "parity/report.sh": "f877e9be19b731f9e12234c45676b8b354b413e60ce6c5a1b88480a0104a029a",
-        "parity/run.sh": "c09a84675336b28a804a7ba6943477c5b2cf9eaaa4c6e15c206a28081dfae17c",
-        "parity/runner.py": "3c5f1ef08466aa0b1491110e176913156d0efe4b698d8077574ae80a2bef0d50",
+        "parity/report.sh": "17be39ff819b008d3050e347a473684eff035d160bb8adc659d281ff7b21fd61",
+        "parity/run.sh": "ca205680f5dfea64e7309e29a1edec7b9c5c506e7043f3ce1765e3f26088b30e",
+        "parity/runner.py": "54cbae978a5d4c651e29255a633fa2b8f2653b02180d9e5e1d28f95c7e4f798b",
         "parity/src/lib.rs": "8b490d6e2a1f4cfb3c04b41083120113c5a0a11c8aec36ec3a08bf4aeb0e39ab",
         "parity/src/main.rs": "e0e590c58dc8a556014f17f0a5e4e6be9714ff20cc8297080da66524e4682abf",
-        "parity/sweep.sh": "4e2da353f3f2fcc4515a78b3ae40324831cfcc77831a21af975539932d25c4cf",
-        "parity/test_measurement.py": "4bcf17fdb972b76377732c217829891271f4d60692896b2838e9cb1af99b2f20",
-        "parity/test_quiet.py": "c1f85e84874d58bbe71c445a10ee909f48e65c12fcb4da8b04916e3f62a54d9c",
+        "parity/sweep.sh": "7787f5d059a360265372d9fd48188679e29f4c8fea1fabf4b4a5120790ad8159",
         "parity/wasm.cjs": "4ebb96263f7cc058c81e8a546908eb8f18d9ec6c4e64ee1b217c4c916b262865",
-        "src/cache.rs": "81451bb46ef7d18564ea1e36d837cd9822b68af157ebad0e21a07400b149c3c9",
+        "src/cache.rs": "503786282958db778a80c5dd3ffff67e13f06bf87e9679b1ba691021082cba0d",
         "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
-        "src/input.rs": "69dfb8529a3624462ccd648cc341dd552cd296eab069383f2ae65a4083b0691b",
+        "src/input.rs": "3db6de02c2f2d68076d3ae275c2584cbca0239323ebada380bbb5d2e607d62b3",
         "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
-        "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
-        "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
-        "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
-        "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
+        "src/math.rs": "eb0c5e6a31aeb7bca9ee818f463fb25916a15ef714c4493020676bea360dfb63",
+        "src/overdraw.rs": "99ee6ad978f1691372e19abeb6c0fd551b1dbe5eb763a0bff27ca8623d4122e3",
+        "src/simplify.rs": "a193f503ef74e906c9e8a59151fd205b11364bed33a342510fb841b21d6c0da7",
+        "src/workspace.rs": "176589790a20010f9d181149696fc5aae9ec355607821e709dc4b71f52bdea5e",
         "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
       },
       "upstream": {
@@ -276,9 +266,8 @@
     },
     "executable_sha256": {
       "cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e",
-      "rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-      "wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-      "fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d"
+      "rust": "ff57c4517c8d9dcf75b09d098e2fd382988b52a0c78115099c7aa5a9070dc5d6",
+      "fixture_exporter": "9f9c8cab7805a430eb6608ad25e2367a3a733dbf3928b36af8b90fe912f9134e"
     },
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
     "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -302,21 +291,6 @@
       "$CARGO_TARGET_DIR/qualification-build/reference"
     ],
     "rust_profile": "release; default generic target; no fast math or contraction; Rust flags and compiler wrappers empty",
-    "release_profile_configuration": {
-      "Cargo.toml": {
-        "codegen-units": 1,
-        "lto": "fat"
-      },
-      "parity/Cargo.toml": {
-        "debug": 1,
-        "codegen-units": 1,
-        "lto": "fat"
-      },
-      "fuzz/Cargo.toml": {
-        "codegen-units": 1,
-        "lto": "fat"
-      }
-    },
     "math": "libm 0.2.16 sqrtf in std and no_std; exact f32 bits",
     "fp_environment": "C++ driver checks FE_TONEAREST and gradual underflow; no x87 target",
     "hardware": {
@@ -328,199 +302,70 @@
     },
     "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
     "logical_cpus": 32,
-    "node": "v22.22.0",
+    "node": null,
     "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
     "upstream_tag": "v1.3",
     "upstream_src_identical_to_tag": true,
-    "rust_revision": "uncommitted working sources; identity is the SHA-256 manifest",
-    "effective_profile_overrides": {}
+    "rust_revision": "uncommitted working sources; identity is the SHA-256 manifest"
   },
-  "required_cases_per_family": null,
-  "mismatches": 0,
-  "started_unix": 1791075005.1674178,
-  "finished_unix": 1791075015.8672054,
+  "started_unix": 1790944291.042256,
+  "finished_unix": 1790946924.4158206,
   "functions": {
     "vertex_cache": {
-      "count": 50,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "million-indices-grid": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
+      "cases": 24,
+      "geometric_mean": 1.32245398886094,
+      "maximum": 1.4767708215708732,
+      "maximum_memory_ratio": 1.0,
+      "passed": false
     },
     "overdraw": {
-      "count": 50,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "million-indices-grid": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
+      "cases": 24,
+      "geometric_mean": 1.271847879114839,
+      "maximum": 1.4772943908234533,
+      "maximum_memory_ratio": 0.9989704976937129,
+      "passed": false
     },
     "simplify": {
-      "count": 65,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "js-simplify": 2,
-        "js-simplify16": 1,
-        "million-indices-grid": 1,
-        "native-simplify": 1,
-        "native-simplifyDegenerate": 1,
-        "native-simplifyErrorAbsolute": 1,
-        "native-simplifyFlip": 1,
-        "native-simplifyLockBorder": 1,
-        "native-simplifySeam": 1,
-        "native-simplifySeamFake": 1,
-        "native-simplifyStuck": 5,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
+      "cases": 72,
+      "geometric_mean": 1.3127852536809248,
+      "maximum": 1.5741818309755213,
+      "maximum_memory_ratio": 1.064276773810765,
+      "passed": false
     },
     "simplify_with_attributes": {
-      "count": 62,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "js-simplifyWithAttributes": 2,
-        "million-indices-grid": 1,
-        "native-simplifyAttr": 1,
-        "native-simplifyAttr-zero-weight": 1,
-        "native-simplifyLockFlags": 1,
-        "native-simplifyLockFlagsSeam": 5,
-        "native-simplifySeam": 1,
-        "native-simplifySeamAttr": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
+      "cases": 72,
+      "geometric_mean": 1.3132034938325596,
+      "maximum": 1.4901177904941694,
+      "maximum_memory_ratio": 1.0430514477396795,
+      "passed": false
     },
     "simplify_scale": {
-      "count": 52,
-      "mismatches": 0,
-      "seeds": [
-        20261002
-      ],
-      "input_families": {
-        "degenerate": 1,
-        "disconnected-with-unused-vertex": 1,
-        "duplicate-triangles": 1,
-        "empty-with-unused-vertices": 1,
-        "grid-threshold--1.0": 1,
-        "grid-threshold-0.0": 1,
-        "grid-threshold-0.5": 1,
-        "grid-threshold-1.0": 1,
-        "grid-threshold-1.01": 1,
-        "grid-threshold-1.05": 1,
-        "grid-threshold-1.1": 1,
-        "grid-threshold-2.0": 1,
-        "js-encoder-reorderMesh-topology": 1,
-        "js-getScale": 1,
-        "million-indices-grid": 1,
-        "native-simplifyScale": 1,
-        "nonmanifold-shared-edge": 1,
-        "signed-zero-and-subnormal": 1,
-        "single": 1,
-        "sphere-shared": 16,
-        "sphere-split-normal-uv-color-tangent": 16,
-        "upstream-emptyMesh": 1
-      },
-      "maximum_indices": 1000002
+      "cases": 12,
+      "geometric_mean": 0.9288060602545609,
+      "maximum": 1.0626423690205011,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
     }
   },
-  "counts": {
-    "vertex_cache": 50,
-    "overdraw": 50,
-    "simplify": 65,
-    "simplify_with_attributes": 62,
-    "simplify_scale": 52
+  "performance_bars": {
+    "geometric_mean": 1.25,
+    "maximum": 1.5,
+    "maximum_memory_ratio": 1.25
   },
-  "upstream_fixture_counts": {
-    "simplify_scale": 2,
-    "simplify": 15,
-    "simplify_with_attributes": 12
-  },
-  "math_probe_match": true
+  "input_families": [
+    "disconnected",
+    "seam-heavy",
+    "smooth",
+    "sparse"
+  ],
+  "sizes": [
+    "medium",
+    "million",
+    "tiny"
+  ],
+  "apis": [
+    "allocating",
+    "allocation-free",
+    "caller-buffer"
+  ]
 }

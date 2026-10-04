@@ -1,5 +1,7 @@
 {
-  "profile": "stable-seeded-mutation; no sanitizer or coverage instrumentation",
+  "schema": 2,
+  "phase": "0.1",
+  "profile": "stable seeded mutation; no sanitizer or coverage instrumentation",
   "source_sha256": {
     "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
     "Cargo.toml": "aa4d3f8d3939458620f9e2918efd7a16db4c9eeb33b564585a568b90f7f16932",
@@ -19,7 +21,8 @@
     "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
     "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
     "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
-    "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934"
+    "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
+    "parity/fuzz.sh": "10736eebdf9a21c707f1b4ac17125ace8f7f5554b2c586e4e67277c375629fb6"
   },
   "dependency_sha256": {
     "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
@@ -187,7 +190,6 @@
     "simplify_scale": "747aeeea0d95d625329e78861d5d757a19579178832e6c14d8dbe60d91e0755a"
   },
   "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
-  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
   "hardware": {
     "system": "Linux",
     "release": "7.0.0-28-generic",
@@ -195,159 +197,91 @@
     "machine": "x86_64",
     "processor": "x86_64"
   },
-  "started_unix": 1791053794.541881,
-  "budget_seconds": 300,
+  "started_unix": 1791061102.9460788,
+  "required_cpu_seconds_per_target": 14400,
+  "jobs": 8,
+  "worker_cpus": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14
+  ],
   "seed": 20261002,
-  "rustflags": "",
+  "passed": true,
   "runs": [
     {
       "target": "vertex_cache",
-      "exit": 0,
-      "stdout": "{\"target\":\"vertex_cache\",\"seconds\":300.000075782,\"executions\":5789042,\"successes\":3148685,\"crashes\":0,\"seed\":20261002}\n",
-      "stderr": "",
-      "statistics": {
-        "target": "vertex_cache",
-        "seconds": 300.000075782,
-        "executions": 5789042,
-        "successes": 3148685,
-        "crashes": 0,
-        "seed": 20261002
-      },
-      "usage": {
-        "user_seconds": 288.41,
-        "system_seconds": 0.27,
-        "elapsed_seconds": 300.0,
-        "max_rss_kib": 2144
-      }
+      "cpu_seconds": 14886.279999999999,
+      "elapsed_seconds": 17700.840000000004,
+      "executions": 514879257,
+      "successes": 280106603,
+      "crashes": 0,
+      "shards": 59
     },
     {
       "target": "overdraw",
-      "exit": 0,
-      "stdout": "{\"target\":\"overdraw\",\"seconds\":300.000004518,\"executions\":12238588,\"successes\":5154472,\"crashes\":0,\"seed\":20261002}\n",
-      "stderr": "",
-      "statistics": {
-        "target": "overdraw",
-        "seconds": 300.000004518,
-        "executions": 12238588,
-        "successes": 5154472,
-        "crashes": 0,
-        "seed": 20261002
-      },
-      "usage": {
-        "user_seconds": 288.38,
-        "system_seconds": 0.17,
-        "elapsed_seconds": 300.0,
-        "max_rss_kib": 2152
-      }
+      "cpu_seconds": 15336.689999999997,
+      "elapsed_seconds": 21000.989999999998,
+      "executions": 1134220054,
+      "successes": 477732559,
+      "crashes": 0,
+      "shards": 70
     },
     {
       "target": "simplify",
-      "exit": 0,
-      "stdout": "{\"target\":\"simplify\",\"seconds\":300.00004338,\"executions\":5406683,\"successes\":2752959,\"crashes\":0,\"seed\":20261002}\n",
-      "stderr": "",
-      "statistics": {
-        "target": "simplify",
-        "seconds": 300.00004338,
-        "executions": 5406683,
-        "successes": 2752959,
-        "crashes": 0,
-        "seed": 20261002
-      },
-      "usage": {
-        "user_seconds": 289.61,
-        "system_seconds": 0.24,
-        "elapsed_seconds": 300.0,
-        "max_rss_kib": 1872
-      }
+      "cpu_seconds": 14763.2,
+      "elapsed_seconds": 17701.22,
+      "executions": 480491171,
+      "successes": 244687672,
+      "crashes": 0,
+      "shards": 59
     },
     {
       "target": "simplify_with_attributes",
-      "exit": 0,
-      "stdout": "{\"target\":\"simplify_with_attributes\",\"seconds\":300.000125904,\"executions\":4595175,\"successes\":1784511,\"crashes\":0,\"seed\":20261002}\n",
-      "stderr": "",
-      "statistics": {
-        "target": "simplify_with_attributes",
-        "seconds": 300.000125904,
-        "executions": 4595175,
-        "successes": 1784511,
-        "crashes": 0,
-        "seed": 20261002
-      },
-      "usage": {
-        "user_seconds": 286.82,
-        "system_seconds": 0.28,
-        "elapsed_seconds": 300.01,
-        "max_rss_kib": 1912
-      }
+      "cpu_seconds": 14879.549999999997,
+      "elapsed_seconds": 17700.680000000004,
+      "executions": 415134040,
+      "successes": 161159084,
+      "crashes": 0,
+      "shards": 59
     },
     {
       "target": "simplify_scale",
-      "exit": 0,
-      "stdout": "{\"target\":\"simplify_scale\",\"seconds\":300.00000133,\"executions\":119636010,\"successes\":112757276,\"crashes\":0,\"seed\":20261002}\n",
-      "stderr": "",
-      "statistics": {
-        "target": "simplify_scale",
-        "seconds": 300.00000133,
-        "executions": 119636010,
-        "successes": 112757276,
-        "crashes": 0,
-        "seed": 20261002
-      },
-      "usage": {
-        "user_seconds": 288.36,
-        "system_seconds": 0.18,
-        "elapsed_seconds": 300.01,
-        "max_rss_kib": 1912
-      }
+      "cpu_seconds": 15223.599999999995,
+      "elapsed_seconds": 17701.520000000004,
+      "executions": 11309597748,
+      "successes": 10659509129,
+      "crashes": 0,
+      "shards": 59
     }
   ],
-  "finished_unix": 1791054094.5840583,
+  "updated_unix": 1791073425.2150548,
+  "budget_amendment": {
+    "date": "2026-10-04",
+    "authority": "RFC section 14, owner decision",
+    "previous_cpu_seconds_per_target": 86400,
+    "cpu_seconds_per_target": 14400
+  },
+  "driver_sha256_history": [
+    "1964859002a078e017d988e6b80a0467e3b2c33e34ce4784536c58245a5faa15",
+    "12be4c9c46b1a605c0152ed013c6e6639af0bdc77017c4a634bf73a63a3a7409"
+  ],
+  "coverage": "unavailable: existing stable targets have no coverage instrumentation",
   "identities_unchanged": true,
-  "lane3b_affinity": {
-    "command": [
-      "taskset",
-      "-c",
-      "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,22,23,24,25,26,27,28,29,30,31",
-      "parity/fuzz.sh",
-      "--seconds",
-      "300"
-    ],
-    "started_unix": 1791053766.5766666,
-    "excluded_benchmark_cpus": [
-      20,
-      21
-    ],
-    "fuzz_cpu_affinity": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      22,
-      23,
-      24,
-      25,
-      26,
-      27,
-      28,
-      29,
-      30,
-      31
-    ]
-  }
+  "finished_unix": 1791073425.2150445,
+  "artifacts": {
+    "fuzz/record.json": "a64a402badda5e738d00415715ce5f39ecf5f44b850053022b3b69444b44af6d"
+  },
+  "corpus_sha256": {
+    "vertex_cache": "08f1362389b6d058d4e699a4f52dc0178614c0f9bc9317ceab2e2c62c352380b",
+    "overdraw": "d50f7bf1c584d86b42c3c9df2f858c22bd9522ae8d975d0d7ddc53bb5ca125dd",
+    "simplify": "93061f2a07581c10dbfc4013b1e09576a0b20257dd88d67e4833c33bb19b497d",
+    "simplify_with_attributes": "0c2d75ac7b5c08c80010e51211be57a3bf6967ff18597d068fcc23457ab75f07",
+    "simplify_scale": "8ae7f3a6a5a36ba12a4577f0cab041cf7d385ec26753e04ead207eeb758ea7ae"
+  },
+  "corpus_contract": "Replay descriptors: target binary, seed and execution count reproduce every generated input from the retained exact source."
 }

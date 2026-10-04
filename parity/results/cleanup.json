@@ -1,4 +1,15 @@
 {
+  "schema": "meshopt-summary/1",
+  "historical": true,
+  "command": "cleanup",
+  "passed": null,
+  "phase": "0.1",
+  "seed": null,
+  "profile": null,
+  "detail_artifact": "historical/cleanup.json",
+  "artifacts": {
+    "historical/cleanup.json": "f5ca19e2d19b88e4618b5cccfe81f00ee0ef1872afb9203a06fae230e47f7963"
+  },
   "source_sha256": {
     "rust_and_harness": {
       "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
@@ -249,15 +260,5 @@
       "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
     }
   },
-  "git_metadata_unchanged": true,
-  "git_files_checked": 43,
-  "temporary_target_removed": true,
-  "no_hostname_in_records": true,
-  "no_changed_file_over_50_mb": true,
-  "largest_changed_file": [
-    "parity/results/sweep.json",
-    10927767
-  ],
-  "artifacts_directory": "/mnt/linux-extra/moss-capture-archive/meshopt-lane2",
   "finished_unix": 1790938040.684027
 }

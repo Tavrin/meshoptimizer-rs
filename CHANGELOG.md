@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0 (unreleased)
 
 - Add the foundation API: checked strided inputs, vertex flags, errors,
   workspace storage and work limits, and `no_std` with `alloc`.
@@ -15,3 +15,15 @@
   absolute error and both regularization strengths.
 - Extend exact C++/wasm32 qualification to simplification and upstream fixtures.
 - Remove hostnames from records and retain large buffer archives externally.
+- Store per-function qualification summaries in the repository, with SHA-256
+  identities for external per-case records and buffers. Verify available
+  artifacts and identify absent historical evidence explicitly.
+- Measure release performance with fat LTO, Moss's thin-LTO consumer profile,
+  and Cargo release defaults; keep the RFC acceptance bars unchanged.
+- Add CPU-accounted release fuzzing with at most eight workers, retained replay
+  corpora, crash evidence and resumable source-bound records.
+- Set the owner-amended release robustness budget to four CPU-hours per target.
+- Add a local corpus continuation with a wall budget, core cap, low scheduling
+  priority and SIGTERM handling, plus weekly and manual CI continuation.
+- Add exact Rust execution checks on macOS arm64, Windows x86-64 and Linux
+  arm64 against qualified native outputs recorded on Linux x86-64.
