@@ -149,8 +149,7 @@ jobs:
         run: |
           parity/check-reference.sh
           c++ -std=c++17 -O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off \
-            -I reference/src parity/reference.cpp reference/src/vcacheoptimizer.cpp \
-            reference/src/overdrawoptimizer.cpp reference/src/allocator.cpp reference/src/simplifier.cpp \
+            -I reference/src parity/reference.cpp reference/src/*.cpp \
             -o "$CARGO_TARGET_DIR/reference-arm64"
           python3 - <<'PY'
           import hashlib, json, os, subprocess, zipfile
