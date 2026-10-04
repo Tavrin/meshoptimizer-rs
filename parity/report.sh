@@ -97,33 +97,93 @@ def compact(path, destination, historical=False, profile=None):
 
 CODEC_RECORDS = {'run': ['fixtures', 'malformed'], 'sweep': ['sweep']}
 
+CODEC_PHASES = ['0.2', '0.4']
+# Phase 0.4 adds codec completion and re-runs every 0.2 decoder fixture and sweep family.
+CODEC_RUNNERS = {'0.2': 'runner.py', '0.4': 'runner04.py'}
+
 def codec_phase(argv):
-    """Arguments without a 0.2 phase selection, or None for phase 0.1."""
+    """(phase, arguments without the selection) for a codec phase, or None for phase 0.1."""
     for i, argument in enumerate(argv):
-        if argument == '--phase' and argv[i + 1:i + 2] == ['0.2']:
-            return argv[:i] + argv[i + 2:]
-        if argument in ['0.2', '--phase=0.2']:
-            return argv[:i] + argv[i + 1:]
+        for phase in CODEC_PHASES:
+            if argument == '--phase' and argv[i + 1:i + 2] == [phase]:
+                return phase, argv[:i] + argv[i + 2:]
+            if argument == '--phase=' + phase or (phase == '0.2' and argument == '0.2'):
+                return phase, argv[:i] + argv[i + 1:]
     return None
 
-def codec_module():
+def codec_module(phase='0.2'):
     os.environ.setdefault('MESHOPT_ARTIFACTS', str(artifacts()))
     sys.path.insert(0, str(ROOT / 'parity/codec'))
     import importlib.util
-    spec = importlib.util.spec_from_file_location('codec_runner', ROOT / 'parity/codec/runner.py')
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    # The 0.1 report imports parity/runner.py as "runner" above. runner04.py
+    # imports its 0.2 sibling under that same name, so temporarily let that
+    # import resolve in the codec directory and restore the report's module.
+    previous = sys.modules.pop('runner', None) if phase == '0.4' else None
+    try:
+        spec = importlib.util.spec_from_file_location('codec_runner_' + phase.replace('.', ''), ROOT / 'parity/codec' / CODEC_RUNNERS[phase])
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    finally:
+        if phase == '0.4':
+            sys.modules.pop('runner', None)
+            if previous is not None:
+                sys.modules['runner'] = previous
 
-def execute_codec(action, argv):
-    """Phase 0.2: detailed codec records under MESHOPT_ARTIFACTS, slim summaries in git."""
+def execute_codec04_extra(action, argv):
+    """Phase 0.4 benchmark and fuzz smokes: detailed records in a fresh artifact
+    subdirectory, compact summaries under parity/results."""
+    base = artifacts()
+    raw = base / (action + '-0.4')
+    raw.mkdir(parents=True, exist_ok=True)
+    env = {**os.environ, 'MESHOPT_ARTIFACTS': str(raw)}
+    if action == 'benchmark':
+        if '--consumer-profile' not in argv:
+            raise SystemExit('phase 0.4 benchmark requires --consumer-profile moss|default')
+        profile = argv[argv.index('--consumer-profile') + 1]
+        script = 'measure04.py'
+        detail = raw / f'benchmark-0.4-{profile}.json'
+        destination = ROOT / 'parity/results' / f'benchmark-0.4-{profile}.json'
+        command = [sys.executable, str(ROOT / 'parity/codec' / script), '--phase', '0.4', *argv]
+    else:
+        detail = raw / 'fuzz.json'
+        destination = ROOT / 'parity/results/fuzz-0.4.json'
+        command = [sys.executable, str(ROOT / 'parity/codec/fuzz04.py'), *argv]
+    code = subprocess.run(command, env=env).returncode
+    if not detail.is_file():
+        raise SystemExit(code or 1)
+    full = json.loads(detail.read_text())
+    relative = str(detail.relative_to(base))
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'phase': '0.4',
+               'detail_artifact': relative, 'artifacts': {relative: sha(detail)}, 'mismatches': 0}
+    if action == 'benchmark':
+        manifest = raw / 'benchmark04-inputs.json'
+        summary['artifacts'][str(manifest.relative_to(base))] = sha(manifest)
+        summary.update({'profile': profile, 'effective_profile_overrides': full['effective_profile_overrides'],
+                        'bar': full['bar'], 'executable_sha256': full['executable_sha256'],
+                        'families': {api: {f: {k: v[k] for k in ['cases', 'geometric_mean_rust_scalar_time_ratio', 'maximum_rust_scalar_time_ratio', 'pass']}
+                                           for f, v in families.items()} for api, families in full['verdicts'].items()},
+                        'family_pass': full['family_pass'], 'passed': all(full['family_pass'].values())})
+    else:
+        summary.update({'profile': full['profile'], 'targets': {t['target']: {'executions': t['executions'], 'elapsed_seconds': t['elapsed_seconds'], 'exit_code': t['exit_code']} for t in full['targets']},
+                        'passed': all(t['exit_code'] == 0 and t['elapsed_seconds'] >= 300 and t['executions'] > 0 for t in full['targets'])})
+        for t in full['targets']:
+            log = Path(t['log'])
+            summary['artifacts'][str(log.relative_to(base))] = t['log_sha256']
+    write(destination, summary)
+    raise SystemExit(code)
+
+def execute_codec(action, argv, phase):
+    """Phases 0.2 and 0.4: detailed codec records under MESHOPT_ARTIFACTS, slim summaries in git."""
+    if phase == '0.4' and action in ('benchmark', 'fuzz'):
+        return execute_codec04_extra(action, argv)
     if action == 'benchmark':
         # The pre-registered decoder measurement protocol owns its records.
         command = [sys.executable, str(ROOT / 'parity/codec/measure.py'), '--phase', '0.2', *argv]
         raise SystemExit(subprocess.run(command).returncode)
     if action not in CODEC_RECORDS:
-        raise SystemExit('phase 0.2 supports run, sweep and benchmark')
-    directory = action + '-0.2'
+        raise SystemExit(f'phase {phase} supports run, sweep and benchmark')
+    directory = action + '-' + phase
     if '--record-directory' in argv:
         i = argv.index('--record-directory')
         directory = argv[i + 1]
@@ -136,11 +196,11 @@ def execute_codec(action, argv):
     if any((raw / (name + '.json')).exists() for name in names):
         raise SystemExit('immutable record exists; select a fresh MESHOPT_ARTIFACTS')
     raw.mkdir(parents=True, exist_ok=True)
-    command = [sys.executable, str(ROOT / 'parity/codec/runner.py'), action, '--phase', '0.2', *argv]
+    command = [sys.executable, str(ROOT / 'parity/codec' / CODEC_RUNNERS[phase]), action, '--phase', phase, *argv]
     code = subprocess.run(command, env={**os.environ, 'MESHOPT_ARTIFACTS': str(raw)}).returncode
     if code or not all((raw / (name + '.json')).is_file() for name in names):
         raise SystemExit(code or 1)
-    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'phase': '0.2',
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'phase': phase,
                'profile': 'scalar-strict', 'records': {}, 'artifacts': {}}
     for name in names:
         detail = raw / (name + '.json')
@@ -158,60 +218,80 @@ def execute_codec(action, argv):
                                     'simd_filter_conformance_cases': full['simd_filter_conformance_cases'],
                                     'executable_sha256': full['executable_sha256'],
                                     'reference_revision': full['reference_revision']}
+        for key in ['cpp_undefined_cases', 'cross_decoded_cases', 'color_simd_max_unit_difference']:
+            if key in full:
+                summary['records'][name][key] = full[key]
     summary['mismatches'] = sum(v['mismatches'] for v in summary['records'].values())
     summary['passed'] = summary['mismatches'] == 0
-    write(ROOT / 'parity/results' / (action + '-0.2.json'), summary)
+    write(ROOT / 'parity/results' / (action + '-' + phase + '.json'), summary)
 
-def report_codec(verify):
+def report_codec(verify, phase='0.2'):
     records = {}
     missing = []
     for path in sorted((ROOT / 'parity/results').glob('*.json')):
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1' or summary['historical'] or summary.get('phase') != '0.2':
+        if summary.get('schema') != 'meshopt-summary/1' or summary['historical'] or summary.get('phase') != phase:
             continue
-        records[summary['command']] = summary
+        key = summary['command'] + ('-' + summary['profile'] if summary['command'] == 'benchmark' and phase == '0.4' else '')
+        records[key] = summary
         if summary['passed'] is not True or summary['mismatches'] != 0:
-            raise SystemExit('exact 0.2 parity gate failed: ' + path.name)
+            raise SystemExit(f'{phase} gate failed: ' + path.name)
         if not verify:
             continue
         absent = []
-        full_record(summary, absent)
+        full = full_record(summary, absent)
         missing += absent
         if absent:
             continue
-        current = codec_module().sources()
+        current = codec_module(phase).sources()
+        if summary['command'] in ('benchmark', 'fuzz'):
+            if summary['command'] == 'benchmark' and (full['sources'] != current or not all(full['family_pass'].values())):
+                raise ValueError('stale or failing 0.4 benchmark record: ' + path.name)
+            if summary['command'] == 'fuzz':
+                core = {str(p.relative_to(ROOT)): sha(p) for p in ROOT.glob('src/**/*.rs')}
+                if full['sources'] != core:
+                    raise ValueError('stale 0.4 fuzz record')
+            continue
         for name, item in summary['records'].items():
             full = json.loads((artifacts() / item['detail_artifact']).read_text())
             if full['mismatches'] != 0 or full['counts'] != item['counts'] or len(full['cases']) != item['cases']:
-                raise ValueError('0.2 summary differs from detailed record: ' + name)
+                raise ValueError(f'{phase} summary differs from detailed record: ' + name)
             if full['sources'] != current:
-                raise ValueError('stale 0.2 record: ' + name)
+                raise ValueError(f'stale {phase} record: ' + name)
             with zipfile.ZipFile(artifacts() / item['archive_artifact']) as archive:
                 for case in full['cases']:
                     for value in case['files'].values():
                         if hashlib.sha256(archive.read(value['member'])).hexdigest() != value['sha256']:
-                            raise ValueError('0.2 case buffer identity mismatch: ' + case['case'])
+                            raise ValueError(f'{phase} case buffer identity mismatch: ' + case['case'])
     incomplete = set(CODEC_RECORDS) - records.keys()
-    if 'run' in records and records['run']['records']['fixtures']['cases'] != 287:
-        incomplete.add('287 pinned decoder fixtures')
-    if 'sweep' in records and any(int(records['sweep']['records']['sweep']['counts'].get(str(op), 0)) < 2000 for op in range(1, 8)):
+    fixtures = 287 if phase == '0.2' else 287 + 563 + 19
+    operations = list(range(1, 8)) + (list(range(11, 26)) if phase == '0.4' else [])
+    if 'run' in records and records['run']['records']['fixtures']['cases'] != fixtures:
+        incomplete.add(f'{fixtures} pinned fixtures')
+    if 'sweep' in records and any(int(records['sweep']['records']['sweep']['counts'].get(str(op), 0)) < 2000 for op in operations):
         incomplete.add('2000 seeded cases per codec operation')
+    if phase == '0.4':
+        incomplete |= {'benchmark-moss', 'benchmark-default', 'fuzz'} - records.keys()
     if missing:
         print('ABSENT artifacts (hashes cannot be verified):\n' + '\n'.join(sorted(set(missing))))
     else:
-        print('All recorded 0.2 artifact SHA-256 hashes and case buffers verified.' if verify else 'Artifact hashes not requested.')
+        print(f'All recorded {phase} artifact SHA-256 hashes and case buffers verified.' if verify else 'Artifact hashes not requested.')
     if incomplete:
-        print('0.2 qualification incomplete:', ', '.join(sorted(incomplete)))
+        print(f'{phase} qualification incomplete:', ', '.join(sorted(incomplete)))
         raise SystemExit(1)
     if missing:
         raise SystemExit(1)
-    print('0.2 exact decoder parity records pass:', {name: item['cases'] for v in records.values() for name, item in v['records'].items()})
+    print(f'{phase} exact codec parity records pass:', {name: item['cases'] for v in records.values() for name, item in v.get('records', {}).items()})
+    if phase == '0.4':
+        for key in ['benchmark-moss', 'benchmark-default']:
+            print(key, 'family verdicts:', records[key]['family_pass'])
+        print('fuzz smokes:', {k: v['executions'] for k, v in records['fuzz']['targets'].items()})
 
 def execute(argv):
     action = argv.pop(0)
     codec = codec_phase(argv)
     if codec is not None:
-        return execute_codec(action, codec)
+        return execute_codec(action, codec[1], codec[0])
     resume = '--resume' in argv
     if resume:
         argv.remove('--resume')
@@ -509,7 +589,7 @@ def report(verify):
     records = {}
     for path in sorted((ROOT / 'parity/results').glob('*.json')):
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') == '0.2':
+        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') in CODEC_PHASES:
             continue
         full = full_record(summary, historical_missing if summary['historical'] else missing) if verify else None
         if not summary['historical']:
@@ -691,11 +771,11 @@ elif len(argv) == 2 and argv[0] == '--identity-check':
     identity_check(argv[1])
 else:
     p = argparse.ArgumentParser()
-    p.add_argument('--phase', choices=['0.1', '0.2'], default='0.1')
+    p.add_argument('--phase', choices=['0.1', *CODEC_PHASES], default='0.1')
     p.add_argument('--verify-artifacts', action='store_true')
     args = p.parse_args(argv)
-    if args.phase == '0.2':
-        report_codec(args.verify_artifacts)
+    if args.phase in CODEC_PHASES:
+        report_codec(args.verify_artifacts, args.phase)
     else:
         report(args.verify_artifacts)
 PY

@@ -1,0 +1,97 @@
+{
+  "schema": "meshopt-summary/1",
+  "historical": false,
+  "command": "run",
+  "phase": "0.4",
+  "profile": "scalar-strict",
+  "records": {
+    "fixtures": {
+      "detail_artifact": "run-0.4/fixtures.json",
+      "archive_artifact": "run-0.4/fixtures.zip",
+      "cases": 869,
+      "counts": {
+        "7": 6,
+        "2": 43,
+        "3": 21,
+        "1": 186,
+        "6": 10,
+        "4": 6,
+        "5": 3,
+        "8": 6,
+        "9": 6,
+        "18": 4,
+        "17": 4,
+        "16": 14,
+        "14": 4,
+        "15": 2,
+        "12": 39,
+        "11": 173,
+        "13": 23,
+        "23": 8,
+        "24": 7,
+        "20": 187,
+        "19": 3,
+        "21": 91,
+        "22": 22,
+        "25": 1
+      },
+      "mismatches": 0,
+      "simd_filter_conformance_cases": 23,
+      "executable_sha256": {
+        "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
+        "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
+        "rust": "305ebb7d39bacab07ee5fa3d189e219a1ecf6ec7acc4e131da1e02370b51bc26",
+        "wasm": "ccc0be7918c446082c7664b8c9d9e345d49f01f5ec7f3c0ee2776122059b3e1c"
+      },
+      "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
+      "cpp_undefined_cases": 130,
+      "cross_decoded_cases": 76,
+      "color_simd_max_unit_difference": 0
+    },
+    "malformed": {
+      "detail_artifact": "run-0.4/malformed.json",
+      "archive_artifact": "run-0.4/malformed.zip",
+      "cases": 7653,
+      "counts": {
+        "2": 435,
+        "3": 105,
+        "1": 3097,
+        "18": 16,
+        "12": 169,
+        "11": 2183,
+        "13": 87,
+        "20": 1223,
+        "19": 82,
+        "21": 238,
+        "14": 4,
+        "15": 2,
+        "16": 7,
+        "17": 2,
+        "22": 2,
+        "23": 1
+      },
+      "mismatches": 0,
+      "simd_filter_conformance_cases": 0,
+      "executable_sha256": {
+        "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
+        "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
+        "rust": "305ebb7d39bacab07ee5fa3d189e219a1ecf6ec7acc4e131da1e02370b51bc26",
+        "wasm": "ccc0be7918c446082c7664b8c9d9e345d49f01f5ec7f3c0ee2776122059b3e1c"
+      },
+      "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
+      "cpp_undefined_cases": 843,
+      "cross_decoded_cases": 825,
+      "color_simd_max_unit_difference": 0
+    }
+  },
+  "artifacts": {
+    "run-0.4/fixtures.json": "ba8d11e3dc5ce3fae1b2e6ead5e2254ccb88786d9d37e1e300aec02f1366a021",
+    "run-0.4/fixtures.zip": "1b9a4766aa25b9273b2aab98c5ff198dedba08744c9a28d381b3306da0419cb6",
+    "run-0.4/malformed.json": "5f9c5eab2b5620cda5aee4d17deaf7daefba1334a9a620f5ca964332ee78e543",
+    "run-0.4/malformed.zip": "aebe8ca400fbcf5ea6a19f3c15ab7a2cb676b1a1048a9f0a7a4506e484730cc2"
+  },
+  "detail_artifact": "run-0.4/fixtures.json",
+  "seed": null,
+  "mismatches": 0,
+  "passed": true
+}

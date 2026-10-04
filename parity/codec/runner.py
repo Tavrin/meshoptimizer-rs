@@ -66,7 +66,7 @@ def generated(cpp,seed,cases):
                 if filter==1:stride=rng.choice([4,8])
                 if filter==2:stride=8
                 if filter:
-                    f=request(13+filter,count,stride,filter_floats(rng,filter,count,stride),level=rng.randint(2,8 if stride==4 else (24 if filter==3 else 16)))
+                    f=request(13+filter,count,stride,filter_floats(rng,filter,count,stride),level=rng.randint(4 if filter==2 else 2,8 if stride==4 else (24 if filter==3 else 16)))
                     status,data,_=cpp.call(f);assert status==0
                 else:
                     kind=i%5
@@ -78,7 +78,7 @@ def generated(cpp,seed,cases):
                 status,encoded,_=cpp.call(request(raw+10,count,4,struct.pack('<'+'I'*count,*indices),version=version));assert status==0
             else:
                 f=raw-3;stride=rng.choice([4,8]) if f==1 else 8 if f==2 else rng.choice([4,8,12,16,32,64,256])
-                status,encoded,_=cpp.call(request(13+f,count,stride,filter_floats(rng,f,count,stride),level=rng.randint(2,8 if stride==4 and f==1 else 16 if f in [1,2] else 24)));assert status==0
+                status,encoded,_=cpp.call(request(13+f,count,stride,filter_floats(rng,f,count,stride),level=rng.randint(4 if f==2 else 2,8 if stride==4 and f==1 else 16 if f in [1,2] else 24)));assert status==0
             yield f'seed-{seed}-op{op}-{i}',request(op,count,stride,encoded,mode=mode,filter=filter)
 
 def filter_floats(rng,f,count,stride):

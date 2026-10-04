@@ -1,21 +1,48 @@
-//! Safe meshoptimizer 1.3 decoding, with explicit little-endian output.
+//! Safe meshoptimizer 1.3 codecs, with explicit little-endian byte buffers.
 //!
-//! Raw vertex, triangle and sequence codecs support versions 0 and 1. The
-//! checked EXT helper retains vertex version 0 and the existing Moss index
-//! version 0/1 domain. Color and encoding are outside this module's scope.
-//! Caller-buffer decoders allocate no heap storage. They preserve unused
-//! destination bytes; a malformed body or filter can modify the used prefix.
-//! Allocating operations use fallible reservation and Workspace limits.
-//! Work charges source bytes plus decoded bytes once before raw decoding,
-//! and one visit per four-byte word before filtering, including validation.
-//! Fixed block arrays on the stack and caller buffers are excluded from
-//! storage limits, consistently with the geometry APIs.
+//! Raw vertex, triangle and sequence codecs support versions 0 and 1 for
+//! both encoding and decoding. Encoders take explicit per-call
+//! [`VertexEncoding`] / [`IndexEncoding`] configuration instead of upstream's
+//! global version setters, and produce the reference bytes exactly. Filter
+//! encoders cover Oct, Quat, Exp (all four exponent modes) and Color; Color
+//! decoding is provided raw, outside the EXT helper. The meshlet codec
+//! (encoding plus both decoding forms) works on the 0.3 meshlet layout's
+//! vertex-reference and local-triangle slices.
+//!
+//! The checked EXT helper retains vertex version 0 and the existing Moss index
+//! version 0/1 domain. Caller-buffer codecs allocate no heap storage. They
+//! preserve unused destination bytes; a malformed body or filter, or an
+//! encoder capacity failure, can modify the used prefix. Allocating
+//! operations use fallible reservation and Workspace limits. Decoder work
+//! charges source bytes plus decoded bytes once before raw decoding, and one
+//! visit per four-byte word before filtering, including validation. Encoder
+//! work charges input bytes plus at most the bound's output bytes; filter
+//! encoders charge input floats plus output words. Fixed block arrays on the
+//! stack and caller buffers are excluded from storage limits, consistently
+//! with the geometry APIs.
 
+mod encode;
 mod filter;
+mod filter_encode;
 mod index;
+mod index_encode;
+mod meshlet;
 mod vertex;
+mod vertex_encode;
 use crate::{workspace::checked_bytes, Error, Workspace};
 use alloc::vec::Vec;
+pub use encode::{
+    encode_filter_color, encode_filter_color_into, encode_filter_exp, encode_filter_exp_into,
+    encode_filter_oct, encode_filter_oct_into, encode_filter_quat, encode_filter_quat_into,
+    encode_index_buffer, encode_index_buffer_bound, encode_index_buffer_into,
+    encode_index_sequence, encode_index_sequence_bound, encode_index_sequence_into,
+    encode_vertex_buffer, encode_vertex_buffer_bound, encode_vertex_buffer_into, ExpMode,
+    IndexEncoding, VertexEncoding,
+};
+pub use meshlet::{
+    decode_meshlet, decode_meshlet_into, decode_meshlet_raw, decode_meshlet_raw_into,
+    encode_meshlet, encode_meshlet_bound, encode_meshlet_into, DecodedMeshlet, RawMeshlet,
+};
 
 /// EXT compression mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -520,4 +547,31 @@ pub fn decode_filter_exp(
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     post(Filter::Exponential, data, count, stride, workspace)
+}
+/// Apply canonical scalar Color decoding (meshopt_decodeFilterColor): YCoCg-R
+/// plus alpha back to RGBA, stride 4 (u8) or 8 (u16). Outside the EXT
+/// minimum, so not offered by [`BufferView`]. Returns NumericalFailure where
+/// the C++ float-to-int conversion is undefined (zero alpha word, or a 16-bit
+/// component scaled outside the i32 range); the data may then be partially decoded.
+pub fn decode_filter_color(
+    data: &mut [u8],
+    count: usize,
+    stride: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        if stride != 4 && stride != 8 {
+            return Err(Error::InvalidLayout);
+        }
+        let bytes = checked_bytes(count, stride)?;
+        if data.len() < bytes {
+            return Err(Error::BufferTooSmall);
+        }
+        workspace.account_codec(0)?;
+        work.add(bytes / 4)?;
+        filter::color(&mut data[..bytes], stride)
+    })();
+    workspace.finish(&work);
+    result
 }

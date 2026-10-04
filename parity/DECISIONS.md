@@ -1368,3 +1368,174 @@ hashes are verified before deleting only codex-meshopt-p02. Exact artifact
 placement remains read-only; use the recorded large-volume fallback.
 No Git metadata changes. This local result does not claim the separate
 platform/release sweep or four-CPU-hour fuzz qualification.
+
+## D59 — Per-call codec configuration and encoder API (0.4)
+
+Replace meshopt_encodeVertexVersion and meshopt_encodeIndexVersion with
+checked per-call values: `VertexEncoding::new(version, level)` and
+`IndexEncoding::new(version)`. Defaults are upstream's (vertex v1 level 2,
+index v1). Versions above 1 return UnsupportedVersion. Vertex levels 0-9 are
+accepted because the pinned reference asserts that range; its documentation
+names 0-3, and levels 3-9 produce identical streams in 1.3. Version 0 ignores
+the level, as upstream does. Rejected: a global setter (not thread-safe, the
+RFC's intentional replacement) and a 0-3 level domain (narrower than the
+reference). Reversal cost: free until publication.
+
+Every encoder has an allocating form and an `_into` form returning the used
+length. `_into` fails with BufferTooSmall exactly where C++ returns 0,
+replicating each reference capacity check in order, including the vertex
+encoder's 24-byte group lookahead and the index encoder's 16-byte per-triangle
+slack; on failure the destination prefix may change, as in C++. The meshlet
+encoder checks the final size first and leaves the destination untouched.
+Allocating encoders reserve the bound (vertex count from the largest index for
+index encoders, as the upstream JS wrapper does), account it before
+reserving, and truncate to the used length without shrinking. Inputs are
+exact: `vertices.len() == count * stride`, four floats per filter vector or
+stride / 4 for Exp. Index encoders take u32 slices; u16 adapters are not
+added. Work charges input bytes plus at most the bound's output bytes;
+filter encoders charge input floats plus output words. Reversal cost: cheap
+while unpublished.
+
+## D60 — Undefined reference behaviour in 0.4 operations
+
+C++ cases with undefined behaviour are never executed to obtain bytes. The
+C++ driver refuses them before the call, and Rust gives a defined, documented
+result that is retained as a robustness case:
+
+- Exp encoder: `int(v * 2^-e + 0.5)` is undefined for non-finite input and
+  for one-bit mantissas with exponent 128. Rust returns NumericalFailure in
+  exactly those cases (the converted value is outside the i32 range).
+- Color decoder: a zero alpha word gives an infinite scale, and 16-bit records
+  with small alpha can scale outside i32. Rust returns NumericalFailure there,
+  matching the Oct zero-vector rule of D54.
+- Sequence encoder: baseline selection negates `int(index - last)`; a delta of
+  exactly 2^31 is undefined. Pinned GCC builds at -O0 and -O3 both wrap and do
+  not switch baselines; Rust keeps that wrapped result (`wrapping_abs`). The
+  C++ driver reports such inputs as status -3 (no oracle); the harness records
+  them as `cpp-undefined` with native/WASM identity only, and the sweep nudges
+  generated sequences away from them.
+
+Rejected: rejecting the sequence case (an invented restriction on valid
+inputs) and saturating Exp/Color conversions silently (no reference result).
+Reversal cost: cheap while unpublished.
+
+## D61 — Sequence codec losslessness is upstream's
+
+The sequence code stores `(zigzag(delta) << 1) | baseline` in 32 bits, so
+bit 31 of large zigzag deltas is lost; upstream behaves identically, and the
+port reproduces its bytes. Round-trip losslessness is asserted only when every
+index is below 2^30; otherwise the harness requires C++ and Rust decodes of
+each other's streams to agree. Vertex and meshlet streams are always checked
+for lossless (triangles: per-triangle rotation) round trips.
+
+The triangle codec initializes its edge and vertex FIFOs with 0xffffffff, so
+an index equal to u32::MAX can match an empty slot and does not round-trip;
+the fuzz smoke found this (retained under `superseded/fuzz-0.4-sentinel-crash`)
+and C++ reproduces it byte for byte. Encoded bytes stay exact; the rotation
+check is skipped only for lists containing u32::MAX. Rejecting that index
+would invent a restriction the reference does not make. Separately, the 0.2
+sweep generator produced Quat encodings with 2-3 bits, outside the encoder's
+asserted 4-16; it now draws 4-16, since the 0.4 C++ driver refuses
+out-of-assertion parameters (D60).
+
+## D62 — Color stays outside the EXT helper
+
+`decode_filter_color` is a raw filter. `Filter` and `BufferView` keep the EXT
+minimum (None/Oct/Quat/Exp), as RFC 3 states; accepting COLOR there would
+claim EXT content that EXT_meshopt_compression does not define. SIMD Color
+output is recorded as a distance only (RFC 5.1: no assumed cross-ISA identity).
+
+## D63 — Meshlet codec dependency on 0.3
+
+0.3 is not merged to main: its layout was read from `phase/0.3` in the p03
+worktree, read-only. That layout stores vertex references as `u32` and local
+triangles as three `u8` per triangle (`Meshlets::vertices` / `triangles`, with
+`Meshlet` offsets). The codec module (`src/codec/meshlet.rs`) depends only on
+those slice shapes, not on 0.3 types, so integration is mechanical: no
+format, type or re-export changes are needed; a later convenience taking a
+`Meshlet` descriptor can slice `Meshlets` directly. 0.3 accepts up to 512
+triangles per meshlet; the codec, like upstream, accepts at most 256 and
+returns InvalidParameter beyond. Decoders write exactly count * size bytes
+(upstream SIMD paths may also write alignment padding); `decode_meshlet_raw`
+needs no 16-byte padding. Reversal cost: free; the dependency is recorded for
+the 0.3/0.4 merge.
+
+## D64 — 0.4 evidence scope
+
+`parity/report.sh --execute run|sweep --phase 0.4` runs `parity/codec/runner04.py`.
+The run re-executes all 287 0.2 decoder fixtures and 0.2 malformed cases, plus
+563 native 0.4 invocations captured from the unchanged upstream tests (global
+versions and caller capacities included) and 19 JS vectors (17 shipped-WASM
+encoder outputs kept as `.expected`, 2 COLOR decoder vectors). Malformed
+cases add every-byte prefix/suffix truncations, bit flips, count mismatches
+and trailing bytes for each decodable meshlet fixture, every capacity around
+each encoder fixture's size, zero-alpha and overflow Color records, and
+parameters outside each reference assertion. The sweep runs 2,000 seeded cases
+for each 0.2 operation and each of the fifteen 0.4 operations (encoders with
+every version/level, real-like attribute streams, block-boundary counts,
+explicit capacities, filter encoders over all bit widths and modes, Color
+decoding of encoded and random words, meshlet encode/decode including
+corrupted streams, and all four bound functions). Every case runs both APIs on
+native and executed WASM; encoder outputs are cross-decoded in both
+directions. Per-case data stays under MESHOPT_ARTIFACTS; git holds summaries.
+
+Nineteen new cargo-fuzz targets (one per new entry point; filter encoders'
+`_into` forms share one target) run 300-second ASan smokes; encoder targets
+assert round trips. The four-CPU-hour release gate is not claimed.
+
+## D65 — 0.4 performance protocol
+
+The RFC 6.1 raw scalar codec bar applies unchanged per family and API: Rust /
+scalar-strict C++ time ratio geometric mean <= 1.25, no case > 1.50. There is
+no Moss baseline for these operations, so no minima are registered; SIMD C++
+ratios are reported. Both consumer profiles of D41 are measured on identical
+inputs. The C++ driver allocates fresh output for allocating calls and reuses
+it for caller-buffer calls (D52's rule); input conversion and validation are
+outside the timed region on both sides, and meshlet outputs are serialized
+after timing. Every timed request is first checked for identical Rust/C++
+output.
+
+## D66 — 0.4 local verdict and cleanup
+
+The final safe-Rust meshlet decoder avoids a copied vertex window and repeated
+stream/count checks in the allocating path. It inlines the public decode entry
+points across the crate boundary and the vertex loop, while leaving the larger
+triangle loop out of line. Empty-workspace codec accounting takes a checked
+fast path; allocating typed meshlet decode recounts capacity only when the
+allocator returns more than requested. These changes preserve the checked
+limits and output contracts. Earlier failed benchmark records remain under
+`/mnt/linux-extra/meshopt-artifacts/p04/superseded/`; they are not acceptance
+records.
+
+Final-source gates all exit 0: three fmt checks, three clippy checks with
+`-D warnings`, parity-driver and all/no-default-features tests, and the
+wasm32 build. The scalar-strict run matches all 869 fixtures and 7,653
+malformed cases; the seeded sweep matches all 44,000 cases (2,000 for each
+of operations 1-7 and 11-25), including cross-decode and executed WASM
+identity. Nineteen ASan cargo-fuzz targets pass 300-second smokes with
+110,927,795 combined executions. These smokes do not establish the separate
+four-CPU-hour-per-target release fuzz gate.
+
+Both final benchmark profiles, run sequentially on CPU 3 with the same input
+manifest SHA-256 `5b49549e3b6ab5021eeb12c313f244c24e1cb338b937450c7528af4716847e39`,
+pass all twelve families for allocating and caller-buffer APIs under D65's
+unchanged 1.25 geometric-mean and 1.50 per-case limits. The largest family
+geometric mean is 1.239 (default, allocating sequence encode); the largest
+single-case ratio is 1.457 (Moss, allocating Quat encode). The small
+3-vertex/1-triangle typed meshlet decode now measures 1.165/1.185
+(Moss allocating/caller-buffer) and 1.351/1.164 (Cargo defaults). The
+rewritten bounds family measures geometric mean/maximum 0.684/1.155 (Moss)
+and 0.680/1.150 (defaults); bounds have one API form. Exact per-family,
+per-case ratios and raw samples are in the two `benchmark-0.4` records and
+the slim `parity/results/benchmark-0.4-*.json` summaries. The measurements
+are local Linux x86-64 evidence on a loaded host, not a release-platform or
+Moss integration qualification.
+
+`parity/report.sh --phase 0.4 --verify-artifacts` exits 0 and verifies all
+recorded hashes and case buffers against the final sources. The generated
+target directory is deleted afterward; detailed evidence remains under
+`/mnt/linux-extra/meshopt-artifacts/p04` at 752 MB, below the 3 GB lane cap.
+No Git metadata operations were performed. D63 records the unmerged 0.3
+dependency: the isolated codec accepts its `u32` vertex and
+three-`u8` triangle slices, with 256/256 codec limits, so later type
+integration is mechanical.

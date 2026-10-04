@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.4 codec completion (unreleased milestone)
+
+- Add vertex-buffer, index-buffer and index-sequence encoders with their bound
+  functions and explicit per-call `VertexEncoding` / `IndexEncoding`
+  configuration (versions 0/1, vertex levels 0-9), matching C++ 1.3 bytes.
+- Add Oct, Quat, Exp (all four exponent modes) and Color filter encoders, and
+  raw Color filter decoding outside the EXT helper.
+- Add the meshlet codec: `encode_meshlet`, its bound, and both decoding forms
+  (`decode_meshlet` with 2/4-byte vertices and 3/4-byte triangles, and
+  `decode_meshlet_raw`), each with caller-buffer variants.
+- Extend the codec harness to phase 0.4: upstream native and JS encoder
+  vectors, malformed inputs, 2,000-case sweeps per operation, two-way
+  cross-decoding, executed WASM identity, nineteen fuzz smokes and per-family
+  benchmarks under the Moss and Cargo-default profiles.
+
 ## 0.1.0 (unreleased)
 
 - Add the foundation API: checked strided inputs, vertex flags, errors,

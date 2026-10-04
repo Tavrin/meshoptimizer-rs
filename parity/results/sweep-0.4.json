@@ -1,0 +1,58 @@
+{
+  "schema": "meshopt-summary/1",
+  "historical": false,
+  "command": "sweep",
+  "phase": "0.4",
+  "profile": "scalar-strict",
+  "records": {
+    "sweep": {
+      "detail_artifact": "sweep-0.4/sweep.json",
+      "archive_artifact": "sweep-0.4/sweep.zip",
+      "cases": 44000,
+      "counts": {
+        "1": 2000,
+        "2": 2000,
+        "3": 2000,
+        "4": 2000,
+        "5": 2000,
+        "6": 2000,
+        "7": 2000,
+        "11": 2000,
+        "12": 2000,
+        "13": 2000,
+        "14": 2000,
+        "15": 2000,
+        "16": 2000,
+        "17": 2000,
+        "18": 2000,
+        "19": 2000,
+        "20": 2000,
+        "21": 2000,
+        "22": 2000,
+        "23": 2000,
+        "24": 2000,
+        "25": 2000
+      },
+      "mismatches": 0,
+      "simd_filter_conformance_cases": 6502,
+      "executable_sha256": {
+        "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
+        "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
+        "rust": "305ebb7d39bacab07ee5fa3d189e219a1ecf6ec7acc4e131da1e02370b51bc26",
+        "wasm": "ccc0be7918c446082c7664b8c9d9e345d49f01f5ec7f3c0ee2776122059b3e1c"
+      },
+      "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
+      "cpp_undefined_cases": 78,
+      "cross_decoded_cases": 15304,
+      "color_simd_max_unit_difference": 255
+    }
+  },
+  "artifacts": {
+    "sweep-0.4/sweep.json": "29f24d6bfb376cb2c79e496d819f92cac7afe3e5469ef76f267ad970d3c80db3",
+    "sweep-0.4/sweep.zip": "340b66498b444476ea7d7b3f2521b77adf9182b03aae4fb001900dca7540097b"
+  },
+  "detail_artifact": "sweep-0.4/sweep.json",
+  "seed": 20261004,
+  "mismatches": 0,
+  "passed": true
+}

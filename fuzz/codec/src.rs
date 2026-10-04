@@ -68,8 +68,194 @@ pub fn exercise(entry: u8, data: &[u8]) {
         11 => {
             let _ = decode_buffer_view(mode, filter, count, stride, source, &mut ws);
         }
-        _ => {
+        12 => {
             let _ = decode_buffer_view_into(&mut out, mode, filter, count, stride, source, &mut ws);
+        }
+        _ => exercise04(
+            entry, data[6], data[7], count, stride, source, &mut out, &mut ws,
+        ),
+    }
+}
+
+fn words(b: &[u8]) -> Vec<u32> {
+    b.as_chunks::<4>()
+        .0
+        .iter()
+        .map(|c| u32::from_le_bytes(*c))
+        .collect()
+}
+
+fn rotations<T: PartialEq + Copy>(a: &[T], b: &[T]) -> bool {
+    let (a, b) = (a.as_chunks::<3>().0, b.as_chunks::<3>().0);
+    a.len() == b.len()
+        && a.iter()
+            .zip(b)
+            .all(|(&[x, y, z], d)| [[x, y, z], [y, z, x], [z, x, y]].contains(d))
+}
+
+/// 0.4 entry points. Encoders also assert their round trips, so a panic is a
+/// parity defect as well as a robustness one.
+#[allow(clippy::too_many_arguments)]
+fn exercise04(
+    entry: u8,
+    a: u8,
+    b: u8,
+    count: usize,
+    stride: usize,
+    source: &[u8],
+    out: &mut [u8],
+    ws: &mut Workspace,
+) {
+    let version = a & 1;
+    let level = (a >> 1) % 11;
+    let mut w = Workspace::default();
+    match entry {
+        13 | 14 => {
+            let Ok(e) = VertexEncoding::new(version, level) else {
+                return;
+            };
+            let stride = stride % 260;
+            let count = source.len().checked_div(stride).unwrap_or(0);
+            let vertices = &source[..count * stride];
+            let encoded = if entry == 13 {
+                encode_vertex_buffer(vertices, count, stride, e, ws)
+            } else {
+                encode_vertex_buffer_into(out, vertices, count, stride, e, ws)
+                    .map(|n| out[..n].to_vec())
+            };
+            if let Ok(encoded) = encoded {
+                let decoded = decode_vertex_buffer(count, stride, &encoded, &mut w);
+                assert_eq!(decoded.as_deref(), Ok(vertices));
+            }
+        }
+        15..=18 => {
+            let e = IndexEncoding::new(version).unwrap_or_default();
+            let mut indices = words(source);
+            let triangles = entry <= 16;
+            if triangles {
+                indices.truncate(indices.len() / 3 * 3);
+            }
+            let encoded = match entry {
+                15 => encode_index_buffer(&indices, e, ws),
+                16 => encode_index_buffer_into(out, &indices, e, ws).map(|n| out[..n].to_vec()),
+                17 => encode_index_sequence(&indices, e, ws),
+                _ => encode_index_sequence_into(out, &indices, e, ws).map(|n| out[..n].to_vec()),
+            };
+            if let Ok(encoded) = encoded {
+                let n = indices.len();
+                let decoded = if triangles {
+                    decode_index_buffer(n, 4, &encoded, &mut w)
+                } else {
+                    decode_index_sequence(n, 4, &encoded, &mut w)
+                };
+                let decoded = words(&decoded.expect("encoded indices decode"));
+                if triangles {
+                    // u32::MAX equals upstream's empty-FIFO sentinel, so such
+                    // lists are not lossless upstream either (D61).
+                    if !indices.contains(&u32::MAX) {
+                        assert!(rotations(&indices, &decoded));
+                    }
+                } else if indices.iter().all(|&v| v < 1 << 30) {
+                    // Sequence codes drop bit 31 of large zigzag deltas, as upstream.
+                    assert_eq!(decoded, indices);
+                }
+            }
+        }
+        19..=22 => {
+            let floats: Vec<f32> = words(source).into_iter().map(f32::from_bits).collect();
+            let stride = stride % 260;
+            let bits = u32::from(b % 26);
+            let per = if entry == 21 { stride / 4 } else { 4 };
+            let count = floats.len().checked_div(per).unwrap_or(0);
+            let data = &floats[..count * per];
+            let encoded = match entry {
+                19 => encode_filter_oct(count, stride, bits, data, ws),
+                20 => encode_filter_quat(count, stride, bits, data, ws),
+                21 => {
+                    let mode = [
+                        ExpMode::Separate,
+                        ExpMode::SharedVector,
+                        ExpMode::SharedComponent,
+                        ExpMode::Clamped,
+                    ][usize::from(a % 4)];
+                    encode_filter_exp(count, stride, bits, data, mode, ws)
+                }
+                _ => encode_filter_color(count, stride, bits, data, ws),
+            };
+            if let Ok(mut encoded) = encoded {
+                let decoded = match entry {
+                    19 => decode_filter_oct(&mut encoded, count, stride, &mut w),
+                    20 => decode_filter_quat(&mut encoded, count, stride, &mut w),
+                    21 => decode_filter_exp(&mut encoded, count, stride, &mut w),
+                    _ => decode_filter_color(&mut encoded, count, stride, &mut w),
+                };
+                // Encoded Exp and Color always decode; Oct may meet a zero vector.
+                assert!(decoded.is_ok() || entry == 19);
+            }
+        }
+        23 => {
+            let n = source.len().min(out.len());
+            out[..n].copy_from_slice(&source[..n]);
+            let _ = decode_filter_color(out, count, stride, ws);
+        }
+        24 | 25 => {
+            let split = (usize::from(a) * 4).min(source.len() / 4 * 4);
+            let vertices = words(&source[..split]);
+            let triangles = &source[split..];
+            let triangles = &triangles[..triangles.len() / 3 * 3];
+            let encoded = if entry == 24 {
+                encode_meshlet(&vertices, triangles, ws)
+            } else {
+                encode_meshlet_into(out, &vertices, triangles, ws).map(|n| out[..n].to_vec())
+            };
+            if let Ok(encoded) = encoded {
+                let tc = triangles.len() / 3;
+                let d = decode_meshlet(vertices.len(), 4, tc, 3, &encoded, &mut w)
+                    .expect("encoded meshlet decodes");
+                assert_eq!(words(&d.vertices), vertices);
+                assert!(rotations(triangles, &d.triangles));
+            }
+        }
+        26 | 27 => {
+            let vc = usize::from(a);
+            let tc = (usize::from(b) + (count & 1) * 256).min(256);
+            let vs = [2, 4][(count >> 1) & 1];
+            let ts = [3, 4][(count >> 2) & 1];
+            if entry == 26 {
+                let _ = decode_meshlet(vc, vs, tc, ts, source, ws);
+            } else {
+                let (v, t) = out.split_at_mut(out.len() / 2);
+                let _ = decode_meshlet_into(v, vc, vs, t, tc, ts, source, ws);
+            }
+        }
+        28 | 29 => {
+            let (vc, tc) = (usize::from(a), usize::from(b));
+            if entry == 28 {
+                let _ = decode_meshlet_raw(vc, tc, source, ws);
+            } else {
+                let mut v = [0u32; 256];
+                let mut t = [0u32; 256];
+                let _ = decode_meshlet_raw_into(&mut v, vc, &mut t, tc, source, ws);
+            }
+        }
+        31 => {
+            let floats: Vec<f32> = words(source).into_iter().map(f32::from_bits).collect();
+            let (stride, bits) = (stride % 260, u32::from(b % 26));
+            let per = if a % 4 == 2 { stride / 4 } else { 4 };
+            let count = floats.len().checked_div(per).unwrap_or(0);
+            let data = &floats[..count * per];
+            let _ = match a % 4 {
+                0 => encode_filter_oct_into(out, count, stride, bits, data, ws),
+                1 => encode_filter_quat_into(out, count, stride, bits, data, ws),
+                2 => encode_filter_exp_into(out, count, stride, bits, data, ExpMode::Clamped, ws),
+                _ => encode_filter_color_into(out, count, stride, bits, data, ws),
+            };
+        }
+        _ => {
+            let _ = encode_vertex_buffer_bound(count, stride);
+            let _ = encode_index_buffer_bound(count, stride.wrapping_mul(count));
+            let _ = encode_index_sequence_bound(count, stride.wrapping_mul(count));
+            let _ = encode_meshlet_bound(count, stride);
         }
     }
 }

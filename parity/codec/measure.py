@@ -27,7 +27,7 @@ def build_cpp(scalar=False):
     TARGET.mkdir(parents=True,exist_ok=True);(TARGET/'tmp').mkdir(exist_ok=True)
     cmd([ROOT/'parity/check-reference.sh'])
     out=TARGET/('codec-scalar' if scalar else 'codec-simd')
-    cmd([os.environ.get('CXX','c++'),*FLAGS,*(['-DMESHOPTIMIZER_NO_SIMD'] if scalar else []),'-I',REF/'src',ROOT/'parity/codec/reference.cpp',*[REF/'src'/f for f in ['vertexcodec.cpp','indexcodec.cpp','vertexfilter.cpp','allocator.cpp']],'-o',out])
+    cmd([os.environ.get('CXX','c++'),*FLAGS,*(['-DMESHOPTIMIZER_NO_SIMD'] if scalar else []),'-I',REF/'src',ROOT/'parity/codec/reference.cpp',*[REF/'src'/f for f in ['vertexcodec.cpp','indexcodec.cpp','vertexfilter.cpp','meshletcodec.cpp','allocator.cpp']],'-o',out])
     return out
 
 def request(op,count,stride,data,mode=0,filter=0,version=0,level=2,samples=0,iterations=1):

@@ -172,6 +172,18 @@ fn total(lengths: [usize; 4], output: usize) -> Result<usize, Error> {
 impl Workspace {
     #[inline]
     pub(crate) fn account_codec(&mut self, output: usize) -> Result<(), Error> {
+        if self.vertices.capacity() == 0
+            && self.integers.capacity() == 0
+            && self.floats.capacity() == 0
+            && self.flags.capacity() == 0
+            && self.keys.capacity() == 0
+        {
+            if output > self.limits.max_bytes {
+                return Err(Error::LimitExceeded);
+            }
+            self.usage.bytes = output;
+            return Ok(());
+        }
         let owned = output
             .checked_add(checked_bytes(
                 self.vertices.capacity(),

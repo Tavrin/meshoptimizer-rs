@@ -80,6 +80,34 @@ sanitizer or coverage instrumentation and does not replace release fuzz gates.
 | meshopt_decodeFilterExp | decode_filter_exp | Scalar canonical, four-byte words |
 | Consumer helper | BufferView / decode_buffer_view / decode_buffer_view_into | EXT rules, raw v1 excluded from attributes |
 
-Encoders, Color and meshlet codecs remain 0.4. P02 does not modify geometry
-implementations or Moss integration. See codec/README.md, DECODER_BAR.md and
-P02_PERFORMANCE.md for evidence, APIs and qualification limits.
+P02 does not modify geometry implementations or Moss integration. See
+codec/README.md, DECODER_BAR.md and P02_PERFORMANCE.md for evidence, APIs and
+qualification limits.
+
+## 0.4 codec completion
+
+| Upstream operation | Rust operation in codec | Scope |
+|---|---|---|
+| meshopt_encodeVertexBuffer, meshopt_encodeVertexBufferLevel | encode_vertex_buffer / encode_vertex_buffer_into with VertexEncoding | v0/v1, levels 0-9 |
+| meshopt_encodeVertexBufferBound | encode_vertex_buffer_bound | Checked arithmetic |
+| meshopt_encodeVertexVersion | VertexEncoding (per call) | Intentional replacement of the global setter |
+| meshopt_encodeIndexBuffer | encode_index_buffer / encode_index_buffer_into with IndexEncoding | v0/v1, u32 input |
+| meshopt_encodeIndexBufferBound | encode_index_buffer_bound | Checked arithmetic |
+| meshopt_encodeIndexSequence | encode_index_sequence / encode_index_sequence_into | v0/v1, u32 input |
+| meshopt_encodeIndexSequenceBound | encode_index_sequence_bound | Checked arithmetic |
+| meshopt_encodeIndexVersion | IndexEncoding (per call) | Intentional replacement of the global setter |
+| meshopt_encodeFilterOct | encode_filter_oct / _into | Strides 4/8 |
+| meshopt_encodeFilterQuat | encode_filter_quat / _into | Stride 8 |
+| meshopt_encodeFilterExp | encode_filter_exp / _into with ExpMode | All four exponent modes |
+| meshopt_encodeFilterColor | encode_filter_color / _into | Strides 4/8 |
+| meshopt_decodeFilterColor | decode_filter_color | Scalar canonical, outside the EXT helper |
+| meshopt_encodeMeshlet | encode_meshlet / encode_meshlet_into | 0.3 layout slices, at most 256/256 |
+| meshopt_encodeMeshletBound | encode_meshlet_bound | Checked arithmetic |
+| meshopt_decodeMeshlet | decode_meshlet / decode_meshlet_into | Vertex size 2/4, triangle size 3/4 |
+| meshopt_decodeMeshletRaw | decode_meshlet_raw / decode_meshlet_raw_into | u32 references and packed triangles |
+
+Evidence: `parity/results/run-0.4.json`, `sweep-0.4.json`,
+`benchmark-0.4-moss.json`, `benchmark-0.4-default.json` and `fuzz-0.4.json`,
+verified by `parity/report.sh --phase 0.4 --verify-artifacts`. Decisions
+D59-D66 record the domains, undefined-reference cases and the meshlet layout
+dependency.

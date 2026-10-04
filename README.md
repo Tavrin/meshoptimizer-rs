@@ -8,6 +8,13 @@ Work in progress, not yet published. Implements `simplify`,
 `simplify_with_attributes`, `simplify_scale`, standard vertex-cache optimization
 and overdraw optimization. This is not a complete meshoptimizer 1.3 replacement.
 
+The `codec` module encodes and decodes vertex buffers, triangle index buffers
+and index sequences (format versions 0 and 1, every vertex level), applies and
+encodes the Oct, Quat, Exp and Color filters, encodes and decodes single
+meshlets, and checks EXT_meshopt_compression buffer views. Encoded bytes match
+meshoptimizer 1.3 exactly. Version and level are explicit per call
+(`VertexEncoding`, `IndexEncoding`) instead of global setters.
+
 ```rust
 use meshoptimizer_rs::{optimize_vertex_cache, optimize_overdraw, Positions, Workspace};
 
