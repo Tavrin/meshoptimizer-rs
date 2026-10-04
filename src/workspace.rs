@@ -167,6 +167,34 @@ fn total(lengths: [usize; 4], output: usize) -> Result<usize, Error> {
     Ok(sum)
 }
 
+// Codec-only wiring: account retained geometry scratch without resizing any
+// vector. Raw decoding requires no heap scratch and preserves the workspace.
+impl Workspace {
+    #[inline]
+    pub(crate) fn account_codec(&mut self, output: usize) -> Result<(), Error> {
+        let owned = output
+            .checked_add(checked_bytes(
+                self.vertices.capacity(),
+                size_of::<CacheVertex>(),
+            )?)
+            .ok_or(Error::SizeOverflow)?;
+        let bytes = total(
+            [
+                self.integers.capacity(),
+                self.floats.capacity(),
+                self.flags.capacity(),
+                self.keys.capacity(),
+            ],
+            owned,
+        )?;
+        if bytes > self.limits.max_bytes {
+            return Err(Error::LimitExceeded);
+        }
+        self.usage.bytes = bytes;
+        Ok(())
+    }
+}
+
 pub(crate) fn checked_bytes(len: usize, size: usize) -> Result<usize, Error> {
     let bytes = len.checked_mul(size).ok_or(Error::SizeOverflow)?;
     if bytes > isize::MAX as usize {

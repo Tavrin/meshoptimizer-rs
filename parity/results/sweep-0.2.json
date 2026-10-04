@@ -1,0 +1,40 @@
+{
+  "schema": "meshopt-summary/1",
+  "historical": false,
+  "command": "sweep",
+  "phase": "0.2",
+  "profile": "scalar-strict",
+  "records": {
+    "sweep": {
+      "detail_artifact": "sweep-0.2/sweep.json",
+      "archive_artifact": "sweep-0.2/sweep.zip",
+      "cases": 14000,
+      "counts": {
+        "1": 2000,
+        "2": 2000,
+        "3": 2000,
+        "4": 2000,
+        "5": 2000,
+        "6": 2000,
+        "7": 2000
+      },
+      "mismatches": 0,
+      "simd_filter_conformance_cases": 6484,
+      "executable_sha256": {
+        "scalar": "139063635f6de311a793f48fe28d5f5cc5d4d65b3be3978a28216d21df1bb206",
+        "simd": "fa3e51c39be663cf30d22840d624aab5ef0583accfc20b617fed10dc86727ccf",
+        "rust": "5fcaeb453fb22de8c0843acf2da579765ae94bdc5912d769ecdbd520fd044f32",
+        "wasm": "d75a2aeaf1c32e75f7a0a262096184fd9ee4b93e326ad67accff47fd63ee66cf"
+      },
+      "reference_revision": "4c203430ca565cb59a468a91922c76c208169536"
+    }
+  },
+  "artifacts": {
+    "sweep-0.2/sweep.json": "896ce639dcf7c7d7bef37493ebb0fbf339b9e291b2468214030d34b9574276ed",
+    "sweep-0.2/sweep.zip": "b3d5e03a81a090cf79669f14cf05096ad1001f93c59bbd37d5bbf5f33ee4805d"
+  },
+  "detail_artifact": "sweep-0.2/sweep.json",
+  "seed": 20261004,
+  "mismatches": 0,
+  "passed": true
+}

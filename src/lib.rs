@@ -10,6 +10,7 @@
 extern crate alloc;
 
 mod cache;
+pub mod codec;
 mod error;
 mod input;
 mod math;

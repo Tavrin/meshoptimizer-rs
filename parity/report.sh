@@ -95,8 +95,123 @@ def compact(path, destination, historical=False, profile=None):
     write(destination, summary)
     return summary
 
+CODEC_RECORDS = {'run': ['fixtures', 'malformed'], 'sweep': ['sweep']}
+
+def codec_phase(argv):
+    """Arguments without a 0.2 phase selection, or None for phase 0.1."""
+    for i, argument in enumerate(argv):
+        if argument == '--phase' and argv[i + 1:i + 2] == ['0.2']:
+            return argv[:i] + argv[i + 2:]
+        if argument in ['0.2', '--phase=0.2']:
+            return argv[:i] + argv[i + 1:]
+    return None
+
+def codec_module():
+    os.environ.setdefault('MESHOPT_ARTIFACTS', str(artifacts()))
+    sys.path.insert(0, str(ROOT / 'parity/codec'))
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('codec_runner', ROOT / 'parity/codec/runner.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+def execute_codec(action, argv):
+    """Phase 0.2: detailed codec records under MESHOPT_ARTIFACTS, slim summaries in git."""
+    if action == 'benchmark':
+        # The pre-registered decoder measurement protocol owns its records.
+        command = [sys.executable, str(ROOT / 'parity/codec/measure.py'), '--phase', '0.2', *argv]
+        raise SystemExit(subprocess.run(command).returncode)
+    if action not in CODEC_RECORDS:
+        raise SystemExit('phase 0.2 supports run, sweep and benchmark')
+    directory = action + '-0.2'
+    if '--record-directory' in argv:
+        i = argv.index('--record-directory')
+        directory = argv[i + 1]
+        del argv[i:i + 2]
+        if not re.fullmatch(r'[a-zA-Z0-9_-]+', directory):
+            raise SystemExit('record directory must be one plain directory name')
+    base = artifacts()
+    raw = base / directory
+    names = CODEC_RECORDS[action]
+    if any((raw / (name + '.json')).exists() for name in names):
+        raise SystemExit('immutable record exists; select a fresh MESHOPT_ARTIFACTS')
+    raw.mkdir(parents=True, exist_ok=True)
+    command = [sys.executable, str(ROOT / 'parity/codec/runner.py'), action, '--phase', '0.2', *argv]
+    code = subprocess.run(command, env={**os.environ, 'MESHOPT_ARTIFACTS': str(raw)}).returncode
+    if code or not all((raw / (name + '.json')).is_file() for name in names):
+        raise SystemExit(code or 1)
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'phase': '0.2',
+               'profile': 'scalar-strict', 'records': {}, 'artifacts': {}}
+    for name in names:
+        detail = raw / (name + '.json')
+        full = json.loads(detail.read_text())
+        archive = raw / (name + '.zip')
+        if Path(full['archive']).resolve() != archive.resolve() or sha(archive) != full['archive_sha256']:
+            raise ValueError('codec archive identity differs: ' + name)
+        relative = str(detail.relative_to(base))
+        summary.setdefault('detail_artifact', relative)
+        summary['seed'] = full.get('seed')
+        summary['artifacts'][relative] = sha(detail)
+        summary['artifacts'][str(archive.relative_to(base))] = full['archive_sha256']
+        summary['records'][name] = {'detail_artifact': relative, 'archive_artifact': str(archive.relative_to(base)),
+                                    'cases': len(full['cases']), 'counts': full['counts'], 'mismatches': full['mismatches'],
+                                    'simd_filter_conformance_cases': full['simd_filter_conformance_cases'],
+                                    'executable_sha256': full['executable_sha256'],
+                                    'reference_revision': full['reference_revision']}
+    summary['mismatches'] = sum(v['mismatches'] for v in summary['records'].values())
+    summary['passed'] = summary['mismatches'] == 0
+    write(ROOT / 'parity/results' / (action + '-0.2.json'), summary)
+
+def report_codec(verify):
+    records = {}
+    missing = []
+    for path in sorted((ROOT / 'parity/results').glob('*.json')):
+        summary = json.loads(path.read_text())
+        if summary.get('schema') != 'meshopt-summary/1' or summary['historical'] or summary.get('phase') != '0.2':
+            continue
+        records[summary['command']] = summary
+        if summary['passed'] is not True or summary['mismatches'] != 0:
+            raise SystemExit('exact 0.2 parity gate failed: ' + path.name)
+        if not verify:
+            continue
+        absent = []
+        full_record(summary, absent)
+        missing += absent
+        if absent:
+            continue
+        current = codec_module().sources()
+        for name, item in summary['records'].items():
+            full = json.loads((artifacts() / item['detail_artifact']).read_text())
+            if full['mismatches'] != 0 or full['counts'] != item['counts'] or len(full['cases']) != item['cases']:
+                raise ValueError('0.2 summary differs from detailed record: ' + name)
+            if full['sources'] != current:
+                raise ValueError('stale 0.2 record: ' + name)
+            with zipfile.ZipFile(artifacts() / item['archive_artifact']) as archive:
+                for case in full['cases']:
+                    for value in case['files'].values():
+                        if hashlib.sha256(archive.read(value['member'])).hexdigest() != value['sha256']:
+                            raise ValueError('0.2 case buffer identity mismatch: ' + case['case'])
+    incomplete = set(CODEC_RECORDS) - records.keys()
+    if 'run' in records and records['run']['records']['fixtures']['cases'] != 287:
+        incomplete.add('287 pinned decoder fixtures')
+    if 'sweep' in records and any(int(records['sweep']['records']['sweep']['counts'].get(str(op), 0)) < 2000 for op in range(1, 8)):
+        incomplete.add('2000 seeded cases per codec operation')
+    if missing:
+        print('ABSENT artifacts (hashes cannot be verified):\n' + '\n'.join(sorted(set(missing))))
+    else:
+        print('All recorded 0.2 artifact SHA-256 hashes and case buffers verified.' if verify else 'Artifact hashes not requested.')
+    if incomplete:
+        print('0.2 qualification incomplete:', ', '.join(sorted(incomplete)))
+        raise SystemExit(1)
+    if missing:
+        raise SystemExit(1)
+    print('0.2 exact decoder parity records pass:', {name: item['cases'] for v in records.values() for name, item in v['records'].items()})
+
 def execute(argv):
     action = argv.pop(0)
+    codec = codec_phase(argv)
+    if codec is not None:
+        return execute_codec(action, codec)
     resume = '--resume' in argv
     if resume:
         argv.remove('--resume')
@@ -394,7 +509,7 @@ def report(verify):
     records = {}
     for path in sorted((ROOT / 'parity/results').glob('*.json')):
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1':
+        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') == '0.2':
             continue
         full = full_record(summary, historical_missing if summary['historical'] else missing) if verify else None
         if not summary['historical']:
@@ -576,8 +691,11 @@ elif len(argv) == 2 and argv[0] == '--identity-check':
     identity_check(argv[1])
 else:
     p = argparse.ArgumentParser()
-    p.add_argument('--phase', choices=['0.1'], default='0.1')
+    p.add_argument('--phase', choices=['0.1', '0.2'], default='0.1')
     p.add_argument('--verify-artifacts', action='store_true')
     args = p.parse_args(argv)
-    report(args.verify_artifacts)
+    if args.phase == '0.2':
+        report_codec(args.verify_artifacts)
+    else:
+        report(args.verify_artifacts)
 PY

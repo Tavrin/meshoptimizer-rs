@@ -6,10 +6,10 @@
   "phase": "0.1",
   "seed": null,
   "profile": null,
-  "detail_artifact": "gates-release/gates.json",
+  "detail_artifact": "gates-p02/gates.json",
   "artifacts": {
-    "gates-release/gates.json": "3e93f5815a32bf4281dfa765d742e6dd290952d6213c886ccac67a2fad359d10",
-    "gates-release/meshoptimizer-rs-0.1.0.crate": "78c2d72b6f7da3a44e1c6f8b2b5e0a7e0d510adbea830f836562e4d5b376d7a4"
+    "gates-p02/gates.json": "cd32c85630b224b7dc4265a776946a703eb059e5ada93fdabe1623ff15c30350",
+    "gates-p02/meshoptimizer-rs-0.1.0.crate": "14490086327dfba9f20608c8942d87ea4412c9e569eb88e650a53d4258ae0436"
   },
   "source_sha256": {
     ".github/workflows/ci.yml": "7ed144d36175b99232e7fd8a5f424347ffad467bce5b20cd09abd2f3ab674677",
@@ -26,14 +26,15 @@
     "src/cache.rs": "81451bb46ef7d18564ea1e36d837cd9822b68af157ebad0e21a07400b149c3c9",
     "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
     "src/input.rs": "69dfb8529a3624462ccd648cc341dd552cd296eab069383f2ae65a4083b0691b",
-    "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
+    "src/lib.rs": "f761e79475fdfe13c0a77c50fc2696f3ce25a7d6ef87a954adc1142722578647",
     "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
     "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
     "src/simplify.rs": "fc4a3c4bd715adcf273340747fff4d602002ba055d070409aad52ec5c8845be9",
-    "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
-    "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
+    "src/workspace.rs": "b419e39a048048b2874c61000ceb093d1238346c6851f4f1c23282208ba129f2",
+    "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b",
+    "tests/codec.rs": "9e2cfa156249e79ccdc52287a5b05856021f6b5972f61ed6edd17c22d9cd9e01"
   },
-  "started_unix": 1791091904.2589543,
-  "finished_unix": 1791091908.9774888,
+  "started_unix": 1791107436.793764,
+  "finished_unix": 1791107464.9101148,
   "identities_unchanged": true
 }

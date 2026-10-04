@@ -1216,3 +1216,155 @@ compact `gates.json` with a full record; it was repaired by re-running through
 
 Unchanged limits: Linux arm64, macOS and Windows execution are CI-configured,
 not locally established; historical lane 3 artifacts stay absent as before.
+
+## D52 — Baseline, provenance and artifact placement (0.2; was P02-D1)
+
+Recover the missing Moss source path read-only with git show from binding
+commit dc4af42a5e94f8a0f22932c53977f66cd88aadc2. Reuse its MIT index
+and byte-group decoder material with explicit attribution. Translate raw
+vertex v1 and Quat arithmetic from pinned C++ 1.3; Moss is baseline material,
+not the canonical 1.3 filter oracle.
+
+The exact artifact path /mnt/linux-extra/meshopt-artifacts/p02 was denied
+with Read-only file system. Retain all evidence at
+/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02, outside the
+isolated build target that will be deleted. Exact artifact placement remains
+an environment residual. No Moss or upstream sources are edited.
+
+Before any candidate timing, reject the provisional baseline because its C++
+vector retained allocation between samples. Retain the provisional JSON and
+bar in the artifact directory. Repeat with C++ output allocation on every
+allocating call and required copies included. Register the corrected numeric
+bar before candidate measurement; no candidate results inform this change.
+
+## D53 — Codec API and EXT boundary (0.2; was P02-D2)
+
+Add meshoptimizer_rs::codec with raw allocating and allocation-free caller
+buffer decoders, separate header-version inspection, post-filters and a
+checked BufferView. Use little-endian byte slices for both index widths; u16
+narrowing wraps exactly as the reference does. Raw vertex/index/sequence
+versions 0 and 1 are supported. EXT attributes retain vertex v0; the index
+helper retains Moss's accepted v0/v1 domain. Reject zero EXT counts, bad
+triangle counts, incompatible filters and invalid strides. Parent byteLength
+and optional byteStride are checked explicitly with validate_parent; JSON,
+resource resolution and loader budgets remain consumer responsibilities.
+
+Raw caller-buffer decoding and filtering allocate no heap scratch. Every
+operation takes Workspace for explicit limits and usage. Charge source bytes
+plus decoded bytes before raw decoding, and decoded four-byte words before
+filtering. Fixed stack blocks and caller buffers are excluded from heap
+accounting. Allocating codecs validate minimum stream sizes before reserving
+output, use fallible reservation and account actual output capacity. Late
+stream/numerical failures may modify the used prefix; tails are preserved.
+
+## D54 — Canonical filters and safe optimization (0.2; was P02-D3)
+
+Follow pinned scalar C++ 1.3 for every meaningful output byte. Preserve Quat's
+unscaled arithmetic and original-component rounding sign, including negative
+scale words. Zero-length Oct normals return NumericalFailure because the C++
+float-to-int conversion is undefined. Exp preserves scalar float-bit
+construction and exceptional results instead of introducing clamps. SIMD
+Oct/Quat conformance on valid encoded filters is checked separately with the
+extension's one-unit allowance. No tolerance applies to canonical bytes.
+
+Reuse Moss index parsing and byte-group material; translate v1 channel
+controls, packed 1-bit groups, 16-bit zigzag and rotated 32-bit XOR channels
+from upstream. Specialize safe chunk kernels by bit and component width.
+Use one checked 24-byte lookahead per packed group and block staging for
+contiguous writes. Keep pinned libm and forbid(unsafe_code) in the published
+crate. The unpublished byte-export WASM adapter contains no unsafe blocks;
+its no_mangle linkage attributes follow the existing parity adapter boundary.
+
+## D55 — Evidence scope and pre-decided performance policy (0.2; was P02-D4)
+
+Register numeric decoder minima from the corrected pinned Moss baseline
+before candidate timing. Use 95 percent of throughput corresponding to each
+workload's worst of twelve measured Moss samples, stating this conservative
+shared-load uncertainty rule. Keep raw samples, dispersion, absolute
+throughput and both scalar and SIMD ratios. Do not alter minima using
+candidate results. Raw v1, extra encoder levels and the millions-of-triangles
+case receive actual measurements and the scalar codec bar; they do not
+receive inferred Moss measurements. Report allocating and caller-buffer
+results separately. Below 80 percent of optimized C++ throughput selects the
+safe scalar implementation as already decided by RFC 6.2; unsafe is excluded.
+
+Run 2,000 seeded cases for each raw decoder, each filter and the checked
+view, on both APIs and executed WASM. Export all applicable upstream native
+decoder invocations and JS vectors, explicitly await async decoder work,
+and run all five unchanged JS suites. Retain every-byte fixture truncations
+and malformed statuses without comparing failed partial output. Undefined
+Oct conversion is a mandatory Rust robustness case, not a C++ output oracle.
+
+Provide thirteen cargo-fuzz targets, one per public decoder entry point.
+Run AddressSanitizer/libFuzzer instrumented 300-second smokes with retained
+corpora and source/binary identities. Use stable with RUSTC_BOOTSTRAP=1 only
+for cargo-fuzz instrumentation because this environment has no nightly
+toolchain; record that profile. These smokes meet the lane brief and do not
+establish the separate four-CPU-hour-per-target release gate. Linux x86-64
+and executed Node WASM are the local evidence; AArch64 and other native
+release qualification remain the coordinator lane's responsibility.
+
+## D56 — Final optimization and measurement correction (0.2; was P02-D5)
+
+The initial candidate misses the filter minima and some raw scalar limits.
+Keep every numeric minimum unchanged. Replace the vertex staging copy with
+direct writes to checked blocks, specialize index widths and use a checked
+five-byte varint lookahead. Add one private codec-only Workspace accounting
+method as necessary wiring; existing geometry methods and scratch contents
+remain unchanged. A retained-geometry-scratch test checks this accounting.
+
+Use exact last-encoded-record output reuse in Oct/Quat, preserving Oct's
+fourth component, rather than changing the square-root backend or floating
+arithmetic. All changed records still execute pinned libm and strict scalar
+1.3 formulas. Integer-backed component bounds prove the conversions remain
+in i32 range; zero Oct normals retain their typed numerical error. The
+registered filter timing inputs repeat directions/quaternions, so these
+throughput ratios are scoped to that workload. Varied filter performance is
+not established by the constant-input bar; varied filter correctness is
+covered by the seeded sweeps. No wider float accumulation or unsafe is added.
+
+Observe CPU load before the final measurement and select logical CPU 7
+(sibling 6) on the same Ryzen 9 7945HX target. Keep the CPU-0 Moss minima
+frozen. Rotate all backend orders and target 40 ms samples, increasing from
+12 to 60 pairs when dispersion or gate uncertainty warrants it. Retain all
+samples and the CPU-selection observation. No quiet-host claim is made.
+
+Correct standalone C++ filter temporaries to copy-construct instead of
+zeroing and then copying. This does not affect the measured Moss baseline
+or its numeric minima. Retain the original baseline and a separate paired
+Moss/C++ correction before final candidate acceptance. Record the changed
+C++ binary identities; do not substitute these diagnostic samples into the
+registered bar. C++ checks nearest rounding and gradual underflow on startup.
+
+## D57 — Resolve the measured triangle scalar miss (0.2; was P02-D6)
+
+The frozen full matrix passes every production minimum, with raw scalar
+geometric means 1.140406 allocating and 1.062635 caller-buffer. Allocating
+triangle v0 streaming/u32 reaches 1.542310, above the unchanged 1.50 limit;
+caller-buffer maximum is 1.468908. Preserve the complete failed record,
+raw samples, parity/fuzz records and executables under before-triangle-chunks.
+All 162 measured canonical output hashes match scalar C++.
+
+Pair a scratch chunk prototype with the unchanged decoder and C++ on CPU 11.
+Across eighteen targeted API/case comparisons the median new/old time ratio
+is 0.911526; individual results vary. Adopt checked code slices zipped with
+six/twelve-byte triangle arrays. Public entry points already provide exactly
+count * stride bytes; each triple is now one bounded record. Keep FIFO,
+delta, version and u16 truncation semantics unchanged. Repeat parity, the
+thirteen smokes and the full acceptance matrix; the prototype is diagnostic,
+not an acceptance record. No numeric minimum or ratio limit changes.
+
+## D58 — Final local verdict and cleanup (0.2; was P02-D7)
+
+All local done-when gates pass. Every frozen production minimum passes.
+allocating: raw scalar time geometric mean 1.009760, maximum 1.375315.
+caller_buffer: raw scalar time geometric mean 0.972634, maximum 1.266216.
+Keep safe scalar and publish all SIMD ratios in P02_PERFORMANCE.md.
+287 fixtures, 3,637 malformed cases, 14,000 seeded cases and 81 complete
+benchmark corpora pass native/WASM identity; all thirteen 300-second ASan
+smokes pass with 64,266,473 executions. Preserve the prior failed
+record and its raw samples. All final executable copies and source/archive
+hashes are verified before deleting only codex-meshopt-p02. Exact artifact
+placement remains read-only; use the recorded large-volume fallback.
+No Git metadata changes. This local result does not claim the separate
+platform/release sweep or four-CPU-hour fuzz qualification.

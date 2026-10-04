@@ -65,3 +65,21 @@ policies, destination sizes, checked overflow and exact resource boundaries are
 Rust robustness tests, not undefined C++ comparison inputs. The stable fuzz
 fallback runs all five entry points for 600 elapsed seconds apiece. It has no
 sanitizer or coverage instrumentation and does not replace release fuzz gates.
+
+## P02 codec coverage addition
+
+| Upstream operation | Rust operation in codec | Scope |
+|---|---|---|
+| meshopt_decodeVertexBuffer | decode_vertex_buffer / decode_vertex_buffer_into | Raw v0/v1 |
+| meshopt_decodeIndexBuffer | decode_index_buffer / decode_index_buffer_into | Raw v0/v1, u16/u32 output |
+| meshopt_decodeIndexSequence | decode_index_sequence / decode_index_sequence_into | Raw v0/v1, u16/u32 output |
+| meshopt_decodeVertexVersion | decode_vertex_version | Header inspection |
+| meshopt_decodeIndexVersion | decode_index_version | Triangle and sequence headers |
+| meshopt_decodeFilterOct | decode_filter_oct | Scalar canonical, strides 4/8 |
+| meshopt_decodeFilterQuat | decode_filter_quat | Scalar canonical, stride 8 |
+| meshopt_decodeFilterExp | decode_filter_exp | Scalar canonical, four-byte words |
+| Consumer helper | BufferView / decode_buffer_view / decode_buffer_view_into | EXT rules, raw v1 excluded from attributes |
+
+Encoders, Color and meshlet codecs remain 0.4. P02 does not modify geometry
+implementations or Moss integration. See codec/README.md, DECODER_BAR.md and
+P02_PERFORMANCE.md for evidence, APIs and qualification limits.

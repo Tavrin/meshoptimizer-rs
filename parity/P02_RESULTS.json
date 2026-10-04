@@ -1,0 +1,53 @@
+{
+  "phase": "0.2",
+  "local_verdict": "PASS",
+  "registered_bar_sha256": "b08c268e32baf1311fcac33ac19552c9a75185fb8cf5fa379d6e65d07e0dfccd",
+  "baseline_sha256": "8ab17783c4237b52d9b6ce157dd5f7ae696dd126611d860692ec5c8a8fec5d13",
+  "candidate_sha256": "8a81061f3822b10df965574302336851c9cb9a4e37ff8a0eb691b15fb4124253",
+  "fixtures": 287,
+  "malformed": 3637,
+  "seed": 20261004,
+  "sweep": 14000,
+  "benchmark_identity_cases": 81,
+  "fuzz_targets": 13,
+  "fuzz_min_elapsed_seconds": 301.1750652369956,
+  "fuzz_executions": 64266473,
+  "required_checks": 10,
+  "performance": {
+    "allocating": {
+      "failed_registered_minima": [],
+      "minimum_bar_pass": true,
+      "raw_scalar_bar": {
+        "geometric_mean_rust_scalar_time_ratio": 1.0097599364896501,
+        "maximum_rust_scalar_time_ratio": 1.375314546014453,
+        "pass": true
+      }
+    },
+    "caller_buffer": {
+      "failed_registered_minima": [],
+      "minimum_bar_pass": true,
+      "raw_scalar_bar": {
+        "geometric_mean_rust_scalar_time_ratio": 0.9726338624437444,
+        "maximum_rust_scalar_time_ratio": 1.2662162320038504,
+        "pass": true
+      }
+    }
+  },
+  "artifacts": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02",
+  "exact_artifact_path": "read-only; placement residual",
+  "native_scope": "Linux x86-64",
+  "wasm_scope": "executed Node, exact native/scalar output",
+  "release_scope": "AArch64/platform qualification, 10000-per-family release sweeps and four CPU-hours per fuzz target are not claimed",
+  "git": [
+    {
+      "repo": ".",
+      "metadata_files": 6,
+      "unchanged": true
+    },
+    {
+      "repo": "$MESHOPT_REFERENCE",
+      "metadata_files": 28,
+      "unchanged": true
+    }
+  ]
+}
