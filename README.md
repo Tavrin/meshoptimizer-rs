@@ -239,7 +239,7 @@ measurements and not universal speed claims.
 | Phase | Families | Thin LTO | Cargo defaults | Record |
 |---|---:|---|---|---|
 | 0.1 cache, overdraw, simplify | 5 | GM 0.83–1.19, max 1.42; all pass | GM 0.96–1.22, max 1.36; all pass | [MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md) |
-| 0.1.x preprocessing, simplify variants, quantization | 32 | 31 pass; `vertex_fetch` GM 0.97, max **1.73** | 31 pass; `vertex_fetch` GM 0.99, max **1.85** | [DECISIONS.md](parity/DECISIONS.md) D145 |
+| 0.1.x preprocessing, simplify variants, quantization | 32 | all family means pass; case residuals below | all family means pass; case residuals below | [DECISIONS.md](parity/DECISIONS.md) D145, D146 |
 | 0.2 decoders (raw codecs) | 2 APIs | one profile recorded: allocating GM 1.01, max 1.38; caller-buffer GM 0.97, max 1.27; pass | not recorded | [P02_RESULTS.md](parity/P02_RESULTS.md) |
 | 0.3 meshlets, partitioning, spatial | 15 | all pass; `partition_clusters` 1.23 / 1.37 | 14 pass; `partition_clusters` **1.45 / 1.78** | [MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md) |
 | 0.4 encoders, filters, meshlet codec | 24 | GM 0.61–1.24, max 1.46; all pass | GM 0.59–1.24, max 1.47; all pass | [benchmark-0.4-moss.json](parity/results/benchmark-0.4-moss.json), [benchmark-0.4-default.json](parity/results/benchmark-0.4-default.json) |
@@ -249,9 +249,22 @@ scratch ≤ 1.25× C++); every family passes. The 0.2 and 0.4 records time only.
 
 **Known residuals**, stated plainly:
 
-- **Allocating `optimize_vertex_fetch` on a million-vertex sparse mesh:**
-  1.73× (thin LTO) and 1.85× (Cargo defaults) of C++ time. The family mean
-  passes (0.97 / 0.99). It is recorded as a residual; the bar is not relaxed.
+- **Final 0.1 requalification (2026-10-04, AMD Ryzen 9 7945HX, Linux x86-64):**
+  every family mean and memory bar passes under both profiles. Case maxima
+  above 1.5× went to a pre-registered second stage
+  ([D146](parity/DECISIONS.md)): 30 fresh interleaved pairs on one quiet core,
+  decided on a 95% interval. Two flagged cases passed. Five remain residuals;
+  the bar is not relaxed ([stage2-0.1.json](parity/results/stage2-0.1.json)):
+
+  | Case (million-vertex inputs) | Profile | 95% interval | Verdict |
+  |---|---|---:|---|
+  | allocating `optimize_vertex_fetch`, sparse | thin LTO | 1.55–2.07× | fail |
+  | allocating `optimize_vertex_fetch`, sparse | Cargo defaults | 1.54–2.09× | fail |
+  | allocating `optimize_overdraw`, disconnected | thin LTO | 1.48–1.58× | inconclusive |
+  | `simplify_sloppy`, disconnected, mode 1 | Cargo defaults | 1.44–1.51× | inconclusive |
+  | `simplify_sloppy`, disconnected, mode 2 | Cargo defaults | 1.39–1.52× | inconclusive |
+
+  The affected families' means pass (`vertex_fetch` 0.97 / 0.99).
 - **`partition_clusters` under Cargo defaults:** family mean 1.45×, worst case
   1.78× (`medium-seams-into`). It passes under thin LTO (1.23 / 1.37). Profiling
   shows more instructions and branches in adjacency and partition code; the
@@ -264,8 +277,6 @@ scratch ≤ 1.25× C++); every family passes. The 0.2 and 0.4 records time only.
   throughput. Full table:
   [P02_PERFORMANCE.md](parity/P02_PERFORMANCE.md). SIMD is phase 0.7.
 
-<!-- REQUAL: final re-qualification figures for the 0.1.0 release go here
-(hardware, profile, date, per-phase GM / max under thin LTO and Cargo defaults). -->
 
 ## Parity and verification
 
