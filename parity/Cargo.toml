@@ -6,7 +6,7 @@ rust-version = "1.88"
 publish = false
 
 [dependencies]
-meshoptimizer-rs = { path = "..", default-features = false }
+meshoptimizer-rs = { path = "..", default-features = false, features = ["experimental"] }
 libm = { version = "=0.2.16", default-features = false }
 
 [lib]

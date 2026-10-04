@@ -2080,3 +2080,1267 @@ instrumented fuzz smokes pass. The first 0.4 Cargo-default measurement on busy
 CPU 0 narrowly failed the unchanged `quat_encode` maximum (1.5033 > 1.50).
 That full failed record is retained under `benchmark-0.4/superseded`; the full
 rerun on CPU 17 passes. Neither result was dropped from the handoff.
+
+## D84 — 0.1.x inventory, profile and artifact destination
+
+Implement SPEC-p01x only in this checkout, without Git metadata changes or
+subagents. Place this lane's decisions after main's D83. The pinned
+header adds filterIndexBuffer, filterIndexBufferMulti, generatePositionRemap
+and generateVertexRemapCustom to the requested remapping surface. Stripification
+and analysis remain 0.5; codecs, meshlets, tangents and experimental remeshing
+remain outside this lane. Coverage lists each required upstream function.
+
+Expose PreserveFolds and ErrorClamped only through experimental. Stable Sparse
+and Prune apply to all edge-simplification forms; RegularizeLight already exists
+and gains a separate qualification family. Sparse uses first-reference order
+and subset bounds. Grid sloppy accepts LOCK alone; other vertex flags are errors.
+Preserve upstream comparison order, probing, callback traversal, integer wrapping,
+float operation order, and the distinct binary/numerical position equality rules.
+
+In the original 0.1.x lane, the requested destination was unavailable and
+evidence was retained on a writable sibling volume. Integration records now
+point to /mnt/linux-extra/meshopt-artifacts/p01x; the coordinator moves the
+historical data there. That archive is separate from the disposable build
+target. Historical hashes need verification after the move.
+
+Parallel lane 4 D41 settles two consumer profiles: Moss uses opt-level 3, thin
+LTO, one codegen unit, release debug disabled; defaults uses opt-level 3, LTO
+false, sixteen codegen units, release debug disabled. Keep the local crate
+fat-LTO profile and benchmark both consumers with explicit environment overrides.
+The RFC timing and memory bars remain unchanged.
+
+
+## D85 — Quantization domains and benchmark transport
+
+The inline normalized quantizers have no header bit-range assertion. Accept
+Unorm widths 0 through 30 and Snorm widths 1 through 31: their signed C++ shifts,
+subtractions and float-to-int conversions have defined results. Reject widths
+that produce negative/oversized shifts or signed overflow. Do not restrict these
+helpers to the common 8/16-bit storage widths. quantizeFloat accepts 0 through
+23 as asserted in quantization.cpp, including 0 despite the header prose.
+
+Keep every transport conversion, output flattening and byte-to-word expansion
+outside timed calls. Build keys, colors and remapping inputs before warm-up.
+Time validation, algorithm allocations, required destructive-input copies and
+execution. Compare all meaningful outputs after measurement; keep paired
+resident drivers and alternating same-core samples. Quantization batches vary
+with workload size; single exponent helpers retain bounded scalar work.
+
+
+## D86 — Sparse storage, position equality and live peak storage
+
+Use the upstream-sized bit filter and quadratic-probed sparse reverse table,
+with first-reference order unchanged. Internal indexed position/attribute views
+read original records without packed geometry copies. Release the filter and
+reverse table at the upstream phase boundaries. Preserve the maximum observed
+heap request in Usage when later phases release scratch.
+
+Standalone pruning uses simplifier.cpp's numerical position equality, including
+signed zeros. Adjacency/tessellation use indexgenerator.cpp's binary position
+equality. An explicit disconnected signed-zero regression distinguishes these
+contracts. The port's initial pruning transcription used the wrong equality;
+source review identified it and the corrected implementation is requalified.
+
+## D87 — Direct output and measured safe-Rust optimizations
+
+Replace allocating temporary results in caller-buffer remapping, filtering,
+shadow, adjacency, tessellation, provoking, sloppy, prune and point paths with
+shared kernels writing the caller's used prefix. Document late work exhaustion
+as permitting partial output. Keep tails untouched. Release temporary welding
+hash tables at upstream phase boundaries and count the maximum live storage.
+Every preprocessing kernel has a measured exact work/heap boundary regression.
+
+Retain checked arithmetic and bounds while specializing the optional point
+colors and grid locks at the loop boundary. FIFO combines per-vertex scratch
+fields and independent live-count/timestamp updates; repeated triangle corners
+still update in upstream order. Fixed scans charge work in batches while
+preserving the original failure prefix and work-exhaustion behavior.
+
+Scalar quantizers allocate no output. Both timing adapters therefore preallocate
+transport output before timing and time only checked scalar calls and identical
+stores. Batch operation selection occurs outside the inner loop on both sides.
+This removes transport-owned Vec growth from measurements, not algorithm
+allocation. Edge simplification validation also covers topology and targets in
+the C++ adapter; these checks are included in both timed boundaries.
+
+The mutation smoke now generates valid bounded indices for option families and
+exercises allocating and caller-output paths. Header/float/layout mutations are
+retained as robustness cases. This is seeded elapsed-time smoke instrumentation,
+not coverage-guided or sanitizer fuzzing and not the RFC's broader release gate.
+
+## D88 — Adapter allocation bound and immutable validation binaries
+
+The first 300-second mutation pass exposed unchecked transport allocation:
+unused key-width fields in non-stream requests could allocate tens of GiB
+before reaching the library. Retain all 32 original executables, seeds and
+stderr in p01x-fuzz-before-adapter-fix. No library mismatch was observed in
+that run; eighteen targets aborted in the adapter, so the smoke failed.
+
+Check protocol widths and strides before allocation, allocate byte output only
+for byte-producing operations, and bound all transport output to 128 MiB.
+Add a direct regression for mutated irrelevant widths. These are protocol
+bounds; the public library retains its independent checked views and Limits.
+Repeat all smokes after the correction, including experimental update option
+combinations and caller-output forms. Never count an adapter abort as a pass.
+
+Copy each built executable to a content-addressed path within the single
+required target. Concurrent fuzz, parity and profile builds cannot overwrite
+an executable already bound to a record. Both reservation implementations
+recheck capacity only when try_reserve_exact returns a capacity different from
+its request; the actual capacity remains checked and charged in that case.
+
+Retain all original benchmark workloads. Add attribute counts 0, 1 and 12 and
+ratios 0.25 and 0.75 to the existing eight-attribute, 0.5-ratio edge cases; add
+half-count point reductions. These additions satisfy representative parameter
+coverage and do not replace any measured slow case. Reserve both siblings of
+the measured benchmark core from fuzz affinity and retain load telemetry.
+
+## D89 — Zero-target points and bounded-work fast paths
+
+Retain the zero-target counterexample: extreme finite point coordinates made
+Rust rescale and return NumericalFailure while C++ returned an empty result.
+Match the upstream early return before rescaling and allocation. Keep finite
+position/color, parameter and layout validation; a zero-byte budget succeeds
+for fresh scratch and the caller destination stays unchanged. Add native and
+executed WASM differential coverage plus a direct resource-boundary regression.
+
+Cache retained workspace capacity once while a local allocation budget holds
+its exclusive borrow. Charge every requested and actual owned allocation and
+peak without resizing unrelated scratch or recomputing unchanged capacities.
+Keep checked sums, fallible reservations, and retained capacity in the limit.
+
+Split FIFO adjacency from hot live-count/timestamp fields without increasing
+storage. Batch fixed scans and bounded searches when their entire bound fits;
+otherwise retain per-visit checks before callbacks and mutation. Searches charge
+only actual visits in either path. A regression compares result, work and callback
+prefix for every small exhaustion boundary. Inline these helpers at the hot loop.
+
+The preprocessing benchmark starts with ten alternating pairs, the RFC 6.1
+minimum, and adds ten when the ratio interquartile range crosses a timing bar,
+up to thirty. Preserve all 888 workloads and both consumer profiles. The interrupted
+pre-refinement Moss baseline remains diagnostic evidence, never qualification.
+Check positive finite sample intervals and exact agreement between resident
+sample frames and the final serialized sample stream. Reject an incomplete CPU
+override instead of attaching another core's sibling metadata to a record.
+
+## D90 — Reusable scratch and preserved math backend
+
+Reuse Workspace integer storage for FIFO counts, offsets, live records,
+adjacency and dead-end storage; keep only required per-call resets. Reuse checked
+float/integer scratch for point normalization, grid IDs, hash cells, reservoirs
+and candidate errors. Output ownership and meaningful destination prefixes
+remain unchanged. Retained capacities are charged on every call, including
+mixed-operation workspace reuse. Numerical remap tables also reuse scratch.
+
+Dispatch packed positions and point colors before hashing or repeated reads;
+retain the checked byte/interleaved paths and compare big-endian strided views
+with packed results. Binary adjacency/tessellation welding retains float bits;
+numerical/custom welding retains signed-zero equality and callback order.
+Grid quantization narrows through u16 only after normalization to [0,1] and a
+grid bound of 1024; the integer result matches upstream and remains safe.
+
+Reject an adaptive heap square-root cache trial. Its 32 KiB table increased
+scratch and slowed the measured sloppy case; retain diagnostic records and
+restore the unchanged 512-entry cache and pinned libm backend. There is no
+architecture-specific or unsafe math implementation and no parity tolerance.
+
+## D91 — Explicit destructive entry points
+
+Keep the requested upstream snake-case `simplify_with_update` and the caller
+fetch `_into` entry. Add `_in_place` reexports for both destructive operations
+so the RFC naming convention is available without replacing the requested API.
+They are identical functions with the same mutable views, checked errors,
+resource accounting and partial-mutation contracts. The differential adapter
+calls these explicit spellings; they share their upstream family records.
+
+## D92 — Measurements on early failures
+
+Reset the previous call's measurements before rejecting stream collections,
+remap layouts or caller-buffer sizes. Keep retained scratch. Count remap-bound
+validation and its maximum destination record in one scan, before allocation
+or mutation. A regression primes scratch, exercises nine early-failure paths,
+and confirms both current-call measurements and subsequent scratch reuse.
+
+## D93 — Edge, quadric and point fast paths
+
+Specialize adjacency/tessellation, filter/shadow and welded-edge traversal
+before the hot loops. Use direct bounded edge/cell probes with the same hash,
+probe order and exact limited-call exhaustion point. Inline small quadric
+arithmetic without changing operation order or the pinned square-root backend.
+
+For point cells containing exactly one source record each, return source order
+without reservoirs. Check the selected grid's squared color weight first;
+infinity times zero remains a NumericalFailure. Validate all supplied colors
+and preserve caller tails and counted-write exhaustion prefixes. For other
+colorless cells, omit zero color accumulation and arithmetic after the same
+weight check. Reject an overflowing normalization reciprocal before rescaling;
+finite bounds and a finite reciprocal make every normalized component finite.
+The zero-target return still precedes this reciprocal check.
+
+Keep initialized fetch buffers and batch index visits while borrowing each
+remap entry once. Reject a fallibly reserved append-output trial: paired held
+binaries show allocating fetch slowed by about 45 to 50 percent. Remove forced
+inlining of generic remap generation after the same comparison shows slower
+remap/custom/shadow calls. Retain the measured trial source and executables.
+
+Retain the complete previous Moss baseline, source archive, executables,
+functional records and smokes under before-edge-point-specialization. Its 888
+outputs match, but only 17 of 32 families pass all bars. The command exits 1.
+Interrupt the default-profile build before measurement to optimize first;
+this does not count as a default-profile benchmark verdict.
+
+## D94 — Colorless reservoir layout
+
+Keep three position sums and a count in four floats for colorless point cells;
+colored cells retain the upstream seven fields. Preserve accumulation order,
+selected-grid weight checks, candidate tie order and error handling. Charge
+actual retained float capacity, including calls that previously used colored
+scratch. This changes storage only, with no extra allocation or math backend.
+
+## D95 — Gradient records and provoking visits
+
+Borrow three disjoint gradient records once for triangles with distinct vertex
+IDs, then visit attributes and gradients together. Repeated IDs retain the
+original sequential scatter additions. Preserve attribute and vertex addition
+order, float arithmetic, work counts and peak storage. Specialize welded
+adjacency before traversal and use direct three-corner gathers in sloppy
+simplification. Batch provoking valence, triangle and remaining-corner visits;
+retain rotations, wrapping valences, tie order and exact limited-call prefixes.
+
+## D96 — Counted normalization validation
+
+Count only the visited position prefix when bounds validation fails, including
+the failing record; preserve the numerical bounds and subtraction order. Work
+exhaustion reports the visited limited prefix before allocation or caller
+mutation. Add a NaN-first and two-visit-limit regression. Count lock-support
+validation and quadric finalization scans in sloppy simplification. Zip packed
+positions with normalization outputs; retain the checked strided/byte fallback.
+
+## D97 — UNorm endpoints
+
+Return clamped UNorm endpoints before interior float conversion. Preserve NaN
+and both-zero behavior and the upstream f32 endpoint rounding: bit counts 24
+through 30 return 2^N for values at least one; lower counts return 2^N minus
+one. Keep the interior multiplication and rounding order. Add native/C++/WASM
+fixtures for every supported bit count with adjacent values below/above one,
+infinity, NaN and negative zero, plus explicit high-bit endpoint regressions.
+
+## D98 — Exact bounded grid conversion
+
+Reconstruct the integer significand for rounded grid coordinates in [0.5,1024),
+using a right shift of 14 through 24 bits. Validated finite normalization and
+grids in 1 through 1024 establish this private precondition; debug builds assert
+it. Keep the original multiplication and addition before conversion. A native
+verifier extracts the helper verbatim and agrees with defined truncating casts
+for all 92,274,688 representable operands in that interval. Retain its source,
+executable, hashes and exit status. This uses no unsafe or architecture code.
+
+## D99 — Reused filtering and shadow tables
+
+Reuse checked Workspace integer storage for vertex remaps, vertex hash tables
+and three-word triangle keys. Initialize required tables once per algorithm
+call, and count triangle-key initialization. Keep exact hash probes, source
+representatives, winding, output prefixes and caller tails. Charge requested
+and actual capacities plus owned output, including all retained other scratch.
+Validate destination capacity before scratch growth. Retain the preceding
+measurement/source/executable trials; none substitutes for final qualification.
+
+## D100 — Bounded sloppy quadrics
+
+After finite bounds and reciprocal validation, normalized coordinates lie in
+[0,2]. Triangle normals have magnitude at most two even when their squared
+length rounds in the subnormal range. A triangle's coefficient magnitude is
+at most 2048. Rounded f32 accumulation of increments bounded by 2048 cannot
+escape magnitude 2^36: beyond that scale, an increment is below half an ulp.
+
+A nonzero triangle weight is at least 2^-38 (two square roots starting from a
+positive f32 squared length); nonnegative accumulated weight cannot decrease.
+The cached inverse is below 2^39. Quadric evaluation on normalized coordinates
+is below 2^43, so the final positional error is below 2^82 and remains finite.
+Keep the same arithmetic and visits; omit redundant per-quadric/per-candidate
+finite checks only in sloppy simplification. Other simplifiers retain their
+checks. Add tiny/large finite-scale and normalized-subnormal feature fixtures
+to native/C++/executed-WASM comparisons. Unsupported bounds or reciprocals
+still fail before this phase.
+
+## D101 — Fixed-charge scans and transport metadata
+
+Batch complete scans whose pre-visit charge is fixed, retaining each original
+charge on the limited path and the exact visited prefix on callback failure.
+Cover unit, three-visit and attribute-triangle charges with an exhaustive small
+boundary regression. Apply this to adjacency and quadric accumulation and the
+validated sloppy candidate scans without changing arithmetic or traversal.
+Specialize allocating and caller sloppy entry points before the shared kernel.
+Dispatch packed position welding before its probes, including sparse views of
+original authored positions; strided and byte views retain checked readers.
+
+Compute remapped output transport length before Rust timing, matching the C++
+adapter. The library still validates the remap and destination inside timing.
+The removed scan only duplicated transport metadata work that C++ already
+excluded. Retain the preceding 592-case diagnostic: 25 of 32 families pass all
+bars; this smaller matrix is not the full qualification gate.
+
+## D102 — Direct accumulation loops and compact sloppy records
+
+Profiles show the fixed-scan callbacks being outlined in the heavy quadric
+loops. Precharge a scan only when its entire fixed charge fits and every visit
+has no fallible callback. Run its original loop directly; otherwise check the
+original charge before each visit. Keep callback-aware scans for paths that
+can return an error. This retains work, limited-call prefixes and arithmetic.
+
+Store eleven floats per sloppy cell. During accumulation the last slot is the
+weight; after accumulation replace it with the same reciprocal used before.
+There are no later additions. Candidate evaluation still uses the shared
+quadric formula and operation order. Attribute and regular simplification
+quadrics retain their existing weight and inverse fields. Keep the preceding
+focused measurement and profiled executable as diagnostic evidence.
+
+## D103 — Bounded triangle filtering and disjoint gradients
+
+Batch sloppy triangle filtering only when every triangle and its entire hash
+probe bound fit the remaining work. Count actual visits once per batch; use
+the original per-visit path when no complete batch fits. Keep writes before
+probes, canonical triangle rotations, probe order and duplicate ties. Chunk
+large calls according to the current remaining budget without extra storage.
+
+Use safe slice get_disjoint_mut for distinct gradient records instead of
+sorting their IDs. Repeated IDs keep sequential additions. Replace a complex
+private packed-source return type with an alias to satisfy Clippy. Retain the
+preceding failed Clippy log and the 216-case benchmark diagnostic; it remains
+unqualified where bars miss.
+
+Cap a batch's visit bound at usize::MAX as well as remaining u64 work, so its
+local actual-visit counter cannot overflow on wasm32. Regressions compare
+precharged and scalar scans at every small limit and check huge batch bounds.
+
+## D104 — Retained typed simplifier scratch
+
+Retain successful simplifier state in Workspace, including typed quadrics,
+gradients and adjacency. Before reuse, clear per-call lengths and reset every
+accumulation, classification, hash and lock field. Retain the exact sqrt memo
+entries: they are keyed by complete operands and use the unchanged pinned math.
+Failed calls may release this optional typed cache; early input validation
+still precedes taking it. Clear and set_limits release it together with other
+scratch.
+
+Charge all retained capacities, including arrays unused by a later operation,
+plus requested/actual growth and owned output. Workspace prepare paths and
+local budgets include this cache even when another family uses the workspace.
+Keep output ownership, arithmetic, hash order and counted algorithm visits.
+The cache stores no borrowed source or caller output. It is private API state.
+
+## D105 — Sloppy and update buffer reuse
+
+Retain sloppy normalized positions, grid IDs, tables, cell quadrics, remaps,
+errors and exact sqrt memo entries after success. Validate bounds and the
+reciprocal before taking this cache. Reset every table, remap and quadric that
+can carry algorithm state; overwrite all active normalized records and IDs.
+Retain capacities unused by a subsequent zero-output call and charge them.
+All workspace and local-budget accounting includes both typed caches.
+
+Reuse update's required original-topology copy as owned scratch within the
+typed state. It remains distinct from caller indices and is copied inside the
+timed operation. Count the same copy visits and charge its actual capacity.
+Keep both pools private, fallible and released by clear/set_limits. Preserve
+the previous focused result: all five options pass; update and sloppy miss.
+
+## D106 — Unchanged capacities and exact bounded floor
+
+While a local budget exclusively borrows the workspace, charge the complete
+cached owned capacities once. Reuse without growth cannot change those bytes
+or the retained capacities; retain the owner-capacity invariant check. Every
+new allocation or growth still checks requested and actual total capacity.
+Keep checked sizes, peaks and byte-limit failures. No resource check is removed
+for storage that can grow.
+
+For private rounded grid coordinates in [0.5,1024), adding 2^23 rounds to an
+integer. Its mantissa is that integer; subtract one when the rounded integer
+exceeds the original value. This gives the exact floor, including ties. Native
+exhaustive verification agrees with defined truncating casts for all 92,274,688
+representable operands. Retain verifier source/executable/hash/exit evidence.
+The strict default-rounding profile is binding. No unsafe or architecture code
+is introduced; native/C++/WASM differential gates must pass again.
+
+## D107 — Exponent transport allocation in the reference adapter
+
+Store the C++ scalar exponent result in the existing scalar count field and
+serialize its single word after timing. The upstream scalar API does not
+allocate; the adapter previously pushed a word into a transport vector inside
+timing. Remove that extra allocation and validate the same supported bounds
+and parameter domain inside the measured C++ call. Output bytes stay identical.
+
+Retain the prior source, 32 completed 300-second smokes, all eleven passing
+local gates, run fixtures, unfinished benchmark and partial sweep under
+before-exponent-adapter-fix. Interrupted ZIPs lacked central directories;
+preserve their raw bytes and recover only CRC-verified complete local entries
+into separately named diagnostic archives. These partial runs never qualify.
+Rerun complete qualification with the corrected adapter.
+
+## D108 — Serialized qualification builds
+
+Serialize each reference/driver/exporter build through a target-local process
+lock until all content-addressed executables and identities are captured.
+Consumer profiles share temporary output paths; a second profile must not
+replace the first profile's driver before its record binds it. Independent
+execution can overlap after that interval. The lock affects build coordination
+only, and is released when its process exits. Run fixtures before launching
+concurrent benchmark and sweep execution, so fixture regeneration cannot race
+a reader. No Git metadata or other lane's target is involved.
+
+## D109 — Applicable JS and native preprocessing fixtures
+
+Capture the ten newly applicable JS calls from unchanged test bodies, explicitly
+awaiting module and test-runner promises. This covers compactMesh's fetch/index
+remaps, update, all three point/color cases, prune, and reorderMesh's strip,
+fetch-remap and index-remap stages. Recover the intermediate strip topology
+using the returned inverse remap; retain the original test assertions.
+Protocol 2 uses existing stream fields for explicit remap words and existing
+attribute fields for authored point colors. These fields do not change the
+benchmark inputs or timing boundary. Require their layouts before use.
+
+Capture all three native customAllocator fetch inputs before mutation, preserving
+the original allocator assertions and u16 adapter, plus emptyMesh's FIFO input.
+Global allocator callbacks and cluster bounds stay upstream-only sanity calls;
+Rust uses its existing fallible per-workspace storage and explicit u32 widening.
+Require exactly 88 native and ten JS preprocessing fixture inputs at run time.
+InternalDebug remains outside the supported simplification option domain.
+
+## D110 — Remap loops and fetch scratch
+
+Stop the corrected-adapter benchmark after 662 complete cases: remapping already
+misses registered bars. Retain its raw interrupted ZIP, CRC-verified recovered
+entries, all bound executables and source. The full 74,000-case sweep, 906 fixture
+comparisons, eleven local gates and 32 300-second smokes pass on that revision;
+none qualifies the subsequently changed source. Held-binary diagnostics show
+that the recompiled C++ adapter also runs several other operations faster.
+The corrected adapter remains the reference. Do not relax workloads or bars.
+
+Specialize remap copies for the upstream common widths 4/8/12/16, with a general
+checked-width fallback. Precharge a copy only when its whole fixed budget fits;
+otherwise retain per-visit charging and partial writes. Fuse index and mapped
+value validation when both complete validation charges fit. Defer sentinel
+errors until index validation and destination-size checks finish, preserving
+error precedence, counted prefixes and unchanged caller output on those errors.
+Count both validation roles. Keep the original limited-budget path.
+
+Retain fetch's remap table in Workspace and reset every active entry to the
+unused sentinel. Charge all retained capacities, required output and actual
+allocation growth. Dispatch common copy widths once per call and keep the
+original first-use numbering, copies and per-index work. Add a regression for
+error precedence and limited writes. These changes require new full gates.
+
+## D111 — Single-stream hashing and no-scratch accounting
+
+Retain the complete 592-case remap-copy diagnostic: twenty families pass all
+bars on that smaller matrix. Vertex-byte copies improve substantially; index
+remapping and hash-based helpers still miss. It does not qualify the full matrix.
+
+Select a dedicated single-stream hash/equality closure when the validated stream
+count is one. Keep byte keys, seeded hashing, probe order, canonical numbering
+and the multiple-stream fallback identical. Inline the small key/hash helpers;
+do not repeat the rejected forced-inline whole generation kernel from D93.
+
+For calls that allocate no scratch, charge all retained capacities directly
+instead of resizing five unused vectors to zero length. Their active state is
+not consumed by those calls; later users still resize and initialize their own
+ranges. Keep requested/actual allocation checks in every operation that grows
+storage. In index remapping, use direct complete-budget validation loops and
+specialized index iterators; preserve the original limited paths, error
+precedence and measured work. Tests and Clippy pass; requalification remains
+required.
+
+## D112 — Bounded hash visits, provoking loops and empty workspaces
+
+Preserve the preceding complete diagnostic matrices and executables: 25 of 32
+families pass Moss's smaller matrix; 17 pass Cargo defaults. Neither is the full
+qualification gate. Keep the corrected reference adapter unchanged.
+
+Specialize canonical generation internally. Batch records only when the sum of
+one index visit and the complete probe bound per record fits remaining work and
+usize. Count actual index/probe visits, including a numerical failure, once per
+batch. The limited path retains every pre-visit charge. Keys, callbacks, probes,
+numbering and initialization remain identical. A regression checks fixed
+callback/write/work witnesses at every budget from zero through 64.
+
+Retain provoking remap/valence buffers in Workspace, resetting every active
+entry. Replace infallible callbacks with direct whole-budget loops and per-visit
+fallbacks, preserving wrapping valence, rotations, first corners and tails.
+Charge all retained storage and outputs; caller buffers remain separate.
+
+Keep a conservative private has_retained marker: false proves all scratch and
+optional caches are absent. Mark it before every possible workspace growth and
+when committing either typed cache; clear resets it. Failed growth may leave it
+true. The true path still calculates all actual capacities. Debug assertions and
+mixed-cache limit tests verify this invariant. Inline small work/retained helpers
+so no-scratch calls avoid empty-vector accounting. Allocation checks and limits
+for storage that can exist or grow remain unchanged. Tests and Clippy pass;
+all differential and measurement gates must run on the new source.
+
+## D113 — Fixed triangles and reference validation
+
+Retain the preceding 23-of-32 smaller-matrix verdicts for both profiles. A
+same-input default-profile instruction witness matches complete outputs:
+provoking uses 178,325,064 Rust versus 97,731,575 C++ retired instructions,
+including driver work; the preceding Rust uses 230,018,849. These diagnose costs,
+not acceptance. A short 65-sample symbol profile loses no samples and identifies
+generic array-map/rotation and memmove code in the hot path. Retain raw stat,
+profile, commands, input, outputs and executable/source identities.
+
+Replace known three-element integer maps and cyclic rotations with explicit
+three-element expressions in filtering and provoking. Keep order, tie rules,
+wrapping valence and every work charge. Avoid the general slice rotation helpers.
+
+The C++ remap adapter omitted the upstream unused-sentinel precondition inside
+timing, while Rust checks it. Validate mapped values during the same index pass,
+defer a sentinel error until index validation finishes, and handle null indices
+by scanning the remap. Validate scalar quantization parameter domains when a
+scalar is called, and point targets, color weights and supplied colors. Existing
+finite position/attribute/weight checks remain. These correct comparable valid-
+domain validation under RFC 6.1; they do not add Rust resource limits to C++ or
+change oracle algorithms. Rebuild and rerun all gates against this adapter.
+
+## D114 — Representative colored point reduction
+
+The original 888-case matrix omitted colored point reduction. Keep every case
+and add half-target colored points on all four shapes, both APIs and all three
+sizes, using deterministic three-channel colors and weight 0.5. This adds 24
+cases: 912 per consumer profile. The two-size diagnostic now has 608 cases.
+Fixtures, native/WASM identity and seeded sweeps already exercise authored and
+synthetic colors. Require all 912 cases and both consumer profiles in final
+verification; historical matrices remain diagnostics for their registered scope.
+
+## D115 — Fused shadow emission and owned fetch topology
+
+Retain the complete 608-case corrected-adapter diagnostics: thirty families pass
+Moss and twenty-five pass Cargo defaults. They do not qualify the full matrix.
+
+Fuse canonical shadow hashing with index emission, matching the oracle's single
+walk. Preserve all keys, probes, first representatives and total work; bounded
+batches include the output visit, with pre-visit charging on the limited path.
+Caller output may contain a prefix on late work exhaustion, as documented. A
+regression checks every budget through completion and preserves the unused tail.
+
+Allocate and copy fetch topology once, then rewrite the owned buffer in place.
+Count the required copy, charge requested and actual capacity, and retain the
+same first-use vertex bytes and caller-buffer kernel. This avoids a separate
+zero-filled output/index-read walk. All gates must run on this new source.
+
+## D116 — Direct FIFO visits and longer timing batches
+
+Retain the complete 186-case default-profile remaining-family diagnostic, source
+and binaries. Four families pass; FIFO misses mean, update misses one tiny max,
+and allocating sparse fetch has unstable timings. These are not final verdicts.
+FIFO's same-input instruction profile attributes an additional 32.65 percent of
+samples to an outlined emission callback. Replace it and its candidate scan with
+direct fixed-charge loops and unchanged limited-budget paths. Precharge the
+infallible boundary-edge and solve-lock scans; retain floating operation order.
+Inline the small quadric finite check and borrowed mutable-view conversions.
+
+The fetch medium/sparse Rust timing coefficient of variation is 1.15, whereas
+its same-input instruction count is 59,821,530 against 59,046,402 C++ (including
+driver work). Million/sparse timings depend strongly on paired order. Preserve
+these diagnostics. Allocate fetch's copied topology and bytes before preparing
+the remap table, matching C++ allocation order; budget all retained and new
+capacities before execution. End the local heap budget before scratch growth.
+
+Use identical predetermined batches on both preprocessing adapters: 1,024 calls
+below 3,000 indices, sixteen below 300,000, one otherwise. The previous short
+batches are historical diagnostics. Every call still validates, copies, allocates
+and executes inside timing; retain all raw paired intervals and the original
+912 workloads, sample policy and bars. No result-based case or sample filtering.
+
+Validate point colors through the counted fallible scan, so an invalid first
+color reports one visit rather than charging unvisited records. Add a prefix
+regression. Update the smoke proof limit to the binding RFC's four CPU-hour
+release requirement; this lane's explicitly requested budget remains 300 elapsed
+seconds per function. Full requalification is required on the resulting source.
+
+## D117 — Bounded triangle-filter probes
+
+Retain the 608-case default diagnostic: thirty-one families pass; allocating
+filtering on tiny smooth geometry misses the maximum. Profiles match complete
+outputs and identify generation and triangle probing as the dominant work.
+
+Use a direct triangle probe leaf with a bounded batch whose per-triangle bound
+includes the outer visit and every possible table probe. Count actual visits,
+including numerical failure; preserve pre-visit checks on the limited path.
+Keep compact vertex numbering, canonical rotations, collision order, duplicate
+removal, source winding and writes identical. A fixed witness checks every work
+budget across original, rotated, reversed and degenerate triangles. Inline the
+small remap validation helper without changing errors or counted prefixes. Retain the
+same adapter, timing batches, workloads and acceptance bars. Requalify all gates.
+
+## D118 — Compact checked float views
+
+Retain the complete preceding 608-case default diagnostic: filtering now passes;
+update on tiny sparse input remains over the maximum. Eleven local gates, 920
+fixture comparisons and all thirty-two 300-second smokes pass on that source.
+Stop its incomplete sweep with exit 130 to optimize first; preserve the raw ZIP
+and CRC-verified recovered equal triplets. None qualifies the changed source.
+
+After ordinary checked layout validation, borrow tightly packed float positions
+as safe three-element slice chunks, including an explicit offset and count.
+Preserve all values, counts and padding; byte and wider-stride views retain the
+general path. Validate float attribute records through one checked record slice,
+retaining per-component visits, position-before-attribute order, first failure
+and the general byte-view fallback. No arithmetic operations are reordered.
+Add a compact-offset/padding and exact invalid-attribute-prefix regression.
+Keep the same reference, timing batches, workloads and bars; rerun all gates.
+
+## D119 — Counted attribute-row normalization
+
+Retain the 32-of-32 default diagnostic and interrupted full Moss attempt from the
+preceding source. Its tiny sparse caller-update median is 1.5045358319020972,
+above the unchanged maximum of 1.5. Stop with exit 130 to optimize; recover and
+verify the interrupted ZIP, preserving raw samples and bound executables.
+
+Normalize checked float attribute records through their borrowed record slice
+and a counted fallible scan. Keep original component and positive-weight order,
+one multiply per active value, finite-result checks, zero-weight visits and
+compact destination order. Byte views retain the scalar component path. Count
+the actual failure prefix and preserve per-visit checks when the row budget does
+not fit. The existing mixed-layout, zero-weight, numeric and exact-limit tests
+exercise both paths. Requalify fixtures, sweeps, smokes and both profiles.
+
+## D120 — FIFO initialized scratch and direct setup scans
+
+Retain both preceding complete diagnostics: all families pass defaults; Moss
+FIFO's tiny sparse caller case misses the maximum. Update now passes both.
+
+Workspace preparation initializes newly extended integer and flag elements to
+zero. Clear only the intersection of FIFO's count/hot/emitted ranges with each
+vector's previous active length; fresh and extended elements already have their
+required initial value. Preserve reset semantics for smaller, larger and mixed
+operations, including a partially overlapping hot pair. Capacity accounting and
+growth checks remain unchanged. A mixed-fetch/FIFO reuse regression checks all
+results and work against fresh workspaces at three cache sizes, including wrap.
+
+Replace FIFO's infallible count, offset, insertion and hot-state setup callbacks
+with direct precharged loops and per-visit limited paths. Preserve every record
+visit, insertion order, offset and wrapping integer operation. Requalify all
+gates on the new source; retain both profiles, all workloads and unchanged bars.
+
+## D121 — Sloppy direct scans and fetch remap initialization
+
+Retain D120's complete 912-workload Moss result: thirty families pass, while
+million disconnected caller Sloppy measures 1.5028046427425936 and million sparse
+allocating fetch measures 1.680978884849942, above the unchanged maximum of 1.5.
+Moss exits 1. Stop defaults with exit 130; preserve its partial record and buffers.
+The D120 fixture, full sweep, local checks, source and executables are historical
+proof for that source, not qualification for this change.
+
+Identical-output million-case instruction profiles show Sloppy at 60,616,848,093
+instructions versus C++ 40,849,259,767, with outlined scans and triangle emission
+among its costs. Use direct infallible counted triangle and error scans, manual
+three-corner rotation, and the existing per-visit limited paths. Preserve every
+visit, floating operation, representative tie and triangle order.
+
+Fetch retires 7,251,364,872 instructions versus C++ 6,883,368,810 and fewer cycles
+in this diagnostic; this does not reproduce the recorded timing miss. Initialize
+new integer remap entries directly to the sentinel and reset only the previous
+active intersection. Preserve allocation order, capacity accounting, checked
+limits, first-use numbering and reuse behavior. Add a mixed FIFO/fetch regression
+covering both forms, shrinking, growing, empty input and destination padding.
+Requalify all gates with the same reference, profiles, workloads and bars.
+
+## D122 — Initialized typed fetch records
+
+Retain D121's 920 matching fixtures, 74,000 matching seeded cases, all eleven local
+checks and both complete two-family diagnostics. Sloppy passes both; allocating
+fetch's million sparse case remains above the maximum in each. These are
+historical results, not a final benchmark verdict.
+
+For fixed widths 4, 8, 12 and 16, reserve the complete output capacity fallibly
+as a Vec of initialized byte arrays. Push one copied array on each first use,
+then safely flatten that Vec without another allocation. Standard-library
+into_flattened is stable since Rust 1.80, within this crate's Rust 1.88 minimum.
+The generic-width path remains initialized bytes. This avoids writing an unused
+output tail and then overwriting every used record. It differs from the rejected
+generic byte-append trial by copying one statically sized record per push.
+
+Charge requested and actual full capacity before execution, including unused
+records; preserve topology-copy and scratch allocation order, counted work,
+checked views, first-use order and limited-path checks. The unique first-use
+count cannot exceed the reserved source count, so pushes require no additional
+allocation. Add strided-offset witnesses for every fixed width and the generic
+fallback, unused vertices, exact output bytes, full capacity and work limits.
+Requalify unchanged fixtures, sweeps, smokes, all 912 workloads and both profiles.
+
+## D123 — Keep typed reservation local to fetch
+
+Retain D122's full exact sweep, fixtures and local checks, and both passing
+48-workload fetch/Sloppy diagnostics. Its full Moss attempt records 632 workloads
+before being stopped with exit 130: tiny seam-heavy allocating shadow generation
+measures 1.9635326001589135, with a narrow paired ratio range. Preserve and recover
+that raw archive; it does not qualify the changed source.
+
+Restore Budget::filled verbatim from D121. Keep the new checked empty reservation
+helper separate and used only for typed fetch output. The previous factoring
+changed a shared allocation path despite the intended fetch-only optimization.
+Do not alter the reference, workloads, sampling, flags, limits or bars. Requalify
+all families on the resulting source, preserving every preceding result.
+
+## D124 — Fetch output strategy by input size
+
+Retain D123's 608-case Moss diagnostic with all thirty-two families passing.
+Defaults passes thirty-one: tiny smooth allocating fetch measures
+1.771242085582236, above the unchanged maximum. The queued full benchmark does
+not start and exits 1 on this diagnostic gate. Keep the full record and samples.
+
+Use the original initialized byte-output path below 1,024 supplied vertices.
+Use typed first-use copies at and above that threshold, retaining their measured
+large sparse improvement. The threshold changes execution strategy, not the
+workloads, acceptance bars, record membership or sample selection. Both paths
+reserve and charge full capacities before execution, use the same first-use
+numbering, copies and work checks, and return identical initialized used bytes.
+Extend the fixed-width and mixed-workspace witnesses to cross the threshold,
+including strided offsets, unused vertices and exact memory/work boundaries.
+Requalify every gate on the changed source.
+
+## D125 — Prepared shadow sentinels and fixed-width keys
+
+Retain D124's 924 exact fixtures, 74,000 exact seeded comparisons and all eleven
+local checks. Moss passes all thirty-two families in its 608-case diagnostic;
+defaults passes thirty-one, with tiny sparse allocating multi-stream shadow at
+1.5618944177614738. The diagnostic guard exits 1 before starting the full matrices.
+Keep all raw samples and source/executable bindings.
+
+The same-input CPU-0 profile matches outputs and retires 631,153,868 Rust
+instructions versus 571,149,435 C++, with fewer Rust cycles. This does not
+reproduce the CPU-15 timing miss. Hash/equality dominates its cycle samples.
+Prepare shadow's private integer scratch directly with sentinels and remove
+its subsequent duplicate fills. Keep the original logical initialization charges
+and failure order. Filtering retains its original initialization path.
+
+Specialize single-stream shadow keys at widths 4, 8, 12 and 16 as checked byte
+arrays. Keep the same Murmur operations, byte equality including padding,
+canonical first references, collisions, visits and limited-budget checks.
+Other widths and multiple streams use the existing general path. Add mixed
+FIFO/shadow reuse, offset/stride, width, empty/growth/shrink, both-form and output
+tail witnesses. Existing every-budget shadow checks still cover partial writes.
+Requalify all families with the same profiles, inputs, sampling and bars.
+
+## D126 — Exponent scalar transport outside timing
+
+Retain D125's 924 matching fixtures, 74,000 exact seeded comparisons and eleven
+passing local checks. Its complete 608-workload Moss diagnostic passes all
+families; defaults passes thirty-one. Position exponent measures mean
+1.255058259215078 and maximum 1.6255089507839753. The diagnostic guard exits 1
+before the full benchmark starts. Shadow now passes both profiles.
+
+The Rust timing adapter constructed a one-word transport Vec per exponent call,
+whereas D107 already made C++ carry a scalar and serialize after timing. Change
+Rust's payload to carry the scalar too. Construct its output word buffer after
+the timer, matching the stated exclusion of serialization and the reference.
+Preserve the helper, validation, bit representation, batching, workloads, samples
+and bars. Required algorithm-owned allocations remain inside timing. Requalify
+all source/executable identities and gates; earlier timings are historical.
+
+## D127 — Prepared owned remaps and longer fixed batches
+
+Retain D126's 924 fixtures, 74,000 seeded comparisons and all eleven local gates.
+Both complete 608-workload diagnostics pass every family. Its full Moss attempt
+is stopped with exit 130 after a tiny smooth allocating custom-remap miss.
+The exact same input, Rust executable, C++ executable and CPU 15 measure
+0.9585386152386463 in the diagnostic and 1.94185916805916 in the full attempt.
+Retain both records, hashes, raw samples and their explicit comparison. The Rust
+batches span about 0.33 to 0.81 milliseconds; no sample is removed or reclassified.
+
+Allocate owned remaps initialized to the required sentinel, and skip their
+second fill in a prepared kernel specialization. Retain the same logical
+initialization charge, table reset, callback/probe order, limited checks,
+allocation order, requested/actual capacity accounting and errors. Caller-buffer
+and filtering initialization stay on their existing unprepared specialization.
+The existing every-budget custom callback and remap-limit witnesses apply.
+
+Before requalification, use longer predetermined batches equally in both native
+adapters: 32,768 calls below 3,000 indices, sixteen below 300,000, one otherwise;
+position exponent uses 262,144 scalar calls. These fixed counts replace D116's
+short batches to amortize sub-millisecond scheduling/frequency effects. Every
+call still validates, copies, allocates and executes as applicable inside timing;
+serialization stays outside. Keep all 912 workloads, alternating pairs, ten to
+thirty samples, raw intervals, unchanged time/memory bars and source guards.
+This is a recorded protocol change, not a result-based retry or sample filter.
+Requalify fixtures, sweeps, smokes and both complete profiles on the new source.
+
+## D128 — Fixed-width keys in single-stream generation
+
+Retain D127's 924 exact fixtures, 74,000 exact seeded cases and eleven passing
+local checks. Its longer-batch Moss diagnostic records 202 workloads before
+being stopped with exit 130 after tiny smooth allocating filtering measures
+1.882115003775167. Stop the queued full benchmark with exit 130 as well; recover
+and preserve the partial diagnostic buffers. None is a final bar verdict.
+
+Use checked fixed-width byte arrays in the single-stream generation path at
+widths 4, 8, 12 and 16, as in D125's shadow path. This covers filtering's remap
+stage and caller generation. Preserve the same hash operations, initialized
+key bytes, numeric/canonical distinction, equality, callbacks/probes and work
+charges. Multiple streams and other widths keep their general path. Existing
+mixed-layout, every-budget filtering/remap and cross-backend fixtures cover the
+result and failure contracts. Requalify all families; retain D127's fixed batches,
+all workloads, sample policy and unchanged bars.
+
+## D129 — Complete matrices from disjoint size groups
+
+Avoid replaying the current D128 tiny/medium measurements. Before measuring the
+remaining group, complete each consumer matrix as two fixed, disjoint groups:
+all 608 tiny/medium workloads, followed by all 304 million workloads. Use the
+same saved CPU, source snapshot, executable hashes, profile overrides, timing
+boundary, D127 batches and sample policy. Require these identities to match.
+Retain every input, output and raw sample; union membership must equal the exact
+912-workload matrix, without overlap, skipped cases or sample filtering.
+
+The complete verifier recomputes each case summary and family geometric mean,
+maximum and peak-heap ratio over the union and enforces the unchanged bars.
+Archive the fragment records/hashes, assembler code and complete buffer ZIPs.
+The enforced assembly command exits 0 only if both full consumer matrices pass;
+no fragment alone establishes acceptance. Historical source epochs remain
+non-qualifying. This changes orchestration only; repository code and native
+adapters remain frozen. Record the split explicitly in the final compact record.
+
+## D130 — Preserve buffers without duplicating million archives
+
+The shared large volume has 16 GB free before the million measurements. Stop
+only the waiting D129 orchestrator with exit 130, before it measures any cases.
+Change archive transport so each million fragment ZIP becomes its complete ZIP;
+append the tiny/medium members there. Point the retained million fragment record
+at that complete archive and record its final hash before hashing the fragment
+record. Preserve every fragment workload, input, output and raw sample. The
+complete archive verifier still checks exact membership and every member hash.
+
+Restart the waiting orchestration with this change. Neither source, executables,
+profiles, timing, membership nor acceptance bars change. Keep the assembler code
+and its final hash. This bounds additional archive growth to one complete ZIP
+per profile, rather than retaining a duplicate million payload archive.
+
+Require complete fragment membership, rather than a fragment-only geometric
+mean, before completing the full matrix. A fragment aggregate cannot determine
+the full 912-case aggregate. The independent full verifier and enforced command
+apply every bar over the complete union. Restart this still-waiting orchestrator
+once more with exit 130; no million samples have been measured or discarded.
+
+## D131 — D128 maximum misses require another source change
+
+D128 retains 924 exact fixture comparisons, 74,000 exact seeded comparisons,
+76 root tests in each feature mode and eleven passing local checks. Stop its
+Moss tiny/medium diagnostic with exit 130 after its maximum exceeds 1.5:
+`simplify_with_update/tiny/sparse/mode-1` measures 1.5039728238969359 and
+`generate_vertex_remap_custom/medium/smooth/mode-1` measures
+1.588478319023424. Stop both still-waiting continuations with exit 130. Preserve
+the completed records, original and recovered buffers, source and bound
+executables under `fixed-generation-trial`; these are not qualifying bars.
+
+Profile the two saved inputs and bound executables, then optimize the safe Rust
+paths. Keep the exact outputs, callback order, checks, work and heap limits,
+D127 fixed batches, all 912 workloads, sample policy, both profiles and bars.
+Requalify the changed source; do not replay unchanged source until it passes.
+
+## D132 — Short custom-remap scans and shared triangle planes
+
+The saved D128 custom-remap input profiles at 1,439,077,402 Rust instructions
+versus 1,049,612,083 C++ instructions; Rust uses 545,303,986 versus 359,259,180
+cycles on the diagnostic CPU. Its generation kernel holds 79.49% of samples,
+with a large loop body and register spills even for already-mapped indices.
+Outline only the first-seen custom-remap probe body. Keep the common visitation
+charge and mapped test in the small loop; keep the same hash, probing, callback
+order, limited-work prefix and allocation accounting. Other remap families keep
+their inlined probe path.
+
+The saved update input profiles at 48,539,640,453 versus 31,102,384,780
+instructions and 13,218,710,264 versus 9,376,529,049 cycles. Quadric construction
+holds 34.00% of Rust samples. Compute the normalized face plane once and reuse it
+for volume gradients. Preserve the original cross product, normalization, plane
+and gradient arithmetic order, accumulator order and work charges. The memoized
+square root is pure and exact, so removing a repeated lookup cannot change its
+result. Retain the profiling inputs, instructions, cycles, sampling reports and
+output identity; diagnostic counts do not establish timing acceptance.
+
+## D133 — Keep custom callbacks behind position equality
+
+D132's eleven local checks and all 924 fixture comparisons pass. Its focused
+Moss update ratios are 1.399 and 1.478 for allocating and caller forms; custom
+remap is 1.560 and 1.477, so the allocating maximum still misses. Stop the
+focused continuation and the incomplete sweep with exit 130, retaining their
+records, buffers, source and executable identities under `short-custom-plane-trial`.
+
+The D128 assembly witness hoists custom callback state and the callback's modulo
+calculation into probing before numerical equality succeeds. Isolate that
+callback invocation in a non-inlined helper, used only after positions compare
+equal. Keep callback order, arguments, results, hash probing, work charges and
+all output/limit behavior. Retain D132's plane reuse and short mapped scan. This
+changes library code rather than adapter tracing or benchmark input/policy.
+Requalify the new source, starting with the saved missed cases in both profiles.
+
+## D134 — Preserve wall timing and remove bounded bookkeeping
+
+D133 retains 924 exact fixture comparisons and eleven passing local checks. Both
+focused diagnostic commands exit 0, but their diagnostic-only ratios still miss
+the bar: Moss allocating update/custom are 1.508049062218985 and
+1.5033565359822592; defaults allocating update is 1.5834009068344073. Preserve
+these records, source and seven executable copies in `outlined-callback-trial`.
+The RFC names time ratios without specifying a clock. Retain the established
+wall-clock contract and every failed measurement; do not substitute CPU time.
+
+Custom remap now dispatches indexed and unindexed traversal once. The indexed
+ample-work path iterates a checked index subslice, removing the optional-buffer
+branch and per-index lookup check. Keep initialization, record/probe/callback
+order, bounded batching and the original limited prefix.
+
+For update solving, canonical position roots partition wedge cycles. After
+adjacency, an upper bound on remaining charges is two vertex scans, four visits
+per stored attribute gradient and two adjacency scans. If this bound fits the
+remaining work, accumulate actual visits without per-visit exhaustion checks;
+charge the exact visited prefix on success or numerical failure. Otherwise use
+the original per-visit checks. Overflow in the bound selects the limited path.
+No float expression, destination write order, allocation or resource limit is
+changed. Requalify the changed source and keep all workloads and bars.
+
+## D135 — Retain every current focused sample in the full matrices
+
+Reuse all four predetermined D134 focused cases per profile, including defaults
+whose measurements are still pending when this decision is recorded. Their
+case membership was fixed before this source epoch was measured: allocating
+and caller forms of tiny sparse update and medium smooth custom remap. Measure
+all 604 disjoint remaining tiny/medium cases, then all 304 million cases. No
+current focused case or sample is dropped, replayed or selected by its ratio.
+
+Require source, executable, reference, profile, clock/boundary, fixed batches,
+sample policy and CPU identities to match. Assemble the 608-case size group,
+then apply D129/D130 to form the exact 912-case matrix. The final independent
+verifier also checks the nested four-plus-604 assembly and every fragment hash.
+The four-case diagnostic alone does not establish any family's geometric mean.
+A focused maximum miss stops completion because the full maximum cannot pass.
+All bars remain unchanged. All 78 root tests, including D134's two new contract
+tests, and the eleven local gates pass; final sweep and full timing are pending.
+
+## D136 — Lossless storage of duplicate historical recovery ZIPs
+
+The shared volume has about 11 GB free before the million groups. Historical
+interrupted ZIPs and their recovered ZIPs duplicate the same compressed member
+payloads. Retain the raw ZIPs and encode each recovered ZIP as a recipe: its
+original local headers, compressed-payload spans in the raw ZIP and exact central
+directory bytes. Verify every compressed span against the recovered ZIP, then
+verify its complete original SHA256 and byte count through reconstruction from
+the saved recipe. Remove only the duplicate recovered ZIP after both checks.
+
+Keep `lossless-recoveries.json` and `restore_recovered_recipe.py`; restoration
+recreates the original recovered ZIP byte for byte, including its archived hash.
+No historical input, output or raw sample is removed. Every qualifying archive
+stays an ordinary complete ZIP. This changes artifact storage only; source,
+executables, wall timing, cases, samples and bars remain frozen.
+
+The trial replaced two historical recovery ZIPs before stopping with exit 1 at
+its 16 MiB directory-size guard. The shared volume subsequently gained free
+space externally. Restore both originals rather than continue this storage
+trial. Each restored ZIP matches its original SHA256 and byte count: 27,350,414
+and 740,676,464 bytes. `lossless-restoration.json` records the checks. Retain the
+partial manifest, recipes and failed log as diagnostic evidence; no recovered
+archive remains removed and no qualification archive was affected. The trial
+is unapplied in the final artifact inventory.
+
+## D137 — Inline first-seen custom remaps after callback isolation
+
+D134's source `db4a731ac894767c02ba69e480229df0b83136a9987784d1e3871edb16d00c25`
+passes 924 fixtures, 74,000 sweep cases and eleven local gates. Both 608-case
+small/medium groups completed, but defaults allocating custom remap on medium
+sparse geometry has median 1.520766148, exceeding 1.5. Moss's group passes;
+its worst maximum is 1.474358. Stop the million continuation and final checks
+with exit 130; retain all records and samples in `indexed-custom-trial`.
+Recover its interrupted million ZIP and verify all 24 recorded workloads (72
+members). This epoch does not qualify. The 604-case command's exit 0 describes
+diagnostic execution, not acceptance of its failed defaults bar.
+
+Profile the exact failing defaults input against bound executables on CPU 0.
+Rust executes 1,449,205,503 instructions and C++ 999,525,658; Rust's first-seen
+outlined function accounts for 60.88% of sampled cycles, with substantial call,
+register-save and spill costs. CPU counters diagnose source cost; they do not
+replace wall-clock acceptance. An initial diagnostic requested 200 transport
+samples, exceeding the adapter's cap; retain its rejected-input log and use the
+supported 100-sample transport. No qualifying timing sample was rerun.
+
+Inline the custom first-seen probe body into the indexed/unindexed kernel now
+that D133 keeps callback work behind a separate call boundary. Also assign an
+inserted remap directly, eliminating the redundant sentinel reread after a new
+entry has already been written. Preserve hash/probe order, numerical comparison,
+callback traversal, compact numbering, work charges and limited-work prefixes.
+Keep checked safe indexing and all heap bounds. Requalify every gate against
+this changed source; do not reuse D134 timing or parity receipts.
+
+## D138 — Predetermined ten-case diagnostic and complete timing membership
+
+Before measuring D137, select custom remap on all four medium shapes in both
+allocating and caller forms, plus tiny sparse update in both forms: ten cases
+per profile. Retain every sample and include all ten in the final 608-case size
+group. Measure its 598 disjoint remaining tiny/medium cases, then all 304 million
+cases, for the unchanged exact 912-case matrix. Extend D135's nested membership
+verification to ten plus 598; retain source/executable/profile/clock/batch/sample
+and CPU identities and unchanged bars. No case or sample is selected by its
+measured ratio, skipped, replayed or filtered. A diagnostic maximum or heap miss
+precludes completion; its incomplete family means are not final acceptance.
+
+## D139 — Checked packed arrays for large owned fixed-width fetch
+
+D137's source `7c0b2caf7e69d2a05e372c5ba891dc9faa4577332e3e5427ed8695a632163f79`
+passes all eleven local gates, 924 fixtures and 74,000 seeded comparisons.
+Both 608-case size groups complete with passing case maxima and heap ratios.
+Defaults FIFO's group geometric mean is 1.250148942; a full-family verdict still
+requires the million group. Stop the million continuation when Moss allocating
+fetch on million sparse geometry records 1.741135, above 1.5. Retain all samples,
+297 completed million workloads and the exit-130 orchestration receipts in
+`inline-custom-trial`; this epoch does not qualify.
+
+Profile that exact input against its immutable executables on CPU 0. Rust
+executes 7,300,049,010 instructions versus C++ 6,883,368,388; Rust's fetch function
+accounts for 72.29% of sampled cycles. These source-cost diagnostics do not
+replace the failed wall-clock verdict. Extract the failing input directly from
+its original local ZIP member while full interrupted-archive recovery proceeds;
+verify its decompressed length, CRC and recorded SHA256 before profiling.
+
+For the large owned 4/8/12/16-byte paths, dispatch tightly packed records once
+and use a checked `[[u8; SIZE]]` view. Each first-use record then needs one typed
+source index instead of dynamic byte-range arithmetic/checks. Strided records
+retain the original checked fixed-width slice access. Keep initialized pushes,
+fallible full-capacity reservation, actual capacity accounting, compact order,
+work counts and limited-work prefixes. No unsafe initialization or reinterpretation
+is introduced. Requalify the changed source against every gate and full bar.
+
+## D140 — Whole matrices with expensive failure-prone families first
+
+For D139's new source, run one complete 912-case matrix per profile, sequentially,
+with enforcement enabled. Predetermine size order million, tiny, medium. Measure
+vertex fetch across all four shapes, then sloppy across all four shapes, then
+all remaining families in their existing shape/family order. Cache each size
+group's four generated geometries in the parent; generation stays outside timing. The exact membership, forms, variants, sample
+policy, wall-clock boundary, fixed batches, core selection and bars are unchanged.
+This identifies a new miss early without dropping any accepted case or sample.
+There is no focused timing run or fragment assembly for this epoch. A completed
+qualifying matrix contains all 912 workloads and every prescribed paired sample.
+A case maximum or heap miss stops its epoch after recording the complete case.
+Retain failed attempts; never repeat an unchanged source until a bar passes.
+
+## D141 — Initialized typed fetch output and a scalar write cursor
+
+D139's source `158fa42e6e09d4a46cb14c2b85ffea97c275f481672ac9d1c72c346c1361df12`
+passes all eleven local gates, 924 fixtures and 74,000 seeded comparisons.
+D140's enforced Moss matrix stops after its seventh case: allocating million
+sparse fetch records 1.664227231, still above 1.5. The matrix and final-check
+commands exit 1. Retain its seven complete cases, every sample and all bound
+executables in `packed-fetch-trial`; verify all 21 ZIP members against their
+recorded lengths and hashes. This epoch does not qualify.
+
+Replace repeated initialized `Vec::push` calls in the large fixed-width owned
+fetch path with a full initialized typed record buffer and a scalar first-use
+write cursor. Checked source and destination array indexing remains safe; trim
+only the used output length after execution, then flatten the initialized
+records. This removes per-record Vec length/capacity mutation and matches the
+reference allocating form's full-buffer initialization. Keep fallible allocation,
+full actual capacity accounting, compact output order, work charges and error
+prefixes. Remove the now-unused reservation-only Budget helper. Retain D139's
+packed source view and the strided fallback. Requalify all gates and both D140
+complete matrices against this changed source; do not reuse older timing.
+
+## D142 — Coordinator time box for the remaining fetch maximum
+
+The coordinator authorizes D141's current fetch attempt and at most one further
+fetch optimization. If the affected case still exceeds 1.5, stop optimizing
+fetch. Complete remaining qualification with its failed bar and documented
+residual: retain profile evidence, the best observed ratio and the concrete
+safe-Rust/source-cost reason it cannot be closed within this time box. Keep the
+bar unchanged; the coordinator owns the residual decision. Preserve every other
+passing family. Do not claim a residual as an unconditional performance pass.
+
+## D143 — Final permitted fetch attempt: iterator append
+
+D141's source `a5779043780c97c2231b575d76e8f6cd5ba393780751a953b54b10bf07e01bfb`
+passes all eleven local gates and 924 fixtures. Its enforced Moss matrix fails
+on allocating million sparse fetch at 1.878920636, worse than D139's 1.664227231.
+The matrix exits 1 after seven recorded cases. Stop the still-running sweep with
+exit 130 before changing sources; retain its partial archive and all benchmark
+members, logs and bound executables in `initialized-fetch-trial`. Do not qualify
+this source or use its samples for final acceptance.
+
+Use the one further fetch attempt allowed by D142. Restore the fallibly reserved
+typed output and D139's checked packed source view. In the ample-work path, append
+first-use records through `Vec::extend` over a filtering iterator while rewriting
+indices and tracking compact numbering. This permits the standard-library append
+cursor to stay inside its own loop instead of mutating a borrowed Vec on every
+first-use record. At most one record per validated vertex is appended; the full
+source count is reserved and charged before iteration, so no growth is needed.
+The limited-work path retains per-visit charges and initialized pushes. Preserve
+exact output, actual capacity accounting and error prefixes; no unsafe code or
+uninitialized output is introduced. This is the final fetch optimization attempt.
+Requalify completely, keeping 1.5 unchanged and documenting any residual under
+D142; make no further fetch optimization.
+
+## D144 — Fixed-width allocating vertex-remap keys
+
+D143's source passes all eleven local gates, 924 fixtures and 74,000 seeded
+comparisons. Its Moss matrix stops after 477 cases at allocating vertex remap on
+tiny disconnected geometry: 1.998288406 against 1.5. Fetch's previously failing
+case passes at 1.378806161. Retain the complete failed epoch and all 1,431 closed
+ZIP members in `iterator-fetch-trial`; both orchestrations exit 1. No benchmark
+retry of unchanged source is performed. This non-fetch miss is not covered by
+D142's residual authorization.
+
+Exact-input CPU profiling retains immutable binaries and equal C++/Rust outputs.
+Rust uses 24,379,789,309 instructions versus C++ 19,362,912,190 across 100 adapter
+samples; dynamic memcmp accounts for 17.73% of sampled Rust cycles. The allocating
+single-stream path still used dynamic-width hashing/equality while the caller
+path already specialized four common widths. Dispatch allocating 4-, 8-, 12- and
+16-byte keys to the same checked fixed-width array accesses. Keep general widths,
+strides, allocation, capacity accounting, work limits and error order unchanged.
+D143's fetch section is byte-identical; no further fetch optimization is made.
+Requalify all gates and complete matrices, preserving every other family's bars.
+
+D144 extends D140's predetermined whole-matrix order: within each size, visit
+fetch, sloppy and now vertex remap across all four shapes before remaining
+families. Membership, sample policy, fixed batches, timing and bars remain
+unchanged. This exposes the newly identified tiny remap miss before lengthy
+option cases. Independently verify this exact order; retain every case/sample.
+
+## D145 — Final local 0.1.x verdict and retained evidence
+
+The frozen source `747af689c02da527aa843d97a9512f0812a2ab62fcdbc5f0fa841b4ed5f50aa1` completes the brief's local
+qualification under D142. Correctness and integrity gates pass. The unconditional
+performance verdict is `recorded residual; coordinator decision pending`.
+All 27 additional functions and five option families are implemented. Sparse,
+Prune and RegularizeLight are stable; PreserveFolds and ErrorClamped remain
+behind `experimental`, with independent records. Unknown option bits are rejected.
+No codecs, meshlets, Moss integration or publication are claimed.
+
+All eleven local checks exit 0, including formatting, strict Clippy, all-feature
+and no-default-feature tests (78 root tests each), core no_std WASM compilation,
+adapter tests and measurement tests. The fixture command exits 0 with 924
+exact C++/native Rust/WASM comparisons. The sweep command exits 0 with 74000
+exact comparisons: 2,000 cases for each of 32 new and five existing families.
+The independent archive verifier confirms every retained input/output identity.
+
+D144 specializes the allocating single-stream remap's common widths after a
+retained tiny-case miss. The D143 fetch section is unchanged. Fresh qualification
+covers this final source rather than reusing the failed epoch.
+
+Both complete 912-workload consumer matrices retain all 32 family verdicts
+against unchanged geometric-mean, maximum-time and peak-heap bars. Their
+unconditional all-bars result is `fail with the documented fetch residual`. D127 uses identical
+fixed batches in both adapters. D144 extends D140 to run complete matrices with million cases
+first and fetch/sloppy/remap across all shapes first within each size. Every prescribed
+case and paired sample is retained. The independent verifier checks exact
+membership and scheduling, source/executable identities, raw outputs and timing
+summaries. Both enforced matrix commands exit 0; no fragment assembly is used.
+
+| Family | Moss GM | Moss max | Moss heap max | Defaults GM | Defaults max | Defaults heap max | Verdict |
+|---|---:|---:|---:|---:|---:|---:|---|
+| `vertex_cache_strip` | 1.156608175 | 1.240929969 | 1.000000000 | 1.157376353 | 1.299164679 | 1.000000000 | pass |
+| `vertex_cache_fifo` | 1.234650415 | 1.465943075 | 1.000000000 | 1.208330027 | 1.398317265 | 1.000000000 | pass |
+| `generate_vertex_remap` | 1.054421411 | 1.194598146 | 1.000000000 | 1.022292210 | 1.123881357 | 1.000000000 | pass |
+| `generate_vertex_remap_multi` | 0.960848947 | 1.074388813 | 1.000000000 | 0.940236906 | 1.023275122 | 1.000000000 | pass |
+| `generate_vertex_remap_custom` | 0.977988794 | 1.178649303 | 1.000000000 | 1.086820279 | 1.419409244 | 1.000000000 | pass |
+| `remap_vertex_buffer` | 0.843468412 | 1.124842047 | 1.000000000 | 0.864994559 | 1.153643251 | 1.000000000 | pass |
+| `remap_index_buffer` | 1.009119886 | 1.169866747 | 1.000000000 | 1.143411121 | 1.408898429 | 1.000000000 | pass |
+| `filter_index_buffer` | 0.969029011 | 1.091127328 | 1.000000000 | 0.992944924 | 1.174090712 | 1.000000000 | pass |
+| `filter_index_buffer_multi` | 0.918424595 | 1.114666299 | 1.000000000 | 0.957003092 | 1.094156774 | 1.000000000 | pass |
+| `generate_shadow_index_buffer` | 1.076521368 | 1.223520524 | 1.000000000 | 1.004433400 | 1.150860058 | 1.000000000 | pass |
+| `generate_shadow_index_buffer_multi` | 0.995008493 | 1.145689377 | 1.000000000 | 0.915410488 | 1.132770587 | 1.000000000 | pass |
+| `generate_position_remap` | 0.791564529 | 0.940421238 | 1.000000000 | 0.796759747 | 1.006568838 | 1.000000000 | pass |
+| `generate_adjacency_index_buffer` | 1.127062085 | 1.238053536 | 1.000000000 | 1.177521680 | 1.290351883 | 1.000000000 | pass |
+| `generate_tessellation_index_buffer` | 1.129629321 | 1.246140135 | 1.000000000 | 1.195118151 | 1.286663358 | 1.000000000 | pass |
+| `generate_provoking_index_buffer` | 1.099636275 | 1.214545897 | 1.000000000 | 1.181850037 | 1.322432668 | 1.000000000 | pass |
+| `vertex_fetch` | 0.973930893 | 1.725607205 | 1.000000000 | 0.988555444 | 1.852204690 | 1.000000000 | recorded maximum residual |
+| `vertex_fetch_remap` | 0.936172943 | 1.173748781 | 1.000000000 | 1.024425446 | 1.159305322 | 1.000000000 | pass |
+| `simplify_sloppy` | 1.199863725 | 1.481215355 | 1.000000000 | 1.184249656 | 1.420795519 | 1.000000000 | pass |
+| `simplify_prune` | 1.055969308 | 1.312070700 | 1.215968444 | 1.038282184 | 1.387150566 | 1.215968444 | pass |
+| `simplify_points` | 1.026971321 | 1.274472406 | 0.965909091 | 0.995225587 | 1.230062933 | 0.965909091 | pass |
+| `simplify_with_update` | 1.025463929 | 1.401171143 | 1.179795945 | 1.038249094 | 1.418823335 | 1.179795945 | pass |
+| `quantize_unorm` | 0.899202966 | 0.946229555 | 1.000000000 | 0.896170226 | 0.936247493 | 1.000000000 | pass |
+| `quantize_snorm` | 1.124721556 | 1.184852506 | 1.000000000 | 1.146502273 | 1.183915750 | 1.000000000 | pass |
+| `quantize_half` | 0.169378066 | 0.197651799 | 1.000000000 | 0.184537610 | 0.220261680 | 1.000000000 | pass |
+| `quantize_float` | 0.717145946 | 0.751098304 | 1.000000000 | 0.735937532 | 0.828524492 | 1.000000000 | pass |
+| `dequantize_half` | 0.149545165 | 0.191424054 | 1.000000000 | 0.158687358 | 0.286193292 | 1.000000000 | pass |
+| `compute_position_exponent` | 0.964542537 | 1.097489121 | 1.000000000 | 1.006641155 | 1.113894841 | 1.000000000 | pass |
+| `simplify_sparse` | 1.029878311 | 1.340327136 | 1.235782117 | 1.037069772 | 1.361104900 | 1.235782117 | pass |
+| `simplify_prune_option` | 1.006428270 | 1.271598861 | 1.070429829 | 1.017066552 | 1.344551211 | 1.070429829 | pass |
+| `simplify_preserve_folds` | 1.042600304 | 1.329189912 | 1.072378925 | 1.047956039 | 1.391019840 | 1.072378925 | pass |
+| `simplify_error_clamped` | 0.994238031 | 1.340610444 | 1.072378925 | 1.008978081 | 1.392738116 | 1.072378925 | pass |
+| `simplify_regularize_light` | 1.014921128 | 1.402286736 | 1.072378925 | 1.006067560 | 1.415860508 | 1.072378925 | pass |
+
+The coordinator-authorized residual retains the 1.5 maximum bar:
+- `moss` / `vertex_fetch/million/sparse/mode-1`: 1.725607205; failed maximum, coordinator decision pending.
+- `defaults` / `vertex_fetch/million/sparse/mode-1`: 1.852204690; failed maximum, coordinator decision pending.
+Best retained same-input `moss` ratio: 1.378806161 in `iterator-fetch-trial/records/p01x-benchmark-moss.partial.json`. Historical diagnostics are not substituted for the final source's verdict.
+Best retained same-input `defaults` ratio: 1.852204690 in `records/p01x-benchmark-defaults.json`. Historical diagnostics are not substituted for the final source's verdict.
+
+D139 and `fetch-large-direct-profiles` retain exact-input source/binary evidence:
+Rust 7,300,049,010 instructions versus C++ 6,883,368,388, with 72.29% of Rust
+sampled cycles in fetch and 11.71% in bulk copying. Packed arrays improved the
+failed ratio; full initialization worsened it; D143 used the last permitted
+safe iterator-append attempt. The same-input D143 epoch reached 1.378806161, but its byte-identical fetch
+section records the final-source miss after the separate D144 remap fix. Both
+allowed fetch attempts are used; D142 forbids further fetch optimization. Checked
+index/source access, initialized append and required copies remain. No tested
+revision establishes a full final-source pass within this time box. The counter
+gap does not by itself explain the larger wall gap or isolate allocator/cache/
+shared-machine effects. This is no
+claim that a safe-Rust solution is intrinsically impossible. Stop fetch
+optimization and leave the residual decision to the coordinator. Every other
+case maximum, family mean and heap bar passes.
+
+Final-source exact-input diagnostic: 6,999,202,257 Rust instructions versus 6,883,368,840 C++ instructions across 100 adapter samples. Its manifest binds the final source/executable identities, changed transport count and exact equal outputs. Counters include adapter/startup work and are diagnostic; these samples are not substituted for the wall-clock bar.
+
+All 32 current-source mutation targets exit 0 after at least 300.000000
+elapsed seconds each, totaling 668,359,862 executions, with unchanged source
+and executable identities. These seeded mutation/determinism smokes have no
+coverage or sanitizer instrumentation and do not establish the RFC release fuzz
+gate. Local Linux x86-64 and executed WASM identity are established; AArch64,
+other native platforms and release/integration acceptance remain separate.
+Shared-machine wall timing is retained with every raw sample and observed load;
+no quiet-machine or universal speed claim is made.
+
+The requested artifact directory was unavailable to the earlier managed session.
+The committed archive pointers now use `/mnt/linux-extra/meshopt-artifacts/p01x`.
+The coordinator moves and verifies the earlier data. Source, reference, dependencies, binding brief/RFC,
+executables, raw buffers, logs and verifier/orchestrator code are retained there.
+D130 avoids duplicating million payload archives. D136's storage trial was rolled
+back: both replaced historical ZIPs were restored with their original hashes
+and byte counts. All original ZIPs and supplemental trial evidence are retained.
+Historical failed epochs remain
+non-qualifying; any unavailable historical executable is identified separately.
+Every executable needed for the final verdict is archived and hash-verified.
+
+The scope audit confirms unchanged lane commit metadata, branch and HEAD, and an
+empty staged diff. The lane index-file hash changed during this session; no
+Git metadata was restored or rewritten to conceal it. Shared common-main metadata
+also changed externally during the parallel lane. README, CI and existing 0.1 records
+are untouched. No changed/new checkout file exceeds 5 MB; diff checks pass.
+Delete only the named build target after retained-evidence verification. Keep
+the final cleanup receipt and review archive; do not recreate the target.
+
+D145 cleanup completed: the exact named build target is deleted after retained
+evidence verification. `target-cleanup.json` records the verified source archive,
+final executable counts and actual deletion; the target was not recreated.
+
+## D146: two-stage maximum-bar decision for final 0.1 integration
+
+The owner approved this rule on 2026-10-04, as relayed by the coordinator,
+replacing clean full-profile repeats. Stage 1 is the complete 912-case 0.1.x
+and 204-case retained 0.1 matrix under each of the Moss and default consumer
+profiles on the rebased source. The family geometric-mean and heap bars use
+stage 1 without alteration. For **every** stage-1 case with Rust/C++ ratio
+strictly greater than 1.5, run 30 fresh interleaved Rust/C++ pairs on one
+quiet pinned physical core, using the same input bytes and archived profile
+binaries. Earlier diagnostics never count as stage 2.
+
+For each flagged case, compute the mean and sample standard deviation of the
+30 log(Rust/C++) paired ratios. The two-sided 95% Student-t interval uses
+29 degrees of freedom. PASS only when `exp(upper) <= 1.5`; FAIL when
+`exp(lower) > 1.5`; an interval overlapping 1.5 is INCONCLUSIVE and counts
+as FAIL. Preserve every stage-1 maximum and all raw stage-2 samples. Record
+the stage-2 interval, verdict, input/source/executable identities, core and
+load. A failed or inconclusive case remains a documented residual; a passed
+case clears only that case maximum, never a family mean or heap failure.
+
+The maximum over more than 1,100 noisy cases can produce false failures, but
+selectively remeasuring only misses biases a naive second reading toward
+passing. Requiring the complete fresh sample and its upper confidence bound
+makes that selection explicit and conservative. The coordinator can cheaply
+reverse this acceptance decision before publication. This rule is recorded
+before stage-2 measurements begin.

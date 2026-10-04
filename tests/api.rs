@@ -647,7 +647,12 @@ fn simplifier_memory_budget_includes_scratch_and_output() {
 }
 #[test]
 fn simplifier_rejects_unimplemented_option_bits() {
-    assert!(SimplifyOptions::from_bits(2).is_err());
+    assert!(SimplifyOptions::from_bits(512).is_err());
+    assert!(SimplifyOptions::from_bits(2).is_ok());
+    assert_eq!(
+        SimplifyOptions::from_bits(128).is_ok(),
+        cfg!(feature = "experimental")
+    );
     assert_eq!(
         (SimplifyOptions::PERMISSIVE | SimplifyOptions::LOCK_BORDER).bits(),
         33

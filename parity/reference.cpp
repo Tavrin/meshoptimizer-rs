@@ -36,6 +36,7 @@ static float as_float(uint32_t bits) { float v; std::memcpy(&v,&bits,4); return 
 static uint32_t bits(float value) { uint32_t b; std::memcpy(&b,&value,4); return b; }
 static std::vector<char> encoded;
 static void write(uint32_t value) { for (int i=0;i<4;++i) encoded.push_back(char(value>>(i*8))); }
+#include "p01x_reference.h"
 int main(int argc, char** argv) {
  try {
     if (std::fegetround()!=FE_TONEAREST) throw std::runtime_error("rounding environment");
@@ -56,6 +57,7 @@ int main(int argc, char** argv) {
         in.insert(in.end(), buffer.data(), buffer.data() + n);
     }
     if (source.bad()) throw std::runtime_error("input failure");
+    if(in.size()>=4 && !std::memcmp(in.data(),"MO02",4)) return preprocessing(in,paired);
     if(in.size()<28 || std::memcmp(in.data(),"MO01",4)) throw std::runtime_error("bad protocol version");
     uint32_t op=read(in,4), vc=read(in,8), ic=read(in,12), mode=read(in,20), samples=read(in,24);
     float threshold=as_float(read(in,16));

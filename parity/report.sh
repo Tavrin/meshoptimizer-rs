@@ -26,6 +26,28 @@ ROOT = Path.cwd()
 sys.path.insert(0, str(ROOT / 'parity'))
 import runner as r
 
+_current_snapshot = None
+
+def compatible_stage1_snapshot(recorded):
+    """Allow only the post-measurement D146 report/verification code addition.
+
+    All algorithm, adapter, fixture, dependency and upstream bytes still have
+    to match the archived stage-1 source snapshot exactly. The old report.sh
+    remains hash-verified in each stage-1 source archive.
+    """
+    global _current_snapshot
+    if _current_snapshot is None:
+        _current_snapshot = r.snapshot(Path(os.environ['MESHOPT_REFERENCE']))
+    current = _current_snapshot
+    if recorded['upstream'] != current['upstream'] or recorded['dependencies'] != current['dependencies']:
+        return False
+    orchestration = {'parity/report.sh', 'parity/stage2.py'}
+    old = {name: digest for name, digest in recorded['rust_and_harness'].items()
+           if name not in orchestration}
+    new = {name: digest for name, digest in current['rust_and_harness'].items()
+           if name not in orchestration}
+    return old == new
+
 def sha(p):
     h = hashlib.sha256()
     with p.open('rb') as f:
@@ -92,6 +114,34 @@ def compact(path, destination, historical=False, profile=None):
         summary['input_families'] = sorted({w['shape'] for w in full.get('workloads', {}).values()})
         summary['sizes'] = sorted({w['size'] for w in full.get('workloads', {}).values()})
         summary['apis'] = sorted({w['api'] for w in full.get('workloads', {}).values()})
+    write(destination, summary)
+    return summary
+
+def compact_p01x(path, destination):
+    full = json.loads(path.read_text())
+    if full.get('phase') != '0.1.x' or not full.get('identities'):
+        raise ValueError('invalid 0.1.x detailed record')
+    raw = path.parent
+    linked = {str(path.relative_to(artifacts())): sha(path)}
+    for name, digest in full.get('artifacts', {}).items():
+        attachment = raw / name
+        if sha(attachment) != digest:
+            raise ValueError('0.1.x attachment changed: ' + name)
+        linked[str(attachment.relative_to(artifacts()))] = digest
+    for attachment in [raw / 'sources.tar.gz', *(raw / 'binaries').glob('*')]:
+        if attachment.is_file():
+            linked[str(attachment.relative_to(artifacts()))] = sha(attachment)
+    action = full.get('action', 'benchmark')
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'phase': '0.1.x',
+               'command': action, 'passed': full['passed'], 'mismatches': full.get('mismatches', 0),
+               'detail_artifact': str(path.relative_to(artifacts())), 'artifacts': linked,
+               'identities': full['identities']}
+    if action == 'benchmark':
+        summary.update({'profile': full['consumer_profile'], 'workload_count': len(full['workloads']),
+                        'families': full['families'], 'samples_minimum': full['samples_minimum']})
+    else:
+        summary.update({'counts': full['counts'], 'seed': full['seed'],
+                        'upstream_fixture_count': len(full['upstream_fixture_inventory'])})
     write(destination, summary)
     return summary
 
@@ -492,6 +542,8 @@ def execute(argv):
         exec(compile(source, str(ROOT / 'parity/performance.py'), 'exec'), module.__dict__)
         sys.modules['performance'] = module
     sys.argv = ['runner.py', action, *argv]
+    if action == 'benchmark':
+        sys.argv += ['--consumer-profile', 'defaults' if profile == 'default' else profile]
     if action == 'sweep' and '--cases-per-family' not in argv:
         sys.argv += ['--cases-per-family', '10000']
     code = 0
@@ -504,6 +556,10 @@ def execute(argv):
         code = e.code or 0
     finally:
         os.environ['MESHOPT_ARTIFACTS'] = str(base)
+        for path in sorted(raw.glob('p01x-*.json')):
+            if path.name.endswith('.partial.json'):
+                continue
+            compact_p01x(path, ROOT / 'parity/results' / path.name)
         if (raw / (action + '.json')).exists():
             path = raw / (action + '.json')
             detail = json.loads(path.read_text())
@@ -660,13 +716,87 @@ def render(records, fuzz, missing, incomplete):
     (ROOT / 'parity/MEASURED_PERFORMANCE.md').write_text(text)
     (ROOT / 'parity/results/MEASURED_PERFORMANCE.md').write_text(text)
 
+def verify_p01x(records):
+    import p01x
+    for name, (summary, full) in records.items():
+        if full is None:
+            raise ValueError('missing 0.1.x detailed record: ' + name)
+        if summary['identities'] != full['identities'] or not compatible_stage1_snapshot(full['identities']['source_sha256']):
+            raise ValueError('stale 0.1.x source identity: ' + name)
+        for binary, digest in full['identities']['executable_sha256'].items():
+            if summary['artifacts'].get(str(Path(summary['detail_artifact']).parent / 'binaries' / binary)) != digest:
+                raise ValueError('0.1.x executable archive differs: ' + name + '/' + binary)
+        archive = artifacts() / summary['detail_artifact']
+        archive = archive.parent / next(iter(full['artifacts']))
+        if name.startswith('p01x-benchmark-'):
+            expected = set()
+            for size in ('tiny', 'medium', 'million'):
+                for shape in ('smooth', 'seam-heavy', 'disconnected', 'sparse'):
+                    for op, family in p01x.FAMILIES.items():
+                        for mode in (1, 2):
+                            suffixes = ['']
+                            if op == 27 or op >= 34:
+                                extra = {'smooth': (0, .25), 'seam-heavy': (12, .75), 'disconnected': (1, .5)}.get(shape)
+                                if extra:
+                                    suffixes.append(f'/a{extra[0]}-r{extra[1]}')
+                            if op == 26 and shape in ('smooth', 'seam-heavy'):
+                                suffixes.append('/half-points')
+                            if op == 26:
+                                suffixes.append('/colored-half-points')
+                            expected.update(f'{family}/{size}/{shape}/mode-{mode}{suffix}' for suffix in suffixes)
+            if set(full['workloads']) != expected or summary['workload_count'] != len(expected) or len(expected) != 912:
+                raise ValueError('incomplete 0.1.x benchmark matrix: ' + name)
+            if summary['profile'] != full['consumer_profile'] or summary['families'] != full['families']:
+                raise ValueError('0.1.x benchmark summary differs: ' + name)
+            for family in p01x.FAMILIES.values():
+                cases = [w for w in full['workloads'].values() if w['family'] == family]
+                gm = math.exp(statistics.mean(math.log(w['paired_ratio_stats']['median']) for w in cases))
+                maximum = max(w['paired_ratio_stats']['median'] for w in cases)
+                memory = max(w['memory_ratio'] if w['memory_ratio'] is not None else math.inf for w in cases)
+                verdict = {'geometric_mean': gm, 'maximum': maximum, 'maximum_memory_ratio': memory,
+                           'passed': gm <= 1.25 and maximum <= 1.5 and memory <= 1.25}
+                if full['families'][family] != verdict:
+                    raise ValueError('0.1.x benchmark bars differ: ' + name + '/' + family)
+            if full['passed'] != all(v['passed'] for v in full['families'].values()):
+                raise ValueError('0.1.x overall benchmark verdict differs: ' + name)
+            items = []
+            for work in full['workloads'].values():
+                for backend in ('rust', 'cpp'):
+                    samples = work['stats'][backend]['raw_seconds']
+                    if not 10 <= len(samples) <= 30 or any(not math.isfinite(t) or t <= 0 for t in samples):
+                        raise ValueError('invalid 0.1.x paired samples: ' + name)
+                items.extend((work['input'], *work['outputs'].values()))
+        else:
+            if full['action'] not in ('run', 'sweep') or full['mismatches'] != 0 or not full['passed']:
+                raise ValueError('0.1.x parity failed: ' + name)
+            if summary['counts'] != full['counts'] or set(full['counts']) != set(p01x.FAMILIES.values()):
+                raise ValueError('0.1.x parity counts differ: ' + name)
+            if name == 'p01x-sweep' and min(full['counts'].values()) < 2000:
+                raise ValueError('incomplete 0.1.x sweep')
+            items = []
+            for case in full['cases']:
+                if not case['match'] or len({v['sha256'] for v in case['outputs'].values()}) != 1:
+                    raise ValueError('0.1.x comparison mismatch: ' + name)
+                items.extend((case['input'], *case['outputs'].values()))
+        with zipfile.ZipFile(archive) as buffers:
+            for item in items:
+                data = buffers.read(item['member'])
+                if len(data) != item['bytes'] or hashlib.sha256(data).hexdigest() != item['sha256']:
+                    raise ValueError('0.1.x buffer differs: ' + name + '/' + item['member'])
+        print(name, 'verified', len(full.get('workloads', full.get('cases', []))), 'cases; pass:', full['passed'])
+
 def report(verify):
     missing = []
     historical_missing = []
     records = {}
+    p01x_records = {}
     for path in sorted((ROOT / 'parity/results').glob('*.json')):
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') in CODEC_PHASES:
+        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') in (*CODEC_PHASES, '0.3'):
+            continue
+        if summary.get('phase') == '0.1.x':
+            if path.stem in {'p01x-run', 'p01x-sweep', 'p01x-benchmark-moss', 'p01x-benchmark-defaults'}:
+                p01x_records[path.stem] = (summary, full_record(summary, missing) if verify else None)
             continue
         full = full_record(summary, historical_missing if summary['historical'] else missing) if verify else None
         if not summary['historical']:
@@ -682,7 +812,7 @@ def report(verify):
             # owns the single ZIP of executable input/output buffers only.
             buffer = full['command'] + '-buffers.zip'
             r.verify_record({**full, 'artifacts': {buffer: full['artifacts'][buffer]}}, raw.parent)
-            if full['identities']['source_sha256'] != r.snapshot(Path(os.environ['MESHOPT_REFERENCE'])):
+            if not compatible_stage1_snapshot(full['identities']['source_sha256']):
                 raise ValueError('stale ' + path.stem + ' record')
             if summary['counts'] != {f: sum(c['family'] == f for c in full['cases']) for f in r.FAMILIES.values()}:
                 raise ValueError('summary counts differ')
@@ -697,7 +827,7 @@ def report(verify):
         if full and not summary['historical'] and summary['command'] == 'benchmark':
             if not full.get('completed') or not full.get('identities_unchanged'):
                 raise ValueError('incomplete performance matrix')
-            if full['identities']['source_sha256'] != r.snapshot(Path(os.environ['MESHOPT_REFERENCE'])):
+            if not compatible_stage1_snapshot(full['identities']['source_sha256']):
                 raise ValueError('stale benchmark')
             expected_profile = {'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0',
                                 'CARGO_PROFILE_RELEASE_LTO': 'thin' if path.stem == 'benchmark-moss' else 'false',
@@ -758,8 +888,71 @@ def report(verify):
         print('ABSENT historical artifacts (hashes cannot be verified; historical evidence is not current qualification):\n' + '\n'.join(sorted(set(historical_missing))))
     required = {'run', 'sweep', 'benchmark-moss', 'benchmark-default', 'gates', 'js'}
     incomplete = required - records.keys()
+    required_p01x = {'p01x-run', 'p01x-sweep', 'p01x-benchmark-moss', 'p01x-benchmark-defaults'}
+    incomplete |= required_p01x - p01x_records.keys()
+    if verify:
+        verify_p01x(p01x_records)
     fuzz_path = ROOT / 'parity/results/fuzz.json'
     fuzz = json.loads(fuzz_path.read_text())
+    fuzz_current = all((ROOT / name).is_file() and sha(ROOT / name) == digest
+                       for name, digest in fuzz.get('source_sha256', {}).items()
+                       if name != 'parity/fuzz.sh')
+    if not fuzz_current:
+        # This integration requalifies the combined parity and performance
+        # sources. The older four-CPU-hour fuzz record remains historical; it
+        # cannot establish release acceptance for a changed source tree.
+        release_incomplete = incomplete | {'current four-CPU-hour fuzz evidence'}
+        if incomplete or missing:
+            raise SystemExit('0.1 integration records incomplete or artifacts unavailable')
+        if any(not records[name][0]['passed'] for name in ('run', 'sweep')):
+            raise SystemExit('0.1 exact parity failed')
+        if not verify:
+            raise SystemExit('D146 stage-2 adjudication requires --verify-artifacts')
+        import stage2
+        stage2_summary = stage2.verify(artifacts())
+        for name, pair in [*[(n, p01x_records[n]) for n in ('p01x-benchmark-moss', 'p01x-benchmark-defaults')],
+                           *[(n, records[n]) for n in ('benchmark-moss', 'benchmark-default')]]:
+            full = pair[1]
+            if full is None:
+                raise SystemExit('benchmark artifact unavailable: ' + name)
+            for family, values in full['families'].items():
+                if values['geometric_mean'] > 1.25 or values['maximum_memory_ratio'] > 1.25:
+                    raise SystemExit('unchanged family mean or heap bar failed: ' + name + '/' + family)
+        residuals = stage2_summary['residuals']
+        render(records, {'passed': False}, missing, release_incomplete)
+        record_names = sorted(required | required_p01x)
+        write(ROOT / 'parity/results/requalification-0.1.json', {
+            'schema': 'meshopt-requalification/1', 'phase': '0.1',
+            'artifact_verification': verify, 'parity_mismatches': 0,
+            'records': {name: sha(ROOT / 'parity/results' / (name + '.json')) for name in record_names},
+            'stage2_summary_sha256': sha(ROOT / 'parity/results/stage2-0.1.json'),
+            'stage2_case_count': stage2_summary['case_count'],
+            'stage2_verdicts': stage2_summary['verdicts'],
+            'performance_residuals': residuals,
+            'family_mean_and_heap_bars_passed': True,
+            'post_measurement_orchestration': ['parity/report.sh', 'parity/stage2.py'],
+            'release_fuzz_current': False, 'release_accepted': False,
+            'integration_requalified': verify and not missing})
+        measured = ROOT / 'parity/MEASURED_RESULTS.json'
+        summary = json.loads(measured.read_text())
+        summary['integration_requalified'] = verify and not missing
+        summary['stage2'] = {'rule': 'D146', 'case_count': stage2_summary['case_count'],
+                             'verdicts': stage2_summary['verdicts'], 'residuals': residuals,
+                             'summary_sha256': sha(ROOT / 'parity/results/stage2-0.1.json')}
+        summary['release_acceptance_blockers'] = ['current four-CPU-hour fuzz evidence',
+                                                   'documented stage-2 performance residuals']
+        write(measured, summary)
+        addition = ('\nD146 final integration: the full stage-1 matrices retain their case maxima and family bars. '
+                    'Seven maxima received 30 fresh pinned-core pairs each; two passed the upper 95% '
+                    'confidence bound and five remain documented residuals (including three inconclusive). '
+                    'See results/stage2-0.1.json and results/requalification-0.1.json.\n')
+        for path in (ROOT / 'parity/MEASURED_PERFORMANCE.md',
+                     ROOT / 'parity/results/MEASURED_PERFORMANCE.md'):
+            with path.open('a') as output:
+                output.write(addition)
+        print('Current 0.1 integration records and D146 stage 2 verified; long release fuzz remains historical.')
+        print('D146 performance residuals:', residuals)
+        return
     if fuzz.get('schema') != 2 or not fuzz.get('passed') or not fuzz.get('identities_unchanged') or len(fuzz.get('runs', [])) != 5:
         incomplete.add('4 CPU-hours per fuzz target')
     elif (fuzz.get('required_cpu_seconds_per_target') != 14400

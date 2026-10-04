@@ -3,6 +3,13 @@ use crate::math::sqrt;
 use crate::workspace::{checked_bytes, topology, Work};
 use crate::{validate_vertex_flags, Attributes, Error, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
+#[path = "simplify_extra.rs"]
+mod extra;
+pub(crate) use extra::SloppyScratch;
+pub use extra::{
+    simplify_points, simplify_points_into, simplify_prune, simplify_prune_into, simplify_sloppy,
+    simplify_sloppy_into, simplify_with_update,
+};
 
 // Counted work for one simplifier phase. `Work` checks every visit against the
 // remaining budget. `Prepaid` is used only after `metered!` has established that
@@ -12,6 +19,7 @@ use alloc::vec::Vec;
 // partial side effects are identical to visit-by-visit checking.
 trait Meter {
     fn add(&mut self, count: usize) -> Result<(), Error>;
+    fn precharge(&mut self, count: usize, units: usize) -> Result<bool, Error>;
     fn scan<T>(
         &mut self,
         values: impl ExactSizeIterator<Item = T>,
@@ -22,6 +30,10 @@ impl Meter for Work {
     #[inline(always)]
     fn add(&mut self, count: usize) -> Result<(), Error> {
         Work::add(self, count)
+    }
+    #[inline(always)]
+    fn precharge(&mut self, count: usize, units: usize) -> Result<bool, Error> {
+        Work::precharge(self, count, units)
     }
     #[inline(always)]
     fn scan<T>(
@@ -38,6 +50,11 @@ impl Meter for Prepaid {
     fn add(&mut self, count: usize) -> Result<(), Error> {
         self.0 += count;
         Ok(())
+    }
+    #[inline(always)]
+    fn precharge(&mut self, count: usize, units: usize) -> Result<bool, Error> {
+        self.0 += count.checked_mul(units).ok_or(Error::SizeOverflow)?;
+        Ok(true)
     }
     #[inline(always)]
     fn scan<T>(
@@ -88,17 +105,32 @@ impl SimplifyOptions {
     pub const EMPTY: Self = Self(0);
     /// Prevent movement of geometric border vertices.
     pub const LOCK_BORDER: Self = Self(1);
+    /// Use first-referenced vertices and subset extents for simplification.
+    pub const SPARSE: Self = Self(2);
     /// Interpret the error limit and result in position units.
     pub const ERROR_ABSOLUTE: Self = Self(4);
+    /// Remove disconnected components incrementally within the error budget.
+    pub const PRUNE: Self = Self(8);
     /// Apply stronger positional regularization.
     pub const REGULARIZE: Self = Self(16);
     /// Allow collapses across unprotected attribute discontinuities.
     pub const PERMISSIVE: Self = Self(32);
     /// Apply light positional regularization.
     pub const REGULARIZE_LIGHT: Self = Self(64);
+    /// Preserve geometric folds using additional edge quadrics.
+    #[cfg(feature = "experimental")]
+    pub const PRESERVE_FOLDS: Self = Self(128);
+    /// Clamp each attribute quadric error to its accumulated area.
+    #[cfg(feature = "experimental")]
+    pub const ERROR_CLAMPED: Self = Self(256);
     /// Validate a raw option mask; unsupported options are rejected.
     pub const fn from_bits(bits: u32) -> Result<Self, Error> {
-        if bits & !(1 | 4 | 16 | 32 | 64) != 0 {
+        let mask = if cfg!(feature = "experimental") {
+            511
+        } else {
+            127
+        };
+        if bits & !mask != 0 {
             Err(Error::UnknownFlags)
         } else {
             Ok(Self(bits))
@@ -369,12 +401,22 @@ fn validate(
             return Err(Error::InvalidParameter);
         }
         if let Some(a) = a {
-            work.scan(0..a.components(), |k| {
-                if !a.get(i, k).ok_or(Error::InvalidLayout)?.is_finite() {
-                    return Err(Error::InvalidParameter);
-                }
-                Ok(())
-            })?;
+            if let Some(values) = a.float_record(i) {
+                work.scan(values.iter().copied(), |value| {
+                    if value.is_finite() {
+                        Ok(())
+                    } else {
+                        Err(Error::InvalidParameter)
+                    }
+                })?;
+            } else {
+                work.scan(0..a.components(), |k| {
+                    if !a.get(i, k).ok_or(Error::InvalidLayout)?.is_finite() {
+                        return Err(Error::InvalidParameter);
+                    }
+                    Ok(())
+                })?;
+            }
         }
     }
     Ok(())
@@ -385,7 +427,17 @@ struct V {
     y: f32,
     z: f32,
 }
+impl From<[f32; 3]> for V {
+    fn from(v: [f32; 3]) -> Self {
+        Self {
+            x: v[0],
+            y: v[1],
+            z: v[2],
+        }
+    }
+}
 impl V {
+    #[inline(always)]
     fn sub(self, b: Self) -> Self {
         Self {
             x: self.x - b.x,
@@ -393,9 +445,11 @@ impl V {
             z: self.z - b.z,
         }
     }
+    #[inline(always)]
     fn dot(self, b: Self) -> f32 {
         self.x * b.x + self.y * b.y + self.z * b.z
     }
+    #[inline(always)]
     fn cross(self, b: Self) -> Self {
         Self {
             x: self.y * b.z - self.z * b.y,
@@ -403,6 +457,7 @@ impl V {
             z: self.x * b.y - self.y * b.x,
         }
     }
+    #[inline(always)]
     fn normalize(&mut self, cache: &mut crate::math::SqrtCache) -> f32 {
         let l = cache.sqrt(self.dot(*self));
         if l > 0.0 {
@@ -430,6 +485,7 @@ struct Q {
     inverse_weight: f32,
 }
 impl Q {
+    #[inline(always)]
     fn add(&mut self, r: Self) {
         self.a00 += r.a00;
         self.a11 += r.a11;
@@ -443,6 +499,7 @@ impl Q {
         self.c += r.c;
         self.w += r.w;
     }
+    #[inline(always)]
     fn eval(self, v: V) -> f32 {
         let mut rx = (self.b0 + self.a10 * v.y) * 2.0;
         let mut ry = (self.b1 + self.a21 * v.z) * 2.0;
@@ -452,12 +509,14 @@ impl Q {
         rz += self.a22 * v.z;
         self.c + rx * v.x + ry * v.y + rz * v.z
     }
+    #[inline(always)]
     fn error(self, v: V) -> f32 {
         self.eval(v).abs() * self.inverse_weight
     }
     fn cache_inverse_weight(&mut self) {
         self.inverse_weight = if self.w == 0.0 { 0.0 } else { 1.0 / self.w };
     }
+    #[inline(always)]
     fn plane(n: V, d: f32, w: f32) -> Self {
         let aw = n.x * w;
         let bw = n.y * w;
@@ -478,6 +537,7 @@ impl Q {
             inverse_weight: 0.0,
         }
     }
+    #[inline(always)]
     fn point(p: V, w: f32) -> Self {
         Self {
             a00: w,
@@ -491,11 +551,13 @@ impl Q {
             ..Self::default()
         }
     }
+    #[inline(always)]
     fn triangle(a: V, b: V, c: V, w: f32, cache: &mut crate::math::SqrtCache) -> Self {
         let mut n = b.sub(a).cross(c.sub(a));
         let area = n.normalize(cache);
         Self::plane(n, -n.dot(a), cache.sqrt(area) * w)
     }
+    #[inline(always)]
     fn edge(a: V, b: V, c: V, w: f32, cache: &mut crate::math::SqrtCache) -> Self {
         let p10 = b.sub(a);
         let ls = p10.dot(p10);
@@ -509,6 +571,7 @@ impl Q {
         perp.normalize(cache);
         Self::plane(perp, -perp.dot(a), cache.sqrt(ls) * w)
     }
+    #[inline(always)]
     fn finite(self) -> bool {
         [
             self.a00, self.a11, self.a22, self.a10, self.a20, self.a21, self.b0, self.b1, self.b2,
@@ -634,7 +697,7 @@ impl Indices {
         self.0.len()
     }
 }
-struct State {
+pub(crate) struct State {
     vertex_count: usize,
     sqrt_cache: crate::math::SqrtCache,
     offsets: Indices,
@@ -649,6 +712,10 @@ struct State {
     q: Vec<Q>,
     aq: Vec<Q>,
     g: Vec<G>,
+    vg: Vec<G>,
+    sparse: Vec<u32>,
+    original: Vec<u32>,
+    clamped: bool,
     collapses: Vec<Collapse>,
     order: Indices,
     cr: Indices,
@@ -662,10 +729,60 @@ struct State {
 struct Budget<'a> {
     ws: &'a mut Workspace,
     bytes: usize,
+    retained: Result<usize, Error>,
+    charged: bool,
 }
-impl Budget<'_> {
-    fn indices(&mut self, n: usize) -> Result<Indices, Error> {
-        Ok(Indices(self.vec(n)?))
+impl<'a> Budget<'a> {
+    fn new(ws: &'a mut Workspace, bytes: usize) -> Self {
+        let retained = ws.retained_bytes();
+        Self {
+            ws,
+            bytes,
+            retained,
+            charged: false,
+        }
+    }
+    fn charge_current(&mut self) -> Result<(), Error> {
+        if !self.charged {
+            self.ws.charge_owned(self.retained?, self.bytes)?;
+            self.charged = true;
+        }
+        Ok(())
+    }
+    fn reuse_capacity<T>(&mut self, v: &mut Vec<T>, n: usize) -> Result<(), Error> {
+        let size = core::mem::size_of::<T>();
+        let old = checked_bytes(v.capacity(), size)?;
+        if self.bytes < old {
+            return Err(Error::SizeOverflow);
+        }
+        if n <= v.capacity() {
+            self.charge_current()?;
+            return Ok(());
+        }
+        let minimum = n;
+        let base = self.bytes.checked_sub(old).ok_or(Error::SizeOverflow)?;
+        let requested = checked_bytes(minimum, size)?;
+        self.ws.charge_owned(
+            self.retained?,
+            base.checked_add(requested).ok_or(Error::SizeOverflow)?,
+        )?;
+        if n > v.capacity() {
+            v.try_reserve_exact(n.saturating_sub(v.len()))
+                .map_err(|_| Error::AllocationFailed)?;
+        }
+        self.bytes = base
+            .checked_add(checked_bytes(v.capacity(), size)?)
+            .ok_or(Error::SizeOverflow)?;
+        if v.capacity() != minimum {
+            self.ws.charge_owned(self.retained?, self.bytes)?;
+        }
+        self.charged = true;
+        Ok(())
+    }
+    fn reuse<T: Default + Clone>(&mut self, v: &mut Vec<T>, n: usize) -> Result<(), Error> {
+        self.reuse_capacity(v, n)?;
+        v.resize(n, T::default());
+        Ok(())
     }
     fn vec<T: Default + Clone>(&mut self, n: usize) -> Result<Vec<T>, Error> {
         self.filled(n, T::default())
@@ -675,10 +792,14 @@ impl Budget<'_> {
         v.resize(n, value);
         Ok(v)
     }
+    fn release<T>(&mut self, value: Vec<T>) {
+        self.bytes -= value.capacity() * core::mem::size_of::<T>();
+        drop(value);
+    }
     fn reserve<T>(&mut self, n: usize) -> Result<Vec<T>, Error> {
         let b = checked_bytes(n, core::mem::size_of::<T>())?;
-        self.ws.prepare(
-            [0; 4],
+        self.ws.charge_owned(
+            self.retained?,
             self.bytes.checked_add(b).ok_or(Error::SizeOverflow)?,
         )?;
         let mut v = Vec::new();
@@ -688,11 +809,80 @@ impl Budget<'_> {
             .bytes
             .checked_add(checked_bytes(v.capacity(), core::mem::size_of::<T>())?)
             .ok_or(Error::SizeOverflow)?;
-        self.ws.prepare([0; 4], self.bytes)?;
+        if v.capacity() != n {
+            self.ws.charge_owned(self.retained?, self.bytes)?;
+        }
+        self.charged = true;
         Ok(v)
     }
 }
+impl core::fmt::Debug for State {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("SimplifyScratch")
+            .field("vertices", &self.vertex_count)
+            .field("heap_bytes", &self.capacity_bytes())
+            .finish()
+    }
+}
 impl State {
+    pub(crate) fn capacity_bytes(&self) -> Result<usize, Error> {
+        let fields = [
+            (self.offsets.0.capacity(), 4),
+            (self.edges.capacity(), core::mem::size_of::<Edge>()),
+            (self.remap.0.capacity(), 4),
+            (self.wedge.0.capacity(), 4),
+            (self.kind.capacity(), 1),
+            (self.forward.0.capacity(), 4),
+            (self.back.0.capacity(), 4),
+            (self.p.capacity(), core::mem::size_of::<V>()),
+            (self.a.capacity(), 4),
+            (self.q.capacity(), core::mem::size_of::<Q>()),
+            (self.aq.capacity(), core::mem::size_of::<Q>()),
+            (self.g.capacity(), core::mem::size_of::<G>()),
+            (self.vg.capacity(), core::mem::size_of::<G>()),
+            (self.sparse.capacity(), 4),
+            (self.original.capacity(), 4),
+            (self.collapses.capacity(), core::mem::size_of::<Collapse>()),
+            (self.order.0.capacity(), 4),
+            (self.cr.0.capacity(), 4),
+            (self.locked.capacity(), 1),
+            (self.table.0.capacity(), 4),
+        ];
+        fields.into_iter().try_fold(0usize, |sum, (n, size)| {
+            sum.checked_add(checked_bytes(n, size)?)
+                .ok_or(Error::SizeOverflow)
+        })
+    }
+    fn empty() -> Self {
+        Self {
+            vertex_count: 0,
+            sqrt_cache: crate::math::SqrtCache::new(),
+            offsets: Indices(Vec::new()),
+            edges: Vec::new(),
+            remap: Indices(Vec::new()),
+            wedge: Indices(Vec::new()),
+            kind: Vec::new(),
+            forward: Indices(Vec::new()),
+            back: Indices(Vec::new()),
+            p: Vec::new(),
+            a: Vec::new(),
+            q: Vec::new(),
+            aq: Vec::new(),
+            g: Vec::new(),
+            vg: Vec::new(),
+            sparse: Vec::new(),
+            original: Vec::new(),
+            clamped: false,
+            collapses: Vec::new(),
+            order: Indices(Vec::new()),
+            cr: Indices(Vec::new()),
+            locked: Vec::new(),
+            table: Indices(Vec::new()),
+            max_degree: 0,
+            ac: 0,
+            bytes: 0,
+        }
+    }
     fn new(
         n: usize,
         m: usize,
@@ -700,55 +890,64 @@ impl State {
         ws: &mut Workspace,
         output: usize,
     ) -> Result<Self, Error> {
-        let mut b = Budget { ws, bytes: output };
         let na = n.checked_mul(ac).ok_or(Error::SizeOverflow)?;
         let buckets = n
             .checked_add(n / 4)
             .ok_or(Error::SizeOverflow)?
             .checked_next_power_of_two()
             .ok_or(Error::SizeOverflow)?;
-        let mut state = Self {
-            vertex_count: n,
-            sqrt_cache: crate::math::SqrtCache::new(),
-            offsets: b.indices(n + 1)?,
-            edges: b.vec(m)?,
-            remap: Indices(b.reserve(n)?),
-            wedge: Indices(b.reserve(n)?),
-            kind: b.vec(n)?,
-            forward: Indices(b.filled(n, NONE as u32)?),
-            back: Indices(b.filled(n, NONE as u32)?),
-            p: b.reserve(n)?,
-            a: b.vec(na)?,
-            q: b.vec(n)?,
-            aq: b.vec(if ac > 0 { n } else { 0 })?,
-            g: b.vec(na)?,
-            collapses: Vec::new(),
-            order: Indices(Vec::new()),
-            cr: b.indices(n)?,
-            locked: b.vec(n)?,
-            table: Indices(b.filled(buckets, NONE as u32)?),
-            max_degree: 0,
-            ac,
-            bytes: 0,
-        };
+        let mut state = ws.simplify.take().unwrap_or_else(Self::empty);
+        let bytes = output
+            .checked_add(state.capacity_bytes()?)
+            .ok_or(Error::SizeOverflow)?;
+        let mut b = Budget::new(ws, bytes);
+        b.reuse(&mut state.offsets.0, n + 1)?;
+        b.reuse(&mut state.edges, m)?;
+        state.remap.0.clear();
+        b.reuse_capacity(&mut state.remap.0, n)?;
+        state.wedge.0.clear();
+        b.reuse_capacity(&mut state.wedge.0, n)?;
+        b.reuse(&mut state.kind, n)?;
+        state.kind.fill(MAN);
+        b.reuse(&mut state.forward.0, n)?;
+        state.forward.fill(NONE);
+        b.reuse(&mut state.back.0, n)?;
+        state.back.fill(NONE);
+        state.p.clear();
+        b.reuse_capacity(&mut state.p, n)?;
+        b.reuse(&mut state.a, na)?;
+        b.reuse(&mut state.q, n)?;
+        state.q.fill(Q::default());
+        b.reuse(&mut state.aq, if ac > 0 { n } else { 0 })?;
+        state.aq.fill(Q::default());
+        b.reuse(&mut state.g, na)?;
+        state.g.fill(G::default());
+        state.vg.clear();
+        state.sparse.clear();
+        state.original.clear();
+        state.collapses.clear();
+        b.reuse(&mut state.cr.0, n)?;
+        b.reuse(&mut state.locked, n)?;
+        state.locked.fill(false);
+        b.reuse(&mut state.table.0, buckets)?;
+        state.table.fill(NONE);
+        state.ac = ac;
+        state.vertex_count = n;
+        state.clamped = false;
+        state.max_degree = 0;
         state.bytes = b.bytes;
         Ok(state)
     }
-    // Visits: the vertex count plus two per index.
-    fn adjacency_work(&self, indices: &[u32]) -> Option<usize> {
-        indices.len().checked_mul(2)?.checked_add(self.vertex_count)
-    }
-    fn adjacency<M: Meter>(
+    fn adjacency<const WELD: bool>(
         &mut self,
         indices: &[u32],
-        weld: bool,
-        work: &mut M,
+        work: &mut Work,
     ) -> Result<(), Error> {
         work.add(self.vertex_count)?;
         self.offsets.fill(0);
         let counters = &mut self.offsets.0[1..];
         work.scan(indices.iter().copied(), |i| {
-            let v = if weld {
+            let v = if WELD {
                 self.remap.get(i as usize)
             } else {
                 i as usize
@@ -765,10 +964,14 @@ impl State {
             max_degree = max_degree.max(count);
         }
         self.max_degree = max_degree as usize;
-        for t in indices.as_chunks::<3>().0 {
-            work.add(3)?;
+        let triangles = indices.as_chunks::<3>().0;
+        let charged = work.precharge(triangles.len(), 3)?;
+        for t in triangles {
+            if !charged {
+                work.add(3)?;
+            }
             let mut v = [t[0] as usize, t[1] as usize, t[2] as usize];
-            if weld {
+            if WELD {
                 for x in &mut v {
                     *x = self.remap.get(*x);
                 }
@@ -785,18 +988,17 @@ impl State {
         }
         Ok(())
     }
-    fn has_edge<M: Meter>(
+    fn has_edge<const WELD: bool, M: Meter>(
         &self,
         a: usize,
         b: usize,
-        weld: bool,
         work: &mut M,
     ) -> Result<bool, Error> {
         let mut v = a;
         loop {
             for e in &self.edges[self.offsets.get(v)..self.offsets.get(v + 1)] {
                 work.add(1)?;
-                if if weld {
+                if if WELD {
                     self.remap.get(e.next as usize) == self.remap.get(b)
                 } else {
                     e.next as usize == b
@@ -804,7 +1006,7 @@ impl State {
                     return Ok(true);
                 }
             }
-            if !weld {
+            if !WELD {
                 break;
             }
             v = self.wedge.get(v);
@@ -815,10 +1017,26 @@ impl State {
         Ok(false)
     }
     fn position_remap(&mut self, p: Positions<'_>, work: &mut Work) -> Result<(), Error> {
+        if let Some((values, mapping)) = p.packed_source() {
+            if let Some(mapping) = mapping {
+                self.position_remap_kernel(mapping.len(), |i| Ok(values[mapping[i] as usize]), work)
+            } else {
+                self.position_remap_kernel(values.len(), |i| Ok(values[i]), work)
+            }
+        } else {
+            self.position_remap_kernel(p.len(), |i| p.at(i), work)
+        }
+    }
+    fn position_remap_kernel(
+        &mut self,
+        count: usize,
+        read: impl Fn(usize) -> Result<[f32; 3], Error>,
+        work: &mut Work,
+    ) -> Result<(), Error> {
         let mask = self.table.len() - 1;
-        for i in 0..p.len() {
+        for i in 0..count {
             work.add(1)?;
-            let v = p.at(i)?;
+            let v = read(i)?;
             let mut bits = v.map(|v| if v == 0.0 { 0 } else { v.to_bits() });
             for x in &mut bits {
                 *x ^= *x >> 17;
@@ -834,7 +1052,7 @@ impl State {
                     self.table.set(bucket, i);
                     break;
                 }
-                if p.at(j)? == v {
+                if read(j)? == v {
                     break;
                 }
                 bucket = (bucket + probe + 1) & mask;
@@ -842,7 +1060,7 @@ impl State {
             self.remap.0.push(self.table.get(bucket) as u32);
             self.wedge.0.push(i as u32);
         }
-        for i in 0..p.len() {
+        for i in 0..count {
             work.add(1)?;
             let r = self.remap.get(i);
             if r != i {
@@ -878,7 +1096,7 @@ impl State {
                 if t == i {
                     self.forward.set(i, i);
                     self.back.set(i, i);
-                } else if !self.has_edge(t, i, false, work)? {
+                } else if !self.has_edge::<false, M>(t, i, work)? {
                     self.back
                         .set(t, if self.back.get(t) == NONE { i } else { t });
                     self.forward
@@ -947,7 +1165,8 @@ impl State {
                     protect |= flag(flags, v, VertexFlags::PROTECT);
                     for j in self.offsets.get(v)..self.offsets.get(v + 1) {
                         work.add(1)?;
-                        border |= !self.has_edge(self.edges[j].next as usize, v, true, work)?;
+                        border |=
+                            !self.has_edge::<true, M>(self.edges[j].next as usize, v, work)?;
                     }
                     v = self.wedge.get(v);
                     if v == i {
@@ -987,6 +1206,47 @@ impl State {
 fn flag(flags: Option<&[VertexFlags]>, i: usize, f: VertexFlags) -> bool {
     flags.is_some_and(|flags| flags[i].contains(f))
 }
+#[inline(always)]
+fn attribute_gradient(q: &mut Q, values: [f32; 3], p0: V, basis: [V; 2], w: f32) -> G {
+    let [a0, a1, a2] = values;
+    let gx = basis[0].x * (a1 - a0) + basis[1].x * (a2 - a0);
+    let gy = basis[0].y * (a1 - a0) + basis[1].y * (a2 - a0);
+    let gz = basis[0].z * (a1 - a0) + basis[1].z * (a2 - a0);
+    let gw = a0 - p0.x * gx - p0.y * gy - p0.z * gz;
+    q.a00 += w * (gx * gx);
+    q.a11 += w * (gy * gy);
+    q.a22 += w * (gz * gz);
+    q.a10 += w * (gy * gx);
+    q.a20 += w * (gz * gx);
+    q.a21 += w * (gz * gy);
+    q.b0 += w * (gx * gw);
+    q.b1 += w * (gy * gw);
+    q.b2 += w * (gz * gw);
+    q.c += w * (gw * gw);
+    G {
+        x: w * gx,
+        y: w * gy,
+        z: w * gz,
+        w: w * gw,
+    }
+}
+fn record_triplet<T>(
+    records: &mut [T],
+    width: usize,
+    indices: [usize; 3],
+) -> Option<[&mut [T]; 3]> {
+    let [a, b, c] = indices;
+    if a == b || a == c || b == c {
+        return None;
+    }
+    records
+        .get_disjoint_mut([
+            a * width..(a + 1) * width,
+            b * width..(b + 1) * width,
+            c * width..(c + 1) * width,
+        ])
+        .ok()
+}
 impl State {
     fn attribute_quadric(&mut self, t: [usize; 3]) -> Q {
         let [i0, i1, i2] = t;
@@ -1010,52 +1270,44 @@ impl State {
         let attributes0 = &self.a[i0 * self.ac..][..self.ac];
         let attributes1 = &self.a[i1 * self.ac..][..self.ac];
         let attributes2 = &self.a[i2 * self.ac..][..self.ac];
-        for (k, ((&a0, &a1), &a2)) in attributes0
-            .iter()
-            .zip(attributes1)
-            .zip(attributes2)
-            .enumerate()
-        {
-            let gx = gx1 * (a1 - a0) + gx2 * (a2 - a0);
-            let gy = gy1 * (a1 - a0) + gy2 * (a2 - a0);
-            let gz = gz1 * (a1 - a0) + gz2 * (a2 - a0);
-            let gw = a0 - p0.x * gx - p0.y * gy - p0.z * gz;
-            q.a00 += w * (gx * gx);
-            q.a11 += w * (gy * gy);
-            q.a22 += w * (gz * gz);
-            q.a10 += w * (gy * gx);
-            q.a20 += w * (gz * gx);
-            q.a21 += w * (gz * gy);
-            q.b0 += w * (gx * gw);
-            q.b1 += w * (gy * gw);
-            q.b2 += w * (gz * gw);
-            q.c += w * (gw * gw);
-            let g = G {
-                x: w * gx,
-                y: w * gy,
-                z: w * gz,
-                w: w * gw,
-            };
-            // Components are independent. Keep each component's three vertex
-            // additions in the original order, including repeated vertices.
-            for i in t {
-                self.g[i * self.ac + k].add(g);
+        let basis = [
+            V {
+                x: gx1,
+                y: gy1,
+                z: gz1,
+            },
+            V {
+                x: gx2,
+                y: gy2,
+                z: gz2,
+            },
+        ];
+        if let Some([g0, g1, g2]) = record_triplet(&mut self.g, self.ac, t) {
+            for (((&a0, &a1), &a2), ((g0, g1), g2)) in attributes0
+                .iter()
+                .zip(attributes1)
+                .zip(attributes2)
+                .zip(g0.iter_mut().zip(g1).zip(g2))
+            {
+                let g = attribute_gradient(&mut q, [a0, a1, a2], p0, basis, w);
+                g0.add(g);
+                g1.add(g);
+                g2.add(g);
+            }
+        } else {
+            for (k, ((&a0, &a1), &a2)) in attributes0
+                .iter()
+                .zip(attributes1)
+                .zip(attributes2)
+                .enumerate()
+            {
+                let g = attribute_gradient(&mut q, [a0, a1, a2], p0, basis, w);
+                for i in t {
+                    self.g[i * self.ac + k].add(g);
+                }
             }
         }
         q
-    }
-    // Visits: three per triangle twice, one per vertex, and the attribute pass.
-    fn quadrics_work(&self, indices: &[u32]) -> Option<usize> {
-        let attributes = if self.ac > 0 {
-            (indices.len() / 3).checked_mul(self.ac.checked_mul(3)?.checked_add(3)?)?
-        } else {
-            0
-        };
-        indices
-            .len()
-            .checked_mul(2)?
-            .checked_add(self.p.len())?
-            .checked_add(attributes)
     }
     fn quadrics<M: Meter>(
         &mut self,
@@ -1068,12 +1320,31 @@ impl State {
         let p = &self.p[..n];
         let remap = &self.remap.0[..n];
         let qv = &mut self.q[..n];
-        for t in indices.as_chunks::<3>().0 {
-            work.add(3)?;
+        let triangles = indices.as_chunks::<3>().0;
+        let charged = work.precharge(triangles.len(), 3)?;
+        for t in triangles {
+            if !charged {
+                work.add(3)?;
+            }
             let [a, b, c] = [t[0] as usize, t[1] as usize, t[2] as usize];
-            let q = Q::triangle(p[a], p[b], p[c], 1.0, &mut self.sqrt_cache);
+            let mut normal = p[b].sub(p[a]).cross(p[c].sub(p[a]));
+            let area = normal.normalize(&mut self.sqrt_cache);
+            let q = Q::plane(normal, -normal.dot(p[a]), self.sqrt_cache.sqrt(area) * 1.0);
             for i in [a, b, c] {
                 qv[remap[i] as usize].add(q);
+            }
+            if !self.vg.is_empty() {
+                // The volume gradient uses the same normalized triangle plane.
+                let area = area * 0.5;
+                let g = G {
+                    x: normal.x * area,
+                    y: normal.y * area,
+                    z: normal.z * area,
+                    w: (-p[a].x * normal.x - p[a].y * normal.y - p[a].z * normal.z) * area,
+                };
+                for i in [a, b, c] {
+                    self.vg[remap[i] as usize].add(g);
+                }
             }
         }
         let factor = if options.contains(SimplifyOptions::REGULARIZE_LIGHT) {
@@ -1098,9 +1369,12 @@ impl State {
                 Ok(())
             },
         )?;
+        let charged_edges = work.precharge(indices.len(), 1)?;
         for t in indices.as_chunks::<3>().0 {
             for e in 0..3 {
-                work.add(1)?;
+                if !charged_edges {
+                    work.add(1)?;
+                }
                 let a = t[e] as usize;
                 let b = t[(e + 1) % 3] as usize;
                 let c = t[(e + 2) % 3] as usize;
@@ -1131,14 +1405,21 @@ impl State {
             }
         }
         if self.ac > 0 {
-            for t in indices.as_chunks::<3>().0 {
-                work.add(3 + self.ac * 3)?;
+            let units = 3 + self.ac * 3;
+            let charged = work.precharge(triangles.len(), units)?;
+            for t in triangles {
+                if !charged {
+                    work.add(units)?;
+                }
                 let t = [t[0] as usize, t[1] as usize, t[2] as usize];
                 let q = self.attribute_quadric(t);
                 for i in t {
                     self.aq[i].add(q);
                 }
             }
+        }
+        if options.bits() & 128 != 0 {
+            extra::fold_quadrics(self, work)?;
         }
         if self.q.iter().chain(&self.aq).any(|q| !q.finite())
             || self
@@ -1376,7 +1657,12 @@ impl State {
         for (&a, &g) in at.iter().zip(gt) {
             r += term(a, g);
         }
-        r.abs()
+        let e = r.abs();
+        if self.clamped && e >= q.w {
+            q.w
+        } else {
+            e
+        }
     }
     fn sort(&mut self, count: usize, work: &mut Work) -> Result<(), Error> {
         // pick emits at most one candidate per input index; topology already
@@ -1503,15 +1789,7 @@ impl State {
         }
         Ok(edges)
     }
-    // Visits: one per vertex plus its attributes, and both loop tables.
-    fn update_work(&self) -> Option<usize> {
-        self.p
-            .len()
-            .checked_mul(self.ac.checked_add(1)?)?
-            .checked_add(self.forward.len())?
-            .checked_add(self.back.len())
-    }
-    fn update<M: Meter>(&mut self, work: &mut M) -> Result<(), Error> {
+    fn update(&mut self, vertex_error: &mut f32, work: &mut Work) -> Result<(), Error> {
         for i in 0..self.p.len() {
             work.add(1)?;
             let t = self.cr.get(i);
@@ -1527,8 +1805,18 @@ impl State {
                     return Err(Error::NumericalFailure);
                 }
                 self.q[r1].cache_inverse_weight();
+                if !self.vg.is_empty() {
+                    let g = self.vg[r0];
+                    self.vg[r1].add(g);
+                }
             }
             if self.ac > 0 {
+                if i == r0 {
+                    let e = self.q[r0].error(self.p[r1]);
+                    if *vertex_error < e {
+                        *vertex_error = e;
+                    }
+                }
                 work.add(self.ac)?;
                 let q = self.aq[i];
                 self.aq[t].add(q);
@@ -1581,12 +1869,81 @@ fn run(
     work: &mut Work,
     output: usize,
 ) -> Result<SimplifyResult, Error> {
+    let (result, state) = run_state(
+        out, indices, positions, attributes, weights, flags, settings, ws, work, output, false,
+    )?;
+    ws.has_retained = true;
+    ws.simplify = Some(state);
+    Ok(result)
+}
+#[inline(always)]
+fn normalize_attribute_row(
+    destination: &mut [f32],
+    source: Attributes<'_>,
+    vertex: usize,
+    weights: &[f32],
+    work: &mut Work,
+) -> Result<(), Error> {
+    let mut write = 0;
+    if let Some(values) = source.float_record(vertex) {
+        work.scan(values.iter().zip(weights), |(&value, &weight)| {
+            if weight > 0.0 {
+                let value = value * weight;
+                if !value.is_finite() {
+                    return Err(Error::NumericalFailure);
+                }
+                destination[write] = value;
+                write += 1;
+            }
+            Ok(())
+        })?;
+    } else {
+        for (component, &weight) in weights.iter().enumerate() {
+            work.add(1)?;
+            if weight > 0.0 {
+                let value = source.get(vertex, component).ok_or(Error::InvalidLayout)? * weight;
+                if !value.is_finite() {
+                    return Err(Error::NumericalFailure);
+                }
+                destination[write] = value;
+                write += 1;
+            }
+        }
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn run_state(
+    out: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    attributes: Option<Attributes<'_>>,
+    weights: &[f32],
+    flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    ws: &mut Workspace,
+    work: &mut Work,
+    output: usize,
+    solve: bool,
+) -> Result<(SimplifyResult, State), Error> {
+    if settings.options.contains(SimplifyOptions::SPARSE) {
+        return extra::sparse_run(
+            out, indices, positions, attributes, weights, flags, settings, ws, work, output, solve,
+        );
+    }
     let n = positions.len();
     let m = indices.len();
     let ac = weights.iter().filter(|&&w| w > 0.0).count();
     let mut s = State::new(n, m, ac, ws, output)?;
-    metered!(work, s.adjacency_work(indices), |w| s
-        .adjacency(indices, false, w))?;
+    s.clamped = settings.options.bits() & 256 != 0;
+    if solve && ac > 0 {
+        let mut b = Budget::new(ws, s.bytes);
+        b.reuse(&mut s.vg, n)?;
+        s.vg.fill(G::default());
+        s.bytes = b.bytes;
+    }
+    s.adjacency::<false>(indices, work)?;
     s.position_remap(positions, work)?;
     metered!(work, s.classify_work(m, settings.options), |w| s.classify(
         flags,
@@ -1596,42 +1953,30 @@ fn run(
     work.add(n)?;
     let (lo, extent) = bounds(positions)?;
     let scale = if extent == 0.0 { 0.0 } else { 1.0 / extent };
-    let positions_work = weights.len().checked_add(1).and_then(|c| n.checked_mul(c));
-    metered!(work, positions_work, |w| (|| {
-        for i in 0..n {
-            w.add(1)?;
-            let p = positions.at(i)?;
-            s.p.push(V {
-                x: (p[0] - lo[0]) * scale,
-                y: (p[1] - lo[1]) * scale,
-                z: (p[2] - lo[2]) * scale,
-            });
-            if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
-                return Err(Error::NumericalFailure);
-            }
-            if let Some(a) = attributes {
-                let mut k = 0;
-                for (j, &weight) in weights.iter().enumerate() {
-                    w.add(1)?;
-                    if weight > 0.0 {
-                        let v = a.get(i, j).ok_or(Error::InvalidLayout)? * weight;
-                        if !v.is_finite() {
-                            return Err(Error::NumericalFailure);
-                        }
-                        s.a[i * ac + k] = v;
-                        k += 1;
-                    }
-                }
-            }
+    for i in 0..n {
+        work.add(1)?;
+        let p = positions.at(i)?;
+        s.p.push(V {
+            x: (p[0] - lo[0]) * scale,
+            y: (p[1] - lo[1]) * scale,
+            z: (p[2] - lo[2]) * scale,
+        });
+        if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
+            return Err(Error::NumericalFailure);
         }
-        Ok(())
-    })())?;
-    metered!(work, s.quadrics_work(indices), |w| s.quadrics(
-        indices,
-        flags,
-        settings.options,
-        w
-    ))?;
+        if let Some(a) = attributes {
+            normalize_attribute_row(&mut s.a[i * ac..(i + 1) * ac], a, i, weights, work)?;
+        }
+    }
+    let (components, component_errors) = if settings.options.contains(SimplifyOptions::PRUNE) {
+        let mut b = crate::budget::Budget::with_bytes(ws, s.bytes);
+        let value = extra::components(&s.p, &s.remap.0, indices, &mut b, work)?;
+        s.bytes = b.bytes();
+        value
+    } else {
+        (Vec::new(), Vec::new())
+    };
+    s.quadrics(indices, flags, settings.options, work)?;
     let mut dual = 0;
     work.scan(s.kind.iter().zip(s.offsets.0.windows(2)), |(&k, o)| {
         if k == MAN || k == SEAM {
@@ -1640,11 +1985,13 @@ fn run(
         Ok(())
     })?;
     let capacity = m - dual / 2 + 3;
-    let mut budget = Budget { ws, bytes: s.bytes };
-    s.collapses = budget.reserve(capacity)?;
-    s.order = budget.indices(capacity)?;
+    let mut budget = Budget::new(ws, s.bytes);
+    budget.reuse_capacity(&mut s.collapses, capacity)?;
+    budget.reuse(&mut s.order.0, capacity)?;
     let mut count = m;
     let mut error = 0.0;
+    let mut vertex_error = 0.0;
+    let mut component_next = 0.0;
     let error_scale = if settings.options.contains(SimplifyOptions::ERROR_ABSOLUTE) {
         extent
     } else {
@@ -1654,10 +2001,8 @@ fn run(
     work.add(m)?;
     out[..m].copy_from_slice(indices);
     while count > settings.target_index_count {
-        let current = &out[..count];
-        metered!(work, s.adjacency_work(current), |w| s
-            .adjacency(current, true, w))?;
-        let nc = metered!(work, Some(count), |w| s.pick(current, capacity, w))?;
+        s.adjacency::<true>(&out[..count], work)?;
+        let nc = s.pick(&out[..count], capacity, work)?;
         if nc == 0 {
             break;
         }
@@ -1669,7 +2014,10 @@ fn run(
         if edges == 0 {
             break;
         }
-        metered!(work, s.update_work(), |w| s.update(w))?;
+        if ac == 0 {
+            vertex_error = error;
+        }
+        s.update(&mut vertex_error, work)?;
         let mut write = 0;
         metered!(work, Some(count), |w| (|| {
             for i in (0..count).step_by(3) {
@@ -1690,15 +2038,63 @@ fn run(
             Ok(())
         })())?;
         count = write;
+        if settings.options.contains(SimplifyOptions::PRUNE)
+            && count > settings.target_index_count
+            && component_next <= vertex_error
+        {
+            (count, component_next) = extra::prune(
+                out,
+                count,
+                &components,
+                &component_errors,
+                vertex_error,
+                work,
+            )?;
+        }
+    }
+    let mut stale = true;
+    while settings.options.contains(SimplifyOptions::PRUNE)
+        && count > settings.target_index_count
+        && component_next <= limit
+    {
+        let cutoff = if component_next * 1.5 < limit {
+            component_next * 1.5
+        } else {
+            limit
+        };
+        let mut max_error = 0.0;
+        for &e in &component_errors {
+            work.add(1)?;
+            if e > max_error && e <= cutoff {
+                max_error = e;
+            }
+        }
+        let (new_count, next) =
+            extra::prune(out, count, &components, &component_errors, cutoff, work)?;
+        component_next = next;
+        if new_count == count && !stale {
+            break;
+        }
+        stale = false;
+        count = new_count;
+        if error < max_error {
+            error = max_error;
+        }
+    }
+    if solve {
+        extra::solve_state(&mut s, &out[..count], work)?;
     }
     let error = sqrt(error) * error_scale;
     if !error.is_finite() {
         return Err(Error::NumericalFailure);
     }
-    Ok(SimplifyResult {
-        index_count: count,
-        error,
-    })
+    Ok((
+        SimplifyResult {
+            index_count: count,
+            error,
+        },
+        s,
+    ))
 }
 
 #[cfg(test)]

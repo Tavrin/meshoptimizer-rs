@@ -1,0 +1,44 @@
+{
+  "schema": "meshopt-requalification/1",
+  "phase": "0.1",
+  "artifact_verification": true,
+  "parity_mismatches": 0,
+  "records": {
+    "benchmark-default": "667e8a867fac1f4ebe5747f7488eb7dc022006b72246de3f9f96e15436542b76",
+    "benchmark-moss": "76b89cbd3e6222bd62f7d4a2a9d16fadded589c0d35bee8dddd451efbe4399ee",
+    "gates": "fc14bc56d3f46e7de70ae8901118dd90fa547df935170c3f3366d1bc1482fa40",
+    "js": "f2d242530a9517c893d06472d00309c2d34960b4f49f0aa39fcaf30094c7e48f",
+    "p01x-benchmark-defaults": "820f7279f49c91546bf0416d5e493c3cc66e169057da6b8d6f625e3f4095261a",
+    "p01x-benchmark-moss": "a2781e72c0369ebce5ad405eaafdfc6938e2d83c2ca750455fce1a8a08187810",
+    "p01x-run": "7c1ed5e68991ab61c7436a539848e7c452f0f95ca93a2ad66bf8de65856cda4c",
+    "p01x-sweep": "9a950dc257c67a98127e9a917c674e830d99c0dd029acc51d7962341d628216c",
+    "run": "3b971f0d86685949b83a72f02fcc802a726d83a7fd9521d859bca0700e479329",
+    "sweep": "0a41b989f163fcf9ab8a7a77e055cabd31f67dc07e7c1ec6effc3f7cf8a36494"
+  },
+  "stage2_summary_sha256": "b52d17fc5a84fe10fc8023e42b91b1c7e65986fccea9cd730ba05d09b705f0db",
+  "stage2_case_count": 7,
+  "stage2_verdicts": {
+    "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone": "INCONCLUSIVE",
+    "p01x-benchmark-defaults/filter_index_buffer/tiny/seam-heavy/mode-2": "PASS",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1": "INCONCLUSIVE",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2": "INCONCLUSIVE",
+    "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1": "FAIL",
+    "p01x-benchmark-moss/generate_vertex_remap_custom/million/smooth/mode-1": "PASS",
+    "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1": "FAIL"
+  },
+  "performance_residuals": [
+    "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2",
+    "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1",
+    "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1"
+  ],
+  "family_mean_and_heap_bars_passed": true,
+  "post_measurement_orchestration": [
+    "parity/report.sh",
+    "parity/stage2.py"
+  ],
+  "release_fuzz_current": false,
+  "release_accepted": false,
+  "integration_requalified": true
+}

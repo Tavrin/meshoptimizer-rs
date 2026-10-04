@@ -46,14 +46,17 @@ pub(crate) struct CacheVertex {
 /// counted separately. Simplification counts validation, position/hash and
 /// adjacency visits, edge searches, classification, quadric and attribute
 /// accumulation, collapse ranking/sorting/flip checks, and remapping visits.
-/// Its typed scratch is allocated fallibly per call and released on return;
-/// usage reports peak storage including retained workspace buffers. Scale
+/// Its typed scratch is allocated fallibly and retained after successful calls;
+/// usage reports peak storage including all retained workspace buffers. Scale
 /// computation is allocation-free and has no workspace argument.
 /// Limits never disable checked size arithmetic.
 #[derive(Debug, Default)]
 pub struct Workspace {
     limits: Limits,
     usage: Usage,
+    pub(crate) has_retained: bool,
+    pub(crate) simplify: Option<crate::simplify::State>,
+    pub(crate) sloppy: Option<crate::simplify::SloppyScratch>,
     pub(crate) vertices: Vec<CacheVertex>,
     pub(crate) integers: Vec<u32>,
     pub(crate) floats: Vec<f32>,
@@ -80,17 +83,21 @@ impl Workspace {
     }
     /// Release all retained scratch allocations and reset measurements.
     pub fn clear(&mut self) {
+        self.simplify = None;
+        self.sloppy = None;
         self.vertices = Vec::new();
         self.integers = Vec::new();
         self.floats = Vec::new();
         self.flags = Vec::new();
         self.keys = Vec::new();
         self.usage = Usage::default();
+        self.has_retained = false;
     }
     /// Measurements for the most recent call, including a failed call's work.
     pub const fn usage(&self) -> Usage {
         self.usage
     }
+    #[inline]
     pub(crate) fn begin(&mut self) -> Work {
         self.usage = Usage::default();
         Work {
@@ -98,11 +105,64 @@ impl Workspace {
             limit: self.limits.max_work,
         }
     }
+    #[inline]
     pub(crate) fn finish(&mut self, work: &Work) {
         self.usage.work = work.limit - work.remaining;
     }
+    // Scratch capacities are stable while a local Budget borrows the workspace.
+    #[inline]
+    pub(crate) fn retained_bytes(&self) -> Result<usize, Error> {
+        if !self.has_retained {
+            debug_assert!(self.simplify.is_none() && self.sloppy.is_none());
+            debug_assert_eq!(
+                self.integers.capacity()
+                    | self.floats.capacity()
+                    | self.flags.capacity()
+                    | self.keys.capacity()
+                    | self.vertices.capacity(),
+                0
+            );
+            return Ok(0);
+        }
+        total(
+            [
+                self.integers.capacity(),
+                self.floats.capacity(),
+                self.flags.capacity(),
+                self.keys.capacity(),
+            ],
+            checked_bytes(self.vertices.capacity(), size_of::<CacheVertex>())?
+                .checked_add(
+                    self.simplify
+                        .as_ref()
+                        .map_or(Ok(0), |s| s.capacity_bytes())?,
+                )
+                .ok_or(Error::SizeOverflow)?
+                .checked_add(self.sloppy.as_ref().map_or(Ok(0), |s| s.capacity_bytes())?)
+                .ok_or(Error::SizeOverflow)?,
+        )
+    }
+    #[inline]
+    pub(crate) fn charge_owned(&mut self, retained: usize, owned: usize) -> Result<(), Error> {
+        let bytes = retained.checked_add(owned).ok_or(Error::SizeOverflow)?;
+        if bytes > self.limits.max_bytes {
+            return Err(Error::LimitExceeded);
+        }
+        self.usage.bytes = self.usage.bytes.max(bytes);
+        Ok(())
+    }
+    #[inline]
+    pub(crate) fn charge_retained(&mut self) -> Result<(), Error> {
+        self.charge_owned(self.retained_bytes()?, 0)
+    }
     pub(crate) fn prepare(&mut self, lengths: [usize; 4], output: usize) -> Result<(), Error> {
         self.prepare_cache(lengths, 0, output)
+    }
+    pub(crate) fn prepare_remap(&mut self, vertices: usize, output: usize) -> Result<(), Error> {
+        let previous = self.integers.len();
+        self.prepare_cache_value([vertices, 0, 0, 0], 0, output, u32::MAX)?;
+        self.integers[..previous.min(vertices)].fill(u32::MAX);
+        Ok(())
     }
     pub(crate) fn prepare_cache(
         &mut self,
@@ -110,13 +170,29 @@ impl Workspace {
         vertices: usize,
         output: usize,
     ) -> Result<(), Error> {
+        self.prepare_cache_value(lengths, vertices, output, 0)
+    }
+    fn prepare_cache_value(
+        &mut self,
+        lengths: [usize; 4],
+        vertices: usize,
+        output: usize,
+        integer_value: u32,
+    ) -> Result<(), Error> {
         let [i, f, b, k] = lengths;
+        let simplify_bytes = self
+            .simplify
+            .as_ref()
+            .map_or(Ok(0), |s| s.capacity_bytes())?
+            .checked_add(self.sloppy.as_ref().map_or(Ok(0), |s| s.capacity_bytes())?)
+            .ok_or(Error::SizeOverflow)?;
         let vertex_bytes = checked_bytes(
             vertices.max(self.vertices.capacity()),
             size_of::<CacheVertex>(),
         )?;
         let owned = output
             .checked_add(vertex_bytes)
+            .and_then(|n| n.checked_add(simplify_bytes))
             .ok_or(Error::SizeOverflow)?;
         let bytes = total(
             [
@@ -130,8 +206,9 @@ impl Workspace {
         if bytes > self.limits.max_bytes {
             return Err(Error::LimitExceeded);
         }
+        self.has_retained |= i != 0 || f != 0 || b != 0 || k != 0 || vertices != 0;
         reserve(&mut self.vertices, vertices)?;
-        reserve(&mut self.integers, i)?;
+        reserve_value(&mut self.integers, i, integer_value)?;
         reserve(&mut self.floats, f)?;
         reserve(&mut self.flags, b)?;
         reserve(&mut self.keys, k)?;
@@ -147,13 +224,14 @@ impl Workspace {
                     self.vertices.capacity(),
                     size_of::<CacheVertex>(),
                 )?)
+                .and_then(|n| n.checked_add(simplify_bytes))
                 .ok_or(Error::SizeOverflow)?,
         )?;
         if actual > self.limits.max_bytes {
             self.clear();
             return Err(Error::LimitExceeded);
         }
-        self.usage.bytes = actual;
+        self.usage.bytes = self.usage.bytes.max(actual);
         Ok(())
     }
 }
@@ -216,12 +294,15 @@ pub(crate) fn checked_bytes(len: usize, size: usize) -> Result<usize, Error> {
 }
 
 fn reserve<T: Default + Clone>(v: &mut Vec<T>, len: usize) -> Result<(), Error> {
+    reserve_value(v, len, T::default())
+}
+fn reserve_value<T: Clone>(v: &mut Vec<T>, len: usize, value: T) -> Result<(), Error> {
     checked_bytes(len, size_of::<T>())?;
     if len > v.capacity() {
         v.try_reserve_exact(len.saturating_sub(v.len()))
             .map_err(|_| Error::AllocationFailed)?;
     }
-    v.resize(len, T::default());
+    v.resize(len, value);
     Ok(())
 }
 
@@ -229,6 +310,12 @@ pub(crate) fn output(len: usize) -> Result<Vec<u32>, Error> {
     checked_bytes(len, 4)?;
     let mut v = Vec::new();
     reserve(&mut v, len)?;
+    Ok(v)
+}
+pub(crate) fn output_sentinel(len: usize) -> Result<Vec<u32>, Error> {
+    checked_bytes(len, 4)?;
+    let mut v = Vec::new();
+    reserve_value(&mut v, len, u32::MAX)?;
     Ok(v)
 }
 
@@ -242,32 +329,95 @@ impl Work {
         Ok(u64::try_from(count).map_err(|_| Error::SizeOverflow)? <= self.remaining)
     }
 
-    #[inline]
+    #[inline(always)]
     pub(crate) fn scan<T>(
         &mut self,
         values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        self.scan_units(values, 1, visit)
+    }
+    /// Each callback has the same pre-visit charge. Keep that granularity on
+    /// exhaustion, including callbacks that fail before completing their work.
+    #[inline(always)]
+    pub(crate) fn scan_units<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        units: usize,
         mut visit: impl FnMut(T) -> Result<(), Error>,
     ) -> Result<(), Error> {
-        let count = values.len();
-        let visits = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
-        if visits <= self.remaining {
-            // Charge the complete scan once. On a callback failure, charge only
-            // its visited prefix, including the failing record as add(1) did.
+        let count = u64::try_from(values.len()).map_err(|_| Error::SizeOverflow)?;
+        let unit_count = u64::try_from(units).map_err(|_| Error::SizeOverflow)?;
+        if let Some(visits) = count
+            .checked_mul(unit_count)
+            .filter(|&v| v <= self.remaining)
+        {
             for (i, value) in values.enumerate() {
                 if let Err(error) = visit(value) {
-                    self.add(i + 1)?;
+                    self.remaining -= (i as u64 + 1) * unit_count;
                     return Err(error);
                 }
             }
-            self.add(count)
+            self.remaining -= visits;
+            Ok(())
         } else {
-            // Preserve the original exhaustion point and partial side effects.
             for value in values {
-                self.add(1)?;
+                self.add(units)?;
                 visit(value)?;
             }
             Ok(())
         }
+    }
+    /// Precharge a fixed scan only when every visit fits. The caller must
+    /// execute every visit without a fallible callback on this path.
+    #[inline]
+    pub(crate) fn precharge(&mut self, count: usize, units: usize) -> Result<bool, Error> {
+        let count = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
+        let units = u64::try_from(units).map_err(|_| Error::SizeOverflow)?;
+        if let Some(visits) = count.checked_mul(units).filter(|&v| v <= self.remaining) {
+            self.remaining -= visits;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+    /// Number of records whose full per-record search bound fits.
+    #[inline]
+    pub(crate) fn batch(&self, count: usize, units: usize) -> Result<usize, Error> {
+        let units = u64::try_from(units).map_err(|_| Error::SizeOverflow)?;
+        let count = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
+        let allowed = self
+            .remaining
+            .min(usize::MAX as u64)
+            .checked_div(units)
+            .map_or(count, |n| count.min(n));
+        usize::try_from(allowed).map_err(|_| Error::SizeOverflow)
+    }
+    /// Count a bounded search once when every possible visit fits. The limited
+    /// path checks before each callback, preserving its observable prefix.
+    #[inline(always)]
+    pub(crate) fn search(
+        &mut self,
+        count: usize,
+        mut found: impl FnMut(usize) -> bool,
+    ) -> Result<Option<usize>, Error> {
+        if self.covers(count)? {
+            for i in 0..count {
+                if found(i) {
+                    self.add(i + 1)?;
+                    return Ok(Some(i));
+                }
+            }
+            self.add(count)?;
+        } else {
+            for i in 0..count {
+                self.add(1)?;
+                if found(i) {
+                    return Ok(Some(i));
+                }
+            }
+        }
+        Ok(None)
     }
     #[inline]
     pub(crate) fn add(&mut self, count: usize) -> Result<(), Error> {
@@ -352,6 +502,128 @@ impl Work {
 mod tests {
     use super::*;
 
+    #[test]
+    fn precharged_scans_and_batches_fit_their_counter_width() {
+        for units in [0, 1, 3, 99] {
+            for limit in 0..=units * 5 + 1 {
+                let mut scalar = Work {
+                    remaining: limit as u64,
+                    limit: limit as u64,
+                };
+                let mut batched = Work {
+                    remaining: limit as u64,
+                    limit: limit as u64,
+                };
+                let mut expected_prefix = Vec::new();
+                let mut actual_prefix = Vec::new();
+                let expected: Result<(), Error> = (|| {
+                    for i in 0..5 {
+                        scalar.add(units)?;
+                        expected_prefix.push(i);
+                    }
+                    Ok(())
+                })();
+                let actual: Result<(), Error> = (|| {
+                    let charged = batched.precharge(5, units)?;
+                    for i in 0..5 {
+                        if !charged {
+                            batched.add(units)?;
+                        }
+                        actual_prefix.push(i);
+                    }
+                    Ok(())
+                })();
+                assert_eq!(actual, expected);
+                assert_eq!(actual_prefix, expected_prefix);
+                assert_eq!(batched.remaining, scalar.remaining);
+            }
+        }
+        let huge = Work {
+            remaining: u64::MAX,
+            limit: u64::MAX,
+        };
+        for units in [1, 2, 99, usize::MAX] {
+            let count = huge.batch(usize::MAX, units).unwrap();
+            assert!(count.checked_mul(units).is_some());
+            assert!(count as u64 * units as u64 <= huge.remaining);
+        }
+    }
+
+    #[test]
+    fn fixed_charge_scans_preserve_failure_prefixes() {
+        for units in [0, 1, 3, 99] {
+            for limit in 0..=units * 5 + 1 {
+                for failure in 0..=5 {
+                    let mut scalar = Work {
+                        remaining: limit as u64,
+                        limit: limit as u64,
+                    };
+                    let mut batched = Work {
+                        remaining: limit as u64,
+                        limit: limit as u64,
+                    };
+                    let mut expected_prefix = Vec::new();
+                    let mut actual_prefix = Vec::new();
+                    let expected = (|| {
+                        for i in 0..5 {
+                            scalar.add(units)?;
+                            expected_prefix.push(i);
+                            if i == failure {
+                                return Err(Error::InvalidParameter);
+                            }
+                        }
+                        Ok(())
+                    })();
+                    let actual = batched.scan_units(0..5, units, |i| {
+                        actual_prefix.push(i);
+                        if i == failure {
+                            Err(Error::InvalidParameter)
+                        } else {
+                            Ok(())
+                        }
+                    });
+                    assert_eq!(actual, expected);
+                    assert_eq!(batched.remaining, scalar.remaining);
+                    assert_eq!(actual_prefix, expected_prefix);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn bounded_search_preserves_the_checked_callback_prefix() {
+        for limit in 0..8 {
+            for match_at in 0..8 {
+                let mut scalar = Work {
+                    remaining: limit,
+                    limit,
+                };
+                let mut batched = Work {
+                    remaining: limit,
+                    limit,
+                };
+                let mut scalar_visits = Vec::new();
+                let mut batched_visits = Vec::new();
+                let expected = (|| {
+                    for i in 0..5 {
+                        scalar.add(1)?;
+                        scalar_visits.push(i);
+                        if i == match_at {
+                            return Ok(Some(i));
+                        }
+                    }
+                    Ok(None)
+                })();
+                let actual = batched.search(5, |i| {
+                    batched_visits.push(i);
+                    i == match_at
+                });
+                assert_eq!(actual, expected);
+                assert_eq!(batched.remaining, scalar.remaining);
+                assert_eq!(batched_visits, scalar_visits);
+            }
+        }
+    }
     #[test]
     fn scan_preserves_failures_work_and_side_effects() {
         for limit in 0..=8 {

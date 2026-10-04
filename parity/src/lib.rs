@@ -1,6 +1,7 @@
 //! Unpublished versioned binary driver and safe WASM byte transport.
 use meshoptimizer_rs::{optimize_overdraw, optimize_vertex_cache, Positions, Workspace};
 use std::sync::Mutex;
+mod p01x;
 #[cfg(not(target_arch = "wasm32"))]
 use std::time::Instant;
 
@@ -24,6 +25,9 @@ pub fn execute_paired(input: &[u8]) -> Result<Vec<u8>, String> {
 }
 
 fn execute_impl(input: &[u8], paired: bool) -> Result<Vec<u8>, String> {
+    if input.get(..4) == Some(b"MO02") {
+        return p01x::execute(input, paired);
+    }
     #[cfg(target_arch = "wasm32")]
     if paired {
         return Err("paired timing is native only".into());

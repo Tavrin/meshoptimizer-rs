@@ -5,123 +5,123 @@
   "phase": "0.4",
   "detail_artifact": "fuzz-0.4/fuzz.json",
   "artifacts": {
-    "fuzz-0.4/fuzz.json": "a4f43bee618735efc7e055e5e63c7f0cc60f3418319c3199e6dd7d3c4a838e98",
-    "fuzz-0.4/fuzz/vertex_encode/smoke.log": "3ee6f4ecf09b60a592c90b887fd957111074ce12952664f5264b17449d76b1af",
-    "fuzz-0.4/fuzz/vertex_encode_into/smoke.log": "68152a45873b28036b98c07e0c517dc84b4e36e034dc9cbe2e35497af3b6f060",
-    "fuzz-0.4/fuzz/index_encode/smoke.log": "c3f5d5a79f53a5d5986b647312bd58b24692ea419b7b4d492291bba30996faec",
-    "fuzz-0.4/fuzz/index_encode_into/smoke.log": "83ac55857b6daecb4bf309d70a474b4fde0a182140a25efc523f18d206e03208",
-    "fuzz-0.4/fuzz/sequence_encode/smoke.log": "128ed2ae4e405eea56a01f6d9eb8bcf3805ec953c4253d8014470a932348724c",
-    "fuzz-0.4/fuzz/sequence_encode_into/smoke.log": "158e3b7e9c094fccccc581589d80337e4e2199b14228961934b5c02ba1f7ee83",
-    "fuzz-0.4/fuzz/oct_encode/smoke.log": "163e67a8fcfb967a545a294f468bad250b7b740bd13e9c76720c585859396317",
-    "fuzz-0.4/fuzz/quat_encode/smoke.log": "c6e253755542948686c323e536027eb4800da95617565c8bd36d0a2d1b7da73d",
-    "fuzz-0.4/fuzz/exp_encode/smoke.log": "f120ca641dc82243da5e921aa446ab8fc68a60e69a098dd645a34b6c51563645",
-    "fuzz-0.4/fuzz/color_encode/smoke.log": "9f774a7c5b31092ede02ab2385369a825f3969693cda71ecb953dd999c1d5b69",
-    "fuzz-0.4/fuzz/filter_encode_into/smoke.log": "9f6b13969379f9175f0efb720ff7f1c4807efa06d416cf348bea6d8ca6dd4465",
-    "fuzz-0.4/fuzz/color/smoke.log": "80b2d2e70ad9326c77c551d539315128612639eb6b196eafb37d46c69ca884f7",
-    "fuzz-0.4/fuzz/meshlet_encode/smoke.log": "32ade89fb9d48d363caf1881a7538942968d50cb11203318041be117cda255b1",
-    "fuzz-0.4/fuzz/meshlet_encode_into/smoke.log": "5b212d0467b702f94810b9aab69943552513db361da118868f6fbead1f2f4234",
-    "fuzz-0.4/fuzz/meshlet_decode/smoke.log": "30f76ea05168400f55781db5fd0c2926a4efda41dcd59a51d02e5754bb308931",
-    "fuzz-0.4/fuzz/meshlet_decode_into/smoke.log": "7eb43db7992a1c50f5882bd50e2e36aece81e4ae737ed8894dd3741644616b80",
-    "fuzz-0.4/fuzz/meshlet_raw/smoke.log": "3219f01a1f40df3c5e06d3b7ca21cb892e9027aad5fffeba83a8f0af99a6934e",
-    "fuzz-0.4/fuzz/meshlet_raw_into/smoke.log": "201db7d7e5f8e9f32e8090a146c973e282451de98329a96d288f2a977e57315e",
-    "fuzz-0.4/fuzz/bounds/smoke.log": "e8730a7c7fcf1a069ea403a84af1136e3e2a481bd01c79f500150d5126c7b594"
+    "fuzz-0.4/fuzz.json": "ebdd7ee71648d3bfe14f351406c7393b3a5670bae4b5905841dd30c3b7668cb8",
+    "fuzz-0.4/fuzz/vertex_encode/smoke.log": "f390975f54bbbfe88a409b117e58e8d1cf62c681e6b751ac7917dbd801c4151c",
+    "fuzz-0.4/fuzz/vertex_encode_into/smoke.log": "562f75835a7f7bab494c74632bf52f21c9a982b9334241b7b88df021b101dc22",
+    "fuzz-0.4/fuzz/index_encode/smoke.log": "d7702e28f38c464c985d786df2bae6e2e7686667130d1c42aac6e1d128410ff3",
+    "fuzz-0.4/fuzz/index_encode_into/smoke.log": "f3455e65f43f031f2e707840b1059f27ea6e8c80f9b94c268801bf3618600878",
+    "fuzz-0.4/fuzz/sequence_encode/smoke.log": "a2f3be46bf78a8157b6d4d654dc1abd2597953f6a576cc07b74dc47fdecec5e8",
+    "fuzz-0.4/fuzz/sequence_encode_into/smoke.log": "1f53432d188ce2603cfe2fc7c3ac29e00060d176050f08db1c09178e79c21ddc",
+    "fuzz-0.4/fuzz/oct_encode/smoke.log": "b708bafb443a4106a99890a32b5c5ee1d76b1ba7855546f4ec8035d8cb3e6bf7",
+    "fuzz-0.4/fuzz/quat_encode/smoke.log": "ee78737af1a859fb6c63cc06c30b630e9448d74afde61fa2bce46fd33617a8c3",
+    "fuzz-0.4/fuzz/exp_encode/smoke.log": "8e951f4bd2b7461dc4b40f702a624c6084266fa25ac2b2c1fc97d46ebfdd3936",
+    "fuzz-0.4/fuzz/color_encode/smoke.log": "08d0c5fbc0d47e476910f0a31c5c8359b32185c70b529eb0fb43eb213bd8377a",
+    "fuzz-0.4/fuzz/filter_encode_into/smoke.log": "3a93624452c2ea8a1c1167a7b302df2c640c40e5ac5e8fff675ffc797732422f",
+    "fuzz-0.4/fuzz/color/smoke.log": "223ad88da87126edf900ef5b02ff4127c809dcde7ba8894d1e67a592225b4888",
+    "fuzz-0.4/fuzz/meshlet_encode/smoke.log": "26c117b0de9e1626017ba00e2c6a18d8d9448c601fe4c12810c1a769b956b73c",
+    "fuzz-0.4/fuzz/meshlet_encode_into/smoke.log": "9a429d43d404426eec6e8a659b4b39df6e2a6bb966f7a3ce9a63e3e404842663",
+    "fuzz-0.4/fuzz/meshlet_decode/smoke.log": "8d54d6e0ade0cad3c3217bd258df0e07e5275e169d08ea47e539c32bdd9d8276",
+    "fuzz-0.4/fuzz/meshlet_decode_into/smoke.log": "bdad613b268d5efebf5ab63d15d48e3607c054b2f75afc14f666bbe213eb5512",
+    "fuzz-0.4/fuzz/meshlet_raw/smoke.log": "a57cd6d7c1510ffae12dd2e7628f32ebf72f65298567ebb505ceca17bcf37739",
+    "fuzz-0.4/fuzz/meshlet_raw_into/smoke.log": "2f494cb9c163a3ca446aeb5cb1da1344cd78fe8fc8fa0bed6df491d5275879f2",
+    "fuzz-0.4/fuzz/bounds/smoke.log": "3490a9d2c772165d0ecf4c26c713c0d8902332e00c127c5f75e8c172c9127d54"
   },
   "mismatches": 0,
   "profile": "asan-libfuzzer-300s",
   "targets": {
     "vertex_encode": {
-      "executions": 1354637,
-      "elapsed_seconds": 301.2418747460033,
+      "executions": 1353714,
+      "elapsed_seconds": 301.2852029189962,
       "exit_code": 0
     },
     "vertex_encode_into": {
-      "executions": 1332981,
-      "elapsed_seconds": 301.3124526350002,
+      "executions": 1662617,
+      "elapsed_seconds": 301.403960525,
       "exit_code": 0
     },
     "index_encode": {
-      "executions": 1749174,
-      "elapsed_seconds": 301.3171798920084,
+      "executions": 1903144,
+      "elapsed_seconds": 301.59155699500116,
       "exit_code": 0
     },
     "index_encode_into": {
-      "executions": 1644218,
-      "elapsed_seconds": 301.3192991560063,
+      "executions": 1867337,
+      "elapsed_seconds": 301.35158487599983,
       "exit_code": 0
     },
     "sequence_encode": {
-      "executions": 5692732,
-      "elapsed_seconds": 301.32504245400196,
+      "executions": 5420880,
+      "elapsed_seconds": 301.5032532890036,
       "exit_code": 0
     },
     "sequence_encode_into": {
-      "executions": 4946804,
-      "elapsed_seconds": 301.28663396400225,
+      "executions": 4514032,
+      "elapsed_seconds": 301.3423879089969,
       "exit_code": 0
     },
     "oct_encode": {
-      "executions": 4329577,
-      "elapsed_seconds": 301.33103544400365,
+      "executions": 4102325,
+      "elapsed_seconds": 301.44244650901237,
       "exit_code": 0
     },
     "quat_encode": {
-      "executions": 3814789,
-      "elapsed_seconds": 301.3802182889922,
+      "executions": 3932121,
+      "elapsed_seconds": 301.4907431689935,
       "exit_code": 0
     },
     "exp_encode": {
-      "executions": 4570816,
-      "elapsed_seconds": 301.2904723660031,
+      "executions": 4168585,
+      "elapsed_seconds": 301.28532683198864,
       "exit_code": 0
     },
     "color_encode": {
-      "executions": 1301729,
-      "elapsed_seconds": 301.3741249010054,
+      "executions": 3215830,
+      "elapsed_seconds": 301.41420504800044,
       "exit_code": 0
     },
     "filter_encode_into": {
-      "executions": 4368790,
-      "elapsed_seconds": 301.31671279500006,
+      "executions": 5108337,
+      "elapsed_seconds": 301.3144351289957,
       "exit_code": 0
     },
     "color": {
-      "executions": 8748432,
-      "elapsed_seconds": 301.2575056880014,
+      "executions": 8260025,
+      "elapsed_seconds": 301.3955628279946,
       "exit_code": 0
     },
     "meshlet_encode": {
-      "executions": 3438929,
-      "elapsed_seconds": 301.20770437699684,
+      "executions": 3055703,
+      "elapsed_seconds": 301.3393185640016,
       "exit_code": 0
     },
     "meshlet_encode_into": {
-      "executions": 1184791,
-      "elapsed_seconds": 301.3717499639897,
+      "executions": 3329513,
+      "elapsed_seconds": 301.3071652859944,
       "exit_code": 0
     },
     "meshlet_decode": {
-      "executions": 5018015,
-      "elapsed_seconds": 301.3405317150027,
+      "executions": 4634075,
+      "elapsed_seconds": 301.615927367995,
       "exit_code": 0
     },
     "meshlet_decode_into": {
-      "executions": 5683752,
-      "elapsed_seconds": 301.38677137000195,
+      "executions": 5679378,
+      "elapsed_seconds": 301.5265308130038,
       "exit_code": 0
     },
     "meshlet_raw": {
-      "executions": 5988007,
-      "elapsed_seconds": 301.283609066988,
+      "executions": 7225143,
+      "elapsed_seconds": 301.4068603959895,
       "exit_code": 0
     },
     "meshlet_raw_into": {
-      "executions": 8110715,
-      "elapsed_seconds": 301.2384626700077,
+      "executions": 9551747,
+      "elapsed_seconds": 301.52077258400095,
       "exit_code": 0
     },
     "bounds": {
-      "executions": 12693629,
-      "elapsed_seconds": 301.37985589299933,
+      "executions": 16308656,
+      "elapsed_seconds": 301.53316883099615,
       "exit_code": 0
     }
   },

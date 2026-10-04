@@ -10,7 +10,7 @@ repository = "https://github.com/Tavrin/meshoptimizer-rs"
 readme = "README.md"
 keywords = ["mesh", "optimization", "graphics", "geometry", "no-std"]
 categories = ["graphics", "no-std"]
-include = ["/src/**/*.rs", "/tests/api.rs", "/tests/meshlets.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
+include = ["/src/**/*.rs", "/tests/api.rs", "/tests/meshlets.rs", "/tests/preprocessing.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
 
 [features]
 default = ["std"]

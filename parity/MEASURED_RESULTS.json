@@ -1,11 +1,13 @@
 {
   "schema": "meshopt-release-summary/1",
   "phase": "0.1",
-  "passed": true,
-  "evidence_complete": true,
-  "moss_performance_accepted": true,
+  "passed": false,
+  "evidence_complete": false,
+  "moss_performance_accepted": false,
   "report_exit_policy": "complete verified evidence exits zero; failed Moss bars block release acceptance",
-  "incomplete": [],
+  "incomplete": [
+    "current four-CPU-hour fuzz evidence"
+  ],
   "absent_current_artifacts": [],
   "local_execution_targets": [
     "linux-x86_64",
@@ -14,62 +16,66 @@
   "remote_execution": "CI configured; local records do not establish remote execution",
   "records": {
     "benchmark-default": {
-      "summary_sha256": "fb0b2b578ee8de781d22447c50c58a5c56d7b85358abdfb2d99286c84c053db0",
+      "summary_sha256": "667e8a867fac1f4ebe5747f7488eb7dc022006b72246de3f9f96e15436542b76",
       "artifacts": {
-        "benchmark-default-release/benchmark.json": "7c938b0bf7ce208ee5d09a09b3c4b6313ad93644201b29ef2817ad765cad8321",
-        "benchmark-default-release/benchmark-buffers.zip": "9ebd69324660d2d09fb9bcfb39c92476fe5697f3076887dbe95f0b985b7762d6",
-        "benchmark-default-release/sources.tar.gz": "ef03f69994fdd8a88d73e4e3afd4b9f8bbd22f4fb03f0f94bdd4fb4cbbede241",
-        "benchmark-default-release/binaries/fixture_exporter": "2b71ad2acd335cf148cd02e374a86279c37f3974c0b695474f07e10e314c8f1b",
-        "benchmark-default-release/binaries/rust": "e0a408a849a4077263f03dffdea8787516c81c20a42452d4afb241c2e13d1ec8",
-        "benchmark-default-release/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+        "benchmark-default-integrated/benchmark.json": "2c178b2a8d1afcf61e8d4710b4379433945351139cc5be73827509719587243b",
+        "benchmark-default-integrated/benchmark-buffers.zip": "6ad404e4744c732a1288f442268d7e45a294d041fd81f1680f700fe04d447be9",
+        "benchmark-default-integrated/sources.tar.gz": "f2c01f545b7ec1d85be4301ea10349603f9fab4ca60924283cdd8134e8734800",
+        "benchmark-default-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
+        "benchmark-default-integrated/binaries/rust": "c798805ca52cbf164b61e858d1eb69ee9a2eca0daaac46574528a5b6fce1195c",
+        "benchmark-default-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
+        "benchmark-default-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
       }
     },
     "benchmark-moss": {
-      "summary_sha256": "f4a122d6e321279bf2cdd8b0f6f675134c0ec4c0185831a886f0165303bee614",
+      "summary_sha256": "76b89cbd3e6222bd62f7d4a2a9d16fadded589c0d35bee8dddd451efbe4399ee",
       "artifacts": {
-        "benchmark-moss-simplify-perf/benchmark.json": "fab9e04e694945a4de9c5c15f1aefa91e15ae42d514e37995fcbe321961e3d3c",
-        "benchmark-moss-simplify-perf/benchmark-buffers.zip": "f987c302c1a878f51356f8b15576872d8511cdde396b05532c2b56d7c80b24b4",
-        "benchmark-moss-simplify-perf/sources.tar.gz": "e21457933fe61e99ff2b00099bc6f2350a91c60cd8d588f1f3cb7e62230f19fd",
-        "benchmark-moss-simplify-perf/binaries/fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627",
-        "benchmark-moss-simplify-perf/binaries/rust": "155c9772f870adbfc42cfd59438715f41d013fe8b15ef7ecb3e2a0aa18c8ed23",
-        "benchmark-moss-simplify-perf/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+        "benchmark-moss-integrated/benchmark.json": "72e6194f9a460af5c7c07606a63d660e227bb4e16ae6bf32caf599b765d3172e",
+        "benchmark-moss-integrated/benchmark-buffers.zip": "aa65cfc91338f53763758dc592792f18917e8f747e58f15882bea7dea3dede2b",
+        "benchmark-moss-integrated/sources.tar.gz": "958297057ca57ce6123b560376a560c3dd311e036d14fd0815d706277bd2deae",
+        "benchmark-moss-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
+        "benchmark-moss-integrated/binaries/rust": "52dab25ed6faab1a604d9d4860c5f3c2a0d1f5f75869bd2dc5fbf68bb72fef3a",
+        "benchmark-moss-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
+        "benchmark-moss-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
       }
     },
     "gates": {
-      "summary_sha256": "19154264b67282c8ef872c370e45e7ef4dbf5b4e9c18c7619d920395bb6e2efa",
+      "summary_sha256": "fc14bc56d3f46e7de70ae8901118dd90fa547df935170c3f3366d1bc1482fa40",
       "artifacts": {
-        "gates-release/gates.json": "3e93f5815a32bf4281dfa765d742e6dd290952d6213c886ccac67a2fad359d10",
-        "gates-release/meshoptimizer-rs-0.1.0.crate": "78c2d72b6f7da3a44e1c6f8b2b5e0a7e0d510adbea830f836562e4d5b376d7a4"
+        "gates/gates.json": "0cc434d924834c674eedd1eaf228378055dcd43a158920c2f91bbb89bb899c04",
+        "gates/meshoptimizer-rs-0.1.0.crate": "7287d79fd5f7270fe8391732f80f58c7c24d44c20b0b17ce2f959294866a5af7"
       }
     },
     "js": {
-      "summary_sha256": "3fde074719351e85ffb94ad0b88c7475ca4f5c0d88c6877d07d2750f15c51162",
+      "summary_sha256": "f2d242530a9517c893d06472d00309c2d34960b4f49f0aa39fcaf30094c7e48f",
       "artifacts": {
-        "js-final/js.json": "634d475bd0245b87898185ae20832bb2a1585ec36fcf044ab57bf11ac7db0c55"
+        "js/js.json": "a5ed388c151fcb5b14f13c2997079b17fe37a96a450e62cd1406ea6f8652ad07"
       }
     },
     "run": {
-      "summary_sha256": "0ddf42955b4524db8fc3bdc557fd24a43b7d4f0f9672871cd5f16e67283a8149",
+      "summary_sha256": "3b971f0d86685949b83a72f02fcc802a726d83a7fd9521d859bca0700e479329",
       "artifacts": {
-        "run/run.json": "6757db5f891e39211d7013d4c22a6774bb6714a7a16c39a1373f336f045029a2",
-        "run/run-buffers.zip": "b28eb4a6373671d4658227bdffcabdbb9b6525da5f75f45a95dec2466be8766f",
-        "run/sources.tar.gz": "7f38b8a02db19789ff79fb2e044ab2d09e8667fd0d3a2561215e0e4a37994cc6",
-        "run/binaries/fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627",
-        "run/binaries/rust": "c095be5d831aed8dbe330549c8ea483558b0ed3235bc76d38c5d57b17b5ed87c",
-        "run/binaries/wasm": "5c2b9be6b0b542dc2e3e8e8182c38a45d2f751926ff20492eea115fd5ab2109b",
-        "run/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+        "run-integrated/run.json": "089bf6a0d01d720cc28b101e4537ba52b4c508f7457d2abd7b1d4ef5d8c322ca",
+        "run-integrated/run-buffers.zip": "d78a14fcae0e0283ad6753eabd90ca27d202673aa1e152f09c7faf174cabe5e2",
+        "run-integrated/sources.tar.gz": "f7da49c12ba89b53d841ba0b35e96ee5d4c2266e07b413db8a2877fd0c44e01a",
+        "run-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
+        "run-integrated/binaries/rust": "2a3e4c88939b4ef5b0ccd5f30ec8c2db3e1acb2cc20c9925b83f13ed6548c021",
+        "run-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
+        "run-integrated/binaries/wasm": "7053f7d6d67ce31230149200be7fda4e996343a484e243492bff5b830bb1d9c5",
+        "run-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
       }
     },
     "sweep": {
-      "summary_sha256": "f02331f25f519f5fb4a9085dd1d5bb5ce21130261a6a8dc66e1d0b2326b85a56",
+      "summary_sha256": "0a41b989f163fcf9ab8a7a77e055cabd31f67dc07e7c1ec6effc3f7cf8a36494",
       "artifacts": {
-        "sweep/sweep.json": "8fcd7df4b842881064df8b79da78d653278ff61fe673ad2f630e29cecc27b8e8",
-        "sweep/sweep-buffers.zip": "b8c15c7e6fe0c1d55891e5eea85311a59e987a9e2b3d722887e72b600ab01c3e",
-        "sweep/sources.tar.gz": "986b7e024c3fe734401fdbd59b19aeff58988d27ad162aa79e95bee647e97424",
-        "sweep/binaries/fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627",
-        "sweep/binaries/rust": "c095be5d831aed8dbe330549c8ea483558b0ed3235bc76d38c5d57b17b5ed87c",
-        "sweep/binaries/wasm": "5c2b9be6b0b542dc2e3e8e8182c38a45d2f751926ff20492eea115fd5ab2109b",
-        "sweep/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+        "sweep-integrated/sweep.json": "daca61e1d5af7a9892690f56ccd18ea25baf889481e8cfc92ec8dfd6e985c787",
+        "sweep-integrated/sweep-buffers.zip": "6ba7c1059e681ac01db6677ce586597a3ac6891984d23818240e091c6825dd2d",
+        "sweep-integrated/sources.tar.gz": "c9b868c26b46f0ec463dd4df01ea50ad0dbb79819d12a74b6e7bbcff7faabfb1",
+        "sweep-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
+        "sweep-integrated/binaries/rust": "2a3e4c88939b4ef5b0ccd5f30ec8c2db3e1acb2cc20c9925b83f13ed6548c021",
+        "sweep-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
+        "sweep-integrated/binaries/wasm": "7053f7d6d67ce31230149200be7fda4e996343a484e243492bff5b830bb1d9c5",
+        "sweep-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
       }
     }
   },
@@ -93,36 +99,36 @@
     "benchmark-moss": {
       "vertex_cache": {
         "cases": 24,
-        "geometric_mean": 1.1764114402048347,
-        "maximum": 1.3437367371448472,
+        "geometric_mean": 1.1837402804554626,
+        "maximum": 1.329843803902641,
         "maximum_memory_ratio": 1.0,
         "passed": true
       },
       "overdraw": {
         "cases": 24,
-        "geometric_mean": 1.0789136547977467,
-        "maximum": 1.4218179763714043,
+        "geometric_mean": 1.100887049264617,
+        "maximum": 1.5221247948789323,
         "maximum_memory_ratio": 0.9989704976937129,
-        "passed": true
+        "passed": false
       },
       "simplify": {
         "cases": 72,
-        "geometric_mean": 1.1107550361541487,
-        "maximum": 1.200866529342388,
+        "geometric_mean": 1.0490641777147622,
+        "maximum": 1.304301919901469,
         "maximum_memory_ratio": 1.095090670882574,
         "passed": true
       },
       "simplify_with_attributes": {
         "cases": 72,
-        "geometric_mean": 1.1850010039408678,
-        "maximum": 1.334931151170546,
+        "geometric_mean": 1.071804571387151,
+        "maximum": 1.2306701715629593,
         "maximum_memory_ratio": 1.0843286556888025,
         "passed": true
       },
       "simplify_scale": {
         "cases": 12,
-        "geometric_mean": 0.8291642457973664,
-        "maximum": 1.2924740180781358,
+        "geometric_mean": 0.9151150960313637,
+        "maximum": 1.0674835752058778,
         "maximum_memory_ratio": 1.0,
         "passed": true
       }
@@ -130,93 +136,71 @@
     "benchmark-default": {
       "vertex_cache": {
         "cases": 24,
-        "geometric_mean": 1.1894294551996754,
-        "maximum": 1.2567940772921293,
+        "geometric_mean": 1.2314258583632292,
+        "maximum": 1.3309803997062783,
         "maximum_memory_ratio": 1.0,
         "passed": true
       },
       "overdraw": {
         "cases": 24,
-        "geometric_mean": 1.0475183252924218,
-        "maximum": 1.3640744171979349,
+        "geometric_mean": 1.134958792336887,
+        "maximum": 1.4712524821714603,
         "maximum_memory_ratio": 0.9989704976937129,
         "passed": true
       },
       "simplify": {
         "cases": 72,
-        "geometric_mean": 1.1800903407131067,
-        "maximum": 1.3059922004500173,
+        "geometric_mean": 1.0601029937292576,
+        "maximum": 1.236846801618193,
         "maximum_memory_ratio": 1.095090670882574,
         "passed": true
       },
       "simplify_with_attributes": {
         "cases": 72,
-        "geometric_mean": 1.2168060805681136,
-        "maximum": 1.3098606175665692,
+        "geometric_mean": 1.0918532330522528,
+        "maximum": 1.3145487476027524,
         "maximum_memory_ratio": 1.0843286556888025,
         "passed": true
       },
       "simplify_scale": {
         "cases": 12,
-        "geometric_mean": 0.9627567262056559,
-        "maximum": 1.1422350955900251,
+        "geometric_mean": 0.8549745792635591,
+        "maximum": 1.0100846391249854,
         "maximum_memory_ratio": 1.0,
         "passed": true
       }
     }
   },
   "fuzz": {
-    "passed": true,
+    "passed": false,
     "required_cpu_seconds_per_target": 14400,
-    "runs": [
-      {
-        "target": "vertex_cache",
-        "cpu_seconds": 14872.109999999997,
-        "elapsed_seconds": 16500.11,
-        "executions": 749426103,
-        "successes": 407694217,
-        "crashes": 0,
-        "shards": 55
-      },
-      {
-        "target": "overdraw",
-        "cpu_seconds": 14810.359999999995,
-        "elapsed_seconds": 16500.11,
-        "executions": 1607030104,
-        "successes": 676893309,
-        "crashes": 0,
-        "shards": 55
-      },
-      {
-        "target": "simplify",
-        "cpu_seconds": 15271.429999999995,
-        "elapsed_seconds": 16800.120000000003,
-        "executions": 770511072,
-        "successes": 392393187,
-        "crashes": 0,
-        "shards": 56
-      },
-      {
-        "target": "simplify_with_attributes",
-        "cpu_seconds": 14801.159999999996,
-        "elapsed_seconds": 16200.270000000002,
-        "executions": 617018451,
-        "successes": 239527760,
-        "crashes": 0,
-        "shards": 54
-      },
-      {
-        "target": "simplify_scale",
-        "cpu_seconds": 15272.669999999995,
-        "elapsed_seconds": 16500.11,
-        "executions": 17315143374,
-        "successes": 16319911613,
-        "crashes": 0,
-        "shards": 55
-      }
+    "runs": [],
+    "artifacts": {}
+  },
+  "integration_requalified": true,
+  "stage2": {
+    "rule": "D146",
+    "case_count": 7,
+    "verdicts": {
+      "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone": "INCONCLUSIVE",
+      "p01x-benchmark-defaults/filter_index_buffer/tiny/seam-heavy/mode-2": "PASS",
+      "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1": "INCONCLUSIVE",
+      "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2": "INCONCLUSIVE",
+      "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1": "FAIL",
+      "p01x-benchmark-moss/generate_vertex_remap_custom/million/smooth/mode-1": "PASS",
+      "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1": "FAIL"
+    },
+    "residuals": [
+      "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone",
+      "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1",
+      "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2",
+      "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1",
+      "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1"
     ],
-    "artifacts": {
-      "fuzz/record.json": "de1fd41f4f9d98e8fa0f7b38e799275b71505eb94845cafadbc0d3b40fcc6ef6"
-    }
-  }
+    "summary_sha256": "b52d17fc5a84fe10fc8023e42b91b1c7e65986fccea9cd730ba05d09b705f0db"
+  },
+  "release_acceptance_blockers": [
+    "current four-CPU-hour fuzz evidence",
+    "documented stage-2 performance residuals"
+  ]
 }

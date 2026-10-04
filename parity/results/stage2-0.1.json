@@ -1,0 +1,26 @@
+{
+  "artifacts": {
+    "stage2-0.1/record.json": "415fc488914ab4dc37992d417dc38be3fe3f5148159fcab57868c08325ac63fa",
+    "stage2-0.1/stage2-outputs.zip": "04fa251a8425c5d8576ede502c31d9e563e3d8610515b0bbcd49f30305f11d88"
+  },
+  "case_count": 7,
+  "detail_artifact": "stage2-0.1/record.json",
+  "phase": "0.1",
+  "residuals": [
+    "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2",
+    "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1",
+    "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1"
+  ],
+  "schema": "meshopt-stage2-summary/1",
+  "verdicts": {
+    "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone": "INCONCLUSIVE",
+    "p01x-benchmark-defaults/filter_index_buffer/tiny/seam-heavy/mode-2": "PASS",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1": "INCONCLUSIVE",
+    "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2": "INCONCLUSIVE",
+    "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1": "FAIL",
+    "p01x-benchmark-moss/generate_vertex_remap_custom/million/smooth/mode-1": "PASS",
+    "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1": "FAIL"
+  }
+}

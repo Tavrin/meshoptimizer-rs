@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import platform
 import random
+import shutil
 import statistics
 import struct
 import subprocess
@@ -71,7 +72,7 @@ def snapshot(reference):
     files = [ROOT / "Cargo.toml", ROOT / "Cargo.lock"]
     for directory in ["src", "tests", "parity", "fuzz"]:
         files += [p for p in (ROOT / directory).rglob("*") if p.is_file()
-                  and "results" not in p.parts and p.suffix in {".rs", ".py", ".sh", ".cpp", ".cjs", ".toml"}]
+                  and "results" not in p.parts and p.suffix in {".rs", ".py", ".sh", ".cpp", ".h", ".cjs", ".toml"}]
     files += [ROOT / "parity/Cargo.lock", ROOT / "fuzz/Cargo.lock"]
     sources = {str(p.relative_to(ROOT)): sha(p) for p in sorted(set(files))}
     oracle_files = [*reference.glob("src/*"), *reference.glob("js/*"),
@@ -94,6 +95,15 @@ def reference_check():
 
 
 def build(reference, target, wasm=True):
+    # Profiles share driver/exporter paths until content-addressed copies exist.
+    # Serialize that complete interval across qualification processes.
+    import fcntl
+    with (target / "qualification-build.lock").open("a+b") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return build_locked(reference, target, wasm)
+
+
+def build_locked(reference, target, wasm=True):
     reference_check()
     before = snapshot(reference)
     build_dir = target / "qualification-build"
@@ -102,7 +112,7 @@ def build(reference, target, wasm=True):
     compiler = os.environ.get("CXX", "c++")
     cpp_command = [compiler, *FLAGS, "-I", reference / "src", ROOT / "parity/reference.cpp",
                    reference / "src/vcacheoptimizer.cpp", reference / "src/overdrawoptimizer.cpp",
-                   reference / "src/allocator.cpp", reference / "src/simplifier.cpp", "-o", cpp]
+                   reference / "src/allocator.cpp", reference / "src/simplifier.cpp", reference / "src/indexgenerator.cpp", reference / "src/vfetchoptimizer.cpp", reference / "src/quantization.cpp", "-o", cpp]
     command(cpp_command)
     command(["cargo", "build", "--offline", "--locked", "--release", "--manifest-path", ROOT / "parity/Cargo.toml"])
     binaries = {"cpp": cpp, "rust": target / "release/meshopt-driver"}
@@ -122,8 +132,25 @@ def build(reference, target, wasm=True):
     command([fixture_binary, fixture_dir])
     command(["node", ROOT / "parity/js-fixtures.cjs", reference, fixture_dir])
     binaries["fixture_exporter"] = fixture_binary
+    generated_p01x = build_dir / "p01x-native-fixtures.cpp"
+    command(["python3", ROOT / "parity/p01x-native-fixtures.py", reference, generated_p01x])
+    p01x_fixture_binary = build_dir / "p01x-native-fixtures"
+    command([compiler, *[f for f in FLAGS if f != "-DNDEBUG"], "-I", reference / "src", generated_p01x,
+             reference / "src/simplifier.cpp", reference / "src/indexgenerator.cpp", reference / "src/quantization.cpp",
+             reference / "src/allocator.cpp", reference / "src/vcacheoptimizer.cpp", reference / "src/vfetchoptimizer.cpp",
+             reference / "src/overdrawoptimizer.cpp", reference / "src/meshletutils.cpp", "-o", p01x_fixture_binary])
+    command([p01x_fixture_binary, fixture_dir])
+    command(["node", ROOT / "parity/p01x-js-fixtures.cjs", reference, fixture_dir])
+    binaries["p01x_fixture_exporter"] = p01x_fixture_binary
     if before != snapshot(reference):
         raise ValueError("source changed during build")
+    for name, original in list(binaries.items()):
+        directory = target / "qualification-executables" / sha(original)
+        directory.mkdir(parents=True, exist_ok=True)
+        retained = directory / original.name
+        if not retained.exists(): shutil.copy2(original, retained)
+        if sha(retained) != sha(original): raise ValueError("changed retained executable")
+        binaries[name] = retained
     def redact(arg):
         return str(arg).replace(str(target), "$CARGO_TARGET_DIR").replace(str(reference), "$MESHOPT_REFERENCE").replace(str(ROOT), ".")
     identities = {
@@ -366,6 +393,7 @@ def differential(args):
                 inventory = []
                 for path in sorted((target / "upstream-fixtures").glob("*.input")):
                     data = path.read_bytes()
+                    if data[:4] != b"MO01": continue
                     _, op, vc, ic, _, _, _ = struct.unpack_from("<4sIIIfII", data)
                     outputs = {n: execute(binaries[n], data) for n in ["cpp", "rust"]}
                     outputs["wasm"] = wasm.execute(data)
@@ -588,16 +616,29 @@ def report(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["run", "sweep", "benchmark", "js", "report", "qualify"])
-    parser.add_argument("--phase", choices=["0.1"], default="0.1")
+    parser.add_argument("--phase", choices=["0.1", "0.1.x", "all"], default="all")
     parser.add_argument("--profile", choices=["scalar-strict"], default="scalar-strict")
     parser.add_argument("--seed", type=int, default=20261002)
     parser.add_argument("--cases-per-family", type=int, default=2000)
     parser.add_argument("--require-coverage", action="store_true")
     parser.add_argument("--verify-artifacts", action="store_true")
     parser.add_argument("--enforce", action="store_true")
+    parser.add_argument("--consumer-profile", choices=["moss", "defaults", "local"], default="moss")
     args = parser.parse_args()
     if args.cases_per_family < 2000:
         parser.error("at least 2000 cases per family are required")
+    if args.phase in {"0.1.x", "all"} and args.action in {"run", "sweep", "benchmark"}:
+        import p01x
+        if args.action == "benchmark": p01x.benchmark(args)
+        else:
+            cases = args.cases_per_family
+            if args.action == "sweep" and args.phase == "all":
+                args.cases_per_family = 2000
+            try:
+                p01x.differential(args)
+            finally:
+                args.cases_per_family = cases
+        if args.phase == "0.1.x": return
     if args.action in {"run", "sweep"}:
         differential(args)
     elif args.action == "benchmark":

@@ -8,13 +8,14 @@
 | `meshopt_simplifyWithAttributes` | `simplify_with_attributes`, `simplify_with_attributes_into` | exact indices/error; weights and all three flags |
 | `meshopt_simplifyScale` | `simplify_scale` | exact extent bits |
 
-Supported options: empty, LockBorder, ErrorAbsolute, Regularize, Permissive,
-RegularizeLight. Unsupported bits are rejected. Sparse and Prune, remaining
-stable preprocessing, codecs, meshlets and experimental algorithms retain their
-RFC later-milestone scheduling. PreserveFolds and ErrorClamped are not exposed.
+The 0.1.x extension exposes stable Sparse and Prune and retains the existing
+stable options. PreserveFolds and ErrorClamped require `experimental`. Unknown
+bits remain checked errors. Codecs, meshlets, stripification and analysis retain
+their later RFC milestones. Qualification records below are separate from the
+existing 0.1 records.
 The `experimental` feature currently exposes no additional functions.
 
-## Fixture applicability
+## 0.1 fixture applicability (historical records)
 
 `native-fixtures.py` extracts the unchanged bodies of these functions from the
 pinned `demo/tests.cpp`, preserving their assertions and capturing inputs before
@@ -48,7 +49,7 @@ Moss target/error values and additional boundary values. Overdraw receives
 standard-cache output as upstream recommends. Every result error is serialized
 as f32 bits and compared along with exact output count/order.
 
-## Targets and variants
+## 0.1 targets and variants (historical records)
 
 | Target or variant | Evidence |
 |---|---|
@@ -165,3 +166,82 @@ Every listed function has its own cargo-fuzz target. Five-minute lane smokes
 use coverage instrumentation and no sanitizer; they do not establish the
 amended four-CPU-hour release gate, nightly/weekly sustained fuzzing, 10,000-case
 release sweeps, AArch64 execution or non-Linux platform acceptance.
+
+## 0.1.x header inventory
+
+Pinned `src/meshoptimizer.h` at 4c203430ca565cb59a468a91922c76c208169536
+contains the following additional preprocessing functions. All are implemented
+in safe Rust and pass the final local gates recorded in `MEASURED_P01X.json` and
+DECISIONS D145.
+
+| Upstream function | Rust API / record family |
+|---|---|
+| `meshopt_optimizeVertexCacheStrip` | `vertex_cache_strip` |
+| `meshopt_optimizeVertexCacheFifo` | `vertex_cache_fifo` |
+| `meshopt_generateVertexRemap` | `generate_vertex_remap` |
+| `meshopt_generateVertexRemapMulti` | `generate_vertex_remap_multi` |
+| `meshopt_generateVertexRemapCustom` | `generate_vertex_remap_custom` |
+| `meshopt_remapVertexBuffer` | `remap_vertex_buffer` |
+| `meshopt_remapIndexBuffer` | `remap_index_buffer` |
+| `meshopt_filterIndexBuffer` | `filter_index_buffer` |
+| `meshopt_filterIndexBufferMulti` | `filter_index_buffer_multi` |
+| `meshopt_generateShadowIndexBuffer` | `generate_shadow_index_buffer` |
+| `meshopt_generateShadowIndexBufferMulti` | `generate_shadow_index_buffer_multi` |
+| `meshopt_generatePositionRemap` | `generate_position_remap` |
+| `meshopt_generateAdjacencyIndexBuffer` | `generate_adjacency_index_buffer` |
+| `meshopt_generateTessellationIndexBuffer` | `generate_tessellation_index_buffer` |
+| `meshopt_generateProvokingIndexBuffer` | `generate_provoking_index_buffer` |
+| `meshopt_optimizeVertexFetch` | `vertex_fetch` |
+| `meshopt_optimizeVertexFetchRemap` | `vertex_fetch_remap` |
+| `meshopt_simplifySloppy` | `simplify_sloppy` |
+| `meshopt_simplifyPrune` | `simplify_prune` |
+| `meshopt_simplifyPoints` | `simplify_points` |
+| `meshopt_simplifyWithUpdate` | `simplify_with_update` |
+| `meshopt_quantizeUnorm` | `quantize_unorm` |
+| `meshopt_quantizeSnorm` | `quantize_snorm` |
+| `meshopt_quantizeHalf` | `quantize_half` |
+| `meshopt_quantizeFloat` | `quantize_float` |
+| `meshopt_dequantizeHalf` | `dequantize_half` |
+| `meshopt_computePositionExponent` | `compute_position_exponent` |
+
+The five additional option families are Sparse, Prune, PreserveFolds,
+ErrorClamped and RegularizeLight. Each has independent fixture, seeded sweep,
+WASM, fuzz and benchmark records. Protocol 2 includes complete update positions
+and attributes, used fetch bytes, provoking reorder entries and custom callback
+visits. Native fixture capture retains unchanged inputs before mutation.
+
+No extra provoking helpers exist in this header. C++ typed index overloads are
+adapters to these functions. `setAllocator` is intentionally replaced by
+per-call Workspace and Limits; it is not a global Rust callback API.
+
+Caller-buffer forms that use an atomic temporary document that allocation and
+charge it to limits. Direct forms document partial writes on work exhaustion.
+Remap and fetch accept arbitrary index sequences; triangle-only operations
+validate divisibility by three. Initialized padding participates in byte keys.
+
+Additional work units count index validation, each hash probe, visited record,
+cell/triangle scan, union-find traversal, adjacency edge and update solve visit.
+Scalar arithmetic and bytes within one validated record are not separate units.
+Heap reservations and size checks are fallible. Quantization and exponent
+helpers have bounded scalar work and allocate no heap storage.
+
+## 0.1.x final local qualification
+
+All 32 new record families pass fixtures, 2,000 seeded cases each, executed WASM
+identity and a 300-second mutation smoke. Both complete 912-case consumer timing
+matrices are verified; the unconditional performance verdict is
+`documented fetch maximum residual; coordinator decision pending`. Existing 0.1 fixture and seeded regressions also pass: 924 fixture
+comparisons and 74,000 seeded comparisons total, with zero mismatches. All eleven
+local checks pass, including 78 root tests in each feature mode. The full per-family
+bar verdicts, source/executable identities and retained artifact hashes are in
+`MEASURED_P01X.json`; DECISIONS D145 records the decisive verdict and proof limits.
+
+The additional large fixed-width fetch fixtures cover all 4-, 8-, 12- and
+16-byte owned-record paths in C++, native Rust and executed WASM. The independent
+verifier checks every archive member and exact matrix membership, including D144's
+complete predetermined workload order. Every current measured sample is retained.
+
+This establishes the brief's local Linux x86-64 and executed WASM gates. It does
+not establish other native-platform execution, release fuzz, GPU or Moss
+integration acceptance. D84 records the earlier artifact placement limitation;
+integration pointers use the requested destination pending the coordinator's move.

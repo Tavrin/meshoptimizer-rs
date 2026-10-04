@@ -5,8 +5,8 @@
   "phase": "0.4",
   "detail_artifact": "benchmark-0.4/benchmark-0.4-moss.json",
   "artifacts": {
-    "benchmark-0.4/benchmark-0.4-moss.json": "55822a746ee89f125b112c08106c0c96f88c9ec45ecac4d2cd7c8dbbcd1496c6",
-    "benchmark-0.4/benchmark04-inputs.json": "e64fe17d2d5ceb658f7ae4ab0b986899552d599332dfbdbd3d9dfb0bae857427"
+    "benchmark-0.4/benchmark-0.4-moss.json": "826179b468396a522f441514bce8465e54228c4678f941a139d55461bd7d0c62",
+    "benchmark-0.4/benchmark04-inputs.json": "0d7215403787297b8a3b3d550d18447dbe260d83728ef55dd0b469fb3812704f"
   },
   "mismatches": 0,
   "profile": "moss",
@@ -18,7 +18,7 @@
   },
   "bar": "per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (RFC 6.1 raw scalar codecs)",
   "executable_sha256": {
-    "rust": "9c1ec6496375debc53a33003efa9bf3dee90cada9f6b1d14f9e0da29ace57787",
+    "rust": "9984a51edc029e631c1e8a647ce9db3e5a21d2b03a8bfa01cf44090209fbe370",
     "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
     "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58"
   },
@@ -26,148 +26,148 @@
     "allocating": {
       "vertex_encode": {
         "cases": 21,
-        "geometric_mean_rust_scalar_time_ratio": 0.9823869919602607,
-        "maximum_rust_scalar_time_ratio": 1.1789103740649964,
+        "geometric_mean_rust_scalar_time_ratio": 0.9667802759393839,
+        "maximum_rust_scalar_time_ratio": 1.2548868323890239,
         "pass": true
       },
       "index_encode": {
         "cases": 7,
-        "geometric_mean_rust_scalar_time_ratio": 1.1156303896591222,
-        "maximum_rust_scalar_time_ratio": 1.2190080779909311,
+        "geometric_mean_rust_scalar_time_ratio": 1.1246915195375786,
+        "maximum_rust_scalar_time_ratio": 1.200479195700686,
         "pass": true
       },
       "sequence_encode": {
         "cases": 5,
-        "geometric_mean_rust_scalar_time_ratio": 1.2352246014516244,
-        "maximum_rust_scalar_time_ratio": 1.4257107958368136,
+        "geometric_mean_rust_scalar_time_ratio": 1.2168785332103835,
+        "maximum_rust_scalar_time_ratio": 1.3905358719133103,
         "pass": true
       },
       "oct_encode": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 1.0533934203558746,
-        "maximum_rust_scalar_time_ratio": 1.4312857796061835,
+        "geometric_mean_rust_scalar_time_ratio": 1.056470627323286,
+        "maximum_rust_scalar_time_ratio": 1.445272790286128,
         "pass": true
       },
       "quat_encode": {
         "cases": 2,
-        "geometric_mean_rust_scalar_time_ratio": 0.6820710350110687,
-        "maximum_rust_scalar_time_ratio": 1.4638513907923407,
+        "geometric_mean_rust_scalar_time_ratio": 0.589325577769972,
+        "maximum_rust_scalar_time_ratio": 1.456658880262788,
         "pass": true
       },
       "exp_encode": {
         "cases": 5,
-        "geometric_mean_rust_scalar_time_ratio": 1.0268329904222244,
-        "maximum_rust_scalar_time_ratio": 1.307915163506298,
+        "geometric_mean_rust_scalar_time_ratio": 1.00881351450406,
+        "maximum_rust_scalar_time_ratio": 1.2841218935892444,
         "pass": true
       },
       "color_encode": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 0.759030845515381,
-        "maximum_rust_scalar_time_ratio": 0.8055422445776746,
+        "geometric_mean_rust_scalar_time_ratio": 0.7719960681571124,
+        "maximum_rust_scalar_time_ratio": 0.8012175605995606,
         "pass": true
       },
       "color_decode": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 0.8019703642810861,
-        "maximum_rust_scalar_time_ratio": 1.1864872753212576,
+        "geometric_mean_rust_scalar_time_ratio": 0.7567462140594701,
+        "maximum_rust_scalar_time_ratio": 0.9602550308700144,
         "pass": true
       },
       "meshlet_encode": {
         "cases": 3,
-        "geometric_mean_rust_scalar_time_ratio": 1.0184597609239956,
-        "maximum_rust_scalar_time_ratio": 1.0706862695917962,
+        "geometric_mean_rust_scalar_time_ratio": 1.1173635165671063,
+        "maximum_rust_scalar_time_ratio": 1.1760471464361395,
         "pass": true
       },
       "meshlet_decode": {
         "cases": 6,
-        "geometric_mean_rust_scalar_time_ratio": 1.0880054593967234,
-        "maximum_rust_scalar_time_ratio": 1.1725441925855673,
+        "geometric_mean_rust_scalar_time_ratio": 1.074599199617633,
+        "maximum_rust_scalar_time_ratio": 1.1671021406964606,
         "pass": true
       },
       "meshlet_decode_raw": {
         "cases": 3,
-        "geometric_mean_rust_scalar_time_ratio": 1.1301906627779035,
-        "maximum_rust_scalar_time_ratio": 1.1888837786334288,
+        "geometric_mean_rust_scalar_time_ratio": 1.1174928817556982,
+        "maximum_rust_scalar_time_ratio": 1.1572682692321734,
         "pass": true
       },
       "bounds": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 0.6770555041550309,
-        "maximum_rust_scalar_time_ratio": 1.1571344365215368,
+        "geometric_mean_rust_scalar_time_ratio": 0.6651577059291294,
+        "maximum_rust_scalar_time_ratio": 1.2724095528416521,
         "pass": true
       }
     },
     "caller_buffer": {
       "vertex_encode": {
         "cases": 21,
-        "geometric_mean_rust_scalar_time_ratio": 0.9804802918964812,
-        "maximum_rust_scalar_time_ratio": 1.2815595365661943,
+        "geometric_mean_rust_scalar_time_ratio": 1.018648554776245,
+        "maximum_rust_scalar_time_ratio": 1.2880768970804932,
         "pass": true
       },
       "index_encode": {
         "cases": 7,
-        "geometric_mean_rust_scalar_time_ratio": 1.0967602937210863,
-        "maximum_rust_scalar_time_ratio": 1.1889147985419646,
+        "geometric_mean_rust_scalar_time_ratio": 1.099253236015319,
+        "maximum_rust_scalar_time_ratio": 1.1927870347113263,
         "pass": true
       },
       "sequence_encode": {
         "cases": 5,
-        "geometric_mean_rust_scalar_time_ratio": 1.1159757236212706,
-        "maximum_rust_scalar_time_ratio": 1.3323140633153787,
+        "geometric_mean_rust_scalar_time_ratio": 1.124442729148745,
+        "maximum_rust_scalar_time_ratio": 1.3872408919323804,
         "pass": true
       },
       "oct_encode": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 1.0401447927297882,
-        "maximum_rust_scalar_time_ratio": 1.4267519916064924,
+        "geometric_mean_rust_scalar_time_ratio": 0.976102732027128,
+        "maximum_rust_scalar_time_ratio": 1.2481114283105097,
         "pass": true
       },
       "quat_encode": {
         "cases": 2,
-        "geometric_mean_rust_scalar_time_ratio": 0.6071878456458996,
-        "maximum_rust_scalar_time_ratio": 1.2059405073062606,
+        "geometric_mean_rust_scalar_time_ratio": 0.5550382820655339,
+        "maximum_rust_scalar_time_ratio": 1.1049176702369559,
         "pass": true
       },
       "exp_encode": {
         "cases": 5,
-        "geometric_mean_rust_scalar_time_ratio": 1.058997419669599,
-        "maximum_rust_scalar_time_ratio": 1.297173203037109,
+        "geometric_mean_rust_scalar_time_ratio": 1.0741952067862195,
+        "maximum_rust_scalar_time_ratio": 1.2755410178503361,
         "pass": true
       },
       "color_encode": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 0.7142409936785484,
-        "maximum_rust_scalar_time_ratio": 0.7927346753752289,
+        "geometric_mean_rust_scalar_time_ratio": 0.6489206725437955,
+        "maximum_rust_scalar_time_ratio": 0.6734838250258398,
         "pass": true
       },
       "color_decode": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 0.7914586903400671,
-        "maximum_rust_scalar_time_ratio": 1.136109146686276,
+        "geometric_mean_rust_scalar_time_ratio": 0.8244048802043126,
+        "maximum_rust_scalar_time_ratio": 1.1737877109971795,
         "pass": true
       },
       "meshlet_encode": {
         "cases": 3,
-        "geometric_mean_rust_scalar_time_ratio": 1.1174001050206326,
-        "maximum_rust_scalar_time_ratio": 1.2267005636731563,
+        "geometric_mean_rust_scalar_time_ratio": 1.0850177205935552,
+        "maximum_rust_scalar_time_ratio": 1.1152834612281866,
         "pass": true
       },
       "meshlet_decode": {
         "cases": 6,
-        "geometric_mean_rust_scalar_time_ratio": 1.083895976830044,
-        "maximum_rust_scalar_time_ratio": 1.2423966435616987,
+        "geometric_mean_rust_scalar_time_ratio": 1.1483853721308999,
+        "maximum_rust_scalar_time_ratio": 1.3506795954896396,
         "pass": true
       },
       "meshlet_decode_raw": {
         "cases": 3,
-        "geometric_mean_rust_scalar_time_ratio": 1.104165689548848,
-        "maximum_rust_scalar_time_ratio": 1.1503015238603915,
+        "geometric_mean_rust_scalar_time_ratio": 1.1014681620429312,
+        "maximum_rust_scalar_time_ratio": 1.1759079867606077,
         "pass": true
       },
       "bounds": {
         "cases": 4,
-        "geometric_mean_rust_scalar_time_ratio": 0.6770555041550309,
-        "maximum_rust_scalar_time_ratio": 1.1571344365215368,
+        "geometric_mean_rust_scalar_time_ratio": 0.6651577059291294,
+        "maximum_rust_scalar_time_ratio": 1.2724095528416521,
         "pass": true
       }
     }
