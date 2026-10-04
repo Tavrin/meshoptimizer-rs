@@ -3408,3 +3408,35 @@ fell from 16.67% to 0.97% of pyramid Rust samples and from 15.65% to no
 sample in the branches capture. The remaining Rust samples are spread over
 meshlet flex/nearest, simplification, and callback output. These are sampled
 stage shares, not a paired timing result; the 20-pair bar remains the verdict.
+
+## D149 — Bounded cluster-LOD simplification scratch
+
+The one-time position, topology, attribute and weight validation remains. The
+full attribute copy and vertex flags now begin only inside a `simplify` call and
+are released before callback output or reclustering. A one-triangle mesh with
+2,048 unused vertices and 32 attributes uses no such buffers. A driver built
+from archived `main` and one built from this branch compare every byte limit
+across a 513-byte window around the old success boundary, plus four wider
+limits. The old peak is 34,904 bytes and the new peak is 24,576; all 517
+limits that succeeded before still succeed.
+
+## D150 — Invalidate the validated position range after dilation
+
+The validated `moderate` decision is conservative after any dilation call:
+later flex/bounds builds use their checked intermediate path. The open-mesh
+near-threshold regression starts with every X coordinate at or below `1e8`,
+actually moves vertices under dilation, and agrees byte-for-byte with both
+archived `main` and the vendored C++ demo on the generated case. This input
+does not move an X coordinate across the threshold, so the crossing itself is
+covered by the source invariant, not claimed as observed differential evidence.
+
+## D151 — RFC 113 three-way and portable harness gates
+
+The RFC 113 runner now fails when either Moss-style or scalar C++ disagrees
+with Rust. The codec builder creates a fresh target directory before C++
+compilation. The deterministic differential builds archived `main`, current
+Rust, and the vendored C++ demo and compares the complete result on large,
+sparse, 32-attribute, compact-boundary, and near-threshold dilation inputs.
+The bounded-memory companion compares `LimitExceeded` and success across its
+byte sweep. Full parity and paired timing require final-HEAD evidence, with
+timing admitted only below load 12 and without a GPU lease holder.

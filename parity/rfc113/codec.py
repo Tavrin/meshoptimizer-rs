@@ -35,6 +35,7 @@ class Driver:
 
 def build():
     src=clod.VENDOR/'src';out=clod.TARGET/'rfc113-codec-cpp'
+    clod.TARGET.mkdir(parents=True,exist_ok=True)
     sources=[src/n for n in ('vertexcodec.cpp','indexcodec.cpp','vertexfilter.cpp','meshletcodec.cpp','allocator.cpp')]
     cmd=['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off',
          '-I'+str(src),str(ROOT/'parity/codec/reference.cpp'),*map(str,sources),'-o',str(out)]

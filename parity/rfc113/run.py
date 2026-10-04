@@ -170,6 +170,16 @@ def field_at(data, offset):
                    'axis.x','axis.y','axis.z','cutoff','packed_axis'][word])
     return f'trailing byte {offset-at}'
 
+def first_mismatch(cpp, moss_cpp, rust, reproduce):
+    for side, other in (('moss_cpp', moss_cpp), ('rust', rust)):
+        if cpp != other:
+            at=next((i for i,(x,y) in enumerate(zip(cpp,other)) if x!=y),min(len(cpp),len(other)))
+            return {'side':side,'byte':at,'field':field_at(cpp,at),
+                    'cpp_length':len(cpp),'other_length':len(other),
+                    'cpp_word':cpp[at:at+4].hex(),'other_word':other[at:at+4].hex(),
+                    'reproduce':reproduce}
+    return None
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--case',default=None,help='mesh stem or stem:stride')
     p.add_argument('--pairs',type=int,default=3);p.add_argument('--core',type=int,default=None)
@@ -205,12 +215,8 @@ def main():
                 outputs[side],_=drivers[side].run(parity_payload)
             cpp,rust=outputs['cpp'],outputs['rust']
             moss_cpp=outputs['moss_cpp']
-            mismatch=None
-            if cpp!=rust:
-                at=next((i for i,(x,y) in enumerate(zip(cpp,rust)) if x!=y),min(len(cpp),len(rust)))
-                mismatch={'byte':at,'field':field_at(cpp,at),'cpp_length':len(cpp),'rust_length':len(rust),
-                          'cpp_word':cpp[at:at+4].hex(),'rust_word':rust[at:at+4].hex(),
-                          'reproduce':f'python3 parity/rfc113/run.py --case {name} --pairs 0'}
+            mismatch=first_mismatch(cpp,moss_cpp,rust,
+                f'python3 parity/rfc113/run.py --case {name} --pairs 0')
             timing={'cpp':[],'moss_cpp':[],'rust':[]}
             if stride==48:
                 timed_outputs={}
@@ -235,6 +241,7 @@ def main():
         total_moss=sum(statistics.median(r['times_s']['moss_cpp']) for r in records if r['times_s']['moss_cpp'])
         total_rust=sum(statistics.median(r['times_s']['rust']) for r in records if r['times_s']['rust'])
         identity={'sources':sources,'executables':{k:sha(v) for k,v in binaries.items()},
+                  'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
                   'core':args.core,'machine':platform.platform(),
                   'core_selection':selection,
                   'load_before':load_before,'load_after':os.getloadavg(),
@@ -252,9 +259,9 @@ def main():
                 'bar':'<= approximately 1.2x'},'identity':identity}
         filename = 'result.json' if args.rust_profile=='consumer' else 'result-defaults.json'
         (ART/filename).write_text(json.dumps(result,indent=2)+'\n')
+        if any(r['mismatch'] is not None and r['stride'] != 32 for r in records):
+            raise RuntimeError('RFC113 three-way byte parity failed')
         if args.pairs >= 20 and args.rust_profile == 'consumer':
-            if any(r['mismatch'] is not None and r['stride'] != 32 for r in records):
-                raise RuntimeError('RFC113 byte parity failed')
             if total_cpp and (total_rust / total_cpp > 1.2 or any(
                 r['median_ratio'] is not None and r['median_ratio'] > 1.5 for r in records
             )):

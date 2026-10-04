@@ -33,10 +33,12 @@ Run from the repository root:
 ```sh
 python3 parity/rfc113/run.py --pairs 20
 python3 parity/rfc113/codec.py
+python3 parity/rfc113/differential.py
+python3 parity/rfc113/budget.py
 python3 parity/rfc113/profile.py --core 21
 ```
 
-Results are `result.json`, `codec.json`, and small perf call-graph summaries under
+Results are `result.json`, `codec.json`, `differential.json`, `budget.json`, and small perf call-graph summaries under
 `/mnt/linux-extra/meshopt-artifacts/rfc113`. The small handoff is
 `parity/results/rfc113-clod.md`. Pass `--case mesh:stride` to either runner
 for a single deterministic reproduction.
@@ -46,7 +48,17 @@ Set `MESHOPT_RFC113_MOSS_DIR` to the Moss cooker directory,
 `MESHOPT_RFC113_ART_DIR` to the artifact directory, and `CARGO_TARGET_DIR`
 to the build target. Their current paths are the defaults in `run.py`; this
 performance lane uses
-`CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodperf`.
+`CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodfix`.
+
+`differential.py` archives the exact `main` commit into the artifact directory,
+builds its phase 0.3 Rust driver, then builds the current Rust driver and the
+vendored scalar C++ demo driver. It compares the complete cluster-LOD result,
+including post-dilation positions, on deterministic large, sparse, 32-attribute,
+compact-threshold, and near-`1e8` cases. The archive is never checked out into
+this worktree. Its JSON records all three binary hashes and the source commit.
+`budget.py` uses the archived `main` source to build a separate bounded-memory
+driver. It sweeps each byte around the old success boundary, checks that every
+old success still succeeds, and compares error kinds where both sides fail.
 The scalar C++ build uses `MESHOPTIMIZER_NO_SIMD` and strict scalar float
 flags. The second C++ build mirrors Moss's release `cc` flags, including
 `-O3` and SIMD enabled; it is the adoption reference, while the scalar build
