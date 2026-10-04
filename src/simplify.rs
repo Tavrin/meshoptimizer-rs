@@ -4,6 +4,82 @@ use crate::workspace::{checked_bytes, topology, Work};
 use crate::{validate_vertex_flags, Attributes, Error, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
 
+// Counted work for one simplifier phase. `Work` checks every visit against the
+// remaining budget. `Prepaid` is used only after `metered!` has established that
+// the remaining budget covers an upper bound of the phase's visits: no visit can
+// then exhaust the budget, so the phase counts locally and charges its exact
+// total (or, on an error, the visited prefix) once. Errors, consumed work and
+// partial side effects are identical to visit-by-visit checking.
+trait Meter {
+    fn add(&mut self, count: usize) -> Result<(), Error>;
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error>;
+}
+impl Meter for Work {
+    #[inline(always)]
+    fn add(&mut self, count: usize) -> Result<(), Error> {
+        Work::add(self, count)
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        Work::scan(self, values, visit)
+    }
+}
+struct Prepaid(usize);
+impl Meter for Prepaid {
+    #[inline(always)]
+    fn add(&mut self, count: usize) -> Result<(), Error> {
+        self.0 += count;
+        Ok(())
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        mut visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        let count = values.len();
+        for (i, value) in values.enumerate() {
+            if let Err(error) = visit(value) {
+                self.0 += i + 1;
+                return Err(error);
+            }
+        }
+        self.0 += count;
+        Ok(())
+    }
+}
+// Evaluate `$body` with `$m` bound to a meter. `$bound` is an upper bound of the
+// visits `$body` counts, or `None` when no cheap bound exists.
+macro_rules! metered {
+    ($work:expr, $bound:expr, |$m:ident| $body:expr) => {{
+        let work: &mut Work = $work;
+        match $bound {
+            Some(bound) if work.covers(bound)? => {
+                let mut tally = Prepaid(0);
+                let result = {
+                    let $m = &mut tally;
+                    $body
+                };
+                debug_assert!(tally.0 <= bound);
+                work.add(tally.0)?;
+                result
+            }
+            _ => {
+                let $m = work;
+                $body
+            }
+        }
+    }};
+}
+
 /// Stable simplification options supported by this port.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct SimplifyOptions(u32);
@@ -491,6 +567,54 @@ const OPP: [[u8; 6]; 6] = [
     [1, 0, 0, 0, 0, 0],
     [1, 0, 1, 0, 0, 0],
 ];
+// Collapse-candidate rules for an ordered kind pair, precomputed from CAN/OPP.
+const PICK_ANY: u8 = 1;
+const PICK_BOTH: u8 = 2;
+const PICK_FORWARD: u8 = 4;
+const PICK_OPPOSITE: u8 = 8;
+const PICK_CHECK_FORWARD: u8 = 16;
+const PICK_CHECK_BACK: u8 = 32;
+const PICK: [u8; 64] = {
+    let mut table = [0; 64];
+    let mut k0 = 0;
+    while k0 < 6 {
+        let mut k1 = 0;
+        while k1 < 6 {
+            let forward = CAN[k0][k1] != 0;
+            let reverse = CAN[k1][k0] != 0;
+            let mut rule = 0;
+            if forward || reverse {
+                rule |= PICK_ANY;
+            }
+            if forward && reverse {
+                rule |= PICK_BOTH;
+            }
+            if forward {
+                rule |= PICK_FORWARD;
+            }
+            if OPP[k0][k1] != 0 {
+                rule |= PICK_OPPOSITE;
+            }
+            let loop0 = k0 == BORDER as usize || k0 == SEAM as usize;
+            let loop1 = k1 == BORDER as usize || k1 == SEAM as usize;
+            if loop0 && k1 != MAN as usize {
+                rule |= PICK_CHECK_FORWARD;
+            }
+            if loop1 && k0 != MAN as usize {
+                rule |= PICK_CHECK_BACK;
+            }
+            table[k0 * 8 + k1] = rule;
+            k1 += 1;
+        }
+        k0 += 1;
+    }
+    table
+};
+// Kinds are always below six, so masking never changes a valid table index.
+#[inline(always)]
+fn pair(k0: u8, k1: u8) -> usize {
+    ((k0 as usize) << 3 | k1 as usize) & 63
+}
 // Topology validation bounds every stored index by u32::MAX. Conversions
 // occur at slice access boundaries, keeping heap records identical in width to C++.
 struct Indices(Vec<u32>);
@@ -530,6 +654,8 @@ struct State {
     cr: Indices,
     locked: Vec<bool>,
     table: Indices,
+    // Largest per-vertex edge count in the current adjacency.
+    max_degree: usize,
     ac: usize,
     bytes: usize,
 }
@@ -601,13 +727,23 @@ impl State {
             cr: b.indices(n)?,
             locked: b.vec(n)?,
             table: Indices(b.filled(buckets, NONE as u32)?),
+            max_degree: 0,
             ac,
             bytes: 0,
         };
         state.bytes = b.bytes;
         Ok(state)
     }
-    fn adjacency(&mut self, indices: &[u32], weld: bool, work: &mut Work) -> Result<(), Error> {
+    // Visits: the vertex count plus two per index.
+    fn adjacency_work(&self, indices: &[u32]) -> Option<usize> {
+        indices.len().checked_mul(2)?.checked_add(self.vertex_count)
+    }
+    fn adjacency<M: Meter>(
+        &mut self,
+        indices: &[u32],
+        weld: bool,
+        work: &mut M,
+    ) -> Result<(), Error> {
         work.add(self.vertex_count)?;
         self.offsets.fill(0);
         let counters = &mut self.offsets.0[1..];
@@ -621,11 +757,14 @@ impl State {
             Ok(())
         })?;
         let mut offset = 0;
+        let mut max_degree = 0;
         for v in counters.iter_mut() {
             let count = *v;
             *v = offset;
             offset += count;
+            max_degree = max_degree.max(count);
         }
+        self.max_degree = max_degree as usize;
         for t in indices.as_chunks::<3>().0 {
             work.add(3)?;
             let mut v = [t[0] as usize, t[1] as usize, t[2] as usize];
@@ -646,7 +785,13 @@ impl State {
         }
         Ok(())
     }
-    fn has_edge(&self, a: usize, b: usize, weld: bool, work: &mut Work) -> Result<bool, Error> {
+    fn has_edge<M: Meter>(
+        &self,
+        a: usize,
+        b: usize,
+        weld: bool,
+        work: &mut M,
+    ) -> Result<bool, Error> {
         let mut v = a;
         loop {
             for e in &self.edges[self.offsets.get(v)..self.offsets.get(v + 1)] {
@@ -707,11 +852,22 @@ impl State {
         }
         Ok(())
     }
-    fn classify(
+    // Visits without PERMISSIVE: each vertex and unwelded edge, an unwelded edge
+    // search of at most max_degree per edge, and at most four further vertex
+    // passes. PERMISSIVE welded searches have no cheap bound.
+    fn classify_work(&self, edges: usize, options: SimplifyOptions) -> Option<usize> {
+        if options.contains(SimplifyOptions::PERMISSIVE) {
+            return None;
+        }
+        edges
+            .checked_mul(self.max_degree.checked_add(1)?)?
+            .checked_add(self.vertex_count.checked_mul(5)?)
+    }
+    fn classify<M: Meter>(
         &mut self,
         flags: Option<&[VertexFlags]>,
         options: SimplifyOptions,
-        work: &mut Work,
+        work: &mut M,
     ) -> Result<(), Error> {
         let n = self.vertex_count;
         for i in 0..n {
@@ -888,12 +1044,25 @@ impl State {
         }
         q
     }
-    fn quadrics(
+    // Visits: three per triangle twice, one per vertex, and the attribute pass.
+    fn quadrics_work(&self, indices: &[u32]) -> Option<usize> {
+        let attributes = if self.ac > 0 {
+            (indices.len() / 3).checked_mul(self.ac.checked_mul(3)?.checked_add(3)?)?
+        } else {
+            0
+        };
+        indices
+            .len()
+            .checked_mul(2)?
+            .checked_add(self.p.len())?
+            .checked_add(attributes)
+    }
+    fn quadrics<M: Meter>(
         &mut self,
         indices: &[u32],
         flags: Option<&[VertexFlags]>,
         options: SimplifyOptions,
-        work: &mut Work,
+        work: &mut M,
     ) -> Result<(), Error> {
         let n = self.p.len();
         let p = &self.p[..n];
@@ -988,9 +1157,21 @@ impl State {
         }
         Ok(())
     }
-    fn pick(&mut self, indices: &[u32], capacity: usize, work: &mut Work) -> Result<usize, Error> {
+    // Visits at most one per index.
+    fn pick<M: Meter>(
+        &mut self,
+        indices: &[u32],
+        capacity: usize,
+        work: &mut M,
+    ) -> Result<usize, Error> {
         let mut count = 0;
-        self.collapses.clear();
+        // Disjoint borrows keep table bases in registers across pushes.
+        let remap = &self.remap.0[..];
+        let kind = &self.kind[..];
+        let forward = &self.forward.0[..];
+        let back = &self.back.0[..];
+        let collapses = &mut self.collapses;
+        collapses.clear();
         for t in indices.as_chunks::<3>().0 {
             if count + 3 > capacity {
                 break;
@@ -999,36 +1180,31 @@ impl State {
                 work.add(1)?;
                 let a = t[e] as usize;
                 let b = t[(e + 1) % 3] as usize;
-                if self.remap.get(a) == self.remap.get(b) {
+                let ra = remap[a];
+                let rb = remap[b];
+                if ra == rb {
                     continue;
                 }
-                let k0 = self.kind[a] as usize;
-                let k1 = self.kind[b] as usize;
-                if CAN[k0][k1] | CAN[k1][k0] == 0 {
+                let rule = PICK[pair(kind[a], kind[b])];
+                if rule & PICK_ANY == 0 {
                     continue;
                 }
-                if OPP[k0][k1] != 0 && self.remap.get(b) > self.remap.get(a) {
+                if rule & PICK_OPPOSITE != 0 && rb > ra {
                     continue;
                 }
-                if (k0 == BORDER as usize || k0 == SEAM as usize)
-                    && k1 != MAN as usize
-                    && self.forward.get(a) != b
-                {
+                if rule & PICK_CHECK_FORWARD != 0 && forward[a] as usize != b {
                     continue;
                 }
-                if (k1 == BORDER as usize || k1 == SEAM as usize)
-                    && k0 != MAN as usize
-                    && self.back.get(b) != a
-                {
+                if rule & PICK_CHECK_BACK != 0 && back[b] as usize != a {
                     continue;
                 }
-                self.collapses.push(if CAN[k0][k1] & CAN[k1][k0] != 0 {
+                collapses.push(if rule & PICK_BOTH != 0 {
                     Collapse {
                         a: a as u32,
                         b: b as u32,
                         error: f32::from_bits(1),
                     }
-                } else if CAN[k0][k1] != 0 {
+                } else if rule & PICK_FORWARD != 0 {
                     Collapse {
                         a: a as u32,
                         b: b as u32,
@@ -1226,7 +1402,7 @@ impl State {
         })?;
         Ok(())
     }
-    fn flips(&mut self, a: usize, b: usize, work: &mut Work) -> Result<bool, Error> {
+    fn flips<M: Meter>(&mut self, a: usize, b: usize, work: &mut M) -> Result<bool, Error> {
         for e in &self.edges[self.offsets.get(a)..self.offsets.get(a + 1)] {
             work.add(1)?;
             let x = self.cr.get(e.next as usize);
@@ -1246,17 +1422,24 @@ impl State {
         }
         Ok(false)
     }
-    fn perform(
+    // Visits: the vertex reset, then per candidate one visit and a flip check
+    // of at most max_degree edges. PERMISSIVE wedge walks are not bounded here.
+    fn perform_work(&self, count: usize, options: SimplifyOptions) -> Option<usize> {
+        if options.contains(SimplifyOptions::PERMISSIVE) {
+            return None;
+        }
+        count
+            .checked_mul(self.max_degree.checked_add(1)?)?
+            .checked_add(self.p.len())
+    }
+    fn perform<M: Meter>(
         &mut self,
         count: usize,
         goal: usize,
         limit: f32,
         error: &mut f32,
-        work: &mut Work,
+        work: &mut M,
     ) -> Result<usize, Error> {
-        let mut edges = 0;
-        let mut triangles = 0;
-        let mut edge_goal = goal / 2;
         let n = self.p.len();
         work.scan(
             self.cr.0[..n]
@@ -1269,6 +1452,9 @@ impl State {
                 Ok(())
             },
         )?;
+        let mut edges = 0;
+        let mut triangles = 0;
+        let mut edge_goal = goal / 2;
         for i in 0..count {
             work.add(1)?;
             let c = self.collapses[self.order.get(i)];
@@ -1317,7 +1503,15 @@ impl State {
         }
         Ok(edges)
     }
-    fn update(&mut self, work: &mut Work) -> Result<(), Error> {
+    // Visits: one per vertex plus its attributes, and both loop tables.
+    fn update_work(&self) -> Option<usize> {
+        self.p
+            .len()
+            .checked_mul(self.ac.checked_add(1)?)?
+            .checked_add(self.forward.len())?
+            .checked_add(self.back.len())
+    }
+    fn update<M: Meter>(&mut self, work: &mut M) -> Result<(), Error> {
         for i in 0..self.p.len() {
             work.add(1)?;
             let t = self.cr.get(i);
@@ -1391,46 +1585,60 @@ fn run(
     let m = indices.len();
     let ac = weights.iter().filter(|&&w| w > 0.0).count();
     let mut s = State::new(n, m, ac, ws, output)?;
-    s.adjacency(indices, false, work)?;
+    metered!(work, s.adjacency_work(indices), |w| s
+        .adjacency(indices, false, w))?;
     s.position_remap(positions, work)?;
-    s.classify(flags, settings.options, work)?;
+    metered!(work, s.classify_work(m, settings.options), |w| s.classify(
+        flags,
+        settings.options,
+        w
+    ))?;
     work.add(n)?;
     let (lo, extent) = bounds(positions)?;
     let scale = if extent == 0.0 { 0.0 } else { 1.0 / extent };
-    for i in 0..n {
-        work.add(1)?;
-        let p = positions.at(i)?;
-        s.p.push(V {
-            x: (p[0] - lo[0]) * scale,
-            y: (p[1] - lo[1]) * scale,
-            z: (p[2] - lo[2]) * scale,
-        });
-        if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
-            return Err(Error::NumericalFailure);
-        }
-        if let Some(a) = attributes {
-            let mut k = 0;
-            for (j, &w) in weights.iter().enumerate() {
-                work.add(1)?;
-                if w > 0.0 {
-                    let v = a.get(i, j).ok_or(Error::InvalidLayout)? * w;
-                    if !v.is_finite() {
-                        return Err(Error::NumericalFailure);
+    let positions_work = weights.len().checked_add(1).and_then(|c| n.checked_mul(c));
+    metered!(work, positions_work, |w| (|| {
+        for i in 0..n {
+            w.add(1)?;
+            let p = positions.at(i)?;
+            s.p.push(V {
+                x: (p[0] - lo[0]) * scale,
+                y: (p[1] - lo[1]) * scale,
+                z: (p[2] - lo[2]) * scale,
+            });
+            if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
+                return Err(Error::NumericalFailure);
+            }
+            if let Some(a) = attributes {
+                let mut k = 0;
+                for (j, &weight) in weights.iter().enumerate() {
+                    w.add(1)?;
+                    if weight > 0.0 {
+                        let v = a.get(i, j).ok_or(Error::InvalidLayout)? * weight;
+                        if !v.is_finite() {
+                            return Err(Error::NumericalFailure);
+                        }
+                        s.a[i * ac + k] = v;
+                        k += 1;
                     }
-                    s.a[i * ac + k] = v;
-                    k += 1;
                 }
             }
         }
-    }
-    s.quadrics(indices, flags, settings.options, work)?;
+        Ok(())
+    })())?;
+    metered!(work, s.quadrics_work(indices), |w| s.quadrics(
+        indices,
+        flags,
+        settings.options,
+        w
+    ))?;
     let mut dual = 0;
-    for i in 0..n {
-        work.add(1)?;
-        if s.kind[i] == MAN || s.kind[i] == SEAM {
-            dual += s.offsets.get(i + 1) - s.offsets.get(i);
+    work.scan(s.kind.iter().zip(s.offsets.0.windows(2)), |(&k, o)| {
+        if k == MAN || k == SEAM {
+            dual += o[1] as usize - o[0] as usize;
         }
-    }
+        Ok(())
+    })?;
     let capacity = m - dual / 2 + 3;
     let mut budget = Budget { ws, bytes: s.bytes };
     s.collapses = budget.reserve(capacity)?;
@@ -1446,40 +1654,41 @@ fn run(
     work.add(m)?;
     out[..m].copy_from_slice(indices);
     while count > settings.target_index_count {
-        s.adjacency(&out[..count], true, work)?;
-        let nc = s.pick(&out[..count], capacity, work)?;
+        let current = &out[..count];
+        metered!(work, s.adjacency_work(current), |w| s
+            .adjacency(current, true, w))?;
+        let nc = metered!(work, Some(count), |w| s.pick(current, capacity, w))?;
         if nc == 0 {
             break;
         }
         s.rank(nc, work)?;
         s.sort(nc, work)?;
-        if s.perform(
-            nc,
-            (count - settings.target_index_count) / 3,
-            limit,
-            &mut error,
-            work,
-        )? == 0
-        {
+        let goal = (count - settings.target_index_count) / 3;
+        let edges = metered!(work, s.perform_work(nc, settings.options), |w| s
+            .perform(nc, goal, limit, &mut error, w))?;
+        if edges == 0 {
             break;
         }
-        s.update(work)?;
+        metered!(work, s.update_work(), |w| s.update(w))?;
         let mut write = 0;
-        for i in (0..count).step_by(3) {
-            work.add(3)?;
-            let a = s.cr.get(out[i] as usize);
-            let b = s.cr.get(out[i + 1] as usize);
-            let c = s.cr.get(out[i + 2] as usize);
-            let r0 = s.remap.get(a);
-            let r1 = s.remap.get(b);
-            let r2 = s.remap.get(c);
-            if r0 != r1 && r0 != r2 && r1 != r2 {
-                out[write] = a as u32;
-                out[write + 1] = b as u32;
-                out[write + 2] = c as u32;
-                write += 3;
+        metered!(work, Some(count), |w| (|| {
+            for i in (0..count).step_by(3) {
+                w.add(3)?;
+                let a = s.cr.get(out[i] as usize);
+                let b = s.cr.get(out[i + 1] as usize);
+                let c = s.cr.get(out[i + 2] as usize);
+                let r0 = s.remap.get(a);
+                let r1 = s.remap.get(b);
+                let r2 = s.remap.get(c);
+                if r0 != r1 && r0 != r2 && r1 != r2 {
+                    out[write] = a as u32;
+                    out[write + 1] = b as u32;
+                    out[write + 2] = c as u32;
+                    write += 3;
+                }
             }
-        }
+            Ok(())
+        })())?;
         count = write;
     }
     let error = sqrt(error) * error_scale;
@@ -1496,6 +1705,54 @@ fn run(
 mod tests {
     use super::*;
     use crate::Limits;
+
+    #[test]
+    fn prepaid_phases_match_checked_visits() {
+        // Five visits of one record each, then a two-record scan; a numerical
+        // failure may occur at any visit. Bounds: exact, loose, or absent.
+        fn phase<M: Meter>(
+            fail_at: usize,
+            seen: &mut Vec<usize>,
+            work: &mut M,
+        ) -> Result<(), Error> {
+            for i in 0..5 {
+                work.add(1)?;
+                seen.push(i);
+                if i == fail_at {
+                    return Err(Error::NumericalFailure);
+                }
+            }
+            work.scan(5..7, |i| {
+                seen.push(i);
+                if i == fail_at {
+                    return Err(Error::NumericalFailure);
+                }
+                Ok(())
+            })
+        }
+        fn run_phase(
+            limit: u64,
+            fail_at: usize,
+            bound: Option<usize>,
+        ) -> (Result<(), Error>, u64, Vec<usize>) {
+            let mut ws = Workspace::new(Limits {
+                max_bytes: 0,
+                max_work: limit,
+            });
+            let mut work = ws.begin();
+            let mut seen = Vec::new();
+            let result = (|| metered!(&mut work, bound, |w| phase(fail_at, &mut seen, w)))();
+            ws.finish(&work);
+            (result, ws.usage().work, seen)
+        }
+        for limit in 0..=9 {
+            for fail_at in 0..=7 {
+                let checked = run_phase(limit, fail_at, None);
+                assert_eq!(run_phase(limit, fail_at, Some(7)), checked);
+                assert_eq!(run_phase(limit, fail_at, Some(9)), checked);
+            }
+        }
+    }
 
     #[test]
     fn ranking_preserves_numerical_failure_and_budget_prefix() {

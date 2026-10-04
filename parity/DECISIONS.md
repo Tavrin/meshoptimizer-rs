@@ -1094,3 +1094,77 @@ parity/check-reference.sh:13: a failed git diff with an absent v1.3 tag can be
 ignored by its conditional. CI supplies full history and tags; the local
 oracle has the tag and the required empty diff. Keep the injected reproduction
 and leave that checker outside this lane's file ownership.
+
+## D50 — Prepaid work accounting for plain simplification under thin LTO
+
+Lane 4 measured plain simplification at 1.258 (maximum 1.429) under the Moss
+profile, failing the unchanged 1.25 mean bar. Diagnostic Moss-profile builds
+(thin LTO, one codegen unit, opt-level 3) on the worst medium sparse case show
+Rust/C++ cycles 1.42 and retired instructions 1.52. Per-visit work checks
+(`Work::add` compare, branch and subtract) were the largest separable cost. A
+throwaway build with the check removed ran 0.933 of the baseline time on seven
+paired cases. Bounds checks and memory latency make up most of the rest; the
+pinned libm sqrtf (RFC section 5) stays.
+
+Decision: give the simplifier phases a `Meter` parameter. `Work` keeps
+visit-by-visit checks. `Prepaid` counts locally and is used only when the
+remaining budget covers a proven upper bound of the phase's visits. The phase
+then charges its exact total once, or the visited prefix on an error. No
+visit can exhaust a covered budget. Errors, consumed work, partial output
+writes and exhaustion points are therefore identical to the checked path. The
+bounds are adjacency (n + 2 * indices), classification without PERMISSIVE
+(edges * (max degree + 1) + 5n), position rescale (n * (1 + weights)), quadrics
+(2 * indices + n + attribute visits), pick (index count), perform without
+PERMISSIVE (n + candidates * (max degree + 1)), update (n * (1 + attributes) + 2n)
+and output filtering (index count). Adjacency now records the maximum degree for
+these bounds. PERMISSIVE wedge walks and hash probing have no cheap bound and
+keep the checked path. A `debug_assert` checks each bound. The rejected
+alternative was per-loop duplicated fast paths in the D35 style: the same
+semantics, but eight hand-copied loops. Reversal cost: cheap while unmerged; the
+change is local to simplify.rs.
+
+Pick reads one 64-entry rule table, precomputed from CAN/OPP. Kinds are
+always below six, so its masked index never changes a lookup. Pick also holds
+disjoint table borrows, so pushes no longer force reloads of the vertex-table
+bases. On seven paired cases this measured 0.977 against the prepaid-only build.
+Rejected after measurement (neutral, 1.007 and 1.012): disjoint borrows in
+perform, flips, update and output filtering, and `#[inline]` on Q::triangle,
+seam_target and complex_target. Their sources were reverted. LLVM already
+inlines the small V/Q helpers under thin LTO. No further cross-crate helper was
+on a hot path.
+
+Equivalence evidence (scratch, outside the repository): 168 configurations
+(smooth, flat, seam and seam-attribute grids; every option including PERMISSIVE,
+LOCK_BORDER and both regularizations; vertex flags; three targets) were compared
+against a byte-identical baseline crate. The check covered every work budget
+from 0 to required + 1, sampled above 6,000. Results, error bits, usage work and
+bytes, and caller destinations were identical in all 649,645 comparisons, with
+debug assertions enabled. A unit test checks prepaid and checked phases for
+every budget from 0 to 9 and every failure position, using exact, loose and
+absent bounds.
+
+Final gates on this source: fmt (root, parity, fuzz) and clippy with -D warnings
+(all features, no default features, parity, fuzz). Tests passed for all
+features and for no default features, on stable and 1.88, with 49 tests each.
+The wasm32 no_std build passed. `parity/run.sh --phase 0.1` passed with zero
+mismatches, including executed wasm32 identity and the math probe. So did
+`parity/sweep.sh --phase 0.1` with 10,000 cases per function.
+
+The complete 204-case Moss matrix (`--enforce`, exit 0) used CPU 17 (physical
+core 8, 7.4% busy at selection), with at least 20 interleaved same-core pairs per
+case. One-minute load was 18.5 at the start and 21.4 at the end. Family GM
+(maximum), lane 4 -> now: cache 1.243 (1.315) -> 1.176 (1.344), overdraw 1.130
+(1.361) -> 1.079 (1.422), plain simplify 1.258 (1.429) -> 1.111 (1.201),
+attributes 1.243 (1.356) -> 1.185 (1.335), scale 0.782 (0.935) -> 0.829 (1.292).
+The memory bars pass. Plain simplification clears the 1.25 bar by 0.139. Cache,
+overdraw and scale code is unchanged. Their maxima moved on tiny cases: scale's
+1.292 is tiny/smooth, whose other tiny cases are at or below 0.994. This is
+shared-load dispersion, not a regression, and every case stays below 1.50.
+Records: results/benchmark-moss.json, with details under
+/mnt/linux-extra/meshopt-artifacts/simplify-perf/records.
+
+Not re-established: the Cargo-default matrix, gates.json, fuzz.json and the
+package checks are now stale against the changed simplify.rs. The Cargo-default
+column in MEASURED_PERFORMANCE.md is lane 4's. The release fuzz CPU budget must
+be rerun on this source before release qualification. This lane's spec does not
+require them.

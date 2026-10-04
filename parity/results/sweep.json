@@ -6,15 +6,15 @@
   "phase": "0.1",
   "seed": 20261002,
   "profile": "scalar-strict",
-  "detail_artifact": "sweep-final-verifier/sweep.json",
+  "detail_artifact": "sweep/sweep.json",
   "artifacts": {
-    "sweep-final-verifier/sweep.json": "efb756ef32cb516cc8447c5cb23572aad36de5cc0f1756f57555b9383d6f28d5",
-    "sweep-final-verifier/sweep-buffers.zip": "4fd4334967d10d29e2250a6e768adcdd6947e2019f81bcc7c4f8f57be5c26643",
-    "sweep-final-verifier/sources.tar.gz": "d91b5983bbb920638635ec265d490c97d0ebc300ab638366a73de4dcb1508e63",
-    "sweep-final-verifier/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
-    "sweep-final-verifier/binaries/rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-    "sweep-final-verifier/binaries/wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-    "sweep-final-verifier/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+    "sweep/sweep.json": "8fcd7df4b842881064df8b79da78d653278ff61fe673ad2f630e29cecc27b8e8",
+    "sweep/sweep-buffers.zip": "b8c15c7e6fe0c1d55891e5eea85311a59e987a9e2b3d722887e72b600ab01c3e",
+    "sweep/sources.tar.gz": "986b7e024c3fe734401fdbd59b19aeff58988d27ad162aa79e95bee647e97424",
+    "sweep/binaries/fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627",
+    "sweep/binaries/rust": "c095be5d831aed8dbe330549c8ea483558b0ed3235bc76d38c5d57b17b5ed87c",
+    "sweep/binaries/wasm": "5c2b9be6b0b542dc2e3e8e8182c38a45d2f751926ff20492eea115fd5ab2109b",
+    "sweep/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
   },
   "identities": {
     "source_sha256": {
@@ -62,7 +62,7 @@
         "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
         "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
         "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
-        "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
+        "src/simplify.rs": "fc4a3c4bd715adcf273340747fff4d602002ba055d070409aad52ec5c8845be9",
         "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
         "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
       },
@@ -276,9 +276,9 @@
     },
     "executable_sha256": {
       "cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e",
-      "rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-      "wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-      "fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d"
+      "rust": "c095be5d831aed8dbe330549c8ea483558b0ed3235bc76d38c5d57b17b5ed87c",
+      "wasm": "5c2b9be6b0b542dc2e3e8e8182c38a45d2f751926ff20492eea115fd5ab2109b",
+      "fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627"
     },
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
     "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -337,8 +337,8 @@
   },
   "required_cases_per_family": 10000,
   "mismatches": 0,
-  "started_unix": 1791075023.7591708,
-  "finished_unix": 1791075676.8737562,
+  "started_unix": 1791077755.7647524,
+  "finished_unix": 1791078084.5145183,
   "functions": {
     "vertex_cache": {
       "count": 10000,

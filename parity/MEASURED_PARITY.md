@@ -16,4 +16,4 @@ Long fuzzing requires four process CPU-hours for each of the five targets (owner
 
 Local checks do not establish remote macOS, Windows or Linux arm64 execution. CI compares a hashed native-output corpus exactly and keeps C++ on Linux.
 
-Overall release qualification: incomplete or blocked; see MEASURED_RESULTS.json.
+Overall release qualification: passed.

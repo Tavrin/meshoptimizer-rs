@@ -4,11 +4,11 @@ Rust/C++ time ratios; each value is the family geometric mean of case median pai
 
 | Function | Fat LTO (historical lane 3b) | Moss thin LTO | Cargo release defaults |
 |---|---:|---:|---:|
-| vertex_cache | 1.123 (1.201) | 1.243 (1.315) | 1.240 (1.310) |
-| overdraw | 1.098 (1.417) | 1.130 (1.361) | 1.063 (1.398) |
-| simplify | 1.212 (1.385) | 1.258 (1.429) | 1.284 (1.420) |
-| simplify_with_attributes | 1.208 (1.342) | 1.243 (1.356) | 1.257 (1.651) |
-| simplify_scale | 0.748 (0.884) | 0.782 (0.935) | 1.030 (1.187) |
+| vertex_cache | 1.123 (1.201) | 1.176 (1.344) | 1.240 (1.310) |
+| overdraw | 1.098 (1.417) | 1.079 (1.422) | 1.063 (1.398) |
+| simplify | 1.212 (1.385) | 1.111 (1.201) | 1.284 (1.420) |
+| simplify_with_attributes | 1.208 (1.342) | 1.185 (1.335) | 1.257 (1.651) |
+| simplify_scale | 0.748 (0.884) | 0.829 (1.292) | 1.030 (1.187) |
 
 RFC bars are unchanged: family geometric mean <= 1.25, maximum case <= 1.50, and requested output-plus-scratch memory <= 1.25 times C++.
 

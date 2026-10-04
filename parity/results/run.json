@@ -6,15 +6,15 @@
   "phase": "0.1",
   "seed": 20261002,
   "profile": "scalar-strict",
-  "detail_artifact": "run-final-verifier/run.json",
+  "detail_artifact": "run/run.json",
   "artifacts": {
-    "run-final-verifier/run.json": "232200bdd4662d53dd33048ac80a26344d23ab5fe8fdc6dd657aef661ab42d5e",
-    "run-final-verifier/run-buffers.zip": "aa843a82963bf16ce6236f03b2526caee1e536fe67c0155a4dcfabfc8ae8512e",
-    "run-final-verifier/sources.tar.gz": "35ab51cb987acf182465548f8cfe56bf606bc0187fbb5c49616e7bfc4a0e39aa",
-    "run-final-verifier/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
-    "run-final-verifier/binaries/rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-    "run-final-verifier/binaries/wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-    "run-final-verifier/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+    "run/run.json": "6757db5f891e39211d7013d4c22a6774bb6714a7a16c39a1373f336f045029a2",
+    "run/run-buffers.zip": "b28eb4a6373671d4658227bdffcabdbb9b6525da5f75f45a95dec2466be8766f",
+    "run/sources.tar.gz": "7f38b8a02db19789ff79fb2e044ab2d09e8667fd0d3a2561215e0e4a37994cc6",
+    "run/binaries/fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627",
+    "run/binaries/rust": "c095be5d831aed8dbe330549c8ea483558b0ed3235bc76d38c5d57b17b5ed87c",
+    "run/binaries/wasm": "5c2b9be6b0b542dc2e3e8e8182c38a45d2f751926ff20492eea115fd5ab2109b",
+    "run/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
   },
   "identities": {
     "source_sha256": {
@@ -62,7 +62,7 @@
         "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
         "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
         "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
-        "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
+        "src/simplify.rs": "fc4a3c4bd715adcf273340747fff4d602002ba055d070409aad52ec5c8845be9",
         "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
         "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
       },
@@ -276,9 +276,9 @@
     },
     "executable_sha256": {
       "cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e",
-      "rust": "b1eebaf3f5c5169c3f93ef5c1e57edf964385969aba1ce9d2dc574c111cd23c1",
-      "wasm": "be2b8b3f4048e3f8ea53e5462cc4e389ce6460207d8181ca13a68e8e244d0ebf",
-      "fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d"
+      "rust": "c095be5d831aed8dbe330549c8ea483558b0ed3235bc76d38c5d57b17b5ed87c",
+      "wasm": "5c2b9be6b0b542dc2e3e8e8182c38a45d2f751926ff20492eea115fd5ab2109b",
+      "fixture_exporter": "c8f0137273da5904000e597eea9e7bf4ed190a80972cbe9b4f0139a3664ce627"
     },
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
     "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -337,8 +337,8 @@
   },
   "required_cases_per_family": null,
   "mismatches": 0,
-  "started_unix": 1791075005.1674178,
-  "finished_unix": 1791075015.8672054,
+  "started_unix": 1791077733.8901045,
+  "finished_unix": 1791077747.9857779,
   "functions": {
     "vertex_cache": {
       "count": 50,
