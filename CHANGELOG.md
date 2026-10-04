@@ -57,9 +57,12 @@ wasm32 run.
 ### Known limitations
 
 - Not yet ported: analyzers, opacity maps, tangents, normals and remeshing.
-- Allocating `optimize_vertex_fetch` on a million-vertex sparse mesh takes
-  1.73× (thin LTO) and 1.85× (Cargo defaults) of C++ time, above the 1.5×
-  per-case bar.
+- Five million-vertex cases stay above the 1.5× per-case bar after the
+  second-stage retest (see the README's performance section). Allocating
+  `optimize_vertex_fetch` on a sparse mesh fails it (95% interval about
+  1.55–2.09× of C++ time). Allocating `optimize_overdraw` and two
+  `simplify_sloppy` cases on disconnected meshes are inconclusive, with
+  intervals that reach 1.51–1.58×.
 - `partition_clusters` under Cargo defaults: family mean 1.45×, worst case
   1.78× of C++ time.
 - The `clusterlod` build path is not yet competitive with C++.

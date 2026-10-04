@@ -3,13 +3,15 @@
 //! Every ported function produces byte-identical output to meshoptimizer 1.3
 //! (scalar build). Differential runs against the C++ library, seeded sweeps,
 //! fuzzing and a wasm32 identity check prove this on the recorded inputs.
-//! The crate needs no C++ toolchain, forbids `unsafe`, and supports `no_std`
-//! with `alloc`. Invalid input returns a typed [`Error`] instead of undefined
-//! behaviour. A reusable [`Workspace`] holds scratch memory, makes every
-//! allocation fallible and enforces per-call memory and work [`Limits`].
 //!
-//! This is an independent project, not affiliated with meshoptimizer or its
-//! author. Coverage, measured performance and the parity records are in the
+//! The crate is safe Rust (`unsafe` is forbidden) and needs no C++ toolchain.
+//! It supports `no_std` with `alloc`. Invalid input returns a typed [`Error`]
+//! instead of undefined behaviour. A reusable [`Workspace`] holds scratch
+//! memory, makes every allocation fallible and enforces per-call memory and
+//! work [`Limits`].
+//!
+//! This is an independent project. It is not affiliated with meshoptimizer or
+//! its author. Coverage, measured performance and the parity records are in the
 //! [README](https://github.com/Tavrin/meshoptimizer-rs#readme).
 //!
 //! # Simplify a mesh

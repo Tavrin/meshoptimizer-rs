@@ -5,26 +5,29 @@ A pure safe Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 
 Every ported function produces byte-identical output to meshoptimizer 1.3
 (scalar build): the same index order, the same error bits, the same encoded
 bytes. Differential runs against the C++ library, seeded sweeps, fuzzing and a
-wasm32 identity check prove this on the recorded inputs. The crate is pure
-safe Rust (`#![forbid(unsafe_code)]`), needs no C++ toolchain, and supports
-`no_std` with `alloc`. Invalid input returns a typed `Error` instead of
-undefined behaviour. A reusable `Workspace` holds scratch memory, makes every
-allocation fallible and enforces per-call memory and work limits.
+wasm32 identity check prove this on the recorded inputs.
+
+The crate is safe Rust (`#![forbid(unsafe_code)]`) and needs no C++ toolchain.
+It supports `no_std` with `alloc`. Invalid input returns a typed `Error`
+instead of undefined behaviour. A reusable `Workspace` holds scratch memory,
+makes every allocation fallible and enforces per-call memory and work limits.
 
 This is an independent project. It is not affiliated with meshoptimizer or its
 author, Arseny Kapoulkine.
 
 ## Why use it
 
-- **Instead of the C++ library:** no C++ compiler or build script, the same
-  results on every target Rust supports (including `wasm32-unknown-unknown`),
-  and `no_std` builds.
-- **Instead of the bindings** ([meshopt](https://crates.io/crates/meshopt)):
-  checked slices instead of raw pointer/count pairs, `Result` instead of
-  assertions, explicit memory and work limits, and no global allocator hook.
-- **Not yet a reason:** speed. The ports are measured against C++ and are
-  usually within 1.25× of its time, but they are scalar. See
-  [Performance](#performance).
+Compared with the C++ library, there is no C++ compiler or build script to
+set up, results are the same on every target Rust supports (including
+`wasm32-unknown-unknown`), and `no_std` builds work.
+
+Compared with the [meshopt](https://crates.io/crates/meshopt) bindings, you
+get checked slices instead of raw pointer/count pairs, `Result` instead of
+assertions, explicit memory and work limits, and no global allocator hook.
+
+Speed is not yet a reason to switch. The ports are measured against C++ and
+are usually within 1.25× of its time, but they are scalar code. See
+[Performance](#performance).
 
 ## Install
 
@@ -125,9 +128,9 @@ These examples are compiled and run as doc tests in `src/lib.rs`.
   scratch and 2^34 work units per call. Set explicit `Limits` to change this.
   The limits cover allocations the crate makes, not the operating system or an
   aborting allocator.
-- Codec format versions and levels are per-call values (`VertexEncoding`,
-  `IndexEncoding`), not global setters.
-- Unknown option or flag bits are rejected, never ignored.
+- Codec format versions and levels are passed per call (`VertexEncoding`,
+  `IndexEncoding`) rather than set globally.
+- Unknown option or flag bits are rejected.
 
 ## Coverage
 
@@ -138,7 +141,7 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 ([MEASURED_P01X.json](parity/MEASURED_P01X.json),
 [DECISIONS.md](parity/DECISIONS.md) D145).
 
-**Indexing and vertex processing (phases 0.1 and 0.1.x)**
+### Indexing and vertex processing (phases 0.1 and 0.1.x)
 
 | Upstream | Rust | Status |
 |---|---|---|
@@ -158,7 +161,7 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 | `meshopt_quantizeUnorm`, `…Snorm`, `…Half`, `…Float`, `meshopt_dequantizeHalf` | `quantize_unorm`, `quantize_snorm`, `quantize_half`, `quantize_float`, `dequantize_half` | exact |
 | `meshopt_computePositionExponent` | `compute_position_exponent` | exact |
 
-**Simplification (phases 0.1 and 0.1.x)**
+### Simplification (phases 0.1 and 0.1.x)
 
 | Upstream | Rust | Status |
 |---|---|---|
@@ -172,7 +175,7 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 | Options | `SimplifyOptions::LOCK_BORDER`, `SPARSE`, `ERROR_ABSOLUTE`, `PRUNE`, `REGULARIZE`, `REGULARIZE_LIGHT`, `PERMISSIVE` | exact |
 | Experimental options | `PRESERVE_FOLDS`, `ERROR_CLAMPED` | exact; behind `experimental` |
 
-**Meshlets and spatial ordering (phase 0.3)**
+### Meshlets and spatial ordering (phase 0.3)
 
 | Upstream | Rust | Status |
 |---|---|---|
@@ -184,7 +187,7 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 | `meshopt_spatialSortRemap`, `…Triangles`, `meshopt_spatialClusterPoints` | `spatial_sort_remap`, `spatial_sort_triangles`, `spatial_cluster_points` | exact |
 | `demo/clusterlod.h` | `clusterlod` module (feature) | exact against the pinned demo; not yet competitive in speed |
 
-**Compression codecs (phases 0.2 and 0.4, `codec` module)**
+### Compression codecs (phases 0.2 and 0.4, `codec` module)
 
 | Upstream | Rust | Status |
 |---|---|---|
@@ -201,7 +204,7 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 Caller-buffer (`_into`) and in-place forms are listed in the rustdoc.
 `meshopt_setAllocator` is intentionally replaced by `Workspace` and `Limits`.
 
-**Not yet ported**
+### Not yet ported
 
 - Phase 0.5: the analyzers (`meshopt_analyzeVertexCache`, `…Overdraw`,
   `…VertexFetch`, `…Coverage`), opacity maps, tangent and normal generation, and
@@ -216,25 +219,27 @@ Ratios are Rust time divided by C++ time for the same call on the same input.
 Smaller is faster; 1.00 is parity. The baseline is scalar C++ 1.3
 (`MESHOPTIMIZER_NO_SIMD`), the same build the parity proof uses.
 
-**The bar** (RFC §6.1, unchanged since registration): per function family, the
-geometric mean over cases must be ≤ 1.25 and no case may exceed 1.50, under
-**both** consumer profiles:
+The pass bar is defined in RFC §6.1 and has not changed since it was
+registered. For each function family, the geometric mean over cases must be
+≤ 1.25 and no case may exceed 1.50. This must hold under both consumer
+profiles:
 
-- *thin LTO*: thin LTO, one codegen unit, `opt-level = 3` (named `moss` in the
+- thin LTO: thin LTO, one codegen unit, `opt-level = 3` (named `moss` in the
   records);
-- *Cargo defaults*: the default `release` profile (no LTO, 16 codegen units).
+- Cargo defaults: the default `release` profile (no LTO, 16 codegen units).
 
-The crate's own fat-LTO profile does not apply to dependents, so it is not used
-for the bar.
+The crate's own fat-LTO profile does not apply to dependents, so the bar does
+not use it.
 
-**Method.** One AMD Ryzen 9 7945HX core, Linux x86-64, shared host load
-(recorded per sample). Each case has one warm-up and 10–30 alternating
-same-core Rust/C++ pairs; the ratio is the median paired ratio. Timing covers
-validation, required copies, allocation and the algorithm. Raw samples, load
-and source and executable hashes are retained. These are not quiet-host
-measurements and not universal speed claims.
+All timings were taken on one AMD Ryzen 9 7945HX core under Linux x86-64,
+with other load on the host (recorded per sample). Each case runs one warm-up
+and then 10–30 alternating Rust/C++ pairs on the same core; the reported ratio
+is the median paired ratio. Timing includes validation, required copies,
+allocation and the algorithm itself. Raw samples, load, and source and
+executable hashes are kept with the records. The host was not quiet, and the
+figures are not general speed claims.
 
-**Results** (family geometric mean / worst case; hardware and profiles as above):
+Results, as family geometric mean / worst case:
 
 | Phase | Families | Thin LTO | Cargo defaults | Record |
 |---|---:|---|---|---|
@@ -247,36 +252,40 @@ measurements and not universal speed claims.
 The 0.1, 0.1.x and 0.3 records also check memory (requested output plus
 scratch ≤ 1.25× C++); every family passes. The 0.2 and 0.4 records time only.
 
-**Known residuals**, stated plainly:
+### Known residuals
 
-- **Final 0.1 requalification (2026-10-04, AMD Ryzen 9 7945HX, Linux x86-64):**
-  every family mean and memory bar passes under both profiles. Case maxima
-  above 1.5× went to a pre-registered second stage
-  ([D146](parity/DECISIONS.md)): 30 fresh interleaved pairs on one quiet core,
-  decided on a 95% interval. Two flagged cases passed. Five remain residuals;
-  the bar is not relaxed ([stage2-0.1.json](parity/results/stage2-0.1.json)):
+The final 0.1 requalification (2026-10-04, AMD Ryzen 9 7945HX, Linux x86-64)
+passes every family mean and memory bar under both profiles. Cases whose
+maximum was above 1.5× went to a pre-registered second stage
+([D146](parity/DECISIONS.md)): 30 fresh interleaved pairs on one quiet core,
+decided on a 95% interval. Two of the flagged cases passed. The other five
+remain residuals, and the bar has not been relaxed for them
+([stage2-0.1.json](parity/results/stage2-0.1.json)):
 
-  | Case (million-vertex inputs) | Profile | 95% interval | Verdict |
-  |---|---|---:|---|
-  | allocating `optimize_vertex_fetch`, sparse | thin LTO | 1.55–2.07× | fail |
-  | allocating `optimize_vertex_fetch`, sparse | Cargo defaults | 1.54–2.09× | fail |
-  | allocating `optimize_overdraw`, disconnected | thin LTO | 1.48–1.58× | inconclusive |
-  | `simplify_sloppy`, disconnected, mode 1 | Cargo defaults | 1.44–1.51× | inconclusive |
-  | `simplify_sloppy`, disconnected, mode 2 | Cargo defaults | 1.39–1.52× | inconclusive |
+| Case (million-vertex inputs) | Profile | 95% interval | Verdict |
+|---|---|---:|---|
+| allocating `optimize_vertex_fetch`, sparse | thin LTO | 1.55–2.07× | fail |
+| allocating `optimize_vertex_fetch`, sparse | Cargo defaults | 1.54–2.09× | fail |
+| allocating `optimize_overdraw`, disconnected | thin LTO | 1.48–1.58× | inconclusive |
+| `simplify_sloppy`, disconnected, mode 1 | Cargo defaults | 1.44–1.51× | inconclusive |
+| `simplify_sloppy`, disconnected, mode 2 | Cargo defaults | 1.39–1.52× | inconclusive |
 
-  The affected families' means pass (`vertex_fetch` 0.97 / 0.99).
-- **`partition_clusters` under Cargo defaults:** family mean 1.45×, worst case
-  1.78× (`medium-seams-into`). It passes under thin LTO (1.23 / 1.37). Profiling
-  shows more instructions and branches in adjacency and partition code; the
-  record is in [MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md).
-- **The `clusterlod` build path is not yet competitive with C++.** It has no
-  qualified timing record and is not covered by the bar.
-- **Decoders against SIMD C++.** The bar compares with scalar C++. Upstream's
-  SIMD vertex decoder is 2–5× faster than this crate on the recorded cases
-  (Rust/SIMD throughput 0.20–0.47); index decoding runs at 0.7–1.0× of SIMD
-  throughput. Full table:
-  [P02_PERFORMANCE.md](parity/P02_PERFORMANCE.md). SIMD is phase 0.7.
+The means of the affected families pass (`vertex_fetch` 0.97 / 0.99).
 
+`partition_clusters` misses the bar under Cargo defaults, with a family mean
+of 1.45× and a worst case of 1.78× (`medium-seams-into`). It passes under thin
+LTO (1.23 / 1.37). Profiling shows more instructions and branches in the
+adjacency and partition code; see
+[MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md).
+
+The `clusterlod` build path is not yet competitive with C++. It has no
+qualified timing record and is not covered by the bar.
+
+The bar compares against scalar C++. Upstream's SIMD vertex decoder is 2–5×
+faster than this crate on the recorded cases (Rust/SIMD throughput
+0.20–0.47), and index decoding runs at 0.7–1.0× of SIMD throughput. The full
+table is in [P02_PERFORMANCE.md](parity/P02_PERFORMANCE.md). SIMD is planned
+for phase 0.7.
 
 ## Parity and verification
 
@@ -284,27 +293,29 @@ The oracle is meshoptimizer commit `4c203430ca565cb59a468a91922c76c208169536`.
 Its `src` tree is identical to tag v1.3. The harness refuses any other or
 modified checkout. C++ is built scalar-strict: SIMD off, no FMA contraction.
 
-Exactness is checked five ways. Each compares every meaningful output byte
-(index order, counts, f32 error bits, encoded bytes, status) with no tolerance:
+Exactness is checked in five ways. Each one compares every meaningful output
+byte (index order, counts, f32 error bits, encoded bytes, status) with no
+tolerance.
 
-1. **Fixtures.** Upstream's own `demo/tests.cpp` bodies and JS test calls,
+1. Fixtures: upstream's own `demo/tests.cpp` bodies and JS test calls,
    extracted unchanged, plus generated edge cases, run through C++, native Rust
    and wasm32 Rust.
-2. **Seeded sweeps.** 10,000 cases per 0.1 function and 2,000 per later
-   function: grids, seamed spheres, degenerate and disconnected meshes, extreme
-   scales, every option and flag combination.
-3. **wasm32 identity.** The `wasm32-unknown-unknown` build runs in Node on the
+2. Seeded sweeps: 10,000 cases per 0.1 function and 2,000 per later
+   function, covering grids, seamed spheres, degenerate and disconnected
+   meshes, extreme scales, and every option and flag combination.
+3. wasm32 identity: the `wasm32-unknown-unknown` build runs in Node on the
    same inputs and must match native output.
-4. **Fuzzing.** Stable seeded mutation targets and cargo-fuzz targets with
-   invariant checks; the 0.1 release budget is four CPU-hours per target with
+4. Fuzzing: stable seeded mutation targets and cargo-fuzz targets with
+   invariant checks. The 0.1 release budget is four CPU-hours per target, with
    zero findings ([fuzz.json](parity/results/fuzz.json)).
-5. **Cross-platform replay.** CI replays the 0.1 Linux x86-64 output corpus
+5. Cross-platform replay: CI replays the 0.1 Linux x86-64 output corpus
    on macOS arm64, Windows x86-64 and Linux arm64 and compares bytes exactly.
    Only Linux x86-64 and wasm32 results are verified locally; the other
    platforms' results come from those CI runs.
 
-Counts and identities: [MEASURED_PARITY.md](parity/MEASURED_PARITY.md).
-These are finite tests on recorded inputs, not a proof for all inputs.
+Counts and identities are in [MEASURED_PARITY.md](parity/MEASURED_PARITY.md).
+They come from finite tests on recorded inputs and do not prove exactness for
+all inputs.
 
 To reproduce, check out meshoptimizer at the pinned commit and run:
 
@@ -334,12 +345,11 @@ affiliated with or endorsed by the upstream project. Upstream recommends the
 want the C++ code itself, including its SIMD paths.
 
 [UPSTREAM.md](UPSTREAM.md) records provenance and the intentional API
-differences. [LICENSE](LICENSE) keeps
-upstream's MIT notice.
+differences. [LICENSE](LICENSE) keeps upstream's MIT notice.
 
-**Tracking upstream.** Each crate version names the upstream commit it matches.
-A new upstream release is ported in a new crate version: the pinned commit
-moves only when every ported function passes the full parity run against it.
+Each crate version names the upstream commit it matches. A new upstream
+release is ported in a new crate version, and the pinned commit moves only
+when every ported function passes the full parity run against it.
 Upstream functions marked experimental stay behind the `experimental` feature.
 
 Other pure-Rust projects exist ([meshopt-rs](https://crates.io/crates/meshopt-rs),
@@ -348,17 +358,17 @@ them, and none of their code is used.
 
 ## Roadmap
 
-- **0.5:** the remaining 1.3 API: analyzers, opacity maps, tangents, normals and
-  remeshing.
-- **0.6:** `parallel` batch APIs (Rayon) for LOD chains, buffer views and
+- 0.5: the rest of the 1.3 API (analyzers, opacity maps, tangents, normals and
+  remeshing).
+- 0.6: `parallel` batch APIs (Rayon) for LOD chains, buffer views and
   cluster LOD, with output byte-identical to the serial calls.
-- **0.7:** SIMD decoders and filters (SSE2/SSSE3/SSE4.1, NEON, wasm simd128) in
+- 0.7: SIMD decoders and filters (SSE2/SSSE3/SSE4.1, NEON, wasm simd128) in
   one audited `unsafe` module with runtime dispatch, checked against the scalar
   path.
 
-Exact parity with upstream stays the default behaviour. Any "improved"
-algorithm (different output for better quality or speed) would be opt-in and
-never change the output of an existing call.
+Exact parity with upstream stays the default. An algorithm that produces
+different output for better quality or speed would be opt-in, and would not
+change the output of any existing call.
 
 ## Licence
 
