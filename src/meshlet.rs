@@ -1481,12 +1481,17 @@ fn build(
     s: MeshletSettings,
     b: Builder,
     workspace: &mut Workspace,
+    trusted_moderate: Option<bool>,
 ) -> Result<Meshlets, Error> {
     let mut ctx = Context::new(workspace)?;
     check(s, b)?;
     ctx.topology(indices, n)?;
     if let Some(p) = p {
-        ctx.positions(p)?;
+        if let Some(moderate) = trusted_moderate {
+            ctx.moderate = moderate;
+        } else {
+            ctx.positions(p)?;
+        }
     }
     let bound = build_meshlets_bound(indices.len(), s.max_vertices, min_triangles(b, s))?;
     let mut result = Meshlets {
@@ -1561,7 +1566,15 @@ pub fn build_meshlets_scan(
     s: MeshletSettings,
     workspace: &mut Workspace,
 ) -> Result<Meshlets, Error> {
-    build(indices, vertex_count, None, s, Builder::Scan, workspace)
+    build(
+        indices,
+        vertex_count,
+        None,
+        s,
+        Builder::Scan,
+        workspace,
+        None,
+    )
 }
 /// `meshopt_buildMeshlets`: connectivity and cone-aware meshlets.
 pub fn build_meshlets(
@@ -1594,6 +1607,32 @@ pub fn build_meshlets_flex(
             split: split_factor,
         },
         workspace,
+        None,
+    )
+}
+#[cfg(feature = "clusterlod")]
+pub(crate) fn build_meshlets_flex_validated(
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    cone_weight: f32,
+    split_factor: f32,
+    moderate: bool,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build(
+        indices,
+        p.len(),
+        Some(p),
+        s,
+        Builder::Flex {
+            min: min_triangles,
+            weight: cone_weight,
+            split: split_factor,
+        },
+        workspace,
+        Some(moderate),
     )
 }
 /// `meshopt_buildMeshletsSpatial`: surface-area heuristic meshlets for ray tracing.
@@ -1615,6 +1654,30 @@ pub fn build_meshlets_spatial(
             fill: fill_weight,
         },
         workspace,
+        None,
+    )
+}
+#[cfg(feature = "clusterlod")]
+pub(crate) fn build_meshlets_spatial_validated(
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    moderate: bool,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build(
+        indices,
+        p.len(),
+        Some(p),
+        s,
+        Builder::Spatial {
+            min: min_triangles,
+            fill: fill_weight,
+        },
+        workspace,
+        Some(moderate),
     )
 }
 /// Caller-buffer scan builder; a late work-limit failure may modify output prefixes.

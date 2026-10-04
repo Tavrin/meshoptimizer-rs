@@ -1,15 +1,15 @@
 # RFC 113 clodBuild parity against Moss S2
 
-**Verdict:** all 15 valid layout cases have byte-identical DAG, local indices, hierarchy, cluster and meshlet bounds. All 90 codec payload comparisons match. The adoption condition is **not met**: stride 32 is invalid under the exact S2 protect mask, and the nine-mesh paired cook ratio is **6.391×** C++ (bar ≲1.2×).
+**Verdict:** all 15 valid layout cases have byte-identical DAG, local indices, hierarchy, cluster and meshlet bounds. All 90 codec payload comparisons match. The nine-mesh paired cook ratio is **1.171×** scalar C++ and **1.159×** Moss-style SIMD C++; the scalar performance bar is met. Stride 32 remains invalid under the exact S2 protect mask.
 
 ## Setup and identity
 
-- Worktree branch `parity/rfc113`, HEAD `dee68822de94c9c8e7a49e58e2bb7d6350eafb3c`. No crate API or algorithm changes.
+- Worktree branch `parity/rfc113`, HEAD `6747c38b09e042fb212298398230c6584895403c`. No public API changes.
 - C++ oracle: Moss S2 vendored `meshoptimizer` (master 717ca348), plus a hash-checked copy of `cluster_lod_bridge.cpp`.
 - S2 config: `clodDefaultConfig(128)` with only `simplify_dilate_borders=false`; 3 normal weights of 0.5; protect bits 0..8 (plus 9..12 at stride 64); S2 `boundary_locks`; callback `clodLocalIndices`; hierarchy width 8 and bridge-derived levels.
 - S0b inputs: all nine `.mesh` files actually present in the frozen directory (the brief says eight); stride 48 on all, plus 64/72/88 on pyramid and sponza_lionhead. Synthetic tangent/color/joints/weights are deterministic. The 72/88 layouts exercise the builder API although S2 candidate admission rejects skinned bases.
 - Copied bridge SHA-256 `4d18edbac8730f2fdab119360c0217cf408aa8c580efa1ab99d57af9026578ba`; vendored `clusterlod.h` SHA-256 `71f95c1f97ef567235540c038b41906091fcef1ef68046f2933cd5989f94ea93`.
-- DAG driver SHA-256: C++ `9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f`, Rust `ea57e711f0d4c0dd20b247a9513d6a6788856ad9c657400c7927c98074f230a5`.
+- DAG driver SHA-256: scalar C++ `9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f`, Moss-style C++ `16aab10d502e76cd35b2e7d2c6037c407726a06a935e577a7d39d74fa9189395`, Rust `895d0e99e4a7bc7f5ce900bc464ce9139deade1fc50f4ffc714599e0d33d4b7a`.
 - Codec driver SHA-256: C++ `f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6`, Rust `7bb3b832d139caa0f15ed37adf25572c76f7b049e6dc85493ac95925a410b70f`.
 - Full source and binary hashes: `/mnt/linux-extra/meshopt-artifacts/rfc113/result.json` and `/mnt/linux-extra/meshopt-artifacts/rfc113/codec.json`. Artifacts contain hashes and timings only; no source mesh copies or large payloads.
 
@@ -43,28 +43,65 @@ Each of the 15 valid cases compares the vendored C++ and Rust encoded bytes for 
 
 ## Paired cook time
 
-Five interleaved C++/Rust pairs per mesh on pinned CPU 0; internal monotonic timers cover input conversion and DAG cooking/serialization, excluding process launch, pipe transfer, and parity-only detailed bounds. C++: `-O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off`; Rust: `consumer opt-level=3 thin LTO codegen-units=1`. The aggregate is the ratio of summed per-mesh medians.
+20 interleaved three-way pairs per mesh on pinned CPU 16; internal monotonic timers cover input conversion and DAG cooking/serialization, excluding process launch, pipe transfer, and parity-only detailed bounds. Scalar C++: `-O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off`; Moss-style C++: `-O3 -DNDEBUG -fPIC -ffunction-sections -fdata-sections -m64; SIMD enabled, mirroring cc release defaults`; Rust: `consumer opt-level=3 thin LTO codegen-units=1`. The aggregate is the ratio of summed per-mesh medians.
 
-| Mesh (stride 48) | C++ median ms | Rust median ms | Rust/C++ |
-|---|---:|---:|---:|
-| `grass_a_01:48` | 4.802 | 6.747 | 1.405× |
-| `grass_b_01:48` | 1.476 | 2.178 | 1.476× |
-| `modular_m4x4_03:48` | 239.193 | 882.442 | 3.689× |
-| `moss_01:48` | 0.220 | 0.289 | 1.315× |
-| `pyramid:48` | 1038.914 | 8194.792 | 7.888× |
-| `riverforest_01_branches:48` | 326.855 | 2585.827 | 7.911× |
-| `riverforest_01_leaves:48` | 735.217 | 4256.099 | 5.789× |
-| `riverforest_01_trunk:48` | 28.541 | 50.020 | 1.753× |
-| `sponza_lionhead:48` | 192.371 | 430.869 | 2.240× |
+Load average before/after: `[11.02783203125, 22.4375, 28.513671875]` / `[20.83837890625, 18.6279296875, 25.05126953125]`; core utilization over run: 94.9%.
 
-**Sum of medians:** C++ 2.568 s, Rust 16.409 s; **6.391×**, fails the ≲1.2× adoption bar.
+| Mesh (stride 48) | Groups | DAG depth | Before scalar | Scalar ms | Moss ms | Rust ms | After scalar | Rust/Moss |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `grass_a_01:48` | 4 | 0 | 1.405× | 5.841 | 5.867 | 8.140 | 1.394× | 1.388× |
+| `grass_b_01:48` | 2 | 1 | 1.476× | 1.158 | 1.154 | 1.465 | 1.265× | 1.269× |
+| `modular_m4x4_03:48` | 134 | 7 | 3.689× | 295.018 | 292.449 | 306.701 | 1.040× | 1.049× |
+| `moss_01:48` | 1 | 0 | 1.315× | 0.210 | 0.213 | 0.267 | 1.271× | 1.251× |
+| `pyramid:48` | 439 | 5 | 7.888× | 1033.832 | 1037.047 | 1202.409 | 1.163× | 1.159× |
+| `riverforest_01_branches:48` | 281 | 12 | 7.911× | 339.804 | 347.382 | 379.397 | 1.117× | 1.092× |
+| `riverforest_01_leaves:48` | 300 | 1 | 5.789× | 679.342 | 691.772 | 862.926 | 1.270× | 1.247× |
+| `riverforest_01_trunk:48` | 24 | 7 | 1.753× | 40.333 | 42.532 | 48.294 | 1.197× | 1.135× |
+| `sponza_lionhead:48` | 89 | 7 | 2.240× | 174.200 | 178.176 | 198.964 | 1.142× | 1.117× |
+
+**Sum of medians:** scalar C++ 2.570 s, Moss-style C++ 2.597 s, Rust 3.009 s; **1.171×** scalar and **1.159×** Moss-style.
+
+## Root cause and scaling
+
+The old five-pair consumer run measured **6.391×** scalar C++ (2.568 s C++, 16.409 s Rust). Its ratio increased with the S2 group count: Pearson correlation **0.960** across the nine meshes, versus **0.503** with DAG depth. The table above uses group counts and depth from the S2 output itself. The read-only S0b C++ Build/RSS tables confirm only the rough ordering of mesh difficulty: they use a different config and single-threaded wall time on a loaded host, with about ±30% variation. They are not timing baselines for these ratios.
+
+Initial `perf record -g` captures put about **79%** of pyramid and **80%** of branches Rust samples in repeated full-source position/attribute validation and per-group simplification setup. Source inspection found that Rust copied every vertex's attributes and rebuilt flags for each group, rescanned every position in each meshlet/bounds call, and initialized source-sized adjacency for small flex groups. Vendored C++ uses sparse adjacency when the source vertex count exceeds group indices. Rust now validates and copies attributes once, reuses flags per level and the validated position magnitude, and compacts sparse groups to local indices before the flex builder, mapping output vertices back to source IDs. The public API and all compared bytes remain unchanged. The last scratch change initializes the compact map directly to its sentinel and reserves/pushes the local arrays without redundant zero fills.
+
+An intermediate 20-pair run after validation/setup fixes but before sparse group compaction measured **1.319×** aggregate and retained 15/15 byte matches; it ran on CPU 0 with concurrent lane activity and is diagnostic only. In the short profiles, Rust `meshlet::adjacency` fell from **16.67% to 0.97%** of pyramid samples and from **15.65% to no samples** in branches after compaction. The final 20-pair ratio no longer grows with group count (Pearson **−0.388**) or depth (**−0.810**). These nine-point correlations are descriptive, not a model of other meshes.
+
+## Stage attribution and SIMD
+
+The table gives representative **self-sample percentages** from `perf record -g` on the same pyramid and branches requests, not whole-stage totals: C++ and Rust inline and split functions differently. The final profiles have 177–186 samples per pyramid build and 74–81 per branches build, so small differences are noisy. The profile binary hashes match the final consumer timing record.
+
+| Mesh / stage | Scalar C++ | Moss-style C++ | Rust |
+|---|---|---|---|
+| Pyramid: meshlet build/search | `buildMeshletsFlex` 13.3%, `kdtreeNearest` 6.2% | 17.9%, 5.8% | `flex` 15.2%, `nearest` 8.2% |
+| Pyramid: simplify | `simplifyEdge` 6.9%, `classifyVertices` 7.4% | 6.1%, 3.8% | `run_state` 13.7%, `quadrics` 5.1% |
+| Pyramid: partition | `partitionClusters` 3.1% | 3.4% | `partition::adjacent` 2.4%, wrapper 1.3% |
+| Pyramid: bounds | `computeClusterBounds` 3.4% | 3.3% | bounds 1.3%, cluster bounds 0.7% |
+| Pyramid: callback / hierarchy | `onGroup` 20.2%, `clodBuild` 7.1% | 15.8%, 6.1% | `output` 12.8%, `position_remap` 1.7% |
+| Branches: meshlet build/search | `buildMeshletsFlex` 7.1%, `kdtreeNearest` 9.3% | 8.4%, 8.8% | `flex` 9.4%, `nearest` 6.9% |
+| Branches: simplify | `simplifyEdge` 7.6%, `fillAttributeQuadrics` 3.3% | 8.6%, 3.4% | `run_state` 16.3%, `vertex_ids` 3.5% |
+| Branches: partition | `partitionClusters` 3.5% | unsampled | `partition::adjacent` 3.3%, wrapper 1.8% |
+| Branches: bounds | `computeClusterBounds` 3.8% | cluster bounds 1.9%, sphere 1.9% | bounds 1.4% |
+| Branches: callback / hierarchy | `onGroup` 15.8%, `clodBuild` 3.9% | 17.6%, 5.7% | `output` 18.7%, `lock_boundary` 3.4% |
+
+Moss's `build.rs` uses release `cc` with C++17 and leaves SIMD enabled; the second C++ driver mirrors its release flags. Both C++ drivers emitted identical bytes on all 15 valid cases. The scalar/Moss-style medians are 2.570/2.597 s, so there is **no measured SIMD speedup** in this S2 cook. Vendored `clusterizer.cpp` has explicit SSE/NEON box-merge and prefetch code in the **spatial** meshlet builder; S2's `clodDefaultConfig` sets `cluster_spatial=false` and runs the flex builder. Codec SIMD paths are outside the cook timer. Thus no active S2 stage can be assigned an explicit SIMD gap; residual stage differences between these two builds also include different floating-point and `cc` flags and sampling noise. Phase 0.7 can target spatial meshlets and codecs separately, but this S2 path's remaining costs are scalar flex, simplify, and callback work.
+
+## Cargo defaults and correctness gates
+
+The separate 20-pair Cargo release-defaults run was byte-identical on all 15 valid layouts and measured **1.071× scalar C++** and **1.096× Moss-style C++** on summed medians. Its nine scalar per-mesh ratios, in table order, were 1.414, 1.352, 1.070, 1.409, 1.031, 1.124, 1.008, 1.082, and 1.301; Moss-style ratios were 1.390, 1.336, 1.105, 1.371, 1.040, 1.087, 1.042, 1.585, and 1.244. That run selected CPU 23 after a 75.8% pre-run utilization sample, and load average rose from 38.3 to 77.7. Its C++ sum was 4.079 s, versus 2.570 s in the consumer run on CPU 16, so the cross-profile times are load-sensitive; within each run the three drivers were interleaved on one core. The consumer run's pre-run core utilization was 1.0%, with load average 11.0 to 20.8.
+
+All listed commands exited zero on the final source: `cargo fmt --all -- --check`; clippy `-D warnings` with all features and with no default features; tests with all features, no default features, and no default features plus `clusterlod`; the no-default `clusterlod` wasm32 build; RFC 113 byte parity and `codec.py` (90/90); and the existing 0.1–0.4 parity runs and sweeps. Counts and summary hashes are retained in `gates.json`: 0.1 ran 279 fixtures and 10,000 seeded cases; 0.2 ran 287 fixtures, 3,637 malformed inputs and 14,000 seeded cases; 0.3 ran 47 upstream fixtures, 25 generated cases per 15 families, 30,000 seeded cases and 80 C++/native/WASM cluster-LOD cases; 0.4 ran 869 fixtures, 7,653 malformed inputs and 44,000 seeded cases. Every gate reported zero mismatches. Large temporary parity corpora reside in the lane target and are removed with it.
 
 ## Reproduction and limits
 
-Run `python3 parity/rfc113/run.py --pairs 5` and `python3 parity/rfc113/codec.py` from the repository root. Use `--case mesh:stride` for one deterministic case. The comparison proves these frozen S0b inputs under the stated S2 setup; it does not qualify a Moss runtime or GPU swap. The 32-byte request needs a corrected upstream setup, and the cook-time bar needs separate performance work.
+Run `python3 parity/rfc113/run.py --pairs 20` and `python3 parity/rfc113/codec.py` from the repository root. Use `--case mesh:stride` for one deterministic case. The comparison proves these frozen S0b inputs under the stated S2 setup; it does not qualify a Moss runtime or GPU swap. The 32-byte request needs a corrected upstream setup.
 
 ## Artifact inventory
 
-- `/mnt/linux-extra/meshopt-artifacts/rfc113/result.json`: 24,903 bytes; SHA-256 `ab84efb39afff6dd161d6c23b8d5688591060fc1523f37ba5f736f8cc7c71187`.
-- `/mnt/linux-extra/meshopt-artifacts/rfc113/codec.json`: 62,909 bytes; SHA-256 `48f39890acb694e964d97da3705593ff0f95b1525ede92dbb9aa84116679b5ad`.
-
+- `/mnt/linux-extra/meshopt-artifacts/rfc113/result.json`: 39,795 bytes; SHA-256 `5314e70a55c6dcdbdb3d1da392b4038fbb54ab7b173413937763b816381c28c4`.
+- `/mnt/linux-extra/meshopt-artifacts/rfc113/codec.json`: 62,910 bytes; SHA-256 `3c2717ecc3ccb8867cf5458f9715a6855ad299851834c2eb36aa00be5b60a896`.
+- `/mnt/linux-extra/meshopt-artifacts/rfc113/result-defaults.json`: 39,820 bytes; SHA-256 `76acf6e6cbbdb79c5a0d0352d5dcc4d27257074c9a0dc79e8540f8b814ad182b`.
+- `/mnt/linux-extra/meshopt-artifacts/rfc113/gates.json`: 4,094 bytes; SHA-256 `5d31bc08e7d0cc719a8dca21524675d5b22d2a4e7a74e2020cd786481ea25740`.
+- `profile-identity.json`, `profile-pre-sparse-identity.json`, six final and six pre-sparse `profile-*.txt` call-graph summaries, and `result-pre-sparse.json` are in the same artifact directory. No `perf.data` is retained.

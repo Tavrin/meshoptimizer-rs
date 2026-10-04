@@ -178,6 +178,7 @@ struct Pending {
     refined: i32,
     bounds: LodBounds,
 }
+type CompactGroup = (Vec<u32>, Vec<[f32; 3]>, Vec<u32>);
 fn merged(bounds: &[LodBounds], ctx: &mut Context<'_>) -> Result<LodBounds, Error> {
     let mut p = ctx.alloc(bounds.len())?;
     let mut radii = ctx.alloc(bounds.len())?;
@@ -205,27 +206,63 @@ fn clusterize(
     p: Positions<'_>,
     c: Config,
     refined: i32,
+    moderate: bool,
     ctx: &mut Context<'_>,
 ) -> Result<(Vec<Pending>, Vec<u32>), Error> {
     let s = MeshletSettings {
         max_vertices: c.max_vertices,
         max_triangles: c.max_triangles,
     };
-    let mut m = ctx.child(|ws| {
-        if c.cluster_spatial {
-            crate::build_meshlets_spatial(indices, p, s, c.min_triangles, c.cluster_fill_weight, ws)
-        } else {
-            crate::build_meshlets_flex(
-                indices,
-                p,
+    let mut m = if !c.cluster_spatial && p.len() > indices.len().saturating_mul(4) {
+        // Upstream switches to sparse adjacency for small groups of a large
+        // source mesh. Compacting only the temporary builder input lets the
+        // safe Rust builder use group-sized adjacency and live-vertex arrays.
+        let (local_indices, local_positions, originals) = compact_group(indices, p, ctx)?;
+        let mut result = ctx.child(|ws| {
+            crate::meshlet::build_meshlets_flex_validated(
+                &local_indices,
+                Positions::from_packed(&local_positions),
                 s,
                 c.min_triangles,
                 0.,
                 c.cluster_split_factor,
+                moderate,
                 ws,
             )
+        })?;
+        for v in &mut result.vertices {
+            *v = originals[*v as usize];
         }
-    })?;
+        ctx.free(local_indices)?;
+        ctx.free(local_positions)?;
+        ctx.free(originals)?;
+        result
+    } else {
+        ctx.child(|ws| {
+            if c.cluster_spatial {
+                crate::meshlet::build_meshlets_spatial_validated(
+                    indices,
+                    p,
+                    s,
+                    c.min_triangles,
+                    c.cluster_fill_weight,
+                    moderate,
+                    ws,
+                )
+            } else {
+                crate::meshlet::build_meshlets_flex_validated(
+                    indices,
+                    p,
+                    s,
+                    c.min_triangles,
+                    0.,
+                    c.cluster_split_factor,
+                    moderate,
+                    ws,
+                )
+            }
+        })?
+    };
     let mut clusters = ctx.alloc::<Pending>(m.meshlets.len())?;
     let mut idx = ctx.alloc(indices.len())?;
     let mut offset = 0;
@@ -253,6 +290,47 @@ fn clusterize(
     ctx.free(m.vertices)?;
     ctx.free(m.triangles)?;
     Ok((clusters, idx))
+}
+fn compact_group(
+    indices: &[u32],
+    p: Positions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<CompactGroup, Error> {
+    let size = indices
+        .len()
+        .checked_mul(2)
+        .and_then(usize::checked_next_power_of_two)
+        .ok_or(Error::SizeOverflow)?;
+    let mut table = ctx.filled(size, u64::MAX)?;
+    let mut local_indices = ctx.copy::<u32>(&[])?;
+    let mut local_positions = ctx.copy::<[f32; 3]>(&[])?;
+    let mut originals = ctx.copy::<u32>(&[])?;
+    ctx.grow(&mut local_indices, indices.len())?;
+    ctx.grow(&mut local_positions, indices.len())?;
+    ctx.grow(&mut originals, indices.len())?;
+    let mut count = 0usize;
+    for &source in indices {
+        let mut slot = source.wrapping_mul(0x9e3779b9) as usize & (size - 1);
+        loop {
+            ctx.tick(1)?;
+            let entry = table[slot];
+            if entry == u64::MAX {
+                table[slot] = ((source as u64) << 32) | count as u64;
+                local_positions.push(p.get(source as usize).ok_or(Error::IndexOutOfBounds)?);
+                originals.push(source);
+                local_indices.push(count as u32);
+                count += 1;
+                break;
+            }
+            if entry >> 32 == source as u64 {
+                local_indices.push(entry as u32);
+                break;
+            }
+            slot = (slot + 1) & (size - 1);
+        }
+    }
+    ctx.free(table)?;
+    Ok((local_indices, local_positions, originals))
 }
 fn position_remap(p: Positions<'_>, ctx: &mut Context<'_>) -> Result<Vec<u32>, Error> {
     let mut size = 1usize;
@@ -402,30 +480,15 @@ fn simplify(
     indices: &[u32],
     mesh: &Mesh<'_>,
     locks: &[u8],
+    flags: &[support::VertexFlags],
+    attrs: &[f32],
     c: Config,
     target: usize,
     ctx: &mut Context<'_>,
 ) -> Result<(Vec<u32>, f32), Error> {
     let p = support::Positions::from_packed(mesh.positions);
     let width = mesh.attribute_weights.len();
-    let mut attrs = ctx.alloc::<f32>(
-        mesh.positions
-            .len()
-            .checked_mul(width)
-            .ok_or(Error::SizeOverflow)?,
-    )?;
-    if let Some(a) = mesh.attributes {
-        for i in 0..mesh.positions.len() {
-            for j in 0..width {
-                attrs[i * width + j] = a.get(i, j).ok_or(Error::InvalidLayout)?;
-            }
-        }
-    }
-    let a = support::Attributes::from_interleaved(&attrs, mesh.positions.len(), width, width, 0)?;
-    let mut flags = ctx.alloc::<support::VertexFlags>(locks.len())?;
-    for (i, f) in flags.iter_mut().enumerate() {
-        *f = support::VertexFlags::from_bits(locks[i] & 7)?;
-    }
+    let a = support::Attributes::from_interleaved(attrs, mesh.positions.len(), width, width, 0)?;
     let mut bits = 2 | 4;
     if c.simplify_error_clamped {
         bits |= 256;
@@ -446,12 +509,12 @@ fn simplify(
             max_work: limits.max_work,
         });
         let options = support::SimplifyOptions::from_bits(bits)?;
-        let result = support::simplify_with_attributes(
+        let result = support::simplify_validated(
             indices,
             p,
             a,
             mesh.attribute_weights,
-            Some(&flags),
+            flags,
             support::SimplifySettings {
                 target_index_count: target,
                 target_error: f32::MAX,
@@ -532,8 +595,6 @@ fn simplify(
             .min(crate::math::sqrt(maxsq) * c.simplify_error_edge_limit);
     }
     finite(result.error)?;
-    ctx.free(attrs)?;
-    ctx.free(flags)?;
     Ok((result.indices, result.error))
 }
 fn edge_slot(table: &[u64], key: u64, ctx: &mut Context<'_>) -> Result<usize, Error> {
@@ -697,8 +758,7 @@ fn output(
         } else {
             cl.bounds
         };
-        let mut copy = ctx.alloc(indices.len())?;
-        copy.copy_from_slice(indices);
+        let copy = ctx.copy(indices)?;
         out[i] = Cluster {
             refined: cl.refined,
             bounds: b,
@@ -781,10 +841,18 @@ fn build_internal(
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
     validate(&mesh, c, &mut ctx)?;
+    let moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, &mut ctx)?;
     let mut locks = ctx.alloc::<u8>(p.len())?;
+    let width = mesh.attribute_weights.len();
+    let mut attrs = ctx.alloc::<f32>(p.len().checked_mul(width).ok_or(Error::SizeOverflow)?)?;
     if let Some(a) = mesh.attributes {
+        for i in 0..p.len() {
+            for j in 0..width {
+                attrs[i * width + j] = a.get(i, j).ok_or(Error::InvalidLayout)?;
+            }
+        }
         for (i, l) in locks.iter_mut().enumerate() {
             let r = remap[i] as usize;
             for j in 0..a.components() {
@@ -802,10 +870,15 @@ fn build_internal(
     } else {
         0
     })?;
-    let (mut clusters, mut idx) = clusterize(mesh.indices, p, c, -1, &mut ctx)?;
+    let (mut clusters, mut idx) = clusterize(mesh.indices, p, c, -1, moderate, &mut ctx)?;
     for cl in &mut clusters {
         let b = ctx.child(|ws| {
-            crate::compute_cluster_bounds(&idx[cl.offset..cl.offset + cl.count], p, ws)
+            crate::meshlet_util::compute_cluster_bounds_validated(
+                &idx[cl.offset..cl.offset + cl.count],
+                p,
+                moderate,
+                ws,
+            )
         })?;
         cl.bounds = LodBounds {
             center: b.center,
@@ -832,6 +905,10 @@ fn build_internal(
             mesh.vertex_lock,
             &mut ctx,
         )?;
+        let mut flags = ctx.alloc::<support::VertexFlags>(locks.len())?;
+        for (flag, &lock) in flags.iter_mut().zip(&locks) {
+            *flag = support::VertexFlags::from_bits(lock & 7)?;
+        }
         let mut pending = ctx.alloc::<Pending>(idx.len() / 3)?;
         let mut pi = ctx.alloc::<u32>(idx.len())?;
         let (mut pc, mut ic) = (0, 0);
@@ -849,7 +926,16 @@ fn build_internal(
             }
             let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
             let mut bounds = merged(&gb, &mut ctx)?;
-            let (simplified, error) = simplify(&merged_idx, &mesh, &locks, c, target, &mut ctx)?;
+            let (simplified, error) = simplify(
+                &merged_idx,
+                &mesh,
+                &locks,
+                &flags,
+                &attrs,
+                c,
+                target,
+                &mut ctx,
+            )?;
             if simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold {
                 bounds.error = f32::MAX;
                 output(group, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
@@ -880,6 +966,7 @@ fn build_internal(
                 Positions::from_packed(mesh.positions),
                 c,
                 refined,
+                moderate,
                 &mut ctx,
             )?;
             for &original in &new {
@@ -898,6 +985,7 @@ fn build_internal(
             ctx.free(simplified)?;
         }
         ctx.free(group_offsets)?;
+        ctx.free(flags)?;
         pending.truncate(pc);
         pi.truncate(ic);
         ctx.free(clusters)?;
@@ -911,6 +999,7 @@ fn build_internal(
         bounds.error = f32::MAX;
         output(&clusters, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
     }
+    ctx.free(attrs)?;
     Ok(())
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave

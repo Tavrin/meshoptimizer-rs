@@ -3344,3 +3344,67 @@ passing. Requiring the complete fresh sample and its upper confidence bound
 makes that selection explicit and conservative. The coordinator can cheaply
 reverse this acceptance decision before publication. This rule is recorded
 before stage-2 measurements begin.
+
+## D147 — RFC 113 cluster-LOD cook scaling
+
+The baseline nine-mesh Rust/scalar-C++ sum-of-medians ratio was 6.391. On the
+same S2 output, the baseline ratio tracks group count strongly (Pearson 0.960
+over nine meshes), more than DAG depth (0.503). Earlier S0b C++ wall times
+only confirm mesh ordering; they use a different config and vary by about 30%.
+
+`perf record -g` on identical pyramid and riverforest branches inputs found
+approximately 79% and 80% of Rust samples in full-mesh validation plus
+per-group simplification setup before changes. The C++ call graphs spread
+samples across meshlet construction, simplification, callback output, and
+partitioning. Source inspection found three repeated full-source costs: Rust
+copied all attributes and validated them for every group; meshlet construction
+and initial bounds rescanned all positions for each group/cluster; and Rust's
+flex builder initialized and swept source-sized adjacency for every small
+group, while C++ `buildTriangleAdjacencySparse` visits only referenced
+vertices when `vertex_count > index_count`.
+
+The safe Rust change validates the source once, copies attributes once,
+reuses lock flags per level, and passes the validated position magnitude to
+private meshlet/bounds paths. It compacts flex-builder inputs for small groups
+of a large source mesh, then maps meshlet vertices back to source indices.
+The public API and scalar byte output stay unchanged. The intermediate full
+20-pair run before group compaction retained 15/15 valid byte matches and
+measured 1.319 scalar aggregate on CPU 0; it is superseded because another
+lane also used that core. The final 20-pair consumer run on CPU 16 measures
+1.171 scalar aggregate (2.570 s C++, 3.009 s
+Rust), with every mesh at or below 1.394 and all 15 valid layout outputs
+identical. The Moss-style C++ build measures 2.597 s, giving a 1.159 Rust/Moss
+ratio. The scalar bar passes without SIMD Rust. The optimized scalar ratio no
+longer rises with group count (nine-mesh Pearson -0.388) or depth (-0.810).
+A separate 20-pair Cargo-defaults run measures 1.071 scalar/1.096 Moss
+aggregate, but selected a much busier core; the profiles cannot be ranked by
+their wall times. Full per-mesh medians, load, stage profiles and gates are in
+the handoff.
+
+Moss's `build.rs` does not define `MESHOPTIMIZER_NO_SIMD`; the harness also
+times a second C++ binary with release `cc` flags and SIMD enabled. Vendored
+`clusterizer.cpp` places explicit SSE/NEON code only in the spatial BVH
+builder, while this S2 config sets `cluster_spatial=false`. Thus any
+scalar/Moss-style difference on these cases is not evidence of that explicit
+SIMD path. The two C++ binaries' output bytes are checked separately and
+match on all 15 valid cases; no active S2 stage shows an explicit SIMD gain.
+
+## D148 — Avoid redundant initialization in compact group scratch
+
+The compact builder maps each group to a dense temporary index range. Its
+first version zero-filled full-length local index, position, and reverse-map
+vectors before overwriting every used element, and zero-filled then reset the
+hash table to the empty sentinel. `Context::filled` now initializes the table
+directly to its sentinel; the three vectors reserve their bounded capacity
+and append initialized elements only. All allocation accounting and work
+ticks remain in `Context`. Expected effect: less memory traffic per small
+group, with the greatest opportunity on pyramid and riverforest branches,
+where the group count and source/group size ratio are largest. Exact byte
+parity is the acceptance gate before timing this change.
+
+The final-source short call-graph check confirms that sparse group inputs
+removed the remaining source-sized adjacency hotspot: `meshlet::adjacency`
+fell from 16.67% to 0.97% of pyramid Rust samples and from 15.65% to no
+sample in the branches capture. The remaining Rust samples are spread over
+meshlet flex/nearest, simplification, and callback output. These are sampled
+stage shares, not a paired timing result; the 20-pair bar remains the verdict.
