@@ -13,7 +13,7 @@ stable options. PreserveFolds and ErrorClamped require `experimental`. Unknown
 bits remain checked errors. Codecs, meshlets, stripification and analysis retain
 their later RFC milestones. Qualification records below are separate from the
 existing 0.1 records.
-The `experimental` feature currently exposes no additional functions.
+Phase 0.5 additionally exposes experimental normals and remeshing.
 
 ## 0.1 fixture applicability (historical records)
 
@@ -245,3 +245,101 @@ This establishes the brief's local Linux x86-64 and executed WASM gates. It does
 not establish other native-platform execution, release fuzz, GPU or Moss
 integration acceptance. D84 records the earlier artifact placement limitation;
 integration pointers use the requested destination pending the coordinator's move.
+
+## Historical pinned-header ledger before Phase 0 rebase (0.5)
+
+The pinned header has 87 exported C functions plus two public C++ inline quantizers: **89 names**. This ledger records the pre-rebase 0.5 checkout; the integrated inventories above supersede its excluded branch entries. The separate 0.1.x and 0.3 branches are not merged here; their entries are excluded from this checkout pending integration, not claimed as qualified ports. The older milestone sections above remain historical.
+
+| Upstream public name | State in this checkout | Rust API or exclusion reason |
+|---|---|---|
+| `meshopt_generateVertexRemap` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateVertexRemapMulti` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateVertexRemapCustom` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_remapVertexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_remapIndexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_filterIndexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_filterIndexBufferMulti` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateShadowIndexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateShadowIndexBufferMulti` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generatePositionRemap` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateAdjacencyIndexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateTessellationIndexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_generateProvokingIndexBuffer` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_optimizeVertexCache` | 0.1 ported | `optimize_vertex_cache` |
+| `meshopt_optimizeVertexCacheStrip` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_optimizeVertexCacheFifo` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_optimizeOverdraw` | 0.1 ported | `optimize_overdraw` |
+| `meshopt_optimizeVertexFetch` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_optimizeVertexFetchRemap` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_encodeIndexBuffer` | 0.4 ported | `encode_index_buffer` |
+| `meshopt_encodeIndexBufferBound` | 0.4 ported | `encode_index_buffer_bound` |
+| `meshopt_encodeIndexVersion` | 0.4 ported | `IndexEncoding per call` |
+| `meshopt_decodeIndexBuffer` | 0.2 ported | `decode_index_buffer` |
+| `meshopt_decodeIndexVersion` | 0.2 ported | `decode_index_version` |
+| `meshopt_encodeIndexSequence` | 0.4 ported | `encode_index_sequence` |
+| `meshopt_encodeIndexSequenceBound` | 0.4 ported | `encode_index_sequence_bound` |
+| `meshopt_decodeIndexSequence` | 0.2 ported | `decode_index_sequence` |
+| `meshopt_encodeMeshlet` | 0.4 ported | `encode_meshlet` |
+| `meshopt_encodeMeshletBound` | 0.4 ported | `encode_meshlet_bound` |
+| `meshopt_decodeMeshlet` | 0.4 ported | `decode_meshlet` |
+| `meshopt_decodeMeshletRaw` | 0.4 ported | `decode_meshlet_raw` |
+| `meshopt_encodeVertexBuffer` | 0.4 ported | `encode_vertex_buffer` |
+| `meshopt_encodeVertexBufferBound` | 0.4 ported | `encode_vertex_buffer_bound` |
+| `meshopt_encodeVertexBufferLevel` | 0.4 ported | `encode_vertex_buffer_level` |
+| `meshopt_encodeVertexVersion` | 0.4 ported | `VertexEncoding per call` |
+| `meshopt_decodeVertexBuffer` | 0.2 ported | `decode_vertex_buffer` |
+| `meshopt_decodeVertexVersion` | 0.2 ported | `decode_vertex_version` |
+| `meshopt_decodeFilterOct` | 0.2 ported | `decode_filter_oct` |
+| `meshopt_decodeFilterQuat` | 0.2 ported | `decode_filter_quat` |
+| `meshopt_decodeFilterExp` | 0.2 ported | `decode_filter_exp` |
+| `meshopt_decodeFilterColor` | 0.4 ported | `decode_filter_color` |
+| `meshopt_encodeFilterOct` | 0.4 ported | `encode_filter_oct` |
+| `meshopt_encodeFilterQuat` | 0.4 ported | `encode_filter_quat` |
+| `meshopt_encodeFilterExp` | 0.4 ported | `encode_filter_exp` |
+| `meshopt_encodeFilterColor` | 0.4 ported | `encode_filter_color` |
+| `meshopt_simplify` | 0.1 ported | `simplify` |
+| `meshopt_simplifyWithAttributes` | 0.1 ported | `simplify_with_attributes` |
+| `meshopt_simplifyWithUpdate` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_simplifySloppy` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_simplifyPrune` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_simplifyPoints` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_simplifyScale` | 0.1 ported | `simplify_scale` |
+| `meshopt_stripify` | 0.5 ported | `stripify` |
+| `meshopt_stripifyBound` | 0.5 ported | `stripify_bound` |
+| `meshopt_unstripify` | 0.5 ported | `unstripify` |
+| `meshopt_unstripifyBound` | 0.5 ported | `unstripify_bound` |
+| `meshopt_analyzeVertexCache` | 0.5 ported | `analyze_vertex_cache` |
+| `meshopt_analyzeVertexFetch` | 0.5 ported | `analyze_vertex_fetch` |
+| `meshopt_analyzeOverdraw` | 0.5 ported | `analyze_overdraw` |
+| `meshopt_analyzeCoverage` | 0.5 ported | `analyze_coverage` |
+| `meshopt_buildMeshlets` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_buildMeshletsScan` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_buildMeshletsBound` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_buildMeshletsFlex` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_buildMeshletsSpatial` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_optimizeMeshlet` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_optimizeMeshletLevel` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_computeClusterBounds` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_computeMeshletBounds` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_computeSphereBounds` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_extractMeshletIndices` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_partitionClusters` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_spatialSortRemap` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_spatialSortTriangles` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_spatialClusterPoints` | Excluded here | 0.3 branch owns this API; pending branch integration |
+| `meshopt_opacityMapMeasure` | 0.5 ported | `opacity_map_measure` |
+| `meshopt_opacityMapRasterize` | 0.5 ported | `opacity_map_rasterize` |
+| `meshopt_opacityMapEntrySize` | 0.5 ported | `opacity_map_entry_size` |
+| `meshopt_opacityMapCompact` | 0.5 ported | `opacity_map_compact` |
+| `meshopt_generateTangents` | 0.5 ported | `generate_tangents` |
+| `meshopt_generateNormals` | 0.5 ported | `generate_normals (experimental)` |
+| `meshopt_remesh` | 0.5 ported | `remesh, remesh_bound, remesh_into (experimental)` |
+| `meshopt_quantizeHalf` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_quantizeFloat` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_dequantizeHalf` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_computePositionExponent` | Excluded here | 0.1.x branch owns this API; pending branch integration |
+| `meshopt_setAllocator` | Excluded intentionally | Rust Workspace and per-call Limits replace global allocator callbacks |
+| `meshopt_quantizeUnorm` | Excluded intentionally | C++-only inline helper; no exported C API; private filter quantization exists |
+| `meshopt_quantizeSnorm` | Excluded intentionally | C++-only inline helper; no exported C API; private filter quantization exists |
+
+Counts: **46/89 ported in this checkout**, 40 in unmerged 0.1.x/0.3 branches, and 3 intentionally replaced/excluded. All 89 names are classified. The 0.5 exact sweep and executed WASM identity each cover 2,000 seeded cases per new upstream function; see the phase-0.5 summaries and their external per-case artifacts.

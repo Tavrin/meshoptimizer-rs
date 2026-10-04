@@ -1,0 +1,152 @@
+{
+  "schema": "meshopt-p05-benchmark/1",
+  "phase": "0.5",
+  "profile": "moss",
+  "bar": {
+    "geometric_mean": 1.25,
+    "maximum": 1.5,
+    "maximum_memory_ratio": 1.25
+  },
+  "families": {
+    "stripify:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.3464707940239957,
+      "maximum": 1.5272322318006795,
+      "passed": false
+    },
+    "stripify:caller": {
+      "cases": 3,
+      "geometric_mean": 1.3029095471242826,
+      "maximum": 1.7121113497666347,
+      "passed": false
+    },
+    "stripify_bound:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.8033359334127836,
+      "maximum": 2.817537488284911,
+      "passed": false
+    },
+    "unstripify:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.148762260583059,
+      "maximum": 1.47168432778571,
+      "passed": true
+    },
+    "unstripify:caller": {
+      "cases": 3,
+      "geometric_mean": 1.0449424773823053,
+      "maximum": 1.1835910277082333,
+      "passed": true
+    },
+    "unstripify_bound:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.4161997171435945,
+      "maximum": 2.4193960510122015,
+      "passed": false
+    },
+    "vertex_cache:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.8172503314210284,
+      "maximum": 2.1958126412435277,
+      "passed": false
+    },
+    "vertex_fetch:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.4319389297032714,
+      "maximum": 1.645762775908734,
+      "passed": false
+    },
+    "overdraw:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.1657536621557874,
+      "maximum": 1.2690678089418974,
+      "passed": true
+    },
+    "coverage:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.2603117657662852,
+      "maximum": 1.3224536970461718,
+      "passed": false
+    },
+    "omm_measure:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.5452932388342098,
+      "maximum": 3.127595625628793,
+      "passed": false
+    },
+    "omm_rasterize:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.4206320428698662,
+      "maximum": 1.6361921645580106,
+      "passed": false
+    },
+    "omm_rasterize:caller": {
+      "cases": 3,
+      "geometric_mean": 1.4335215698873596,
+      "maximum": 1.6992974585402567,
+      "passed": false
+    },
+    "omm_entry_size:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.8773630899427167,
+      "maximum": 1.9439021720910516,
+      "passed": false
+    },
+    "omm_compact:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.3900475180664227,
+      "maximum": 1.521012036741221,
+      "passed": false
+    },
+    "tangents:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.8384528567139213,
+      "maximum": 3.216958160559659,
+      "passed": false
+    },
+    "tangents:caller": {
+      "cases": 3,
+      "geometric_mean": 2.9377732259970464,
+      "maximum": 3.2516224981020834,
+      "passed": false
+    },
+    "normals:allocating": {
+      "cases": 3,
+      "geometric_mean": 3.529996643003695,
+      "maximum": 3.6054511198358585,
+      "passed": false
+    },
+    "normals:caller": {
+      "cases": 3,
+      "geometric_mean": 3.4504302599955468,
+      "maximum": 3.8443682140954336,
+      "passed": false
+    },
+    "remesh:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.6125643100703557,
+      "maximum": 1.694434226735471,
+      "passed": false
+    },
+    "remesh:caller": {
+      "cases": 3,
+      "geometric_mean": 1.5269025216486714,
+      "maximum": 1.6020541637032626,
+      "passed": false
+    }
+  },
+  "time_passed": false,
+  "memory_passed": null,
+  "corpus_complete": false,
+  "passed": false,
+  "rust_sha256": "d863ebffd01736119ed009734f76208f2ee06b9407c49c1ca848ff25ea50b4de",
+  "cpp_sha256": "91e876fadda83ee8e2d29bb74b390d670c9ff414f7eb22dc5fbafc0a2afedfe8",
+  "effective_profile_overrides": {
+    "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
+    "CARGO_PROFILE_RELEASE_DEBUG": "0",
+    "CARGO_PROFILE_RELEASE_LTO": "thin",
+    "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "1"
+  },
+  "detail_artifact": "benchmark-0.5-moss.json",
+  "detail_sha256": "0a0c0eef49495009c085daf72902abb6cd033f05f0a35d3a47ec899658487e78"
+}

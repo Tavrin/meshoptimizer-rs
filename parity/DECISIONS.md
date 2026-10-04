@@ -3803,3 +3803,85 @@ target-deletion receipts under /mnt/linux-extra/meshopt-artifacts/rel020.
 Only coverage wording and this outcome/evidence were added after validation;
 algorithm, test, harness and dependency bytes remain the validated bytes.
 Package version remains 0.1.0. No timing, push or other-worktree change.
+
+## D67 — 0.5 scope and public API
+
+The pinned 1.3 header contains 87 exported C functions and two public C++
+inline quantizers. The checkout ledger classifies all 89: 46 ported here,
+40 owned by the unmerged 0.1.x/0.3 branches, and three deliberately replaced
+or excluded. The 0.5 work adds 15 names: four strip functions, four analyzers,
+four opacity-map functions, tangent generation, and two experimental functions.
+The raster analyzer and opacity-map rasterizer share no public dependency on
+those unmerged branches. Reimplementing their needed helpers privately keeps
+the branch ownership intact. Global allocator callbacks become per-call
+`Workspace` limits; the two C++-only inline quantizers stay private to the
+filter implementation. Version/level global setters were already replaced by
+explicit per-call configuration in 0.4.
+
+The Rust-facing shape follows the prior lane: `Result` for invalid or
+resource-limited inputs, `u32` topology, packed/interleaved/byte `Positions`,
+and allocating plus caller-buffer forms for functions with output arrays.
+`generate_normals` and `remesh` are gated by `experimental` independently of
+tangents. `REMESH_SHELL` and `REMESH_SOLVE` retain their pinned option bits.
+The remesher's base-case table is generated from pinned C++ rotations and
+checked in as Rust constants; it is not a runtime C++ or build dependency.
+
+## D68 — 0.5 oracle, differential and robustness domain
+
+The oracle remains meshoptimizer `4c203430ca565cb59a468a91922c76c208169536`
+compiled scalar-strict (`MESHOPTIMIZER_NO_SIMD`, no fast math, no FMA
+contraction). Six focused Rust fixtures cover published upstream vectors and
+normal/tangent float bits, OMM, raster, strip/cache and remesh cases. The
+seeded differential runner compares every output byte on 2,000 cases for each
+of the 15 functions; an executed Node wasm32 runner compares identical inputs
+and complete outputs to native Rust. Separate normal and remesh records remain
+visible in the per-family case logs and summaries. C++ assertion-domain
+violations are Rust errors, not purported C++ parity. Fuzz targets mutate
+each entry point with AddressSanitizer and bounded inputs. An initial OMM
+compact smoke found an overlapping-offset case that copied beyond the output;
+checked offsets now reject it with `BufferTooSmall` and the saved input replays
+without a panic. The initial OMM raster smoke timed out on a level-12 case;
+the fuzzer now limits valid raster levels to five, while still testing invalid
+levels above twelve. The failed first-run record stays under the external
+`superseded` artifact directory.
+
+## D69 — 0.5 benchmark protocol and current rejection
+
+The RFC's 1.25 geometric-mean and 1.50 individual-case Rust/scalar-C++ time
+limits remain unchanged. Ten interleaved paired samples per case under both
+Moss-like and Cargo-default release profiles record raw times and byte-checked
+outputs. Each family uses three sizes and separately measures caller-buffer
+forms where exposed. These local measurements fail the time bar in 18/21
+family/API groups under the Moss-like profile and 17/21 under Cargo defaults.
+Only unstripify (both forms) and overdraw pass in the Moss-like record; only
+allocating stripify, both unstripify forms and OMM compact pass under Cargo
+defaults. In particular, tangent and experimental normal generation are
+roughly 2.7–3.8 times scalar C++; remeshing is roughly 1.5–1.8 times. The existing corpus does
+not yet include million-triangle cases or enough geometry varieties from RFC
+6.1, and the comparable C++ peak storage is not measured, so the 1.25
+temporary-memory bar cannot be declared passed. No performance exception was
+approved. The 0.5 artifact verifier must therefore fail until these shortfalls
+are resolved, even though focused parity, fuzz and WASM checks can pass.
+
+## D70 — 0.5 final local handoff
+
+`cargo fmt --all -- --check`, clippy with `-D warnings` in all-features,
+no-default-features and experimental configurations, the same three test
+configurations, and the wasm32 release build exit 0. The 0.5 fixture run exits
+0 with six focused tests. The final native sweep and executed WASM identity
+each match all 30,000 cases, 2,000 per public 0.5 function. Fifteen
+AddressSanitizer cargo-fuzz targets each complete more than 300 seconds,
+totalling 120,625,376 executions with no crashes. The package inventory
+includes every new source module and its focused test. Detailed per-case and
+fuzz logs and the exact native, WASM and sanitizer executables remain outside
+the checkout; the retained artifact tree is 309 MB, below the 2 GB cap.
+
+Both benchmark commands exit 1 under the unchanged RFC bar, and
+`parity/report.sh --phase 0.5 --verify-artifacts` exits 1 with exactly two
+errors: `failed benchmark-moss` and `failed benchmark-default`. This lane is
+**not performance-qualified or complete under the spec's Done-when gate**.
+The measured failures are retained as reviewable records rather than converted
+to a passing summary. No Git metadata operation was performed.
+The named temporary Cargo target was deleted after retaining binaries and
+hash-checking the artifacts; the verifier gives the same two benchmark errors
+without the target directory.

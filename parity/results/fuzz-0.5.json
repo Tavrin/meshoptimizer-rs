@@ -1,0 +1,84 @@
+{
+  "schema": "meshopt-p05-fuzz-summary/1",
+  "phase": "0.5",
+  "passed": true,
+  "detail_artifact": "fuzz-0.5/record.json",
+  "detail_sha256": "b67f55d5496ae96c2019312fd914e9515573b9ceb6af3b46b4293e8d5866e005",
+  "targets": {
+    "stripify": {
+      "elapsed_seconds": 301.4143680779962,
+      "executions": 6257264,
+      "passed": true
+    },
+    "stripify_bound": {
+      "elapsed_seconds": 301.2645610640029,
+      "executions": 16072280,
+      "passed": true
+    },
+    "unstripify": {
+      "elapsed_seconds": 301.2309105460008,
+      "executions": 11533949,
+      "passed": true
+    },
+    "unstripify_bound": {
+      "elapsed_seconds": 301.260844991004,
+      "executions": 16915122,
+      "passed": true
+    },
+    "vertex_cache": {
+      "elapsed_seconds": 301.206203558002,
+      "executions": 7763830,
+      "passed": true
+    },
+    "vertex_fetch": {
+      "elapsed_seconds": 301.22199580400775,
+      "executions": 12036342,
+      "passed": true
+    },
+    "overdraw": {
+      "elapsed_seconds": 301.1744926389947,
+      "executions": 23459,
+      "passed": true
+    },
+    "coverage": {
+      "elapsed_seconds": 301.22474043400143,
+      "executions": 31471,
+      "passed": true
+    },
+    "omm_measure": {
+      "elapsed_seconds": 301.2487670809933,
+      "executions": 10293134,
+      "passed": true
+    },
+    "omm_rasterize": {
+      "elapsed_seconds": 301.252917824997,
+      "executions": 4451853,
+      "passed": true
+    },
+    "omm_entry_size": {
+      "elapsed_seconds": 301.250028303999,
+      "executions": 15600754,
+      "passed": true
+    },
+    "omm_compact": {
+      "elapsed_seconds": 301.2572957359953,
+      "executions": 14356678,
+      "passed": true
+    },
+    "tangents": {
+      "elapsed_seconds": 301.21633301800466,
+      "executions": 2499543,
+      "passed": true
+    },
+    "normals": {
+      "elapsed_seconds": 301.2406182919949,
+      "executions": 2778800,
+      "passed": true
+    },
+    "remesh": {
+      "elapsed_seconds": 309.66354264300026,
+      "executions": 10897,
+      "passed": true
+    }
+  }
+}

@@ -7,6 +7,10 @@ Every ported function produces byte-identical output to meshoptimizer 1.3
 bytes. Differential runs against the C++ library, seeded sweeps, fuzzing and a
 wasm32 identity check prove this on the recorded inputs.
 
+This checkout also includes stripification, cache/fetch and raster analysis,
+opacity micromaps and tangent generation. Normal generation and remeshing require
+`experimental`; see the [coverage ledger](parity/COVERAGE.md).
+
 The crate is safe Rust (`#![forbid(unsafe_code)]`) and needs no C++ toolchain.
 It supports `no_std` with `alloc`. Invalid input returns a typed `Error`
 instead of undefined behaviour. A reusable `Workspace` holds scratch memory,
@@ -187,6 +191,13 @@ measured speed curve against sequential Rust.
 - Codec format versions and levels are passed per call (`VertexEncoding`,
   `IndexEncoding`) rather than set globally.
 - Unknown option or flag bits are rejected.
+
+Rust 1.88 and edition 2021 are required. The default `std` feature provides
+standard error integration. Disable defaults for `no_std` with an allocator.
+`experimental` exposes `generate_normals`, `generate_normals_into`, `remesh`,
+`remesh_bound`, and `remesh_into`. Remeshing produces a triangle soup of packed
+XYZ positions; its `SHELL` and `SOLVE` flags follow the pinned upstream API.
+Math uses the existing std/libm interface.
 
 ## Coverage
 

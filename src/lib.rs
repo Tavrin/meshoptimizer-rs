@@ -122,15 +122,26 @@
 extern crate alloc;
 
 mod budget;
+
+mod analyze;
 mod cache;
 pub mod codec;
 mod error;
 mod input;
 mod math;
+#[cfg(feature = "experimental")]
+mod normal;
+mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
+
+mod raster;
+#[cfg(feature = "experimental")]
+mod remesh;
 mod simplify;
+mod strip;
+mod tangent;
 mod workspace;
 pub use simplify::{
     simplify, simplify_into, simplify_points, simplify_points_into, simplify_prune,
@@ -139,6 +150,9 @@ pub use simplify::{
     SimplifyOptions, SimplifyResult, SimplifySettings,
 };
 
+pub use analyze::{
+    analyze_vertex_cache, analyze_vertex_fetch, VertexCacheStatistics, VertexFetchStatistics,
+};
 pub use cache::{
     optimize_vertex_cache, optimize_vertex_cache_fifo, optimize_vertex_cache_fifo_in_place,
     optimize_vertex_cache_fifo_into, optimize_vertex_cache_in_place, optimize_vertex_cache_into,
@@ -156,6 +170,22 @@ pub use quantize::{
     quantize_unorm,
 };
 pub use remap::*;
+
+#[cfg(feature = "experimental")]
+pub use normal::{generate_normals, generate_normals_into};
+pub use opacity::{
+    opacity_map_compact, opacity_map_entry_size, opacity_map_measure, opacity_map_measure_into,
+    opacity_map_rasterize, opacity_map_rasterize_into, OpacityMapMeasure,
+};
+pub use raster::{analyze_coverage, analyze_overdraw, CoverageStatistics, OverdrawStatistics};
+#[cfg(feature = "experimental")]
+pub use remesh::{remesh, remesh_bound, remesh_into, REMESH_SHELL, REMESH_SOLVE};
+pub use strip::{
+    stripify, stripify_bound, stripify_into, unstripify, unstripify_bound, unstripify_into,
+};
+pub use tangent::{
+    generate_tangents, generate_tangents_into, TANGENT_COMPATIBLE, TANGENT_ZERO_FALLBACK,
+};
 pub use workspace::{Limits, Usage, Workspace};
 
 mod meshlet;

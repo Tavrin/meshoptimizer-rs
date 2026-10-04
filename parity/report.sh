@@ -2,6 +2,17 @@
 set -euo pipefail
 cd -- "$(dirname -- "$0")/.."
 export PYTHONDONTWRITEBYTECODE=1
+if [[ "${1:-}" == "--execute" && "${4:-}" == "0.5" ]]; then
+  case "${2:-}" in
+    run) exec "${MESHOPT_PYTHON:-python3}" parity/p05/run.py ;;
+    sweep) exec "${MESHOPT_PYTHON:-python3}" parity/p05/sweep.py ;;
+    fuzz) exec "${MESHOPT_PYTHON:-python3}" parity/p05/fuzz.py 300 ;;
+    benchmark) exec "${MESHOPT_PYTHON:-python3}" parity/p05/benchmark.py "${@:5}" ;;
+  esac
+fi
+if [[ "${1:-}" == "--phase" && "${2:-}" == "0.5" ]]; then
+  exec "${MESHOPT_PYTHON:-python3}" parity/p05/report.py
+fi
 exec "${MESHOPT_PYTHON:-python3}" - "$@" <<'PY'
 """Small repository summaries; immutable detailed records outside git."""
 import argparse

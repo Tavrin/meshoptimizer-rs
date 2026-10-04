@@ -1,0 +1,26 @@
+{
+  "schema": "meshopt-p05-wasm/1",
+  "phase": "0.5",
+  "counts": {
+    "stripify": 2000,
+    "stripify_bound": 2000,
+    "unstripify": 2000,
+    "unstripify_bound": 2000,
+    "vertex_cache": 2000,
+    "vertex_fetch": 2000,
+    "overdraw": 2000,
+    "coverage": 2000,
+    "omm_measure": 2000,
+    "omm_rasterize": 2000,
+    "omm_entry_size": 2000,
+    "omm_compact": 2000,
+    "tangents": 2000,
+    "normals": 2000,
+    "remesh": 2000
+  },
+  "mismatches": [],
+  "passed": true,
+  "detail_artifact": "wasm-0.5.jsonl.gz",
+  "detail_sha256": "f5c411abb43a78848eabc5bf7cf8654ded7a03d56456e77c19910f8cae8c3fdb",
+  "wasm_sha256": "241576d61453d087edef43cfc1d9955d314574acff1c45a40863afb553a9d0d5"
+}

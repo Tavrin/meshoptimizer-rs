@@ -1,0 +1,152 @@
+{
+  "schema": "meshopt-p05-benchmark/1",
+  "phase": "0.5",
+  "profile": "default",
+  "bar": {
+    "geometric_mean": 1.25,
+    "maximum": 1.5,
+    "maximum_memory_ratio": 1.25
+  },
+  "families": {
+    "stripify:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.108463902304477,
+      "maximum": 1.3632590452547988,
+      "passed": true
+    },
+    "stripify:caller": {
+      "cases": 3,
+      "geometric_mean": 1.2661730084722391,
+      "maximum": 1.3584182780577496,
+      "passed": false
+    },
+    "stripify_bound:allocating": {
+      "cases": 3,
+      "geometric_mean": 3.0090373689931216,
+      "maximum": 3.498360359512051,
+      "passed": false
+    },
+    "unstripify:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.1538266613412915,
+      "maximum": 1.4025452052585101,
+      "passed": true
+    },
+    "unstripify:caller": {
+      "cases": 3,
+      "geometric_mean": 1.1051988214975088,
+      "maximum": 1.3629000291038995,
+      "passed": true
+    },
+    "unstripify_bound:allocating": {
+      "cases": 3,
+      "geometric_mean": 3.2874098699414005,
+      "maximum": 4.0218698103544614,
+      "passed": false
+    },
+    "vertex_cache:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.857158521787664,
+      "maximum": 1.9163649259927693,
+      "passed": false
+    },
+    "vertex_fetch:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.308551594566734,
+      "maximum": 1.3723712186414443,
+      "passed": false
+    },
+    "overdraw:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.7695240529044518,
+      "maximum": 1.8554246348034331,
+      "passed": false
+    },
+    "coverage:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.7245624274629308,
+      "maximum": 1.8738573418442996,
+      "passed": false
+    },
+    "omm_measure:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.1516280626747393,
+      "maximum": 2.301422689133469,
+      "passed": false
+    },
+    "omm_rasterize:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.7062393482795175,
+      "maximum": 1.7723455556680663,
+      "passed": false
+    },
+    "omm_rasterize:caller": {
+      "cases": 3,
+      "geometric_mean": 1.9731757700467532,
+      "maximum": 2.1550615702584857,
+      "passed": false
+    },
+    "omm_entry_size:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.673600515934129,
+      "maximum": 2.717155340498005,
+      "passed": false
+    },
+    "omm_compact:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.1483302886950038,
+      "maximum": 1.1887391531480573,
+      "passed": true
+    },
+    "tangents:allocating": {
+      "cases": 3,
+      "geometric_mean": 2.749979424436266,
+      "maximum": 2.990613663295158,
+      "passed": false
+    },
+    "tangents:caller": {
+      "cases": 3,
+      "geometric_mean": 2.869164446129754,
+      "maximum": 3.0168898828853177,
+      "passed": false
+    },
+    "normals:allocating": {
+      "cases": 3,
+      "geometric_mean": 3.2135543940258655,
+      "maximum": 3.2771044459523715,
+      "passed": false
+    },
+    "normals:caller": {
+      "cases": 3,
+      "geometric_mean": 3.196589563100049,
+      "maximum": 3.3639499897620313,
+      "passed": false
+    },
+    "remesh:allocating": {
+      "cases": 3,
+      "geometric_mean": 1.7315527896702778,
+      "maximum": 1.8326727229951865,
+      "passed": false
+    },
+    "remesh:caller": {
+      "cases": 3,
+      "geometric_mean": 1.5283148770161012,
+      "maximum": 1.6286231074451296,
+      "passed": false
+    }
+  },
+  "time_passed": false,
+  "memory_passed": null,
+  "corpus_complete": false,
+  "passed": false,
+  "rust_sha256": "903f5d07d9ccd207146f7bf0dd790ca482f02db3e0932eb1846a27a0b71300b5",
+  "cpp_sha256": "91e876fadda83ee8e2d29bb74b390d670c9ff414f7eb22dc5fbafc0a2afedfe8",
+  "effective_profile_overrides": {
+    "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
+    "CARGO_PROFILE_RELEASE_DEBUG": "0",
+    "CARGO_PROFILE_RELEASE_LTO": "false",
+    "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "16"
+  },
+  "detail_artifact": "benchmark-0.5-default.json",
+  "detail_sha256": "8d0e75c9e33d2a078d777e9225fbbdf7df0d7ed5ce289216d94b03d35832c120"
+}

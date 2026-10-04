@@ -1,0 +1,32 @@
+{
+  "schema": "meshopt-p05-sweep/1",
+  "phase": "0.5",
+  "upstream": "4c203430ca565cb59a468a91922c76c208169536",
+  "seed_range": [
+    0,
+    1999
+  ],
+  "counts": {
+    "stripify": 2000,
+    "stripify_bound": 2000,
+    "unstripify": 2000,
+    "unstripify_bound": 2000,
+    "vertex_cache": 2000,
+    "vertex_fetch": 2000,
+    "overdraw": 2000,
+    "coverage": 2000,
+    "omm_measure": 2000,
+    "omm_rasterize": 2000,
+    "omm_entry_size": 2000,
+    "omm_compact": 2000,
+    "tangents": 2000,
+    "normals": 2000,
+    "remesh": 2000
+  },
+  "mismatches": [],
+  "passed": true,
+  "detail_artifact": "sweep-0.5.jsonl.gz",
+  "detail_sha256": "e4a03ac63a6882537e32ebc2e8f9a21b550f2e32fe6c4a670f72bb58a62901da",
+  "rust_sha256": "903f5d07d9ccd207146f7bf0dd790ca482f02db3e0932eb1846a27a0b71300b5",
+  "cpp_sha256": "49134d48b26f058724e26ff1eaa5886a03ee1fcf319ce2625de32575c67718ac"
+}
