@@ -30,3 +30,18 @@ pub use error::Error;
 pub use input::{validate_vertex_flags, Attributes, ByteOrder, Positions, VertexFlags};
 pub use overdraw::{optimize_overdraw, optimize_overdraw_in_place, optimize_overdraw_into};
 pub use workspace::{Limits, Usage, Workspace};
+
+mod meshlet;
+mod meshlet_spatial;
+mod meshlet_util;
+mod processing;
+mod spatial;
+pub use meshlet::*;
+pub use meshlet_util::*;
+pub use spatial::*;
+
+mod partition;
+pub use partition::*;
+
+#[cfg(feature = "clusterlod")]
+pub mod clusterlod;

@@ -1,0 +1,117 @@
+[package]
+name = "meshopt-p03-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[package.metadata]
+cargo-fuzz = true
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../.." }
+[lib]
+path = "src.rs"
+
+[[bin]]
+name = "build_meshlets"
+path = "fuzz_targets/build_meshlets.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "build_meshlets_scan"
+path = "fuzz_targets/build_meshlets_scan.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "build_meshlets_flex"
+path = "fuzz_targets/build_meshlets_flex.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "build_meshlets_spatial"
+path = "fuzz_targets/build_meshlets_spatial.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "build_meshlets_bound"
+path = "fuzz_targets/build_meshlets_bound.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "compute_cluster_bounds"
+path = "fuzz_targets/compute_cluster_bounds.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "compute_meshlet_bounds"
+path = "fuzz_targets/compute_meshlet_bounds.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "compute_sphere_bounds"
+path = "fuzz_targets/compute_sphere_bounds.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "optimize_meshlet"
+path = "fuzz_targets/optimize_meshlet.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "optimize_meshlet_level"
+path = "fuzz_targets/optimize_meshlet_level.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "extract_meshlet_indices"
+path = "fuzz_targets/extract_meshlet_indices.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "partition_clusters"
+path = "fuzz_targets/partition_clusters.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "spatial_sort_remap"
+path = "fuzz_targets/spatial_sort_remap.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "spatial_sort_triangles"
+path = "fuzz_targets/spatial_sort_triangles.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "spatial_cluster_points"
+path = "fuzz_targets/spatial_cluster_points.rs"
+test = false
+doc = false
+bench = false

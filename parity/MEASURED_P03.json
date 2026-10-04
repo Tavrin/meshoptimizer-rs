@@ -1,0 +1,1045 @@
+{
+  "schema": "meshopt-p03-summary/2",
+  "spec": "SPEC-p03.md",
+  "reference": "4c203430ca565cb59a468a91922c76c208169536",
+  "scope": "fifteen meshlet/partition/spatial functions; optional complete clusterlod demo",
+  "spec_acceptance": "FAIL: Cargo-default partition_clusters timing",
+  "functional_gates": "PASS on final source",
+  "evidence_valid": true,
+  "tests": {
+    "all_features": 66,
+    "no_default_features": 60,
+    "no_default_plus_clusterlod": 66,
+    "executed_wasm_units": 11
+  },
+  "run_before_perf_followup": {
+    "messages": 697,
+    "mismatches": 0,
+    "record_sha256": "7bccf90ace0009cdc60ed2d8c7175f62248cdd97bd8864fc92434613935e8aae",
+    "corpus_sha256": "4e139ed7638d93e4ef3acb33450c5cf71630236f70a29795986517d70a844813",
+    "cases": {
+      "upstream-fixtures": 47,
+      "build_meshlets": 25,
+      "build_meshlets_scan": 25,
+      "build_meshlets_flex": 25,
+      "build_meshlets_spatial": 25,
+      "build_meshlets_bound": 25,
+      "compute_cluster_bounds": 25,
+      "compute_meshlet_bounds": 25,
+      "compute_sphere_bounds": 25,
+      "optimize_meshlet": 25,
+      "optimize_meshlet_level": 25,
+      "extract_meshlet_indices": 25,
+      "partition_clusters": 25,
+      "spatial_sort_remap": 25,
+      "spatial_sort_triangles": 25,
+      "spatial_cluster_points": 25
+    }
+  },
+  "sweep_before_perf_followup": {
+    "messages": 52000,
+    "mismatches": 0,
+    "record_sha256": "73ba02da64f1125f3ccd02df6bafb5cf6a343b6cd7258423c881944a929ab55f",
+    "corpus_sha256": "8ba4d5d665ce8eab4f7530938b53ab8dbe476ff2190e6ff4d4807e06b83b6479",
+    "cases": {
+      "build_meshlets": 2000,
+      "build_meshlets_scan": 2000,
+      "build_meshlets_flex": 2000,
+      "build_meshlets_spatial": 2000,
+      "build_meshlets_bound": 2000,
+      "compute_cluster_bounds": 2000,
+      "compute_meshlet_bounds": 2000,
+      "compute_sphere_bounds": 2000,
+      "optimize_meshlet": 2000,
+      "optimize_meshlet_level": 2000,
+      "extract_meshlet_indices": 2000,
+      "partition_clusters": 2000,
+      "spatial_sort_remap": 2000,
+      "spatial_sort_triangles": 2000,
+      "spatial_cluster_points": 2000
+    }
+  },
+  "clusterlod_before_perf_followup": {
+    "messages": 80,
+    "mismatches": 0,
+    "record_sha256": "af36d1a8c98850c0599c84e97cfe043fc8ba4d953041e925a7dd44e646e71e77",
+    "corpus_sha256": "56110a0e7b6e42c69e4663339c97f7e47942e12f34f9e1e469be637942264c3a",
+    "cases": {
+      "clusterlod": 80
+    }
+  },
+  "fuzz_before_perf_followup": {
+    "targets": 15,
+    "executions": 52334430,
+    "minimum_elapsed_seconds": 309.11,
+    "cpu_seconds": 4489.81,
+    "record_sha256": "3cd7e2a5a4688fd2438f32f7a477f886cbcf1081bcd6426277cfdd3a7ae82771"
+  },
+  "benchmark_before_perf_followup": {
+    "rows": 624,
+    "native_executable_identical_to_final_build": true,
+    "pass": false,
+    "verdicts": {
+      "cpp": {
+        "build_meshlets": {
+          "cases": 24,
+          "geometric_mean": 1.5982023094270288,
+          "maximum": 2.024974681802192,
+          "maximum_memory_ratio": 1.0708215297450425,
+          "pass": false,
+          "worst_case": "tiny-seams-allocating"
+        },
+        "build_meshlets_scan": {
+          "cases": 24,
+          "geometric_mean": 1.109822058746466,
+          "maximum": 1.2194508582688233,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-smooth-allocating"
+        },
+        "build_meshlets_flex": {
+          "cases": 24,
+          "geometric_mean": 1.581188140848408,
+          "maximum": 2.112373880001739,
+          "maximum_memory_ratio": 1.0708215297450425,
+          "pass": false,
+          "worst_case": "tiny-seams-into"
+        },
+        "build_meshlets_spatial": {
+          "cases": 24,
+          "geometric_mean": 1.2636542100111894,
+          "maximum": 1.4306129138647712,
+          "maximum_memory_ratio": 1.1666576929453447,
+          "pass": false,
+          "worst_case": "million-triangles-sparse-into"
+        },
+        "build_meshlets_bound": {
+          "cases": 12,
+          "geometric_mean": 1.8096728161173141,
+          "maximum": 1.9733186110002556,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "million-triangles-seams-value"
+        },
+        "compute_cluster_bounds": {
+          "cases": 12,
+          "geometric_mean": 1.265242428939724,
+          "maximum": 1.9030138682224493,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "tiny-smooth-value"
+        },
+        "compute_meshlet_bounds": {
+          "cases": 12,
+          "geometric_mean": 1.303510034284277,
+          "maximum": 1.6451593642702853,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "tiny-sparse-value"
+        },
+        "compute_sphere_bounds": {
+          "cases": 12,
+          "geometric_mean": 1.0643627557630915,
+          "maximum": 1.3453163034284337,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-smooth-value"
+        },
+        "optimize_meshlet": {
+          "cases": 24,
+          "geometric_mean": 1.0770352816213078,
+          "maximum": 1.4195551886355293,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-sparse-into"
+        },
+        "optimize_meshlet_level": {
+          "cases": 24,
+          "geometric_mean": 0.9904885029998771,
+          "maximum": 1.2106501837599364,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-seams-into"
+        },
+        "extract_meshlet_indices": {
+          "cases": 24,
+          "geometric_mean": 1.3103270090439314,
+          "maximum": 1.817309176927044,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "tiny-disconnected-into"
+        },
+        "partition_clusters": {
+          "cases": 24,
+          "geometric_mean": 1.3615572080168878,
+          "maximum": 1.6520839462252805,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "million-triangles-seams-into"
+        },
+        "spatial_sort_remap": {
+          "cases": 24,
+          "geometric_mean": 1.1516500087987407,
+          "maximum": 1.3543517015858129,
+          "maximum_memory_ratio": 1.125,
+          "pass": true,
+          "worst_case": "medium-smooth-allocating"
+        },
+        "spatial_sort_triangles": {
+          "cases": 24,
+          "geometric_mean": 1.0757455463496126,
+          "maximum": 1.1729727778058243,
+          "maximum_memory_ratio": 1.0625,
+          "pass": true,
+          "worst_case": "million-triangles-seams-allocating"
+        },
+        "spatial_cluster_points": {
+          "cases": 24,
+          "geometric_mean": 1.0376858983736277,
+          "maximum": 1.1676209695760256,
+          "maximum_memory_ratio": 0.96875,
+          "pass": true,
+          "worst_case": "medium-seams-into"
+        }
+      },
+      "cpp-simd": {
+        "build_meshlets": {
+          "cases": 24,
+          "geometric_mean": 1.5747747090843511,
+          "maximum": 1.9870467680927386,
+          "maximum_memory_ratio": 1.0708215297450425,
+          "pass": false,
+          "worst_case": "tiny-seams-into"
+        },
+        "build_meshlets_scan": {
+          "cases": 24,
+          "geometric_mean": 1.1121736067080508,
+          "maximum": 1.2198766949948396,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-smooth-allocating"
+        },
+        "build_meshlets_flex": {
+          "cases": 24,
+          "geometric_mean": 1.5705805635365195,
+          "maximum": 2.05411764567709,
+          "maximum_memory_ratio": 1.0708215297450425,
+          "pass": false,
+          "worst_case": "tiny-seams-allocating"
+        },
+        "build_meshlets_spatial": {
+          "cases": 24,
+          "geometric_mean": 1.4521046127009158,
+          "maximum": 1.7670403321469856,
+          "maximum_memory_ratio": 1.1666576929453447,
+          "pass": false,
+          "worst_case": "million-triangles-smooth-into"
+        },
+        "build_meshlets_bound": {
+          "cases": 12,
+          "geometric_mean": 1.9113168881920763,
+          "maximum": 2.098639565861119,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "million-triangles-disconnected-value"
+        },
+        "compute_cluster_bounds": {
+          "cases": 12,
+          "geometric_mean": 1.30982294690471,
+          "maximum": 1.6455937961642326,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "medium-disconnected-value"
+        },
+        "compute_meshlet_bounds": {
+          "cases": 12,
+          "geometric_mean": 1.2972529305854414,
+          "maximum": 1.7404237080745109,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "tiny-sparse-value"
+        },
+        "compute_sphere_bounds": {
+          "cases": 12,
+          "geometric_mean": 1.1063495901214315,
+          "maximum": 1.7354294963411716,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "tiny-smooth-value"
+        },
+        "optimize_meshlet": {
+          "cases": 24,
+          "geometric_mean": 1.045629714519943,
+          "maximum": 1.4145713380369032,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-sparse-into"
+        },
+        "optimize_meshlet_level": {
+          "cases": 24,
+          "geometric_mean": 1.0101314957364518,
+          "maximum": 1.1709451374584003,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-smooth-allocating"
+        },
+        "extract_meshlet_indices": {
+          "cases": 24,
+          "geometric_mean": 1.0027518688762957,
+          "maximum": 1.4758893045553314,
+          "maximum_memory_ratio": 1.0,
+          "pass": true,
+          "worst_case": "tiny-seams-into"
+        },
+        "partition_clusters": {
+          "cases": 24,
+          "geometric_mean": 1.3596427225418075,
+          "maximum": 1.5879773763484701,
+          "maximum_memory_ratio": 1.0,
+          "pass": false,
+          "worst_case": "million-triangles-seams-into"
+        },
+        "spatial_sort_remap": {
+          "cases": 24,
+          "geometric_mean": 1.1404681824179972,
+          "maximum": 1.3955717289473069,
+          "maximum_memory_ratio": 1.125,
+          "pass": true,
+          "worst_case": "medium-sparse-into"
+        },
+        "spatial_sort_triangles": {
+          "cases": 24,
+          "geometric_mean": 1.0645879236084612,
+          "maximum": 1.4471979445837684,
+          "maximum_memory_ratio": 1.0625,
+          "pass": true,
+          "worst_case": "medium-sparse-into"
+        },
+        "spatial_cluster_points": {
+          "cases": 24,
+          "geometric_mean": 1.0800776951370576,
+          "maximum": 1.183080234967764,
+          "maximum_memory_ratio": 0.96875,
+          "pass": true,
+          "worst_case": "million-triangles-seams-allocating"
+        }
+      }
+    },
+    "record_sha256": "225a8b0308f16a59237d72ae8d6c0cb3cb1284b9b616c70e21c3fb6f53d99d6c"
+  },
+  "benchmark_before_command": [
+    "python3",
+    "parity/p03/benchmark.py",
+    "--enforce"
+  ],
+  "benchmark_before_exit": 1,
+  "previous_native_executables": {
+    "cpp": "3a983de62f576dcdf12d2fe7feb2a5a87ce1bcbe4a8ad6e0cd1b948212d2b89d",
+    "rust": "1599799d5b58f1b7ef9373910f8ddf82c63a6b7544c2e6424d238e20a3012faa",
+    "wasm": "bb614f170c32648d33fca5208750fb878d0d9238c9db066ef5131f40e6a6d2f1"
+  },
+  "previous_benchmark_native_identical_to_previous_final": true,
+  "artifact_root": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4",
+  "artifact_path_decision": "The earlier 0.3 lane used the D71 fallback; this performance follow-up wrote the requested /mnt/linux-extra/meshopt-artifacts/p03 location.",
+  "target": "/mnt/linux-extra/moss-cargo-targets/claude-meshopt-p03perf",
+  "target_cleanup": "removed after final verification; path absent",
+  "git_changes": "No Git commands or Git state mutations in this performance follow-up; source edits remain unstaged.",
+  "proof_limits": [
+    "Consumer passes all 15 scalar timing and memory families; Cargo defaults fails partition_clusters timing.",
+    "SIMD C++ ratios are published comparisons, not phase 0.3 acceptance gates under D82.",
+    "Shared-machine load is recorded per pair; no quiet-machine timing claim.",
+    "The partition profile documents a residual, not a universal safe-Rust limit.",
+    "Earlier fuzz evidence predates the final performance source and was not rerun in this follow-up."
+  ],
+  "decisions": [
+    "D67 surface and current unpadded meshlet layout",
+    "D68 local fallible heap accounting and atomic destructive operations",
+    "D69 canonical pinned software libm and safe optimizations",
+    "D70 optional full demo with private support source closure",
+    "D71 artifact fallback and full evidence matrix",
+    "D72 demo-only NDEBUG for supported width-32 attributes and Rust-only empty demo boundary",
+    "D73 storage choice and workspace preflight resets",
+    "D74 actual packed-field checks; ten/20/30 paired samples",
+    "D75 diagnostic-only experiments and full sweep admission",
+    "D76 u64 child accounting with failing-first executed WASM regression",
+    "D77 final performance FAIL, independent verification and completed target cleanup",
+    "D78 profiles pairing and driver timing",
+    "D79 exact square-root acceleration",
+    "D80 flexible-builder neighbor search",
+    "D81 spatial radix partition extraction and bounds",
+    "D82 scalar 0.3 gate and final qualification"
+  ],
+  "previous_records_sha256": {
+    "verification.json": "2cc809061dd9bca3310c56a58652264fd260dc9cbc3bc8e0c355c3616a01e622",
+    "benchmark/record.json": "225a8b0308f16a59237d72ae8d6c0cb3cb1284b9b616c70e21c3fb6f53d99d6c",
+    "run/record.json": "7bccf90ace0009cdc60ed2d8c7175f62248cdd97bd8864fc92434613935e8aae",
+    "sweep/record.json": "73ba02da64f1125f3ccd02df6bafb5cf6a343b6cd7258423c881944a929ab55f",
+    "clusterlod/record.json": "af36d1a8c98850c0599c84e97cfe043fc8ba4d953041e925a7dd44e646e71e77",
+    "fuzz/record.json": "3cd7e2a5a4688fd2438f32f7a477f886cbcf1081bcd6426277cfdd3a7ae82771",
+    "build-gates.json": "2b9857bb37162437b5738c6b67768c40e97ffdc7476d91cedd2f0d0e2b5f35fd",
+    "wasm-unit-execution.json": "4df75282eb9cd1958bdbe99874d37a4266598ae35cc1729fc483b07f338ff3e8"
+  },
+  "performance_spec": "SPEC-p03-perf.md",
+  "previous_artifact_root": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p03",
+  "previous_target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03",
+  "performance_followup": {
+    "current": true,
+    "decision": "D82",
+    "reference": "4c203430ca565cb59a468a91922c76c208169536",
+    "acceptance_baseline": "cpp scalar strict, MESHOPTIMIZER_NO_SIMD",
+    "simd_cpp": "published comparison only; clusterizer SIMD requires a separate amendment",
+    "limits": {
+      "family_geometric_mean": 1.25,
+      "case_maximum": 1.5,
+      "heap_maximum": 1.25
+    },
+    "profile_order": [
+      "consumer",
+      "release-defaults"
+    ],
+    "profiles": {
+      "consumer": {
+        "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/benchmark-consumer/record.json",
+        "record_sha256": "dd254dd479c2adc97c3405b2b2a3b76d25fc4af37c49845c4a7a985e04a5d9fc",
+        "rows": 624,
+        "complete": true,
+        "source_unchanged": true,
+        "enforced_exit": 0,
+        "cpu": {
+          "cpu": 17,
+          "siblings": [
+            16,
+            17
+          ],
+          "busy_fraction": {
+            "0": 0.16326530612244894,
+            "1": 0.10204081632653061,
+            "2": 0.56,
+            "3": 0.34693877551020413,
+            "4": 1.0,
+            "5": 0.04166666666666663,
+            "6": 0.76,
+            "7": 0.020408163265306145,
+            "8": 0.11764705882352944,
+            "9": 0.08333333333333337,
+            "10": 0.061224489795918324,
+            "11": 0.24,
+            "12": 0.30612244897959184,
+            "13": 0.020408163265306145,
+            "14": 0.06000000000000005,
+            "15": 1.0,
+            "16": 0.061224489795918324,
+            "17": 0.0,
+            "18": 0.16000000000000003,
+            "19": 0.09999999999999998,
+            "20": 0.09999999999999998,
+            "21": 0.0,
+            "22": 0.07999999999999996,
+            "23": 0.019607843137254943,
+            "24": 0.08163265306122447,
+            "25": 0.040000000000000036,
+            "26": 0.06382978723404253,
+            "27": 0.020000000000000018,
+            "28": 0.08333333333333337,
+            "29": 0.0,
+            "30": 0.16000000000000003,
+            "31": 0.040000000000000036
+          },
+          "selection_seconds": 0.5
+        },
+        "load_start": [
+          23.40478515625,
+          36.32568359375,
+          38.25439453125
+        ],
+        "load_end": [
+          21.7353515625,
+          25.81005859375,
+          29.76611328125
+        ],
+        "elapsed_seconds": 3478.766627550125,
+        "rust_executable_sha256": "d5d5fae9bf3f52f85ae610c129c88d4b082cae258b36345b9840f4b57f6b40a8",
+        "cpp_executable_sha256": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
+        "cpp_simd_executable_sha256": "78d15033f0aac9c6bf16ddedd8226704f788449f050fbde8c1a50f1cbec63c15",
+        "scalar_pass": true,
+        "scalar_verdicts": {
+          "build_meshlets": {
+            "cases": 24,
+            "geometric_mean": 1.1256020931806352,
+            "maximum": 1.3235182108400005,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_scan": {
+            "cases": 24,
+            "geometric_mean": 1.0761115090656055,
+            "maximum": 1.152647399886026,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "build_meshlets_flex": {
+            "cases": 24,
+            "geometric_mean": 1.1074392685578591,
+            "maximum": 1.3711284203688918,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_spatial": {
+            "cases": 24,
+            "geometric_mean": 1.0774611588429217,
+            "maximum": 1.2837054905690728,
+            "maximum_memory_ratio": 1.1666576929453447,
+            "pass": true
+          },
+          "build_meshlets_bound": {
+            "cases": 12,
+            "geometric_mean": 0.6443781814044289,
+            "maximum": 0.6569698391844989,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_cluster_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.1334910866992334,
+            "maximum": 1.2901459269701183,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_meshlet_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.168490942059426,
+            "maximum": 1.298910679884961,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_sphere_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.0060575873505155,
+            "maximum": 1.2298067768994108,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet": {
+            "cases": 24,
+            "geometric_mean": 0.9534713843860624,
+            "maximum": 1.3647345107929114,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet_level": {
+            "cases": 24,
+            "geometric_mean": 0.8967715101394572,
+            "maximum": 1.0020541425941407,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "extract_meshlet_indices": {
+            "cases": 24,
+            "geometric_mean": 0.9766672084081651,
+            "maximum": 1.194353440280696,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "partition_clusters": {
+            "cases": 24,
+            "geometric_mean": 1.229015088468628,
+            "maximum": 1.3668311793011136,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "spatial_sort_remap": {
+            "cases": 24,
+            "geometric_mean": 1.0314528547327753,
+            "maximum": 1.4271648460308692,
+            "maximum_memory_ratio": 1.125,
+            "pass": true
+          },
+          "spatial_sort_triangles": {
+            "cases": 24,
+            "geometric_mean": 0.9932329227737161,
+            "maximum": 1.3159008403808437,
+            "maximum_memory_ratio": 1.0625,
+            "pass": true
+          },
+          "spatial_cluster_points": {
+            "cases": 24,
+            "geometric_mean": 1.1130633231771405,
+            "maximum": 1.2118505347017332,
+            "maximum_memory_ratio": 0.96875,
+            "pass": true
+          }
+        },
+        "simd_comparison_verdicts": {
+          "build_meshlets": {
+            "cases": 24,
+            "geometric_mean": 1.1206207893521807,
+            "maximum": 1.3325981512194698,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_scan": {
+            "cases": 24,
+            "geometric_mean": 1.082085765537873,
+            "maximum": 1.1847679888271305,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "build_meshlets_flex": {
+            "cases": 24,
+            "geometric_mean": 1.1062694503029076,
+            "maximum": 1.3572636867517818,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_spatial": {
+            "cases": 24,
+            "geometric_mean": 1.2251293138395523,
+            "maximum": 1.616330820234242,
+            "maximum_memory_ratio": 1.1666576929453447,
+            "pass": false
+          },
+          "build_meshlets_bound": {
+            "cases": 12,
+            "geometric_mean": 0.6433396542884465,
+            "maximum": 0.6491394999467195,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_cluster_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.141345112403273,
+            "maximum": 1.2870584404986585,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_meshlet_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.1707427750812174,
+            "maximum": 1.2924652932056144,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_sphere_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.0166361099206058,
+            "maximum": 1.2287940584371269,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet": {
+            "cases": 24,
+            "geometric_mean": 0.9563281599004315,
+            "maximum": 1.355272249773583,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet_level": {
+            "cases": 24,
+            "geometric_mean": 0.9006104905270836,
+            "maximum": 1.008976280001936,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "extract_meshlet_indices": {
+            "cases": 24,
+            "geometric_mean": 1.138815804901974,
+            "maximum": 1.3916211167313826,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "partition_clusters": {
+            "cases": 24,
+            "geometric_mean": 1.2233200796848727,
+            "maximum": 1.33640238811427,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "spatial_sort_remap": {
+            "cases": 24,
+            "geometric_mean": 1.01988256478581,
+            "maximum": 1.3716954188886423,
+            "maximum_memory_ratio": 1.125,
+            "pass": true
+          },
+          "spatial_sort_triangles": {
+            "cases": 24,
+            "geometric_mean": 0.9993974941765592,
+            "maximum": 1.3455554442354654,
+            "maximum_memory_ratio": 1.0625,
+            "pass": true
+          },
+          "spatial_cluster_points": {
+            "cases": 24,
+            "geometric_mean": 1.1027349112927078,
+            "maximum": 1.2071525504058234,
+            "maximum_memory_ratio": 0.96875,
+            "pass": true
+          }
+        }
+      },
+      "release-defaults": {
+        "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/benchmark-release-defaults/record.json",
+        "record_sha256": "dd21fbc891e88d8bf8938f87cc7a1ac381bb00628574481d15603793ae182039",
+        "rows": 624,
+        "complete": true,
+        "source_unchanged": true,
+        "enforced_exit": 1,
+        "cpu": {
+          "cpu": 10,
+          "siblings": [
+            10,
+            11
+          ],
+          "busy_fraction": {
+            "0": 0.8163265306122449,
+            "1": 1.0,
+            "2": 1.0,
+            "3": 1.0,
+            "4": 0.34693877551020413,
+            "5": 1.0,
+            "6": 1.0,
+            "7": 1.0,
+            "8": 0.36,
+            "9": 1.0,
+            "10": 0.326530612244898,
+            "11": 1.0,
+            "12": 0.43999999999999995,
+            "13": 1.0,
+            "14": 1.0,
+            "15": 1.0,
+            "16": 1.0,
+            "17": 0.44897959183673475,
+            "18": 0.7551020408163265,
+            "19": 0.9803921568627451,
+            "20": 0.5490196078431373,
+            "21": 1.0,
+            "22": 1.0,
+            "23": 1.0,
+            "24": 1.0,
+            "25": 1.0,
+            "26": 1.0,
+            "27": 0.39583333333333337,
+            "28": 0.94,
+            "29": 0.8200000000000001,
+            "30": 0.5714285714285714,
+            "31": 1.0
+          },
+          "selection_seconds": 0.5
+        },
+        "load_start": [
+          23.4345703125,
+          25.19677734375,
+          29.30419921875
+        ],
+        "load_end": [
+          24.375,
+          34.85546875,
+          32.79296875
+        ],
+        "elapsed_seconds": 4012.4954845905304,
+        "rust_executable_sha256": "1b9569d782aef787b18c944ec4b3a2e4f6fae7380e3e3ed19c7a23cb78ec2764",
+        "cpp_executable_sha256": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
+        "cpp_simd_executable_sha256": "78d15033f0aac9c6bf16ddedd8226704f788449f050fbde8c1a50f1cbec63c15",
+        "scalar_pass": false,
+        "scalar_verdicts": {
+          "build_meshlets": {
+            "cases": 24,
+            "geometric_mean": 1.1484685357785054,
+            "maximum": 1.40519052123767,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_scan": {
+            "cases": 24,
+            "geometric_mean": 1.1392285507284463,
+            "maximum": 1.2152329695056516,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "build_meshlets_flex": {
+            "cases": 24,
+            "geometric_mean": 1.1566079610563913,
+            "maximum": 1.4229364286122448,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_spatial": {
+            "cases": 24,
+            "geometric_mean": 1.0429621445599375,
+            "maximum": 1.2418399272471194,
+            "maximum_memory_ratio": 1.1666576929453447,
+            "pass": true
+          },
+          "build_meshlets_bound": {
+            "cases": 12,
+            "geometric_mean": 0.6465008630062311,
+            "maximum": 0.665004454367981,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_cluster_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.0835026941604566,
+            "maximum": 1.1873520941489732,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_meshlet_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.1777152919954421,
+            "maximum": 1.3282385924608129,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_sphere_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.0756631496075557,
+            "maximum": 1.3599760983567295,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet": {
+            "cases": 24,
+            "geometric_mean": 0.9155419657009701,
+            "maximum": 1.2094882763747323,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet_level": {
+            "cases": 24,
+            "geometric_mean": 0.9217900729700086,
+            "maximum": 1.0509211463105421,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "extract_meshlet_indices": {
+            "cases": 24,
+            "geometric_mean": 0.9377020758121832,
+            "maximum": 1.3339587932924464,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "partition_clusters": {
+            "cases": 24,
+            "geometric_mean": 1.450111428368766,
+            "maximum": 1.777559615286214,
+            "maximum_memory_ratio": 1.0,
+            "pass": false
+          },
+          "spatial_sort_remap": {
+            "cases": 24,
+            "geometric_mean": 0.9899713650037492,
+            "maximum": 1.3020788390438773,
+            "maximum_memory_ratio": 1.125,
+            "pass": true
+          },
+          "spatial_sort_triangles": {
+            "cases": 24,
+            "geometric_mean": 0.8956960836401074,
+            "maximum": 1.2752165548627978,
+            "maximum_memory_ratio": 1.0625,
+            "pass": true
+          },
+          "spatial_cluster_points": {
+            "cases": 24,
+            "geometric_mean": 1.1586362121184437,
+            "maximum": 1.3738157205365473,
+            "maximum_memory_ratio": 0.96875,
+            "pass": true
+          }
+        },
+        "simd_comparison_verdicts": {
+          "build_meshlets": {
+            "cases": 24,
+            "geometric_mean": 1.1431536025742783,
+            "maximum": 1.4082967854019321,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_scan": {
+            "cases": 24,
+            "geometric_mean": 1.143846493710118,
+            "maximum": 1.209000031259147,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "build_meshlets_flex": {
+            "cases": 24,
+            "geometric_mean": 1.1523180951269592,
+            "maximum": 1.4263983056161278,
+            "maximum_memory_ratio": 1.0708215297450425,
+            "pass": true
+          },
+          "build_meshlets_spatial": {
+            "cases": 24,
+            "geometric_mean": 1.1947822271090103,
+            "maximum": 1.7063091287917733,
+            "maximum_memory_ratio": 1.1666576929453447,
+            "pass": false
+          },
+          "build_meshlets_bound": {
+            "cases": 12,
+            "geometric_mean": 0.686137853150934,
+            "maximum": 1.110864218431099,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_cluster_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.1145911928866317,
+            "maximum": 1.2568215892989403,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_meshlet_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.1838870263777266,
+            "maximum": 1.3103789469079898,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "compute_sphere_bounds": {
+            "cases": 12,
+            "geometric_mean": 1.091489943042754,
+            "maximum": 1.3484668716509738,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet": {
+            "cases": 24,
+            "geometric_mean": 0.9110898362224418,
+            "maximum": 1.2256619887918356,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "optimize_meshlet_level": {
+            "cases": 24,
+            "geometric_mean": 0.9316588270186128,
+            "maximum": 1.12388515302261,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "extract_meshlet_indices": {
+            "cases": 24,
+            "geometric_mean": 1.1399198819473157,
+            "maximum": 1.4802511015900102,
+            "maximum_memory_ratio": 1.0,
+            "pass": true
+          },
+          "partition_clusters": {
+            "cases": 24,
+            "geometric_mean": 1.4493713401618036,
+            "maximum": 1.597581368941581,
+            "maximum_memory_ratio": 1.0,
+            "pass": false
+          },
+          "spatial_sort_remap": {
+            "cases": 24,
+            "geometric_mean": 0.9745167879739378,
+            "maximum": 1.3634459772126013,
+            "maximum_memory_ratio": 1.125,
+            "pass": true
+          },
+          "spatial_sort_triangles": {
+            "cases": 24,
+            "geometric_mean": 0.9215982557121165,
+            "maximum": 1.2360544183757505,
+            "maximum_memory_ratio": 1.0625,
+            "pass": true
+          },
+          "spatial_cluster_points": {
+            "cases": 24,
+            "geometric_mean": 1.1734412254727922,
+            "maximum": 1.408888454675958,
+            "maximum_memory_ratio": 0.96875,
+            "pass": true
+          }
+        }
+      }
+    },
+    "gates": {
+      "fmt": 0,
+      "clippy-all": 0,
+      "clippy-nodefault": 0,
+      "test-all": 0,
+      "test-nodefault": 0,
+      "wasm": 0,
+      "msrv-all": 0,
+      "msrv-nodefault": 0,
+      "parity-clippy": 0,
+      "run": 0,
+      "sweep": 0,
+      "clusterlod": 0,
+      "consumer": 0,
+      "release-defaults": 1
+    },
+    "run": {
+      "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/run/record.json",
+      "record_sha256": "f0445955a2b8ceac3f7228e51c71acc9502416a59f25590c7c7c5ada0b9d7c6b",
+      "corpus_sha256": "4e139ed7638d93e4ef3acb33450c5cf71630236f70a29795986517d70a844813",
+      "cases": {
+        "upstream-fixtures": 47,
+        "build_meshlets": 25,
+        "build_meshlets_scan": 25,
+        "build_meshlets_flex": 25,
+        "build_meshlets_spatial": 25,
+        "build_meshlets_bound": 25,
+        "compute_cluster_bounds": 25,
+        "compute_meshlet_bounds": 25,
+        "compute_sphere_bounds": 25,
+        "optimize_meshlet": 25,
+        "optimize_meshlet_level": 25,
+        "extract_meshlet_indices": 25,
+        "partition_clusters": 25,
+        "spatial_sort_remap": 25,
+        "spatial_sort_triangles": 25,
+        "spatial_cluster_points": 25
+      },
+      "mismatches": 0
+    },
+    "sweep": {
+      "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/sweep/record.json",
+      "record_sha256": "257f326a74dc08ab7acbe3d6518e44e47e80cddb6d36a6f7bc7b056ead5ec6ef",
+      "corpus_sha256": "8ba4d5d665ce8eab4f7530938b53ab8dbe476ff2190e6ff4d4807e06b83b6479",
+      "cases": {
+        "build_meshlets": 2000,
+        "build_meshlets_scan": 2000,
+        "build_meshlets_flex": 2000,
+        "build_meshlets_spatial": 2000,
+        "build_meshlets_bound": 2000,
+        "compute_cluster_bounds": 2000,
+        "compute_meshlet_bounds": 2000,
+        "compute_sphere_bounds": 2000,
+        "optimize_meshlet": 2000,
+        "optimize_meshlet_level": 2000,
+        "extract_meshlet_indices": 2000,
+        "partition_clusters": 2000,
+        "spatial_sort_remap": 2000,
+        "spatial_sort_triangles": 2000,
+        "spatial_cluster_points": 2000
+      },
+      "mismatches": 0
+    },
+    "clusterlod": {
+      "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/clusterlod/record.json",
+      "record_sha256": "403b7a35c9c2ab6958b352fc898613b2a9686e1b640012730a3333313c2fbc86",
+      "corpus_sha256": "56110a0e7b6e42c69e4663339c97f7e47942e12f34f9e1e469be637942264c3a",
+      "cases": {
+        "clusterlod": 80
+      },
+      "mismatches": 0
+    },
+    "partition_profile": {
+      "case": "medium-seams-into",
+      "rust_instructions": 6570913808,
+      "cpp_instructions": 4973554313,
+      "rust_cycles": 1948589715,
+      "cpp_cycles": 1132972559,
+      "rust_branches": 1577398101,
+      "cpp_branches": 862341543,
+      "rust_cycle_samples_adjacent_percent": 46.28,
+      "rust_cycle_samples_partition_percent": 42.79,
+      "profile_artifacts": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4"
+    }
+  }
+}

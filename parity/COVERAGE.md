@@ -111,3 +111,57 @@ Evidence: `parity/results/run-0.4.json`, `sweep-0.4.json`,
 verified by `parity/report.sh --phase 0.4 --verify-artifacts`. Decisions
 D59-D66 record the domains, undefined-reference cases and the meshlet layout
 dependency.
+
+## Phase 0.3 inventory (p03, pinned C++ 1.3)
+
+This additive section supersedes the earlier statement that meshlets are
+scheduled. The exact inventory below was checked against `src/meshoptimizer.h`
+at `4c203430ca565cb59a468a91922c76c208169536`; its `src` tree matches v1.3.
+Meshlet codecs remain phase 0.4. No earlier phase's status is changed here.
+
+| Upstream function | Rust API | Meaningful parity fields |
+|---|---|---|
+| `meshopt_buildMeshlets` | `build_meshlets`, `_into` | descriptors, vertices, triangle bytes |
+| `meshopt_buildMeshletsScan` | `build_meshlets_scan`, `_into` | descriptors, vertices, triangle bytes |
+| `meshopt_buildMeshletsFlex` | `build_meshlets_flex`, `_into` | descriptors, vertices, triangle bytes |
+| `meshopt_buildMeshletsSpatial` | `build_meshlets_spatial`, `_into` | descriptors, vertices, triangle bytes |
+| `meshopt_buildMeshletsBound` | `build_meshlets_bound` | capacity |
+| `meshopt_computeClusterBounds` | `compute_cluster_bounds` | 11 f32 fields and 4 signed bytes |
+| `meshopt_computeMeshletBounds` | `compute_meshlet_bounds` | 11 f32 fields and 4 signed bytes |
+| `meshopt_computeSphereBounds` | `compute_sphere_bounds` | 11 f32 fields and 4 signed bytes |
+| `meshopt_optimizeMeshlet` | `optimize_meshlet`, `_into`, `_in_place` | vertex order, triangle bytes, unused suffix |
+| `meshopt_optimizeMeshletLevel` | `optimize_meshlet_level`, `_into`, `_in_place` | levels 0–9, rotations and unused suffix |
+| `meshopt_extractMeshletIndices` | `extract_meshlet_indices`, `_into` | first-visit vertices and local triangle bytes |
+| `meshopt_partitionClusters` | `partition_clusters`, `_into` | partition count and assignments |
+| `meshopt_spatialSortRemap` | `spatial_sort_remap`, `_into` | old-to-new remap |
+| `meshopt_spatialSortTriangles` | `spatial_sort_triangles`, `_into`, `_in_place` | ordered triangle indices |
+| `meshopt_spatialClusterPoints` | `spatial_cluster_points`, `_into` | new-to-old clustered point order |
+
+`parity/p03` captures 31 native calls from 13 unchanged fixture bodies and
+16 calls from four unchanged JS clusterizer tests. Native bodies: clusterBoundsDegenerate,
+sphereBounds, meshletsEmpty, meshletsDense, meshletsSparse, meshletsFlex,
+meshletsMax, extractMeshlet, meshletsSpatial, meshletsSpatialDeep,
+partitionBasic, partitionSpatial, partitionSpatialMerge. JS tests: buildMeshlets,
+computeClusterBounds, computeMeshletBounds, computeSphereBounds. The exact
+47-file inventory is checked, rather than just its cardinality.
+
+All 15 functions also receive deterministic generated fixtures and 2,000 seeded
+cases each. Buffer-returning functions compare allocating and caller-buffer
+forms separately. Native Rust and executed wasm32 Rust both compare with the
+unmodified scalar-strict C++ implementation. Invalid inputs, exact limits,
+strided and byte-position layouts, hash collisions, wrapping valence and atomic
+errors are checked on the Rust boundary without invoking undefined C++ behavior.
+Actual run status is recorded in the phase 0.3 measured-result additions.
+
+The optional `clusterlod` feature contains the demo builder, configuration
+presets, callback and allocating outputs, bound optimization, cluster
+optimization, and hierarchy bound/build helpers. Its 80 comparison fixtures
+cover RT and standard presets, every configuration switch, custom callback IDs,
+attribute widths 1/2/8/12/32, protects/flags, shared and split geometry, dilation,
+optimization levels, hierarchy sizes and empty input. This reproduces the
+pinned demo; it is not a stable upstream library-output contract.
+
+Every listed function has its own cargo-fuzz target. Five-minute lane smokes
+use coverage instrumentation and no sanitizer; they do not establish the
+amended four-CPU-hour release gate, nightly/weekly sustained fuzzing, 10,000-case
+release sweeps, AArch64 execution or non-Linux platform acceptance.

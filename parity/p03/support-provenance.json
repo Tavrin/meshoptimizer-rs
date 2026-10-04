@@ -1,0 +1,15 @@
+{
+  "source": "phase 0.1.x source snapshot (content hashes below)",
+  "sha256": {
+    "budget.rs": "476b43a94c0c12384e662b5aeee08b96e6f63c1c8d178156112aab74112b3fb3",
+    "input.rs": "59f34511d39c904236b65c3200482fbd041c39d7b781be93e5579d9af9f3add6",
+    "math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "simplify.rs": "dafecce57799d6d5e920004e372458dde1a092bcc0234ed9a837619ce537f6f0",
+    "simplify_extra.rs": "e15f27af49dcccc6a218f2c719e194f1a77e776beca5f412d3cceb7ab3ab85fc",
+    "workspace.rs": "c6c6dd5ce4b35c629a8e05da715d3e56db2666c7819696c8214c8f7569fbf6f7"
+  },
+  "transformations": [
+    "private namespace paths",
+    "experimental conditions enabled within optional demo module"
+  ]
+}

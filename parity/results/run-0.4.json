@@ -40,8 +40,8 @@
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "305ebb7d39bacab07ee5fa3d189e219a1ecf6ec7acc4e131da1e02370b51bc26",
-        "wasm": "ccc0be7918c446082c7664b8c9d9e345d49f01f5ec7f3c0ee2776122059b3e1c"
+        "rust": "76a341b87a616eb4d7e98e6624b65ab53a1477c2dcc7531f3fffadfebe09ec0f",
+        "wasm": "20d66bf36d88d5bc6e184b2046ac4451e3e2d6e5ec7363b2fc97b2011b290f53"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
       "cpp_undefined_cases": 130,
@@ -75,8 +75,8 @@
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "305ebb7d39bacab07ee5fa3d189e219a1ecf6ec7acc4e131da1e02370b51bc26",
-        "wasm": "ccc0be7918c446082c7664b8c9d9e345d49f01f5ec7f3c0ee2776122059b3e1c"
+        "rust": "76a341b87a616eb4d7e98e6624b65ab53a1477c2dcc7531f3fffadfebe09ec0f",
+        "wasm": "20d66bf36d88d5bc6e184b2046ac4451e3e2d6e5ec7363b2fc97b2011b290f53"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
       "cpp_undefined_cases": 843,
@@ -85,10 +85,10 @@
     }
   },
   "artifacts": {
-    "run-0.4/fixtures.json": "ba8d11e3dc5ce3fae1b2e6ead5e2254ccb88786d9d37e1e300aec02f1366a021",
-    "run-0.4/fixtures.zip": "1b9a4766aa25b9273b2aab98c5ff198dedba08744c9a28d381b3306da0419cb6",
-    "run-0.4/malformed.json": "5f9c5eab2b5620cda5aee4d17deaf7daefba1334a9a620f5ca964332ee78e543",
-    "run-0.4/malformed.zip": "aebe8ca400fbcf5ea6a19f3c15ab7a2cb676b1a1048a9f0a7a4506e484730cc2"
+    "run-0.4/fixtures.json": "1f3261006a4ab8bc63b0d6007f4bfcadf575ec2ed4ac5c445d121ec2426d89d9",
+    "run-0.4/fixtures.zip": "8295a30e2f8970c43ddb52df5534b65309e6cdd1961087dd6f9ed612e8ade124",
+    "run-0.4/malformed.json": "4872f39fa20f30ba5e906bd905f3f4f0e2aef5e20284574575e3bc3071ccc0a0",
+    "run-0.4/malformed.zip": "3d159ad9f69e6ec9dc20df097030cc95a9973e40d04944fb8162631793d166a8"
   },
   "detail_artifact": "run-0.4/fixtures.json",
   "seed": null,

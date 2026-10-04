@@ -1,0 +1,27 @@
+[package]
+name = "meshopt-p03-parity"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[dependencies]
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["clusterlod"] }
+[lib]
+crate-type = ["rlib", "cdylib"]
+[[bin]]
+name = "meshopt-p03-driver"
+path = "src/main.rs"
+[profile.release]
+codegen-units = 1
+lto = "fat"
+# D78: the Moss-like consumer profile and Cargo's own release defaults. The
+# benchmark measures both; neither depends on the library's root profile.
+[profile.consumer]
+inherits = "release"
+opt-level = 3
+codegen-units = 1
+lto = "thin"
+[profile.release-defaults]
+inherits = "release"
+opt-level = 3
+codegen-units = 16
+lto = false

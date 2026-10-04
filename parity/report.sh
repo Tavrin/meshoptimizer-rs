@@ -101,6 +101,80 @@ CODEC_PHASES = ['0.2', '0.4']
 # Phase 0.4 adds codec completion and re-runs every 0.2 decoder fixture and sweep family.
 CODEC_RUNNERS = {'0.2': 'runner.py', '0.4': 'runner04.py'}
 
+def phase03(argv):
+    for i, argument in enumerate(argv):
+        if argument == '--phase' and argv[i + 1:i + 2] == ['0.3']:
+            return argv[:i] + argv[i + 2:]
+        if argument == '--phase=0.3':
+            return argv[:i] + argv[i + 1:]
+    return None
+
+def execute03(action, argv):
+    if action not in ('run', 'sweep'):
+        raise SystemExit('phase 0.3 supports run and sweep')
+    root = artifacts()
+    env = {**os.environ, 'MESHOPT_ARTIFACTS': str(root)}
+    code = subprocess.run([sys.executable, str(ROOT / 'parity/p03/runner.py'), action,
+                           '--phase', '0.3', *argv], env=env).returncode
+    detail = root / action / 'record.json'
+    corpus = root / action / 'corpus.bin'
+    if code or not detail.is_file() or not corpus.is_file():
+        raise SystemExit(code or 1)
+    full = json.loads(detail.read_text())
+    if full.get('schema') != 'meshopt-p03/1' or full.get('action') != action or full.get('mismatches') != 0 or sha(corpus) != full.get('corpus_sha256'):
+        raise SystemExit('phase 0.3 record verification failed')
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action,
+               'phase': '0.3', 'passed': True, 'mismatches': 0, 'seed': full['seed'],
+               'cases': full['cases'], 'fixture_count': len(full['fixtures']),
+               'detail_artifact': f'{action}/record.json',
+               'artifacts': {f'{action}/record.json': sha(detail), f'{action}/corpus.bin': sha(corpus)}}
+    write(ROOT / 'parity/results' / f'{action}-0.3.json', summary)
+
+def report03(verify):
+    for action in ('run', 'sweep'):
+        path = ROOT / 'parity/results' / f'{action}-0.3.json'
+        summary = json.loads(path.read_text())
+        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') != '0.3' or summary.get('command') != action or summary.get('passed') is not True or summary.get('mismatches') != 0:
+            raise ValueError('invalid phase 0.3 summary: ' + path.name)
+        if summary['cases'] != {name: 2000 if action == 'sweep' else 25 for name in p03_names()} | ({'upstream-fixtures': 47} if action == 'run' else {}):
+            raise ValueError('phase 0.3 case inventory changed: ' + path.name)
+        if not verify:
+            continue
+        for relative, digest in summary['artifacts'].items():
+            if sha(artifacts() / relative) != digest:
+                raise ValueError('phase 0.3 artifact hash changed: ' + relative)
+        full = json.loads((artifacts() / summary['detail_artifact']).read_text())
+        if full['cases'] != summary['cases'] or full['mismatches'] != 0 or full['corpus_sha256'] != summary['artifacts'][f'{action}/corpus.bin'] or len(full['fixtures']) != summary['fixture_count']:
+            raise ValueError('phase 0.3 detailed record differs: ' + action)
+        corpus = artifacts() / action / 'corpus.bin'
+        frames = 0
+        with corpus.open('rb') as stream:
+            while header := stream.read(8):
+                if len(header) != 8:
+                    raise ValueError('truncated phase 0.3 corpus: ' + action)
+                input_length, output_length = struct.unpack('<II', header)
+                stream.seek(input_length + output_length, 1)
+                frames += 1
+            if stream.tell() != corpus.stat().st_size:
+                raise ValueError('truncated phase 0.3 frame: ' + action)
+        expected = sum(summary['cases'].values()) + sum(summary['cases'][name] for name in p03_names() if name not in ('build_meshlets_bound', 'compute_cluster_bounds', 'compute_meshlet_bounds', 'compute_sphere_bounds'))
+        if frames != expected:
+            raise ValueError('phase 0.3 message inventory differs: ' + action)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('p03_runner', ROOT / 'parity/p03/runner.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        if full['identity']['sources'] != module.snapshot():
+            raise ValueError('stale phase 0.3 source identity: ' + action)
+    print('0.3 exact parity records pass: 47 fixtures, 25 generated and 2000 seeded cases per family; zero mismatches.')
+
+def p03_names():
+    return ('build_meshlets', 'build_meshlets_scan', 'build_meshlets_flex', 'build_meshlets_spatial',
+            'build_meshlets_bound', 'compute_cluster_bounds', 'compute_meshlet_bounds',
+            'compute_sphere_bounds', 'optimize_meshlet', 'optimize_meshlet_level',
+            'extract_meshlet_indices', 'partition_clusters', 'spatial_sort_remap',
+            'spatial_sort_triangles', 'spatial_cluster_points')
+
 def codec_phase(argv):
     """(phase, arguments without the selection) for a codec phase, or None for phase 0.1."""
     for i, argument in enumerate(argv):
@@ -289,6 +363,9 @@ def report_codec(verify, phase='0.2'):
 
 def execute(argv):
     action = argv.pop(0)
+    p03 = phase03(argv)
+    if p03 is not None:
+        return execute03(action, p03)
     codec = codec_phase(argv)
     if codec is not None:
         return execute_codec(action, codec[1], codec[0])
@@ -771,10 +848,12 @@ elif len(argv) == 2 and argv[0] == '--identity-check':
     identity_check(argv[1])
 else:
     p = argparse.ArgumentParser()
-    p.add_argument('--phase', choices=['0.1', *CODEC_PHASES], default='0.1')
+    p.add_argument('--phase', choices=['0.1', '0.3', *CODEC_PHASES], default='0.1')
     p.add_argument('--verify-artifacts', action='store_true')
     args = p.parse_args(argv)
-    if args.phase in CODEC_PHASES:
+    if args.phase == '0.3':
+        report03(args.verify_artifacts)
+    elif args.phase in CODEC_PHASES:
         report_codec(args.verify_artifacts, args.phase)
     else:
         report(args.verify_artifacts)

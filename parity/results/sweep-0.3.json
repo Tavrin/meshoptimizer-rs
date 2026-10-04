@@ -1,0 +1,32 @@
+{
+  "schema": "meshopt-summary/1",
+  "historical": false,
+  "command": "sweep",
+  "phase": "0.3",
+  "passed": true,
+  "mismatches": 0,
+  "seed": 20261004,
+  "cases": {
+    "build_meshlets": 2000,
+    "build_meshlets_scan": 2000,
+    "build_meshlets_flex": 2000,
+    "build_meshlets_spatial": 2000,
+    "build_meshlets_bound": 2000,
+    "compute_cluster_bounds": 2000,
+    "compute_meshlet_bounds": 2000,
+    "compute_sphere_bounds": 2000,
+    "optimize_meshlet": 2000,
+    "optimize_meshlet_level": 2000,
+    "extract_meshlet_indices": 2000,
+    "partition_clusters": 2000,
+    "spatial_sort_remap": 2000,
+    "spatial_sort_triangles": 2000,
+    "spatial_cluster_points": 2000
+  },
+  "fixture_count": 0,
+  "detail_artifact": "sweep/record.json",
+  "artifacts": {
+    "sweep/record.json": "4e42d41cb4585434b776144f80bcbc041fcf25e216250ac48f947692811d1dae",
+    "sweep/corpus.bin": "8ba4d5d665ce8eab4f7530938b53ab8dbe476ff2190e6ff4d4807e06b83b6479"
+  }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd -- "$(dirname -- "$0")/.."
-# report.sh routes --phase 0.2 to parity/codec/runner.py and --phase 0.4 to runner04.py.
+# report.sh routes 0.2 and 0.4 to codec drivers, and 0.3 to the meshlet driver.
 exec parity/report.sh --execute sweep "$@"

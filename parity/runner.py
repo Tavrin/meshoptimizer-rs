@@ -611,4 +611,12 @@ def main():
 
 
 if __name__ == "__main__":
+    if "--phase" in sys.argv and sys.argv[sys.argv.index("--phase") + 1] == "0.3":
+        if sys.argv[1] == "sweep" and "--cases-per-family" in sys.argv:
+            count = int(sys.argv[sys.argv.index("--cases-per-family") + 1])
+            if count < 2000:
+                raise SystemExit("at least 2000 cases per family are required")
+        if sys.argv[1] == "benchmark":
+            raise SystemExit(subprocess.call([sys.executable, str(ROOT / "parity/p03/benchmark.py"), *sys.argv[2:]], env=ENV))
+        raise SystemExit(subprocess.call([sys.executable, str(ROOT / "parity/p03/runner.py"), *sys.argv[1:]], env=ENV))
     main()

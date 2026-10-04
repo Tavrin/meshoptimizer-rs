@@ -307,6 +307,47 @@ pub(crate) fn topology(indices: &[u32], vertices: usize, work: &mut Work) -> Res
     })
 }
 
+// Additive 0.3 accounting: processing modules use local typed scratch and do not
+// resize the workspace's cache/overdraw buffers.
+impl Workspace {
+    pub(crate) fn retained_storage(&self) -> Result<usize, Error> {
+        let mut bytes = 0usize;
+        for (n, size) in [
+            (self.vertices.capacity(), size_of::<CacheVertex>()),
+            (self.integers.capacity(), 4),
+            (self.floats.capacity(), 4),
+            (self.flags.capacity(), 1),
+            (self.keys.capacity(), 2),
+        ] {
+            bytes = bytes
+                .checked_add(checked_bytes(n, size)?)
+                .ok_or(Error::SizeOverflow)?;
+        }
+        Ok(bytes)
+    }
+    #[inline]
+    pub(crate) fn processing_storage(&mut self, bytes: usize) -> Result<(), Error> {
+        if bytes > self.limits.max_bytes {
+            return Err(Error::LimitExceeded);
+        }
+        self.usage.bytes = self.usage.bytes.max(bytes);
+        Ok(())
+    }
+}
+
+// Child operation totals are u64 even on 32-bit targets.
+#[cfg(feature = "clusterlod")]
+impl Work {
+    #[inline]
+    pub(crate) fn add_processing(&mut self, count: u64) -> Result<(), Error> {
+        if count > self.remaining {
+            return self.exhausted(count);
+        }
+        self.remaining -= count;
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

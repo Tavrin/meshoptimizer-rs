@@ -1539,3 +1539,544 @@ No Git metadata operations were performed. D63 records the unmerged 0.3
 dependency: the isolated codec accepts its `u32` vertex and
 three-`u8` triangle slices, with 256/256 codec limits, so later type
 integration is mechanical.
+
+## D67 — Phase 0.3 surface and packed layout
+
+Implement all 15 meshlet, bounds, extraction, optimization, partition and spatial
+function names listed in the additive coverage inventory. Preserve 1.3's packed
+triangle offsets with no four-byte padding. Preserve arbitrary cluster index
+lists in partitioning, old-to-new sort remaps, new-to-old point-cluster order,
+optimization levels 0–9, unsigned byte wrapping and unchanged unused vertices.
+Expose allocating and caller-buffer variants for buffer outputs, and explicitly
+atomic destructive optimization/spatial-sort variants. Scalar helpers return
+values without an artificial allocating counterpart.
+
+Keep changes local to new modules/tests and unpublished p03 harness/fuzz
+packages. Cargo's feature declaration, lib.rs module/reexport wiring, the phase
+0.3 dispatcher and additive Workspace accounting hooks are necessary wiring;
+no preexisting algorithm, shared math implementation or phase 0.1 harness path
+is changed. Own Rust contains no unsafe blocks and the core still forbids
+unsafe. C++ is only an external unpublished oracle. The original 0.3
+implementation made no Git state change; D83 records its later integration.
+
+## D68 — Resource and numerical boundaries
+
+Use the existing Workspace limits: 1 GiB of owned output plus simultaneously
+live scratch/retained capacity and 2^34 counted work. All owned storage reserves
+fallibly, checks size arithmetic and accounts actual capacity. Release temporary
+reservations at their lifetime boundaries. Child demo operations subtract live
+parent storage/work from their limits, report child peaks to the parent, and
+retain only actual returned output capacity. Fixed bounded stack arrays and
+caller-owned destinations are excluded from heap-byte counts on both sides.
+Public owned result types do not derive hidden allocating Clone.
+
+Work units are record visits: full position and global-index validation;
+adjacency initialization/insertion; meshlet candidate, seed, tree and emission
+visits; bounds normal/extreme/enclosure/cone visits; extraction indices and
+collision searches; optimization valence, candidates, moves, rotations and
+remaps; partition adjacency/heap/merge visits; spatial key, radix and split
+visits. Fixed parameter/layout checks and bounded local-byte validation are not
+separate work units. Batched scans/searches preserve the short-budget prefix,
+failing visit and side effects, and charge only an early search's visited prefix.
+Tests check exact successful limits, one-unit/byte reductions, reused workspace
+storage, and parent/callback accounting.
+
+Reject nonfinite supplied geometry, including unused vertices, and invalid
+radii/weights/settings. Finite extreme geometry retains intermediate overflow
+checks and can return NumericalFailure. Within the validated |coordinate| and
+radius <=1e8 envelope, fixed-order intermediate arithmetic is finite; specialize
+those kernels to remove redundant checks. Spatial quantization's validated
+finite extent/scale bounds each key coordinate by 65535 plus rounding. Preserve
+signed-zero and stable comparison/tie behavior. SAH cost infinity/NaN in the
+upstream deep fixture is internal ordering data: its upstream fallback is
+supported, so do not reject it as output geometry overflow.
+
+Caller-buffer builders document possible partial prefixes after late errors.
+Optimization, extraction and destructive spatial sorting commit only on
+success. Callback demo output and position dilation can precede a late failure;
+this is documented and is distinct from atomic meshlet optimization.
+
+## D69 — Math, safe optimization and rejected experiments
+
+D19/D27's exact pinned generic libm 0.2.16 backend remains unchanged for std,
+no_std, native and wasm32. Cache complete sqrt operand bits in a per-call
+64-slot table, expanded to 512 for repeated builder/partition operands. A cache
+miss uses the same software backend. No operand approximation, reassociation,
+fast-math or optional ISA/unsafe kernel is introduced.
+
+For moderate inputs, conservative lower-distance bounds skip candidates that
+cannot win; values below 1e-18 use the unmodified squared-distance path to
+avoid subnormal-square rounding. Sphere interior skips use the preceding
+representable radius-minus-input-radius before squaring, and only above that
+threshold. Force-inline typed sphere readers, use upstream-width extreme
+indices, specialize fixed bounds stack sizes, copy initialized allocating
+outputs directly, ping-pong radix buffers, and use four temporary box lanes
+without padding persistent 24-byte boxes. Work accounting is batched only
+where the same visited-prefix semantics are retained.
+
+An experiment enabling libm's arch feature was reverted after rechecking D19;
+it is superseded diagnostic evidence and never qualifies the final source.
+An external safe integer-square-root experiment matched one million generated
+positive input bits but took 2.731 seconds versus libm's 1.270 seconds in its
+loop. It is not integrated and is not exhaustive backend qualification.
+A historical hardware bounds capture had lost samples; it diagnosed point
+reader overhead but does not establish a universal safe-Rust performance
+ceiling or final-source timing. Acceptance uses the complete paired matrix.
+
+## D70 — Optional clusterlod and local support snapshot
+
+Port the complete pinned demo/clusterlod.h behind off-by-default `clusterlod`,
+using core+alloc and no C++ dependency. Preserve its presets, weld hash including
+signed zero, boundary classification/dilation, simplification/fallback paths,
+attribute/flag/protect behavior, accumulated error, callback identifiers, cluster
+optimization, bounds and hierarchy forest. Mutable packed positions make the
+demo's dilation visible. Callback outputs may use nonsequential IDs; allocating
+build owns and accounts outputs while callback build releases transient output
+storage after the callback.
+
+The demo needs later-lane sparse/sloppy/fold/error-clamped simplification that
+this checkout's stable API does not expose. Reuse a private reviewed p01x
+support snapshot, with original hashes in parity/p03/support-provenance.json,
+and redirect paths inside that private module. It adds no stable simplifier
+API and does not edit the parallel lane or this checkout's existing simplifier.
+Existing MIT notices cover the upstream translation; private support is safe
+Rust and uses the same pinned libm. Restrict simplify_ratio and the stopping
+threshold to [0,1), ensuring progress instead of an unsupported infinite demo
+loop. Document that output matches the demo rather than a stable library
+contract. No meshlet codec or Moss integration is added.
+
+## D71 — Evidence, timing and artifact placement
+
+Use scalar-strict unmodified C++ 1.3 as the exact oracle, and execute identical
+meaningful serialization through native Rust and Node wasm32 Rust. The record
+contains source, executable, corpus, compiler, FP and runtime identities. Check
+the named 47 upstream fixture files. Archive all sweep inputs and scalar output
+bytes in a length-delimited corpus after every implementation agrees exactly.
+The optional demo compares 80 fixtures including every meaningful group,
+cluster, mutated position and hierarchy field.
+
+Run 15 separate cargo-fuzz targets for at least 300 elapsed seconds apiece with
+coverage and trace compares, libfuzzer-sys 0.4.13/cargo-fuzz 0.13.2, sanitizer
+none and stable RUSTC_BOOTSTRAP. A prior CARGO_ENCODED_RUSTFLAGS empty value
+suppressed cargo-fuzz's injected instrumentation: supersede that run, remove
+the override, and require loaded inline counters and executed units in every
+final log. Extend extraction to high global IDs/collisions, radius fuzzing to
+arbitrary bits and the capacity helper to usize overflow boundaries. This is
+the lane smoke, not the four-CPU-hour release gate.
+
+The full benchmark has 624 rows: 15 functions, allocating/into forms for buffer
+outputs, three sizes and four geometry kinds, scalar and SIMD-enabled C++.
+Bounded cluster utilities use their legal maximum (512 triangles/256 vertices)
+instead of passing million-triangle invalid inputs. Both resident drivers use
+one measured least-busy allowed physical core, with 20 alternating paired
+samples, increased to 30 when ratio quartiles cross a bar. Record loads,
+dispersion, all raw times and requested heap usage. Validate, allocate and copy
+inside timing; exclude serialization/I/O/builds. Black-box real Rust outputs;
+do not add a second black-box on the empty transport Vec (C++ drops that Vec).
+No quiet-load qualification, bar relaxation or optimized-output identity claim
+is inferred from exact scalar parity. --enforce fails incomplete/quick/selected
+matrices and failed family timing/memory verdicts.
+
+The mandated /mnt/linux-extra/meshopt-artifacts/p03 lies outside the exposed
+writable roots; its mkdir returns Read-only file system. Keep evidence on the
+writable large volume at /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p03,
+separate from the exact isolated build target. Record this filesystem residual.
+Preserve final source/binaries and verify their hashes before deleting
+/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03. Final gate status will be
+appended only from completed records, with any remaining acceptance failures
+stated explicitly.
+
+## D72 — Demo oracle boundaries and candidate profiling
+
+The extended demo fixtures reached a pinned debug assertion that evaluates
+`1u << 32` for 32-component attributes. That shift has no defined C++ value.
+Compile only the demo header implementation with NDEBUG, restoring assertions
+after its inclusion; the original library and unchanged native fixture bodies
+remain separate translation units with assertions enabled. The release demo
+body's attribute/protect loops use valid shifts 0–31. Keep width-32 fixtures and
+exact output comparison; this is an explicit oracle configuration, not an
+upstream source edit or a Rust-domain restriction.
+
+The C++ demo also takes `&vector[0]` on empty storage. Avoid executing that
+undefined boundary. The 80th differential demo fixture is a nonempty small mesh;
+empty demo build/hierarchy behavior is Rust-only focused boundary evidence.
+This corrects the earlier inventory's broad empty-input comparison wording.
+All 80 nonempty extended demo fixtures passed after this oracle correction.
+
+A same-input hardware capture on the pre-candidate builder has zero lost
+samples in both binaries. Its four-event stat gives Rust 28.324 billion versus
+C++ 12.834 billion retired instructions. The sampled Rust candidate visitor
+accounts for 48.45% of cycles, execute for 32.77%, KD build for 6.29% and software
+sqrt for 5.76%. Retain source identities, binaries, framed input and raw captures.
+This diagnoses that candidate; it is not a final-source or universal ceiling.
+
+Replace the outlined visitor with explicitly inline typed candidate methods
+and direct three-index topology arithmetic. Keep every priority, ordering,
+score operand and failing work-prefix rule. Remove redundant squared-distance
+checks only in the proven moderate envelope. Reject KD capacities that cannot
+fit the packed 30-bit child metadata before allocating tree storage. The
+selected same-core diagnostic improves medium builder ratios from about 1.8
+to about 1.6–1.7 and tiny ratios from about 2.4 to about 2.1; it still fails the
+bar and is not a complete timing gate. Next evaluate lazy initialization of
+the small exact memo, using 64 slots for builders with at most 128 triangles
+and 512 for larger builders. No safety or performance bar is relaxed.
+
+## D73 — Final resource preflight and local storage choice
+
+Initialize the small 64-slot exact memo only on its first square root; non-math
+functions avoid zeroing an unused table. Builders with at most 128 triangles
+use that table; larger builders and partitioning use 512 slots. A targeted
+clippy allowance keeps the explicit lazy initialization of the 512-byte array.
+Both table sizes have full-bit collision/special-value/backend regressions.
+The inherited root math module and backend configuration remain unchanged.
+
+Specialize the full greedy builder and nearest lookup by the validated moderate
+envelope, retaining the checked fallback for larger finite inputs. Inline cone
+normalization and batch adjacency-removal searches without changing their
+visited prefix. Store live-count and local-index fields together in an eight-byte
+VertexState to share index checks and one allocation. Including offsets, this
+vertex storage is 12 bytes versus C++'s 10, hence at most 1.20 of that component;
+all requested-heap ratios still require the unchanged full-matrix 1.25 gate.
+Scan/spatial builders keep their existing compact local-index storage.
+
+A review found that preflight parameter/capacity errors could retain a previous
+call's Workspace measurements. Start the new operations' accounting context
+before those checks, including bounds dispatch and demo hierarchy bounds. A
+reused-workspace regression covers fourteen early-error paths and the feature
+hierarchy path. Fresh failures now report this call's zero work and retained
+storage rather than stale output/work. Success arithmetic/work counts and
+atomic output behavior are unchanged. The preceding timing attempts are
+superseded/incomplete diagnostics, not final gates.
+
+Add the new integration test file to Cargo's package include list. The crate
+version and earlier public algorithms are unchanged because other milestones
+are concurrent. Freeze the final implementation and rerun all lane gates.
+
+## D74 — Packed-field overflow and minimum paired timing
+
+Replace the conservative tree-capacity cutoff with checks at the actual 30-bit
+leaf-count and relative-child-offset writes. A tree can reserve more nodes than
+it uses, so rejecting its entire capacity could reject representable inputs
+when callers raise limits. Check the stored values, preserve metadata on error,
+and retain checked usize allocation sizing. A boundary regression verifies the
+largest packed value and the first overflowing value without giant allocation.
+This supersedes D72's preliminary capacity cutoff.
+
+Use the RFC's minimum ten alternating paired samples, increasing to twenty and
+then thirty whenever ratio quartiles cross either timing bar. This supersedes
+D71's unconditional twenty-pair choice; D39 reported the older phase 0.1 run,
+not a stronger p03 minimum. The 624-row coverage, same-core residency, input and
+output retention, dispersion, shared-load qualification and numeric bars remain
+unchanged. Earlier twenty-pair partial runs stay diagnostic and are superseded.
+The extra pairs are retained for uncertain cases rather than required for every
+unambiguous failure. Record this choice before the final complete run.
+
+## D75 — Final diagnostics and sweep admission
+
+The public phase 0.3 sweep dispatcher retains the existing harness's minimum
+2,000 cases per function. Reject explicit zero or 1,999-case requests before
+building or comparing anything. Keep the direct unpublished transport useful
+for diagnostics; its records require the independent complete-inventory
+verifier before they can establish the spec's sweep gate. Positive 2,000-case
+execution and both negative controls are retained.
+
+An isolated artifact copy evaluated per-selection candidate generation marks,
+which skip repeated scoring without changing the priority/score tie rule. The
+smooth-only diagnostic improves tiny builder ratios to roughly 1.6 and medium
+ratios to roughly 1.3–1.4, but still fails the timing bar and adds heap storage.
+Prepaying an entire selection's work scan was slower; simplifying the distance
+memo lookup did not resolve the bar either. None is adopted or described as
+fully qualified. The full source-frozen matrix continues on the tested library.
+
+A final-source tiny smooth builder capture retains both binaries, framed input,
+counter stats and cycle samples with zero lost samples. One million operations
+retire 85.727 billion Rust versus 48.073 billion C++ instructions. Software sqrt
+accounts for 18.87% of sampled Rust cycles and the inlined execute body 62.13%.
+This is a fixed-input diagnostic on a separate CPU, not timing acceptance or a
+proof that further safe optimization is impossible. Preserve the scalar-strict
+math backend and the original numeric bars.
+
+Retain checksum-pinned dependency package archives and their verified source
+files. The libm source hashes also match the executed earlier-phase regression
+record. Keep owned package caching under this lane's target; the artifact copies
+remain after target cleanup. Existing shared ledgers receive append-only phase
+0.3 sections and the new summary uses its own filename.
+
+## D76 — Preserve child work totals on 32-bit targets
+
+The final review found two optional-demo parent charges narrowing a child's
+u64 work total to usize. Valid totals above u32::MAX could therefore fail with
+SizeOverflow on WASM despite an adequate u64 work budget. Add a feature-local
+u64 Work charge with the existing limit/overflow behavior; use it for child and
+external support-operation accounting. Keep the earlier usize record-visit API
+and all geometry arithmetic unchanged.
+
+A synthetic producer charges u32::MAX plus 18 work units without giant geometry
+allocation, then checks both child and external totals and a one-less budget.
+The old artifact-copy test traps in this regression on executed wasm32; the
+patched copy and final worktree's eleven executed WASM unit tests pass. Retain
+both old/new probe binaries, sources and execution records. The all-feature and
+no-default-plus-clusterlod native suites now have 66 tests; no-default has 60.
+Rerun all functional, fixture/sweep/demo and fifteen instrumented fuzz gates.
+
+The completed 624-row benchmark predates this source-only portability correction.
+The rebuilt final native driver is byte-for-byte identical to the measured
+driver, so the native timing matrix remains applicable. Require that executable
+identity in the verifier. Retain both prior changed source files by hash;
+current functional/WASM/fuzz records capture the corrected source. Canonical
+math, packed layout, working limits and performance bars remain unchanged.
+
+## D77 — Final verdict and cleanup
+
+All fifteen named APIs and the optional full clusterlod demo are implemented.
+The final eleven build gates, MSRV feature-mode tests, 697 focused messages,
+52,000 sweep messages, 80 demo fixtures, eleven executed WASM unit tests and
+fifteen instrumented smokes pass. Final smokes complete 52,334,430 executions
+and at least 309.11 elapsed seconds per target. The independent evidence
+verifier checks complete inventories, source/dependency/executable/input/output
+hashes, both timing baselines and their arithmetic and exits zero.
+
+SPEC acceptance is **FAIL on the performance bar**, not Done-when. The unchanged
+enforced complete 624-row benchmark exits 1. Each baseline has eight failed
+families; nine distinct families fail at least one baseline. Seven pass each
+baseline and six pass both. Every requested-heap ratio passes; the maximum is
+1.166658. The full per-family table is appended to MEASURED_PERFORMANCE.md and
+the separate machine-readable record is MEASURED_P03.json. Do not infer a
+universal safe-Rust ceiling from this shared-machine matrix or its diagnostic
+profiles. The remaining acceptance work is reducing the failed timing ratios
+while retaining exact parity, checked execution and the unchanged bars.
+
+Preserve all final corpus/output records, exact executables, verified package
+archives/sources, specification/RFC, source archive, prior changed source
+versions, command logs, profile captures and hashes under D71's writable
+artifact root. All 238 archive manifest files were checked before cleanup and
+no target executable remained active. Delete the exact required target
+`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03`; deletion completes and
+cleanup.json records it. At that checkpoint no Git mutation had been performed.
+HEAD was `8ec3b3d0ca78caedd445dfb827a9579e2b8d7fef`; D83 records the later rebase.
+
+## D78 — Phase 0.3 performance: profiles, pairing and driver timing
+
+The bar of RFC §6.1 is measured for two builds of the unpublished driver: the
+Moss-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`) and
+Cargo's release defaults (`opt-level = 3`, 16 codegen units, thin-local LTO).
+They are `[profile.consumer]` and `[profile.release-defaults]` in
+`parity/p03/Cargo.toml` (Cargo reserves the `cargo-` prefix);
+`MESHOPT_RUST_PROFILE` selects one, the identity records it, and each writes
+its own `benchmark-<profile>` record. The library's root profile is unchanged:
+it does not control consumers. Every case now uses at least twenty alternating
+same-core pairs, thirty when the quartiles straddle a bar. Core selection,
+load recording and the bars are unchanged.
+
+Two driver-only corrections remove costs that are not the operation. The Rust
+driver's dispatch closure returned its transport `Vec` by value; in the timed
+loop the returned value was rebuilt from three separate stores and reread as
+one wide load, a store-forwarding stall that took 68% of the cycles of the
+20 ns `build_meshlets_bound` repeat. The closure now fills a caller-owned
+buffer, like the C++ lambda's in-place return. For `build_meshlets_bound`
+itself, both drivers time the bare call with inputs and result opaque to the
+optimizer (an empty `asm volatile` constraint in C++, `black_box` in Rust)
+instead of the dispatch wrapper, which dominated the measurement. Outputs,
+validation and the timed regions of every other operation are unchanged.
+
+The "before" columns are the incomplete new-profile run of the unchanged
+source (178 consumer and 138 release-defaults rows: the three flexible and
+scan builders and part of the spatial builder) together with the fat-LTO
+624-row matrix of D77. The run was stopped to free cores: the shared machine
+ran at load 20–45 with cores clocked near 600 MHz, and a full pass of one
+profile takes most of a day there. Artifacts are under
+`/mnt/linux-extra/meshopt-artifacts/p03/perf`; the build target is
+`/mnt/linux-extra/moss-cargo-targets/claude-meshopt-p03perf`.
+
+Reversal cost: free (driver and measurement only).
+
+## D79 — Exact square roots without the scalar backend's cost
+
+Every 0.3 root still equals the pinned `libm::sqrtf` bit for bit; two
+mechanisms reduce how often and how slowly it runs.
+
+`math::sqrt8` returns eight independent roots. When all eight operands are
+positive, normal and finite, each lane uses exact IEEE f64 operations only (a
+halved-exponent estimate, three Newton steps from above, rounding to f32, and
+a one-ulp correction decided by exact f64 squares of the two rounding
+midpoints), which the compiler evaluates in vector registers; any other
+operand sends the chunk to `libm::sqrtf`. Over all 2^32 operand bit patterns
+it matches `libm::sqrtf` with zero mismatches (`exhaustive-math.txt` in the
+artifacts, binding the hash of `src/math.rs`). Throughput is 14 cycles per
+root against 35 for the scalar backend. It takes the triangle areas of the
+cluster/meshlet bounds and of the flexible builder's cone setup, and the seven
+or three axis extents of the bounding sphere, whose selected extent root is
+reused instead of being taken again.
+
+`math::RootEstimate` bounds a root without computing it: a 256-entry table of
+bounds over 1/128-wide mantissa buckets (0.4% wide, no division) and one
+Newton step from the halved-exponent estimate (0.2% wide). A correctly rounded
+root cannot cross a representable bound that encloses the real root, so a
+comparison decided by these bounds equals the exact comparison. The same
+exhaustive run checks both bound pairs for every in-range operand.
+`root_at_least` uses them to skip kd-tree leaf, initial-seed and seed
+candidates that cannot win, before any root is taken.
+
+Rejected, with measurements retained: replacing the scalar backend by an f64
+Newton root (same 35-cycle throughput, latency 80 instead of 66 cycles) or a
+table-seeded one (no gain); libm's architecture feature (D19); SSE value
+intrinsics, which need `#[target_feature]` contexts that are `unsafe` to enter
+at MSRV 1.88; `_mm_prefetch`, which takes a raw pointer.
+
+Reversal cost: cheap (two internal helpers).
+
+## D80 — Neighbor search of the flexible builder
+
+`getNeighborTriangle` dominates `build_meshlets` and `build_meshlets_flex`.
+The selection is unchanged: lowest priority, then strictly lowest score, the
+first visited winning ties, NaN scores never replacing an equal priority.
+
+In bounded mode — moderate inputs, a positive normal radius with finite
+reciprocal bounds — every score operand is finite, the radius and cone factor
+are positive and `0 <= weight <= 1`. Each rounded operation of the score is
+then monotone in each input: nondecreasing in the distance and in the cone
+factor, the cone factor nonincreasing in the spread, and each rounded product
+of the spread monotone in the meshlet-normal component with the sign of the
+candidate's component. Scores computed from bounding inputs therefore bound
+the exact upstream score. Candidates carry such bounds: the root bounds of
+D79 for the distance, reciprocals of `1 / radius` widened past their rounding,
+and bounds of the meshlet normal from root bounds of its squared length (the
+normal's exact root is taken only on demand). A comparison decided by disjoint
+bounds equals the exact comparison; otherwise both exact scores are computed.
+
+In bounded mode on meshes of at least 256 triangles, each live triangle
+adjacent to the current meshlet is listed once, when its first vertex joins
+the meshlet, and emitted ones are dropped lazily. The scan visits the same
+triangles but each only once. With finite scores the selection is the minimum
+of (priority, score, visit order), so the order of evaluation does not matter
+provided exact ties are broken by the upstream visit order: the earliest
+meshlet vertex of the candidate by local index, then its position in that
+vertex's current live list. Bound tests therefore reject only strict losses
+in this mode. The per-vertex scan remains for smaller meshes, unbounded or
+non-moderate inputs, a list beyond its 1024 entries, and budgets that do not
+cover the search. Its repeat visits of one triangle through several meshlet
+vertices are skipped: under the strict lexicographic selection they cannot
+change the choice. The scan walks only meshlet vertices with live triangles.
+
+Work accounting is unchanged. A search is charged the sum of the live list
+lengths of the meshlet's vertices, once, when the budget covers it; otherwise
+the per-vertex path keeps each per-visit exhaustion point. The removal search,
+the kd-tree leaf loop and the adjacency scans likewise charge a covered visited
+prefix once. The kd tree computes both children's statistics in one loop (two
+independent Welford chains sharing their running weight) while each child
+still charges its work and checks its mean where the recursion did. The
+packed vertex record holds the adjacency offset, live count and local index
+(12 bytes, as the two arrays it replaces); `emitted` gains a "listed" state.
+`build_meshlets_bound` divides by a reciprocal table below 2^22, exact there.
+
+Rejected after measurement: a dense i16 local-index array (no gain),
+deferred batched exact roots for every candidate (slower), out-of-line
+scoring, index clamping instead of bounds checks.
+
+Reversal cost: cheap while unmerged; each part is internal.
+
+## D81 — Spatial builder, radix sort, partition, extraction and bounds
+
+The spatial builder pads boxes to four lanes (lane 3 unused), stores
+`radixFloat` keys as u32 and frees them after sorting, so peak storage is
+unchanged. Its area sweep and SAH pivot use local slices; the pivot is
+specialized on its loop-invariant choices, and where every divisibility test
+is provably true (`2 * min <= max`, step one) it computes eight base costs at
+a time before visiting them in order. The stable radix sort builds all pass
+histograms in one sweep and runs their prefix sums as independent chains, as
+upstream's `computeHistogram`; it also serves the spatial sorts.
+
+Partition skips finiteness checks that cannot fail for moderate coordinates
+(|x| <= 1e8 bounds every partial sum and squared offset) and charges covered
+adjacency visits once. Index extraction sizes its stack scratch to the input
+tier. Bounds group their independent roots (D79); every failure there is
+`NumericalFailure` and work is charged first, so the grouped order of checks
+is unobservable.
+
+Rejected after measurement: flat box arrays, lane-3 duplication or liveness
+tricks to coax wider vector code, and software touch-ahead loads in place of
+prefetch.
+
+Reversal cost: cheap (internal).
+
+## D82 — Phase 0.3 performance baseline and final qualification
+
+The coordinator resolves the 0.3 baseline ambiguity in favor of the scalar
+C++ build (`MESHOPTIMIZER_NO_SIMD`), as for 0.2. Both the Moss-like consumer
+profile and Cargo release defaults must meet the unchanged RFC §6.1 family
+bars against that build: geometric mean at most 1.25, every case at most 1.50,
+and requested output plus scratch at most 1.25. The upstream SIMD C++ ratios
+remain measured and published, but they do not gate 0.3. SIMD clusterizer
+acceptance would require a separate later amendment. The benchmark's enforced
+verdict now checks the scalar family verdicts; it continues to record both
+C++ baselines, raw paired samples, load, requested heap and exact outputs.
+
+The final 0.3 source additionally inlines neighbor search and active-list sync
+for Cargo defaults and defers meshlet-normal setup until a neighbor search is
+needed. The first seed never searches neighbors. The focused tiny-input
+comparison showed lower paired ratios for both builders under Cargo defaults;
+the complete matrix below determines acceptance.
+
+The final source passes fmt, both clippy modes with warnings denied, both test
+modes (including MSRV 1.88), no-default wasm32 build, the 0.3 fixture/WASM run,
+the 2,000-case-per-family sweep, and all 80 `clusterlod` cases. Every comparison
+has zero mismatches. The enforced matrices ran sequentially with 624 rows and
+at least twenty interleaved same-core pairs per case in each profile; both
+records say `complete=true` and `source_unchanged=true`. Consumer exits 0 and
+passes all fifteen scalar families. Cargo defaults exits 1: fourteen scalar
+families pass, while `partition_clusters` reaches geometric mean **1.450** and
+maximum **1.778** (medium seams, caller buffer), above the unchanged 1.25/1.50
+bar. Its requested heap ratio is 1.000; the maximum over all families is
+1.167. The formerly failing tiny `build_meshlets` and `build_meshlets_flex`
+cases now peak at 1.405 and 1.423 under Cargo defaults. The best complete
+default-profile partition result on this final source is 1.450/1.778; no
+release qualification is claimed.
+
+The exact default-profile driver and scalar C++ binary were profiled on the
+medium seams caller-buffer case. Per framed request, `perf stat` measured
+6.571G versus 4.974G retired instructions (Rust/C++ 1.321), 1.949G versus
+1.133G cycles (1.720), and 1.577G versus 0.862G branches (1.829). The tiny
+seams case likewise took 7.934G versus 5.953G instructions (1.333) and
+2.076G versus 1.317G cycles (1.576). The exact Rust binary's sampled cycles
+are 46.3% `adjacent` and 42.8% `partition`; a line-table build of the same
+source locates 15.1% at centroid accumulation, 8.9% at adjacency deduplication
+and 5.9% at initial vertex filtering. These are broad costs rather than one
+isolated call overhead. The recordings and binary hashes are under
+`/mnt/linux-extra/meshopt-artifacts/p03/perf/final4`. This documents the
+residual without asserting a universal safe-Rust limit or changing the bar.
+
+The separately published SIMD comparison fails for spatial meshlets in both
+profiles (consumer 1.225/1.616; defaults 1.195/1.706). Defaults partition also
+measures 1.449/1.598 against SIMD. Under the coordinator's decision these do
+not add 0.3 gates. The scalar defaults partition failure alone blocks the
+phase's performance acceptance. Reversal cost: cheap while unmerged.
+
+## D83 — Integrate phase 0.3 after 0.2 and 0.4
+
+Rebase the single 0.3 commit onto main in this worktree. Retain main's script
+and slim-record behavior, and route 0.3 run/sweep through `report.sh`. Keep the
+0.3 per-message corpus outside Git under
+`/mnt/linux-extra/meshopt-artifacts/p03`; commit only hashed summaries. Preserve
+main's D1–D66 and renumber the 0.3 D40–D55 as D67–D82, including references
+in 0.3 code comments and records.
+
+The 0.4 meshlet codec continues to accept plain vertex and triangle slices.
+The new 0.3 layout types could support a typed convenience wrapper, but this
+integration does not add one. All-feature tests compile and exercise the codec
+with the combined layout.
+
+The earlier phase 0.3 performance verdict in D82 remains historical; this
+integration changes no algorithm or performance bar. Phase 0.1's release report
+remains stale until its final re-qualification, even though the 0.1 parity run
+and sweep were repeated here. The combined-tree gate outcomes are recorded in
+the slim summaries and the final integration handoff.
+
+On the combined tree, fmt, clippy with `-D warnings` in both feature modes,
+all-feature/no-default/no-default-plus-clusterlod tests, the no-default wasm32
+build and executed WASM parity pass. Runs and sweeps for 0.1, 0.2, 0.3 and 0.4
+have zero mismatches. Reports for 0.2, 0.3 and 0.4 pass artifact verification;
+0.4's twelve benchmark families pass in both consumer profiles and all nineteen
+instrumented fuzz smokes pass. The first 0.4 Cargo-default measurement on busy
+CPU 0 narrowly failed the unchanged `quat_encode` maximum (1.5033 > 1.50).
+That full failed record is retained under `benchmark-0.4/superseded`; the full
+rerun on CPU 17 passes. Neither result was dropped from the handoff.
