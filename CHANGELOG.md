@@ -1,44 +1,69 @@
 # Changelog
 
-## 0.4 codec completion (unreleased milestone)
+All notable changes to this project are documented in this file.
 
-- Add vertex-buffer, index-buffer and index-sequence encoders with their bound
-  functions and explicit per-call `VertexEncoding` / `IndexEncoding`
-  configuration (versions 0/1, vertex levels 0-9), matching C++ 1.3 bytes.
-- Add Oct, Quat, Exp (all four exponent modes) and Color filter encoders, and
-  raw Color filter decoding outside the EXT helper.
-- Add the meshlet codec: `encode_meshlet`, its bound, and both decoding forms
-  (`decode_meshlet` with 2/4-byte vertices and 3/4-byte triangles, and
-  `decode_meshlet_raw`), each with caller-buffer variants.
-- Extend the codec harness to phase 0.4: upstream native and JS encoder
-  vectors, malformed inputs, 2,000-case sweeps per operation, two-way
-  cross-decoding, executed WASM identity, nineteen fuzz smokes and per-family
-  benchmarks under the Moss and Cargo-default profiles.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.0 (unreleased)
+## [Unreleased]
 
-- Add the foundation API: checked strided inputs, vertex flags, errors,
-  workspace storage and work limits, and `no_std` with `alloc`.
-- Translate the standard vertex-cache and overdraw optimizers from
-  meshoptimizer 1.3 with allocating, caller-buffer and in-place variants.
-- Add offline C++ differential, wasm32 identity, seeded sweep, stable fuzz
-  smoke and recorded single-thread benchmark tooling.
+## [0.1.0] - unreleased
 
-- Add `simplify`, `simplify_with_attributes`, their caller-buffer variants,
-  `simplify_scale`, settings, result-error output and stable option masks.
-- Support LOCK/PROTECT/PRIORITY, weighted attributes, Permissive, LockBorder,
-  absolute error and both regularization strengths.
-- Extend exact C++/wasm32 qualification to simplification and upstream fixtures.
-- Remove hostnames from records and retain large buffer archives externally.
-- Store per-function qualification summaries in the repository, with SHA-256
-  identities for external per-case records and buffers. Verify available
-  artifacts and identify absent historical evidence explicitly.
-- Measure release performance with fat LTO, Moss's thin-LTO consumer profile,
-  and Cargo release defaults; keep the RFC acceptance bars unchanged.
-- Add CPU-accounted release fuzzing with at most eight workers, retained replay
-  corpora, crash evidence and resumable source-bound records.
-- Set the owner-amended release robustness budget to four CPU-hours per target.
-- Add a local corpus continuation with a wall budget, core cap, low scheduling
-  priority and SIGTERM handling, plus weekly and manual CI continuation.
-- Add exact Rust execution checks on macOS arm64, Windows x86-64 and Linux
-  arm64 against qualified native outputs recorded on Linux x86-64.
+First public release. Ports meshoptimizer 1.3 (commit
+`4c203430ca565cb59a468a91922c76c208169536`, `src` identical to tag v1.3) with
+byte-identical output to scalar C++ on every recorded fixture, sweep case and
+wasm32 run.
+
+### Added
+
+- Foundation: checked borrowed views (`Positions`, `Attributes`, their mutable
+  forms), `VertexFlags`, a typed `Error`, a reusable `Workspace` with fallible
+  allocation and per-call memory and work `Limits`, and `no_std` with `alloc`.
+- Vertex processing: vertex cache (standard, strip, FIFO), overdraw and vertex
+  fetch optimization; vertex remap generation (single, multi-stream, custom),
+  remap of vertex and index buffers, index filtering, shadow, adjacency,
+  tessellation and provoking index buffers, and position remap.
+- Quantization: `quantize_unorm`, `quantize_snorm`, `quantize_half`,
+  `quantize_float`, `dequantize_half` and `compute_position_exponent`.
+- Simplification: `simplify`, `simplify_with_attributes`,
+  `simplify_with_update`, `simplify_sloppy`, `simplify_prune`,
+  `simplify_points` and `simplify_scale`, with the LockBorder, Sparse,
+  ErrorAbsolute, Prune, Regularize, RegularizeLight and Permissive options,
+  and LOCK/PROTECT/PRIORITY vertex flags. PreserveFolds and ErrorClamped are
+  behind the `experimental` feature.
+- Meshlets: scan, standard, flex and spatial builders and their bound; cluster,
+  meshlet and sphere bounds; meshlet optimization (all levels); meshlet index
+  extraction; cluster partitioning; spatial sorting and point clustering.
+- `clusterlod` feature: the cluster-LOD builder from upstream's
+  `demo/clusterlod.h`, exact against the pinned demo.
+- `codec` module: vertex buffer, index buffer and index sequence encoding and
+  decoding (versions 0 and 1, vertex levels 0–9); Oct, Quat, Exp and Color
+  filter encoding and decoding; meshlet encoding and decoding; and checked
+  `EXT_meshopt_compression` buffer-view decoding.
+- Allocating, caller-buffer (`_into`) and, where upstream works in place,
+  `_in_place` forms of each operation.
+- Parity harness (not published): C++ differential runs, seeded sweeps,
+  wasm32 identity, fuzzing, cross-platform output replay in CI and paired
+  benchmarks under thin-LTO and Cargo-default consumer profiles.
+
+### Changed (relative to the C++ API)
+
+- Codec format versions and levels are per-call values (`VertexEncoding`,
+  `IndexEncoding`) instead of global setters.
+- `meshopt_setAllocator` is replaced by `Workspace` and `Limits`.
+- Invalid input, overflow, non-finite geometry and exhausted limits return
+  `Error` instead of asserting or invoking undefined behaviour.
+
+### Known limitations
+
+- Not yet ported: analyzers, opacity maps, tangents, normals and remeshing.
+- Allocating `optimize_vertex_fetch` on a million-vertex sparse mesh takes
+  1.73× (thin LTO) and 1.85× (Cargo defaults) of C++ time, above the 1.5×
+  per-case bar.
+- `partition_clusters` under Cargo defaults: family mean 1.45×, worst case
+  1.78× of C++ time.
+- The `clusterlod` build path is not yet competitive with C++.
+- Codecs are scalar; upstream's SIMD decoders are faster.
+
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0

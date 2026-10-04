@@ -3,13 +3,14 @@ name = "meshoptimizer-rs"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.88"
-description = "Independent safe Rust port of meshoptimizer 1.3: simplification, vertex-cache and overdraw optimization"
+description = "Pure safe Rust port of meshoptimizer 1.3 with byte-identical output: simplification, vertex cache, overdraw and fetch optimization, meshlets and vertex/index compression"
 authors = ["meshoptimizer-rs contributors"]
 license = "MIT"
 repository = "https://github.com/Tavrin/meshoptimizer-rs"
+documentation = "https://docs.rs/meshoptimizer-rs"
 readme = "README.md"
-keywords = ["mesh", "optimization", "graphics", "geometry", "no-std"]
-categories = ["graphics", "no-std"]
+keywords = ["mesh", "meshoptimizer", "simplification", "meshlet", "gltf"]
+categories = ["graphics", "rendering", "game-development", "compression", "no-std"]
 include = ["/src/**/*.rs", "/tests/api.rs", "/tests/meshlets.rs", "/tests/preprocessing.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
 
 [features]
