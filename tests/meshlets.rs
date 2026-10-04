@@ -486,3 +486,48 @@ fn demo_limits_charge_outputs_scratch_and_callback_lifetimes() {
     .unwrap();
     assert!(ws.usage().bytes <= usage.bytes);
 }
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn demo_single_cluster_unused_attributes_do_not_consume_workspace() {
+    let mut positions = vec![[0.0, 0.0, 0.0]; 2_048];
+    positions[1] = [1.0, 0.0, 0.0];
+    positions[2] = [0.0, 1.0, 0.0];
+    let attributes = vec![0.25_f32; positions.len() * 32];
+    let weights = [0.5_f32; 32];
+    let config = clusterlod::default_config(128).unwrap();
+    let run = |bytes: usize, with_attributes: bool| {
+        let mut p = positions.clone();
+        let mut ws = Workspace::new(Limits {
+            max_bytes: bytes,
+            max_work: Limits::default().max_work,
+        });
+        let view = with_attributes
+            .then(|| Attributes::from_interleaved(&attributes, p.len(), 32, 32, 0).unwrap());
+        let result = clusterlod::build_with_output(
+            config,
+            clusterlod::Mesh {
+                indices: &[0, 1, 2],
+                positions: &mut p,
+                attributes: view,
+                vertex_lock: None,
+                attribute_weights: if with_attributes { &weights } else { &[] },
+                attribute_protect_mask: 0,
+            },
+            |_, _| Ok(0),
+            &mut ws,
+        );
+        (result, ws.usage().bytes)
+    };
+    let (baseline, peak) = run(usize::MAX, false);
+    assert!(baseline.is_ok());
+    println!("single_cluster_peak_bytes={peak}");
+    assert!(run(usize::MAX, true).0.is_ok());
+    for limit in (peak.saturating_sub(128)..=peak + 128).step_by(8) {
+        assert_eq!(
+            run(limit, true).0.is_ok(),
+            run(limit, false).0.is_ok(),
+            "{limit}"
+        );
+    }
+}

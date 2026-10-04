@@ -480,15 +480,30 @@ fn simplify(
     indices: &[u32],
     mesh: &Mesh<'_>,
     locks: &[u8],
-    flags: &[support::VertexFlags],
-    attrs: &[f32],
     c: Config,
     target: usize,
     ctx: &mut Context<'_>,
 ) -> Result<(Vec<u32>, f32), Error> {
     let p = support::Positions::from_packed(mesh.positions);
     let width = mesh.attribute_weights.len();
-    let a = support::Attributes::from_interleaved(attrs, mesh.positions.len(), width, width, 0)?;
+    let mut attrs = ctx.alloc::<f32>(
+        mesh.positions
+            .len()
+            .checked_mul(width)
+            .ok_or(Error::SizeOverflow)?,
+    )?;
+    if let Some(source) = mesh.attributes {
+        for i in 0..mesh.positions.len() {
+            for j in 0..width {
+                attrs[i * width + j] = source.get(i, j).ok_or(Error::InvalidLayout)?;
+            }
+        }
+    }
+    let a = support::Attributes::from_interleaved(&attrs, mesh.positions.len(), width, width, 0)?;
+    let mut flags = ctx.alloc::<support::VertexFlags>(locks.len())?;
+    for (flag, &lock) in flags.iter_mut().zip(locks) {
+        *flag = support::VertexFlags::from_bits(lock & 7)?;
+    }
     let mut bits = 2 | 4;
     if c.simplify_error_clamped {
         bits |= 256;
@@ -514,7 +529,7 @@ fn simplify(
             p,
             a,
             mesh.attribute_weights,
-            flags,
+            &flags,
             support::SimplifySettings {
                 target_index_count: target,
                 target_error: f32::MAX,
@@ -595,6 +610,8 @@ fn simplify(
             .min(crate::math::sqrt(maxsq) * c.simplify_error_edge_limit);
     }
     finite(result.error)?;
+    ctx.free(attrs)?;
+    ctx.free(flags)?;
     Ok((result.indices, result.error))
 }
 fn edge_slot(table: &[u64], key: u64, ctx: &mut Context<'_>) -> Result<usize, Error> {
@@ -845,14 +862,7 @@ fn build_internal(
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, &mut ctx)?;
     let mut locks = ctx.alloc::<u8>(p.len())?;
-    let width = mesh.attribute_weights.len();
-    let mut attrs = ctx.alloc::<f32>(p.len().checked_mul(width).ok_or(Error::SizeOverflow)?)?;
     if let Some(a) = mesh.attributes {
-        for i in 0..p.len() {
-            for j in 0..width {
-                attrs[i * width + j] = a.get(i, j).ok_or(Error::InvalidLayout)?;
-            }
-        }
         for (i, l) in locks.iter_mut().enumerate() {
             let r = remap[i] as usize;
             for j in 0..a.components() {
@@ -905,10 +915,6 @@ fn build_internal(
             mesh.vertex_lock,
             &mut ctx,
         )?;
-        let mut flags = ctx.alloc::<support::VertexFlags>(locks.len())?;
-        for (flag, &lock) in flags.iter_mut().zip(&locks) {
-            *flag = support::VertexFlags::from_bits(lock & 7)?;
-        }
         let mut pending = ctx.alloc::<Pending>(idx.len() / 3)?;
         let mut pi = ctx.alloc::<u32>(idx.len())?;
         let (mut pc, mut ic) = (0, 0);
@@ -926,16 +932,7 @@ fn build_internal(
             }
             let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
             let mut bounds = merged(&gb, &mut ctx)?;
-            let (simplified, error) = simplify(
-                &merged_idx,
-                &mesh,
-                &locks,
-                &flags,
-                &attrs,
-                c,
-                target,
-                &mut ctx,
-            )?;
+            let (simplified, error) = simplify(&merged_idx, &mesh, &locks, c, target, &mut ctx)?;
             if simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold {
                 bounds.error = f32::MAX;
                 output(group, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
@@ -985,7 +982,6 @@ fn build_internal(
             ctx.free(simplified)?;
         }
         ctx.free(group_offsets)?;
-        ctx.free(flags)?;
         pending.truncate(pc);
         pi.truncate(ic);
         ctx.free(clusters)?;
@@ -999,7 +995,6 @@ fn build_internal(
         bounds.error = f32::MAX;
         output(&clusters, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
     }
-    ctx.free(attrs)?;
     Ok(())
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave
