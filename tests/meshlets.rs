@@ -531,3 +531,42 @@ fn demo_single_cluster_unused_attributes_do_not_consume_workspace() {
         );
     }
 }
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn demo_dilation_near_position_range_threshold() {
+    let mut positions = Vec::new();
+    let mut indices = Vec::new();
+    for y in 0..12 {
+        for x in 0..12 {
+            let wave = ((x as f32 * 0.4 + 2.0).sin() * (y as f32 * 0.3).cos()).abs();
+            positions.push([99_999_992.0 - wave * 32.0, x as f32 * 8.0, y as f32 * 8.0]);
+        }
+    }
+    for y in 0..11 {
+        for x in 0..11 {
+            let a = (y * 12 + x) as u32;
+            indices.extend([a, a + 1, a + 12, a + 12, a + 1, a + 13]);
+        }
+    }
+    let before = positions.clone();
+    assert!(before.iter().all(|p| p[0].abs() <= 1e8));
+    let mut config = clusterlod::default_config(32).unwrap();
+    config.simplify_dilate_borders = true;
+    clusterlod::build_with_output(
+        config,
+        clusterlod::Mesh {
+            indices: &indices,
+            positions: &mut positions,
+            attributes: None,
+            vertex_lock: None,
+            attribute_weights: &[],
+            attribute_protect_mask: 0,
+        },
+        |_, _| Ok(0),
+        &mut Workspace::default(),
+    )
+    .unwrap();
+    assert!(positions.iter().zip(&before).any(|(a, b)| a != b));
+    assert!(positions.iter().flatten().all(|v| v.is_finite()));
+}

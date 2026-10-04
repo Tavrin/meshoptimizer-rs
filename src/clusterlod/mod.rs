@@ -858,7 +858,7 @@ fn build_internal(
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
     validate(&mesh, c, &mut ctx)?;
-    let moderate = ctx.moderate;
+    let mut moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, &mut ctx)?;
     let mut locks = ctx.alloc::<u8>(p.len())?;
@@ -957,6 +957,9 @@ fn build_internal(
                     &mut offsets,
                     &mut ctx,
                 )?;
+                // Dilation can move a coordinate beyond the validated range.
+                // Use the checked flex/bounds path for this and later levels.
+                moderate = false;
             }
             let (new, ni) = clusterize(
                 &simplified,
