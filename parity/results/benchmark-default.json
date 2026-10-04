@@ -2,18 +2,18 @@
   "schema": "meshopt-summary/1",
   "historical": false,
   "command": "benchmark",
-  "passed": false,
+  "passed": true,
   "phase": "0.1",
   "seed": null,
   "profile": "default",
-  "detail_artifact": "benchmark-default-verifier-final/benchmark.json",
+  "detail_artifact": "benchmark-default-release/benchmark.json",
   "artifacts": {
-    "benchmark-default-verifier-final/benchmark.json": "768476891cf98d886303c8ea92a30720954028566d9c2551447c1f7471d64e4c",
-    "benchmark-default-verifier-final/benchmark-buffers.zip": "ff611c122165bdc5dfc92ce9b89f71d010295d08261b7218f5eb1c06171a9878",
-    "benchmark-default-verifier-final/sources.tar.gz": "42c7a97a84b06fc2012835590a800869da8815acea3d781498c913307073cd34",
-    "benchmark-default-verifier-final/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
-    "benchmark-default-verifier-final/binaries/rust": "d5a621cc676198ed16531a4dfc434f5c208e2ea9142e30caad15205ebafdf39c",
-    "benchmark-default-verifier-final/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+    "benchmark-default-release/benchmark.json": "7c938b0bf7ce208ee5d09a09b3c4b6313ad93644201b29ef2817ad765cad8321",
+    "benchmark-default-release/benchmark-buffers.zip": "9ebd69324660d2d09fb9bcfb39c92476fe5697f3076887dbe95f0b985b7762d6",
+    "benchmark-default-release/sources.tar.gz": "ef03f69994fdd8a88d73e4e3afd4b9f8bbd22f4fb03f0f94bdd4fb4cbbede241",
+    "benchmark-default-release/binaries/fixture_exporter": "2b71ad2acd335cf148cd02e374a86279c37f3974c0b695474f07e10e314c8f1b",
+    "benchmark-default-release/binaries/rust": "e0a408a849a4077263f03dffdea8787516c81c20a42452d4afb241c2e13d1ec8",
+    "benchmark-default-release/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
   },
   "identities": {
     "source_sha256": {
@@ -61,7 +61,7 @@
         "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
         "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
         "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
-        "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
+        "src/simplify.rs": "fc4a3c4bd715adcf273340747fff4d602002ba055d070409aad52ec5c8845be9",
         "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
         "tests/api.rs": "c880b14f667b9c97e83c34ef125bb41a6d62ec8011201043b109f76e3d01595b"
       },
@@ -275,8 +275,8 @@
     },
     "executable_sha256": {
       "cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e",
-      "rust": "d5a621cc676198ed16531a4dfc434f5c208e2ea9142e30caad15205ebafdf39c",
-      "fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d"
+      "rust": "e0a408a849a4077263f03dffdea8787516c81c20a42452d4afb241c2e13d1ec8",
+      "fixture_exporter": "2b71ad2acd335cf148cd02e374a86279c37f3974c0b695474f07e10e314c8f1b"
     },
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
     "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -338,42 +338,42 @@
       "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "16"
     }
   },
-  "started_unix": 1791066230.995379,
-  "finished_unix": 1791074946.5283132,
+  "started_unix": 1791081357.8426373,
+  "finished_unix": 1791085262.9794161,
   "identities_unchanged": true,
   "functions": {
     "vertex_cache": {
       "cases": 24,
-      "geometric_mean": 1.2399806186014324,
-      "maximum": 1.3096130252935492,
+      "geometric_mean": 1.1894294551996754,
+      "maximum": 1.2567940772921293,
       "maximum_memory_ratio": 1.0,
       "passed": true
     },
     "overdraw": {
       "cases": 24,
-      "geometric_mean": 1.0633884460635452,
-      "maximum": 1.39769577443152,
+      "geometric_mean": 1.0475183252924218,
+      "maximum": 1.3640744171979349,
       "maximum_memory_ratio": 0.9989704976937129,
       "passed": true
     },
     "simplify": {
       "cases": 72,
-      "geometric_mean": 1.2838099797372862,
-      "maximum": 1.4202421349892562,
+      "geometric_mean": 1.1800903407131067,
+      "maximum": 1.3059922004500173,
       "maximum_memory_ratio": 1.095090670882574,
-      "passed": false
+      "passed": true
     },
     "simplify_with_attributes": {
       "cases": 72,
-      "geometric_mean": 1.2567802127822754,
-      "maximum": 1.6506913494914492,
+      "geometric_mean": 1.2168060805681136,
+      "maximum": 1.3098606175665692,
       "maximum_memory_ratio": 1.0843286556888025,
-      "passed": false
+      "passed": true
     },
     "simplify_scale": {
       "cases": 12,
-      "geometric_mean": 1.0299048782340534,
-      "maximum": 1.1869728273012945,
+      "geometric_mean": 0.9627567262056559,
+      "maximum": 1.1422350955900251,
       "maximum_memory_ratio": 1.0,
       "passed": true
     }

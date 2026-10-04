@@ -14,14 +14,14 @@
   "remote_execution": "CI configured; local records do not establish remote execution",
   "records": {
     "benchmark-default": {
-      "summary_sha256": "cf54735bbaf76271d7ff4f6816ac8b6283683bde5e46afd997af93f6c3d5e737",
+      "summary_sha256": "fb0b2b578ee8de781d22447c50c58a5c56d7b85358abdfb2d99286c84c053db0",
       "artifacts": {
-        "benchmark-default-verifier-final/benchmark.json": "768476891cf98d886303c8ea92a30720954028566d9c2551447c1f7471d64e4c",
-        "benchmark-default-verifier-final/benchmark-buffers.zip": "ff611c122165bdc5dfc92ce9b89f71d010295d08261b7218f5eb1c06171a9878",
-        "benchmark-default-verifier-final/sources.tar.gz": "42c7a97a84b06fc2012835590a800869da8815acea3d781498c913307073cd34",
-        "benchmark-default-verifier-final/binaries/fixture_exporter": "9d38e5e0ec1d92962b5c12c486a9b157c8d0391bcf9edfec59b52cbbf994e85d",
-        "benchmark-default-verifier-final/binaries/rust": "d5a621cc676198ed16531a4dfc434f5c208e2ea9142e30caad15205ebafdf39c",
-        "benchmark-default-verifier-final/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
+        "benchmark-default-release/benchmark.json": "7c938b0bf7ce208ee5d09a09b3c4b6313ad93644201b29ef2817ad765cad8321",
+        "benchmark-default-release/benchmark-buffers.zip": "9ebd69324660d2d09fb9bcfb39c92476fe5697f3076887dbe95f0b985b7762d6",
+        "benchmark-default-release/sources.tar.gz": "ef03f69994fdd8a88d73e4e3afd4b9f8bbd22f4fb03f0f94bdd4fb4cbbede241",
+        "benchmark-default-release/binaries/fixture_exporter": "2b71ad2acd335cf148cd02e374a86279c37f3974c0b695474f07e10e314c8f1b",
+        "benchmark-default-release/binaries/rust": "e0a408a849a4077263f03dffdea8787516c81c20a42452d4afb241c2e13d1ec8",
+        "benchmark-default-release/binaries/cpp": "b686179fba07d26899066a658375135e58e5d5c8c4662152fb7f443ab5390a4e"
       }
     },
     "benchmark-moss": {
@@ -36,10 +36,10 @@
       }
     },
     "gates": {
-      "summary_sha256": "1db9d5d8ff4262424c86480fad7bbeff7d1dfc811e7a2e72d8994a33096003ed",
+      "summary_sha256": "19154264b67282c8ef872c370e45e7ef4dbf5b4e9c18c7619d920395bb6e2efa",
       "artifacts": {
-        "gates-final/gates.json": "8453d1d1204db6a26cc1a0a774347c48ab4ecd0c20ae1ee1d8ac051a04e55f22",
-        "gates-final/meshoptimizer-rs-0.1.0.crate": "5d87454a0379189b917e6b928f153f8e179a665d96af766bbbefcc60606f6601"
+        "gates-release/gates.json": "3e93f5815a32bf4281dfa765d742e6dd290952d6213c886ccac67a2fad359d10",
+        "gates-release/meshoptimizer-rs-0.1.0.crate": "78c2d72b6f7da3a44e1c6f8b2b5e0a7e0d510adbea830f836562e4d5b376d7a4"
       }
     },
     "js": {
@@ -130,36 +130,36 @@
     "benchmark-default": {
       "vertex_cache": {
         "cases": 24,
-        "geometric_mean": 1.2399806186014324,
-        "maximum": 1.3096130252935492,
+        "geometric_mean": 1.1894294551996754,
+        "maximum": 1.2567940772921293,
         "maximum_memory_ratio": 1.0,
         "passed": true
       },
       "overdraw": {
         "cases": 24,
-        "geometric_mean": 1.0633884460635452,
-        "maximum": 1.39769577443152,
+        "geometric_mean": 1.0475183252924218,
+        "maximum": 1.3640744171979349,
         "maximum_memory_ratio": 0.9989704976937129,
         "passed": true
       },
       "simplify": {
         "cases": 72,
-        "geometric_mean": 1.2838099797372862,
-        "maximum": 1.4202421349892562,
+        "geometric_mean": 1.1800903407131067,
+        "maximum": 1.3059922004500173,
         "maximum_memory_ratio": 1.095090670882574,
-        "passed": false
+        "passed": true
       },
       "simplify_with_attributes": {
         "cases": 72,
-        "geometric_mean": 1.2567802127822754,
-        "maximum": 1.6506913494914492,
+        "geometric_mean": 1.2168060805681136,
+        "maximum": 1.3098606175665692,
         "maximum_memory_ratio": 1.0843286556888025,
-        "passed": false
+        "passed": true
       },
       "simplify_scale": {
         "cases": 12,
-        "geometric_mean": 1.0299048782340534,
-        "maximum": 1.1869728273012945,
+        "geometric_mean": 0.9627567262056559,
+        "maximum": 1.1422350955900251,
         "maximum_memory_ratio": 1.0,
         "passed": true
       }
@@ -171,52 +171,52 @@
     "runs": [
       {
         "target": "vertex_cache",
-        "cpu_seconds": 14886.279999999999,
-        "elapsed_seconds": 17700.840000000004,
-        "executions": 514879257,
-        "successes": 280106603,
+        "cpu_seconds": 14872.109999999997,
+        "elapsed_seconds": 16500.11,
+        "executions": 749426103,
+        "successes": 407694217,
         "crashes": 0,
-        "shards": 59
+        "shards": 55
       },
       {
         "target": "overdraw",
-        "cpu_seconds": 15336.689999999997,
-        "elapsed_seconds": 21000.989999999998,
-        "executions": 1134220054,
-        "successes": 477732559,
+        "cpu_seconds": 14810.359999999995,
+        "elapsed_seconds": 16500.11,
+        "executions": 1607030104,
+        "successes": 676893309,
         "crashes": 0,
-        "shards": 70
+        "shards": 55
       },
       {
         "target": "simplify",
-        "cpu_seconds": 14763.2,
-        "elapsed_seconds": 17701.22,
-        "executions": 480491171,
-        "successes": 244687672,
+        "cpu_seconds": 15271.429999999995,
+        "elapsed_seconds": 16800.120000000003,
+        "executions": 770511072,
+        "successes": 392393187,
         "crashes": 0,
-        "shards": 59
+        "shards": 56
       },
       {
         "target": "simplify_with_attributes",
-        "cpu_seconds": 14879.549999999997,
-        "elapsed_seconds": 17700.680000000004,
-        "executions": 415134040,
-        "successes": 161159084,
+        "cpu_seconds": 14801.159999999996,
+        "elapsed_seconds": 16200.270000000002,
+        "executions": 617018451,
+        "successes": 239527760,
         "crashes": 0,
-        "shards": 59
+        "shards": 54
       },
       {
         "target": "simplify_scale",
-        "cpu_seconds": 15223.599999999995,
-        "elapsed_seconds": 17701.520000000004,
-        "executions": 11309597748,
-        "successes": 10659509129,
+        "cpu_seconds": 15272.669999999995,
+        "elapsed_seconds": 16500.11,
+        "executions": 17315143374,
+        "successes": 16319911613,
         "crashes": 0,
-        "shards": 59
+        "shards": 55
       }
     ],
     "artifacts": {
-      "fuzz/record.json": "a64a402badda5e738d00415715ce5f39ecf5f44b850053022b3b69444b44af6d"
+      "fuzz/record.json": "de1fd41f4f9d98e8fa0f7b38e799275b71505eb94845cafadbc0d3b40fcc6ef6"
     }
   }
 }

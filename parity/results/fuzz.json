@@ -20,9 +20,8 @@
     "src/lib.rs": "fec7c6860954b3afd8d12a154b231f863064d84ccf9986377be22ddff921d50c",
     "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
     "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
-    "src/simplify.rs": "3e2e55166e0b261060eaca00048463ccd838023acb9d34a4d9c40a1acdb3b17b",
-    "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934",
-    "parity/fuzz.sh": "10736eebdf9a21c707f1b4ac17125ace8f7f5554b2c586e4e67277c375629fb6"
+    "src/simplify.rs": "fc4a3c4bd715adcf273340747fff4d602002ba055d070409aad52ec5c8845be9",
+    "src/workspace.rs": "43721a04a1394437c7ac86b7e6c88b99f5b5f5e3fec5ae6e80a998d60543f934"
   },
   "dependency_sha256": {
     "libm-0.2.16/.cargo-ok": "afbf9d0f3560b0fd7795e81c42a0a79ee6b6fc67e064f77826aee642cad28d91",
@@ -183,11 +182,11 @@
     "libm-0.2.16/src/math/trunc.rs": "d86a5bc12daa2dee89ee9c8b7457016b34b30ab300fd97187045095a858b5226"
   },
   "executable_sha256": {
-    "vertex_cache": "2b49354110252f819b29de8ce747dcf53ffcea3f33d7848309aba48d35f5bf20",
-    "overdraw": "84c71c9b951083b6c360c469d07d14b17e13fe61c2c43de4657938fceed4e781",
-    "simplify": "b79d467548f2e7a02e6d93b464096e74a4d1c22771d129f89062416fa2dcc0ba",
-    "simplify_with_attributes": "3ccfab18f72e2ecc6b0192580dbb89ac472d7d16cfa114074e00363703220ac2",
-    "simplify_scale": "747aeeea0d95d625329e78861d5d757a19579178832e6c14d8dbe60d91e0755a"
+    "vertex_cache": "2771730ac6301d80af347fc5155554e5ce94fbbf682f7c403afdf6f373c65a8f",
+    "overdraw": "0c46af7d71f162ab2f155fe6b05f1462f060a4f4c5e8b892b5fc575f1faf1c23",
+    "simplify": "90b7f3cb6b6fb0b2d0a4d61043026e5eb9e7ff25ac444c84c71402c5413cd83d",
+    "simplify_with_attributes": "d69218c1fd126ecf4e21b1483a596d621707873bf12c18999fe0a0dcce1a3d7f",
+    "simplify_scale": "0bd2be2eb294316bde1401f7992063533a15dac3070751171b0d7e96b6152e80"
   },
   "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
   "hardware": {
@@ -197,8 +196,8 @@
     "machine": "x86_64",
     "processor": "x86_64"
   },
-  "started_unix": 1791061102.9460788,
-  "required_cpu_seconds_per_target": 14400,
+  "started_unix": 1791081281.2803059,
+  "required_cpu_seconds_per_target": 14400.0,
   "jobs": 8,
   "worker_cpus": [
     0,
@@ -212,76 +211,69 @@
   ],
   "seed": 20261002,
   "passed": true,
+  "driver_sha256_history": [
+    "6f6341886c5ff7731066e96bf4e1123a1361d613a7721f7e62d70d8c63fdf9f6"
+  ],
+  "coverage": "unavailable: existing stable targets have no coverage instrumentation",
   "runs": [
     {
       "target": "vertex_cache",
-      "cpu_seconds": 14886.279999999999,
-      "elapsed_seconds": 17700.840000000004,
-      "executions": 514879257,
-      "successes": 280106603,
+      "cpu_seconds": 14872.109999999997,
+      "elapsed_seconds": 16500.11,
+      "executions": 749426103,
+      "successes": 407694217,
       "crashes": 0,
-      "shards": 59
+      "shards": 55
     },
     {
       "target": "overdraw",
-      "cpu_seconds": 15336.689999999997,
-      "elapsed_seconds": 21000.989999999998,
-      "executions": 1134220054,
-      "successes": 477732559,
+      "cpu_seconds": 14810.359999999995,
+      "elapsed_seconds": 16500.11,
+      "executions": 1607030104,
+      "successes": 676893309,
       "crashes": 0,
-      "shards": 70
+      "shards": 55
     },
     {
       "target": "simplify",
-      "cpu_seconds": 14763.2,
-      "elapsed_seconds": 17701.22,
-      "executions": 480491171,
-      "successes": 244687672,
+      "cpu_seconds": 15271.429999999995,
+      "elapsed_seconds": 16800.120000000003,
+      "executions": 770511072,
+      "successes": 392393187,
       "crashes": 0,
-      "shards": 59
+      "shards": 56
     },
     {
       "target": "simplify_with_attributes",
-      "cpu_seconds": 14879.549999999997,
-      "elapsed_seconds": 17700.680000000004,
-      "executions": 415134040,
-      "successes": 161159084,
+      "cpu_seconds": 14801.159999999996,
+      "elapsed_seconds": 16200.270000000002,
+      "executions": 617018451,
+      "successes": 239527760,
       "crashes": 0,
-      "shards": 59
+      "shards": 54
     },
     {
       "target": "simplify_scale",
-      "cpu_seconds": 15223.599999999995,
-      "elapsed_seconds": 17701.520000000004,
-      "executions": 11309597748,
-      "successes": 10659509129,
+      "cpu_seconds": 15272.669999999995,
+      "elapsed_seconds": 16500.11,
+      "executions": 17315143374,
+      "successes": 16319911613,
       "crashes": 0,
-      "shards": 59
+      "shards": 55
     }
   ],
-  "updated_unix": 1791073425.2150548,
-  "budget_amendment": {
-    "date": "2026-10-04",
-    "authority": "RFC section 14, owner decision",
-    "previous_cpu_seconds_per_target": 86400,
-    "cpu_seconds_per_target": 14400
-  },
-  "driver_sha256_history": [
-    "1964859002a078e017d988e6b80a0467e3b2c33e34ce4784536c58245a5faa15",
-    "12be4c9c46b1a605c0152ed013c6e6639af0bdc77017c4a634bf73a63a3a7409"
-  ],
-  "coverage": "unavailable: existing stable targets have no coverage instrumentation",
+  "updated_unix": 1791091783.3842585,
   "identities_unchanged": true,
-  "finished_unix": 1791073425.2150445,
+  "finished_unix": 1791091783.3842497,
   "artifacts": {
-    "fuzz/record.json": "a64a402badda5e738d00415715ce5f39ecf5f44b850053022b3b69444b44af6d"
+    "fuzz/record.json": "de1fd41f4f9d98e8fa0f7b38e799275b71505eb94845cafadbc0d3b40fcc6ef6"
   },
   "corpus_sha256": {
-    "vertex_cache": "08f1362389b6d058d4e699a4f52dc0178614c0f9bc9317ceab2e2c62c352380b",
-    "overdraw": "d50f7bf1c584d86b42c3c9df2f858c22bd9522ae8d975d0d7ddc53bb5ca125dd",
-    "simplify": "93061f2a07581c10dbfc4013b1e09576a0b20257dd88d67e4833c33bb19b497d",
-    "simplify_with_attributes": "0c2d75ac7b5c08c80010e51211be57a3bf6967ff18597d068fcc23457ab75f07",
-    "simplify_scale": "8ae7f3a6a5a36ba12a4577f0cab041cf7d385ec26753e04ead207eeb758ea7ae"
+    "vertex_cache": "40bf31d583589e6880d73982c775dd5eb0bc49f186051fd02dd26a276c8162c0",
+    "overdraw": "93c86cec6fe65d0a50e77b265662bf5aba8f67ee0dde2f97db596e08fe8daa4c",
+    "simplify": "87533a989dcbd8c14871e3f97dfc19bde5e4232d8e1017464511c09d73f8c7ec",
+    "simplify_with_attributes": "48ec607d3608b1969570e7b964751890970b55ffa1e528ac4f51a562986579ed",
+    "simplify_scale": "127a8b9001b2fbb122c1ca3ab29449ba19d855d84073bb86d6c9a66ed0b148fc"
   },
   "corpus_contract": "Replay descriptors: target binary, seed and execution count reproduce every generated input from the retained exact source."
 }

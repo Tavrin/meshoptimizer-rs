@@ -105,11 +105,11 @@ are Rust/C++ time: smaller is faster. Parentheses give the maximum case ratio.
 
 | Function | Fat LTO, lane 3b | Moss thin LTO | Cargo release defaults |
 |---|---:|---:|---:|
-| Vertex-cache optimization | 1.123 (1.201) | 1.243 (1.315) | 1.240 (1.310) |
-| Overdraw optimization | 1.098 (1.417) | 1.130 (1.361) | 1.063 (1.398) |
-| Simplification | 1.212 (1.385) | 1.258 (1.429) | 1.284 (1.420) |
-| Attribute simplification | 1.208 (1.342) | 1.243 (1.356) | 1.257 (1.651) |
-| Simplifier scale | 0.748 (0.884) | 0.782 (0.935) | 1.030 (1.187) |
+| Vertex-cache optimization | 1.123 (1.201) | 1.176 (1.344) | 1.189 (1.257) |
+| Overdraw optimization | 1.098 (1.417) | 1.079 (1.422) | 1.048 (1.364) |
+| Simplification | 1.212 (1.385) | 1.111 (1.201) | 1.180 (1.306) |
+| Attribute simplification | 1.208 (1.342) | 1.185 (1.335) | 1.217 (1.310) |
+| Simplifier scale | 0.748 (0.884) | 0.829 (1.292) | 0.963 (1.142) |
 
 The [fat-LTO record](parity/results/benchmark.json) uses a geometric mean of
 per-case median paired ratios. The RFC bars are a family mean at most 1.25,
@@ -122,11 +122,10 @@ Cargo does not apply a dependency's profile to its consumer. Moss-like builds
 use thin LTO, one codegen unit and optimization level 3; Cargo defaults use
 LTO disabled, 16 codegen units and optimization level 3. Consumer results are
 recorded separately and do not inherit the fat-LTO qualification claim.
-Both consumer matrices contain 204 cases. Moss passes four families; plain
-simplification exceeds the 1.25 mean bar (1.258), so release performance
-acceptance is blocked. Cargo defaults fail the mean bars for plain and
-attribute simplification and the attribute maximum bar. All memory bars pass.
-The thresholds remain unchanged; this lane makes no performance changes.
+Both consumer matrices contain 204 cases and were re-measured after the
+simplifier's prepaid work accounting (the fat-LTO column predates it and is
+historical). Every family passes the mean, maximum and memory bars under both
+consumer profiles. The thresholds are unchanged.
 
 ## Qualification records
 
@@ -160,7 +159,7 @@ regenerate their corpus. Any target failure is a release blocker.
 
 The owner set the release budget to four CPU-hours per target on 2026-10-04
 (RFC amendment §14). Completed CPU time counts toward the amended budget.
-The [release record](parity/results/fuzz.json) contains 4.101–4.260 process
+The [release record](parity/results/fuzz.json) contains 4.114–4.242 process
 CPU-hours per target with zero findings. This is finite invariant testing.
 
 For a local nightly continuation, use the same retained artifact directory:

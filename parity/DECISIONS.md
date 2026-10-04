@@ -1168,3 +1168,51 @@ package checks are now stale against the changed simplify.rs. The Cargo-default
 column in MEASURED_PERFORMANCE.md is lane 4's. The release fuzz CPU budget must
 be rerun on this source before release qualification. This lane's spec does not
 require them.
+
+## D51 — Release evidence refresh after the simplify optimisation (branch release/0.1-refresh)
+
+Re-established on source `src/simplify.rs` sha256 fc4a3c4b... (d1230c3), with no
+source change: the Cargo-default matrix, `gates.json`, `fuzz.json` and the
+package checks that D50 marked stale. Build target
+`/mnt/linux-extra/moss-cargo-targets/claude-meshopt-release` (to be deleted);
+artifacts in `/mnt/linux-extra/meshopt-artifacts/release-0.1`.
+
+Cargo-default matrix (`benchmark.sh --consumer-profile default --enforce`, exit
+0, 204 cases, record directory `benchmark-default-release`), family GM (max):
+cache 1.189 (1.257), overdraw 1.048 (1.364), plain simplify 1.180 (1.306),
+attributes 1.217 (1.310), scale 0.963 (1.142). All mean, maximum and memory
+bars pass; D49's default-profile failures (1.284, 1.651) are gone. Run on a
+shared host (load 13-42, including the 8 concurrent fuzz workers); high-load
+cases keep both attempts in the record.
+
+Release fuzz (`fuzz.sh --cpu-hours-per-target 4 --jobs 8`, seed 20261002,
+fresh artifact directory so no earlier corpus is credited): CPU-hours/
+executions per target: vertex_cache 4.131/749,426,103, overdraw 4.114/
+1,607,030,104, simplify 4.242/770,511,072, simplify_with_attributes 4.111/
+617,018,451, simplify_scale 4.242/17,315,143,374. Zero findings; corpus
+hashes are in `results/fuzz.json` `corpus_sha256`. Coverage still unavailable.
+
+Gates: `report.sh --execute gates` (all sixteen commands exit 0, including
+`cargo package --list` and `cargo publish --dry-run --allow-dirty`, which uses
+D9's offline loopback registry fallback; not a crates.io readiness claim).
+Run before and after the README update below; the retained record is the second.
+
+Decisions. (1) README performance table and fuzz range were stale (they still
+said release performance was blocked); updated to the new records. The Moss
+column now shows the D50 numbers and the fat-LTO column is kept as historical.
+Alternative rejected: leave README untouched; it would have contradicted the
+evidence. Reversal: free. This forced a gates re-run because README is in the
+package and the gates source snapshot. (2) `run.json`, `sweep.json`, `js.json`
+and `benchmark-moss.json` were not re-run: their recorded source hashes match
+the current tree and `report.sh --verify-artifacts` verifies them; their
+retained buffers were copied unchanged from
+`/mnt/linux-extra/meshopt-artifacts/simplify-perf/records` and lane 4's
+`js-final` into the release artifact directory. Alternative rejected: re-run
+and re-record identical evidence. Reversal: free. (3) `RELEASE-0.1-CHECKLIST.md`
+added at the repository root; it is not part of the crate package or the gates
+source snapshot. (4) The first gates run was invoked directly and overwrote the
+compact `gates.json` with a full record; it was repaired by re-running through
+`report.sh --execute gates` (and the stray `.crate` removed), not by Git.
+
+Unchanged limits: Linux arm64, macOS and Windows execution are CI-configured,
+not locally established; historical lane 3 artifacts stay absent as before.
