@@ -3809,3 +3809,14 @@ arithmetic remains unchanged, so unchanged exhaustive Oct/Quat code is not
 credited as a fresh result. Color needs seeded/edge validation and counters.
 Disk recovered to 90 GiB before the first build. All-feature native tests
 pass for fixes 1–3; per-fix acceptance still awaits exact archives/counters.
+
+### Fix 5: four-triangle meshlet output
+
+Two complete pairs share one canonical counter-limit guard and one output
+span. Typed stride-three output packs exactly twelve bytes, explicitly
+masking the first pair's counter byte before joining pair two; stride-four
+and raw output pack sixteen bytes. Independent input lookahead checks remain
+because consumption is data-dependent. Separate pair/odd tails keep exact
+counts. Counter overflow still abandons SIMD for the scalar u32 semantics.
+No new memory seam: vector packing uses the existing array store. Existing
+all-code/odd-tail/counter-wrap regression is required before acceptance.
