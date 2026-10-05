@@ -6001,3 +6001,20 @@ No corpus/bar changes, unsafe or SIMD. Receipts, exact sources and proof binarie
 are under /mnt/linux-extra/meshopt-artifacts/p05-diagfix/phase0; the slim record is
 parity/results/p05-diagfix-phase0.json. Historical performance/fuzz records are
 not promoted to current evidence. This closes Phase 0, not performance acceptance.
+
+## D161 — P05 all-family instruction diagnosis before batch fixes
+
+Complete Phase 1 without timing. Every 0.5 family and both API forms where
+available have fresh instruction/branch counts on frozen shapes 0/2 (remesh
+0/4) under both consumers. Retain immutable source/binary/assembly/sample
+identities in /mnt/linux-extra/meshopt-artifacts/p05-diagfix/before. Counts
+subtract fixture/setup with two batch lengths; timer output is discarded.
+P05_DIAGNOSIS.md records all causes, quantified limits, ranked fixes and explicit
+abandonment of unsupported further edits. Remesh default medium owned retires
+9,646,512 vs 6,461,084 instructions and 1,033,479 vs 190,275 branches; marking/
+accumulation dominate. Implement the unfinished D142/D143 representation idea,
+redundant raster-clear removal, packed raster readers and small compact-hash
+inlining together, each in a separate validated commit. Do not repeat rejected
+D127–D141 candidates or infer time acceptance from counts. Add lean touched-family
+screening/D146 support before the single Phase 3 campaign; preserve the final
+matrix gate and frozen shapes. Abandoned families remain unqualified.
