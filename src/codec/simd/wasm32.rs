@@ -42,11 +42,6 @@ fn abs(a: v128) -> v128 {
 }
 #[inline]
 #[target_feature(enable = "simd128")]
-fn neg(a: v128) -> v128 {
-    f32x4_neg(a)
-}
-#[inline]
-#[target_feature(enable = "simd128")]
 fn ge(a: v128, b: v128) -> v128 {
     f32x4_ge(a, b)
 }
@@ -138,9 +133,11 @@ fn oct_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), cra
         let mut x = f32x4_convert_i32x4(raw[0]);
         let mut y = f32x4_convert_i32x4(raw[1]);
         let z = sub(sub(f32x4_convert_i32x4(raw[2]), abs(x)), abs(y));
-        let t = select(ge(z, splat(0.0)), splat(0.0), z);
-        x = add(x, select(ge(x, splat(0.0)), t, neg(t)));
-        y = add(y, select(ge(y, splat(0.0)), t, neg(t)));
+        // Finite integer fields convert zero to +0; pmin selects its
+        // second (+0) operand on equality, matching the scalar branch.
+        let t = f32x4_pmin(z, splat(0.0));
+        x = add(x, v128_xor(t, v128_and(x, splat(-0.0))));
+        y = add(y, v128_xor(t, v128_and(y, splat(-0.0))));
         let length = f32x4_sqrt(add(add(mul(x, x), mul(y, y)), mul(z, z)));
         if i32x4_bitmask(f32x4_eq(length, splat(0.0))) != 0 {
             return Err(crate::Error::NumericalFailure);

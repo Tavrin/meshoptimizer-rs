@@ -87,11 +87,6 @@ fn abs(a: __m128) -> __m128 {
 }
 #[inline]
 #[target_feature(enable = "sse2")]
-fn neg(a: __m128) -> __m128 {
-    _mm_xor_ps(_mm_set1_ps(-0.0), a)
-}
-#[inline]
-#[target_feature(enable = "sse2")]
 fn ge(a: __m128, b: __m128) -> __m128 {
     _mm_cmpge_ps(a, b)
 }
@@ -141,7 +136,8 @@ fn fields16(block: &[u8; 32]) -> [__m128i; 4] {
 fn round_vector(value: __m128, sign: __m128) -> __m128i {
     _mm_cvttps_epi32(add(
         value,
-        select(ge(sign, splat(0.0)), splat(0.5), splat(-0.5)),
+        // Comparison preserves the canonical treatment of signed zero.
+        _mm_or_ps(_mm_andnot_ps(ge(sign, splat(0.0)), splat(-0.0)), splat(0.5)),
     ))
 }
 #[inline]
@@ -170,9 +166,12 @@ fn oct_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), cra
         let mut x = _mm_cvtepi32_ps(raw[0]);
         let mut y = _mm_cvtepi32_ps(raw[1]);
         let z = sub(sub(_mm_cvtepi32_ps(raw[2]), abs(x)), abs(y));
-        let t = select(ge(z, splat(0.0)), splat(0.0), z);
-        x = add(x, select(ge(x, splat(0.0)), t, neg(t)));
-        y = add(y, select(ge(y, splat(0.0)), t, neg(t)));
+        // Integer inputs are finite and convert zero to +0. MIN chooses
+        // the +0 second operand on equality; XOR applies the input sign
+        // without changing the canonical addition or normalization order.
+        let t = _mm_min_ps(z, splat(0.0));
+        x = add(x, _mm_xor_ps(t, _mm_and_ps(x, splat(-0.0))));
+        y = add(y, _mm_xor_ps(t, _mm_and_ps(y, splat(-0.0))));
         let length = _mm_sqrt_ps(add(add(mul(x, x), mul(y, y)), mul(z, z)));
         if _mm_movemask_ps(_mm_cmpeq_ps(length, splat(0.0))) != 0 {
             return Err(crate::Error::NumericalFailure);

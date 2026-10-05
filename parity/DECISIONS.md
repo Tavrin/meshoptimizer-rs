@@ -4235,3 +4235,31 @@ checks and timings finish. cleanup.json records target absence and
 1,486,684,160 allocated bytes before deletion. Preserve artifacts outside
 that target and archive the final clean committed source. No push, merge,
 rebase, subagent, ARM execution or broader release/integration acceptance.
+
+### Fix-six Oct attribution and exact sign arithmetic
+
+Start clean at f069e84; artifacts /mnt/linux-extra/meshopt-artifacts/p07-fix6;
+only target codex-p07-fix6, no subagents/push/merge/rebase. Inherited round-four
+one-final-pass rule, frozen inputs and registered bars remain binding. Report
+both RFC (1.25/1.50) and registered bars; use the registered maximum for stopping
+and independently derive the RFC result from the same samples. No timing yet.
+
+Instruction-count bisect across retained r3/r4/r5 binaries contradicts an Oct
+code regression: tiny s4 13.265, resident s4 5.782, resident s8 3.016 instructions
+per decoded byte at every epoch, caller-buffer. Oct kernel source is unchanged.
+Do not invent a responsible commit from different timing epochs. Exact MIN/XOR
+reflection replaces compare/select, and comparison-derived sign bits construct
+the canonical half bias. Integer inputs are finite, input zero is +0, and MIN
+uses +0 on equality. Keep original arithmetic association, sqrt/div and checked
+zero-length errors; canonical rounding still compares >=0, including signed zero.
+Native resident s4 falls to 4.970, s8 to 2.610; filtered Oct view to 8.988 from
+9.800. Allocating reductions match. Native exhaustive 16,777,216 Oct8 words and
+all Oct16/Quat edge combinations pass; existing per-level/tail tests pass.
+Counters and binaries retained; actual wasm proof and final bars still required.
+
+Meshlet caller-buffer decoders perform no zero-fill/output copy. Typed resident
+v4/t3 prior median is 107.49ns caller vs 115.38ns allocating, while C++ has a
+stronger caller baseline. Raw prior caller median is worse (186.99 vs 108.33ns),
+but instruction work is lower (3.314 vs 3.951/byte), so extra loop work alone does
+not explain it. Check output bounds/setup and preserve both absolute and relative
+evidence. Exp S3 failures are caller varied-filter-3-tiny-s32 and resident-s32.
