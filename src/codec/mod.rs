@@ -241,7 +241,7 @@ fn apply(filter: Filter, data: &mut [u8], stride: usize) -> Result<(), Error> {
         Filter::Octahedral => filter::oct(data, stride),
         Filter::Quaternion => filter::quat(data),
         Filter::Exponential => {
-            filter::exp(data);
+            filter::exp(data, stride);
             Ok(())
         }
     }

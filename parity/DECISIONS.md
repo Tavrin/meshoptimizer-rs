@@ -4436,3 +4436,27 @@ Reject the grouped byte-output/raw cursor trial: typed instruction counts are
 unchanged; raw 64/126 rises 3.324 ->3.418. Restore that trial before commit.
 No new unsafe or arithmetic change. Perf cycles vary substantially across
 subtraction runs on this host and are diagnostic, not RFC acceptance.
+
+
+### Fix-seven Exp crossover and S3 decision
+
+Restore explicit SSE2 only above 4 MiB and outside stride 12. Smaller inputs
+and stride-12 streams use the canonical safe scalar loop through a non-inlined
+shared lowering, avoiding separately inlined allocating/caller versions.
+No reference arithmetic is changed. The all-SIMD development binary and lowered
+scalar ceiling compare the same inputs/binary under CPU26 user counters, with
+N/2N subtraction and exact output hashes (exp-grid/exp-boundary-counters.json).
+At 17 stride32 records canonical/manual cycles/byte are 0.228/0.321; at 129,
+0.188/0.189. At 4097 and 8193 they are near equal; 32769 and 65537 stride32
+records favor canonical slightly (0.221/0.225 and 0.220/0.223 caller). At
+262145 records (8 MiB) manual wins 0.224/0.255 caller and 0.268/0.294 allocating.
+Choose the 4-MiB midpoint of the measured 2-to-8-MiB bracket, conservatively
+retaining scalar through the smaller cache regimes. Stride12 remains scalar
+for its round-six S3 streaming regression; smaller measured stride12 cases
+also favor scalar cycles. Host-cycle variation is substantial, not a time
+acceptance claim; retain both favorable and unfavorable counters (streaming
+stride12 manual 0.215 vs scalar 0.227 in one trial). Manual instruction work
+is consistently ~0.047/byte lower; that alone does not decide crossover.
+This covers the four named S3 cases (tiny12, tiny32, resident32, streaming12).
+Regression covers both threshold sides, exceptional words, all local ceilings,
+workspace usage and caller tails. Final paired S3 remains a required gate.

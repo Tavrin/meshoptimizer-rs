@@ -104,6 +104,7 @@ pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
     }
     Ok(())
 }
+
 /// Scalar meshopt_decodeFilterColor. Returns NumericalFailure where the C++
 /// float-to-int conversion is undefined: a zero alpha word (infinite scale)
 /// or a 16-bit record whose scaled component leaves the i32 range.
@@ -307,6 +308,9 @@ fn color_record(y: i32, co: i32, cg: i32, alpha: i32, max: f32) -> ([i32; 4], bo
     });
     (values, valid)
 }
+// Keep one lowering for the canonical comparator and size-dispatched path.
+// Inlining it separately into allocating/caller wrappers changes vectorization.
+#[inline(never)]
 pub(super) fn scalar_exp(data: &mut [u8]) {
     for word in data.as_chunks_mut::<4>().0 {
         let v = u32::from_le_bytes(*word);
@@ -331,13 +335,18 @@ pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
     }
     scalar_quat(data)
 }
-pub(super) fn exp(data: &mut [u8]) {
-    // x86-64 already has baseline SSE2: let LLVM vectorize the canonical
-    // reference directly, avoiding a second runtime-dispatched loop.
-    #[cfg(all(feature = "simd", not(target_arch = "x86_64")))]
-    if super::simd::filter(3, data, 4).is_some() {
+pub(super) fn exp(data: &mut [u8], stride: usize) {
+    #[cfg(feature = "simd")]
+    if {
+        #[cfg(target_arch = "x86_64")]
+        let use_simd = data.len() > 4 * 1024 * 1024 && stride != 12;
+        #[cfg(not(target_arch = "x86_64"))]
+        let use_simd = true;
+        use_simd && super::simd::filter(3, data, 4).is_some()
+    } {
         return;
     }
+    let _ = stride;
     scalar_exp(data)
 }
 pub(super) fn color(data: &mut [u8], stride: usize) -> Result<(), Error> {

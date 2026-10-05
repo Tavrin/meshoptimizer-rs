@@ -337,3 +337,34 @@ fn color_alpha_conversion_bounds_and_wrap() {
         }
     }
 }
+
+#[test]
+fn exp_dispatch_boundary_preserves_words_and_tail() {
+    for stride in [4, 12, 32] {
+        let boundary = 4 * 1024 * 1024 / stride;
+        for count in [17, 4097, boundary - 1, boundary, boundary + 1] {
+            let words = [
+                0, 0xffffffff, 0x80000000, 0x7fffffff, 0x01800000, 0x7f000001, 0xff123456,
+                0x00ffffff,
+            ];
+            let mut source = vec![0xa5; count * stride + 11];
+            for (i, w) in source[..count * stride].chunks_exact_mut(4).enumerate() {
+                w.copy_from_slice(&u32::to_le_bytes(words[i % words.len()]));
+            }
+            let run = |level| {
+                with_level(level, || {
+                    let mut out = source.clone();
+                    let mut work = Workspace::default();
+                    decode_filter_exp(&mut out, count, stride, &mut work).unwrap();
+                    assert_eq!(&out[count * stride..], &source[count * stride..]);
+                    (out, work.usage())
+                })
+                .unwrap()
+            };
+            let expected = run(Level::Scalar);
+            for level in levels() {
+                assert_eq!(run(level), expected);
+            }
+        }
+    }
+}
