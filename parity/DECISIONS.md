@@ -3795,3 +3795,17 @@ including the frozen seventeen-record inputs, rather than choosing a timing
 threshold. Tiny calls with no complete group never stage vectors. Count zero
 executes neither path. Existing boundary/tail regression coverage is retained;
 S3 is still unestablished until the final admitted pass.
+
+### Fix 4: exact Color range reduction
+
+Replace eight component range comparisons and their mask chain with
+component minima/maxima and two endpoint comparisons. All multiply/divide,
+association, +0.5 truncation and packing remain unchanged. Alpha zero
+produces NaN in the final alpha component: native min/max keep that final
+operand; wasm min/max propagate NaN. Thus exceptional lanes still take the
+scalar fallback. Oct/Quat nearest/estimate/sign-bit shortcuts are rejected:
+no safe evidence establishes their signed-zero/rounding identity. Their
+arithmetic remains unchanged, so unchanged exhaustive Oct/Quat code is not
+credited as a fresh result. Color needs seeded/edge validation and counters.
+Disk recovered to 90 GiB before the first build. All-feature native tests
+pass for fixes 1–3; per-fix acceptance still awaits exact archives/counters.

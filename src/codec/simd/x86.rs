@@ -758,17 +758,15 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
             a,
         ];
         let f = channels.map(|v| add(mul(_mm_cvtepi32_ps(v), ss), splat(0.5)));
-        let mut mask = _mm_castsi128_ps(_mm_set1_epi32(-1));
-        for v in f {
-            mask = _mm_and_ps(
-                mask,
-                _mm_and_ps(
-                    _mm_cmpge_ps(v, splat(-2147483648.0)),
-                    _mm_cmplt_ps(v, splat(2147483648.0)),
-                ),
-            );
-        }
-        let valid = _mm_movemask_ps(mask) == 15;
+        // With nonzero alpha every channel is finite. Alpha zero makes
+        // f[3] NaN, which is the final operand of both reductions and hence
+        // survives SSE min/max's second-operand NaN rule.
+        let lo = _mm_min_ps(_mm_min_ps(_mm_min_ps(f[0], f[1]), f[2]), f[3]);
+        let hi = _mm_max_ps(_mm_max_ps(_mm_max_ps(f[0], f[1]), f[2]), f[3]);
+        let valid = _mm_movemask_ps(_mm_and_ps(
+            _mm_cmpge_ps(lo, splat(-2147483648.0)),
+            _mm_cmplt_ps(hi, splat(2147483648.0)),
+        )) == 15;
         if !valid {
             crate::codec::filter::scalar_color(block, W)?;
             continue;

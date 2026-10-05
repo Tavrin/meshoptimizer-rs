@@ -362,17 +362,14 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
             a,
         ];
         let f = channels.map(|v| add(mul(f32x4_convert_i32x4(v), ss), splat(0.5)));
-        let mut mask = i32x4_splat(-1);
-        for v in f {
-            mask = v128_and(
-                mask,
-                v128_and(
-                    f32x4_ge(v, splat(-2147483648.0)),
-                    f32x4_lt(v, splat(2147483648.0)),
-                ),
-            );
-        }
-        let valid = i32x4_bitmask(mask) == 15;
+        // Min/max propagate NaN; zero-scale lanes still fall back before
+        // conversion. The asymmetric i32 endpoints remain exact.
+        let lo = f32x4_min(f32x4_min(f32x4_min(f[0], f[1]), f[2]), f[3]);
+        let hi = f32x4_max(f32x4_max(f32x4_max(f[0], f[1]), f[2]), f[3]);
+        let valid = i32x4_bitmask(v128_and(
+            f32x4_ge(lo, splat(-2147483648.0)),
+            f32x4_lt(hi, splat(2147483648.0)),
+        )) == 15;
         if !valid {
             crate::codec::filter::scalar_color(block, W)?;
             continue;
