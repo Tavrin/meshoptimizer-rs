@@ -1,10 +1,12 @@
-//! A pure safe Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3.
+//! A Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3.
 //!
 //! Every ported function produces byte-identical output to meshoptimizer 1.3
 //! (scalar build). Differential runs against the C++ library, seeded sweeps,
 //! fuzzing and a wasm32 identity check prove this on the recorded inputs.
 //!
-//! The crate is safe Rust (`unsafe` is forbidden) and needs no C++ toolchain.
+//! The crate is safe Rust except for one module, `codec::simd`, which holds the SIMD kernels for vertex decoding, EXT filters and meshlet decoding. Every `unsafe` block there has a written safety argument, and every SIMD path must produce the same bytes as the scalar safe-Rust path, which is the reference and the fallback. Build with `default-features = false` (adding `std` if needed) to compile no `unsafe` code; output is identical. Cargo feature unification applies: if any other crate in the dependency graph enables `simd`, the module is compiled for the whole graph. Simplification, optimization, index decoding and all encoders contain no `unsafe` in either configuration. See the [safety audit](https://github.com/Tavrin/meshoptimizer-rs/blob/main/src/codec/simd/SAFETY.md).
+//!
+//! The crate needs no C++ toolchain.
 //! It supports `no_std` with `alloc`. Invalid input returns a typed [`Error`]
 //! instead of undefined behaviour. A reusable [`Workspace`] holds scratch
 //! memory, makes every allocation fallible and enforces per-call memory and
@@ -107,7 +109,14 @@
 //! - `clusterlod`: the cluster-LOD builder from upstream's `demo/clusterlod.h`.
 //!   It reproduces the pinned demo exactly; it is not a stable upstream API.
 //! - `experimental`: upstream functions and options marked experimental.
-#![forbid(unsafe_code)]
+#![deny(unsafe_code)]
+#![cfg_attr(not(feature = "simd"), forbid(unsafe_code))]
+#![deny(
+    unsafe_op_in_unsafe_fn,
+    clippy::undocumented_unsafe_blocks,
+    clippy::multiple_unsafe_ops_per_block,
+    clippy::missing_safety_doc
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(missing_docs)]
 

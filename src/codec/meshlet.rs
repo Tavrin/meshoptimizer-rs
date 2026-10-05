@@ -392,6 +392,18 @@ fn decode_vertices(s: &Stream<'_>, mut out: impl FnMut(usize, u32)) -> Result<us
             return Err(Error::InvalidStream);
         }
         let window = s.source.get(data..data + 16).ok_or(Error::InvalidStream)?;
+        #[cfg(feature = "simd")]
+        if let Some((values, used)) = super::simd::meshlet(window.try_into().unwrap(), code4, last)
+        {
+            for (k, r) in values.into_iter().enumerate() {
+                if g * 4 + k < count {
+                    out(g * 4 + k, r);
+                }
+            }
+            last = values[3];
+            data += used;
+            continue;
+        }
         let mut offset = 0usize;
         for k in 0..4 {
             let code = ((code4 >> k) & 1) | ((code4 >> (k + 3)) & 2);
@@ -430,6 +442,12 @@ fn decode_triangles(
     triangle_count: usize,
     mut out: impl FnMut(usize, u32),
 ) -> Result<usize, Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) =
+        super::simd::triangles(s.source, s.bound, s.codes, extra, triangle_count, &mut out)
+    {
+        return result;
+    }
     let mut next = 0u32;
     let mut fifo = [0u32; 3];
     for i in 0..triangle_count {

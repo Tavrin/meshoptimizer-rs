@@ -1,13 +1,15 @@
 # meshoptimizer-rs
 
-A pure safe Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3.
+The crate is safe Rust except for one module, `codec::simd`, which holds the SIMD kernels for vertex decoding, EXT filters and meshlet decoding. Every `unsafe` block there has a written safety argument, and every SIMD path must produce the same bytes as the scalar safe-Rust path, which is the reference and the fallback. Build with `default-features = false` (adding `std` if needed) to compile no `unsafe` code; output is identical. Cargo feature unification applies: if any other crate in the dependency graph enables `simd`, the module is compiled for the whole graph. Simplification, optimization, index decoding and all encoders contain no `unsafe` in either configuration.
+
+A Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3.
 
 Every ported function produces byte-identical output to meshoptimizer 1.3
 (scalar build): the same index order, the same error bits, the same encoded
 bytes. Differential runs against the C++ library, seeded sweeps, fuzzing and a
 wasm32 identity check prove this on the recorded inputs.
 
-The crate is safe Rust (`#![forbid(unsafe_code)]`) and needs no C++ toolchain.
+The crate needs no C++ toolchain.
 It supports `no_std` with `alloc`. Invalid input returns a typed `Error`
 instead of undefined behaviour. A reusable `Workspace` holds scratch memory,
 makes every allocation fallible and enforces per-call memory and work limits.
@@ -26,7 +28,8 @@ get checked slices instead of raw pointer/count pairs, `Result` instead of
 assertions, explicit memory and work limits, and no global allocator hook.
 
 Speed is not yet a reason to switch. The ports are measured against C++ and
-are usually within 1.25× of its time, but they are scalar code. See
+are usually within 1.25× of its scalar time. SIMD codecs have separate bars and
+qualification records. See
 [Performance](#performance).
 
 ## Install
@@ -40,6 +43,7 @@ Rust 1.88 or later. The library is imported as `meshoptimizer_rs`.
 | Feature | Default | Effect |
 |---|---|---|
 | `std` | yes | `std::error::Error` for `Error`. Disable default features for `no_std`; an allocator is still required. |
+| `simd` | yes | Audited SIMD vertex, filter and meshlet kernels; runtime x86 detection with `std`, compile-time features without it. Disable for an unsafe-free build. |
 | `clusterlod` | no | The cluster-LOD builder from upstream's `demo/clusterlod.h`. It reproduces the pinned demo exactly; the demo is not a stable upstream API. |
 | `experimental` | no | Upstream functions and options marked experimental. |
 
@@ -209,9 +213,9 @@ Caller-buffer (`_into`) and in-place forms are listed in the rustdoc.
 - Phase 0.5: the analyzers (`meshopt_analyzeVertexCache`, `…Overdraw`,
   `…VertexFetch`, `…Coverage`), opacity maps, tangent and normal generation, and
   remeshing.
-- Phase 0.6 and 0.7 work (see [Roadmap](#roadmap)).
-- SIMD decoders and filters. The codecs produce upstream's scalar output and
-  are scalar code.
+- Phase 0.6 parallel batch APIs (see [Roadmap](#roadmap)).
+- AVX2, AVX-512 and 32-bit ARM SIMD. The implemented SIMD tiers are
+  SSE2/SSSE3/SSE4.1, AArch64 NEON and wasm simd128; index/sequence stay scalar.
 
 ## Performance
 
@@ -228,16 +232,23 @@ profiles:
   records);
 - Cargo defaults: the default `release` profile (no LTO, 16 codegen units).
 
-The crate's own fat-LTO profile does not apply to dependents, so the bar does
-not use it.
+The crate's own fat-LTO profile does not apply to dependents, so the legacy
+consumer bars do not use it. P02/P07 codec measurements use their separately
+registered driver profiles; P07's features and limits are in
+[SIMD_RESULTS.md](parity/SIMD_RESULTS.md).
 
-All timings were taken on one AMD Ryzen 9 7945HX core under Linux x86-64,
+The legacy timings were taken on one AMD Ryzen 9 7945HX core under Linux x86-64,
 with other load on the host (recorded per sample). Each case runs one warm-up
 and then 10–30 alternating Rust/C++ pairs on the same core; the reported ratio
 is the median paired ratio. Timing includes validation, required copies,
 allocation and the algorithm itself. Raw samples, load, and source and
 executable hashes are kept with the records. The host was not quiet, and the
 figures are not general speed claims.
+
+P07 uses the owner's five-to-twenty-pair early stopping rule, with thirty fresh
+pairs only for borderline maxima. Its once-only matrices, admission telemetry,
+individual ratios and failed bars are in [SIMD_RESULTS.md](parity/SIMD_RESULTS.md)
+and [SIMD_PERFORMANCE.md](parity/SIMD_PERFORMANCE.md).
 
 Results, as family geometric mean / worst case:
 
@@ -248,6 +259,7 @@ Results, as family geometric mean / worst case:
 | 0.2 decoders (raw codecs) | 2 APIs | one profile recorded: allocating GM 1.01, max 1.38; caller-buffer GM 0.97, max 1.27; pass | not recorded | [P02_RESULTS.md](parity/P02_RESULTS.md) |
 | 0.3 meshlets, partitioning, spatial | 15 | all pass; `partition_clusters` 1.23 / 1.37 | 14 pass; `partition_clusters` **1.45 / 1.78** | [MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md) |
 | 0.4 encoders, filters, meshlet codec | 24 | GM 0.61–1.24, max 1.46; all pass | GM 0.59–1.24, max 1.47; all pass | [benchmark-0.4-moss.json](parity/results/benchmark-0.4-moss.json), [benchmark-0.4-default.json](parity/results/benchmark-0.4-default.json) |
+| 0.7 SIMD codecs | 2 APIs | separate driver profile: S1/S2/S3 fail; S4 passes only caller-buffer; Node S5 fails | not recorded | [SIMD_RESULTS.md](parity/SIMD_RESULTS.md), [every case](parity/SIMD_PERFORMANCE.md) |
 
 The 0.1, 0.1.x and 0.3 records also check memory (requested output plus
 scratch ≤ 1.25× C++); every family passes. The 0.2 and 0.4 records time only.
@@ -281,11 +293,10 @@ adjacency and partition code; see
 The `clusterlod` build path is not yet competitive with C++. It has no
 qualified timing record and is not covered by the bar.
 
-The bar compares against scalar C++. Upstream's SIMD vertex decoder is 2–5×
-faster than this crate on the recorded cases (Rust/SIMD throughput
-0.20–0.47), and index decoding runs at 0.7–1.0× of SIMD throughput. The full
-table is in [P02_PERFORMANCE.md](parity/P02_PERFORMANCE.md). SIMD is planned
-for phase 0.7.
+The P02 bar compared against scalar C++. Its historical SIMD comparison is
+in [P02_PERFORMANCE.md](parity/P02_PERFORMANCE.md). The phase 0.7 SIMD
+implementation, individual ratios and qualification limits are recorded in
+[SIMD_RESULTS.md](parity/SIMD_RESULTS.md).
 
 ## Parity and verification
 

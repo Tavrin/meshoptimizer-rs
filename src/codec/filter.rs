@@ -7,7 +7,7 @@ use crate::{math::sqrt, Error};
 fn rounded(v: f32, sign: f32) -> i32 {
     (v + if sign >= 0.0 { 0.5 } else { -0.5 }) as i32
 }
-pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
+pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
     let mut previous = ([0i16; 3], [0i32; 3]);
     let mut valid = false;
     for element in data.chunks_exact_mut(stride) {
@@ -69,7 +69,7 @@ pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
     }
     Ok(())
 }
-pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
+pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
     let scale = 32767.0 / sqrt(2.0);
     let mut previous = ([0i16; 4], [0u8; 8]);
     let mut valid = false;
@@ -107,7 +107,7 @@ pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
 /// Scalar meshopt_decodeFilterColor. Returns NumericalFailure where the C++
 /// float-to-int conversion is undefined: a zero alpha word (infinite scale)
 /// or a 16-bit record whose scaled component leaves the i32 range.
-pub(super) fn color(data: &mut [u8], stride: usize) -> Result<(), Error> {
+pub(super) fn scalar_color(data: &mut [u8], stride: usize) -> Result<(), Error> {
     // Chunks of up to 64 records take a vectorizable path whose conversion is
     // exact below 2^22; a chunk with any larger (or non-finite) value is
     // restored from its copy and redone with the per-record checked path.
@@ -307,7 +307,7 @@ fn color_record(y: i32, co: i32, cg: i32, alpha: i32, max: f32) -> ([i32; 4], bo
     });
     (values, valid)
 }
-pub(super) fn exp(data: &mut [u8]) {
+pub(super) fn scalar_exp(data: &mut [u8]) {
     for word in data.as_chunks_mut::<4>().0 {
         let v = u32::from_le_bytes(*word);
         let m = ((v << 8) as i32) >> 8;
@@ -315,6 +315,35 @@ pub(super) fn exp(data: &mut [u8]) {
         let decoded = f32::from_bits((e.wrapping_add(127) as u32) << 23) * m as f32;
         word.copy_from_slice(&decoded.to_bits().to_le_bytes());
     }
+}
+
+pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::filter(1, data, stride) {
+        return result;
+    }
+    scalar_oct(data, stride)
+}
+pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::filter(2, data, 8) {
+        return result;
+    }
+    scalar_quat(data)
+}
+pub(super) fn exp(data: &mut [u8]) {
+    #[cfg(feature = "simd")]
+    if super::simd::filter(3, data, 4).is_some() {
+        return;
+    }
+    scalar_exp(data)
+}
+pub(super) fn color(data: &mut [u8], stride: usize) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::filter(4, data, stride) {
+        return result;
+    }
+    scalar_color(data, stride)
 }
 
 #[cfg(test)]

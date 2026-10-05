@@ -32,6 +32,10 @@ fn group(data: &[u8], pos: usize, out: &mut [u8; 16], bits: u32) -> Result<usize
         .ok_or(Error::InvalidStream)?
         .try_into()
         .map_err(|_| Error::InvalidStream)?;
+    #[cfg(feature = "simd")]
+    if let Some(used) = super::simd::group(source, out, bits) {
+        return Ok(pos + used);
+    }
     let used = match bits {
         0 => {
             out.fill(0);
@@ -56,6 +60,10 @@ fn decode_deltas<const WIDTH: usize, const XOR: bool>(
     last: &[u8],
     rot: u32,
 ) {
+    #[cfg(feature = "simd")]
+    if WIDTH == 1 && !XOR && super::simd::deltas8(buffer, target, count, stride, last) {
+        return;
+    }
     for component in (0..4).step_by(WIDTH) {
         let mut previous = 0u32;
         for j in 0..WIDTH {

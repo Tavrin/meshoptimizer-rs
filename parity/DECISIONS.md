@@ -3358,3 +3358,92 @@ runs once, early stops after 5–20 pairs on a paired 95% interval, and sends
 only borderline cases to thirty fresh D146 pairs. Bursts last <15 minutes,
 then release cores. Pin one core, retain load and raw samples, pause on GPU
 lease or active moss-scoreboard measurements. No post-measurement bar edits.
+
+## P07-D2 — sqrt exceptional bits and canonical SIMD adapter
+
+The first raw hardware check fails at 0xbf800000 (-1): SSE sqrt yields
+0xffc00000 but pinned libm 0.2.16 without default features yields 0x7fc00000.
+Correct rounding does not specify NaN payload/sign. Keep the full-bit check
+unchanged: the vector sqrt adapter selects pinned libm's canonical NaN for
+negative or NaN inputs and uses IEEE hardware sqrt for nonnegative inputs,
+preserving -0 and positive infinity. This repairs the backend, without
+changing filter arithmetic, scalar output, oracle pin or tolerance. The raw
+instruction alone is not bit-identical over all patterns; the checked adapter
+is the unit qualified by the exhaustive run. No reciprocal/rsqrt or FMA.
+
+## P07-D3 — Color conformance retains the inherited scalar contract
+
+All native SIMD ceilings and both wasm builds match scalar Rust and scalar
+C++ on the Color sweep. The new harness initially applied EXT's one-unit
+allowance to random raw Color words and failed seed 20261005 op18 case 3.
+The inherited P04 harness explicitly records Color SIMD distance without
+assuming cross-ISA identity (runner04.py:174); Color is outside EXT and the
+amendment does not change RFC 5.1's selected scalar Color contract. Upstream
+SIMD saturates decoded channels where scalar integer output wraps; arbitrary
+raw words can therefore differ by more than one output unit. Preserve that
+failed attempt, compare Rust paths exactly on every raw word, retain exact
+scalar C++ comparison, and report upstream Color SIMD distance separately.
+The EXT allowance still gates Oct/Quat, and Exp remains exact. This is an
+explicit inherited-domain classification, never a tolerance between Rust paths.
+
+## P07-D4 — resume the same matrix across short admission windows
+
+The GPU queue repeatedly left windows shorter than the controller's fifteen-
+second poll. Preserve the 111 completed native API/case rows and continue
+only the remaining rows with a two-second admission poll. This changes no
+input, binary, bar, confidence rule, pair count or D146 decision. The original
+record is copied before resumption; both controller source hashes are retained.
+The continuation checks every original source and executable identity, skips
+completed API/case keys, keeps all prior samples/admission telemetry, and still
+releases cores between bounded bursts. The wasm controller uses the same
+faster poll. This is one matrix with checkpoints, not a repeated full matrix.
+
+## P07-D5 — retain complete Node pair telemetry
+
+Before the Node matrix, inspection found that the original controller checked
+admission on every pair but did not retain discarded pairs or stage-2 load
+telemetry. Keep that source unchanged as part of the frozen identity, and use
+`parity/measure-simd-js.py` as a reporting adapter. It adds those records and
+hashes both the original controller and the exact executed controller text.
+Pair order, calibration, confidence intervals, 5–20 stopping, thirty fresh
+D146 pairs, numeric bars and production binaries are unchanged. The adapter
+preserves completed API/case keys if a bootstrap checkpoint exists. A watcher
+stops only this lane's controller and children after the complete native
+checkpoint, allowing the reporting handoff before continuing Node timing.
+The watcher and handoff receipt are retained with the artifacts.
+
+## P07-D6 — independent scalar-baseline confidence assessment
+
+Keep every original matrix sample and mean unchanged. The final S3 assessment
+computes both stage-1 and stage-2 intervals independently; either significant
+regression fails, so a C++ maximum-bar retry cannot clear an S3 failure.
+Include P02's varying Exp inputs in S2/S3, while repeated Oct/Quat remain exempt.
+
+The native controller stopped on the C++ SIMD interval. For S4, four cases
+remain borderline against the separate scalar C++ binary. After the Node
+matrix, top up only these cases to twenty total interleaved pairs, stopping
+as soon as clear. Only intervals still borderline receive thirty fresh D146
+pairs. The clearly failed scalar case is not retried. Preserve original family
+means, medians and frozen minima; record the supplemental scalar confidence
+assessment separately. This is neither a changed bar nor another full matrix.
+
+## P07-D7 — final implementation disposition
+
+The final frozen matrix contains 276 native and 174 Node API/case rows, with
+four native and twelve Node borderline-only D146 cases. Independent verification
+passes source/binary identities, every archive/member hash, exhaustive coverage,
+unique matrix keys, pre-resume row preservation and admitted-pair telemetry.
+S4's four scalar-borderline cases clear with nine additional pairs total and
+no second stage. All frozen index/sequence minima pass; allocating S4 retains
+its clear `index-2-v0-streaming-s4` maximum failure. Caller-buffer S4 passes.
+
+S1, S2, S3 and S5 fail. Publish all gaps and keep the implementation explicitly
+unqualified for release or an upstream-parity claim. Native SIMD driver builds
+include lowering diagnostics; consumer builds without them are not timed here.
+Do not tune code after this once-only final matrix or relabel a failed bar.
+The next optimization lane may use these recorded failures for focused work.
+Native/wasm local exact parity, arithmetic checks, Miri and bounded ASan smokes
+pass; ARM execution, platform identity, release sweeps/fuzz budgets, dedicated
+ARM timing and phase-0.6 composition remain the records listed in SIMD_RESULTS.
+Retain the source/binary artifacts and manifest outside the prescribed Cargo
+target, then delete that target as the brief requires.

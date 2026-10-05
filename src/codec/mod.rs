@@ -1,4 +1,4 @@
-//! Safe meshoptimizer 1.3 codecs, with explicit little-endian byte buffers.
+//! meshoptimizer 1.3 codecs, with explicit little-endian byte buffers.
 //!
 //! Raw vertex, triangle and sequence codecs support versions 0 and 1 for
 //! both encoding and decoding. Encoders take explicit per-call
@@ -22,6 +22,14 @@
 //! with the geometry APIs.
 
 mod encode;
+#[cfg(feature = "simd")]
+mod simd;
+
+/// Diagnostic dispatch control; outside semver. Overrides only lower detected ISA.
+#[cfg(all(feature = "simd", feature = "parity-internals"))]
+#[doc(hidden)]
+pub use simd::dispatch::{detected_level, with_level, Level};
+
 mod filter;
 mod filter_encode;
 mod index;
@@ -574,4 +582,11 @@ pub fn decode_filter_color(
     })();
     workspace.finish(&work);
     result
+}
+
+/// Hardware sqrt diagnostic for the exhaustive target qualification; outside semver.
+#[cfg(all(feature = "simd", feature = "parity-internals"))]
+#[doc(hidden)]
+pub fn simd_sqrt4(values: [f32; 4]) -> Option<[f32; 4]> {
+    simd::sqrt4(values)
 }
