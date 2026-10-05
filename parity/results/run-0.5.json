@@ -40,7 +40,7 @@
     "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
     "src/processing.rs": "a95e2eee270d988e7178b8054ccb0d891279883006db492d6e8ed58c3e27d9b5",
     "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
-    "src/raster.rs": "cdd4372fb5b089dba4083f3367ef9e44318a7b88e32adfaccf06ed971a8ee250",
+    "src/raster.rs": "befdb78283496da84491dafdd92762ab4a56435c2469d94e96732342f9ec8a5e",
     "src/remap.rs": "faaeeee5d47efe47de4c4141e8584a0d5e536aece8c0079a53ba4e939864d866",
     "src/remesh.rs": "1638a9aeb75bdd85b638be766a6f35126ce1ece8947a32a38ef66867ceee08ec",
     "src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
@@ -53,5 +53,5 @@
     "tests/p05.rs": "57354ec72b168e89320ca30ffb15e34d8d50a8eb228ef972bdf667baaaeee3ee"
   },
   "detail_artifact": "run-0.5.log",
-  "detail_sha256": "26b95322716b24ab4dc8a39b756c1d9bc60daa9bcfd55adcc54e9e3826d87a16"
+  "detail_sha256": "b9ed8bb218e7d4f01059a420f3617542db2bc742e7d3b68b536c6dde0c0b2b78"
 }

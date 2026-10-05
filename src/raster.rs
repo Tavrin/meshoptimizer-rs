@@ -168,6 +168,30 @@ fn rasterize(buffer: &mut [Pixel], mut p: [[f32; 3]; 3], work: &mut Work) -> Res
     Ok(())
 }
 
+// Keep the covered integer reduction free of the tight-fuel branch so both
+// consumer profiles can vectorize it. The fallback charges before each pixel.
+fn scan_pixels<const COVERAGE: bool, const CHARGE: bool>(
+    buffer: &[Pixel],
+    overdraw: &mut OverdrawStatistics,
+    work: &mut Work,
+) -> Result<u32, Error> {
+    let mut covered = 0;
+    for pixel in buffer {
+        if CHARGE {
+            work.add(1)?;
+        }
+        if COVERAGE {
+            covered += u32::from((pixel.overdraw[0] | pixel.overdraw[1]) > 0);
+        } else {
+            for &value in &pixel.overdraw {
+                overdraw.pixels_covered += u32::from(value > 0);
+                overdraw.pixels_shaded += value;
+            }
+        }
+    }
+    Ok(covered)
+}
+
 fn analyze(
     indices: &[u32],
     positions: Positions<'_>,
@@ -206,24 +230,16 @@ fn analyze(
                 };
                 rasterize(&mut buffer, reordered, &mut work)?;
             }
-            let mut covered = 0;
             let bulk_scan = work.covers(buffer.len())?;
             if bulk_scan {
                 work.add(buffer.len())?;
             }
-            for pixel in &buffer {
-                if !bulk_scan {
-                    work.add(1)?;
-                }
-                if coverage {
-                    covered += u32::from((pixel.overdraw[0] | pixel.overdraw[1]) > 0);
-                } else {
-                    for &value in &pixel.overdraw {
-                        overdraw.pixels_covered += u32::from(value > 0);
-                        overdraw.pixels_shaded += value;
-                    }
-                }
-            }
+            let covered = match (coverage, bulk_scan) {
+                (true, true) => scan_pixels::<true, false>(&buffer, &mut overdraw, &mut work)?,
+                (true, false) => scan_pixels::<true, true>(&buffer, &mut overdraw, &mut work)?,
+                (false, true) => scan_pixels::<false, false>(&buffer, &mut overdraw, &mut work)?,
+                (false, false) => scan_pixels::<false, true>(&buffer, &mut overdraw, &mut work)?,
+            };
             if coverage {
                 result_coverage.coverage[axis] = covered as f32 / (VIEWPORT * VIEWPORT) as f32;
             }
@@ -255,4 +271,68 @@ pub fn analyze_coverage(
     workspace: &mut Workspace,
 ) -> Result<CoverageStatistics, Error> {
     Ok(analyze(indices, positions, workspace, true)?.1)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Limits;
+
+    #[test]
+    fn pixel_scan_keeps_tight_fuel_and_statistics_prefixes() {
+        let buffer = [[0, 0], [3, 0], [0, 5], [7, 11]].map(|overdraw| Pixel {
+            overdraw,
+            ..Pixel::default()
+        });
+        for limit in 0..=5 {
+            for coverage in [false, true] {
+                let mut workspace = Workspace::new(Limits {
+                    max_bytes: 1024,
+                    max_work: limit,
+                });
+                let mut work = workspace.begin();
+                let mut stats = OverdrawStatistics::default();
+                let result = if work.covers(buffer.len()).unwrap() {
+                    work.add(buffer.len()).unwrap();
+                    if coverage {
+                        scan_pixels::<true, false>(&buffer, &mut stats, &mut work)
+                    } else {
+                        scan_pixels::<false, false>(&buffer, &mut stats, &mut work)
+                    }
+                } else if coverage {
+                    scan_pixels::<true, true>(&buffer, &mut stats, &mut work)
+                } else {
+                    scan_pixels::<false, true>(&buffer, &mut stats, &mut work)
+                };
+                workspace.finish(&work);
+                assert_eq!(workspace.usage().work, limit.min(4));
+                assert_eq!(result.is_ok(), limit >= 4);
+                if coverage {
+                    assert_eq!(
+                        result,
+                        if limit >= 4 {
+                            Ok(3)
+                        } else {
+                            Err(Error::LimitExceeded)
+                        }
+                    );
+                    assert_eq!((stats.pixels_covered, stats.pixels_shaded), (0, 0));
+                } else {
+                    let expected = [(0, 0), (0, 0), (1, 3), (2, 8), (4, 26), (4, 26)];
+                    assert_eq!(
+                        (stats.pixels_covered, stats.pixels_shaded),
+                        expected[limit as usize]
+                    );
+                    assert_eq!(
+                        result,
+                        if limit >= 4 {
+                            Ok(0)
+                        } else {
+                            Err(Error::LimitExceeded)
+                        }
+                    );
+                }
+            }
+        }
+    }
 }

@@ -6069,3 +6069,19 @@ with a covered/tight-fuel pixel-scan specialization before the packed reader.
 Keep charge-before-read and partial private statistics/fuel in the fallback;
 only integer sums may vectorize. This is distinct from rejected cache expansion
 and OMM state specialization. P05_DIAGNOSIS.md records the evidence and ranking.
+
+## D165 — Covered viewport reductions with exact tight-fuel fallback
+
+Factor the pixel reduction into const coverage/charging helpers. Dispatch once
+per view after the existing full-scan fuel check/precharge. Covered paths contain
+no per-pixel fuel selector; tight paths charge before each pixel and retain
+original private statistics order/prefixes. Only integer reductions vectorize;
+all raster float order, heap and total work remain unchanged. A regression with
+literal counter-prefix expectations covers limits 0..5 in both analysis modes.
+
+Root tests/strict Clippy in all modes and three exact 30,000-case sweeps pass
+(`raster-scan-proof`). Fresh counts/asm (`raster-scan-counts`) confirm the intended
+default overdraw change: tiny instructions -25.00%, branches -32.69%; medium
+instructions -3.96%, branches -4.80%. Ratios to C++ improve 1.501->1.125 tiny and
+1.072->1.030 medium. Moss is instruction-neutral; coverage changes are at most
++0.13% in these counts. No timing inference or changed bar. Retain the fix.
