@@ -4263,3 +4263,20 @@ stronger caller baseline. Raw prior caller median is worse (186.99 vs 108.33ns),
 but instruction work is lower (3.314 vs 3.951/byte), so extra loop work alone does
 not explain it. Check output bounds/setup and preserve both absolute and relative
 evidence. Exp S3 failures are caller varied-filter-3-tiny-s32 and resident-s32.
+
+### Fix-six Exp convergence and rejected meshlet wrapper trial
+
+For x86-64 Exp, use the unchanged safe reference directly. LLVM already emits
+baseline SSE2 for that loop, for every diagnostic ceiling; eliminate manual
+runtime dispatch and its separate 64-byte unrolling. Other backends keep their
+explicit SIMD kernels. This is code-path convergence for S3, not scalar-reference
+rewriting or approximate arithmetic. Resident s32 instruction work increases
+0.674 to 0.720/byte; scalar comparator is 0.721. Diagnostic cycles are 0.213 vs
+0.216, but do not claim timing acceptance. Tiny caller work is 1.186 vs 1.167;
+scalar comparator 1.184. Existing extreme-word, layout and tail tests pass.
+Final timing must determine both named S3 results and any lost Exp gains.
+
+A separate typed/raw caller-wrapper inline(always) trial was rejected: typed
+resident 4.281 vs 4.279 instructions/byte; raw 3.362 vs 3.314; no useful gain.
+Retain source/counters/binary as meshlet-inline artifacts and restore original
+wrapper attributes. No caller clear/copy was removed because none exists.

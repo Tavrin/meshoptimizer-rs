@@ -332,7 +332,9 @@ pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
     scalar_quat(data)
 }
 pub(super) fn exp(data: &mut [u8]) {
-    #[cfg(feature = "simd")]
+    // x86-64 already has baseline SSE2: let LLVM vectorize the canonical
+    // reference directly, avoiding a second runtime-dispatched loop.
+    #[cfg(all(feature = "simd", not(target_arch = "x86_64")))]
     if super::simd::filter(3, data, 4).is_some() {
         return;
     }
