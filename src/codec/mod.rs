@@ -514,13 +514,14 @@ pub fn decode_buffer_view_into(
         0,
     )
 }
-fn post(
+fn post<const EXP: bool>(
     filter: Filter,
     data: &mut [u8],
     count: usize,
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
+    let filter = if EXP { Filter::Exponential } else { filter };
     let mut work = workspace.begin();
     let result = (|| {
         filter_layout(filter, stride)?;
@@ -544,7 +545,7 @@ pub fn decode_filter_oct(
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    post(Filter::Octahedral, data, count, stride, workspace)
+    post::<false>(Filter::Octahedral, data, count, stride, workspace)
 }
 /// Apply canonical scalar Quat decoding (meshopt_decodeFilterQuat).
 /// A late numerical error can modify preceding records; the tail is preserved.
@@ -554,7 +555,7 @@ pub fn decode_filter_quat(
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    post(Filter::Quaternion, data, count, stride, workspace)
+    post::<false>(Filter::Quaternion, data, count, stride, workspace)
 }
 /// Apply scalar Exp decoding (meshopt_decodeFilterExp), preserving float bits.
 pub fn decode_filter_exp(
@@ -563,7 +564,7 @@ pub fn decode_filter_exp(
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    post(Filter::Exponential, data, count, stride, workspace)
+    post::<true>(Filter::Exponential, data, count, stride, workspace)
 }
 /// Apply canonical scalar Color decoding (meshopt_decodeFilterColor): YCoCg-R
 /// plus alpha back to RGBA, stride 4 (u8) or 8 (u16). Outside the EXT

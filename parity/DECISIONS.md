@@ -4786,3 +4786,38 @@ excluded). SIMD and scalar-built callers both count 1.1912 instructions/byte.
 The previous timing S3 is real evidence, but adding a scalar threshold would
 select the existing body. Reject redundant dispatch; preserve the failure
 until the one paired final epoch. No new threshold is claimed.
+
+
+Fix9 Oct candidate: upstream Oct4 uses rsqrt while canonical exact output needs
+our sqrt/div. Approximation is rejected. The candidate instead removes three
+sign comparisons per complete batch: integer-derived reflected x/y and z are
+finite, and every exact zero is +0, so sign-bit bias equals canonical >=0 bias.
+No reordering of normalization or rounding. Quat keeps its comparator. Extend
+the existing seeded tail regression through full groups and group/tail joins
+(count4/5/7/8); Miri also exercises a full group. Retain only with instruction
+reduction and exact frozen/regression outputs, then one paired final epoch.
+
+
+Exp wrapper refinement: generic codec::post is shared by all three filter APIs.
+Native Exp already selects scalar, but its shared wrapper carries dynamic
+filter-kind branches and the SIMD-enabled/scalar-built tiny callers differ by
+about one branch per decode (0.11213 vs0.11029 branches/byte at544 bytes).
+Specialize only the Exp wrapper with a const EXP flag: its filter kind becomes
+constant before validation and apply; Oct/Quat retain the existing shared
+false specialization. This is a fixed-overhead candidate, no size threshold
+and no new scalar-kernel branch. Retain only if fresh instruction counts
+improve; exact public error/workspace/tail contracts must still pass.
+
+
+Fix9 retained development evidence: fresh native instructions/byte reduce
+streaming Exp-view32 6.7338 ->6.2174, Oct4 4.9847 ->4.7348, tiny Exp32 caller
+1.1912 ->1.0809 (all frozen hashes identical). Native Oct8 all16,777,216
+component triples, one million seeded Oct16 records and arithmetic edges
+match canonical scalar. Full frozen execution passes869 fixtures,7653
+malformed inputs and138 benchmark identities on all local native ceilings,
+scalar/SIMD WASM and both APIs; retained old-native also checked.
+438 fresh timing-module outputs include retained fix8 Node control.
+Ordinary/all-feature and unsafe-free tests, native/WASM Clippy, native/WASM
+MSRV no-std SIMD, Miri including a full Oct group, formatting,23-block unsafe
+audit and package inventory pass. These proofs permit the single scoped
+paired timing epoch; they do not establish elapsed RFC or S3 acceptance.
