@@ -646,6 +646,7 @@ pub(super) fn vertex(
         4 => vertex_kernel::<1024, 4>(output, count, stride, data),
         8 => vertex_kernel::<1024, 8>(output, count, stride, data),
         12 => vertex_kernel::<1024, 12>(output, count, stride, data),
+        32 => vertex_kernel::<1024, 32>(output, count, stride, data),
         _ => vertex_kernel::<1024, 0>(output, count, stride, data),
     }
 }

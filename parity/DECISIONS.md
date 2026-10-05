@@ -4759,3 +4759,30 @@ new/old1.0721–1.1655; varied Exp resident32 A/C regress1.0479–1.1867 and
 stride32 paths. Retain the measured candidate and these regressions at the
 single-epoch stop; it is not an RFC-qualified release fix. No second epoch
 or unmeasured post-timing source modification is introduced.
+
+
+## P07 fix9: first analysis and development scope
+
+Baseline is clean 6035fc3 with all retained fix8 build source hashes verified.
+First counters and emitted native/WASM hot functions are retained under
+/mnt/linux-extra/meshopt-artifacts/p07-fix9; read-only file map and milestones
+under /mnt/linux-extra/moss-scratch/p07-fix9. Builds paused below 25 GiB, then
+resumed when the gate reopened. Never borrow another lane's target or delete it.
+
+The suspected wider-store problem is rejected: upstream and our generic WASM
+scatter both emit 32-bit lane stores. Actual cause: generic stride-derived
+addresses, checks and branches. WASM raw resident32 work is 14.7/14.9/13.9
+instructions per byte for v0/v1/varied Exp versus C++ 5.7-5.9; public copying
+adds <0.06/byte. Native generic reconstruction accounts for 40.74% of sampled
+instructions and spills many stride-derived addresses; branches are 0.4795/byte
+versus C++ ~0.2182. Preserve four-byte stores and checked slices, specialize
+stride32 and propagate the constant into reconstruction. No arithmetic or
+unsafe operation changes. Cause present, so the first-analysis kill rule does
+not fire. A/C native instructions are equal: this does not alone explain the
+allocating-only timing maximum or promise elapsed acceptance.
+
+Exp32 tiny caller already uses scalar_exp (filter.rs:410 onward, x86 dispatch
+excluded). SIMD and scalar-built callers both count 1.1912 instructions/byte.
+The previous timing S3 is real evidence, but adding a scalar threshold would
+select the existing body. Reject redundant dispatch; preserve the failure
+until the one paired final epoch. No new threshold is claimed.

@@ -566,12 +566,12 @@ pub(super) fn deltas8(
 #[inline]
 #[target_feature(enable = "sse2")]
 fn deltas8_kernel(buffer: &[u8], target: &mut [u8], count: usize, stride: usize, last: &[u8]) {
-    deltas_kernel::<0>(buffer, target, count, stride, last, 0);
+    deltas_kernel::<0, 0>(buffer, target, count, stride, last, 0);
 }
 
 #[inline]
 #[target_feature(enable = "sse2")]
-fn deltas_kernel<const CHANNEL: u8>(
+fn deltas_kernel<const CHANNEL: u8, const FIXED: usize>(
     buffer: &[u8],
     target: &mut [u8],
     count: usize,
@@ -579,6 +579,7 @@ fn deltas_kernel<const CHANNEL: u8>(
     last: &[u8],
     rot: u32,
 ) {
+    let stride = if FIXED == 0 { stride } else { FIXED };
     let mut previous = _mm_set1_epi32(i32::from_le_bytes(last[..4].try_into().unwrap()));
     let full = count & !15;
     for start in (0..full).step_by(16) {
@@ -927,11 +928,13 @@ pub(super) fn vertex(
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
-    let kernel = match (count <= 32, stride == 4) {
-        (true, true) => vertex_kernel::<128, 4>,
-        (false, true) => vertex_kernel::<1024, 4>,
-        (true, false) => vertex_kernel::<128, 0>,
-        (false, false) => vertex_kernel::<1024, 0>,
+    let kernel = match (count <= 32, stride) {
+        (true, 4) => vertex_kernel::<128, 4>,
+        (false, 4) => vertex_kernel::<1024, 4>,
+        (true, 32) => vertex_kernel::<128, 32>,
+        (false, 32) => vertex_kernel::<1024, 32>,
+        (true, _) => vertex_kernel::<128, 0>,
+        (false, _) => vertex_kernel::<1024, 0>,
     };
     // SAFETY: Ssse3 proves SSSE3 and POPCNT for every private kernel choice.
     // All retain checked layout, group lookahead and bounded destinations;
@@ -1013,8 +1016,7 @@ fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
             let target_len = (block - 1) * stride + 4;
             let target = &mut target[..target_len];
             match channel & 3 {
-                0 => deltas8_kernel(&deltas[..block * 4], target, block, stride, &last[k..k + 4]),
-                1 => deltas_kernel::<1>(
+                0 => deltas_kernel::<0, FIXED>(
                     &deltas[..block * 4],
                     target,
                     block,
@@ -1022,7 +1024,15 @@ fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
                     &last[k..k + 4],
                     0,
                 ),
-                2 => deltas_kernel::<2>(
+                1 => deltas_kernel::<1, FIXED>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    0,
+                ),
+                2 => deltas_kernel::<2, FIXED>(
                     &deltas[..block * 4],
                     target,
                     block,

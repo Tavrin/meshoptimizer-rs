@@ -41,11 +41,11 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/x86.rs:490` | token-authorized target_feature call: Sse41 is issued only after SSSE3, POPCNT and SSE4.1 are detected; the kernel uses SSSE3/SSE4.1 on a complete initialized byte array. |
 | `src/codec/simd/x86.rs:522` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; the kernel checks every 16-byte input window and emits only the scalar decoder's validated record count. |
 | `src/codec/simd/x86.rs:564` | token-authorized target_feature call: Baseline proves SSE2. The kernel slices only validated component planes, stages short vectors, and scatters via checked destination slices. |
-| `src/codec/simd/x86.rs:688` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
-| `src/codec/simd/x86.rs:920` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
-| `src/codec/simd/x86.rs:939` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT for every private kernel choice. All retain checked layout, group lookahead and bounded destinations; stack scratch is at most 1,280 bytes; memory operations are array-backed. |
-| `src/codec/simd/x86.rs:1114` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
-| `src/codec/simd/x86.rs:1142` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
+| `src/codec/simd/x86.rs:689` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
+| `src/codec/simd/x86.rs:921` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
+| `src/codec/simd/x86.rs:942` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT for every private kernel choice. All retain checked layout, group lookahead and bounded destinations; stack scratch is at most 1,280 bytes; memory operations are array-backed. |
+| `src/codec/simd/x86.rs:1124` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
+| `src/codec/simd/x86.rs:1152` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
 
 Inventory: **23 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
