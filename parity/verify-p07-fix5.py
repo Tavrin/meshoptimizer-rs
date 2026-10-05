@@ -29,6 +29,8 @@ def family(name):
 build = read('build')
 for name,h in build['sources'].items(): assert sha(ROOT/name) == h, name
 for name,h in build['binaries'].items(): assert sha(ART/'bin'/name) == h, name
+assert b'simd128' in (ART/'bin/wasm-simd.wasm').read_bytes()
+assert b'simd128' not in (ART/'bin/wasm-scalar.wasm').read_bytes()
 inputs = read('inputs')
 old_inputs = json.loads((ART.parent/'p07r3/inputs.json').read_text())
 assert inputs == old_inputs
@@ -54,7 +56,8 @@ for r in repro['rows']:
 proofs['upstream_tail']='expected pinned upstream scalar/SIMD split; all Rust levels match scalar'
 golden={r['case']:r for r in read('benchmark-identity')['cases']}
 node_build=read('node-build')
-for name,h in node_build['binaries'].items(): assert sha(ART/'node-bin'/name)==h
+for name,h in node_build['binaries'].items():
+    assert sha(ART/'node-bin'/name)==h and b'simd128' in (ART/'node-bin'/name).read_bytes()
 preflight=read('node-preflight');assert preflight['passed']
 wasm_names={r['case'] for r in inputs if struct.unpack_from('<I',(ART/r['path']).read_bytes(),4)[0] in [1,3,7]}
 assert {(r['case'],r['backend'],r['into']) for r in preflight['rows']} == {(n,b,i) for n in wasm_names for b in ['simd','scalar'] for i in [0,1]}
@@ -159,7 +162,10 @@ for receipt in bursts['rows']:
     assert receipt['executed_controller_path'] in {x['executed_controller_path'] for x in record['controller_segments']}
 summary['timing_bursts']=bursts
 checks=read('checks');assert len(checks)==7 and all(r['exit_code']==0 and sha(ART/(r['name']+'.log'))==r['log_sha256'] for r in checks)
-assert read('counters')['complete']
+counter=read('counters');assert counter['complete'] and counter['sources']==build['sources']
+for r in counter['rows']:
+    if r['backend']=='after':assert r['binary_sha256']==build['binaries']['rust-simd']
+assert all(r['effective_encoded_rustflags']==r['environment_overrides'].get('RUSTFLAGS','').replace(' ', '\x1f') for r in checks)
 for r in read('portability-checks')['commands']: assert r['exit_code']==0 and sha(ART/r['log'])==r['log_sha256']
 assert read('safety-gates')['passed']
 summary['s1']={a:all(v['registered_pass'] for f,v in fs.items() if f in ['vertex','view-none','meshlet','meshlet-raw']) for a,fs in summary['families'].items()}
