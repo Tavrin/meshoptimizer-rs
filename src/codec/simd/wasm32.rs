@@ -416,99 +416,322 @@ pub(super) fn deltas8(
 ) {
     deltas8_kernel(buffer, target, count, stride, last)
 }
+#[inline]
 #[target_feature(enable = "simd128")]
 fn deltas8_kernel(buffer: &[u8], target: &mut [u8], count: usize, stride: usize, last: &[u8]) {
-    let mut previous = [last[0], last[1], last[2], last[3]];
+    deltas_kernel::<0>(buffer, target, count, stride, last, 0);
+}
+#[inline]
+#[target_feature(enable = "simd128")]
+fn combine<const CHANNEL: u8>(a: v128, b: v128) -> v128 {
+    if CHANNEL == 0 {
+        i8x16_add(a, b)
+    } else if CHANNEL == 1 {
+        i16x8_add(a, b)
+    } else {
+        v128_xor(a, b)
+    }
+}
+#[inline]
+#[target_feature(enable = "simd128")]
+fn delta_prefix<const CHANNEL: u8>(mut r: v128, previous: v128, rot: u32) -> v128 {
+    r = if CHANNEL == 0 {
+        v128_xor(
+            v128_and(u16x8_shr(r, 1), i8x16_splat(127)),
+            i8x16_sub(i8x16_splat(0), v128_and(r, i8x16_splat(1))),
+        )
+    } else if CHANNEL == 1 {
+        v128_xor(
+            u16x8_shr(r, 1),
+            i16x8_sub(i16x8_splat(0), v128_and(r, i16x8_splat(1))),
+        )
+    } else {
+        v128_or(i32x4_shl(r, rot), u32x4_shr(r, 32 - rot))
+    };
+    let zero = i32x4_splat(0);
+    r = combine::<CHANNEL>(r, i32x4_shuffle::<4, 0, 1, 2>(r, zero));
+    r = combine::<CHANNEL>(r, i32x4_shuffle::<4, 4, 0, 1>(r, zero));
+    combine::<CHANNEL>(r, previous)
+}
+#[inline]
+#[target_feature(enable = "simd128")]
+fn scatter4(dst: &mut [u8], stride: usize, r: v128) {
+    if stride == 4 {
+        store(dst.first_chunk_mut().unwrap(), r);
+    } else {
+        dst[..4].copy_from_slice(&i32x4_extract_lane::<0>(r).to_le_bytes());
+        dst[stride..stride + 4].copy_from_slice(&i32x4_extract_lane::<1>(r).to_le_bytes());
+        dst[stride * 2..stride * 2 + 4].copy_from_slice(&i32x4_extract_lane::<2>(r).to_le_bytes());
+        dst[stride * 3..stride * 3 + 4].copy_from_slice(&i32x4_extract_lane::<3>(r).to_le_bytes());
+    }
+}
+#[inline]
+#[target_feature(enable = "simd128")]
+fn deltas_kernel<const CHANNEL: u8>(
+    buffer: &[u8],
+    target: &mut [u8],
+    count: usize,
+    stride: usize,
+    last: &[u8],
+    rot: u32,
+) {
+    let mut previous = i32x4_splat(i32::from_le_bytes(last[..4].try_into().unwrap()));
     for start in (0..count).step_by(16) {
         let n = (count - start).min(16);
         let mut planes = [i8x16_splat(0); 4];
-        for c in 0..4 {
+        for (c, p) in planes.iter_mut().enumerate() {
             let plane = &buffer[c * count + start..c * count + start + n];
             let mut input = [0; 16];
-            let v = if let Some(full) = plane.first_chunk::<16>() {
+            *p = if let Some(full) = plane.first_chunk::<16>() {
                 load(full)
             } else {
                 input[..n].copy_from_slice(plane);
                 load(&input)
             };
-            let mut r = v128_xor(
-                v128_and(u16x8_shr(v, 1), i8x16_splat(127)),
-                i8x16_sub(i8x16_splat(0), v128_and(v, i8x16_splat(1))),
-            );
-            r = i8x16_add(
-                r,
-                i8x16_shuffle::<16, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14>(
-                    r,
-                    i8x16_splat(0),
-                ),
-            );
-            r = i8x16_add(
-                r,
-                i8x16_shuffle::<16, 16, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13>(
-                    r,
-                    i8x16_splat(0),
-                ),
-            );
-            r = i8x16_add(
-                r,
-                i8x16_shuffle::<16, 16, 16, 16, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11>(
-                    r,
-                    i8x16_splat(0),
-                ),
-            );
-            r = i8x16_add(
-                r,
-                i8x16_shuffle::<16, 16, 16, 16, 16, 16, 16, 16, 0, 1, 2, 3, 4, 5, 6, 7>(
-                    r,
-                    i8x16_splat(0),
-                ),
-            );
-            r = i8x16_add(r, i8x16_splat(previous[c] as i8));
-            previous[c] = if n == 16 {
-                i8x16_extract_lane::<15>(r) as u8
-            } else {
-                let mut bytes = [0; 16];
-                store(&mut bytes, r);
-                bytes[n - 1]
-            };
-            planes[c] = r;
         }
-        let ab0 = i8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(
-            planes[0], planes[1],
-        );
+        let ab0 = unpack_bytes(planes[0], planes[1]);
+        let cd0 = unpack_bytes(planes[2], planes[3]);
         let ab1 = i8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
             planes[0], planes[1],
-        );
-        let cd0 = i8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(
-            planes[2], planes[3],
         );
         let cd1 = i8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
             planes[2], planes[3],
         );
-        let packed = [
-            i8x16_shuffle::<0, 1, 16, 17, 2, 3, 18, 19, 4, 5, 20, 21, 6, 7, 22, 23>(ab0, cd0),
-            i8x16_shuffle::<8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31>(ab0, cd0),
-            i8x16_shuffle::<0, 1, 16, 17, 2, 3, 18, 19, 4, 5, 20, 21, 6, 7, 22, 23>(ab1, cd1),
-            i8x16_shuffle::<8, 9, 24, 25, 10, 11, 26, 27, 12, 13, 28, 29, 14, 15, 30, 31>(ab1, cd1),
+        let records = [
+            i16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(ab0, cd0),
+            i16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(ab0, cd0),
+            i16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(ab1, cd1),
+            i16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(ab1, cd1),
         ];
-        if stride == 4 && n == 16 {
-            for (chunk, v) in target[start * 4..(start + 16) * 4]
-                .as_chunks_mut::<16>()
-                .0
-                .iter_mut()
-                .zip(packed)
-            {
-                store(chunk, v);
+        if n == 16 {
+            let dst = &mut target[start * stride..(start + 15) * stride + 4];
+            macro_rules! emit {
+                ($g:literal) => {{
+                    let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
+                    previous = i32x4_splat(i32x4_extract_lane::<3>(r));
+                    scatter4(&mut dst[$g * 4 * stride..], stride, r);
+                }};
             }
-            continue;
-        }
-        let mut bytes = [0; 64];
-        for (chunk, v) in bytes.as_chunks_mut::<16>().0.iter_mut().zip(packed) {
-            store(chunk, v);
-        }
-        for i in 0..n {
-            target[(start + i) * stride..(start + i) * stride + 4]
-                .copy_from_slice(&bytes[i * 4..i * 4 + 4]);
+            emit!(0);
+            emit!(1);
+            emit!(2);
+            emit!(3);
+        } else {
+            for (g, r) in records.into_iter().enumerate().take(n.div_ceil(4)) {
+                let r = delta_prefix::<CHANNEL>(r, previous, rot);
+                previous = i32x4_splat(i32x4_extract_lane::<3>(r));
+                let mut bytes = [0; 16];
+                store(&mut bytes, r);
+                let index = start + g * 4;
+                for i in 0..(count - index).min(4) {
+                    target[(index + i) * stride..(index + i) * stride + 4]
+                        .copy_from_slice(&bytes[i * 4..i * 4 + 4]);
+                }
+            }
         }
     }
+}
+
+#[inline]
+#[target_feature(enable = "simd128")]
+fn header_group(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
+    const BITS: [u32; 9] = [0, 2, 4, 8, 0, 1, 2, 4, 8];
+    group_kernel(data, out, BITS[h])
+}
+#[inline]
+#[target_feature(enable = "simd128")]
+fn bytes_kernel(
+    data: &[u8],
+    pos: usize,
+    out: &mut [u8],
+    hshift: usize,
+) -> Result<usize, crate::Error> {
+    match hshift {
+        0 => bytes_header_kernel::<0>(data, pos, out),
+        4 => bytes_header_kernel::<4>(data, pos, out),
+        5 => bytes_header_kernel::<5>(data, pos, out),
+        _ => unreachable!(),
+    }
+}
+#[inline]
+#[target_feature(enable = "simd128")]
+fn bytes_header_kernel<const H: usize>(
+    data: &[u8],
+    mut pos: usize,
+    out: &mut [u8],
+) -> Result<usize, crate::Error> {
+    let headers = (out.len() / 16).div_ceil(4);
+    let header = data
+        .get(pos..pos + headers)
+        .ok_or(crate::Error::InvalidStream)?;
+    pos += headers;
+    let (blocks, tail) = out.as_chunks_mut::<64>();
+    for (i, block) in blocks.iter_mut().enumerate() {
+        let control = header[i];
+        if let Some(window) = data.get(pos..).and_then(|v| v.first_chunk::<96>()) {
+            if control == 0 && H != 5 {
+                block.fill(0);
+                continue;
+            }
+            if control == 255 && H != 4 {
+                block.copy_from_slice(&window[..64]);
+                pos += 64;
+                continue;
+            }
+            // Each group consumes at most 24 bytes. A single checked 96-byte
+            // array therefore proves all four lookaheads, even full escapes.
+            let chunks = block.as_chunks_mut::<16>().0;
+            let mut used = header_group(
+                window.first_chunk().unwrap(),
+                &mut chunks[0],
+                H + usize::from(control & 3),
+            );
+            used += header_group(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[1],
+                H + usize::from((control >> 2) & 3),
+            );
+            used += header_group(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[2],
+                H + usize::from((control >> 4) & 3),
+            );
+            used += header_group(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[3],
+                H + usize::from(control >> 6),
+            );
+            pos += used;
+        } else {
+            for (j, chunk) in block.as_chunks_mut::<16>().0.iter_mut().enumerate() {
+                let window = data
+                    .get(pos..)
+                    .and_then(|v| v.first_chunk::<24>())
+                    .ok_or(crate::Error::InvalidStream)?;
+                pos += header_group(window, chunk, H + usize::from((control >> (j * 2)) & 3));
+            }
+        }
+    }
+    for (j, chunk) in tail.as_chunks_mut::<16>().0.iter_mut().enumerate() {
+        let window = data
+            .get(pos..)
+            .and_then(|v| v.first_chunk::<24>())
+            .ok_or(crate::Error::InvalidStream)?;
+        pos += header_group(
+            window,
+            chunk,
+            H + usize::from((header[blocks.len()] >> (j * 2)) & 3),
+        );
+    }
+    Ok(pos)
+}
+
+pub(super) fn vertex(
+    _token: Baseline,
+    output: &mut [u8],
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), crate::Error> {
+    vertex_kernel(output, count, stride, data)
+}
+#[target_feature(enable = "simd128")]
+fn vertex_kernel(
+    output: &mut [u8],
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), crate::Error> {
+    let version = crate::codec::decode_vertex_version(data)?;
+    let tail = stride + if version == 0 { 0 } else { stride / 4 };
+    let padded = tail.max(if version == 0 { 32 } else { 24 });
+    if data.len() < 1 + padded {
+        return Err(crate::Error::InvalidStream);
+    }
+    let start = data.len() - tail;
+    let channels = &data[start + stride..];
+    let mut last = [0u8; 256];
+    last[..stride].copy_from_slice(&data[start..start + stride]);
+    let block_size = ((8192 / stride) & !15).min(256);
+    let mut pos = 1;
+    let mut deltas = [0u8; 1024];
+    let mut offset = 0;
+    while offset < count {
+        let block = block_size.min(count - offset);
+        let aligned = block.div_ceil(16) * 16;
+        let controls = if version == 0 {
+            &[][..]
+        } else {
+            let c = data
+                .get(pos..pos + stride / 4)
+                .ok_or(crate::Error::InvalidStream)?;
+            pos += stride / 4;
+            c
+        };
+        // Each bounded block fits 8 KiB. Write directly into its checked
+        // destination slice, avoiding zeroing/copying an extra stack block.
+        let block_output = &mut output[offset * stride..(offset + block) * stride];
+        for k in (0..stride).step_by(4) {
+            let control = if version == 0 { 0 } else { controls[k / 4] };
+            for j in 0..4 {
+                let ctrl = (control >> (j * 2)) & 3;
+                let out = &mut deltas[j * block..j * block + aligned];
+                match ctrl {
+                    3 => {
+                        out[..block].copy_from_slice(
+                            data.get(pos..pos + block)
+                                .ok_or(crate::Error::InvalidStream)?,
+                        );
+                        pos += block;
+                    }
+                    2 => out[..block].fill(0),
+                    _ => {
+                        pos = bytes_kernel(
+                            data,
+                            pos,
+                            out,
+                            if version == 0 {
+                                0
+                            } else {
+                                4 + usize::from(ctrl)
+                            },
+                        )?
+                    }
+                }
+            }
+            let channel = if version == 0 { 0 } else { channels[k / 4] };
+            let target = &mut block_output[k..];
+            // k is a four-byte-aligned channel group; only complete records
+            // belong to this group. Extend the target to keep chunk strides
+            // complete without touching bytes beyond this group's four bytes.
+            let target_len = (block - 1) * stride + 4;
+            let target = &mut target[..target_len];
+            match channel & 3 {
+                0 => deltas8_kernel(&deltas[..block * 4], target, block, stride, &last[k..k + 4]),
+                1 => deltas_kernel::<1>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    0,
+                ),
+                2 => deltas_kernel::<2>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    (32 - u32::from(channel >> 4)) & 31,
+                ),
+                _ => return Err(crate::Error::InvalidStream),
+            }
+        }
+        last[..stride].copy_from_slice(&block_output[(block - 1) * stride..]);
+        offset += block;
+    }
+    if data.len().checked_sub(pos) != Some(padded) {
+        return Err(crate::Error::InvalidStream);
+    }
+    Ok(())
 }

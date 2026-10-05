@@ -324,6 +324,10 @@ pub(super) fn vertex(
     if let Some(token) = dispatch::ssse3() {
         return Some(arch::vertex(token, output, count, stride, data));
     }
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    if let Some(token) = dispatch::baseline() {
+        return Some(arch::vertex(token, output, count, stride, data));
+    }
     let _ = (output, count, stride, data);
     None
 }

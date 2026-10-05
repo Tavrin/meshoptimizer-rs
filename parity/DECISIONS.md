@@ -3773,3 +3773,14 @@ Partial groups retain initialized staging and counted live stores. All three
 channel operations reuse exactly the existing integer arithmetic. No new
 unsafe block or padding write. Validation remains pending disk admission;
 source structure alone does not establish removed machine-code spills.
+
+### Fix 2: wasm block dispatch and integer channels
+
+Wasm now selects its vertex kernel once per call, batches four byte groups
+under the existing 96-byte proof, and retains 24-byte lookahead for shorter
+windows. Byte, halfword and rotated-XOR reconstruction transpose first and
+use packed four-record prefixes plus explicit complete-group stores. Parser
+layout and errors are copied from the validated native path. This replaces
+per-group runtime dispatch and sixteen per-plane prefix stages. No new
+unsafe seam. Native Miri cannot establish wasm correctness: executed wasm
+parity, counters and codegen inspection remain mandatory and pending disk.
