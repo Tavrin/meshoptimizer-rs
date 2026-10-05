@@ -556,3 +556,16 @@ Clippy, Miri, MSRV/no-std and unsafe-boundary/package gates pass.
 This does not establish release, ARM, other-host or Moss integration acceptance.
 The prescribed fix-seven target is deleted after collecting final evidence.
 No push, merge or rebase.
+
+## P07 fix-eight — source candidates, disk gate closed
+
+See `parity/P07_FIX8_PERFORMANCE.md` for first-analysis counters, explicit
+kill decisions, candidate commits and the pending RFC table. Exp's native
+shared scalar lowering and Oct's exact hardware short-tail root are source
+candidates only. The first build declined before Cargo because free disk is
+below 25 GiB. Ordinary/Miri/parity and after-counter gates have not executed;
+no final timing pair exists. The same 23-block static unsafe boundary and
+formatting pass. Retained control/source/frozen-archive hashes are checked,
+without promoting them to changed-source runtime qualification. Native
+allocating vertex/view and all WASM view residuals are abandoned under the
+first-analysis no-identified-cause kill rule. RFC closure remains unestablished.
