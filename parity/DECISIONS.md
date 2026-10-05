@@ -4405,3 +4405,34 @@ and timings have closed. Preserve every retained artifact outside the target
 at /mnt/linux-extra/meshopt-artifacts/p07-fix6. cleanup.json records allocated
 bytes and target absence; final-evidence.json inventories the clean committed
 source archive and every artifact hash. No push, merge, rebase or subagent.
+
+
+### Fix-seven scope, retained control and meshlet decision
+
+Start clean at c87431d in phase/0.7. SPEC-p07-fix7 selects the owner RFC
+mean <=1.25 / maximum <=1.50 only; stricter registration is deferred to 0.3.
+Do not edit SIMD_BAR.md or frozen inputs. No subagents/push/merge/rebase.
+Target codex-p07-fix7; artifacts /mnt/linux-extra/meshopt-artifacts/p07-fix7.
+Retain and hash-verify round-six native/Node control binaries before edits.
+prior-failures.json enumerates all 11 native and 26 Node unresolved/failed RFC
+maxima, including intervals crossing 1.50; classifies tiny fixed setup versus
+resident/streaming size-dependent work. New/old controls will be interleaved
+in each final pair, alongside C++ and current safe-scalar, in one final epoch.
+
+Pinned CPU26 perf stat instructions:u/cycles:u/branches:u/branch-misses:u,
+N/2N subtraction, retained assembly and exact hashes contradict the premise
+that meshlet callers clear/copy more or require more instructions. Typed
+64/126 caller 4.279 instructions/byte versus allocating 5.006; raw 3.314
+versus 3.951. C++ caller baselines are stronger (2.951/2.575), so relative
+API ratios do not compare absolute Rust latency. Generic output setup is the
+actual tiny cost: typed 1/1 caller 54.625--89.401 instructions/byte.
+Add an exact safe one-vertex/one-triangle decoder, retaining padded delta-group
+consumption, empty FIFO semantics, ignored high nibble, checked lookahead,
+exact final bound, u16 truncation, workspace accounting and preserved tails.
+Typed tiny callers fall to 38.500--62.200 instructions/byte; raw 43.500 ->
+32.875. The regression compares all 256 controls x 16 triangle codes, valid
+and overlong bound, to the unchanged canonical scalar core; it passes.
+Reject the grouped byte-output/raw cursor trial: typed instruction counts are
+unchanged; raw 64/126 rises 3.324 ->3.418. Restore that trial before commit.
+No new unsafe or arithmetic change. Perf cycles vary substantially across
+subtraction runs on this host and are diagnostic, not RFC acceptance.
