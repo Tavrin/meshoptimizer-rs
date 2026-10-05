@@ -342,6 +342,15 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
                 u32x4_shr(hi, 16),
             )
         };
+        // For 8-bit words |channel| <= 511, hence nonzero scale proves
+        // finite i32 conversion. For 16-bit words |channel| <= 131071;
+        // alpha >= 4 gives scale >= 7 and magnitude < 2^31 even after
+        // rounding. Smaller alpha uses the scalar conversion/error contract.
+        let valid = i32x4_bitmask(i32x4_gt(alpha, i32x4_splat(if W == 4 { 0 } else { 3 }))) == 15;
+        if !valid {
+            crate::codec::filter::scalar_color(block, W)?;
+            continue;
+        }
         let mut scale = alpha;
         scale = v128_or(scale, i32x4_shr(scale, 1));
         scale = v128_or(scale, i32x4_shr(scale, 2));
@@ -362,18 +371,6 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
             a,
         ];
         let f = channels.map(|v| add(mul(f32x4_convert_i32x4(v), ss), splat(0.5)));
-        // Min/max propagate NaN; zero-scale lanes still fall back before
-        // conversion. The asymmetric i32 endpoints remain exact.
-        let lo = f32x4_min(f32x4_min(f32x4_min(f[0], f[1]), f[2]), f[3]);
-        let hi = f32x4_max(f32x4_max(f32x4_max(f[0], f[1]), f[2]), f[3]);
-        let valid = i32x4_bitmask(v128_and(
-            f32x4_ge(lo, splat(-2147483648.0)),
-            f32x4_lt(hi, splat(2147483648.0)),
-        )) == 15;
-        if !valid {
-            crate::codec::filter::scalar_color(block, W)?;
-            continue;
-        }
         let [r, g, b, a] = f.map(|v| i32x4_trunc_sat_f32x4(v));
         if W == 4 {
             let value = v128_or(

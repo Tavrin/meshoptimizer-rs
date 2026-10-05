@@ -738,6 +738,18 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
                 _mm_srli_epi32::<16>(hi),
             )
         };
+        // For 8-bit words |channel| <= 511, hence nonzero scale proves
+        // finite i32 conversion. For 16-bit words |channel| <= 131071;
+        // alpha >= 4 gives scale >= 7 and magnitude < 2^31 even after
+        // rounding. Smaller alpha uses the scalar conversion/error contract.
+        let valid = _mm_movemask_epi8(_mm_cmpgt_epi32(
+            alpha,
+            _mm_set1_epi32(if W == 4 { 0 } else { 3 }),
+        )) == 65535;
+        if !valid {
+            crate::codec::filter::scalar_color(block, W)?;
+            continue;
+        }
         let mut scale = alpha;
         scale = _mm_or_si128(scale, _mm_srai_epi32::<1>(scale));
         scale = _mm_or_si128(scale, _mm_srai_epi32::<2>(scale));
@@ -758,19 +770,6 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
             a,
         ];
         let f = channels.map(|v| add(mul(_mm_cvtepi32_ps(v), ss), splat(0.5)));
-        // With nonzero alpha every channel is finite. Alpha zero makes
-        // f[3] NaN, which is the final operand of both reductions and hence
-        // survives SSE min/max's second-operand NaN rule.
-        let lo = _mm_min_ps(_mm_min_ps(_mm_min_ps(f[0], f[1]), f[2]), f[3]);
-        let hi = _mm_max_ps(_mm_max_ps(_mm_max_ps(f[0], f[1]), f[2]), f[3]);
-        let valid = _mm_movemask_ps(_mm_and_ps(
-            _mm_cmpge_ps(lo, splat(-2147483648.0)),
-            _mm_cmplt_ps(hi, splat(2147483648.0)),
-        )) == 15;
-        if !valid {
-            crate::codec::filter::scalar_color(block, W)?;
-            continue;
-        }
         let [r, g, b, a] = f.map(|v| _mm_cvttps_epi32(v));
         if W == 4 {
             let value = _mm_or_si128(

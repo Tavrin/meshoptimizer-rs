@@ -283,3 +283,44 @@ fn meshlet_all_pair_codes_odd_tails_and_counter_wrap() {
         }
     }
 }
+
+#[test]
+fn color_alpha_conversion_bounds_and_wrap() {
+    for stride in [4, 8] {
+        for alpha in [0, 1, 2, 3, 4, 7, 8, 127, 255, 32767, 65535] {
+            let mut source = Vec::new();
+            for [y, co, cg] in [
+                [0, 0, 0],
+                [65535, 32767, -32768],
+                [65535, -32768, -32768],
+                [0, -32768, 32767],
+                [128, 127, -128],
+            ] {
+                for c in [y, co, cg, alpha] {
+                    if stride == 4 {
+                        source.push(c as u8);
+                    } else {
+                        source.extend_from_slice(&(c as u16).to_le_bytes());
+                    }
+                }
+            }
+            let run = |level| {
+                with_level(level, || {
+                    let mut out = source.clone();
+                    let status =
+                        decode_filter_color(&mut out, 5, stride, &mut Workspace::default());
+                    (status, out)
+                })
+                .unwrap()
+            };
+            let scalar = run(Level::Scalar);
+            for level in levels() {
+                let actual = run(level);
+                assert_eq!(actual.0, scalar.0, "{stride}/{alpha}/{level:?}");
+                if scalar.0.is_ok() {
+                    assert_eq!(actual.1, scalar.1);
+                }
+            }
+        }
+    }
+}

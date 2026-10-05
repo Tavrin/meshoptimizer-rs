@@ -4001,3 +4001,29 @@ Cleanup complete: only `/mnt/linux-extra/moss-cargo-targets/codex-p07-fix4`
 (1.1 GB) is removed after all own build/test/timing sessions finish. Archived
 binaries are present; cleanup.json confirms target absence and before/after
 disk receipts. No foreign target, artifact, cache or lease is removed.
+
+
+## P07 fix-five — scope and Color conversion proof
+
+Start f5bdb698afd879668d4959261ab3e519e9cdbfc5, clean phase/0.7 worktree.
+Follow SPEC-p07-fix5 and the fix-four development-first/admission/cleanup rules.
+No subagents or integration actions. Registered SIMD_BAR.md and all 138
+benchmark requests stay byte-identical. S1 is 1.10/1.30, S2 1.25/1.50,
+S4 1.25/1.50 plus frozen minima, S5 1.25/1.60; filtered views belong to S2.
+Artifacts: /mnt/linux-extra/meshopt-artifacts/p07-fix5; only build target
+/mnt/linux-extra/moss-cargo-targets/codex-p07-fix5, removed after receipts.
+
+Color instruction diagnosis: the old packed kernel performs six FP min/max
+reductions and two range comparisons on each four-record batch. Replace
+that with an integer alpha guard, preserving all FP arithmetic and truncation.
+For 8-bit inputs, absolute RGB integer components are at most 511; nonzero
+alpha guarantees scale >= 1, so every rounded value fits i32. For 16-bit
+inputs, absolute components are at most 131071; alpha >= 4 guarantees scale
+>= 7 and magnitude below 131071 * (65535/7) + 0.5 < 2^31. Other batches
+use canonical scalar conversion, including NumericalFailure and integer wrap.
+The bound is sufficient, not a new input restriction. Native instructions
+per decoded byte at resident stride 4/8 fall to 0.898/0.905 starting Rust.
+The added alpha-boundary/wrap regression and existing extreme/tail tests pass;
+development wasm exact outputs pass on 42 filter/view cases. No approximate
+division, saturation or changed rounding is introduced. Final all-level
+parity, Miri and one leased timing epoch remain required.
