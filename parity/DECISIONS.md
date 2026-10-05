@@ -4145,3 +4145,24 @@ hashes, unique scope, stopping intervals, D146 eligibility, paired lease
 telemetry, wrapper exits and safety/test/portability receipts. Before is
 fix four where measured and the clearly labeled fix-three standalone
 Oct/Quat/Exp epoch otherwise. No missing release/platform gates are cleared.
+
+
+### Effective-flag correction before timing
+
+V8 instruction diagnostics expose a harness configuration defect: new
+arithmetic wasm work rose about fourfold and both modules lacked the
+custom-section simd128 feature marker. Cargo gives CARGO_ENCODED_RUSTFLAGS
+precedence even when it is the empty string. The generic environment reset
+in codec/measure.py therefore neutralizes RUSTFLAGS set by qualify.build
+and by the first round-five Node/check controllers. Preserve those records
+under pre-effective-flags and do not credit them as SIMD/Miri ISA proof.
+Fix qualify.build to propagate the requested options through encoded flags
+and assert the compiled wasm feature marker. The archived Node builder,
+unsafe-free, wasm Clippy, Miri and portability controllers do the same.
+
+Round-four Node timing images do contain simd128; they remain the S5 before
+epoch. Round-four codec wasm-simd.wasm lacks the marker, so its executed
+fixture proof does not establish simd128 execution despite the recorded
+intent. This round reruns all frozen fixtures against actual scalar and
+SIMD wasm modules. The corrected Miri invocation forces SSSE3/POPCNT/SSE4.1
+instead of relying on a neutralized flag. No final timing has run yet.

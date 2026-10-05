@@ -23,9 +23,11 @@ def build():
         m.cmd(['cargo','build','--offline','--locked','--release','--manifest-path',ROOT/'parity/codec/Cargo.toml',*features])
         shutil.copy2(TARGET/'release/codec-driver',BIN/name)
     for flags,features,name in [('',[],'wasm-scalar'),('-C target-feature=+simd128',['--features','simd'],'wasm-simd')]:
-        env=dict(m.ENV,RUSTFLAGS=flags)
+        env=dict(m.ENV,RUSTFLAGS=flags,CARGO_ENCODED_RUSTFLAGS=flags.replace(' ', '\x1f'))
         subprocess.run(['cargo','build','--offline','--locked','--release','--target','wasm32-unknown-unknown','--lib','--manifest-path',str(ROOT/'parity/codec/Cargo.toml'),*features],env=env,check=True)
-        shutil.copy2(TARGET/'wasm32-unknown-unknown/release/meshopt_codec_parity.wasm',BIN/(name+'.wasm'))
+        wasm=TARGET/'wasm32-unknown-unknown/release/meshopt_codec_parity.wasm'
+        assert (b'simd128' in wasm.read_bytes()) == bool(flags), 'effective wasm target feature differs from requested flags'
+        shutil.copy2(wasm,BIN/(name+'.wasm'))
     assert before==sources(), 'source changed during build'
     save(ART/'build.json',{'sources':sources(),'binaries':{p.name:m.sha(p) for p in BIN.iterdir()},'rustc':subprocess.check_output(['rustc','-Vv'],text=True),'cxx':subprocess.check_output(['c++','--version'],text=True),'node':subprocess.check_output(['node','--version'],text=True),'flags':m.FLAGS,'rust_profile':'release fat LTO one codegen unit; generic CPU; std runtime detection; wasm +simd128 only'})
 
