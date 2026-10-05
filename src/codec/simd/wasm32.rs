@@ -181,8 +181,6 @@ fn quat_kernel(data: &mut [u8]) -> Result<(), crate::Error> {
     let (blocks, tail) = data.as_chunks_mut::<32>();
     let scale = splat(32767.0 / crate::math::sqrt(2.0));
     for block in blocks {
-        // Keep rotation selectors before the packed output overwrites them.
-        let rotations = [block[6], block[14], block[22], block[30]];
         let [xi, yi, zi, ci] = fields16(block);
         let x = f32x4_convert_i32x4(xi);
         let y = f32x4_convert_i32x4(yi);
@@ -200,26 +198,36 @@ fn quat_kernel(data: &mut [u8]) -> Result<(), crate::Error> {
         let wr = i32x4_trunc_sat_f32x4(add(mul(w, ss), splat(0.5)));
         let xy = pair16(xr, yr);
         let zw = pair16(zr, wr);
-        let mut packed = [0u8; 32];
+        // Rotate each packed record in the vector. The mask repeats its
+        // record's two-byte selector, wraps within eight bytes, then adds
+        // the second record's eight-byte offset. No scalar u64 rotations.
+        let rotations = i32x4_shl(v128_and(i32x4_add(ci, i32x4_splat(1)), i32x4_splat(3)), 1);
+        let base = i8x16(0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7);
+        let offset = i8x16(0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8);
+        let rotate = |packed, shifts| {
+            i8x16_swizzle(
+                packed,
+                v128_or(v128_and(i8x16_sub(base, shifts), i8x16_splat(7)), offset),
+            )
+        };
         store(
-            packed[..16].first_chunk_mut().unwrap(),
-            i32x4_shuffle::<0, 4, 1, 5>(xy, zw),
+            block[..16].first_chunk_mut().unwrap(),
+            rotate(
+                i32x4_shuffle::<0, 4, 1, 5>(xy, zw),
+                i8x16_shuffle::<0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4>(
+                    rotations, rotations,
+                ),
+            ),
         );
         store(
-            packed[16..].first_chunk_mut().unwrap(),
-            i32x4_shuffle::<2, 6, 3, 7>(xy, zw),
+            block[16..].first_chunk_mut().unwrap(),
+            rotate(
+                i32x4_shuffle::<2, 6, 3, 7>(xy, zw),
+                i8x16_shuffle::<8, 8, 8, 8, 8, 8, 8, 8, 12, 12, 12, 12, 12, 12, 12, 12>(
+                    rotations, rotations,
+                ),
+            ),
         );
-        for ((out, value), rotation) in block
-            .as_chunks_mut::<8>()
-            .0
-            .iter_mut()
-            .zip(packed.as_chunks::<8>().0)
-            .zip(rotations)
-        {
-            *out = u64::from_le_bytes(*value)
-                .rotate_left(u32::from((rotation.wrapping_add(1)) & 3) * 16)
-                .to_le_bytes();
-        }
     }
     crate::codec::filter::scalar_quat(tail)
 }

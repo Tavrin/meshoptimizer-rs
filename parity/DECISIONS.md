@@ -4043,3 +4043,24 @@ raw path takes 3.251 (0.951 starting); typed v4/t3 takes 4.461 vs 4.830
 Focused SIMD/codec/codec04 tests and all 138 benchmark exact outputs pass.
 Safety model is unchanged; no new unsafe block. Final Miri/parity and timing
 remain required. Further unchecked input/output spans are rejected.
+
+
+### Fix-five standalone filters and wasm filtered views
+
+Unroll the native exact Exp four-wide transform four times per loop.
+Resident-s4/streaming-s12 work is 0.936/0.939 starting Rust. The old SIMD
+and safe-scalar instruction counts are identical, so historical Exp S3
+failures require fresh paired evidence, not an instruction-only clearance.
+Keep the scalar bit construction and every tail; no reciprocal estimates.
+
+Wasm Quat previously extracted four packed records to scalar memory and
+rotated variable u64 words. Use two vector byte-swizzles with record-local
+selectors, preserving exact 16-bit rotation and all arithmetic. Existing
+rotation selector tests plus 42 development wasm filter/view goldens pass.
+
+Native Oct/Quat arithmetic is not approximated: sqrt/div precision and
+scalar rounding remain authoritative. An API-wrapper inlining trial
+changed resident work negligibly and tiny vertex only 0.997 starting;
+revert those annotations before the single final timing epoch. Do not
+introduce an input-size threshold selected from historical failed cases.
+Native S1 and remaining filtered-view maxima are explicitly still at risk.

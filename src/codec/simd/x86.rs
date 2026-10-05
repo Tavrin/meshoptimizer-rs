@@ -694,12 +694,23 @@ fn sqrt4_kernel(values: [f32; 4]) -> [f32; 4] {
 
 #[target_feature(enable = "sse2")]
 fn exp_kernel(data: &mut [u8]) {
-    let (chunks, tail) = data.as_chunks_mut::<16>();
-    for chunk in chunks {
-        let v = load(chunk);
+    let decode = |v| {
         let m = _mm_cvtepi32_ps(_mm_srai_epi32::<8>(_mm_slli_epi32::<8>(v)));
         let e = _mm_slli_epi32::<23>(_mm_add_epi32(_mm_srai_epi32::<24>(v), _mm_set1_epi32(127)));
-        store(chunk, _mm_castps_si128(_mm_mul_ps(_mm_castsi128_ps(e), m)));
+        _mm_castps_si128(_mm_mul_ps(_mm_castsi128_ps(e), m))
+    };
+    let (chunks, tail) = data.as_chunks_mut::<64>();
+    for chunk in chunks {
+        let blocks = chunk.as_chunks_mut::<16>().0;
+        let [a, b, c, d] = blocks else { unreachable!() };
+        store(a, decode(load(a)));
+        store(b, decode(load(b)));
+        store(c, decode(load(c)));
+        store(d, decode(load(d)));
+    }
+    let (chunks, tail) = tail.as_chunks_mut::<16>();
+    for chunk in chunks {
+        store(chunk, decode(load(chunk)));
     }
     crate::codec::filter::scalar_exp(tail);
 }
