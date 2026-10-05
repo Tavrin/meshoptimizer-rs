@@ -1,6 +1,7 @@
 # P07 SIMD implementation and qualification
 
-The original evidence below belongs to implementation `2feefb2`. The P07-perf
+Except for the explicitly current native measured-gaps table, the original
+evidence below belongs to implementation `2feefb2`. The P07-perf
 refresh is recorded separately at the end; historical ratios and safety-block
 counts describe that earlier source, not the refreshed kernels.
 
@@ -121,41 +122,53 @@ Standalone filters and meshlets have no upstream JS API, so S5 covers raw
 vertex/index/sequence and buffer-view cases. Shared-host load is recorded;
 these results do not establish dedicated-host or Moss integration performance.
 
-## Native measured gaps
+## Native measured gaps — current round three
 
-Geometric means of Rust time / C++ SIMD time; lower is faster. Both APIs use the complete frozen matrix. Repeated standalone Oct/Quat are excluded from these two varied-filter rows and remain in the individual record.
+Current evidence is `/mnt/linux-extra/meshopt-artifacts/p07r3/performance.json`,
+implementation `4e7eea0` (documented HEAD `002872f`). These are geometric means
+of stage-1 Rust time / C++ SIMD time over the frozen matrix; lower is faster.
+Repeated standalone Oct/Quat inputs remain separate from the varied-filter rows.
+
+The former vertex 2.283 / 2.610 table described original implementation `2feefb2`
+in `/mnt/linux-extra/meshopt-artifacts/p07`; it was not the round-three result.
+The P07-perf and P07-R3 sections below preserve historical comparisons.
+This table now agrees with [SIMD_PERFORMANCE.md](SIMD_PERFORMANCE.md).
 
 | Function | Allocating | Caller buffer |
 |---|---:|---:|
-| vertex | 2.283 | 2.610 |
-| view-none | 2.121 | 2.583 |
-| view-filtered | 2.255 | 2.617 |
-| oct | 2.662 | 2.668 |
-| quat | 2.607 | 3.218 |
-| exp | 0.951 | 0.970 |
-| color | 1.511 | 1.492 |
-| meshlet | 2.296 | 3.115 |
-| meshlet-raw | 1.830 | 2.181 |
-| index | 1.154 | 1.061 |
-| sequence | 1.094 | 1.082 |
+| vertex | 1.832 | 1.967 |
+| view-none | 1.702 | 1.872 |
+| view-filtered | 1.841 | 1.826 |
+| oct | 1.492 | 1.535 |
+| quat | 1.237 | 1.336 |
+| exp | 0.886 | 0.935 |
+| color | 1.540 | 1.496 |
+| meshlet | 1.329 | 1.534 |
+| meshlet-raw | 1.228 | 1.315 |
+| index | 1.144 | 1.075 |
+| sequence | 1.298 | 1.058 |
 
-S1 and S2 fail. S3 also fails: 49 case/ceiling comparisons show a significant
-slowdown against safe scalar Rust (18 allocating, 31 caller-buffer). S4 passes
-for caller-buffer. Allocating S4 fails `index-2-v0-streaming-s4`: median time
-ratio 2.268 against scalar C++, paired 95% interval 1.674–2.494, wholly above
-1.50. All frozen P02 index/sequence minima pass under both APIs. These misses
-are retained; no upstream-parity or release claim is made.
+S1 and S2 fail both APIs. S3 fails with **19** significant case/ceiling
+regressions (6 allocating, 13 caller-buffer), assessed against safe scalar Rust.
+S4 passes caller-buffer and all frozen minima. Allocating S4 fails
+`index-2-v0-streaming-s4`, `index-3-v0-streaming-s4` and
+`index-3-v1-streaming-s4` against the unchanged 1.50 case bar.
 
 | Bar | Allocating GM | Caller-buffer GM | Verdict |
 |---|---:|---:|---|
-| S1 | 2.221 | 2.696 | fail both APIs |
-| S2 | 1.849 | 2.028 | fail both APIs |
-| S3 | — | — | 49 significant case/ceiling regressions |
-| S4 (scalar C++) | 1.158 | 1.057 | allocating fail; caller-buffer pass |
+| S1 | 1.618 | 1.778 | fail both APIs |
+| S2 | 1.484 | 1.500 | fail both APIs |
+| S3 | — | — | 19 significant case/ceiling regressions |
+| S4 (scalar C++) | 1.238 | 1.062 | allocating fail; caller-buffer pass |
 
-[SIMD_PERFORMANCE.md](SIMD_PERFORMANCE.md) publishes every case, throughput,
-interval, pair count and independently assessed S3/S4 result. Raw records and
-`performance-summary.json` retain all descriptive maxima and failures.
+[SIMD_PERFORMANCE.md](SIMD_PERFORMANCE.md) retains every current case, interval,
+pair count and independently assessed S3/S4 result. See
+[P07_DIAGNOSIS.md](P07_DIAGNOSIS.md) for the epoch reconciliation, counters
+and ranked structural fix plan. No upstream-parity or release claim is made.
+
+The following wasm table belongs to the original epoch; current round-three
+S5 means are 1.310 / 1.361, with worst stage-1 ratios 2.537 / 2.740.
+
 
 ## Executed wasm measured gaps
 
