@@ -79,7 +79,16 @@ for label in ['color-depth-proof','upstream-tail-reproduction','arithmetic-proof
             b = ART/('dev-bin/final-arithmetic' if r['backend'] == 'native' else 'node-bin/arithmetic-simd.wasm')
             assert sha(b) == r['binary_sha256']
 checks = read('checks'); assert len(checks) == 7
-for r in checks: assert r['exit_code'] == 0 and sha(ART/(r['name']+'.log')) == r['log_sha256']
+for r in checks:
+    assert r['exit_code'] == 0 and sha(ART/(r['name']+'.log')) == r['log_sha256']
+    if r.get('retained_before_test_only_change'):
+        assert r['name'] == 'miri-simd' and r['source_head'] == '3ed50bb'
+        for n,h in r['source_hashes'].items():
+            if n != 'src/codec/simd/mod.rs': assert build['sources'][n] == h, ('retained Miri source',n)
+        old_module = subprocess.check_output(['git','show','3ed50bb:src/codec/simd/mod.rs'],cwd=ROOT).decode()
+        now_module = (ROOT/'src/codec/simd/mod.rs').read_text()
+        assert old_module.split('\n#[cfg(test)]')[0] == now_module.split('\n#[cfg(test)]')[0]
+
 for label in ['portability-checks','safety-gates']:
     for r in read(label)['commands']: assert r['exit_code'] == 0 and sha(ART/r['log']) == r['log_sha256']
 assert read('safety-gates')['passed']
