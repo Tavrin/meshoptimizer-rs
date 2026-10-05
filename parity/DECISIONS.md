@@ -3910,5 +3910,94 @@ its 690-second pair boundary and releases after 11m34s with exit zero. Resume
 only unfinished rows and accepted partial samples; no completed row is rerun.
 Node remains in the visible shared queue. Allocation-sensitive sequence gaps
 persist in the single pass; the row's matched starting Rust is retained.
-Further counter-only cold-packet/kernel-fault diagnostics are prepared for
-after the timing jobs, rather than introducing competing memory traffic.
+Further counter-only cold-packet/fault diagnostics were collected during a
+subsequent queue window with neither own timing job admitted, on core 25.
+No admitted sample overlapped these diagnostics; wall values in their binary
+responses were ignored. This supersedes the earlier plan to collect after timing.
+
+
+### Sequence allocation cause: bounded investigation, unresolved
+
+The safe cursor fix remains implemented. Counter differences for streaming
+v1 stride-four show 44.25 million new Rust versus 42.36 million C++ user
+instructions per cold allocating decoded call (1.045), compared with 54.73
+million starting Rust. Cold packets include transport/setup per two calls;
+these are counter diagnostics, not equal-interface timing-bar measurements.
+Warm-loop differences remove almost all page faults; cold allocating Rust
+has about 3,074 minor faults per decoded call versus C++ 4,080, while caller
+buffers have about 3,057 on both sides. Fault volume therefore does not
+explain extra Rust allocating time. Differential counts for rare faults may
+be negative from startup noise and are not interpreted as physical rates.
+
+Sampled minor-fault stacks locate Rust faults in output initialization and
+response copying; C++ faults also occur in warmup/timed output zeroing and
+response copying. The C++ timed initialization has 6,144 represented faults
+across three calls (2,048 per call); Rust's combined warmup/timed allocation
+samples are consistent with the same initialization volume. Rust unwinding
+stops before separating these calls. User-cycle counts exclude kernel fault
+service, and host allocator/clock effects remain unisolated. perf kernel
+cycles are unavailable under current host permissions; no host setting was
+changed. Preserve sequence-packets.json, sequence-fault-summary.json, raw
+stat/data/scripts and source/binary hashes. Do not claim extra Rust zeroing,
+page-fault service, allocator choice or scheduling as the established cause.
+
+Abandon further cause attribution within this bounded fix-four pass: the
+matched final sequence rows retain starting/new Rust and C++ and can establish
+whether the slowdown persists, but instruction/fault evidence cannot establish
+its cause. No extra admitted timing experiment or failed-case selection retry
+is introduced. This subgoal remains explicitly unresolved with evidence.
+
+MSRV 1.88 no-std SIMD and wasm simd128 no-std compile checks pass. Each emits
+three existing unused-helper warnings in its no-std backend. Their exact logs
+and zero exits are in portability-checks.json; no extra target execution is
+claimed. The seven main test/static/Miri receipts remain unchanged.
+
+
+The native resume preserved rows, partial samples and controller segments,
+but its adapter rebuilt the top-level record without copying lease_bursts;
+the final JSON retains only the last burst's exact elapsed value. Retain both
+original wrapper logs and a separate timing-bursts.json derived from those
+logs (whole-second wrapper precision). The first native wrapper reports
+11m34s, the second 1m05s, both exit zero. The lost first exact fractional
+elapsed value is not reconstructed or claimed. Per-pair holder/ancestor,
+reservation and queue telemetry remains intact across both segments.
+
+
+### Final scoped outcome and stop
+
+The independent verifier recomputes unique scope membership, archived source,
+binary/input/BAR identities, parity ZIP members, zero-exit static/Miri receipts,
+paired intervals/early stopping/D146 eligibility, golden Node preflight and
+admission telemetry. It passes while preserving the expanded P04 FAIL.
+Final native/Node matrices are 188/146 rows. Native S3 has zero significant
+comparisons in either stage across touched cases/default/SSE2; the two
+untouched historical standalone Exp regressions remain unclosed. S1/S2/S5
+still fail. Sequence-only S4 caller-buffer passes; allocating fails two maxima
+although all minima pass. Exact family/case numbers are in the new scoped
+P07_FIX4_PERFORMANCE.md and SIMD_RESULTS.md, not substituted for the historical
+full-matrix report.
+
+Retain all six implementations. Typed meshlet means 1.332 allocating / 1.564
+caller-buffer are slightly worse than 1.329/1.534 despite a 0.95 instruction
+ratio. No late unmeasured revert is performed. Color arithmetic is exact and
+only range checks simplify; further cheaper Oct/Quat divide/sqrt/round work is
+abandoned without a proof. Tiny tails use canonical scalar reconstruction;
+remaining checked setup/dispatch/maxima are recorded, not patched by an
+unmeasured size threshold. Sequence maximum persists at 2.876 (same-pass
+starting 3.205, new/starting 0.897), with its cause unresolved as recorded.
+
+Both native bursts and Node exit zero, wrappers report 694/65/153 seconds,
+all under 840. The first native fractional receipt loss is disclosed above;
+accepted rows/partials and per-pair proof are intact. No final case retry,
+new timing epoch, broader full matrix or remaining host/platform qualification
+is attempted. Implemented fixes, explicit abandoned cause attribution,
+complete timing and recorded failures satisfy the requested stop condition.
+Archive identities and cleanup receipt, delete only the exact prescribed
+target, commit records with configured repo author and stop. Never push,
+merge or rebase.
+
+
+Cleanup complete: only `/mnt/linux-extra/moss-cargo-targets/codex-p07-fix4`
+(1.1 GB) is removed after all own build/test/timing sessions finish. Archived
+binaries are present; cleanup.json confirms target absence and before/after
+disk receipts. No foreign target, artifact, cache or lease is removed.

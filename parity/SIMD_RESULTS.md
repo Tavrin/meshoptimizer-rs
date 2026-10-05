@@ -380,3 +380,97 @@ residual profiles/best ratios. This is not SIMD release, ARM execution,
 Windows/macOS, dedicated-host, Moss integration or phase-0.6 qualification.
 Retain source/binary archives and receipts outside the exact target; delete
 `/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p07r3` at completion. No push.
+
+
+## P07 fix-four — 2026-10-05
+
+Start `e41f4bb`; each ranked fix is separately committed: `a48d060`,
+`70727c3`, `72e03af`, `f72221b`, `b0f0377`, `eb6bac6`. Production source
+is frozen before one scoped timing epoch. Evidence:
+`/mnt/linux-extra/meshopt-artifacts/p07-fix4`. The independent verifier passes.
+[Every scoped native/Node row, failures and residuals](P07_FIX4_PERFORMANCE.md).
+
+| Family | Before allocating / caller-buffer | After allocating / caller-buffer | Registered family bar A/C | Brief bar A/C |
+|---|---:|---:|---|---|
+| vertex | 1.832 / 1.967 | **1.201 / 1.103** | FAIL / FAIL | FAIL / FAIL |
+| view-none | 1.702 / 1.872 | **1.155 / 1.183** | FAIL / FAIL | pass / FAIL |
+| view-filtered | 1.841 / 1.826 | **1.295 / 1.185** | FAIL / FAIL | FAIL / FAIL |
+| color | 1.540 / 1.496 | **1.397 / 1.395** | FAIL / FAIL | FAIL / FAIL |
+| meshlet | 1.329 / 1.534 | **1.332 / 1.564** | FAIL / FAIL | FAIL / FAIL |
+| meshlet-raw | 1.228 / 1.315 | **1.182 / 1.299** | FAIL / FAIL | pass / FAIL |
+| sequence | 1.298 / 1.058 | **1.237 / 1.078** | FAIL / pass | FAIL / pass |
+| wasm touched scope | 1.360 / 1.426 | **1.151 / 1.156** | FAIL / FAIL | FAIL / FAIL |
+
+Ratios are geometric means of stage-one medians, Rust / C++ SIMD time
+(upstream shipped JS SIMD for wasm); lower is faster. Before uses identical
+case membership from p07r3, a separate historical epoch. Only sequence
+interleaves starting Rust in the new pass. Registered S1 is 1.10/1.30,
+S2 1.25/1.50 and S5 1.25/1.60; the brief's uniform 1.25/1.50 is separately
+assessed. SIMD_BAR.md and frozen numeric inputs are unchanged. Per-family
+verdicts include both mean and final interval maxima; unresolved intervals fail.
+
+Native completes **188 unique rows** (94 touched cases / both APIs); Node
+completes **146** (73 eligible touched cases / both APIs). Native's two bursts
+release after 11m34s and 1m05s; Node after 2m33s, all exit zero under the exact
+four-GB heavy admission wrapper. First native burst checkpoints at 144 rows;
+the continuation resumes its accepted unfinished samples and remaining rows.
+No accepted pair/completed row is repeated. Native has 28 fresh thirty-pair D146
+rows; Node has 17. Telemetry proves holder ancestry, actual reservation/cap,
+declaration and scoreboard exclusion. Native resume drops only the first
+fractional top-level burst receipt; original wrapper logs and timing-bursts.json
+retain every whole-second duration and exit, with all per-pair receipts intact.
+
+S1 and touched S2 remain FAIL for both APIs. **Touched S3 has zero significant
+regressions**, for both default and SSE2 ceilings, including either stage;
+the two historical standalone Exp caller-buffer failures remain unclosed.
+Triangle index and standalone Oct/Quat/Exp timing are outside this scope.
+Sequence-only S4 allocating is FAIL (scalar-C++ geomean 1.244, two maxima);
+caller-buffer passes (1.073, no failed maxima). Every sequence P02 minimum
+passes. Full S4 is not requalified. S5 geomeans now pass but maxima fail:
+eight allocating and ten caller-buffer cases exceed registered 1.60 intervals.
+
+The historical allocating sequence gap persists: streaming v1 stride-four
+is 2.876× C++ (starting Rust in the same pass 3.205×, new/starting 0.897).
+Differential instructions fall to about 0.808 starting Rust. Cold-packet
+new Rust/C++ instructions are 1.045; Rust incurs fewer page faults, and both
+drivers fault during initialization and response copying. Counter/fault stacks
+do not establish kernel/allocator latency. Cause attribution is explicitly
+abandoned within this bounded pass with raw evidence retained; no extra
+admitted timing experiment or selection retry is performed.
+
+Frozen exact comparisons pass: 869 fixtures, 7,653 malformed cases and all
+138 benchmark identities, both APIs, native scalar/SSE2/SSSE3/SSE4.1 and
+executed wasm without/with SIMD. Separate upstream SIMD filter conformance
+rules are unchanged; 292 Node preflight output hashes match canonical bytes.
+All-feature/unsafe-free tests, native/wasm SIMD Clippy, five SIMD integration
+Miri tests, three integer-kernel Miri tests and sequence-fixture Miri pass.
+MSRV 1.88 no-std SIMD and wasm simd128 no-std compile checks pass (existing
+unused-helper warnings retained). Boundary/package gates retain 23 unsafe
+blocks and one module-level allowance. Oct/Quat/Exp arithmetic is unchanged;
+historical exhaustive filter runs are not credited as fresh evidence.
+
+The optional expanded P02 sweep passes 70,000 cases. Expanded strict P04 is
+**FAIL** after 99,264 completed cases at `seed-20261005-op20-9264`: mutated
+unused odd-tail meshlet nibble 0x1c is accepted by upstream scalar/current
+Rust/starting Rust with identical bytes, but upstream SIMD returns -3.
+The pre-existing disagreement, full partial archive and reproduction are
+retained without an input exclusion, oracle change or smaller green sweep.
+
+Native vertex instructions drop to about half of starting Rust, and its
+reconstruction stack frame falls 0x168→0x98. Checked address/spill work remains.
+Wasm probes use about two-thirds of starting instructions, but V8 work moved
+to the larger vertex decode body/helpers; raw-function size is insufficient
+to claim whole-path spill reduction. Color instruction reduction preserves
+exact arithmetic. Meshlet packing helps raw instructions; typed family wall
+means remain slightly worse and fail. All failures and residuals are retained.
+Further speculative filter arithmetic/unsafe pointer paths are abandoned
+without proof. No late unmeasured threshold or revert is introduced.
+
+All six fixes are implemented; sequence cause attribution is the explicit
+unresolved subgoal. Scoped timing and result recording satisfy the stop
+condition. This does not qualify SIMD release, ARM execution, dedicated-host,
+Windows/macOS, Moss integration or phase-0.6 acceptance. Binaries/evidence
+are archived outside the exact build target. The prescribed
+`/mnt/linux-extra/moss-cargo-targets/codex-p07-fix4` (1.1 GB) is deleted;
+cleanup.json confirms absence and disk receipts.
+No push, merge or rebase.

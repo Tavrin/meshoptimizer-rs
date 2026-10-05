@@ -66,7 +66,7 @@ for r in preflight['rows']: assert r['output_sha256']==golden[r['case']]['output
 native,wasm=read('performance'),read('wasm-performance')
 families={'vertex','view-none','view-filtered','color','meshlet','meshlet-raw','sequence'}
 native_names={r['case'] for r in inputs if family(r['case']) in families}
-summary={'proof_cases':proofs,'native_rows':len(native['rows']),'wasm_rows':len(wasm['rows']),'families':{},'s3_failures':[],'sequence_matched_before':[],'s4':{},'wasm':{},'limits':'Scoped touched families; unchanged triangle index and standalone Oct/Quat/Exp timing is not requalified.'}
+summary={'proof_cases':proofs,'native_rows':len(native['rows']),'wasm_rows':len(wasm['rows']),'families':{},'s3_failures':[],'s3_final_failures':[],'sequence_matched_before':[],'s4':{},'wasm':{},'limits':'Scoped touched families; unchanged triangle index and standalone Oct/Quat/Exp timing is not requalified.'}
 old_native=json.loads((ART.parent/'p07r3/performance.json').read_text())
 old_wasm=json.loads((ART.parent/'p07r3/wasm-performance.json').read_text())
 old_n={(r['api'],r['case']):r for r in old_native['rows']}
@@ -112,7 +112,10 @@ for record,names,is_wasm in [(native,native_names,False),(wasm,wasm_names,True)]
                 for backend in ['rust','sse2']:
                     if backend in values:
                         sc=interval(values[backend],values['scalar'])
-                        if sc[0]>1:summary['s3_failures'].append({'case':row['case'],'api':row['api'],'backend':backend,'stage':stage_no,'interval':sc})
+                        if sc[0]>1:
+                            finding={'case':row['case'],'api':row['api'],'backend':backend,'stage':stage_no,'interval':sc}
+                            summary['s3_failures'].append(finding)
+                            if stage_no==(2 if 'stage2' in row else 1):summary['s3_final_failures'].append(finding)
         med={k:statistics.median(v) for k,v in raw.items()}
         assert math.isclose(row['time_ratio'],med['rust']/med[base],rel_tol=1e-12)
         if not is_wasm:
@@ -142,7 +145,20 @@ for api in ['allocating','caller-buffer']:
     summary['s4'][api]={'scope':'sequence only','scalar_cpp_geomean':scalar_gm,'maximum_failures':max_failures,'minimum_failures':minimum_failures,'pass':scalar_gm<=1.25 and not max_failures and not minimum_failures}
     wr=[r for r in wasm['rows'] if r['api']==api];mean=gm(r['time_ratio'] for r in wr)
     summary['wasm'][api]={'before':gm(old_w[api,r['case']]['time_ratio'] for r in wr),'after':mean,'worst_stage1_ratio':max(r['time_ratio'] for r in wr),'registered_pass':mean<=1.25 and all(r['interval'][1]<=1.6 for r in wr),'brief_pass':mean<=1.25 and all(r['interval'][1]<=1.5 for r in wr),'failed_registered_cases':[r['case'] for r in wr if r['interval'][1]>1.6]}
+summary['s3_final_significant_comparisons']=len(summary['s3_final_failures'])
+summary['s3_registered_varied_failures']=[r for r in summary['s3_final_failures'] if r['case'].startswith('varied-')]
 summary['s3_significant_comparisons']=len({(r['api'],r['case'],r['backend']) for r in summary['s3_failures']})
+bursts=read('timing-bursts')
+assert len(bursts['rows'])==len(native['controller_segments'])+len(wasm['controller_segments'])
+for receipt in bursts['rows']:
+    log=ART/receipt['log'];assert sha(log)==receipt['log_sha256']
+    match=re.search(r"gpu-lease: 'heavy:timeout' released after (\d+)m(\d+)s \(exit 0\)",log.read_text());assert match
+    seconds=int(match[1])*60+int(match[2]);assert seconds==receipt['wrapper_reported_seconds'] and seconds+1<840
+    assert 'moss-heavy.sh' not in receipt.get('nested_wrapper','')
+    if receipt['kind']=='native':record=native
+    else:record=wasm
+    assert receipt['executed_controller_path'] in {x['executed_controller_path'] for x in record['controller_segments']}
+summary['timing_bursts']=bursts
 checks=read('checks');assert len(checks)==7 and all(r['exit_code']==0 and sha(ART/(r['name']+'.log'))==r['log_sha256'] for r in checks)
 assert read('counters')['complete']
 summary['verified']=True
