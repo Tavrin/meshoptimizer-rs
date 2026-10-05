@@ -440,8 +440,10 @@ fn partition(
     ctx.free(sorted)?;
     Ok(offsets)
 }
+// Reuse the existing byte-sized boundary storage as simplifier flags. Bit 7
+// is private discovery state and is removed from every entry before return.
 fn lock_boundary(
-    locks: &mut [u8],
+    locks: &mut [support::VertexFlags],
     clusters: &[Pending],
     offsets: &[u32],
     indices: &[u32],
@@ -451,27 +453,29 @@ fn lock_boundary(
 ) -> Result<(), Error> {
     ctx.tick(locks.len())?;
     for l in locks.iter_mut() {
-        *l &= !(1 | 128);
+        *l.boundary_bits_mut() &= !(1 | 128);
     }
     for pair in offsets.windows(2) {
         for cl in &clusters[pair[0] as usize..pair[1] as usize] {
             for &v in &indices[cl.offset..cl.offset + cl.count] {
                 ctx.tick(1)?;
                 let r = remap[v as usize] as usize;
-                locks[r] |= locks[r] >> 7;
+                let bits = locks[r].bits();
+                *locks[r].boundary_bits_mut() |= bits >> 7;
             }
         }
         for cl in &clusters[pair[0] as usize..pair[1] as usize] {
             for &v in &indices[cl.offset..cl.offset + cl.count] {
                 ctx.tick(1)?;
-                locks[remap[v as usize] as usize] |= 128;
+                *locks[remap[v as usize] as usize].boundary_bits_mut() |= 128;
             }
         }
     }
     for (i, &r) in remap.iter().enumerate() {
-        locks[i] = (locks[r as usize] & 1) | (locks[i] & 2);
+        let bits = (locks[r as usize].bits() & 1) | (locks[i].bits() & 2);
+        *locks[i].boundary_bits_mut() = bits;
         if let Some(f) = flags {
-            locks[i] |= f[i].bits();
+            *locks[i].boundary_bits_mut() |= f[i].bits();
         }
     }
     Ok(())
@@ -479,31 +483,17 @@ fn lock_boundary(
 fn simplify(
     indices: &[u32],
     mesh: &Mesh<'_>,
-    locks: &[u8],
+    locks: &[support::VertexFlags],
     c: Config,
     target: usize,
     ctx: &mut Context<'_>,
 ) -> Result<(Vec<u32>, f32), Error> {
     let p = support::Positions::from_packed(mesh.positions);
-    let width = mesh.attribute_weights.len();
-    let mut attrs = ctx.alloc::<f32>(
-        mesh.positions
-            .len()
-            .checked_mul(width)
-            .ok_or(Error::SizeOverflow)?,
-    )?;
-    if let Some(source) = mesh.attributes {
-        for i in 0..mesh.positions.len() {
-            for j in 0..width {
-                attrs[i * width + j] = source.get(i, j).ok_or(Error::InvalidLayout)?;
-            }
-        }
-    }
-    let a = support::Attributes::from_interleaved(&attrs, mesh.positions.len(), width, width, 0)?;
-    let mut flags = ctx.alloc::<support::VertexFlags>(locks.len())?;
-    for (flag, &lock) in flags.iter_mut().zip(locks) {
-        *flag = support::VertexFlags::from_bits(lock & 7)?;
-    }
+    debug_assert!(locks.iter().all(|f| f.bits() & !7 == 0));
+    let a = match mesh.attributes {
+        Some(source) => support::Attributes::from_source(source),
+        None => support::Attributes::from_interleaved(&[], mesh.positions.len(), 0, 0, 0)?,
+    };
     let mut bits = 2 | 4;
     if c.simplify_error_clamped {
         bits |= 256;
@@ -529,7 +519,7 @@ fn simplify(
             p,
             a,
             mesh.attribute_weights,
-            &flags,
+            locks,
             support::SimplifySettings {
                 target_index_count: target,
                 target_error: f32::MAX,
@@ -556,7 +546,7 @@ fn simplify(
         let mut seq = ctx.alloc(indices.len())?;
         for (i, &v) in indices.iter().enumerate() {
             subset[i] = mesh.positions[v as usize];
-            slocks[i] = support::VertexFlags::from_bits(locks[v as usize] & 1)?;
+            slocks[i] = support::VertexFlags::from_bits(locks[v as usize].bits() & 1)?;
             seq[i] = i as u32;
         }
         let p = support::Positions::from_packed(&subset);
@@ -610,8 +600,6 @@ fn simplify(
             .min(crate::math::sqrt(maxsq) * c.simplify_error_edge_limit);
     }
     finite(result.error)?;
-    ctx.free(attrs)?;
-    ctx.free(flags)?;
     Ok((result.indices, result.error))
 }
 fn edge_slot(table: &[u64], key: u64, ctx: &mut Context<'_>) -> Result<usize, Error> {
@@ -626,7 +614,7 @@ fn edge_slot(table: &[u64], key: u64, ctx: &mut Context<'_>) -> Result<usize, Er
 fn boundary_area(
     p: Positions<'_>,
     indices: &[u32],
-    locks: &[u8],
+    locks: &[support::VertexFlags],
     remap: &[u32],
     table: &mut [u64],
     ctx: &mut Context<'_>,
@@ -648,7 +636,7 @@ fn boundary_area(
             ctx.tick(1)?;
             let (a, b) = (remap[t[e] as usize], remap[t[(e + 1) % 3] as usize]);
             let key = (b as u64) << 32 | a as u64;
-            border |= (locks[a as usize] & locks[b as usize] & 1) == 0
+            border |= (locks[a as usize].bits() & locks[b as usize].bits() & 1) == 0
                 && table[edge_slot(table, key, ctx)?] == u64::MAX;
         }
         if border {
@@ -663,7 +651,7 @@ fn dilate(
     mesh: &mut Mesh<'_>,
     old: &[u32],
     new: &[u32],
-    locks: &[u8],
+    locks: &[support::VertexFlags],
     remap: &[u32],
     bounds: &mut LodBounds,
     offsets: &mut [[f32; 4]],
@@ -698,7 +686,9 @@ fn dilate(
                 remap[t[(e + 1) % 3] as usize] as usize,
             );
             let key = (b as u64) << 32 | a as u64;
-            if locks[a] & locks[b] & 1 != 0 || table[edge_slot(&table, key, ctx)?] != u64::MAX {
+            if locks[a].bits() & locks[b].bits() & 1 != 0
+                || table[edge_slot(&table, key, ctx)?] != u64::MAX
+            {
                 continue;
             }
             let va = point(p, t[e]);
@@ -712,7 +702,7 @@ fn dilate(
             let nl = crate::math::sqrt(finite(dot(nv, nv))?);
             let ns = if nl > 0. { el / nl } else { 0. };
             for v in [a, b] {
-                if locks[v] & 1 == 0 {
+                if locks[v].bits() & 1 == 0 {
                     for (k, &n) in nv.iter().enumerate() {
                         offsets[v][k] += n * ns;
                     }
@@ -730,7 +720,7 @@ fn dilate(
     for &v in new {
         ctx.tick(1)?;
         let r = remap[v as usize] as usize;
-        if locks[r] & 1 != 0 {
+        if locks[r].bits() & 1 != 0 {
             continue;
         }
         let n = &mut offsets[r];
@@ -861,7 +851,7 @@ fn build_internal(
     let mut moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, &mut ctx)?;
-    let mut locks = ctx.alloc::<u8>(p.len())?;
+    let mut locks = ctx.alloc::<support::VertexFlags>(p.len())?;
     if let Some(a) = mesh.attributes {
         for (i, l) in locks.iter_mut().enumerate() {
             let r = remap[i] as usize;
@@ -870,7 +860,7 @@ fn build_internal(
                     && mesh.attribute_protect_mask & (1u32 << j) != 0
                     && a.get(i, j) != a.get(r, j)
                 {
-                    *l |= 2;
+                    *l.boundary_bits_mut() |= 2;
                 }
             }
         }

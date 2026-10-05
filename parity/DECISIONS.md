@@ -3482,3 +3482,50 @@ case and before every admission pause. Cap active bursts at 840 seconds
 is always completed before releasing the core. During future implementation
 iterations, measure only touched families/cases at about five pairs; do not
 repeat full matrices. Exact parity and final-HEAD identity gates are retained.
+
+## D153 — Borrow cluster-LOD inputs without retained simplification scratch
+
+The recovery baseline is `3db42ccc81ecc9ac5e21d181d3deac735573f711`
+(with D149–D152 intact). Before source edits, `perf record -F 199 -g
+--call-graph dwarf,8192` captured three identical cooks per scalar backend
+on pyramid, branches, leaves and modular. The Rust group simplification
+wrapper accounts for respectively 45.94%, 46.24%, 43.30% and 25.98% of
+sampled cycles; bulk zeroing accounts for another 9.60%, 9.50%, 8.39% and
+5.01%. Actual simplifier state work is separately attributed. Source inspection
+locates the repeated cost in D149's full-source attribute copy/initialization
+and flag conversion for every small sparse group. D150 cannot cause this S2
+regression: the timed config disables dilation.
+
+These are diagnostic stage shares under recorded shared-machine load, collected
+while a GPU lease was held. They are not paired wall-time evidence. The spec's
+**timing** admission gate remains binding for every iterative and final pair.
+Baseline source/binary identities, raw perf captures, reports, core/load and
+admission records are retained in `/mnt/linux-extra/meshopt-artifacts/clodrec`.
+
+The private support attribute view now borrows the already validated immutable
+public view. Sparse remapping still happens inside the existing simplifier and
+preserves strided floats, unaligned bytes and explicit byte order. The existing
+boundary-lock allocation uses the private simplifier's transparent one-byte
+flag type; discovery bit 7 is cleared from every entry before simplification.
+This removes both per-group full-source buffers, instead of caching them
+across callbacks or reclustering. All other heap allocations/lifetimes and
+work charges are unchanged, and child budgets still include live parent
+storage. Thus no input acquires additional owned heap capacity versus the
+pre-optimization path; the single-cluster path allocates neither buffer.
+No unsafe code, SIMD, public API or arithmetic change is introduced.
+
+Unconditional position-range invalidation after dilation remains intact.
+A new multi-level regression compares complete output, mutated positions,
+work and exact workspace-byte boundaries across packed/padded float and
+unaligned little-/big-endian attribute layouts, with LOCK/PROTECT/PRIORITY,
+zero-weight components and both dilation settings. It passed before and after
+the source change. The existing memory/dilation regressions remain green.
+
+`parity/rfc113/timing.py` makes D152's previously external adaptive method
+reproducible from the worktree. It builds and hashes the current sources and
+binaries, records process-tree admission evidence and both physical-core
+siblings, closes drivers before lease pauses, caps bursts at 840 seconds,
+and reserves D146's 30-pair stage for unresolved 20-pair intervals. `--case`
+and `--pairs 5` select affected cases for diagnostic iteration. Final results
+use one adaptive pass per profile. Admission and stopping regressions are
+part of the focused harness tests.

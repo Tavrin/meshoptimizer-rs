@@ -570,3 +570,75 @@ fn demo_dilation_near_position_range_threshold() {
     assert!(positions.iter().zip(&before).any(|(a, b)| a != b));
     assert!(positions.iter().flatten().all(|v| v.is_finite()));
 }
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn demo_attribute_layouts_preserve_output_and_workspace_peak() {
+    let (positions, indices) = mesh();
+    let n = positions.len();
+    let packed: Vec<f32> = (0..n)
+        .flat_map(|i| [i as f32 * 0.01, 0.25, (i % 7) as f32 * 0.1])
+        .collect();
+    let mut interleaved = vec![f32::NAN; n * 5];
+    let mut little = vec![0xff; n * 20 + 1];
+    let mut big = little.clone();
+    for i in 0..n {
+        for j in 0..3 {
+            let value = packed[i * 3 + j];
+            interleaved[i * 5 + 1 + j] = value;
+            let at = i * 20 + 1 + j * 4;
+            little[at..at + 4].copy_from_slice(&value.to_le_bytes());
+            big[at..at + 4].copy_from_slice(&value.to_be_bytes());
+        }
+    }
+    let flags: Vec<_> = (0..n)
+        .map(|i| match i % 17 {
+            0 => VertexFlags::LOCK,
+            1 => VertexFlags::PROTECT,
+            2 => VertexFlags::PRIORITY,
+            _ => VertexFlags::EMPTY,
+        })
+        .collect();
+    let views = [
+        Attributes::from_interleaved(&packed, n, 3, 3, 0).unwrap(),
+        Attributes::from_interleaved(&interleaved, n, 3, 5, 1).unwrap(),
+        Attributes::from_bytes(&little, n, 3, 20, 1, ByteOrder::LittleEndian).unwrap(),
+        Attributes::from_bytes(&big, n, 3, 20, 1, ByteOrder::BigEndian).unwrap(),
+    ];
+    for dilate in [false, true] {
+        let mut config = clusterlod::default_config(8).unwrap();
+        config.simplify_dilate_borders = dilate;
+        let run = |view, limit| {
+            let mut p = positions.clone();
+            let mut ws = Workspace::new(Limits {
+                max_bytes: limit,
+                ..Limits::default()
+            });
+            let out = clusterlod::build(
+                config,
+                clusterlod::Mesh {
+                    positions: &mut p,
+                    indices: &indices,
+                    attributes: Some(view),
+                    vertex_lock: Some(&flags),
+                    attribute_weights: &[0.5, 0., 0.25],
+                    attribute_protect_mask: 1,
+                },
+                &mut ws,
+            );
+            (out, p, ws.usage())
+        };
+        let expected = run(views[0], usize::MAX);
+        assert!(expected
+            .0
+            .as_ref()
+            .unwrap()
+            .iter()
+            .any(|g| g.group.depth > 0));
+        for view in views {
+            assert_eq!(run(view, usize::MAX), expected);
+            assert_eq!(run(view, expected.2.bytes), expected);
+            assert_eq!(run(view, expected.2.bytes - 1).0, Err(Error::LimitExceeded));
+        }
+    }
+}
