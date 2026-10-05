@@ -34,7 +34,7 @@
     "src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
     "src/meshlet_util.rs": "6f95800d8f29ec4764b86ed0756e4816adc0337a6a4c280e16c391f187168820",
     "src/normal.rs": "0ea24cf42fcdab3f2f2593cfc223de055874e2c16290341503628fe5e65a3ec3",
-    "src/opacity.rs": "ef66935a5d21272333b21ad5bd321a5db69fe9afe5b643ea2a119450086d974a",
+    "src/opacity.rs": "5ed608a898e2f71c72fec70b62c3bf4ba5517e1bdf1ecfd5be3f9ca7a2fb6d0c",
     "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
     "src/parallel.rs": "a2f495210f0626f1f125763cc7d8fa856859dd8a3c4b9944e8b3b7dc16b8694f",
     "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
@@ -53,5 +53,5 @@
     "tests/p05.rs": "49228fea23d474c7fe49f8c06caaacc983cb9883bbc42d19d71e56aed1478964"
   },
   "detail_artifact": "run-0.5.log",
-  "detail_sha256": "a0136366c86b87701268d3f7804310b4d5a3c46663d63caefe44b38fb79bc31d"
+  "detail_sha256": "b033c6d1dbe07cd86bd0762e7b1e58fc61dab4edc4b124b931d30a04ff3175c6"
 }

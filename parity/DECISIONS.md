@@ -6105,3 +6105,15 @@ Final counts/assembly are raster-reader-mapped-counts: most observed cases are
 instruction-neutral; default medium overdraw improves slightly (~0.2%). This
 retains an explicit checked layout seam without claiming a large or timed gain.
 No other API, float operation, unsafe, SIMD or frozen input is changed.
+
+## D167 — Inline the OMM compact byte hash
+
+Inline only hash_bytes, retaining exact wrapping arithmetic, byte-chunk order,
+key/source copies, collision order and per-probe work. The separate helper call
+is absent in final assembly. Root checks and all three exact 30,000-case sweeps
+pass (`compact-hash-proof`). Counts (`compact-hash-counts`) support the modest
+change: compact ratios to C++ go ~1.101->1.087 Moss and ~1.138->1.127 default;
+tiny reductions are similarly about 1%. No timing inference or new hash table.
+This finishes the library batch; every other family is abandoned for further
+edits with D161/P05_DIAGNOSIS evidence. Proceed to a single touched-family timing
+campaign, never an all-family matrix or a relaxed bar.

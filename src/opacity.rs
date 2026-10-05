@@ -51,6 +51,7 @@ fn hash_update(mut h: u32, values: &[i32]) -> u32 {
     h
 }
 
+#[inline(always)]
 fn hash_bytes(mut h: u32, key: &[u8]) -> u32 {
     if key.len() < 4 {
         h ^= u32::from(key[0]) | (u32::from(key[key.len() - 1]) << 8);
