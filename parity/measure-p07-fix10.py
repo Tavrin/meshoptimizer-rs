@@ -18,7 +18,7 @@ import time
 
 sys.path[:0] = [str(Path(__file__).resolve().parent / 'simd'), str(Path(__file__).resolve().parent)]
 import qualify as q
-from p07_lease import admission
+from p07_lease import admission as shared_admission
 
 platform, kind = sys.argv[1:3]
 assert platform in ['native', 'wasm'] and kind in ['aa', 'final']
@@ -76,6 +76,21 @@ def gate():
             return receipt
         save()
         time.sleep(2)
+
+
+def admission():
+    receipt = shared_admission()
+    proofs = []
+    for proc in Path('/proc').glob('[0-9]*'):
+        try:
+            args = (proc / 'cmdline').read_bytes().split(b'\0')
+        except (FileNotFoundError, ProcessLookupError, PermissionError):
+            continue
+        if any(arg.decode(errors='replace') in [str(A / 'all-identity.py'), str(A / 'node-preflight.mjs'), str(A / 'counters.py')] for arg in args):
+            proofs.append({'pid': int(proc.name), 'args': [arg.decode(errors='replace') for arg in args if arg]})
+    receipt['owned_proofs'] = proofs
+    receipt['admitted'] = receipt['admitted'] and not proofs
+    return receipt
 
 
 try:
