@@ -6229,3 +6229,22 @@ Before/after compact results must disclose both D170's shipped scratch change
 and this setup correction. They are not an isolated library speedup measurement;
 historical full-matrix summaries remain historical. Cost-budget instruction
 savings are diagnostic only, not substituted for the final time measurements.
+
+
+## D174 — Last3 closure at final source 68742a9
+
+The shipped safe candidate and authorized compact setup epoch pass all fresh
+functional gates: 153/127/132 root tests, strict Clippy, std/libm consumer checks,
+15 fixtures and 90,000 exact native/libm/executed-WASM comparisons. Counter and
+source/archive/binary audits pass; raw miss/fault noise remains visible.
+
+One 22-case/profile timing campaign decides the three-family scope: PASS.
+P05_CURRENT_STATE.md retains exact before/after and per-profile protocol results.
+Compact ratios include both library and owner-authorized batch-construction
+changes. The old complete 160-case source epoch is historical, not promoted into
+a fresh all-family/release/fuzz verdict. No further clocks are submitted.
+
+Retain binaries, sources, logs, counters, pair/admission receipts and audits in
+/mnt/linux-extra/meshopt-artifacts/p05-last3-20261005. Delete only the mandated Cargo target after all
+validation; cleanup.json confirms removal. Commit closure with repository author,
+no AI trailer, push or merge.
