@@ -400,14 +400,14 @@ pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
 }
 pub(super) fn exp(data: &mut [u8], stride: usize) {
     #[cfg(feature = "simd")]
-    if {
+    {
         #[cfg(target_arch = "x86_64")]
         let use_simd = data.len() > 4 * 1024 * 1024 && stride != 12;
         #[cfg(not(target_arch = "x86_64"))]
         let use_simd = true;
-        use_simd && super::simd::filter(3, data, 4).is_some()
-    } {
-        return;
+        if use_simd && super::simd::filter(3, data, 4).is_some() {
+            return;
+        }
     }
     let _ = stride;
     scalar_exp(data)
