@@ -169,8 +169,36 @@ timing campaign covers only touched families, both consumers, complete frozen
 shapes and owned/caller forms, 5/10/20 screens and 30 fresh unpooled D146 pairs
 only at borderline cap. No all-family matrix, lower bars, unsafe or SIMD.
 
-The current harness offers only fixed-five diagnostics or an all-family final
-mode. Add a scoped `lean` mode using the existing final screening/D146 policy;
-retain full-matrix `passed=false` when untimed families are absent and separately
-report selected-scope completeness/verdict. Historical before times are explicitly
+D168 adds scoped `lean` mode using the unchanged final screening/D146 policy.
+It retains full-matrix `passed=false` with missing families and separately reports
+selected-scope completeness/verdict. Historical before times are explicitly
 unmatched diagnostics; only Phase 3's new stream decides the touched-family bar.
+
+
+## Batch outcomes and terminal dispositions (D162–D169)
+
+All six ranked fixes are implemented, each with its own commit, fresh two-profile
+counts/assembly and exact native/libm/executed-WASM sweeps. Marking and accumulation
+constant-pitch grids reduce medium owned remesh instructions 1.439->1.292 Moss and
+1.493->1.276 default. Skipping the first clear removes 1 MiB of writes; its instruction
+count is neutral. Covered scans remove default tiny overdraw's fuel selector and
+reduce instructions 25%, with exact tight-fuel prefix regression coverage. The
+packed reader retains checked mapped/padded/byte layouts and is mostly instruction
+neutral. Hash inlining removes a call and about 1% compact instructions.
+`final-counts/counts.json` binds the complete final library/harness epoch.
+
+One lean campaign covers all frozen shapes/forms in the four touched families.
+Remesh, overdraw and coverage pass both profiles. OMM compact fails mean in both:
+1.325353 Moss / 1.295537 default, while its maxima and heap ratios pass. It is now
+abandoned for further optimization in this campaign. The small inlining hypothesis
+was insufficient; retained validation/scratch/copy/probe structure and the full six
+failed-family observations are the evidence. No novel broader safe transformation
+was demonstrated; the prior rejected hypotheses are not repeated.
+This is a scope decision, not an impossibility proof or accepted residual.
+
+Every other family retains its evidence-backed abandonment above and no fresh
+performance qualification. The complete outcome, exact profiles, statistics,
+receipts, historical-unmatched before comparison and limitations are in
+P05_PERFORMANCE.md and results/p05-diagfix-timing.json. No repeat timing stream or
+full matrix is run after this terminal campaign. The requested scope is complete;
+overall P05 performance qualification remains false.

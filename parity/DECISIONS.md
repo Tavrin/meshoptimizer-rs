@@ -6132,3 +6132,32 @@ Five normative tests pass for complete/duplicate/missing inventory, preserved
 and invalid options rejected before builds/admission. No timing was run in these
 checks. The forthcoming campaign uses only lease_run.py with a 4 GB declaration,
 visible shared heavy/GPU admission, timeout 840 and its 600-second checkpoints.
+
+
+## D169 — Close diagfix with the observed failures and bounded evidence
+
+Phase 0 rebase/integration and full strict functional suite pass before diagnosis.
+D161 diagnoses all fifteen families and abandons unsupported further edits;
+D162–D167 implement every ranked library fix without interim timing. D168 enables
+a complete touched-family campaign, preserving full-matrix passed=false.
+
+Final epoch dffe7f5: root tests 151/125/130, strict Clippy all three modes, std/libm
+consumer tests/Clippy, fourteen contracts, exact native/libm/executed-WASM 30,000
+cases each, and all sixty std/libm frozen-shape comparisons pass. Final instruction
+counts retain the small compact win and remesh/covered-overdraw savings.
+
+One shared-admitted 4 GB-declared burst (dynamic reservation 2 GB, 840s hard cap,
+96s actual) measures 38 cases/profile, 400 pairs, 759 verified admission receipts.
+38 Moss cases stop at five pairs; default 34 at five/four at ten. No D146 needed.
+Remesh/overdraw/coverage pass both profiles, all maximum and heap checks pass;
+compact means 1.325353/1.295537 fail the unchanged 1.25 bar. Abandon further compact
+optimization with these six-case/profile failures and the retained structural
+cost diagnosis; no residual or impossibility claim. Keep its verified hash change:
+unmatched historical timing cannot demonstrate its individual regression.
+
+Do not submit another timing stream, hide failures, overwrite historical all-family
+summaries, or call missing families qualified. Before/after in P05_PERFORMANCE.md
+is explicitly historical-unmatched. Audit/manifests/binaries/sources remain outside
+cache; delete only the specified target and retain cleanup.json. Scope is complete;
+full P05 performance/release/integration acceptance remains open. Commit records
+with repository author, never push/merge/further-rebase or edit another branch.

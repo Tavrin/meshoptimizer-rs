@@ -1,6 +1,91 @@
-# Phase 0.5 performance follow-up — owner stop / diagnosis handoff
+# Phase 0.5 diagfix — completed scoped campaign, performance still unqualified
 
-**Current verdict: functionally validated; performance NOT qualified.** The owner
+The SPEC-p05-diagfix scope is complete: rebase and strict integration gates,
+all-family instruction diagnosis, six separately committed library fixes, and
+one admitted timing campaign over the four touched families. **Remesh, overdraw
+and coverage pass both profiles; OMM compact fails both means. Full P05 performance
+remains unqualified.** Every other family is abandoned for further optimization
+in this campaign with explicit evidence in P05_DIAGNOSIS.md; it is not presumed
+qualified. No lower bar, safe-Rust lower-bound claim or residual acceptance.
+
+## D169 — Fresh before/after record
+
+Ratios are Rust / scalar C++. Parentheses show maximum. Each family row uses
+worst API mean and maximum separately; remesh includes both owned and caller.
+Before values are the latest historical D125/D128 diagnostic observations, or
+D73 short-corpus OMM compact. They use different source, host epochs and sampling;
+the arrows in a consumer summary must never be interpreted as matched speedups.
+Only the after stream decides this candidate's scoped performance verdict.
+
+| Family | Profile | Before, historical unmatched GM (max) | After GM (max) | Verdict |
+|---|---|---:|---:|---|
+| remesh | moss | 1.248 (1.377) | 1.130 (1.270) | PASS |
+| remesh | default | 1.264 (1.348) | 1.144 (1.265) | PASS |
+| overdraw | moss | 0.935 (1.096) | 0.945 (1.081) | PASS |
+| overdraw | default | 1.005 (1.393) | 1.006 (1.183) | PASS |
+| coverage | moss | 0.940 (1.140) | 0.957 (1.139) | PASS |
+| coverage | default | 0.964 (1.205) | 1.037 (1.361) | PASS |
+| omm_compact | moss | 1.246 (1.319) | 1.325 (1.331) | FAIL mean; abandoned |
+| omm_compact | default | 1.115 (1.181) | 1.296 (1.335) | FAIL mean; abandoned |
+
+Fresh remesh caller means/maxima are 1.106/1.259 Moss and 1.101/1.231 default.
+All five API groups per profile pass their unchanged maximum gate and every
+memory ratio is 1.000 (bar 1.25). OMM compact fails GM <=1.25: 1.325353 Moss and
+1.295537 default. Moss's six cases range 1.317..1.331, default 1.243..1.335;
+this failure is broader than one maximum outlier. Inlining removes its helper
+call and saves about 1% instructions on diagnosed shapes, but does not qualify
+its fresh frozen family. Retain that narrow verified improvement; abandon
+further compact changes without a demonstrated new safe transformation. Three
+scratch arrays, validation, checked source/table reads and counted probes remain.
+An unmatched older pass is not evidence that this one-line change regressed time.
+Do not repeat timing to select a favorable stream or extend the ranked batch.
+
+## Protocol, validation and retained artifacts
+
+The dffe7f5 library/harness epoch stays fixed throughout both profiles. Moss is
+opt-level3/thin-LTO/cgu1; default is opt-level3/LTO=false/cgu16, generic target and
+empty Rust flags. The scalar reference is pinned at 4c203430ca565cb59a468a91922c76c208169536,
+O3/NO_SIMD/no-fast-math/no-FMA. Frozen shapes, allocating/caller storage,
+allocation/sink semantics and bars are unchanged. No unsafe or explicit SIMD.
+
+A single lease_run.py campaign declares 4 GB through MOSS_HEAVY_GPU=1 and shared
+moss-heavy.sh, which dynamically reserves 2 GB, visibly waits for admission and
+holds heavy:timeout's kernel GPU flock. One 840-second bounded burst completes
+in 96 seconds including compilation. Complete inventory: 38 cases/profile,
+76 total, 400 interleaved pairs. Moss stops all 38 at five; default stops 34 at
+five and four at ten. No cap remains borderline, so no D146 30-pair second stage
+is required. The existing 5/10/20 policy and fresh-unpooled D146 rule are retained.
+All 759 admission snapshots pass holder/ancestor/flock/reservation checks.
+Calibration, warmups and all measured pairs occur within that admission.
+
+Final library gates: 151/125/130 root tests in all/no-default/experimental modes,
+strict Clippy all three, formatting, fourteen phase contracts, 30,000 exact cases
+each native/libm/executed-WASM (90,000 total), plus all 30 touched frozen shapes
+in std and libm (60 comparisons). Consumer tests and strict Clippy pass std/libm;
+five lean-policy tests pass. Phase 0 separately closes all earlier-phase strict
+functional gates, preserved 0.6/cluster-LOD APIs and the supported RFC113 layouts.
+Historical fuzz and all-family timing records are not promoted to this source.
+
+Entry points outside the deleted target cache:
+`/mnt/linux-extra/meshopt-artifacts/p05-diagfix/audit.json`, `final-manifest.json`,
+`final-sources.tar.gz`, `frozen-proof/record.json`, `final-counts/counts.json`,
+`compact-hash-proof/receipts.json`, `final-gates/receipts.json` and
+`timing/lean-0.5-{moss,default}.json`. Sources, proof executables/libraries/WASM,
+full output digests, paired raw timings, CPU/load metadata and assembly are
+retained. The audit recomputes inventories, ratios, every early interval,
+family statistics, profile/source/binary identities and gate flags; audit success
+does not turn the compact failure or missing full matrix into performance success.
+The slim checked-in receipt is results/p05-diagfix-timing.json. Cleanup is recorded
+in cleanup.json; only the mandated codex-p05-diagfix target is deleted.
+
+No push, merge, further rebase, other-branch edits, subagents or full timing
+matrix. Commits retain the repository author and no AI trailers.
+
+---
+
+# Historical owner-stop / diagnosis handoff (superseded by D160–D169 above)
+
+**Historical D144 verdict: functionally validated; performance NOT qualified.** The owner
 stopped this lane before a new final matrix. No further timing is queued. This is
 not an unreachable-family verdict, residual approval or release acceptance.
 
