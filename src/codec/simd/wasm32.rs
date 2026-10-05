@@ -639,15 +639,21 @@ pub(super) fn vertex(
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
-    vertex_kernel::<1024>(output, count, stride, data)
+    match stride {
+        4 => vertex_kernel::<1024, 4>(output, count, stride, data),
+        8 => vertex_kernel::<1024, 8>(output, count, stride, data),
+        12 => vertex_kernel::<1024, 12>(output, count, stride, data),
+        _ => vertex_kernel::<1024, 0>(output, count, stride, data),
+    }
 }
 #[target_feature(enable = "simd128")]
-fn vertex_kernel<const SCRATCH: usize>(
+fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
     output: &mut [u8],
     count: usize,
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
+    let stride = if FIXED == 0 { stride } else { FIXED };
     let version = crate::codec::decode_vertex_version(data)?;
     let tail = stride + if version == 0 { 0 } else { stride / 4 };
     let padded = tail.max(if version == 0 { 32 } else { 24 });

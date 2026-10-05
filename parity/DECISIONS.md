@@ -4477,3 +4477,37 @@ widths and Quat, local scalar/SIMD ceilings, usage and untouched output tails.
 This targets native allocating view-1-streaming-s4 and the resident/streaming
 repeated-filter Node maxima. Varied-filter WASM maxima cannot be credited with
 this repeat-only gain; they remain separate parser/filter throughput targets.
+
+
+### Fix-seven vertex shape specialization and remaining maxima
+
+Specialize stride4 natively (both bounded scratch sizes), and strides4/8/12
+in wasm, retaining the generic path for every other valid width. Constants
+remove repeated layout/scatter checks without changing bounds, format parsing,
+work accounting or ISA tokens. CPU26 N/2N native stride4 streaming v1 falls
+6.538 ->6.107 instructions/byte, branches 0.551 ->0.397; repeated Oct view
+falls further 5.836 ->5.404. Assembly and source/binary hashes are retained.
+This targets native allocating vertex-v1-streaming-s4 and the vertex portion
+of all filtered views. WASM diagnostics retain all 14 distinct previously
+failed case shapes, both Rust and upstream, old and new. Varied streaming Oct
+stride4 work falls 13.138 ->12.707; varied resident Oct stride8 13.102 ->12.681;
+varied resident Quat 14.253 ->13.277; repeated Oct/Quat views show much larger
+packed-run savings. Other rows move both ways (varied resident Oct stride4
+13.941 ->14.159; varied streaming Quat 13.087 ->13.382; Exp streaming12
+8.606 ->8.742). V8 tiering/runtime subtraction does not isolate these small
+changes; no claim that every Node maximum is fixed before timing. Further
+unproven parser/filter changes are explicitly abandoned in this round; retain
+all remaining maxima in the one final RFC pass. Native varied Exp streaming32
+inherits the measured large-size explicit SSE2 branch (total view work 6.734
+->6.687); no timing claim for the historical 2.060 maximum yet.
+
+Reject padded SIMD tail recursion: Oct tiny instructions improve but cycles
+rise 4.500 ->6.069; Quat rises 2.097 ->2.770, and several wasm varied-view
+instruction counts regress. Restore both ISA files. Ordinary scalar-tail
+inlining changes no instruction work. Forced inlining of the unchanged
+canonical Oct/Quat arithmetic removes width/cache setup: Oct tiny caller
+12.588 ->12.044 instructions/byte, Quat 6.824 ->6.765. Retain only this smaller
+exact tail change and its existing edge/tail parity regression. The 4-MiB Exp
+boundary regression runs natively; Miri instead executes small explicit Exp
+kernel windows directly, plus all existing filter/meshlet/ISA seam tests.
+No new unsafe block; update line inventory for the same 23 audited blocks.

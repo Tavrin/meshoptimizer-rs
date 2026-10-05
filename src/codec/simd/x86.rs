@@ -925,23 +925,25 @@ pub(super) fn vertex(
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
-    let kernel = if count <= 32 {
-        vertex_kernel::<128>
-    } else {
-        vertex_kernel::<1024>
+    let kernel = match (count <= 32, stride == 4) {
+        (true, true) => vertex_kernel::<128, 4>,
+        (false, true) => vertex_kernel::<1024, 4>,
+        (true, false) => vertex_kernel::<128, 0>,
+        (false, false) => vertex_kernel::<1024, 0>,
     };
-    // SAFETY: Ssse3 proves SSSE3 and POPCNT for both private kernel choices.
-    // Both retain checked layout, group lookahead and bounded destinations;
+    // SAFETY: Ssse3 proves SSSE3 and POPCNT for every private kernel choice.
+    // All retain checked layout, group lookahead and bounded destinations;
     // stack scratch is at most 1,280 bytes; memory operations are array-backed.
     unsafe { kernel(output, count, stride, data) }
 }
 #[target_feature(enable = "ssse3,popcnt")]
-fn vertex_kernel<const SCRATCH: usize>(
+fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
     output: &mut [u8],
     count: usize,
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
+    let stride = if FIXED == 0 { stride } else { FIXED };
     let version = crate::codec::decode_vertex_version(data)?;
     let tail = stride + if version == 0 { 0 } else { stride / 4 };
     let padded = tail.max(if version == 0 { 32 } else { 24 });
