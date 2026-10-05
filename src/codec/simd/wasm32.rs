@@ -629,10 +629,14 @@ pub(super) fn vertex(
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
-    vertex_kernel(output, count, stride, data)
+    if count <= 32 {
+        vertex_kernel::<128>(output, count, stride, data)
+    } else {
+        vertex_kernel::<1024>(output, count, stride, data)
+    }
 }
 #[target_feature(enable = "simd128")]
-fn vertex_kernel(
+fn vertex_kernel<const SCRATCH: usize>(
     output: &mut [u8],
     count: usize,
     stride: usize,
@@ -650,7 +654,9 @@ fn vertex_kernel(
     last[..stride].copy_from_slice(&data[start..start + stride]);
     let block_size = ((8192 / stride) & !15).min(256);
     let mut pos = 1;
-    let mut deltas = [0u8; 1024];
+    // Four planes, each starting j * block and rounded up to 16 lanes.
+    // Up to two 16-record groups fit 128 bytes; full blocks fit 1024.
+    let mut deltas = [0u8; SCRATCH];
     let mut offset = 0;
     while offset < count {
         let block = block_size.min(count - offset);

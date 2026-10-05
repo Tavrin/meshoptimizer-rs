@@ -42,10 +42,10 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/x86.rs:521` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; the kernel checks every 16-byte input window and emits only the scalar decoder's validated record count. |
 | `src/codec/simd/x86.rs:563` | token-authorized target_feature call: Baseline proves SSE2. The kernel slices only validated component planes, stages short vectors, and scatters via checked destination slices. |
 | `src/codec/simd/x86.rs:687` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
-| `src/codec/simd/x86.rs:888` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
-| `src/codec/simd/x86.rs:901` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT. The kernel retains the scalar parser's checked layout, group lookahead and bounded destination slices; stack scratch is 1,280 bytes, and every vector load/store is array-backed. |
-| `src/codec/simd/x86.rs:1074` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
-| `src/codec/simd/x86.rs:1102` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
+| `src/codec/simd/x86.rs:898` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
+| `src/codec/simd/x86.rs:911` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT. The kernel retains the scalar parser's checked layout, group lookahead and bounded destination slices; stack scratch is 1,280 bytes, and every vector load/store is array-backed. |
+| `src/codec/simd/x86.rs:1091` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
+| `src/codec/simd/x86.rs:1119` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
 
 Inventory: **23 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently

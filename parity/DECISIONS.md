@@ -4096,3 +4096,22 @@ Block-boundary regression covers 63/64/65/127/128/129 records, versions 0/1,
 widths 2/4, exact retained capacity/resource limits, invalid headers,
 unsupported versions, extra encoded bytes and untouched caller tails.
 Focused codec/SIMD tests and 138 native benchmark goldens pass.
+
+
+### Fix-five bounded tiny vertex setup and checked triangle advances
+
+Use a 128-byte initialized plane buffer for at most two 16-record groups;
+keep 1024 bytes for larger vertex calls, on native and wasm. This boundary
+follows plane layout (3*block + ceil(block/16)*16 <= 128 for block <= 32),
+not a selected timing crossover. Native tiny v1/s12 instructions fall
+22.397 to 21.446 per byte (0.958), tiny filtered Oct/s8 30.632 to 29.522
+(0.964). Add 31/32/33 records to the existing version/stride/malformed
+regression, including stride 256 natively and both group boundaries in Miri.
+
+Triangle metadata advances are at most six by construction. Expose that
+bound with &7 so the 16-byte checked lookahead proves subsequent cursor
+slicing safe; exact metadata consumption is unchanged. Representative
+typed/raw work is now 4.279/3.314 vs starting 4.830/3.418; branch work
+0.423/0.343 vs 0.571/0.426 per byte. Checked loads, counter wrap fallback,
+odd tails and audited unsafe blocks remain unchanged. Finite counter/tests
+are development evidence; registered maxima still need the one final pass.

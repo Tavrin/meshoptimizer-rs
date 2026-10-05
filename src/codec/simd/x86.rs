@@ -908,10 +908,16 @@ pub(super) fn vertex(
     // SAFETY: Ssse3 proves SSSE3 and POPCNT. The kernel retains the scalar
     // parser's checked layout, group lookahead and bounded destination slices;
     // stack scratch is 1,280 bytes, and every vector load/store is array-backed.
-    unsafe { vertex_kernel(output, count, stride, data) }
+    unsafe {
+        if count <= 32 {
+            vertex_kernel::<128>(output, count, stride, data)
+        } else {
+            vertex_kernel::<1024>(output, count, stride, data)
+        }
+    }
 }
 #[target_feature(enable = "ssse3,popcnt")]
-fn vertex_kernel(
+fn vertex_kernel<const SCRATCH: usize>(
     output: &mut [u8],
     count: usize,
     stride: usize,
@@ -929,7 +935,9 @@ fn vertex_kernel(
     last[..stride].copy_from_slice(&data[start..start + stride]);
     let block_size = ((8192 / stride) & !15).min(256);
     let mut pos = 1;
-    let mut deltas = [0u8; 1024];
+    // Four planes, each starting j * block and rounded up to 16 lanes.
+    // Up to two 16-record groups fit 128 bytes; full blocks fit 1024.
+    let mut deltas = [0u8; SCRATCH];
     let mut offset = 0;
     while offset < count {
         let block = block_size.min(count - offset);
@@ -1165,7 +1173,9 @@ fn meshlet_triangle_step<const TAIL: bool, const CHECK: bool>(
     let mask = load(&TRIANGLE_MASKS[code as usize]);
     let merged = _mm_blend_epi16::<7>(state, load(window));
     let r = _mm_add_epi8(_mm_shuffle_epi8(merged, mask), _mm_slli_si128::<10>(mask));
-    *source = &source[usize::from(if TAIL { first } else { used })..];
+    // Table advances are at most six. Masking exposes that bound to
+    // LLVM, making the already-checked 16-byte lookahead imply slicing safety.
+    *source = &source[usize::from((if TAIL { first } else { used }) & 7)..];
     Some(Ok(r))
 }
 #[inline]
