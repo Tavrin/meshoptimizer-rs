@@ -6177,3 +6177,20 @@ outputs, negative references, exact byte limits and every work limit. It and
 the pinned raster vector pass using the admission-built integration binary.
 Full functional and counter/timing results will be recorded in the last3
 closure. This focused proof does not establish performance acceptance.
+
+
+## D171 — Fill raster transform storage once and specialize view permutation
+
+Reserve transformed coordinates fallibly, then extend from an exact-length
+iterator in the fully covered path. Every initialized element is its final
+transformed value, removing the previous zero-then-write pass (36 MB at s7).
+The tight-work path still charges before each push. Allocation order, workspace
+byte accounting, min/max/finite validation and scalar float operation order
+are preserved. The iterator cannot outgrow its pre-reserved capacity.
+
+Move axis dispatch outside the triangle loop with three const instantiations;
+inline the rasterizer into each instantiation. Keep triangle visits, pixel
+precharges/fallback charges, top-left rules, depth arithmetic and view order.
+Both analyzers share this fix. The pinned raster layout/fuel/error vector passes
+in the admission-built binary. Full exact suites and final codegen/counter/timing
+receipts remain required; this source change alone is not acceptance evidence.

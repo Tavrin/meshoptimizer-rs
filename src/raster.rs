@@ -80,26 +80,35 @@ fn transform(
     } else {
         VIEWPORT as f32 / extent
     };
-    let mut transformed = reserve::<[f32; 3]>(indices.len())?;
-    let bulk_transform = work.covers(indices.len())?;
-    if bulk_transform {
-        work.add(indices.len())?;
-    }
-    for (i, &index) in indices.iter().enumerate() {
-        if !bulk_transform {
-            work.add(1)?;
-        }
+    checked_bytes(indices.len(), core::mem::size_of::<[f32; 3]>())?;
+    let mut transformed = Vec::new();
+    transformed
+        .try_reserve_exact(indices.len())
+        .map_err(|_| Error::AllocationFailed)?;
+    let transform_position = |index: u32| {
         // topology checked indices before this reader is selected.
         let value = positions.read(index as usize);
-        transformed[i] = [
+        [
             (value[0] - minv[0]) * scale,
             (value[1] - minv[1]) * scale,
             (value[2] - minv[2]) * scale,
-        ];
+        ]
+    };
+    if work.covers(indices.len())? {
+        work.add(indices.len())?;
+        // The exact iterator length fits the fallibly reserved capacity.
+        // Vec's iterator extension fills it directly without zeroing first.
+        transformed.extend(indices.iter().copied().map(transform_position));
+    } else {
+        for &index in indices {
+            work.add(1)?;
+            transformed.push(transform_position(index));
+        }
     }
     Ok((transformed, extent))
 }
 
+#[inline(always)]
 fn rasterize(buffer: &mut [Pixel], mut p: [[f32; 3]; 3], work: &mut Work) -> Result<(), Error> {
     let det = (p[1][0] - p[0][0]) * (p[2][1] - p[0][1]) - (p[1][1] - p[0][1]) * (p[2][0] - p[0][0]);
     let invdet = if det == 0.0 { 0.0 } else { 1.0 / det };
@@ -192,6 +201,26 @@ fn scan_pixels<const COVERAGE: bool, const CHARGE: bool>(
     Ok(covered)
 }
 
+// Resolve the coordinate permutation once per view instead of per triangle.
+#[inline]
+fn rasterize_triangles<const AXIS: usize>(
+    buffer: &mut [Pixel],
+    triangles: &[[f32; 3]],
+    work: &mut Work,
+) -> Result<(), Error> {
+    for tri in triangles.as_chunks::<3>().0 {
+        work.add(1)?;
+        let [a, b, c] = *tri;
+        let reordered = match AXIS {
+            0 => [[a[2], a[1], a[0]], [b[2], b[1], b[0]], [c[2], c[1], c[0]]],
+            1 => [[a[0], a[2], a[1]], [b[0], b[2], b[1]], [c[0], c[2], c[1]]],
+            _ => [[a[1], a[0], a[2]], [b[1], b[0], b[2]], [c[1], c[0], c[2]]],
+        };
+        rasterize(buffer, reordered, work)?;
+    }
+    Ok(())
+}
+
 fn analyze(
     indices: &[u32],
     positions: Positions<'_>,
@@ -224,15 +253,10 @@ fn analyze(
             if axis != 0 {
                 buffer.fill(Pixel::default());
             }
-            for tri in triangles.as_chunks::<3>().0 {
-                work.add(1)?;
-                let [a, b, c] = *tri;
-                let reordered = match axis {
-                    0 => [[a[2], a[1], a[0]], [b[2], b[1], b[0]], [c[2], c[1], c[0]]],
-                    1 => [[a[0], a[2], a[1]], [b[0], b[2], b[1]], [c[0], c[2], c[1]]],
-                    _ => [[a[1], a[0], a[2]], [b[1], b[0], b[2]], [c[1], c[0], c[2]]],
-                };
-                rasterize(&mut buffer, reordered, &mut work)?;
+            match axis {
+                0 => rasterize_triangles::<0>(&mut buffer, &triangles, &mut work)?,
+                1 => rasterize_triangles::<1>(&mut buffer, &triangles, &mut work)?,
+                _ => rasterize_triangles::<2>(&mut buffer, &triangles, &mut work)?,
             }
             let bulk_scan = work.covers(buffer.len())?;
             if bulk_scan {
