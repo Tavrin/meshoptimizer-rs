@@ -172,6 +172,11 @@ impl Workspace {
     ) -> Result<(), Error> {
         self.prepare_cache_value(lengths, vertices, output, 0)
     }
+    #[inline(always)]
+    pub(crate) fn prepare_timestamps(&mut self, count: usize) -> Result<(), Error> {
+        self.prepare_cache_value([count, 0, 0, 0], 0, 0, 0)
+    }
+    #[inline(always)]
     fn prepare_cache_value(
         &mut self,
         lengths: [usize; 4],
@@ -236,6 +241,7 @@ impl Workspace {
     }
 }
 
+#[inline(always)]
 fn total(lengths: [usize; 4], output: usize) -> Result<usize, Error> {
     let mut sum = output;
     for (len, size) in lengths.into_iter().zip([4, 4, 1, 2]) {
@@ -285,6 +291,7 @@ impl Workspace {
     }
 }
 
+#[inline]
 pub(crate) fn checked_bytes(len: usize, size: usize) -> Result<usize, Error> {
     let bytes = len.checked_mul(size).ok_or(Error::SizeOverflow)?;
     if bytes > isize::MAX as usize {
@@ -293,6 +300,7 @@ pub(crate) fn checked_bytes(len: usize, size: usize) -> Result<usize, Error> {
     Ok(bytes)
 }
 
+#[inline(always)]
 fn reserve<T: Default + Clone>(v: &mut Vec<T>, len: usize) -> Result<(), Error> {
     reserve_value(v, len, T::default())
 }
@@ -324,6 +332,28 @@ pub(crate) struct Work {
     limit: u64,
 }
 impl Work {
+    /// Upper bound after normal/tangent input validation: all hash probes,
+    /// two adjacency visits per corner, all possible corner pairs, one face
+    /// visit and one accumulation visit per corner. Overflow selects staging.
+    pub(crate) fn covers_corner_generation(
+        &self,
+        vertices: usize,
+        buckets: usize,
+        corners: usize,
+    ) -> bool {
+        let bound = (|| {
+            let vertices = u64::try_from(vertices).ok()?;
+            let buckets = u64::try_from(buckets).ok()?;
+            let corners = u64::try_from(corners).ok()?;
+            vertices
+                .checked_mul(buckets)?
+                .checked_add(corners.checked_mul(corners.saturating_sub(1))? / 2)?
+                .checked_add(corners.checked_mul(3)?)?
+                .checked_add(corners / 3)
+        })();
+        bound.is_some_and(|visits| visits <= self.remaining)
+    }
+
     #[inline]
     pub(crate) fn covers(&self, count: usize) -> Result<bool, Error> {
         Ok(u64::try_from(count).map_err(|_| Error::SizeOverflow)? <= self.remaining)
@@ -419,6 +449,29 @@ impl Work {
         }
         Ok(None)
     }
+    /// Validate an index stream with a vectorizable fast path for valid data.
+    /// Replay the scalar scan for the first invalid index or a tight fuel limit
+    /// so the error and charged prefix stay unchanged.
+    #[inline]
+    pub(crate) fn indices(&mut self, indices: &[u32], vertices: usize) -> Result<(), Error> {
+        if self.covers(indices.len())?
+            && indices
+                .iter()
+                .copied()
+                .max()
+                .is_none_or(|index| (index as usize) < vertices)
+        {
+            self.add(indices.len())
+        } else {
+            self.scan(indices.iter().copied(), |index| {
+                if index as usize >= vertices {
+                    Err(Error::IndexOutOfBounds)
+                } else {
+                    Ok(())
+                }
+            })
+        }
+    }
     #[inline]
     pub(crate) fn add(&mut self, count: usize) -> Result<(), Error> {
         let count = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;
@@ -449,12 +502,7 @@ pub(crate) fn topology(indices: &[u32], vertices: usize, work: &mut Work) -> Res
     }
     checked_bytes(vertices, 4)?;
     checked_bytes(indices.len(), 4)?;
-    work.scan(indices.iter().copied(), |index| {
-        if index as usize >= vertices {
-            return Err(Error::IndexOutOfBounds);
-        }
-        Ok(())
-    })
+    work.indices(indices, vertices)
 }
 
 // Additive 0.3 accounting: processing modules use local typed scratch and do not
@@ -657,6 +705,33 @@ mod tests {
                 assert_eq!(actual, expected);
                 assert_eq!(scanned.remaining, scalar.remaining);
                 assert_eq!(scanned_sum, scalar_sum);
+            }
+        }
+    }
+
+    #[test]
+    fn index_fast_path_preserves_first_error_and_fuel_prefix() {
+        for values in [&[][..], &[0, 1, 2], &[0, 7, 1], &[7, 0, 1]] {
+            for limit in 0..=8 {
+                let mut scalar = Work {
+                    remaining: limit,
+                    limit,
+                };
+                let mut fast = Work {
+                    remaining: limit,
+                    limit,
+                };
+                let expected = (|| {
+                    for &index in values {
+                        scalar.add(1)?;
+                        if index >= 3 {
+                            return Err(Error::IndexOutOfBounds);
+                        }
+                    }
+                    Ok(())
+                })();
+                assert_eq!(fast.indices(values, 3), expected);
+                assert_eq!(fast.remaining, scalar.remaining);
             }
         }
     }

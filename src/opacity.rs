@@ -1,5 +1,5 @@
 //! Opacity micromap generation translated from the pinned scalar reference.
-use crate::workspace::checked_bytes;
+use crate::workspace::{checked_bytes, Work};
 use crate::{Error, Workspace};
 use alloc::vec::Vec;
 
@@ -15,6 +15,7 @@ pub struct OpacityMapMeasure {
 }
 
 /// Packed byte count for one micromap, corresponding to `meshopt_opacityMapEntrySize`.
+#[inline(always)]
 pub fn opacity_map_entry_size(level: u8, states: u8) -> Result<usize, Error> {
     if level > 12 || (states != 2 && states != 4) {
         return Err(Error::InvalidParameter);
@@ -38,6 +39,7 @@ fn reserve<T>(count: usize) -> Result<Vec<T>, Error> {
     Ok(value)
 }
 
+#[inline(always)]
 fn hash_update(mut h: u32, values: &[i32]) -> u32 {
     for &value in values {
         let mut k = value as u32;
@@ -68,6 +70,265 @@ fn hash_bytes(mut h: u32, key: &[u8]) -> u32 {
 
 fn quantize(v: f32, size: u32) -> i32 {
     (v * ((size * 4) as f32) + if v >= 0.0 { 0.5 } else { -0.5 }) as i32
+}
+
+#[inline]
+fn square_root(value: f32) -> f32 {
+    #[cfg(feature = "std")]
+    {
+        value.sqrt()
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        libm::sqrtf(value)
+    }
+}
+
+// Scalar bit rounding follows libm's MIT-licensed generic floor (musl).
+// Preserve the existing feature-specific handling of non-finite values.
+#[inline(always)]
+fn floor(value: f32) -> f32 {
+    let bits = value.to_bits();
+    let exponent = ((bits >> 23) & 255) as i32 - 127;
+    if exponent >= 23 {
+        if exponent == 128 {
+            #[cfg(feature = "std")]
+            {
+                return value.floor();
+            }
+            #[cfg(not(feature = "std"))]
+            {
+                return libm::floorf(value);
+            }
+        }
+        return value;
+    }
+    if exponent < 0 {
+        return if bits >> 31 == 0 {
+            0.0
+        } else if bits << 1 != 0 {
+            -1.0
+        } else {
+            value
+        };
+    }
+    let mask = 0x007f_ffff >> exponent;
+    if bits & mask == 0 {
+        return value;
+    }
+    let rounded = if bits >> 31 != 0 { bits + mask } else { bits };
+    f32::from_bits(rounded & !mask)
+}
+
+#[inline]
+fn log2(value: f32) -> f32 {
+    #[cfg(feature = "std")]
+    {
+        value.log2()
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        libm::log2f(value)
+    }
+}
+
+trait UvReader: Copy {
+    fn read(self, index: usize) -> [f32; 2];
+}
+impl UvReader for &[[f32; 2]] {
+    #[inline(always)]
+    fn read(self, index: usize) -> [f32; 2] {
+        self[index]
+    }
+}
+#[derive(Clone, Copy)]
+struct InterleavedUvs<'a> {
+    data: &'a [f32],
+    stride: usize,
+}
+impl UvReader for InterleavedUvs<'_> {
+    #[inline(always)]
+    fn read(self, index: usize) -> [f32; 2] {
+        let pair = &self.data[index * self.stride..][..2];
+        [pair[0], pair[1]]
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn measure_ranges(
+    indices: &[u32],
+    uvs: impl UvReader,
+    texture_width: u32,
+    texture_height: u32,
+    max_level: u8,
+    target_edge: f32,
+    table: &mut [u32],
+    keys: &mut Vec<([i32; 6], u8)>,
+    levels: &mut Vec<u8>,
+    sources: &mut Vec<u32>,
+    omm_indices: &mut Vec<i32>,
+    work: &mut Work,
+) -> Result<(), Error> {
+    let buckets = table.len();
+    let covers = |count: usize, work: &Work| -> Result<bool, Error> {
+        match count.checked_mul(buckets.saturating_add(1)) {
+            Some(bound) => work.covers(bound),
+            None => Ok(false),
+        }
+    };
+    if covers(indices.len() / 3, work)? {
+        return measure_triangles::<false>(
+            indices,
+            uvs,
+            0,
+            texture_width,
+            texture_height,
+            max_level,
+            target_edge,
+            table,
+            keys,
+            levels,
+            sources,
+            omm_indices,
+            work,
+        );
+    }
+    // Prove each small range independently; preserve exact per-probe fallback
+    // when remaining fuel cannot cover its worst-case bound.
+    for (range, slice) in indices.chunks(128 * 3).enumerate() {
+        if covers(slice.len() / 3, work)? {
+            measure_triangles::<false>(
+                slice,
+                uvs,
+                range * 128,
+                texture_width,
+                texture_height,
+                max_level,
+                target_edge,
+                table,
+                keys,
+                levels,
+                sources,
+                omm_indices,
+                work,
+            )?;
+        } else {
+            measure_triangles::<true>(
+                slice,
+                uvs,
+                range * 128,
+                texture_width,
+                texture_height,
+                max_level,
+                target_edge,
+                table,
+                keys,
+                levels,
+                sources,
+                omm_indices,
+                work,
+            )?;
+        }
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn measure_triangles<const CHARGE: bool>(
+    indices: &[u32],
+    uvs: impl UvReader,
+    source_base: usize,
+    texture_width: u32,
+    texture_height: u32,
+    max_level: u8,
+    target_edge: f32,
+    table: &mut [u32],
+    keys: &mut Vec<([i32; 6], u8)>,
+    levels: &mut Vec<u8>,
+    sources: &mut Vec<u32>,
+    omm_indices: &mut Vec<i32>,
+    work: &mut Work,
+) -> Result<(), Error> {
+    let buckets = table.len();
+    let mut visits = 0usize;
+    let area = texture_width as f32 * texture_height as f32;
+    for (i, triangle) in indices.as_chunks::<3>().0.iter().enumerate() {
+        if CHARGE {
+            work.add(1)?;
+        } else {
+            visits += 1;
+        }
+        let a = uvs.read(triangle[0] as usize);
+        let b = uvs.read(triangle[1] as usize);
+        let c = uvs.read(triangle[2] as usize);
+        let uv = [[a[0], a[1]], [b[0], b[1]], [c[0], c[1]]];
+        if !a[0].is_finite()
+            || !a[1].is_finite()
+            || !b[0].is_finite()
+            || !b[1].is_finite()
+            || !c[0].is_finite()
+            || !c[1].is_finite()
+        {
+            if !CHARGE {
+                work.add(visits)?;
+            }
+            return Err(Error::NumericalFailure);
+        }
+        let mut level = max_level;
+        if target_edge > 0.0 {
+            let uvarea = ((uv[1][0] - uv[0][0]) * (uv[2][1] - uv[0][1])
+                - (uv[2][0] - uv[0][0]) * (uv[1][1] - uv[0][1]))
+                .abs()
+                * 0.5
+                * area;
+            let ratio = square_root(uvarea) / target_edge;
+            let levelf = log2(ratio.max(1.0));
+            level = ((levelf + 0.5) as u8).min(max_level);
+        }
+        let key = (
+            [
+                quantize(uv[0][0], texture_width),
+                quantize(uv[0][1], texture_height),
+                quantize(uv[1][0], texture_width),
+                quantize(uv[1][1], texture_height),
+                quantize(uv[2][0], texture_width),
+                quantize(uv[2][1], texture_height),
+            ],
+            level,
+        );
+        let candidate = keys.len() as u32;
+        let mut bucket = hash_update(level as u32, &key.0) as usize & (buckets - 1);
+        let mut found = None;
+        for probe in 0..buckets {
+            if CHARGE {
+                work.add(1)?;
+            } else {
+                visits += 1;
+            }
+            let entry = table[bucket];
+            if entry == u32::MAX {
+                table[bucket] = candidate;
+                break;
+            }
+            if keys[entry as usize].1 == key.1 && keys[entry as usize].0 == key.0 {
+                found = Some(entry);
+                break;
+            }
+            bucket = (bucket + probe + 1) & (buckets - 1);
+        }
+        if let Some(existing) = found {
+            omm_indices.push(existing as i32);
+        } else {
+            keys.push(key);
+            levels.push(level);
+            sources.push((source_base + i) as u32);
+            omm_indices.push(candidate as i32);
+        }
+    }
+    if !CHARGE {
+        work.add(visits)?;
+    }
+    Ok(())
 }
 
 /// Deduplicate triangles by quantized UV and choose adaptive OMM levels.
@@ -113,12 +374,7 @@ pub fn opacity_map_measure(
         if uvs.len() < needed {
             return Err(Error::InvalidLayout);
         }
-        for &index in indices {
-            work.add(1)?;
-            if index as usize >= vertex_count {
-                return Err(Error::IndexOutOfBounds);
-            }
-        }
+        work.indices(indices, vertex_count)?;
         let count = indices.len() / 3;
         let buckets = table_size(count)?;
         let bytes = count
@@ -132,64 +388,39 @@ pub fn opacity_map_measure(
         let mut levels = reserve::<u8>(count)?;
         let mut sources = reserve::<u32>(count)?;
         let mut omm_indices = reserve::<i32>(count)?;
-        let area = texture_width as f32 * texture_height as f32;
-        for (i, triangle) in indices.as_chunks::<3>().0.iter().enumerate() {
-            work.add(1)?;
-            let uv = [triangle[0], triangle[1], triangle[2]].map(|index| {
-                [
-                    uvs[index as usize * uv_stride],
-                    uvs[index as usize * uv_stride + 1],
-                ]
-            });
-            if uv.iter().flatten().any(|v| !v.is_finite()) {
-                return Err(Error::NumericalFailure);
-            }
-            let mut level = max_level;
-            if target_edge > 0.0 {
-                let uvarea = ((uv[1][0] - uv[0][0]) * (uv[2][1] - uv[0][1])
-                    - (uv[2][0] - uv[0][0]) * (uv[1][1] - uv[0][1]))
-                    .abs()
-                    * 0.5
-                    * area;
-                let ratio = libm::sqrtf(uvarea) / target_edge;
-                let levelf = libm::log2f(ratio.max(1.0));
-                level = ((levelf + 0.5) as u8).min(max_level);
-            }
-            let key = (
-                [
-                    quantize(uv[0][0], texture_width),
-                    quantize(uv[0][1], texture_height),
-                    quantize(uv[1][0], texture_width),
-                    quantize(uv[1][1], texture_height),
-                    quantize(uv[2][0], texture_width),
-                    quantize(uv[2][1], texture_height),
-                ],
-                level,
-            );
-            let candidate = keys.len() as u32;
-            let mut bucket = hash_update(level as u32, &key.0) as usize & (buckets - 1);
-            let mut found = None;
-            for probe in 0..buckets {
-                work.add(1)?;
-                let entry = table[bucket];
-                if entry == u32::MAX {
-                    table[bucket] = candidate;
-                    break;
-                }
-                if keys[entry as usize] == key {
-                    found = Some(entry);
-                    break;
-                }
-                bucket = (bucket + probe + 1) & (buckets - 1);
-            }
-            if let Some(existing) = found {
-                omm_indices.push(existing as i32);
-            } else {
-                keys.push(key);
-                levels.push(level);
-                sources.push(i as u32);
-                omm_indices.push(candidate as i32);
-            }
+        if uv_stride == 2 {
+            measure_ranges(
+                indices,
+                uvs.as_chunks::<2>().0,
+                texture_width,
+                texture_height,
+                max_level,
+                target_edge,
+                &mut table,
+                &mut keys,
+                &mut levels,
+                &mut sources,
+                &mut omm_indices,
+                &mut work,
+            )?;
+        } else {
+            measure_ranges(
+                indices,
+                InterleavedUvs {
+                    data: uvs,
+                    stride: uv_stride,
+                },
+                texture_width,
+                texture_height,
+                max_level,
+                target_edge,
+                &mut table,
+                &mut keys,
+                &mut levels,
+                &mut sources,
+                &mut omm_indices,
+                &mut work,
+            )?;
         }
         Ok(OpacityMapMeasure {
             levels,
@@ -368,6 +599,7 @@ pub fn opacity_map_compact(
     result
 }
 
+#[inline(always)]
 fn sample(
     data: &[u8],
     stride: usize,
@@ -378,12 +610,12 @@ fn sample(
     v: f32,
 ) -> f32 {
     let u = if (u - 0.5).abs() > 0.5 {
-        u - libm::floorf(u)
+        u - floor(u)
     } else {
         u
     };
     let v = if (v - 0.5).abs() > 0.5 {
-        v - libm::floorf(v)
+        v - floor(v)
     } else {
         v
     };
@@ -408,6 +640,7 @@ fn sample(
     axy as f32 * (1.0 / (255.0 * 65536.0))
 }
 
+#[inline(always)]
 fn edge(texture: &Texture<'_>, a: [f32; 3], b: [f32; 3], resolution: i32) -> i32 {
     let step = 1.0 / (resolution + 1) as f32;
     let (du, dv) = ((b[0] - a[0]) * step, (b[1] - a[1]) * step);
@@ -431,6 +664,7 @@ struct Texture<'a> {
     height: u32,
 }
 impl Texture<'_> {
+    #[inline(always)]
     fn sample(&self, u: f32, v: f32) -> f32 {
         sample(
             self.data,
@@ -444,16 +678,15 @@ impl Texture<'_> {
     }
 }
 
-fn emit(
+fn emit<const STATES: u8>(
     result: &mut [u8],
     index: usize,
-    states: u8,
     points: [[f32; 3]; 3],
     center: f32,
     edges: [i32; 3],
     edgeres: i32,
 ) {
-    let [a0, a1, a2] = points.map(|p| p[2]);
+    let (a0, a1, a2) = (points[0][2], points[1][2], points[2][2]);
     let mut coverage = (a0 + a1 + a2) * 0.12 + center * 0.64;
     if edgeres != 0 {
         coverage = center * 0.22
@@ -462,7 +695,7 @@ fn emit(
                 * 0.23
             + (a0 + a1 + a2) * 0.03;
     }
-    if states == 2 {
+    if STATES == 2 {
         result[index / 8] |= u8::from(coverage >= 0.5) << (index % 8);
         return;
     }
@@ -483,8 +716,67 @@ fn emit(
     result[index / 4] |= (state as u8) << ((index % 4) * 2);
 }
 
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+fn raster_setup<'a>(
+    level: u8,
+    uvs: [[f32; 2]; 3],
+    texture_data: &'a [u8],
+    texture_stride: usize,
+    texture_pitch: usize,
+    texture_width: u32,
+    texture_height: u32,
+) -> Result<(Texture<'a>, i32, [[f32; 3]; 3]), Error> {
+    if texture_width == 0
+        || texture_width > 16384
+        || texture_height == 0
+        || texture_height > 16384
+        || !(1..=4).contains(&texture_stride)
+        || texture_pitch < texture_stride * texture_width as usize
+        || uvs.iter().flatten().any(|v| !v.is_finite())
+    {
+        return Err(Error::InvalidParameter);
+    }
+    let required = (texture_height as usize - 1)
+        .checked_mul(texture_pitch)
+        .and_then(|n| n.checked_add((texture_width as usize - 1) * texture_stride))
+        .and_then(|n| n.checked_add(1))
+        .ok_or(Error::SizeOverflow)?;
+    if texture_data.len() < required {
+        return Err(Error::InvalidLayout);
+    }
+    let texture = Texture {
+        data: texture_data,
+        stride: texture_stride,
+        pitch: texture_pitch,
+        width: texture_width,
+        height: texture_height,
+    };
+    let area = texture_width as f32 * texture_height as f32;
+    let uvarea = ((uvs[1][0] - uvs[0][0]) * (uvs[2][1] - uvs[0][1])
+        - (uvs[2][0] - uvs[0][0]) * (uvs[1][1] - uvs[0][1]))
+        .abs()
+        * 0.5
+        * area;
+    let uvedge = square_root(uvarea) / (1u32 << level) as f32;
+    let edgeres = ((uvedge * 0.75) as i32).clamp(0, 7);
+    let corners = [
+        [uvs[0][0], uvs[0][1], texture.sample(uvs[0][0], uvs[0][1])],
+        [uvs[1][0], uvs[1][1], texture.sample(uvs[1][0], uvs[1][1])],
+        [uvs[2][0], uvs[2][1], texture.sample(uvs[2][0], uvs[2][1])],
+    ];
+    Ok((texture, edgeres, corners))
+}
+
+fn raster_visits(level: u8) -> usize {
+    // Each level has four children. The level-one edge-specialized path
+    // charges the same four children without recursing.
+    ((1usize << ((usize::from(level) + 1) * 2)) - 1) / 3
+}
+
 /// Rasterize one upstream opacity entry using an alpha-channel byte view.
 #[allow(clippy::too_many_arguments)]
+#[inline(always)]
 pub fn opacity_map_rasterize(
     level: u8,
     states: u8,
@@ -497,65 +789,67 @@ pub fn opacity_map_rasterize(
     workspace: &mut Workspace,
 ) -> Result<Vec<u8>, Error> {
     let mut work = workspace.begin();
-    let result = (|| {
-        let size = opacity_map_entry_size(level, states)?;
-        if texture_width == 0
-            || texture_width > 16384
-            || texture_height == 0
-            || texture_height > 16384
-            || !(1..=4).contains(&texture_stride)
-            || texture_pitch < texture_stride * texture_width as usize
-            || uvs.iter().flatten().any(|v| !v.is_finite())
-        {
-            return Err(Error::InvalidParameter);
-        }
-        let required = (texture_height as usize - 1)
-            .checked_mul(texture_pitch)
-            .and_then(|n| n.checked_add((texture_width as usize - 1) * texture_stride))
-            .and_then(|n| n.checked_add(1))
-            .ok_or(Error::SizeOverflow)?;
-        if texture_data.len() < required {
-            return Err(Error::InvalidLayout);
-        }
-        workspace.account_codec(size)?;
-        let mut result = reserve::<u8>(size)?;
-        result.resize(size, 0);
-        let texture = Texture {
-            data: texture_data,
-            stride: texture_stride,
-            pitch: texture_pitch,
-            width: texture_width,
-            height: texture_height,
-        };
-        let area = texture_width as f32 * texture_height as f32;
-        let uvarea = ((uvs[1][0] - uvs[0][0]) * (uvs[2][1] - uvs[0][1])
-            - (uvs[2][0] - uvs[0][0]) * (uvs[1][1] - uvs[0][1]))
-            .abs()
-            * 0.5
-            * area;
-        let uvedge = libm::sqrtf(uvarea) / (1u32 << level) as f32;
-        let edgeres = ((uvedge * 0.75) as i32).clamp(0, 7);
-        let corners = uvs.map(|uv| [uv[0], uv[1], texture.sample(uv[0], uv[1])]);
-        // The state format is passed explicitly through the recursive path.
-        raster_state(
-            &mut result,
-            0,
-            level,
-            states,
-            edgeres,
-            corners,
-            &texture,
-            &mut work,
-        )?;
-        Ok(result)
-    })();
+    let result = rasterize_impl(
+        level,
+        states,
+        uvs,
+        texture_data,
+        texture_stride,
+        texture_pitch,
+        texture_width,
+        texture_height,
+        workspace,
+        &mut work,
+    );
     workspace.finish(&work);
     result
+}
+
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+fn rasterize_impl(
+    level: u8,
+    states: u8,
+    uvs: [[f32; 2]; 3],
+    texture_data: &[u8],
+    texture_stride: usize,
+    texture_pitch: usize,
+    texture_width: u32,
+    texture_height: u32,
+    workspace: &mut Workspace,
+    work: &mut crate::workspace::Work,
+) -> Result<Vec<u8>, Error> {
+    let size = opacity_map_entry_size(level, states)?;
+    let (texture, edgeres, corners) = raster_setup(
+        level,
+        uvs,
+        texture_data,
+        texture_stride,
+        texture_pitch,
+        texture_width,
+        texture_height,
+    )?;
+    workspace.account_codec(size)?;
+    let mut result = reserve::<u8>(size)?;
+    result.resize(size, 0);
+    // The state format is passed explicitly through the recursive path.
+    raster_state(
+        &mut result,
+        0,
+        level,
+        states,
+        edgeres,
+        corners,
+        &texture,
+        work,
+    )?;
+    Ok(result)
 }
 
 /// Caller-buffer form of `meshopt_opacityMapRasterize`.
 /// Returns the number of bytes written and preserves the destination on error.
 #[allow(clippy::too_many_arguments)]
+#[inline(always)]
 pub fn opacity_map_rasterize_into(
     destination: &mut [u8],
     level: u8,
@@ -572,7 +866,26 @@ pub fn opacity_map_rasterize_into(
     if destination.len() < size {
         return Err(Error::BufferTooSmall);
     }
-    let result = opacity_map_rasterize(
+    // Preserve the complete destination on a tight work budget by using the
+    // staged path; the default budget covers every recursive visit upfront.
+    if workspace.limits().max_work < raster_visits(level) as u64 {
+        let result = opacity_map_rasterize(
+            level,
+            states,
+            uvs,
+            texture_data,
+            texture_stride,
+            texture_pitch,
+            texture_width,
+            texture_height,
+            workspace,
+        )?;
+        destination[..size].copy_from_slice(&result);
+        return Ok(size);
+    }
+    let mut work = workspace.begin();
+    let result = rasterize_into_impl(
+        destination,
         level,
         states,
         uvs,
@@ -582,9 +895,50 @@ pub fn opacity_map_rasterize_into(
         texture_width,
         texture_height,
         workspace,
+        size,
+        &mut work,
+    );
+    workspace.finish(&work);
+    result
+}
+
+#[inline(always)]
+#[allow(clippy::too_many_arguments)]
+fn rasterize_into_impl(
+    destination: &mut [u8],
+    level: u8,
+    states: u8,
+    uvs: [[f32; 2]; 3],
+    texture_data: &[u8],
+    texture_stride: usize,
+    texture_pitch: usize,
+    texture_width: u32,
+    texture_height: u32,
+    workspace: &mut Workspace,
+    size: usize,
+    work: &mut crate::workspace::Work,
+) -> Result<usize, Error> {
+    let (texture, edgeres, corners) = raster_setup(
+        level,
+        uvs,
+        texture_data,
+        texture_stride,
+        texture_pitch,
+        texture_width,
+        texture_height,
     )?;
-    destination[..size].copy_from_slice(&result);
+    workspace.account_codec(0)?;
+    let result = &mut destination[..size];
+    result.fill(0);
+    raster_state(result, 0, level, states, edgeres, corners, &texture, work)?;
     Ok(size)
+}
+
+#[inline(always)]
+fn midpoint(a: [f32; 3], b: [f32; 3], texture: &Texture<'_>) -> [f32; 3] {
+    let u = (a[0] + b[0]) / 2.0;
+    let v = (a[1] + b[1]) / 2.0;
+    [u, v, texture.sample(u, v)]
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -598,7 +952,40 @@ fn raster_state(
     texture: &Texture<'_>,
     work: &mut crate::workspace::Work,
 ) -> Result<(), Error> {
-    work.add(1)?;
+    let visits = raster_visits(level);
+    let bulk = work.covers(visits)?;
+    if bulk {
+        work.add(visits)?;
+    }
+    match (states == 2, bulk) {
+        (true, true) => {
+            raster_state_core::<false, 2>(result, index, level, edgeres, corners, texture, work)
+        }
+        (false, true) => {
+            raster_state_core::<false, 4>(result, index, level, edgeres, corners, texture, work)
+        }
+        (true, false) => {
+            raster_state_core::<true, 2>(result, index, level, edgeres, corners, texture, work)
+        }
+        (false, false) => {
+            raster_state_core::<true, 4>(result, index, level, edgeres, corners, texture, work)
+        }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn raster_state_core<const CHARGE_WORK: bool, const STATES: u8>(
+    result: &mut [u8],
+    index: usize,
+    level: u8,
+    edgeres: i32,
+    corners: [[f32; 3]; 3],
+    texture: &Texture<'_>,
+    work: &mut crate::workspace::Work,
+) -> Result<(), Error> {
+    if CHARGE_WORK {
+        work.add(1)?;
+    }
     if level == 0 {
         let center = texture.sample(
             (corners[0][0] + corners[1][0] + corners[2][0]) * (1.0 / 3.0),
@@ -613,29 +1000,27 @@ fn raster_state(
         } else {
             [0; 3]
         };
-        emit(result, index, states, corners, center, edges, edgeres);
+        emit::<STATES>(result, index, corners, center, edges, edgeres);
         return Ok(());
     }
-    let mut mid = [[0.0; 3]; 3];
-    for i in 0..3 {
-        mid[i][0] = (corners[i][0] + corners[(i + 1) % 3][0]) / 2.0;
-        mid[i][1] = (corners[i][1] + corners[(i + 1) % 3][1]) / 2.0;
-        mid[i][2] = texture.sample(mid[i][0], mid[i][1]);
-    }
+    let mid = [
+        midpoint(corners[0], corners[1], texture),
+        midpoint(corners[1], corners[2], texture),
+        midpoint(corners[2], corners[0], texture),
+    ];
     if level == 1 && edgeres > 0 {
         let points = [corners[0], mid[0], corners[1], mid[1], corners[2], mid[2]];
-        let edge_corners = [
-            [0, 1],
-            [1, 2],
-            [2, 3],
-            [3, 4],
-            [4, 5],
-            [5, 0],
-            [5, 1],
-            [1, 3],
-            [3, 5],
+        let edge_samples = [
+            edge(texture, points[0], points[1], edgeres),
+            edge(texture, points[1], points[2], edgeres),
+            edge(texture, points[2], points[3], edgeres),
+            edge(texture, points[3], points[4], edgeres),
+            edge(texture, points[4], points[5], edgeres),
+            edge(texture, points[5], points[0], edgeres),
+            edge(texture, points[5], points[1], edgeres),
+            edge(texture, points[1], points[3], edgeres),
+            edge(texture, points[3], points[5], edgeres),
         ];
-        let edge_samples = edge_corners.map(|[a, b]| edge(texture, points[a], points[b], edgeres));
         let triangles = [
             [0, 1, 5, 0, 6, 5],
             [5, 3, 1, 8, 7, 6],
@@ -643,16 +1028,17 @@ fn raster_state(
             [3, 5, 4, 8, 4, 3],
         ];
         for (child, [a, b, c, e0, e1, e2]) in triangles.into_iter().enumerate() {
-            work.add(1)?;
+            if CHARGE_WORK {
+                work.add(1)?;
+            }
             let tri = [points[a], points[b], points[c]];
             let center = texture.sample(
                 (tri[0][0] + tri[1][0] + tri[2][0]) * (1.0 / 3.0),
                 (tri[0][1] + tri[1][1] + tri[2][1]) * (1.0 / 3.0),
             );
-            emit(
+            emit::<STATES>(
                 result,
                 index * 4 + child,
-                states,
                 tri,
                 center,
                 [edge_samples[e0], edge_samples[e1], edge_samples[e2]],
@@ -670,11 +1056,10 @@ fn raster_state(
     .into_iter()
     .enumerate()
     {
-        raster_state(
+        raster_state_core::<CHARGE_WORK, STATES>(
             result,
             index * 4 + child,
             level - 1,
-            states,
             edgeres,
             tri,
             texture,

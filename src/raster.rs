@@ -47,8 +47,7 @@ fn transform(
 ) -> Result<(Vec<[f32; 3]>, f32), Error> {
     let mut minv = [f32::MAX; 3];
     let mut maxv = [-f32::MAX; 3];
-    for i in 0..positions.len() {
-        work.add(1)?;
+    work.scan(0..positions.len(), |i| {
         let value = positions.get(i).ok_or(Error::InvalidLayout)?;
         for j in 0..3 {
             if !value[j].is_finite() {
@@ -65,7 +64,8 @@ fn transform(
                 maxv[j]
             };
         }
-    }
+        Ok(())
+    })?;
     let mut extent = 0.0f32;
     for j in 0..3 {
         let d = maxv[j] - minv[j];
@@ -80,8 +80,14 @@ fn transform(
         VIEWPORT as f32 / extent
     };
     let mut transformed = reserve::<[f32; 3]>(indices.len())?;
+    let bulk_transform = work.covers(indices.len())?;
+    if bulk_transform {
+        work.add(indices.len())?;
+    }
     for (i, &index) in indices.iter().enumerate() {
-        work.add(1)?;
+        if !bulk_transform {
+            work.add(1)?;
+        }
         let value = positions
             .get(index as usize)
             .ok_or(Error::IndexOutOfBounds)?;
@@ -128,17 +134,26 @@ fn rasterize(buffer: &mut [Pixel], mut p: [[f32; 3]; 3], work: &mut Work) -> Res
     let mut cy2 = dx23 * (fy - y[1]) - dy23 * (fx - x[1]) + tl2 - 1;
     let mut cy3 = dx31 * (fy - y[2]) - dy31 * (fx - x[2]) + tl3 - 1;
     let mut zy = p[0][2] + (dzx * (fx - x[0]) as f32 + dzy * (fy - y[0]) as f32) * (1.0 / 16.0);
+    let visits = (maxx - minx).max(0) as usize * (maxy - miny).max(0) as usize;
+    let bulk_pixels = work.covers(visits)?;
+    if bulk_pixels {
+        work.add(visits)?;
+    }
+    if minx >= maxx || miny >= maxy {
+        return Ok(());
+    }
     for yy in miny..maxy {
         let (mut cx1, mut cx2, mut cx3) = (cy1, cy2, cy3);
         let mut zx = zy;
-        for xx in minx..maxx {
-            work.add(1)?;
-            if (cx1 | cx2 | cx3) >= 0 {
-                let pixel = &mut buffer[yy as usize * VIEWPORT + xx as usize];
-                if zx >= pixel.depth[side] {
-                    pixel.depth[side] = zx;
-                    pixel.overdraw[side] += 1;
-                }
+        let row_start = yy as usize * VIEWPORT + minx as usize;
+        let row_end = yy as usize * VIEWPORT + maxx as usize;
+        for pixel in &mut buffer[row_start..row_end] {
+            if !bulk_pixels {
+                work.add(1)?;
+            }
+            if (cx1 | cx2 | cx3) >= 0 && zx >= pixel.depth[side] {
+                pixel.depth[side] = zx;
+                pixel.overdraw[side] += 1;
             }
             cx1 -= dy12 << 4;
             cx2 -= dy23 << 4;
@@ -180,16 +195,23 @@ fn analyze(
             buffer.fill(Pixel::default());
             for tri in triangles.as_chunks::<3>().0 {
                 work.add(1)?;
+                let [a, b, c] = *tri;
                 let reordered = match axis {
-                    0 => tri.map(|v| [v[2], v[1], v[0]]),
-                    1 => tri.map(|v| [v[0], v[2], v[1]]),
-                    _ => tri.map(|v| [v[1], v[0], v[2]]),
+                    0 => [[a[2], a[1], a[0]], [b[2], b[1], b[0]], [c[2], c[1], c[0]]],
+                    1 => [[a[0], a[2], a[1]], [b[0], b[2], b[1]], [c[0], c[2], c[1]]],
+                    _ => [[a[1], a[0], a[2]], [b[1], b[0], b[2]], [c[1], c[0], c[2]]],
                 };
                 rasterize(&mut buffer, reordered, &mut work)?;
             }
             let mut covered = 0;
+            let bulk_scan = work.covers(buffer.len())?;
+            if bulk_scan {
+                work.add(buffer.len())?;
+            }
             for pixel in &buffer {
-                work.add(1)?;
+                if !bulk_scan {
+                    work.add(1)?;
+                }
                 if coverage {
                     covered += u32::from((pixel.overdraw[0] | pixel.overdraw[1]) > 0);
                 } else {

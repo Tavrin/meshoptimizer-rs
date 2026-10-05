@@ -1,5 +1,6 @@
 //! Experimental voxel remesher, using the pinned 1.3 case table.
 #![allow(clippy::too_many_arguments)] // Translation keeps the upstream argument sets visible.
+use crate::input::PositionReader;
 use crate::workspace::{checked_bytes, topology, Work};
 use crate::{Error, Positions, Workspace};
 use alloc::vec::Vec;
@@ -37,18 +38,37 @@ fn reserve<T: Default + Clone>(count: usize) -> Result<Vec<T>, Error> {
     result.resize(count, T::default());
     Ok(result)
 }
-fn pos(positions: Positions<'_>, index: usize) -> [f32; 3] {
-    positions.get(index).expect("validated")
+#[inline(always)]
+fn pos(positions: impl PositionReader, index: usize) -> [f32; 3] {
+    positions.read(index)
+}
+
+#[inline]
+fn square_root(value: f32) -> f32 {
+    #[cfg(feature = "std")]
+    {
+        value.sqrt()
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        libm::sqrtf(value)
+    }
 }
 fn measure(
-    positions: Positions<'_>,
+    positions: impl PositionReader,
     resolution: usize,
     work: &mut Work,
 ) -> Result<(f32, [f32; 3]), Error> {
     let mut minv = [f32::MAX; 3];
     let mut maxv = [-f32::MAX; 3];
+    let bulk_work = work.covers(positions.len())?;
+    if bulk_work {
+        work.add(positions.len())?;
+    }
     for i in 0..positions.len() {
-        work.add(1)?;
+        if !bulk_work {
+            work.add(1)?;
+        }
         let p = pos(positions, i);
         for j in 0..3 {
             minv[j] = if minv[j] > p[j] { p[j] } else { minv[j] };
@@ -101,10 +121,19 @@ fn accumulate_voxel(
     voxel.c += d * dw;
 }
 #[allow(clippy::too_many_arguments)]
-fn voxelize(
+#[inline(always)]
+fn clamp_coord(value: i32, cutoff: i32) -> usize {
+    if (value as u32) < cutoff as u32 {
+        value as usize
+    } else {
+        cutoff as usize
+    }
+}
+
+fn voxelize_dispatch<const ACCUMULATE: bool>(
     grid: &mut [u8],
-    rowmap: Option<&[u32]>,
-    mut voxels: Option<&mut [Voxel]>,
+    rowmap: &[u32],
+    voxels: &mut [Voxel],
     indices: &[u32],
     positions: Positions<'_>,
     resolution: usize,
@@ -113,6 +142,33 @@ fn voxelize(
     options: u32,
     work: &mut Work,
 ) -> Result<(), Error> {
+    if let Some(packed) = positions.packed() {
+        voxelize::<ACCUMULATE>(
+            grid, rowmap, voxels, indices, packed, resolution, scale, offset, options, work,
+        )
+    } else {
+        voxelize::<ACCUMULATE>(
+            grid, rowmap, voxels, indices, positions, resolution, scale, offset, options, work,
+        )
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn voxelize<const ACCUMULATE: bool>(
+    grid: &mut [u8],
+    rowmap: &[u32],
+    voxels: &mut [Voxel],
+    indices: &[u32],
+    positions: impl PositionReader,
+    resolution: usize,
+    scale: f32,
+    offset: [f32; 3],
+    options: u32,
+    work: &mut Work,
+) -> Result<(), Error> {
+    let doubled_scale = scale * 2.0;
+    let cutoff = (resolution - 3) as i32;
+    let solve = options & REMESH_SOLVE != 0;
     for triangle in indices.as_chunks::<3>().0 {
         work.add(1)?;
         let (a, b, c) = (
@@ -128,10 +184,10 @@ fn voxelize(
         let gl2 = gx * gx + gy * gy + gz * gz;
         let mut maximum = if el2 > fl2 { el2 } else { fl2 };
         maximum = if maximum > gl2 { maximum } else { gl2 };
-        maximum = libm::sqrtf(maximum);
+        maximum = square_root(maximum);
         let samples = ((maximum * scale * 2.0) as i32).clamp(1, (resolution * 2) as i32);
         let (mut nx, mut ny, mut nz) = (ey * fz - ez * fy, ez * fx - ex * fz, ex * fy - ey * fx);
-        let area = libm::sqrtf(nx * nx + ny * ny + nz * nz);
+        let area = square_root(nx * nx + ny * ny + nz * nz);
         if area == 0.0 {
             continue;
         }
@@ -146,38 +202,35 @@ fn voxelize(
         } else {
             1.0
         };
+        let visits = ((samples + 1) * (samples + 2) / 2) as usize;
+        let bulk_work = work.covers(visits)?;
+        if bulk_work {
+            work.add(visits)?;
+        }
         for u in 0..=samples {
             for v in 0..=samples - u {
-                work.add(1)?;
+                if !bulk_work {
+                    work.add(1)?;
+                }
                 let (su, sv) = (u as f32 * sr, v as f32 * sr);
                 let point = [
                     sx + su * ex + sv * fx,
                     sy + su * ey + sv * fy,
                     sz + su * ez + sv * fz,
                 ];
-                let [hx, hy, hz] = point.map(|p| (p * (scale * 2.0)) as i32);
-                let cutoff = (resolution - 3) as i32;
-                let [x, y, z] = [hx >> 1, hy >> 1, hz >> 1].map(|p| {
-                    if (p as u32) < cutoff as u32 {
-                        p as usize
-                    } else {
-                        cutoff as usize
-                    }
-                });
+                let hx = (point[0] * doubled_scale) as i32;
+                let hy = (point[1] * doubled_scale) as i32;
+                let hz = (point[2] * doubled_scale) as i32;
+                let x = clamp_coord(hx >> 1, cutoff);
+                let y = clamp_coord(hy >> 1, cutoff);
+                let z = clamp_coord(hz >> 1, cutoff);
                 let row = y + 1 + resolution * (z + 1);
                 let idx = x + 1 + resolution * row;
-                if let Some(ref mut voxels) = voxels {
-                    let rows = rowmap.expect("second pass rowmap");
-                    let voxel = &mut voxels[rows[row] as usize + grid[idx] as usize - 1];
+                if ACCUMULATE {
+                    let voxel = &mut voxels[rowmap[row] as usize + grid[idx] as usize - 1];
                     voxel.coord = ((x as u32) << 20) | ((y as u32) << 10) | z as u32;
                     voxel.octants |= 1 << ((hx & 1) | ((hy & 1) << 1) | ((hz & 1) << 2));
-                    accumulate_voxel(
-                        voxel,
-                        point,
-                        [nx, ny, nz],
-                        weight,
-                        options & REMESH_SOLVE != 0,
-                    );
+                    accumulate_voxel(voxel, point, [nx, ny, nz], weight, solve);
                 } else {
                     grid[idx] = 1;
                 }
@@ -571,13 +624,17 @@ fn run(
             return Err(Error::UnknownFlags);
         }
         topology(indices, positions.len(), &mut work)?;
-        for i in 0..positions.len() {
-            work.add(1)?;
-            if pos(positions, i).iter().any(|v| !v.is_finite()) {
+        positions.for_each_counted(&mut work, |value| {
+            if value.iter().any(|v| !v.is_finite()) {
                 return Err(Error::NumericalFailure);
             }
-        }
-        let (scale, offset) = measure(positions, resolution, &mut work)?;
+            Ok(())
+        })?;
+        let (scale, offset) = if let Some(packed) = positions.packed() {
+            measure(packed, resolution, &mut work)?
+        } else {
+            measure(positions, resolution, &mut work)?
+        };
         let cells = resolution * resolution * resolution;
         let row_count = resolution * resolution;
         let bytes = cells
@@ -593,8 +650,16 @@ fn run(
             .ok_or(Error::SizeOverflow)?;
         workspace.account_codec(bytes)?;
         let mut grid = reserve::<u8>(cells)?;
-        voxelize(
-            &mut grid, None, None, indices, positions, resolution, scale, offset, options,
+        voxelize_dispatch::<false>(
+            &mut grid,
+            &[],
+            &mut [],
+            indices,
+            positions,
+            resolution,
+            scale,
+            offset,
+            options,
             &mut work,
         )?;
         let (rows, voxel_count) = rowpack(&mut grid, resolution, &mut work)?;
@@ -617,10 +682,10 @@ fn run(
             solidify(&mut grid, &rows, resolution, &mut work)?;
         }
         if destination.is_some() {
-            voxelize(
+            voxelize_dispatch::<true>(
                 &mut grid,
-                Some(&rows),
-                Some(&mut voxels),
+                &rows,
+                &mut voxels,
                 indices,
                 positions,
                 resolution,

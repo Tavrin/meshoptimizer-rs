@@ -398,7 +398,63 @@ type PackedPositionSource<'a> = (&'a [[f32; 3]], Option<&'a [u32]>);
 #[derive(Clone, Copy, Debug)]
 pub struct Positions<'a>(PositionStorage<'a>, Option<&'a [u32]>);
 
+/// Monomorphized reads for the 0.5 generators: packed input dispatches once.
+pub(crate) trait PositionReader: Copy {
+    fn len(self) -> usize;
+    fn read(self, index: usize) -> [f32; 3];
+    #[cfg(feature = "experimental")]
+    fn for_each_counted(
+        self,
+        work: &mut crate::workspace::Work,
+        visit: impl FnMut([f32; 3]) -> Result<(), Error>,
+    ) -> Result<(), Error>;
+}
+
+impl PositionReader for &[[f32; 3]] {
+    #[inline(always)]
+    fn len(self) -> usize {
+        <[[f32; 3]]>::len(self)
+    }
+    #[inline(always)]
+    fn read(self, index: usize) -> [f32; 3] {
+        self[index]
+    }
+    #[cfg(feature = "experimental")]
+    fn for_each_counted(
+        self,
+        work: &mut crate::workspace::Work,
+        visit: impl FnMut([f32; 3]) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        work.scan(self.iter().copied(), visit)
+    }
+}
+
+impl PositionReader for Positions<'_> {
+    #[inline(always)]
+    fn len(self) -> usize {
+        Positions::len(self)
+    }
+    #[inline(always)]
+    fn read(self, index: usize) -> [f32; 3] {
+        self.get(index).expect("validated index")
+    }
+    #[cfg(feature = "experimental")]
+    fn for_each_counted(
+        self,
+        work: &mut crate::workspace::Work,
+        visit: impl FnMut([f32; 3]) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        Positions::for_each_counted(self, work, visit)
+    }
+}
+
 impl<'a> Positions<'a> {
+    pub(crate) fn packed(self) -> Option<&'a [[f32; 3]]> {
+        match self.0 {
+            PositionStorage::Packed(values) => Some(values),
+            PositionStorage::View(_) => None,
+        }
+    }
     /// Borrow tightly packed XYZ components without allocation.
     pub const fn from_packed(data: &'a [[f32; 3]]) -> Self {
         Self(PositionStorage::Packed(data), None)

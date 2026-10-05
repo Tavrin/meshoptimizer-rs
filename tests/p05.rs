@@ -1,8 +1,94 @@
 use meshoptimizer_rs::{
     analyze_coverage, analyze_overdraw, analyze_vertex_cache, analyze_vertex_fetch,
     opacity_map_compact, opacity_map_entry_size, opacity_map_measure, opacity_map_rasterize,
-    stripify, unstripify, Positions, Workspace,
+    opacity_map_rasterize_into, stripify, unstripify, Error, Limits, Positions, Workspace,
 };
+
+fn exact_work_boundary(mut call: impl FnMut(&mut Workspace) -> Result<(), Error>) {
+    let mut workspace = Workspace::default();
+    call(&mut workspace).unwrap();
+    let used = workspace.usage();
+    assert!(used.work > 0);
+    workspace.set_limits(Limits {
+        max_bytes: used.bytes,
+        max_work: used.work,
+    });
+    call(&mut workspace).unwrap();
+    workspace.set_limits(Limits {
+        max_bytes: used.bytes,
+        max_work: used.work - 1,
+    });
+    assert_eq!(call(&mut workspace), Err(Error::LimitExceeded));
+}
+
+#[test]
+fn batched_strip_and_fetch_work_respects_exact_boundary() {
+    let indices = [0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7];
+    exact_work_boundary(|workspace| stripify(&indices, 8, 0, workspace).map(|_| ()));
+    let strip = [0, 1, 2, 3, 3, 4, 4, 5, 6, 7];
+    exact_work_boundary(|workspace| unstripify(&strip, 0, workspace).map(|_| ()));
+    for vertex_size in [1, 12, 64, 127, 128, 255, 256] {
+        exact_work_boundary(|workspace| {
+            analyze_vertex_fetch(&indices, 8, vertex_size, workspace).map(|_| ())
+        });
+    }
+    for warp in [0, 16] {
+        for group in [0, 4] {
+            exact_work_boundary(|workspace| {
+                analyze_vertex_cache(&indices, 8, 16, warp, group, workspace).map(|_| ())
+            });
+        }
+    }
+}
+
+#[cfg(feature = "experimental")]
+#[test]
+fn batched_normal_tangent_and_remesh_work_respects_exact_boundary() {
+    use meshoptimizer_rs::{generate_normals, generate_tangents, remesh};
+
+    let positions = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ];
+    let indices = [0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3];
+    let normals = [[0.0, 0.0, 1.0]; 4];
+    let uvs = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
+    exact_work_boundary(|workspace| {
+        generate_tangents(
+            Some(&indices),
+            indices.len(),
+            Positions::from_packed(&positions),
+            &normals,
+            &uvs,
+            0,
+            workspace,
+        )
+        .map(|_| ())
+    });
+    exact_work_boundary(|workspace| {
+        generate_normals(
+            Some(&indices),
+            indices.len(),
+            Positions::from_packed(&positions),
+            1.0,
+            0.5,
+            workspace,
+        )
+        .map(|_| ())
+    });
+    exact_work_boundary(|workspace| {
+        remesh(
+            &indices,
+            Positions::from_packed(&positions),
+            4,
+            0,
+            workspace,
+        )
+        .map(|_| ())
+    });
+}
 
 #[test]
 fn pinned_strip_and_cache_vectors() {
@@ -143,6 +229,368 @@ fn pinned_opacity_vectors() {
             [expected]
         );
     }
+}
+
+#[test]
+fn raster_into_uses_caller_storage_and_preserves_atomic_failure() {
+    let uvs = [[0.1, 0.1], [0.8, 0.2], [0.2, 0.9]];
+    let texture = core::array::from_fn::<_, 64, _>(|i| ((i * 37) & 255) as u8);
+    let mut workspace = Workspace::default();
+    for level in 0..=3 {
+        for states in [2, 4] {
+            workspace.set_limits(Limits::default());
+            let expected =
+                opacity_map_rasterize(level, states, uvs, &texture, 1, 8, 8, 8, &mut workspace)
+                    .unwrap();
+            let mut destination = vec![0xa5; expected.len() + 2];
+            workspace.set_limits(Limits {
+                max_bytes: 0,
+                max_work: u64::MAX,
+            });
+            assert_eq!(
+                opacity_map_rasterize_into(
+                    &mut destination,
+                    level,
+                    states,
+                    uvs,
+                    &texture,
+                    1,
+                    8,
+                    8,
+                    8,
+                    &mut workspace,
+                ),
+                Ok(expected.len())
+            );
+            assert_eq!(&destination[..expected.len()], expected);
+            assert_eq!(&destination[expected.len()..], &[0xa5, 0xa5]);
+            assert_eq!(workspace.usage().bytes, 0);
+            let used = workspace.usage().work;
+            destination.fill(0xa5);
+            workspace.set_limits(Limits {
+                max_bytes: expected.len(),
+                max_work: used - 1,
+            });
+            assert_eq!(
+                opacity_map_rasterize_into(
+                    &mut destination,
+                    level,
+                    states,
+                    uvs,
+                    &texture,
+                    1,
+                    8,
+                    8,
+                    8,
+                    &mut workspace,
+                ),
+                Err(Error::LimitExceeded)
+            );
+            assert!(destination.iter().all(|&value| value == 0xa5));
+            assert_eq!(workspace.usage().work, used - 1);
+        }
+    }
+    let mut destination = [0xa5; 4];
+    workspace.set_limits(Limits {
+        max_bytes: 0,
+        max_work: u64::MAX,
+    });
+    assert_eq!(
+        opacity_map_rasterize_into(
+            &mut destination,
+            0,
+            4,
+            [[f32::NAN, 0.0], uvs[1], uvs[2]],
+            &texture,
+            1,
+            8,
+            8,
+            8,
+            &mut workspace,
+        ),
+        Err(Error::InvalidParameter)
+    );
+    assert_eq!(destination, [0xa5; 4]);
+    assert_eq!(workspace.usage().work, 0);
+}
+
+#[cfg(feature = "experimental")]
+#[test]
+fn normal_tangent_into_uses_caller_storage_and_preserves_failures() {
+    use meshoptimizer_rs::{
+        generate_normals, generate_normals_into, generate_tangents, generate_tangents_into,
+        ByteOrder,
+    };
+    let positions: [[f32; 3]; 4] = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ];
+    let indices = [0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3];
+    let normals = [[0.0, 0.0, 1.0]; 4];
+    let uvs = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]];
+    let interleaved: Vec<f32> = positions
+        .iter()
+        .flat_map(|p| [f32::NAN, p[0], p[1], p[2]])
+        .collect();
+    let little: Vec<u8> = positions
+        .iter()
+        .flatten()
+        .flat_map(|v| v.to_le_bytes())
+        .collect();
+    let big: Vec<u8> = positions
+        .iter()
+        .flatten()
+        .flat_map(|v| v.to_be_bytes())
+        .collect();
+    for view in [
+        Positions::from_packed(&positions),
+        Positions::from_interleaved(&interleaved, 4, 4, 1).unwrap(),
+        Positions::from_bytes(&little, 4, 12, 0, ByteOrder::LittleEndian).unwrap(),
+        Positions::from_bytes(&big, 4, 12, 0, ByteOrder::BigEndian).unwrap(),
+    ] {
+        for smoothing in [0.0, 1.5, 10.0] {
+            let mut allocating = Workspace::default();
+            let expected = generate_normals(
+                Some(&indices),
+                12,
+                Positions::from_packed(&positions),
+                1.0,
+                smoothing,
+                &mut allocating,
+            )
+            .unwrap();
+            let usage = allocating.usage();
+            let mut caller = Workspace::new(Limits {
+                max_bytes: usage.bytes - 12 * 12,
+                max_work: u64::MAX,
+            });
+            let mut destination = [[42.0; 3]; 14];
+            generate_normals_into(
+                &mut destination,
+                Some(&indices),
+                12,
+                view,
+                1.0,
+                smoothing,
+                &mut caller,
+            )
+            .unwrap();
+            for (actual, expected) in destination[..12].iter().zip(&expected) {
+                assert_eq!(actual.map(f32::to_bits), expected.map(f32::to_bits));
+            }
+            assert_eq!(destination[12..], [[42.0; 3]; 2]);
+            assert_eq!(caller.usage().bytes, usage.bytes - 12 * 12);
+            assert_eq!(caller.usage().work, usage.work);
+            for fuel in 0..=usage.work {
+                allocating.set_limits(Limits {
+                    max_bytes: usize::MAX,
+                    max_work: fuel,
+                });
+                caller.set_limits(Limits {
+                    max_bytes: usize::MAX,
+                    max_work: fuel,
+                });
+                destination.fill([42.0; 3]);
+                let result = generate_normals(
+                    Some(&indices),
+                    12,
+                    Positions::from_packed(&positions),
+                    1.0,
+                    smoothing,
+                    &mut allocating,
+                );
+                let actual = generate_normals_into(
+                    &mut destination,
+                    Some(&indices),
+                    12,
+                    view,
+                    1.0,
+                    smoothing,
+                    &mut caller,
+                );
+                assert_eq!(actual, result.as_ref().map(|_| ()).map_err(|e| *e));
+                assert_eq!(caller.usage().work, allocating.usage().work);
+                if result.is_err() {
+                    assert_eq!(destination, [[42.0; 3]; 14]);
+                }
+            }
+            caller.set_limits(Limits {
+                max_bytes: 0,
+                max_work: u64::MAX,
+            });
+            destination.fill([42.0; 3]);
+            assert_eq!(
+                generate_normals_into(
+                    &mut destination,
+                    Some(&indices),
+                    12,
+                    view,
+                    1.0,
+                    smoothing,
+                    &mut caller
+                ),
+                Err(Error::LimitExceeded)
+            );
+            assert_eq!(destination, [[42.0; 3]; 14]);
+        }
+        for options in 0..=3 {
+            let mut allocating = Workspace::default();
+            let expected = generate_tangents(
+                Some(&indices),
+                12,
+                view,
+                &normals,
+                &uvs,
+                options,
+                &mut allocating,
+            )
+            .unwrap();
+            let usage = allocating.usage();
+            let mut caller = Workspace::new(Limits {
+                max_bytes: usage.bytes - 12 * 16,
+                max_work: u64::MAX,
+            });
+            let mut destination = [[42.0; 4]; 14];
+            generate_tangents_into(
+                &mut destination,
+                Some(&indices),
+                12,
+                view,
+                &normals,
+                &uvs,
+                options,
+                &mut caller,
+            )
+            .unwrap();
+            for (actual, expected) in destination[..12].iter().zip(&expected) {
+                assert_eq!(actual.map(f32::to_bits), expected.map(f32::to_bits));
+            }
+            assert_eq!(destination[12..], [[42.0; 4]; 2]);
+            assert_eq!(caller.usage().bytes, usage.bytes - 12 * 16);
+            assert_eq!(caller.usage().work, usage.work);
+            for fuel in 0..=usage.work {
+                allocating.set_limits(Limits {
+                    max_bytes: usize::MAX,
+                    max_work: fuel,
+                });
+                caller.set_limits(Limits {
+                    max_bytes: usize::MAX,
+                    max_work: fuel,
+                });
+                destination.fill([42.0; 4]);
+                let result = generate_tangents(
+                    Some(&indices),
+                    12,
+                    view,
+                    &normals,
+                    &uvs,
+                    options,
+                    &mut allocating,
+                );
+                let actual = generate_tangents_into(
+                    &mut destination,
+                    Some(&indices),
+                    12,
+                    view,
+                    &normals,
+                    &uvs,
+                    options,
+                    &mut caller,
+                );
+                assert_eq!(actual, result.as_ref().map(|_| ()).map_err(|e| *e));
+                assert_eq!(caller.usage().work, allocating.usage().work);
+                if result.is_err() {
+                    assert_eq!(destination, [[42.0; 4]; 14]);
+                }
+            }
+            caller.set_limits(Limits {
+                max_bytes: 0,
+                max_work: u64::MAX,
+            });
+            destination.fill([42.0; 4]);
+            assert_eq!(
+                generate_tangents_into(
+                    &mut destination,
+                    Some(&indices),
+                    12,
+                    view,
+                    &normals,
+                    &uvs,
+                    options,
+                    &mut caller
+                ),
+                Err(Error::LimitExceeded)
+            );
+            assert_eq!(destination, [[42.0; 4]; 14]);
+        }
+    }
+}
+
+#[cfg(feature = "experimental")]
+#[test]
+fn normal_tangent_peak_storage_excludes_retired_remap_table() {
+    use meshoptimizer_rs::{generate_normals_into, generate_tangents_into};
+    let positions = [[0.0; 3]; 8];
+    let indices = [0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7];
+    let view = Positions::from_packed(&positions);
+    // Pinned C++ requested peaks for eight vertices and four faces: 228/248.
+    // The 96-byte remap phase ends before the larger adjacency/group phase.
+    let mut workspace = Workspace::new(Limits {
+        max_bytes: 228,
+        max_work: u64::MAX,
+    });
+    let mut normals = [[42.0; 3]; 14];
+    generate_normals_into(
+        &mut normals,
+        Some(&indices),
+        12,
+        view,
+        1.0,
+        0.0,
+        &mut workspace,
+    )
+    .unwrap();
+    assert_eq!(workspace.usage().bytes, 228);
+    assert_eq!(normals[12..], [[42.0; 3]; 2]);
+    workspace.set_limits(Limits {
+        max_bytes: 248,
+        max_work: u64::MAX,
+    });
+    let mut tangents = [[42.0; 4]; 14];
+    generate_tangents_into(
+        &mut tangents,
+        Some(&indices),
+        12,
+        view,
+        &[[0.0, 0.0, 1.0]; 8],
+        &[[0.0; 2]; 8],
+        0,
+        &mut workspace,
+    )
+    .unwrap();
+    assert_eq!(workspace.usage().bytes, 248);
+    assert_eq!(tangents[12..], [[42.0; 4]; 2]);
+    workspace.set_limits(Limits {
+        max_bytes: 247,
+        max_work: u64::MAX,
+    });
+    tangents.fill([42.0; 4]);
+    assert_eq!(
+        generate_tangents_into(
+            &mut tangents,
+            Some(&indices),
+            12,
+            view,
+            &[[0.0, 0.0, 1.0]; 8],
+            &[[0.0; 2]; 8],
+            0,
+            &mut workspace
+        ),
+        Err(Error::LimitExceeded)
+    );
+    assert_eq!(tangents, [[42.0; 4]; 14]);
 }
 
 #[cfg(feature = "experimental")]
@@ -324,6 +772,144 @@ fn pinned_remesh_tetrahedron() {
             assert_eq!(bound, expected_count);
             assert_eq!(output.len() / 3, expected_count);
             assert_eq!(hash, expected_hash);
+        }
+    }
+}
+
+#[test]
+fn opacity_bulk_probe_work_preserves_numerical_failure_prefix() {
+    let indices = [0, 1, 2, 0, 1, 2, 0, 1, 3];
+    let uvs = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, f32::NAN, 1.0];
+    let mut workspace = Workspace::new(Limits {
+        max_bytes: 1024,
+        max_work: 24,
+    });
+    let call = |workspace: &mut Workspace| {
+        opacity_map_measure(&indices, &uvs, 4, 2, 8, 8, 2, 0.0, workspace)
+    };
+    assert_eq!(call(&mut workspace), Err(Error::NumericalFailure));
+    assert_eq!(workspace.usage().work, 14);
+    workspace.set_limits(Limits {
+        max_bytes: 1024,
+        max_work: 14,
+    });
+    assert_eq!(call(&mut workspace), Err(Error::NumericalFailure));
+    assert_eq!(workspace.usage().work, 14);
+    workspace.set_limits(Limits {
+        max_bytes: 1024,
+        max_work: 13,
+    });
+    assert_eq!(call(&mut workspace), Err(Error::LimitExceeded));
+    assert_eq!(workspace.usage().work, 13);
+}
+
+#[test]
+fn strip_append_output_preserves_caller_prefixes_and_tails() {
+    use meshoptimizer_rs::{stripify_bound, stripify_into, unstripify_bound, unstripify_into};
+    let indices = [0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7];
+    for restart in [0, 65535] {
+        let mut workspace = Workspace::default();
+        let expected = stripify(&indices, 8, restart, &mut workspace).unwrap();
+        let work = workspace.usage().work;
+        let bound = stripify_bound(indices.len()).unwrap();
+        for fuel in 0..=work {
+            let limits = Limits {
+                max_bytes: usize::MAX,
+                max_work: fuel,
+            };
+            let mut allocating = Workspace::new(limits);
+            let result = stripify(&indices, 8, restart, &mut allocating);
+            let mut caller = Workspace::new(limits);
+            let mut destination = vec![u32::MAX; bound + 2];
+            let actual = stripify_into(&mut destination, &indices, 8, restart, &mut caller);
+            assert_eq!(actual, result.as_ref().map(Vec::len).map_err(|e| *e));
+            assert_eq!(caller.usage().work, allocating.usage().work);
+            let written = destination.iter().position(|&v| v == u32::MAX).unwrap();
+            assert!(written <= expected.len());
+            assert_eq!(destination[..written], expected[..written]);
+            assert!(destination[written..].iter().all(|&v| v == u32::MAX));
+        }
+    }
+    let strip = [0, 1, 2, 3, 3, 4, 4, 5, 6, 7];
+    let expected = unstripify(&strip, 0, &mut Workspace::default()).unwrap();
+    let bound = unstripify_bound(strip.len()).unwrap();
+    for fuel in 0..=strip.len() as u64 {
+        let limits = Limits {
+            max_bytes: usize::MAX,
+            max_work: fuel,
+        };
+        let mut allocating = Workspace::new(limits);
+        let result = unstripify(&strip, 0, &mut allocating);
+        let mut caller = Workspace::new(limits);
+        let mut destination = vec![u32::MAX; bound + 2];
+        let actual = unstripify_into(&mut destination, &strip, 0, &mut caller);
+        assert_eq!(actual, result.as_ref().map(Vec::len).map_err(|e| *e));
+        assert_eq!(caller.usage().work, allocating.usage().work);
+        let written = destination.iter().position(|&v| v == u32::MAX).unwrap();
+        assert!(written <= expected.len());
+        assert_eq!(destination[..written], expected[..written]);
+        assert!(destination[written..].iter().all(|&v| v == u32::MAX));
+    }
+}
+
+#[test]
+fn opacity_measure_ranges_keep_global_sources_and_work_prefixes() {
+    let mut indices = [0, 1, 2].repeat(128);
+    indices.extend_from_slice(&[0, 1, 3]);
+    let packed = [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0];
+    let padded = [
+        0.0,
+        0.0,
+        f32::NAN,
+        1.0,
+        0.0,
+        f32::NAN,
+        0.0,
+        1.0,
+        f32::NAN,
+        1.0,
+        1.0,
+        f32::NAN,
+    ];
+    for (uvs, stride) in [(&packed[..], 2), (&padded[..], 3)] {
+        let mut workspace = Workspace::new(Limits {
+            max_work: 33_500,
+            ..Limits::default()
+        });
+        let result =
+            opacity_map_measure(&indices, uvs, 4, stride, 8, 8, 1, 0.0, &mut workspace).unwrap();
+        assert_eq!(result.sources, [0, 128]);
+        assert_eq!(result.levels, [1, 1]);
+        assert_eq!(result.omm_indices[..128], [0; 128]);
+        assert_eq!(result.omm_indices[128], 1);
+        let usage = workspace.usage();
+        workspace.set_limits(Limits {
+            max_work: usage.work,
+            max_bytes: usage.bytes,
+        });
+        assert_eq!(
+            opacity_map_measure(&indices, uvs, 4, stride, 8, 8, 1, 0.0, &mut workspace).unwrap(),
+            result
+        );
+        assert_eq!(workspace.usage().work, usage.work);
+        let mut invalid = uvs.to_vec();
+        invalid[3 * stride] = f32::NAN;
+        for fuel in [33_500, 644, 643] {
+            workspace.set_limits(Limits {
+                max_work: fuel,
+                ..Limits::default()
+            });
+            let result =
+                opacity_map_measure(&indices, &invalid, 4, stride, 8, 8, 1, 0.0, &mut workspace);
+            assert_eq!(
+                result,
+                Err(if fuel == 643 {
+                    Error::LimitExceeded
+                } else {
+                    Error::NumericalFailure
+                })
+            );
+            assert_eq!(workspace.usage().work, if fuel == 643 { 643 } else { 644 });
         }
     }
 }
