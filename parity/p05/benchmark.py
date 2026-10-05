@@ -20,6 +20,7 @@ import quiet
 from timing_gate import wait as wait_gate, cpu_ticks, cpu_utilization
 
 CPP = ART / 'libmeshopt-p05-bench.so'
+CALLER_FAMILIES = {'stripify', 'unstripify', 'omm_rasterize', 'tangents', 'normals', 'remesh'}
 SCREEN_T = {5: 3.960786482770179, 10: 2.933324088373988, 20: 2.625105913222785}
 
 
@@ -86,25 +87,38 @@ def reference_identity():
     return {str(path.relative_to(REF)): sha(path) for path in sorted(paths)}
 
 
+def scoped_inventory(requested):
+    return {(family, mode, shape)
+            for family in requested
+            for mode in (['allocating', 'caller'] if family in CALLER_FAMILIES else ['allocating'])
+            for shape in range(len(SHAPES[shape_group(family)]))}
+
+
+def scope_complete(rows, requested):
+    inventory = scoped_inventory(requested)
+    return bool(inventory) and len(rows) == len(inventory) and {
+        (row['family'], row['api'], row['shape']) for row in rows} == inventory
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--consumer-profile', choices=('moss', 'default'), required=True)
     parser.add_argument('--families', required=True, help='comma-separated touched families; all only for final')
-    parser.add_argument('--mode', choices=('diagnostic', 'final'), default='diagnostic')
+    parser.add_argument('--mode', choices=('diagnostic', 'lean', 'final'), default='diagnostic')
     parser.add_argument('--cases', help='diagnostic family:shape filters; other selected families remain complete')
     args = parser.parse_args()
     profile = args.consumer_profile
     requested = set(FAMILIES if args.families == 'all' else args.families.split(','))
     if not requested or not requested <= set(FAMILIES):
         raise SystemExit('unknown family selection')
-    if args.mode == 'diagnostic' and requested == set(FAMILIES):
-        raise SystemExit('diagnostics require an explicit touched-family selection')
+    if args.mode in ('diagnostic', 'lean') and requested == set(FAMILIES):
+        raise SystemExit('diagnostic/lean require an explicit touched-family subset')
     if args.mode == 'final' and requested != set(FAMILIES):
         raise SystemExit('final requires every family')
     case_filters = {}
     if args.cases:
-        if args.mode == 'final':
-            raise SystemExit('final does not permit case filtering')
+        if args.mode != 'diagnostic':
+            raise SystemExit('lean/final do not permit case filtering')
         try:
             for token in args.cases.split(','):
                 family, shape = token.rsplit(':', 1)
@@ -115,7 +129,7 @@ def main():
         except ValueError as error:
             raise SystemExit(f'invalid case filter: {error}') from error
     case_filters = {family: sorted(shapes) for family, shapes in case_filters.items()}
-    purpose = 'diagnostic' if args.mode == 'diagnostic' else 'benchmark'
+    purpose = {'diagnostic': 'diagnostic', 'lean': 'lean', 'final': 'benchmark'}[args.mode]
     pair_limit = 5 if args.mode == 'diagnostic' else 20
     source_sha256 = source_identity()
     reference_sha256 = reference_identity()
@@ -193,7 +207,7 @@ def main():
     completed = {(r['family'], r['api'], r['shape']) for r in rows}
     for op, family in enumerate(FAMILIES):
         if family not in requested: continue
-        modes = [False, True] if family in ('stripify', 'unstripify', 'omm_rasterize', 'tangents', 'normals', 'remesh') else [False]
+        modes = [False, True] if family in CALLER_FAMILIES else [False]
         for caller in modes:
             for size, (n, triangles, style) in enumerate(SHAPES[shape_group(family)]):
                 if family in case_filters and size not in case_filters[family]:
@@ -289,14 +303,14 @@ def main():
                                     'cpu_utilization': cpu_utilization(cpu_before, cpu_ticks(), core['allowed_cpus']),
                                     'timing_admission': admission})
                     release()
-                    if args.mode == 'final' and len(samples) in SCREEN_T:
+                    if args.mode != 'diagnostic' and len(samples) in SCREEN_T:
                         screens.append(early_screen(samples))
                         if screens[-1]['verdict'] != 'BORDERLINE':
                             break
                 stage2 = None
                 maximum_verdict = (screens[-1]['verdict'] if screens else
                                    ('PASS' if statistics.median(s['ratio'] for s in samples) <= 1.5 else 'FAIL'))
-                if args.mode == 'final' and maximum_verdict == 'BORDERLINE':
+                if args.mode != 'diagnostic' and maximum_verdict == 'BORDERLINE':
                     # A new sample stream, never pooled with stage-one screening.
                     # Keep this core fixed through any admission/burst pause.
                     release()
@@ -354,15 +368,16 @@ def main():
                           for f in FAMILIES if shape_group(f) != 'omm')
     if source_identity() != source_sha256 or reference_identity() != reference_sha256:
         raise RuntimeError('source changed during benchmark; records cannot be qualified')
-    full = {'schema': 'meshopt-p05-benchmark/2', 'phase': '0.5', 'profile': profile, 'bar': {'geometric_mean': 1.25, 'maximum': 1.5, 'maximum_memory_ratio': 1.25}, 'rows': rows, 'families': families, 'time_passed': time_passed, 'memory_passed': memory_passed, 'corpus_complete': corpus_complete, 'passed': time_passed and memory_passed and corpus_complete, 'physical_core': core, 'core_selections': core_selections, 'mode': args.mode, 'selected_families': sorted(requested), 'case_filters': case_filters, 'load_start': load_start, 'rust_sha256': sha(rust), 'cpp_sha256': sha(CPP), 'effective_profile_overrides': {k: env[k] for k in env if k.startswith('CARGO_PROFILE_RELEASE_')}, 'source_sha256': source_sha256, 'reference_sha256': reference_sha256}
+    selected_complete = scope_complete(rows, requested)
+    full = {'scope_complete': selected_complete, 'scope_passed': time_passed and memory_passed and selected_complete, 'schema': 'meshopt-p05-benchmark/2', 'phase': '0.5', 'profile': profile, 'bar': {'geometric_mean': 1.25, 'maximum': 1.5, 'maximum_memory_ratio': 1.25}, 'rows': rows, 'families': families, 'time_passed': time_passed, 'memory_passed': memory_passed, 'corpus_complete': corpus_complete, 'passed': time_passed and memory_passed and corpus_complete, 'physical_core': core, 'core_selections': core_selections, 'mode': args.mode, 'selected_families': sorted(requested), 'case_filters': case_filters, 'load_start': load_start, 'rust_sha256': sha(rust), 'cpp_sha256': sha(CPP), 'effective_profile_overrides': {k: env[k] for k in env if k.startswith('CARGO_PROFILE_RELEASE_')}, 'source_sha256': source_sha256, 'reference_sha256': reference_sha256}
     detail.write_text(json.dumps(full, indent=2, allow_nan=False) + '\n')
     summary = {k: full[k] for k in ['schema', 'phase', 'profile', 'bar', 'families', 'time_passed', 'memory_passed', 'corpus_complete', 'passed', 'rust_sha256', 'cpp_sha256', 'effective_profile_overrides', 'source_sha256', 'reference_sha256']}
     summary.update({'detail_artifact': detail.name, 'detail_sha256': sha(detail)})
     if args.mode == 'final':
         (ROOT / f'parity/results/benchmark-{profile}-0.5.json').write_text(json.dumps(summary, indent=2, allow_nan=False) + '\n')
     checkpoint.unlink()
-    print(json.dumps({'profile': profile, 'passed': full['passed'], 'time_passed': time_passed, 'memory_passed': memory_passed, 'corpus_complete': corpus_complete, 'failures': {k: v for k, v in families.items() if not v['passed']}}, indent=2))
-    raise SystemExit(0 if full['passed'] else 1)
+    print(json.dumps({'profile': profile, 'passed': full['passed'], 'time_passed': time_passed, 'memory_passed': memory_passed, 'corpus_complete': corpus_complete, 'scope_complete': selected_complete, 'scope_passed': full['scope_passed'], 'failures': {k: v for k, v in families.items() if not v['passed']}}, indent=2))
+    raise SystemExit(0 if (full['scope_passed'] if args.mode == 'lean' else full['passed']) else 1)
 
 
 if __name__ == '__main__': main()

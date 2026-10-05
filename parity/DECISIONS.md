@@ -6117,3 +6117,18 @@ tiny reductions are similarly about 1%. No timing inference or new hash table.
 This finishes the library batch; every other family is abandoned for further
 edits with D161/P05_DIAGNOSIS evidence. Proceed to a single touched-family timing
 campaign, never an all-family matrix or a relaxed bar.
+
+## D168 — Lean touched-family timing keeps full qualification separate
+
+Add lean mode for complete frozen inventories of an explicit family subset.
+It reuses the unchanged final 5/10/20 Bonferroni screens and exactly 30 fresh
+unpooled D146 pairs only at a borderline cap. No case filtering or all-family
+lean selection. Report selected-scope completeness/pass separately; full-matrix
+passed remains false with missing families, and only final mode can overwrite
+historical benchmark summaries. The four touched families are remesh, overdraw,
+coverage and OMM compact: 38 cases/profile, both owned/caller remesh forms.
+Five normative tests pass for complete/duplicate/missing inventory, preserved
+160-row full inventory, every screening look, D146 cap/inconclusive policy,
+and invalid options rejected before builds/admission. No timing was run in these
+checks. The forthcoming campaign uses only lease_run.py with a 4 GB declaration,
+visible shared heavy/GPU admission, timeout 840 and its 600-second checkpoints.
