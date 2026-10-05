@@ -1,0 +1,18 @@
+[package]
+name = "meshopt-rfc113-parity"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["clusterlod"] }
+
+[[bin]]
+name = "rfc113-rust"
+path = "main.rs"
+
+[profile.consumer]
+inherits = "release"
+opt-level = 3
+codegen-units = 1
+lto = "thin"

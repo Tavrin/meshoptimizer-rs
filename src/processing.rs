@@ -81,6 +81,12 @@ impl<'a> Context<'a> {
         v.resize_with(n, T::default);
         Ok(v)
     }
+    #[cfg(feature = "clusterlod")]
+    pub(crate) fn filled<T: Clone>(&mut self, n: usize, value: T) -> Result<Vec<T>, Error> {
+        let mut v = self.reserve(n)?;
+        v.resize(n, value);
+        Ok(v)
+    }
     pub(crate) fn copy<T: Copy>(&mut self, values: &[T]) -> Result<Vec<T>, Error> {
         let mut v = self.reserve(values.len())?;
         v.extend_from_slice(values);

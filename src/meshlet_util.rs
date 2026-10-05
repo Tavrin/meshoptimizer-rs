@@ -282,20 +282,44 @@ pub fn compute_cluster_bounds(
         return Err(Error::InvalidParameter);
     }
     if indices.len() <= 96 {
-        cluster_bounds::<96, 32>(indices, p, &mut ctx)
+        cluster_bounds::<96, 32>(indices, p, &mut ctx, None)
     } else if indices.len() <= 384 {
-        cluster_bounds::<384, 128>(indices, p, &mut ctx)
+        cluster_bounds::<384, 128>(indices, p, &mut ctx, None)
     } else {
-        cluster_bounds::<1536, 512>(indices, p, &mut ctx)
+        cluster_bounds::<1536, 512>(indices, p, &mut ctx, None)
+    }
+}
+#[cfg(feature = "clusterlod")]
+pub(crate) fn compute_cluster_bounds_validated(
+    indices: &[u32],
+    p: Positions<'_>,
+    moderate: bool,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    let mut ctx = Context::new(workspace)?;
+    if indices.len() > 1536 {
+        return Err(Error::InvalidParameter);
+    }
+    if indices.len() <= 96 {
+        cluster_bounds::<96, 32>(indices, p, &mut ctx, Some(moderate))
+    } else if indices.len() <= 384 {
+        cluster_bounds::<384, 128>(indices, p, &mut ctx, Some(moderate))
+    } else {
+        cluster_bounds::<1536, 512>(indices, p, &mut ctx, Some(moderate))
     }
 }
 fn cluster_bounds<const M: usize, const N: usize>(
     indices: &[u32],
     p: Positions<'_>,
     ctx: &mut Context<'_>,
+    trusted_moderate: Option<bool>,
 ) -> Result<Bounds, Error> {
     ctx.topology(indices, p.len())?;
-    ctx.positions(p)?;
+    if let Some(moderate) = trusted_moderate {
+        ctx.moderate = moderate;
+    } else {
+        ctx.positions(p)?;
+    }
     let mut cache = [u32::MAX; 512];
     let mut corners = [0u32; M];
     let mut n = 0;

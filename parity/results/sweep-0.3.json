@@ -26,7 +26,7 @@
   "fixture_count": 0,
   "detail_artifact": "sweep/record.json",
   "artifacts": {
-    "sweep/record.json": "d84edacd8f40a78ad8eb75488fa07c4a6713cc8aa52b88735a5088a4c81af36a",
+    "sweep/record.json": "35539865e5c0a2eb313624fa58f19190bb725bf917cedd7cc87528c45ec05601",
     "sweep/corpus.bin": "8ba4d5d665ce8eab4f7530938b53ab8dbe476ff2190e6ff4d4807e06b83b6479"
   }
 }

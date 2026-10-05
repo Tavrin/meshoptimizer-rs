@@ -3344,3 +3344,234 @@ passing. Requiring the complete fresh sample and its upper confidence bound
 makes that selection explicit and conservative. The coordinator can cheaply
 reverse this acceptance decision before publication. This rule is recorded
 before stage-2 measurements begin.
+
+## D147 — RFC 113 cluster-LOD cook scaling
+
+The baseline nine-mesh Rust/scalar-C++ sum-of-medians ratio was 6.391. On the
+same S2 output, the baseline ratio tracks group count strongly (Pearson 0.960
+over nine meshes), more than DAG depth (0.503). Earlier S0b C++ wall times
+only confirm mesh ordering; they use a different config and vary by about 30%.
+
+`perf record -g` on identical pyramid and riverforest branches inputs found
+approximately 79% and 80% of Rust samples in full-mesh validation plus
+per-group simplification setup before changes. The C++ call graphs spread
+samples across meshlet construction, simplification, callback output, and
+partitioning. Source inspection found three repeated full-source costs: Rust
+copied all attributes and validated them for every group; meshlet construction
+and initial bounds rescanned all positions for each group/cluster; and Rust's
+flex builder initialized and swept source-sized adjacency for every small
+group, while C++ `buildTriangleAdjacencySparse` visits only referenced
+vertices when `vertex_count > index_count`.
+
+The safe Rust change validates the source once, copies attributes once,
+reuses lock flags per level, and passes the validated position magnitude to
+private meshlet/bounds paths. It compacts flex-builder inputs for small groups
+of a large source mesh, then maps meshlet vertices back to source indices.
+The public API and scalar byte output stay unchanged. The intermediate full
+20-pair run before group compaction retained 15/15 valid byte matches and
+measured 1.319 scalar aggregate on CPU 0; it is superseded because another
+lane also used that core. The final 20-pair consumer run on CPU 16 measures
+1.171 scalar aggregate (2.570 s C++, 3.009 s
+Rust), with every mesh at or below 1.394 and all 15 valid layout outputs
+identical. The Moss-style C++ build measures 2.597 s, giving a 1.159 Rust/Moss
+ratio. The scalar bar passes without SIMD Rust. The optimized scalar ratio no
+longer rises with group count (nine-mesh Pearson -0.388) or depth (-0.810).
+A separate 20-pair Cargo-defaults run measures 1.071 scalar/1.096 Moss
+aggregate, but selected a much busier core; the profiles cannot be ranked by
+their wall times. Full per-mesh medians, load, stage profiles and gates are in
+the handoff.
+
+Moss's `build.rs` does not define `MESHOPTIMIZER_NO_SIMD`; the harness also
+times a second C++ binary with release `cc` flags and SIMD enabled. Vendored
+`clusterizer.cpp` places explicit SSE/NEON code only in the spatial BVH
+builder, while this S2 config sets `cluster_spatial=false`. Thus any
+scalar/Moss-style difference on these cases is not evidence of that explicit
+SIMD path. The two C++ binaries' output bytes are checked separately and
+match on all 15 valid cases; no active S2 stage shows an explicit SIMD gain.
+
+## D148 — Avoid redundant initialization in compact group scratch
+
+The compact builder maps each group to a dense temporary index range. Its
+first version zero-filled full-length local index, position, and reverse-map
+vectors before overwriting every used element, and zero-filled then reset the
+hash table to the empty sentinel. `Context::filled` now initializes the table
+directly to its sentinel; the three vectors reserve their bounded capacity
+and append initialized elements only. All allocation accounting and work
+ticks remain in `Context`. Expected effect: less memory traffic per small
+group, with the greatest opportunity on pyramid and riverforest branches,
+where the group count and source/group size ratio are largest. Exact byte
+parity is the acceptance gate before timing this change.
+
+The final-source short call-graph check confirms that sparse group inputs
+removed the remaining source-sized adjacency hotspot: `meshlet::adjacency`
+fell from 16.67% to 0.97% of pyramid Rust samples and from 15.65% to no
+sample in the branches capture. The remaining Rust samples are spread over
+meshlet flex/nearest, simplification, and callback output. These are sampled
+stage shares, not a paired timing result; the 20-pair bar remains the verdict.
+
+## D149 — Bounded cluster-LOD simplification scratch
+
+The one-time position, topology, attribute and weight validation remains. The
+full attribute copy and vertex flags now begin only inside a `simplify` call and
+are released before callback output or reclustering. A one-triangle mesh with
+2,048 unused vertices and 32 attributes uses no such buffers. A driver built
+from archived `main` and one built from this branch compare every byte limit
+across a 513-byte window around the old success boundary, plus four wider
+limits. The old peak is 34,904 bytes and the new peak is 24,576; all 517
+limits that succeeded before still succeed.
+
+## D150 — Invalidate the validated position range after dilation
+
+The validated `moderate` decision is conservative after any dilation call:
+later flex/bounds builds use their checked intermediate path. The open-mesh
+near-threshold regression starts with every X coordinate at or below `1e8`,
+actually moves vertices under dilation, and agrees byte-for-byte with both
+archived `main` and the vendored C++ demo on the generated case. This input
+does not move an X coordinate across the threshold, so the crossing itself is
+covered by the source invariant, not claimed as observed differential evidence.
+
+## D151 — RFC 113 three-way and portable harness gates
+
+The RFC 113 runner now fails when either Moss-style or scalar C++ disagrees
+with Rust. The codec builder creates a fresh target directory before C++
+compilation. The deterministic differential builds archived `main`, current
+Rust, and the vendored C++ demo and compares the complete result on large,
+sparse, 32-attribute, compact-boundary, and near-threshold dilation inputs.
+The bounded-memory companion compares `LimitExceeded` and success across its
+byte sweep. Full parity and paired timing require final-HEAD evidence, with
+timing admitted only below load 12 and without a GPU lease holder.
+
+## D152 — Owner-revised RFC 113 admission and bounded early stopping
+
+The owner's binding 2026-10-05 directives replace the original load-average
+and no-active-scoreboard gate. Admit only when `gpu-lease.sh status` reports
+no holder and no `moss-scoreboard-*` unit is measuring. An active unit whose
+only child is `sleep` is waiting and does not block. Record its MainPID and
+child process tree. Load is informational, never an admission threshold.
+Check before each interleaved scalar-C++ / Moss-C++ / Rust pair; a new blocker
+allows the current pair to finish, then closes all driver processes before
+waiting. Failed admission polls retain the five-minute cadence.
+
+This continuation makes no implementation changes. The initial fixed-20
+consumer run was interrupted by the new sampling directive; its incomplete
+printed ratios are diagnostic and excluded from the final verdict. Run one
+fresh final matrix under each profile with adaptive sampling. Begin each
+mesh at five pairs, examine the nominal two-sided 95% Student-t interval of
+paired log(Rust/scalar-C++) ratios after each additional pair, and stop when
+the interval is wholly within or over 1.5; cap stage 1 at 20 pairs. These
+sequential intervals are stopping heuristics, not simultaneous confidence
+coverage. Retain every sample and stopping decision. The 1.2 aggregate bar
+still uses the ratio of summed stage-1 per-mesh medians, unchanged.
+
+Only a case whose interval still overlaps 1.5 at the 20-pair cap receives the
+D146 second stage: 30 fresh interleaved pairs, df=29, PASS only when the upper
+bound is at most 1.5; FAIL when the lower bound exceeds 1.5; overlap is
+INCONCLUSIVE and counts as FAIL. The owner's newer borderline-only rule
+supersedes D146's older rule to retest every point estimate above 1.5. Stage 2
+can clear only that case maximum, never replace stage-1 aggregate data.
+Stage 2 retains one selected physical core across any lease-induced pause,
+as D146 requires; driver processes close while waiting and reopen on that
+same core for the remaining fresh pairs.
+
+Choose the least-busy physical core by a one-second sample of both siblings,
+excluding physical cores containing logical CPUs 0/1. Pin all three drivers
+there within a burst. Record selection, load before/after, utilization of
+both siblings, and pair boundaries for every burst. Close drivers after each
+case and before every admission pause. Cap active bursts at 840 seconds
+(before a new pair), then close drivers and cool down for 60 seconds; a pair
+is always completed before releasing the core. During future implementation
+iterations, measure only touched families/cases at about five pairs; do not
+repeat full matrices. Exact parity and final-HEAD identity gates are retained.
+
+## D153 — Borrow cluster-LOD inputs without retained simplification scratch
+
+The recovery baseline is `3db42ccc81ecc9ac5e21d181d3deac735573f711`
+(with D149–D152 intact). Before source edits, `perf record -F 199 -g
+--call-graph dwarf,8192` captured three identical cooks per scalar backend
+on pyramid, branches, leaves and modular. The Rust group simplification
+wrapper accounts for respectively 45.94%, 46.24%, 43.30% and 25.98% of
+sampled cycles; bulk zeroing accounts for another 9.60%, 9.50%, 8.39% and
+5.01%. Actual simplifier state work is separately attributed. Source inspection
+locates the repeated cost in D149's full-source attribute copy/initialization
+and flag conversion for every small sparse group. D150 cannot cause this S2
+regression: the timed config disables dilation.
+
+These are diagnostic stage shares under recorded shared-machine load, collected
+while a GPU lease was held. They are not paired wall-time evidence. The spec's
+**timing** admission gate remains binding for every iterative and final pair.
+Baseline source/binary identities, raw perf captures, reports, core/load and
+admission records are retained in `/mnt/linux-extra/meshopt-artifacts/clodrec`.
+
+The private support attribute view now borrows the already validated immutable
+public view. Sparse remapping still happens inside the existing simplifier and
+preserves strided floats, unaligned bytes and explicit byte order. The existing
+boundary-lock allocation uses the private simplifier's transparent one-byte
+flag type; discovery bit 7 is cleared from every entry before simplification.
+This removes both per-group full-source buffers, instead of caching them
+across callbacks or reclustering. All other heap allocations/lifetimes and
+work charges are unchanged, and child budgets still include live parent
+storage. Thus no input acquires additional owned heap capacity versus the
+pre-optimization path; the single-cluster path allocates neither buffer.
+No unsafe code, SIMD, public API or arithmetic change is introduced.
+
+Unconditional position-range invalidation after dilation remains intact.
+A new multi-level regression compares complete output, mutated positions,
+work and exact workspace-byte boundaries across packed/padded float and
+unaligned little-/big-endian attribute layouts, with LOCK/PROTECT/PRIORITY,
+zero-weight components and both dilation settings. It passed before and after
+the source change. The existing memory/dilation regressions remain green.
+
+`parity/rfc113/timing.py` makes D152's previously external adaptive method
+reproducible from the worktree. It builds and hashes the current sources and
+binaries, records process-tree admission evidence and both physical-core
+siblings, closes drivers before lease pauses, caps bursts at 840 seconds,
+and reserves D146's 30-pair stage for unresolved 20-pair intervals. `--case`
+and `--pairs 5` select affected cases for diagnostic iteration. Final results
+use one adaptive pass per profile. Admission and stopping regressions are
+part of the focused harness tests.
+
+## D154 — Final cluster-LOD recovery acceptance and cleanup
+
+The implementation `9589e0cab7fdf8eef50654a744a6f05a20a01047` meets
+both unchanged bars on one final adaptive pass per Rust profile. Consumer
+Rust/scalar-C++ aggregate is **1.1959471126155838**, Cargo defaults
+**1.0899528253461015**. Every mesh is below 1.5; observed maxima are
+1.269240275051873 and 1.315468938081677 respectively (the full-precision
+records are authoritative). Moss-style comparison aggregates are 1.1604228528
+and 1.1280284467. The profiles use different admitted bursts and loads, so
+these wall times do not rank the profiles or claim quiet-machine performance.
+
+Only the four affected meshes received five diagnostic pairs. The final pass
+retains 98 fresh interleaved three-way pairs: 49 per profile, 5–9 per mesh.
+Every stopping interval passes; no borderline case reached 20 pairs, and no
+D146 second stage was needed. Longest active burst: 23.405 seconds.
+Every pair-start admission and every current source/binary identity was
+independently rechecked before cleanup.
+
+Queued GPU work left short free windows between leases. The initial periodic
+attempt was stopped while paused, before any measured pair. The retained
+`measure-on-release.py` adapter watches holder process exits with Linux pidfd
+notifications and performs a fresh unchanged admission check after an exit.
+Periodic failed checks retain D152's 300-second cadence; cooldown stays 60
+seconds. The observer never acquires a lease or interrupts another job, and
+all drivers close before waiting. It checks the prepared source/executable
+manifest instead of rebuilding between free windows. Its own hash and the
+prepared-build manifest hash are included in the result identities. Timers,
+interleaving, core selection, stopping intervals and aggregate calculation
+remain those of the committed runner.
+
+Both final profiles match all 15 supported layouts byte for byte against
+scalar and Moss-style C++; all 90 codec comparisons, 12 three-way cases and
+517 byte limits pass. All 0.1–0.4 fixture/seeded gates and the 80 cluster-LOD
+C++/native/WASM cases pass, with independently verified manifests. Both
+feature test/clippy configurations and fmt pass. D149's single-cluster memory
+guarantee and D150's unconditional post-dilation invalidation remain intact.
+
+Evidence is in `/mnt/linux-extra/meshopt-artifacts/clodrec` and the detailed
+handoff is `parity/results/rfc113-clod-recover.md`. Twenty required native/WASM
+executable identities were retained and hash-verified, along with baseline
+and implementation source archives, raw perf data, raw pairs and validation
+corpora. The exact named target
+`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodrec` was deleted after
+verification; `target-cleanup.json` and `artifact-manifest.json` are the
+receipts. No push or integration/runtime qualification is performed.

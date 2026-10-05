@@ -38,8 +38,8 @@
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "8bb8b1ce529ca119848de091aa5757d274e1271f234caeefb5c0a8868d847fb8",
-        "wasm": "ee8e13a2b3e60837071210a6b807c3d6ce846c8fd16e7c3a5f0658967d926808"
+        "rust": "8243bf4a9fcd8315efab0337a1aae525d2c67bd7c62157507695628da2829758",
+        "wasm": "43fccbcbe92b1833f0cbe670cfe0abdcba68418a2ab4524f8f54db765ab16b33"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
       "cpp_undefined_cases": 78,
@@ -48,8 +48,8 @@
     }
   },
   "artifacts": {
-    "sweep-0.4/sweep.json": "66d354ab70e94c62f9a14cdccfca5b9f423355d01d9638d76cdbd32dfa988eeb",
-    "sweep-0.4/sweep.zip": "e853680f8762ce167c634dc17e7ca59db94e606770e762edbdd26b626c953049"
+    "sweep-0.4/sweep.json": "4d78adda8d3b893984afc8a69d13f0b8528b1b8953022f664889d8fab054788c",
+    "sweep-0.4/sweep.zip": "128bbd2337b5c49dad76cf459a8d576a60c3e6f4ffe3d2b6ba76ca7daf73ba58"
   },
   "detail_artifact": "sweep-0.4/sweep.json",
   "seed": 20261004,

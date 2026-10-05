@@ -206,6 +206,44 @@ fn allocating(
     ws.finish(&work);
     result
 }
+// The cluster builder validates the complete mesh once before creating groups.
+// Its group indices and lock flags are produced internally, so repeating the
+// full-mesh scan for every small group makes cooking scale with group count.
+pub(crate) fn simplify_validated(
+    indices: &[u32],
+    positions: Positions<'_>,
+    attributes: Attributes<'_>,
+    weights: &[f32],
+    flags: &[VertexFlags],
+    settings: SimplifySettings,
+    ws: &mut Workspace,
+) -> Result<SimplifiedMesh, Error> {
+    let mut work = ws.begin();
+    let result = (|| {
+        ws.prepare([0; 4], checked_bytes(indices.len(), 4)?)?;
+        let mut out = crate::clusterlod::support::workspace::output(indices.len())?;
+        let output_bytes = checked_bytes(out.capacity(), 4)?;
+        let r = run(
+            &mut out,
+            indices,
+            positions,
+            Some(attributes),
+            weights,
+            Some(flags),
+            settings,
+            ws,
+            &mut work,
+            output_bytes,
+        )?;
+        out.truncate(r.index_count);
+        Ok(SimplifiedMesh {
+            indices: out,
+            error: r.error,
+        })
+    })();
+    ws.finish(&work);
+    result
+}
 /// Write meshopt_simplify's result into a caller buffer of at least input length.
 /// The tail after the input length is preserved. A late resource or numerical
 /// error may modify the input-length prefix; use the allocating API for atomicity.

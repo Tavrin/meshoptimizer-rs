@@ -486,3 +486,159 @@ fn demo_limits_charge_outputs_scratch_and_callback_lifetimes() {
     .unwrap();
     assert!(ws.usage().bytes <= usage.bytes);
 }
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn demo_single_cluster_unused_attributes_do_not_consume_workspace() {
+    let mut positions = vec![[0.0, 0.0, 0.0]; 2_048];
+    positions[1] = [1.0, 0.0, 0.0];
+    positions[2] = [0.0, 1.0, 0.0];
+    let attributes = vec![0.25_f32; positions.len() * 32];
+    let weights = [0.5_f32; 32];
+    let config = clusterlod::default_config(128).unwrap();
+    let run = |bytes: usize, with_attributes: bool| {
+        let mut p = positions.clone();
+        let mut ws = Workspace::new(Limits {
+            max_bytes: bytes,
+            max_work: Limits::default().max_work,
+        });
+        let view = with_attributes
+            .then(|| Attributes::from_interleaved(&attributes, p.len(), 32, 32, 0).unwrap());
+        let result = clusterlod::build_with_output(
+            config,
+            clusterlod::Mesh {
+                indices: &[0, 1, 2],
+                positions: &mut p,
+                attributes: view,
+                vertex_lock: None,
+                attribute_weights: if with_attributes { &weights } else { &[] },
+                attribute_protect_mask: 0,
+            },
+            |_, _| Ok(0),
+            &mut ws,
+        );
+        (result, ws.usage().bytes)
+    };
+    let (baseline, peak) = run(usize::MAX, false);
+    assert!(baseline.is_ok());
+    println!("single_cluster_peak_bytes={peak}");
+    assert!(run(usize::MAX, true).0.is_ok());
+    for limit in (peak.saturating_sub(128)..=peak + 128).step_by(8) {
+        assert_eq!(
+            run(limit, true).0.is_ok(),
+            run(limit, false).0.is_ok(),
+            "{limit}"
+        );
+    }
+}
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn demo_dilation_near_position_range_threshold() {
+    let mut positions = Vec::new();
+    let mut indices = Vec::new();
+    for y in 0..12 {
+        for x in 0..12 {
+            let wave = ((x as f32 * 0.4 + 2.0).sin() * (y as f32 * 0.3).cos()).abs();
+            positions.push([99_999_992.0 - wave * 32.0, x as f32 * 8.0, y as f32 * 8.0]);
+        }
+    }
+    for y in 0..11 {
+        for x in 0..11 {
+            let a = (y * 12 + x) as u32;
+            indices.extend([a, a + 1, a + 12, a + 12, a + 1, a + 13]);
+        }
+    }
+    let before = positions.clone();
+    assert!(before.iter().all(|p| p[0].abs() <= 1e8));
+    let mut config = clusterlod::default_config(32).unwrap();
+    config.simplify_dilate_borders = true;
+    clusterlod::build_with_output(
+        config,
+        clusterlod::Mesh {
+            indices: &indices,
+            positions: &mut positions,
+            attributes: None,
+            vertex_lock: None,
+            attribute_weights: &[],
+            attribute_protect_mask: 0,
+        },
+        |_, _| Ok(0),
+        &mut Workspace::default(),
+    )
+    .unwrap();
+    assert!(positions.iter().zip(&before).any(|(a, b)| a != b));
+    assert!(positions.iter().flatten().all(|v| v.is_finite()));
+}
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn demo_attribute_layouts_preserve_output_and_workspace_peak() {
+    let (positions, indices) = mesh();
+    let n = positions.len();
+    let packed: Vec<f32> = (0..n)
+        .flat_map(|i| [i as f32 * 0.01, 0.25, (i % 7) as f32 * 0.1])
+        .collect();
+    let mut interleaved = vec![f32::NAN; n * 5];
+    let mut little = vec![0xff; n * 20 + 1];
+    let mut big = little.clone();
+    for i in 0..n {
+        for j in 0..3 {
+            let value = packed[i * 3 + j];
+            interleaved[i * 5 + 1 + j] = value;
+            let at = i * 20 + 1 + j * 4;
+            little[at..at + 4].copy_from_slice(&value.to_le_bytes());
+            big[at..at + 4].copy_from_slice(&value.to_be_bytes());
+        }
+    }
+    let flags: Vec<_> = (0..n)
+        .map(|i| match i % 17 {
+            0 => VertexFlags::LOCK,
+            1 => VertexFlags::PROTECT,
+            2 => VertexFlags::PRIORITY,
+            _ => VertexFlags::EMPTY,
+        })
+        .collect();
+    let views = [
+        Attributes::from_interleaved(&packed, n, 3, 3, 0).unwrap(),
+        Attributes::from_interleaved(&interleaved, n, 3, 5, 1).unwrap(),
+        Attributes::from_bytes(&little, n, 3, 20, 1, ByteOrder::LittleEndian).unwrap(),
+        Attributes::from_bytes(&big, n, 3, 20, 1, ByteOrder::BigEndian).unwrap(),
+    ];
+    for dilate in [false, true] {
+        let mut config = clusterlod::default_config(8).unwrap();
+        config.simplify_dilate_borders = dilate;
+        let run = |view, limit| {
+            let mut p = positions.clone();
+            let mut ws = Workspace::new(Limits {
+                max_bytes: limit,
+                ..Limits::default()
+            });
+            let out = clusterlod::build(
+                config,
+                clusterlod::Mesh {
+                    positions: &mut p,
+                    indices: &indices,
+                    attributes: Some(view),
+                    vertex_lock: Some(&flags),
+                    attribute_weights: &[0.5, 0., 0.25],
+                    attribute_protect_mask: 1,
+                },
+                &mut ws,
+            );
+            (out, p, ws.usage())
+        };
+        let expected = run(views[0], usize::MAX);
+        assert!(expected
+            .0
+            .as_ref()
+            .unwrap()
+            .iter()
+            .any(|g| g.group.depth > 0));
+        for view in views {
+            assert_eq!(run(view, usize::MAX), expected);
+            assert_eq!(run(view, expected.2.bytes), expected);
+            assert_eq!(run(view, expected.2.bytes - 1).0, Err(Error::LimitExceeded));
+        }
+    }
+}
