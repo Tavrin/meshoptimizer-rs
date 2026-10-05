@@ -108,7 +108,6 @@ fn transform(
     Ok((transformed, extent))
 }
 
-#[inline(always)]
 fn rasterize(buffer: &mut [Pixel], mut p: [[f32; 3]; 3], work: &mut Work) -> Result<(), Error> {
     let det = (p[1][0] - p[0][0]) * (p[2][1] - p[0][1]) - (p[1][1] - p[0][1]) * (p[2][0] - p[0][0]);
     let invdet = if det == 0.0 { 0.0 } else { 1.0 / det };
@@ -133,6 +132,14 @@ fn rasterize(buffer: &mut [Pixel], mut p: [[f32; 3]; 3], work: &mut Work) -> Res
     let miny = ((y[0].min(y[1]).min(y[2]) + 7) >> 4).max(0);
     let maxx = ((x[0].max(x[1]).max(x[2]) + 7) >> 4).min(VIEWPORT as i32);
     let maxy = ((y[0].max(y[1]).max(y[2]) + 7) >> 4).min(VIEWPORT as i32);
+    let visits = (maxx - minx).max(0) as usize * (maxy - miny).max(0) as usize;
+    let bulk_pixels = work.covers(visits)?;
+    if bulk_pixels {
+        work.add(visits)?;
+    }
+    if minx >= maxx || miny >= maxy {
+        return Ok(());
+    }
     let (dx12, dx23, dx31) = (x[0] - x[1], x[1] - x[2], x[2] - x[0]);
     let (dy12, dy23, dy31) = (y[0] - y[1], y[1] - y[2], y[2] - y[0]);
     let tl1 = i32::from(dy12 < 0 || (dy12 == 0 && dx12 > 0));
@@ -143,14 +150,6 @@ fn rasterize(buffer: &mut [Pixel], mut p: [[f32; 3]; 3], work: &mut Work) -> Res
     let mut cy2 = dx23 * (fy - y[1]) - dy23 * (fx - x[1]) + tl2 - 1;
     let mut cy3 = dx31 * (fy - y[2]) - dy31 * (fx - x[2]) + tl3 - 1;
     let mut zy = p[0][2] + (dzx * (fx - x[0]) as f32 + dzy * (fy - y[0]) as f32) * (1.0 / 16.0);
-    let visits = (maxx - minx).max(0) as usize * (maxy - miny).max(0) as usize;
-    let bulk_pixels = work.covers(visits)?;
-    if bulk_pixels {
-        work.add(visits)?;
-    }
-    if minx >= maxx || miny >= maxy {
-        return Ok(());
-    }
     for yy in miny..maxy {
         let (mut cx1, mut cx2, mut cx3) = (cy1, cy2, cy3);
         let mut zx = zy;
@@ -201,26 +200,6 @@ fn scan_pixels<const COVERAGE: bool, const CHARGE: bool>(
     Ok(covered)
 }
 
-// Resolve the coordinate permutation once per view instead of per triangle.
-#[inline]
-fn rasterize_triangles<const AXIS: usize>(
-    buffer: &mut [Pixel],
-    triangles: &[[f32; 3]],
-    work: &mut Work,
-) -> Result<(), Error> {
-    for tri in triangles.as_chunks::<3>().0 {
-        work.add(1)?;
-        let [a, b, c] = *tri;
-        let reordered = match AXIS {
-            0 => [[a[2], a[1], a[0]], [b[2], b[1], b[0]], [c[2], c[1], c[0]]],
-            1 => [[a[0], a[2], a[1]], [b[0], b[2], b[1]], [c[0], c[2], c[1]]],
-            _ => [[a[1], a[0], a[2]], [b[1], b[0], b[2]], [c[1], c[0], c[2]]],
-        };
-        rasterize(buffer, reordered, work)?;
-    }
-    Ok(())
-}
-
 fn analyze(
     indices: &[u32],
     positions: Positions<'_>,
@@ -253,10 +232,15 @@ fn analyze(
             if axis != 0 {
                 buffer.fill(Pixel::default());
             }
-            match axis {
-                0 => rasterize_triangles::<0>(&mut buffer, &triangles, &mut work)?,
-                1 => rasterize_triangles::<1>(&mut buffer, &triangles, &mut work)?,
-                _ => rasterize_triangles::<2>(&mut buffer, &triangles, &mut work)?,
+            for tri in triangles.as_chunks::<3>().0 {
+                work.add(1)?;
+                let [a, b, c] = *tri;
+                let reordered = match axis {
+                    0 => [[a[2], a[1], a[0]], [b[2], b[1], b[0]], [c[2], c[1], c[0]]],
+                    1 => [[a[0], a[2], a[1]], [b[0], b[2], b[1]], [c[0], c[2], c[1]]],
+                    _ => [[a[1], a[0], a[2]], [b[1], b[0], b[2]], [c[1], c[0], c[2]]],
+                };
+                rasterize(&mut buffer, reordered, &mut work)?;
             }
             let bulk_scan = work.covers(buffer.len())?;
             if bulk_scan {
@@ -305,6 +289,61 @@ pub fn analyze_coverage(
 mod tests {
     use super::*;
     use crate::Limits;
+
+    #[test]
+    fn empty_views_keep_triangle_and_scan_work() {
+        // Unreferenced finite geometry fixes the scale at 1. All projected
+        // triangle boxes are subpixel in at least one dimension in every view.
+        let storage = [
+            [1.01, 1.01, 1.01],
+            [1.03, 1.01, 1.02],
+            [1.01, 1.03, 1.03],
+            [0.0, 0.0, 0.0],
+            [256.0, 256.0, 256.0],
+        ];
+        let positions = Positions::from_packed(&storage);
+        let indices = [0, 1, 2, 0, 1, 2];
+        let total = 6 + 5 + 6 + 3 * (2 + VIEWPORT * VIEWPORT);
+        for fuel in [
+            0,
+            5,
+            6,
+            10,
+            11,
+            16,
+            17,
+            18,
+            19,
+            65555,
+            65556,
+            65557,
+            total - 1,
+            total,
+        ] {
+            for coverage in [false, true] {
+                let mut workspace = Workspace::new(Limits {
+                    max_bytes: 2 << 20,
+                    max_work: fuel as u64,
+                });
+                let result = analyze(&indices, positions, &mut workspace, coverage);
+                assert_eq!(workspace.usage().work, fuel as u64);
+                if fuel == total {
+                    assert_eq!(
+                        result,
+                        Ok((
+                            OverdrawStatistics::default(),
+                            CoverageStatistics {
+                                coverage: [0.0; 3],
+                                extent: 256.0,
+                            }
+                        ))
+                    );
+                } else {
+                    assert_eq!(result, Err(Error::LimitExceeded));
+                }
+            }
+        }
+    }
 
     #[test]
     fn packed_transform_keeps_logical_mapped_positions() {

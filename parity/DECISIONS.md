@@ -6194,3 +6194,21 @@ precharges/fallback charges, top-left rules, depth arithmetic and view order.
 Both analyzers share this fix. The pinned raster layout/fuel/error vector passes
 in the admission-built binary. Full exact suites and final codegen/counter/timing
 receipts remain required; this source change alone is not acceptance evidence.
+
+
+## D172 — Port the measured early empty-box guard; reject forced inlining
+
+Use the safe `early-empty` source ordering from the cost-budget lane at
+`diag/p05-ablate` commit 281ad41. Move the existing visits/covers/precharge and
+empty-box return ahead of half-edge/fill/CY/ZY setup, preserving all arithmetic
+and actual work accounting. Empty rectangles still take the same zero charge.
+Retain D171's direct initialized transform fill, but remove its forced raster
+inlining and unmeasured const-axis split: the diagnostic lane rejects forced
+inlining, and the measured guard is the stronger candidate. No no-fuel,
+no-validation or unchecked-access diagnostic code is shipped.
+
+Add a literal all-empty three-view regression with two triangles and unused
+finite extent vertices. It checks statistics/extent, every phase boundary and
+final scan exhaustion, preserving triangle and pixel-scan charges. Root tests
+and strict Clippy pass in all/all-no-default/experimental modes. Full sweeps and
+final counter/timing receipts will complete this decision's evidence.
