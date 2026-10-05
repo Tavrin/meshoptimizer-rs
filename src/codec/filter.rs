@@ -7,6 +7,7 @@ use crate::{math::sqrt, Error};
 fn rounded(v: f32, sign: f32) -> i32 {
     (v + if sign >= 0.0 { 0.5 } else { -0.5 }) as i32
 }
+#[inline(always)]
 pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
     let mut previous = ([0i16; 3], [0i32; 3]);
     let mut valid = false;
@@ -69,6 +70,7 @@ pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
     }
     Ok(())
 }
+#[inline(always)]
 pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
     let scale = 32767.0 / sqrt(2.0);
     let mut previous = ([0i16; 4], [0u8; 8]);
@@ -108,7 +110,14 @@ pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
 // The SIMD dispatcher has already found four identical keys. Decode the
 // first record canonically, then copy only its normalized components until
 // the key changes. Oct's alpha is independent and must remain untouched.
-#[cfg(feature = "simd")]
+#[cfg(all(
+    feature = "simd",
+    any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    )
+))]
 pub(super) fn repeated(kind: u8, data: &mut [u8], stride: usize) -> Result<usize, Error> {
     fn oct_run<const W: usize>(data: &mut [u8]) -> Result<usize, Error> {
         let read = |e: &[u8]| {
