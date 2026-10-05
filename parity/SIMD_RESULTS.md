@@ -523,3 +523,36 @@ inputs are unchanged. A/C means allocating/caller-buffer.
 Final native varied-filter S3 significant comparisons: 4.
 Independent source-bound verification passes; numeric failures remain failures.
 No broader release, platform or integration acceptance.
+
+## Fix-seven scoped RFC result — 2026-10-05
+
+See [P07_FIX7_PERFORMANCE.md](P07_FIX7_PERFORMANCE.md) for every row, all 37
+previously unresolved/failed maxima, paired old controls and proof limits.
+Owner RFC thresholds are geomean <=1.25 and maximum <=1.50 per family/API.
+The registered stricter bar is deferred to 0.3; SIMD_BAR.md is unchanged.
+A/C = allocating/caller-buffer. A failed final maximum or applicable S3
+comparison prevents the family/API verdict from passing.
+
+| Platform / family | A before → after | C before → after | Paired new/old A / C | RFC A / C |
+|---|---:|---:|---:|---|
+| native / exp | 0.917 → 0.996 | 1.065 → 0.935 | 0.999 / 0.989 | **FAIL** / pass |
+| native / meshlet | 1.221 → 1.174 | 1.409 → 1.244 | 0.969 / 0.877 | pass / pass |
+| native / meshlet-raw | 1.088 → 1.099 | 1.306 → 1.190 | 1.003 / 0.951 | pass / pass |
+| native / oct | 1.125 → 0.975 | 1.193 → 0.882 | 0.848 / 0.758 | pass / **FAIL** |
+| native / quat | 1.170 → 0.931 | 1.235 → 0.790 | 0.755 / 0.624 | pass / pass |
+| native / vertex | 1.141 → 1.124 | 1.087 → 1.081 | 0.981 / 0.979 | **FAIL** / pass |
+| native / view-filtered | 1.162 → 1.044 | 1.107 → 1.002 | 0.917 / 0.896 | **FAIL** / pass |
+| native / view-none | 1.061 → 1.076 | 1.073 → 1.067 | 0.964 / 1.004 | pass / pass |
+| wasm / sequence | 0.899 → 0.913 | 0.839 → 0.859 | 1.021 / 1.006 | pass / pass |
+| wasm / vertex | 1.229 → 1.203 | 1.089 → 1.118 | 1.056 / 1.029 | pass / pass |
+| wasm / view-filtered | 1.369 → 1.281 | 1.360 → 1.288 | 0.955 / 0.957 | **FAIL** / **FAIL** |
+| wasm / view-none | 1.092 → 1.325 | 1.168 → 1.112 | 1.192 / 1.016 | **FAIL** / pass |
+
+Final native varied-filter S3 significant comparisons: 1.
+Independent source/binary/control-bound verification passes; numeric failures
+remain failures. One final epoch, with checkpointed continuations of unaccepted
+work only. No late source tuning or rescue timing. Exact proof and all test,
+Clippy, Miri, MSRV/no-std and unsafe-boundary/package gates pass.
+This does not establish release, ARM, other-host or Moss integration acceptance.
+The prescribed fix-seven target is deleted after collecting final evidence.
+No push, merge or rebase.

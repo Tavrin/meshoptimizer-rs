@@ -4555,3 +4555,38 @@ that proof. The corrected 18 backend/API rows pass with the recorded upstream
 SIMD rejection and exact successful outputs. This was a proof-controller error,
 not a source change or timing sample. Keep its terminal failure in the session
 receipt; final JSON contains only the correctly framed proof.
+
+### Fix-seven final scoped stop and RFC verdict
+
+All fixes are implemented or explicitly abandoned above with counters/parity
+evidence. The single final timing epoch covers 212 native and 146 Node rows
+with round-six controls in the same accepted pairs. Independent verification
+recomputes every early stop, final maximum interval, paired new/old ratio,
+applicable S3 comparison and family mean, and checks admission/exit receipts.
+native allocating: FAIL: exp, vertex, view-filtered.
+native caller-buffer: FAIL: oct.
+wasm allocating: FAIL: view-filtered, view-none.
+wasm caller-buffer: FAIL: view-filtered.
+
+Native S3 significant comparisons: 1. Overall scoped RFC closure: FAIL.
+Every prior maximum is classified and its current outcome retained in
+P07_FIX7_PERFORMANCE.md. No post-epoch source tuning, threshold change,
+selective rejection of admitted pairs or second final epoch is permitted.
+Residual failures are explicit abandoned subgoals at the inherited scoped
+stop, not qualifications. Stricter registration remains deferred to 0.3.
+Artifact inventory retains sources, binaries, frozen identities, counters,
+all proofs/checks, failed development trials and complete timing receipts
+outside the exact target. Delete only codex-p07-fix7; verify its absence.
+This completes the authorized scoped stop without release/integration claims.
+
+The four original Exp S3 comparisons now pass, but allocating tiny stride12
+adds a distinct S3 failure (1.1431–1.1751 versus current scalar). The explicit
+large Exp path adds an allocating streaming32 maximum failure. WASM allocating
+view-none has paired new/old family mean 1.192, and fails mean/streaming12
+maximum; its exact cause beyond size-dependent decode/layout throughput is
+unresolved. Retain all three residual/regression types at the scoped stop;
+no late dispatch change or remeasurement. The report includes current old/C++
+means to separate historical epoch drift from candidate new/old movement.
+Typed caller meshlets improve within pairs by 0.877 and close mean to 1.244;
+raw caller improves 0.951 and closes mean to 1.190. These are scoped results,
+not a release qualification.
