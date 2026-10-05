@@ -4893,3 +4893,15 @@ checks/Miri block regression. Runtime sources match compiled native/WASM
 binaries; later differences are test cfg(miri) coverage and safety line inventory,
 recorded in final-source-binding.json. Below25GiB shared free disk closes
 further builds. Existing matching binaries can run parity and measurements.
+
+Coordinator correction during the A/A epoch: meshopt is CPU/WASM only.
+Remaining bursts use MOSS_HEAVY_GPU=0 moss-heavy.sh 4 timeout840 with
+taskset CPU26 and the unchanged interleaved slots. Original controller and
+GPU receipts remain immutable for completed bursts; new CPU controller/admission
+segments retain accepted pairs without remeasuring a completed row. WASM A/A
+burst1 completed normally before the next queued GPU request was canceled;
+no running measurement was killed. The canceled request had no measurement
+child or samples. CPU admission verifies the queue wrapper requested GPU=0,
+absence of a held lease, affinity, reservation, timeout ancestry, scoreboard
+quietness and owned-proof exclusion. RUN-RULES now explicitly matches this
+coordinator correction. GPU availability is no longer an admission gate.
