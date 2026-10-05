@@ -6036,3 +6036,16 @@ libm and executed-WASM cases each pass (`marking-proof`). Fresh two-profile coun
 Tiny owned/caller instruction changes range -0.23%..-1.16%; branch differences
 ~0.4% are fixed-cost noise, not a timing claim. Both consumer binaries, sources,
 counts and objdump are retained under p05-diagfix. No timing yet.
+
+## D163 — Constant-pitch small-grid accumulation
+
+Extend D162's bounded representation to accumulation with a 512-byte grid and
+64-entry row offsets. Copy unchanged counted grid rows/row offsets to stack,
+then form masked constant-pitch indices. Keep original voxel index/octant bits,
+float operations, all resolution>8 paths, heap requests/quotas and fuel prefixes.
+Root tests/strict Clippy in all three modes and 30,000 native/libm/executed-WASM
+cases each pass (`accumulation-proof`). Both-profile objdump/counts support the
+next step (`accumulation-counts`): medium owned instruction ratios to C++ are
+1.292 Moss / 1.276 default, caller 1.248/1.242, versus D162 1.347/1.340 and
+1.322/1.327. Tiny ratios remain ~1.47–1.49 owned/~1.43–1.45 caller. These are
+instruction diagnostics, not timing qualification. No timing occurred.

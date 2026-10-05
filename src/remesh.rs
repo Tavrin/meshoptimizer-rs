@@ -143,7 +143,7 @@ fn voxelize_dispatch<const ACCUMULATE: bool>(
     work: &mut Work,
 ) -> Result<(), Error> {
     if let Some(packed) = positions.packed() {
-        if !ACCUMULATE && resolution <= 8 {
+        if resolution <= 8 {
             voxelize::<ACCUMULATE, true>(
                 grid, rowmap, voxels, indices, packed, resolution, scale, offset, options, work,
             )
@@ -152,7 +152,7 @@ fn voxelize_dispatch<const ACCUMULATE: bool>(
                 grid, rowmap, voxels, indices, packed, resolution, scale, offset, options, work,
             )
         }
-    } else if !ACCUMULATE && resolution <= 8 {
+    } else if resolution <= 8 {
         voxelize::<ACCUMULATE, true>(
             grid, rowmap, voxels, indices, positions, resolution, scale, offset, options, work,
         )
@@ -180,6 +180,19 @@ fn voxelize<const ACCUMULATE: bool, const PADDED: bool>(
     // dynamic bounds checks. The heap grid and its border keep their original
     // allocation, initialization, quota, and rowpack representation.
     let mut padded = [0u8; 512];
+    let mut padded_rows = [0u32; 64];
+    if PADDED && ACCUMULATE {
+        let side = resolution - 2;
+        for z in 0..side {
+            for y in 0..side {
+                let row = y + 1 + resolution * (z + 1);
+                let to = (z * 8 + y) * 8;
+                let from = 1 + resolution * row;
+                padded[to..to + side].copy_from_slice(&grid[from..from + side]);
+                padded_rows[z * 8 + y] = rowmap[row];
+            }
+        }
+    }
     let doubled_scale = scale * 2.0;
     let cutoff = (resolution - 3) as i32;
     let solve = options & REMESH_SOLVE != 0;
@@ -241,7 +254,14 @@ fn voxelize<const ACCUMULATE: bool, const PADDED: bool>(
                 let row = y + 1 + resolution * (z + 1);
                 let idx = x + 1 + resolution * row;
                 if ACCUMULATE {
-                    let voxel = &mut voxels[rowmap[row] as usize + grid[idx] as usize - 1];
+                    let voxel_index = if PADDED {
+                        let small_row = (y & 7) | ((z & 7) << 3);
+                        let cell = (x & 7) | (small_row << 3);
+                        padded_rows[small_row] as usize + padded[cell] as usize - 1
+                    } else {
+                        rowmap[row] as usize + grid[idx] as usize - 1
+                    };
+                    let voxel = &mut voxels[voxel_index];
                     voxel.coord = ((x as u32) << 20) | ((y as u32) << 10) | z as u32;
                     voxel.octants |= 1 << ((hx & 1) | ((hy & 1) << 1) | ((hz & 1) << 2));
                     accumulate_voxel(voxel, point, [nx, ny, nz], weight, solve);
@@ -256,7 +276,7 @@ fn voxelize<const ACCUMULATE: bool, const PADDED: bool>(
             }
         }
     }
-    if PADDED {
+    if PADDED && !ACCUMULATE {
         let side = resolution - 2;
         for z in 0..side {
             for y in 0..side {
