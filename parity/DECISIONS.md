@@ -4821,3 +4821,18 @@ Ordinary/all-feature and unsafe-free tests, native/WASM Clippy, native/WASM
 MSRV no-std SIMD, Miri including a full Oct group, formatting,23-block unsafe
 audit and package inventory pass. These proofs permit the single scoped
 paired timing epoch; they do not establish elapsed RFC or S3 acceptance.
+
+
+Supplemental-check correction: the preceding completion sentence was recorded
+before the supplemental command finished. Rust1.88 no-std WASM initially
+returned E0463 because that toolchain lacked wasm32-unknown-unknown; format,
+boundary and package checks in that chain had not run yet. Retain the failed
+attempt/log, install the missing target, and require fresh successful receipts
+for these gates before opening final timing. No acceptance from that attempt.
+
+
+Supplemental correction closed: installing the Rust1.88 WASM target enabled
+a successful no-std SIMD check; format,23-block boundary and published package
+inventory now have actual successful receipts. The earlier missing-target
+attempt remains in failed-check-attempts.json. All required development
+receipts are source/binary bound; queued final timing can begin.
