@@ -27,7 +27,7 @@
   "fixture_count": 47,
   "detail_artifact": "run/record.json",
   "artifacts": {
-    "run/record.json": "1291875d74b838509611e46b0711f1526a96139c78bc6fca91add38c653905e9",
+    "run/record.json": "64f312341e7511c7ce7662dcfee5b2bf53b96fbb3409a6ea37eca23fcec96d50",
     "run/corpus.bin": "4e139ed7638d93e4ef3acb33450c5cf71630236f70a29795986517d70a844813"
   }
 }

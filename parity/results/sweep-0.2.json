@@ -23,15 +23,15 @@
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "8bb8b1ce529ca119848de091aa5757d274e1271f234caeefb5c0a8868d847fb8",
-        "wasm": "ee8e13a2b3e60837071210a6b807c3d6ce846c8fd16e7c3a5f0658967d926808"
+        "rust": "8243bf4a9fcd8315efab0337a1aae525d2c67bd7c62157507695628da2829758",
+        "wasm": "43fccbcbe92b1833f0cbe670cfe0abdcba68418a2ab4524f8f54db765ab16b33"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536"
     }
   },
   "artifacts": {
-    "sweep-0.2/sweep.json": "27a218d181e017db4595bc4552ae6496481bc3917a212d66c72a67d7af93326a",
-    "sweep-0.2/sweep.zip": "f3e0e42939b9b063172d035fcb7c8b28709fb43c7ce70038bda5bb04d45655e8"
+    "sweep-0.2/sweep.json": "5cba05a515e3eb6ad485699cd3be270fd8cf0589769f9c8c00a4f52b393d9103",
+    "sweep-0.2/sweep.zip": "b2631565f0863d5a18dacd6ae3b0535f162e202027570e95f9e99eb26ffcdd64"
   },
   "detail_artifact": "sweep-0.2/sweep.json",
   "seed": 20261004,

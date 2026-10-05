@@ -3440,3 +3440,45 @@ sparse, 32-attribute, compact-boundary, and near-threshold dilation inputs.
 The bounded-memory companion compares `LimitExceeded` and success across its
 byte sweep. Full parity and paired timing require final-HEAD evidence, with
 timing admitted only below load 12 and without a GPU lease holder.
+
+## D152 — Owner-revised RFC 113 admission and bounded early stopping
+
+The owner's binding 2026-10-05 directives replace the original load-average
+and no-active-scoreboard gate. Admit only when `gpu-lease.sh status` reports
+no holder and no `moss-scoreboard-*` unit is measuring. An active unit whose
+only child is `sleep` is waiting and does not block. Record its MainPID and
+child process tree. Load is informational, never an admission threshold.
+Check before each interleaved scalar-C++ / Moss-C++ / Rust pair; a new blocker
+allows the current pair to finish, then closes all driver processes before
+waiting. Failed admission polls retain the five-minute cadence.
+
+This continuation makes no implementation changes. The initial fixed-20
+consumer run was interrupted by the new sampling directive; its incomplete
+printed ratios are diagnostic and excluded from the final verdict. Run one
+fresh final matrix under each profile with adaptive sampling. Begin each
+mesh at five pairs, examine the nominal two-sided 95% Student-t interval of
+paired log(Rust/scalar-C++) ratios after each additional pair, and stop when
+the interval is wholly within or over 1.5; cap stage 1 at 20 pairs. These
+sequential intervals are stopping heuristics, not simultaneous confidence
+coverage. Retain every sample and stopping decision. The 1.2 aggregate bar
+still uses the ratio of summed stage-1 per-mesh medians, unchanged.
+
+Only a case whose interval still overlaps 1.5 at the 20-pair cap receives the
+D146 second stage: 30 fresh interleaved pairs, df=29, PASS only when the upper
+bound is at most 1.5; FAIL when the lower bound exceeds 1.5; overlap is
+INCONCLUSIVE and counts as FAIL. The owner's newer borderline-only rule
+supersedes D146's older rule to retest every point estimate above 1.5. Stage 2
+can clear only that case maximum, never replace stage-1 aggregate data.
+Stage 2 retains one selected physical core across any lease-induced pause,
+as D146 requires; driver processes close while waiting and reopen on that
+same core for the remaining fresh pairs.
+
+Choose the least-busy physical core by a one-second sample of both siblings,
+excluding physical cores containing logical CPUs 0/1. Pin all three drivers
+there within a burst. Record selection, load before/after, utilization of
+both siblings, and pair boundaries for every burst. Close drivers after each
+case and before every admission pause. Cap active bursts at 840 seconds
+(before a new pair), then close drivers and cool down for 60 seconds; a pair
+is always completed before releasing the core. During future implementation
+iterations, measure only touched families/cases at about five pairs; do not
+repeat full matrices. Exact parity and final-HEAD identity gates are retained.
