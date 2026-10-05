@@ -14,6 +14,12 @@
 //! its author. Coverage, measured performance and the parity records are in the
 //! [README](https://github.com/Tavrin/meshoptimizer-rs#readme).
 //!
+//! Coverage includes vertex processing, simplification, meshlets and scalar
+//! codecs (phases 0.1–0.4), plus optional parallel batch APIs (phase 0.6).
+//! Cluster-LOD requires `clusterlod`; batches require `parallel` and `std`.
+//! Phase 0.5 (analyzers, opacity maps, tangents, normals and remeshing) is not
+//! yet ported. SIMD decoders and filters are planned for phase 0.7.
+//!
 //! # Simplify a mesh
 //!
 //! ```

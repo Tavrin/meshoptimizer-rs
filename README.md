@@ -260,6 +260,21 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 Caller-buffer (`_into`) and in-place forms are listed in the rustdoc.
 `meshopt_setAllocator` is intentionally replaced by `Workspace` and `Limits`.
 
+### Parallel batches (phase 0.6, `parallel` feature)
+
+These batch APIs compose the sequential Rust operations. Their recorded tests
+compare output at 1, 2, 8 and N threads; output order and per-item errors do not
+depend on thread count.
+
+| Operation | Batch API | Status |
+|---|---|---|
+| LOD chains | `simplify_lod_chains_batch` | sequential indices and error bits |
+| Vertex/index encoding | `encode_buffers_batch` | sequential bytes |
+| EXT view decoding | `decode_buffer_views_batch` | sequential bytes and errors |
+| Scan, standard, flex and spatial meshlets | `build_meshlets_batch` | sequential meshlet fields and buffers |
+| Cluster-LOD DAGs | `build_cluster_lod_batch` | sequential DAGs and position mutation; also requires `clusterlod` |
+| Hierarchy forests | `build_cluster_hierarchies_batch` | sequential hierarchy fields; small batches run sequentially; also requires `clusterlod` |
+
 ### Not yet ported
 
 - Phase 0.5: the analyzers (`meshopt_analyzeVertexCache`, `…Overdraw`,
@@ -334,20 +349,58 @@ LTO (1.23 / 1.37). Profiling shows more instructions and branches in the
 adjacency and partition code; see
 [MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md).
 
-The `clusterlod` build path now borrows validated attributes and boundary flags
-without per-group copies, preserves bounded scratch, and invalidates the
-position fast path after dilation. The RFC 113 recovery's frozen S2 corpus
-measured aggregate Rust/scalar-C++ ratios of 1.196× under thin LTO and 1.090×
-under Cargo defaults; all fifteen supported layouts and ninety codec
-comparisons matched. See [the recovery record](parity/results/rfc113-clod-recover.md).
-These measurements cover that corpus on Linux x86-64. The two stride-32 S2
-setups remain invalid because their protect mask exceeds the layout.
+### Cluster-LOD build
 
-The optional `parallel` batches have thread-count determinism coverage at
-1, 2, 8 and N threads. Their speed curve compares parallel with sequential
-Rust on one authored mesh family; small hierarchy batches retain measured
-slowdowns, and use a sequential dispatch fallback. See
-[the P06 record](parity/p06/README.md).
+The `clusterlod` build path borrows validated attributes and boundary flags
+without per-group copies, preserves bounded scratch, and invalidates the
+position range after dilation. On the frozen S2 corpus, aggregate Rust/scalar-C++
+time ratios are 1.196× with the Moss-like consumer profile (`opt-level = 3`,
+thin LTO, one codegen unit) and 1.090× with Cargo release defaults
+(`opt-level = 3`, no LTO, 16 codegen units). These are ratios of summed per-mesh
+medians. Measurements used a pinned physical core on the AMD Ryzen 9 7945HX
+Linux x86-64 host, with shared-machine load recorded per burst.
+
+All 15 supported layouts and all 90 codec comparisons matched byte for byte.
+The two stride-32 S2 setups remain invalid because their protect mask exceeds
+the layout. See [the recovery record](parity/results/rfc113-clod-recover.md)
+for raw timing identities, adaptive sampling and per-mesh results. These
+measurements cover that corpus; they do not establish Moss runtime performance.
+
+### Parallel batch speed
+
+The following full-family curve compares parallel batches with sequential Rust
+on an AMD Ryzen 9 7945HX (16 physical cores / 32 logical CPUs), using Cargo
+release defaults (`opt-level = 3`, 16 codegen units, LTO false). Inputs are
+sixteen translated/scaled variants of the pinned upstream `demo/pirate.obj`,
+2,889 vertices / 5,010 triangles per mesh. This is one authored mesh, not a
+diverse asset suite or a Moss cook benchmark. The shared host's one-minute
+load was 15.46–18.00.
+
+Each speed-up is the median of five paired sequential/parallel time ratios;
+values below one mean batching is slower. Serial milliseconds are the median
+baseline in the one-thread row. Validation, required copies, allocation and
+execution are timed; input generation and pool creation are outside timing.
+
+| Family | Serial ms | 1 thread | 2 | 4 | 8 | 16 |
+|---|---:|---:|---:|---:|---:|---:|
+| LOD chains | 32.898 | 1.026× | 2.001× | 3.211× | 6.216× | 8.201× |
+| Mixed encoding | 3.421 | 1.207× | 2.173× | 3.453× | 5.445× | 7.599× |
+| EXT view decoding | 0.715 | 1.193× | 2.094× | 3.031× | 4.261× | 3.284× |
+| Standard meshlets | 30.022 | 1.112× | 1.553× | 4.102× | 3.872× | 6.136× |
+| Cluster LOD | 126.427 | 0.991× | 1.911× | 3.913× | 5.505× | 7.818× |
+| Hierarchy forests | 0.086 | 0.845× | 0.817× | 0.852× | 0.988× | 0.623× |
+
+This curve predates the hierarchy dispatch review fix. Small hierarchy batches
+now run sequentially inside the API. The final hierarchy-only follow-up has
+paired medians of 0.878/0.836/0.775/0.545/0.725x at 1/2/4/8/16 threads,
+including caller-side `pool.install` overhead. The fallback does not eliminate
+these measured slowdowns.
+
+Decoding gains decline after eight threads. Dispersion is material: at sixteen
+threads, cluster LOD ranges 1.82–10.23× and meshlets 4.71–9.81× across the five
+pairs. These medians are not universal gains or C++ algorithmic comparisons.
+See [the P06 record](parity/p06/README.md) for raw pairs, identities,
+thread-count determinism tests and the hierarchy follow-up.
 
 The bar compares against scalar C++. Upstream's SIMD vertex decoder is 2–5×
 faster than this crate on the recorded cases (Rust/SIMD throughput
@@ -426,7 +479,7 @@ them, and none of their code is used.
 
 ## Roadmap
 
-- 0.5: the rest of the 1.3 API (analyzers, opacity maps, tangents, normals and
+- 0.5 next: the rest of the 1.3 API (analyzers, opacity maps, tangents, normals and
   remeshing).
 - 0.7: SIMD decoders and filters (SSE2/SSSE3/SSE4.1, NEON, wasm simd128) in
   one audited `unsafe` module with runtime dispatch, checked against the scalar

@@ -7,26 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-05
+
 ### Added
 
-- Optional `parallel` feature (Rayon, enabling `std`): ordered batches of LOD
-  chains, vertex/index encoding, EXT view decoding and all meshlet builders.
-  With `clusterlod`, independent cluster-LOD DAG and hierarchy batches.
-- Per-item checked errors and limits, private worker workspaces, and byte
-  comparisons against sequential output at 1, 2, 8 and N threads.
+- Optional `parallel` feature, using Rayon and enabling `std`: ordered batch
+  APIs for LOD chains, vertex/index encoding, EXT view decoding and all four
+  meshlet builders. With `clusterlod`, batches of independent cluster-LOD DAGs
+  and hierarchy forests are also available.
+- Per-item checked errors and limits, private worker workspaces and deterministic
+  output at any thread count. Tests compare sequential output at 1, 2, 8 and
+  N threads, including failure isolation and late position mutation.
+- RFC 113 harness: three-way Rust/scalar-C++/Moss-style-C++ comparisons,
+  portable layout and codec checks, scratch-budget regressions, profiling and
+  adaptive paired timing with source and binary identities.
+- Parallel batch harness and recorded speed curves against sequential Rust on
+  sixteen variants of one authored mesh. The full-family curve records
+  16-thread medians of 8.201× for LOD chains, 7.599× for mixed encoding,
+  3.284× for EXT view decoding, 6.136× for standard meshlets and 7.818× for
+  cluster LOD. See [the P06 record](parity/p06/README.md) for the full table,
+  dispersion and hierarchy follow-up; these are shared-host corpus results.
 
 ### Changed
 
-- Cluster-LOD cook scaling: borrow validated attributes and boundary flags
-  instead of copying them per group, while retaining bounded simplification
-  scratch and invalidating the position fast path after dilation.
-- RFC 113 recovery: fifteen supported S2 layouts and ninety codec comparisons
-  match; aggregate Rust/scalar-C++ ratios are 1.196× (thin LTO) and 1.090×
-  (Cargo defaults) on the recorded frozen corpus. The two stride-32 S2 setups
-  remain invalid because their protect mask exceeds the layout.
-- Parallel hierarchy batches use sequential dispatch for small forests;
-  deterministic coverage includes dispatch boundaries and position mutation
-  before late cluster-LOD failures.
+- Cluster-LOD builds reuse validated data and compact sparse groups. Borrowed
+  attributes and boundary flags remove per-group copies while preserving
+  bounded simplification scratch. Dilation invalidates the cached position
+  range before further simplification.
+- The final RFC 113 recovery measures aggregate Rust/scalar-C++ time ratios of
+  1.196× with the Moss-like consumer profile (thin LTO) and 1.090× with Cargo
+  release defaults. All 15 supported S2 layouts and all 90 codec comparisons
+  are byte-identical. See [the recovery record](parity/results/rfc113-clod-recover.md).
+- Small hierarchy batches run sequentially to avoid Rayon dispatch overhead.
+  The follow-up still records slowdowns, including caller-side `pool.install`.
+
+### Known limitations
+
+- Phase 0.5 (analyzers, opacity maps, tangents, normals and remeshing) is not
+  included. SIMD work remains planned for phase 0.7.
+- The two stride-32 S2 setups remain invalid because their protect mask exceeds
+  the layout. Existing preprocessing and partitioning timing residuals remain;
+  see the README. These records do not establish Moss runtime or GPU integration.
 
 ## [0.1.0] - unreleased
 
@@ -89,5 +110,6 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0

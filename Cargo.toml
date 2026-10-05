@@ -1,6 +1,6 @@
 [package]
 name = "meshoptimizer-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.88"
 description = "Pure safe Rust port of meshoptimizer 1.3 with byte-identical output. Covers mesh simplification, meshlets, cluster LOD, vertex/index compression and optional parallel batch APIs."
