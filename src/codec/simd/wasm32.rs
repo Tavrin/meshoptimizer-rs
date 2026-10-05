@@ -359,18 +359,39 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
             crate::codec::filter::scalar_color(block, W)?;
             continue;
         }
-        let mut scale = alpha;
-        scale = v128_or(scale, i32x4_shr(scale, 1));
-        scale = v128_or(scale, i32x4_shr(scale, 2));
-        scale = v128_or(scale, i32x4_shr(scale, 4));
-        scale = v128_or(scale, i32x4_shr(scale, 8));
+        // A common encoded bit depth fixes the exact scale. These integer
+        // predicates cover the full word depth and the 12-bit color depth;
+        // mixed depths retain the generic propagation and division below.
+        let (scale, ss) = if i32x4_bitmask(i32x4_gt(
+            alpha,
+            i32x4_splat(if W == 4 { 127 } else { 32767 }),
+        )) == 15
+        {
+            (i32x4_splat(if W == 4 { 255 } else { 65535 }), splat(1.0))
+        } else if W == 8
+            && i32x4_bitmask(i32x4_eq(
+                v128_and(alpha, i32x4_splat(!2047)),
+                i32x4_splat(2048),
+            )) == 15
+        {
+            (i32x4_splat(4095), splat(65535.0 / 4095.0))
+        } else {
+            let mut scale = alpha;
+            scale = v128_or(scale, i32x4_shr(scale, 1));
+            scale = v128_or(scale, i32x4_shr(scale, 2));
+            scale = v128_or(scale, i32x4_shr(scale, 4));
+            scale = v128_or(scale, i32x4_shr(scale, 8));
+            (
+                scale,
+                div(
+                    splat(if W == 4 { 255.0 } else { 65535.0 }),
+                    f32x4_convert_i32x4(scale),
+                ),
+            )
+        };
         let a = v128_or(
             v128_and(i32x4_shl(alpha, 1), scale),
             v128_and(alpha, i32x4_splat(1)),
-        );
-        let ss = div(
-            splat(if W == 4 { 255.0 } else { 65535.0 }),
-            f32x4_convert_i32x4(scale),
         );
         let channels = [
             i32x4_sub(i32x4_add(y, co), cg),

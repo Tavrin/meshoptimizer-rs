@@ -4166,3 +4166,19 @@ fixture proof does not establish simd128 execution despite the recorded
 intent. This round reruns all frozen fixtures against actual scalar and
 SIMD wasm modules. The corrected Miri invocation forces SSSE3/POPCNT/SSE4.1
 instead of relying on a neutralized flag. No final timing has run yet.
+
+### Common Color bit depths while queued
+
+Cancel only our two waiting heavy requests before accepting any timing pair;
+retain their queue-only logs. Add exact common-depth scales: all 8-bit alpha
+words >=128 imply scale255; all 16-bit alpha words in2048..4095 imply
+scale4095; all >=32768 imply scale65535. Fixed-scale f32 division rounds
+identically to the existing generic calculation. Mixed depths still propagate
+bits and divide, and the sufficient conversion guard/scalar fallback stays.
+No approximate arithmetic or input restrictions. Boundary/mixed-lane/tail
+regressions cover127/128,2047/2048,4095/4096 and32767/32768. An archived
+untimed proof checks all valid alpha depths with extreme channels across
+native levels and actual wasm scalar/SIMD. Frozen proofs and Node preflight
+pass; complete effective-flag Miri/static checks remain required before credit.
+Final N/2N instruction counts and source/binary identities are in counters.json;
+final.asm retains generated code. No timing was assessed during this change.

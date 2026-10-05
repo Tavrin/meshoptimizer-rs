@@ -761,18 +761,39 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
             crate::codec::filter::scalar_color(block, W)?;
             continue;
         }
-        let mut scale = alpha;
-        scale = _mm_or_si128(scale, _mm_srai_epi32::<1>(scale));
-        scale = _mm_or_si128(scale, _mm_srai_epi32::<2>(scale));
-        scale = _mm_or_si128(scale, _mm_srai_epi32::<4>(scale));
-        scale = _mm_or_si128(scale, _mm_srai_epi32::<8>(scale));
+        // A common encoded bit depth fixes the exact scale. These integer
+        // predicates cover the full word depth and the 12-bit color depth;
+        // mixed depths retain the generic propagation and division below.
+        let (scale, ss) = if _mm_movemask_epi8(_mm_cmpgt_epi32(
+            alpha,
+            _mm_set1_epi32(if W == 4 { 127 } else { 32767 }),
+        )) == 65535
+        {
+            (_mm_set1_epi32(if W == 4 { 255 } else { 65535 }), splat(1.0))
+        } else if W == 8
+            && _mm_movemask_epi8(_mm_cmpeq_epi32(
+                _mm_and_si128(alpha, _mm_set1_epi32(!2047)),
+                _mm_set1_epi32(2048),
+            )) == 65535
+        {
+            (_mm_set1_epi32(4095), splat(65535.0 / 4095.0))
+        } else {
+            let mut scale = alpha;
+            scale = _mm_or_si128(scale, _mm_srai_epi32::<1>(scale));
+            scale = _mm_or_si128(scale, _mm_srai_epi32::<2>(scale));
+            scale = _mm_or_si128(scale, _mm_srai_epi32::<4>(scale));
+            scale = _mm_or_si128(scale, _mm_srai_epi32::<8>(scale));
+            (
+                scale,
+                div(
+                    splat(if W == 4 { 255.0 } else { 65535.0 }),
+                    _mm_cvtepi32_ps(scale),
+                ),
+            )
+        };
         let a = _mm_or_si128(
             _mm_and_si128(_mm_slli_epi32::<1>(alpha), scale),
             _mm_and_si128(alpha, _mm_set1_epi32(1)),
-        );
-        let ss = div(
-            splat(if W == 4 { 255.0 } else { 65535.0 }),
-            _mm_cvtepi32_ps(scale),
         );
         let channels = [
             _mm_sub_epi32(_mm_add_epi32(y, co), cg),

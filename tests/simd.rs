@@ -287,15 +287,28 @@ fn meshlet_all_pair_codes_odd_tails_and_counter_wrap() {
 #[test]
 fn color_alpha_conversion_bounds_and_wrap() {
     for stride in [4, 8] {
-        for alpha in [0, 1, 2, 3, 4, 7, 8, 127, 255, 32767, 65535] {
+        for alphas in [
+            0, 1, 2, 3, 4, 7, 8, 127, 128, 129, 255, 2047, 2048, 2049, 4094, 4095, 4096, 32767,
+            32768, 65535,
+        ]
+        .into_iter()
+        .map(|alpha| [alpha; 5])
+        .chain([
+            [127, 128, 129, 255, 0],
+            [2047, 2048, 2049, 4095, 4096],
+            [32767, 32768, 65535, 3, 4],
+        ]) {
             let mut source = Vec::new();
-            for [y, co, cg] in [
+            for ([y, co, cg], alpha) in [
                 [0, 0, 0],
                 [65535, 32767, -32768],
                 [65535, -32768, -32768],
                 [0, -32768, 32767],
                 [128, 127, -128],
-            ] {
+            ]
+            .into_iter()
+            .zip(alphas)
+            {
                 for c in [y, co, cg, alpha] {
                     if stride == 4 {
                         source.push(c as u8);
@@ -316,7 +329,7 @@ fn color_alpha_conversion_bounds_and_wrap() {
             let scalar = run(Level::Scalar);
             for level in levels() {
                 let actual = run(level);
-                assert_eq!(actual.0, scalar.0, "{stride}/{alpha}/{level:?}");
+                assert_eq!(actual.0, scalar.0, "{stride}/{alphas:?}/{level:?}");
                 if scalar.0.is_ok() {
                     assert_eq!(actual.1, scalar.1);
                 }
