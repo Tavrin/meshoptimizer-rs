@@ -569,3 +569,20 @@ formatting pass. Retained control/source/frozen-archive hashes are checked,
 without promoting them to changed-source runtime qualification. Native
 allocating vertex/view and all WASM view residuals are abandoned under the
 first-analysis no-identified-cause kill rule. RFC closure remains unestablished.
+
+## Fix-eight continuation final paired epoch
+
+Exp/Oct are now validated, disk-derived abandonments voided, WASM fixed-stride reconstruction retained. Overall RFC closure remains unestablished. Full receipts and failed rows: [P07_FIX8_PERFORMANCE.md](P07_FIX8_PERFORMANCE.md).
+
+| Platform / family | A mean / max upper / RFC | C mean / max upper / RFC | Paired new/old A / C |
+|---|---|---|---|
+| native / exp | 0.942 / 1.403 / pass | 0.945 / 1.392 / pass | 0.977 / 0.989 |
+| native / oct | 0.958 / 1.538 / **FAIL** | 0.914 / 1.556 / **FAIL** | 0.945 / 0.948 |
+| native / view-filtered | 1.084 / 2.316 / **FAIL** | 0.965 / 1.485 / pass | 0.998 / 0.969 |
+| wasm / vertex | 0.989 / 2.065 / **FAIL** | 0.977 / 1.498 / pass | 0.877 / 0.851 |
+| wasm / view-none | 1.140 / 2.148 / **FAIL** | 1.002 / 1.465 / pass | 0.865 / 0.879 |
+| wasm / view-filtered | 0.996 / 1.754 / **FAIL** | 0.979 / 1.747 / **FAIL** | 0.814 / 0.756 |
+
+Native vertex A retains prior failed evidence1.538–2.847 after fresh built-code first analysis.
+
+- caller-buffer / varied-filter-3-tiny-s32: 1.0390–1.1085.

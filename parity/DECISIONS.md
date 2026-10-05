@@ -4716,3 +4716,46 @@ vertex/filtered/unfiltered views. Retained round-seven controls stay in every
 pair,5-20 early stop,30 fresh D146 only for borderline maxima, declared4GB
 heavy wrapper,840-second timeout and690-second pair-boundary checkpoints.
 No counter result is elapsed-time acceptance, and no final sampling rescue.
+
+### Fix-eight continuation final stop: all gates executed, RFC remains open
+
+ONE final paired epoch finished: native108 rows,137-second admitted burst,
+WASM122 rows,225-second admitted burst, wrappers exit0. Complete independent
+receipt verifier passes all230 rows, all calibrated early stops/fresh borderline
+D146 stages, old controls, source/binary identities and admission telemetry.
+Shared queue wait is included in wrapper wall time; admitted work stays below
+840 seconds. No timeout increase, repeat epoch or S3 rescue.
+
+Native RFC A/C: Exp pass/pass; Oct FAIL/FAIL (varied Oct streaming4 unresolved
+95% uppers1.5384/1.5559); filtered view FAIL/pass (A varied Exp streaming32
+2.0078–2.3157). Those failed-maxima paired new/old intervals include1.0, so
+this epoch does not establish candidate regressions for those rows; the RFC
+failures remain. Original tiny Exp12 S3 clears, but C tiny Exp32 is significantly
+slower than current scalar1.0390–1.1085. S3 zero is not achieved. Unchanged
+native vertex A keeps its prior1.538–2.847 maximum after the fresh built-code
+first-analysis kill; its old verdict is not refreshed timing qualification.
+
+WASM geometric means all pass: vertex A/C0.9889/0.9770, unfiltered views
+1.1401/1.0019, filtered views0.9961/0.9791. Paired family new/old is improved,
+but maxima retain failures: vertex A resident32 v0/v1; unfiltered A tiny32
+and resident32; filtered A/C varied Exp resident32. Thus WASM RFC A/C is
+vertex FAIL/pass, unfiltered FAIL/pass, filtered FAIL/FAIL. The successful
+32 counter-effect comparisons cover the reopened4/8/12 shapes, not new
+stride32 maxima. Stride32 still uses the generic reconstruction path; its
+unrolled dynamic stores retain the generic JIT body. Do not infer a cause or
+qualified fix for these new maxima from the fixed-stride counters. No further
+source edit after the single final epoch, and no broad acceptance claimed.
+
+Final tables/current failed intervals, old-control comparisons and all source,
+parity, ordinary/Miri/MSRV/static/package/counter receipts are in
+P07_FIX8_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix8.
+Only codex-p07-fix8 is removed at final cleanup. The continued execution is
+complete with unresolved RFC/S3 residuals; the prior disk-derived abandonments
+remain void, and remaining-work.json is superseded by the completed receipt.
+
+Final paired-control limitation: WASM allocating vertex-v1-resident-s32 regresses
+new/old1.0721–1.1655; varied Exp resident32 A/C regress1.0479–1.1867 and
+1.0880–1.1557. The fixed4/8/12 instruction proofs do not qualify those generic
+stride32 paths. Retain the measured candidate and these regressions at the
+single-epoch stop; it is not an RFC-qualified release fix. No second epoch
+or unmeasured post-timing source modification is introduced.
