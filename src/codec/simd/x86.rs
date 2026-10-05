@@ -905,16 +905,15 @@ pub(super) fn vertex(
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
-    // SAFETY: Ssse3 proves SSSE3 and POPCNT. The kernel retains the scalar
-    // parser's checked layout, group lookahead and bounded destination slices;
-    // stack scratch is 1,280 bytes, and every vector load/store is array-backed.
-    unsafe {
-        if count <= 32 {
-            vertex_kernel::<128>(output, count, stride, data)
-        } else {
-            vertex_kernel::<1024>(output, count, stride, data)
-        }
-    }
+    let kernel = if count <= 32 {
+        vertex_kernel::<128>
+    } else {
+        vertex_kernel::<1024>
+    };
+    // SAFETY: Ssse3 proves SSSE3 and POPCNT for both private kernel choices.
+    // Both retain checked layout, group lookahead and bounded destinations;
+    // stack scratch is at most 1,280 bytes; memory operations are array-backed.
+    unsafe { kernel(output, count, stride, data) }
 }
 #[target_feature(enable = "ssse3,popcnt")]
 fn vertex_kernel<const SCRATCH: usize>(
