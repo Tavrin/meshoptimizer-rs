@@ -4171,14 +4171,67 @@ instead of relying on a neutralized flag. No final timing has run yet.
 
 Cancel only our two waiting heavy requests before accepting any timing pair;
 retain their queue-only logs. Add exact common-depth scales: all 8-bit alpha
-words >=128 imply scale255; all 16-bit alpha words in2048..4095 imply
-scale4095; all >=32768 imply scale65535. Fixed-scale f32 division rounds
+words >=128 imply scale 255; all 16-bit alpha words in 2048..4095 imply
+scale 4095; all >=32768 imply scale 65535. Fixed-scale f32 division rounds
 identically to the existing generic calculation. Mixed depths still propagate
 bits and divide, and the sufficient conversion guard/scalar fallback stays.
 No approximate arithmetic or input restrictions. Boundary/mixed-lane/tail
-regressions cover127/128,2047/2048,4095/4096 and32767/32768. An archived
+regressions cover 127/128, 2047/2048, 4095/4096 and 32767/32768. An archived
 untimed proof checks all valid alpha depths with extreme channels across
 native levels and actual wasm scalar/SIMD. Frozen proofs and Node preflight
 pass; complete effective-flag Miri/static checks remain required before credit.
 Final N/2N instruction counts and source/binary identities are in counters.json;
 final.asm retains generated code. No timing was assessed during this change.
+
+### Fix-five final result and stop decision
+
+Complete one scoped epoch: 248 unique native rows and 146 Node rows, each
+in one visible heavy-4GB timeout-840 burst. Wrapper receipts are 316 and 117
+seconds, exit 0; no accepted pair or completed row repeats. Native uses 19
+borderline-only fresh D 146 rows; Node uses 9. Independent verification
+recomputes intervals/stopping rules, preserves stage-one family means,
+and checks every source, binary, input, lease and wrapper identity.
+Artifacts: /mnt/linux-extra/meshopt-artifacts/p 07-fix 5.
+
+All 869 frozen fixture cases, 7653 malformed cases and 138 benchmark identities
+pass at native ceilings and actual wasm scalar/SIMD;292 Node output hashes
+pass. Exhaustive valid-alpha Color depths and the expected upstream tail
+split pass. All 7 effective-flag test/Clippy/Miri receipts, portability and
+23-block single-unsafe-module/package gates pass. The earlier ineffective
+flags remain disclosed, and do not supply final SIMD/Miri evidence.
+
+Color passes both S 2 APIs: means 1.015/1.064. Sequence passes S 4 scalar-C++
+and every P 02 minimum: means 1.134/1.045. Within-pass v 1 streaming-s 4
+allocating candidate/fix-four is 0.514; old/C++ is 1.815 and new/C++0.933.
+The exact historical 2.876 maximum does not reproduce. Allocation growth
+and minor-fault count explanations are contradicted by development traces;
+eager initialization is removed. Kernel/allocator contributions to the
+historical peak remain unisolated and cause attribution is abandoned.
+
+Registered aggregate S 1 fails both APIs: means 1.120/1.151, 7/8 maximum
+failures. S 2 means 1.160/1.104 pass its mean threshold, but 7/5 maxima fail.
+Oct remains a mean/maximum failure, typed meshlets remain mean/maximum
+failures, allocating vertex/NONE views retain tiny maxima, and raw caller
+meshlets retain a mean/maximum failure. Allocating Exp streaming-s 32 is
+3.252 with interval 1.611–4.250. The historical Exp caller resident-s 4 and
+streaming-s 12 S 3 failures no longer show significant slowdown, but two
+other caller Exp stride-32 cases fail S 3: tiny 1.0294–1.1441 and resident
+1.0905–1.1188. Node S 5 means 1.179/1.168 pass its mean threshold, but 7/8
+maxima fail. See P 07_FIX 5_PERFORMANCE.md for every case and verdict.
+
+Keep the measured implementation and all negative evidence. Abandon further
+native Oct/Quat normalization changes without a demonstrated cheaper exact
+IEEE operation; approximate division/normalization remains rejected. The
+wrapper-inlining trial gave negligible instruction benefit. The wasm Quat
+swizzle candidate does not establish V 8 improvement (development work was
+about 4.5% higher), and the final S 5 maxima stay failed. Further tiny/meshlet,
+Oct/Exp and wasm tuning is explicitly abandoned within this one-pass brief,
+with final intervals and development counters as evidence. No post-timing
+code change or rescue measurement is selected. Registered acceptance is
+not achieved; the scoped execution stop condition is met.
+
+Delete only /mnt/linux-extra/moss-cargo-targets/codex-p 07-fix 5 after all
+checks and timings finish. cleanup.json records target absence and
+1,486,684,160 allocated bytes before deletion. Preserve artifacts outside
+that target and archive the final clean committed source. No push, merge,
+rebase, subagent, ARM execution or broader release/integration acceptance.

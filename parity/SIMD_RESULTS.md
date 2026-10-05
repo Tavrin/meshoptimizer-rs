@@ -474,3 +474,29 @@ are archived outside the exact build target. The prescribed
 `/mnt/linux-extra/moss-cargo-targets/codex-p07-fix4` (1.1 GB) is deleted;
 cleanup.json confirms absence and disk receipts.
 No push, merge or rebase.
+
+
+## Fix-five scoped result — 2026-10-05
+
+See [P07_FIX5_PERFORMANCE.md](P07_FIX5_PERFORMANCE.md) for every row and
+source-bound proof/limitations. Registered bars and frozen inputs are unchanged.
+
+| Family | A before → after | C before → after | Registered A / C |
+|---|---:|---:|---|
+| vertex | 1.201 → 1.090 | 1.103 → 1.055 | **FAIL** / pass |
+| view-none | 1.155 → 1.122 | 1.183 → 1.025 | **FAIL** / pass |
+| view-filtered | 1.295 → 1.189 | 1.185 → 1.113 | **FAIL** / **FAIL** |
+| oct (fix-three before) | 1.231 → 1.318 | 1.254 → 1.285 | **FAIL** / **FAIL** |
+| quat (fix-three before) | 1.178 → 1.220 | 1.245 → 1.199 | pass / pass |
+| exp (fix-three before) | 0.886 → 1.003 | 0.935 → 0.910 | **FAIL** / pass |
+| color | 1.397 → 1.015 | 1.395 → 1.064 | pass / pass |
+| meshlet | 1.332 → 1.212 | 1.564 → 1.417 | **FAIL** / **FAIL** |
+| meshlet-raw | 1.182 → 0.997 | 1.299 → 1.337 | pass / **FAIL** |
+| sequence | 1.244 → 1.134 | 1.073 → 1.045 | pass / pass |
+| wasm eligible scope | 1.151 → 1.179 | 1.156 → 1.168 | **FAIL** / **FAIL** |
+
+
+Registered varied-filter S3 final significant comparisons: 2.
+Source-bound verifier passes; numeric failures are retained. No broader
+release/platform/integration acceptance is claimed. The historical codec
+wasm SIMD flag shortfall is corrected and disclosed in the new report.

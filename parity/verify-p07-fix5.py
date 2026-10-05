@@ -156,6 +156,14 @@ for api in ['allocating','caller-buffer']:
     summary['families'][api]['sequence'].update({'reference':'cpp-scalar','before':scalar_before,'after':scalar_gm,'registered_pass':summary['s4'][api]['pass'],'failed_registered_cases':sorted(set(max_failures+minimum_failures))})
     wr=[r for r in wasm['rows'] if r['api']==api];mean=gm(r['time_ratio'] for r in wr)
     summary['wasm'][api]={'before':gm(old_w[api,r['case']]['time_ratio'] for r in wr),'after':mean,'worst_stage1_ratio':max(r['time_ratio'] for r in wr),'registered_pass':mean<=1.25 and all(r['interval'][1]<=1.6 for r in wr),'brief_pass':mean<=1.25 and all(r['interval'][1]<=1.5 for r in wr),'failed_registered_cases':[r['case'] for r in wr if r['interval'][1]>1.6]}
+summary['historical_exp_s3']=[]
+for name in ['varied-filter-3-resident-s4','varied-filter-3-streaming-s12']:
+    prior=old_n['caller-buffer',name]
+    current=next(r for r in native['rows'] if r['api']=='caller-buffer' and r['case']==name)
+    before_raw=prior.get('stage2',prior)['raw_seconds'];after_raw=current.get('stage2',current)['raw_seconds']
+    before_ci=interval(before_raw['rust'],before_raw['scalar']);after_ci=interval(after_raw['rust'],after_raw['scalar'])
+    assert before_ci[0]>1
+    summary['historical_exp_s3'].append({'api':'caller-buffer','case':name,'before_interval':before_ci,'after_interval':after_ci,'current_significant_slowdown':after_ci[0]>1})
 summary['s3_final_significant_comparisons']=len(summary['s3_final_failures'])
 summary['s3_registered_varied_failures']=[r for r in summary['s3_final_failures'] if r['case'].startswith('varied-')]
 summary['s3_significant_comparisons']=len({(r['api'],r['case'],r['backend']) for r in summary['s3_failures']})
