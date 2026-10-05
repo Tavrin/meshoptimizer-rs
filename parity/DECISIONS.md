@@ -3344,3 +3344,17 @@ passing. Requiring the complete fresh sample and its upper confidence bound
 makes that selection explicit and conservative. The coordinator can cheaply
 reverse this acceptance decision before publication. This rule is recorded
 before stage-2 measurements begin.
+
+## P07-D1 — accepted SIMD scope and binding measurement method
+
+Implement only vertex decoding, Oct/Quat/Exp/Color filters and meshlet decoding
+in one private audited codec::simd module. Index/sequence and every encoder
+stay safe scalar. Keep scalar reference, exact arithmetic, checked arrays and
+lowering-only parity dispatch. SIMD_BAR.md is committed before timing.
+
+Owner directive on 2026-10-05 replaces twelve-to-sixty pairs: iterations use
+only touched families, about five interleaved pairs; the final complete matrix
+runs once, early stops after 5–20 pairs on a paired 95% interval, and sends
+only borderline cases to thirty fresh D146 pairs. Bursts last <15 minutes,
+then release cores. Pin one core, retain load and raw samples, pause on GPU
+lease or active moss-scoreboard measurements. No post-measurement bar edits.
