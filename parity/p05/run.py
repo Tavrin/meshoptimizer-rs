@@ -23,6 +23,21 @@ command = ['cargo', 'test', '--offline', '--test', 'p05', '--all-features']
 with log.open('w') as output:
     result = subprocess.run(command, cwd=ROOT, stdout=output, stderr=subprocess.STDOUT)
 text = log.read_text()
-summary = {'schema': 'meshopt-p05-run/1', 'phase': '0.5', 'passed': result.returncode == 0 and '6 passed; 0 failed' in text, 'fixture_tests': 6, 'source_sha256': sources, 'detail_artifact': log.name, 'detail_sha256': sha(log)}
+fixtures = ['pinned_strip_and_cache_vectors', 'pinned_raster_vector', 'pinned_opacity_vectors',
+            'upstream_tangents_basic', 'upstream_normals_basic', 'pinned_remesh_tetrahedron']
+budgets = ['batched_strip_and_fetch_work_respects_exact_boundary',
+           'batched_normal_tangent_and_remesh_work_respects_exact_boundary',
+           'opacity_bulk_probe_work_preserves_numerical_failure_prefix']
+contracts = ['raster_into_uses_caller_storage_and_preserves_atomic_failure',
+             'normal_tangent_into_uses_caller_storage_and_preserves_failures',
+             'normal_tangent_peak_storage_excludes_retired_remap_table',
+             'strip_append_output_preserves_caller_prefixes_and_tails',
+             'opacity_measure_ranges_keep_global_sources_and_work_prefixes']
+passed = result.returncode == 0 and f'{len(fixtures) + len(budgets) + len(contracts)} passed; 0 failed' in text and all(
+    f'test {name} ... ok' in text for name in fixtures + budgets + contracts)
+summary = {'schema': 'meshopt-p05-run/1', 'phase': '0.5', 'passed': passed,
+           'fixture_tests': len(fixtures), 'work_budget_tests': len(budgets),
+           'contract_tests': len(contracts),
+           'source_sha256': sources, 'detail_artifact': log.name, 'detail_sha256': sha(log)}
 (ROOT / 'parity/results/run-0.5.json').write_text(json.dumps(summary, indent=2) + '\n')
 raise SystemExit(0 if summary['passed'] else 1)

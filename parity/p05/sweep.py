@@ -23,6 +23,14 @@ U = c.c_uint; I = c.c_int; F = c.c_float; B = c.c_ubyte; Z = c.c_size_t
 PU = c.POINTER(U); PI = c.POINTER(I); PF = c.POINTER(F); PB = c.POINTER(B)
 
 
+def rust_identity():
+    paths = [*ROOT.glob('src/**/*.rs'), *(ROOT / 'parity/p05/src').glob('*.rs'),
+             ROOT / 'Cargo.toml', ROOT / 'Cargo.lock', ROOT / 'parity/p05/Cargo.toml',
+             ROOT / 'parity/p05/Cargo.lock', ROOT / 'parity/p05/sweep.py', ROOT / 'parity/wasm.cjs']
+    return {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(paths)}
+
+
 def build():
     source = REF / 'src'
     command = ['g++', '-std=c++11', '-shared', '-fPIC', '-O3', '-fno-fast-math', '-ffp-contract=off', '-DMESHOPTIMIZER_NO_SIMD', '-I', str(source), *map(str, sorted(source.glob('*.cpp'))), '-o', str(CPP)]
@@ -83,7 +91,7 @@ class Rng:
         return self.value
 
 
-def fixture(seed, count_override=None, triangles_override=None):
+def fixture(seed, count_override=None, triangles_override=None, style=0):
     rng = Rng(seed)
     count = 3 + rng.next() % 6
     triangles = 1 + rng.next() % 5
@@ -96,6 +104,32 @@ def fixture(seed, count_override=None, triangles_override=None):
         uvs.extend((rng.next() % 17 - 4) / 8 for _ in range(2))
     indices = [rng.next() % count for _ in range(triangles * 3)]
     texture = bytes(rng.next() & 255 for _ in range(64))
+    if style == 1:  # connected grid
+        side = max(2, __import__('math').isqrt(count))
+        for i in range(count):
+            x, y = i % side, i // side
+            positions[i * 3:i * 3 + 3] = [x / 16, y / 16, 0.]
+            uvs[i * 2:i * 2 + 2] = [x / 256, y / 256]
+        cells = (side - 1) * (side - 1)
+        for t in range(triangles):
+            cell = (t // 2) % cells
+            a = (cell // (side - 1)) * side + cell % (side - 1)
+            indices[t * 3:t * 3 + 3] = [a, a + 1, a + side] if t & 1 == 0 else [a + 1, a + side + 1, a + side]
+    elif style == 2:  # repeated positions with independent vertex IDs
+        base = max(3, count // 4)
+        for i in range(base, count):
+            j = i % base
+            positions[i * 3:i * 3 + 3] = positions[j * 3:j * 3 + 3]
+            uvs[i * 2:i * 2 + 2] = uvs[j * 2:j * 2 + 2]
+    elif style == 3:  # half the records never referenced
+        used = max(3, count // 2)
+        indices = [(v % used) * 2 for v in indices]
+    elif style == 4:  # independent triangles; no shared vertex IDs
+        if count < triangles * 3:
+            raise ValueError('disconnected fixture needs three vertices per triangle')
+        indices = list(range(triangles * 3))
+    elif style != 0:
+        raise ValueError(style)
     packed = struct.pack('<II', count, len(indices)) + struct.pack('<%sf' % len(positions), *positions) + struct.pack('<%sf' % len(normals), *normals) + struct.pack('<%sf' % len(uvs), *uvs) + struct.pack('<%sI' % len(indices), *indices) + texture
     h = 14695981039346656037
     for byte in packed: h = ((h ^ byte) * 1099511628211) & 0xffffffffffffffff
@@ -181,10 +215,19 @@ def main():
     if sys.argv[1:] == ['--wasm-identity']:
         wasm_identity()
         return
+    no_default = sys.argv[1:] == ['--no-default-identity']
+    if sys.argv[1:] and not no_default:
+        raise SystemExit('usage: sweep.py [--wasm-identity|--no-default-identity]')
+    label = 'no-default-0.5' if no_default else 'sweep-0.5'
+    identity = rust_identity()
+    command = ['cargo', 'build', '--offline', '--locked', '--release', '--manifest-path', 'parity/p05/Cargo.toml']
+    if no_default:
+        command.append('--no-default-features')
+    subprocess.run(command, cwd=ROOT, check=True)
     build()
     functions = api(c.CDLL(str(CPP)))
     process = subprocess.Popen([str(RUST)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
-    detail = ART / 'sweep-0.5.jsonl.gz'
+    detail = ART / f'{label}.jsonl.gz'
     counts = {}
     mismatches = []
     with gzip.open(detail, 'wt', compresslevel=6) as log:
@@ -203,10 +246,13 @@ def main():
                 counts[family] = counts.get(family, 0) + 1
             print(family, counts[family], 'mismatch', sum(m['family'] == family for m in mismatches), flush=True)
     process.stdin.close(); process.wait()
-    shutil.copyfile(RUST, ART / 'sweep-0.5-rust')
-    shutil.copyfile(CPP, ART / 'sweep-0.5-cpp.so')
+    if rust_identity() != identity:
+        raise RuntimeError('source changed during differential sweep')
+    shutil.copyfile(RUST, ART / f'{label}-rust')
+    shutil.copyfile(CPP, ART / f'{label}-cpp.so')
     summary = {'schema': 'meshopt-p05-sweep/1', 'phase': '0.5', 'upstream': '4c203430ca565cb59a468a91922c76c208169536', 'seed_range': [0, 1999], 'counts': counts, 'mismatches': mismatches, 'passed': not mismatches and process.returncode == 0, 'detail_artifact': detail.name, 'detail_sha256': hashlib.sha256(detail.read_bytes()).hexdigest(), 'rust_sha256': hashlib.sha256(RUST.read_bytes()).hexdigest(), 'cpp_sha256': hashlib.sha256(CPP.read_bytes()).hexdigest()}
-    (ROOT / 'parity/results/sweep-0.5.json').write_text(json.dumps(summary, indent=2) + '\n')
+    summary['source_sha256'] = identity
+    (ROOT / f'parity/results/{label}.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps({'passed': summary['passed'], 'counts': counts, 'mismatches': mismatches}, indent=2))
     raise SystemExit(0 if summary['passed'] else 1)
 
@@ -214,6 +260,13 @@ def main():
 def wasm_identity():
     source = ART / 'sweep-0.5.jsonl.gz'
     if not source.is_file(): raise SystemExit('run the native sweep first')
+    identity = rust_identity()
+    native = json.loads((ROOT / 'parity/results/sweep-0.5.json').read_text())
+    if native.get('source_sha256') != identity:
+        raise SystemExit('rebuild and run the native sweep before WASM identity')
+    subprocess.run(['cargo', 'build', '--offline', '--locked', '--release', '--lib',
+                    '--target', 'wasm32-unknown-unknown', '--manifest-path', 'parity/p05/Cargo.toml'],
+                   cwd=ROOT, check=True)
     wasm = pathlib.Path(os.environ.get('CARGO_TARGET_DIR', '/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p05')) / 'wasm32-unknown-unknown/release/meshopt_p05_parity.wasm'
     process = subprocess.Popen(['node', str(ROOT / 'parity/wasm.cjs'), str(wasm)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
     detail = ART / 'wasm-0.5.jsonl.gz'
@@ -236,8 +289,11 @@ def wasm_identity():
             counts[family] = counts.get(family, 0) + 1
             if seed == 1999: print('wasm', family, counts[family], flush=True)
     process.stdin.close(); process.wait()
+    if rust_identity() != identity:
+        raise RuntimeError('source changed during WASM identity')
     shutil.copyfile(wasm, ART / 'wasm-0.5.wasm')
     summary = {'schema': 'meshopt-p05-wasm/1', 'phase': '0.5', 'counts': counts, 'mismatches': mismatches, 'passed': not mismatches and process.returncode == 0, 'detail_artifact': detail.name, 'detail_sha256': hashlib.sha256(detail.read_bytes()).hexdigest(), 'wasm_sha256': hashlib.sha256(wasm.read_bytes()).hexdigest()}
+    summary['source_sha256'] = identity
     (ROOT / 'parity/results/wasm-0.5.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps({'passed': summary['passed'], 'mismatches': mismatches}, indent=2))
     raise SystemExit(0 if summary['passed'] else 1)

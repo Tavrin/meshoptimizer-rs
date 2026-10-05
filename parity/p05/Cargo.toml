@@ -7,5 +7,9 @@ publish = false
 [lib]
 crate-type = ["cdylib"]
 
+[features]
+default = ["std"]
+std = ["meshoptimizer-rs/std"]
+
 [dependencies]
-meshoptimizer-rs = { path = "../..", features = ["experimental"] }
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["experimental"] }
