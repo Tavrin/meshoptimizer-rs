@@ -4664,3 +4664,55 @@ checks and ONE final timing epoch are all unrun. No RFC/S3 acceptance. Static
 23-block boundary, formatting, controller syntax and retained hashes pass.
 Status: incomplete, blocked by the mandatory disk gate. Detailed receipts and
 remaining steps are retained; never promote old qualification to these candidates.
+
+### Fix-eight continuation: voided abandonments, final development evidence
+
+The user voided disk-derived abandonments and reopened native vertex A,
+native filtered-view A, WASM filtered A/C and unfiltered A, plus S3. The old
+terminal disk receipt is historical. Continuation obeyed the 25-GiB gate:
+120-second checks with a 5400-second bound; the gate opened at the first retry.
+No other lane artifacts were deleted. All Cargo invocations are sequential,
+-j4, with the exact fix8 target and incremental compilation disabled.
+
+Exp/Oct candidates 5b9da67/513340c now compile. Fresh native N/2N confirms
+tiny Exp A 2.7059 -> 2.6813 instructions/byte (C 2.0392 -> 2.0148),
+tiny Oct C 12.0443 -> 11.0442 (A14.0444 ->13.0441), with frozen hashes.
+Counters do not establish S3 or the large Exp maximum. Native allocating
+vertex remains ~6.1067 instructions/byte versus caller6.1065; C++~5.8312.
+No allocating-specific mechanism explains its historical1.538-2.847 interval.
+Fresh built-code counters and retained asm justify the first-analysis kill:
+leave vertex unchanged and unresolved, with prior-only failed RFC evidence.
+Native repeated Oct streaming view likewise has no isolated allocation cause;
+its changed Oct tail warrants the single native filtered-view epoch, without
+claiming a streaming throughput fix from a one-record root change.
+
+WASM diagnosis uses FIFO-controlled perf enable/disable after eager TurboFan
+warmup onCPU26, N/2N, raw/public and A/C seams. Decoder instruction gaps,
+not JS setup subtraction, dominate. Retained instruction sampling attributes
+23.13% of unfiltered streaming12 to out-of-line scatter4,26.27% to its caller,
+43.64% to bytes_kernel. The JIT helper retains a frame, call setup, stride
+branch and four slice checks. Plain store inlining is rejected: unfiltered A
+12.2264 ->14.6708 instructions/byte; JIT body1788 ->4768 instruction bytes.
+No elapsed sample of that rejected candidate was taken.
+
+Retain identical safe stores inside the existing unrolled emit macro and pass
+the already-known fixed vertex stride through reconstruction. This removes
+the helper calls and dynamic stride work together. All32 residual counter
+comparisons (eight cases x A/C x raw/public) reduce instructions and preserve
+frozen successful hashes: raw A unfiltered12 12.2264 ->8.5161, repeated Oct8
+9.1261 ->5.4060, repeated Exp12 8.7965 ->5.0839, varied Oct4 13.4230 ->10.5966,
+Oct8 13.1384 ->9.4188, Quat8 13.4533 ->9.7267, Exp12 resident11.4762 ->7.7643
+and streaming11.4232 ->7.7105. No arithmetic, status, output boundary,
+allocation contract or unsafe block changes. Generic stride fallback remains.
+
+Final development gates pass: actual frozen fixtures/malformed/benchmark
+statuses and successful bytes on every local native ceiling, scalar/SIMD WASM,
+both APIs;438 timing-module outputs including the retained Node control;
+all-feature/unsafe-free tests, native/WASM Clippy, MSRV/no-std SIMD check,
+scoped Oct-tail Miri, formatting and the unchanged23-block safety audit.
+Receipts bind final source/binary identities under the fix8 artifact directory.
+ONE paired final epoch now includes native Exp/Oct/filtered views and WASM
+vertex/filtered/unfiltered views. Retained round-seven controls stay in every
+pair,5-20 early stop,30 fresh D146 only for borderline maxima, declared4GB
+heavy wrapper,840-second timeout and690-second pair-boundary checkpoints.
+No counter result is elapsed-time acceptance, and no final sampling rescue.

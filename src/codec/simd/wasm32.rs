@@ -431,7 +431,7 @@ pub(super) fn deltas8(
 #[inline]
 #[target_feature(enable = "simd128")]
 fn deltas8_kernel(buffer: &[u8], target: &mut [u8], count: usize, stride: usize, last: &[u8]) {
-    deltas_kernel::<0>(buffer, target, count, stride, last, 0);
+    deltas_kernel::<0, 0>(buffer, target, count, stride, last, 0);
 }
 #[inline]
 #[target_feature(enable = "simd128")]
@@ -467,19 +467,7 @@ fn delta_prefix<const CHANNEL: u8>(mut r: v128, previous: v128, rot: u32) -> v12
 }
 #[inline]
 #[target_feature(enable = "simd128")]
-fn scatter4(dst: &mut [u8], stride: usize, r: v128) {
-    if stride == 4 {
-        store(dst.first_chunk_mut().unwrap(), r);
-    } else {
-        dst[..4].copy_from_slice(&i32x4_extract_lane::<0>(r).to_le_bytes());
-        dst[stride..stride + 4].copy_from_slice(&i32x4_extract_lane::<1>(r).to_le_bytes());
-        dst[stride * 2..stride * 2 + 4].copy_from_slice(&i32x4_extract_lane::<2>(r).to_le_bytes());
-        dst[stride * 3..stride * 3 + 4].copy_from_slice(&i32x4_extract_lane::<3>(r).to_le_bytes());
-    }
-}
-#[inline]
-#[target_feature(enable = "simd128")]
-fn deltas_kernel<const CHANNEL: u8>(
+fn deltas_kernel<const CHANNEL: u8, const FIXED: usize>(
     buffer: &[u8],
     target: &mut [u8],
     count: usize,
@@ -487,6 +475,7 @@ fn deltas_kernel<const CHANNEL: u8>(
     last: &[u8],
     rot: u32,
 ) {
+    let stride = if FIXED == 0 { stride } else { FIXED };
     let mut previous = i32x4_splat(i32::from_le_bytes(last[..4].try_into().unwrap()));
     let full = count & !15;
     for start in (0..full).step_by(16) {
@@ -512,7 +501,21 @@ fn deltas_kernel<const CHANNEL: u8>(
             ($g:literal) => {{
                 let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
                 previous = i32x4_splat(i32x4_extract_lane::<3>(r));
-                scatter4(&mut dst[$g * 4 * stride..], stride, r);
+                // Keep the stores in this kernel: the WASM lowering retains
+                // an out-of-line target-feature helper despite an inline hint,
+                // repeating its call setup and four slice checks per vector.
+                let dst = &mut dst[$g * 4 * stride..];
+                if stride == 4 {
+                    store(dst.first_chunk_mut().unwrap(), r);
+                } else {
+                    dst[..4].copy_from_slice(&i32x4_extract_lane::<0>(r).to_le_bytes());
+                    dst[stride..stride + 4]
+                        .copy_from_slice(&i32x4_extract_lane::<1>(r).to_le_bytes());
+                    dst[stride * 2..stride * 2 + 4]
+                        .copy_from_slice(&i32x4_extract_lane::<2>(r).to_le_bytes());
+                    dst[stride * 3..stride * 3 + 4]
+                        .copy_from_slice(&i32x4_extract_lane::<3>(r).to_le_bytes());
+                }
             }};
         }
         emit!(0);
@@ -721,8 +724,7 @@ fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
             let target_len = (block - 1) * stride + 4;
             let target = &mut target[..target_len];
             match channel & 3 {
-                0 => deltas8_kernel(&deltas[..block * 4], target, block, stride, &last[k..k + 4]),
-                1 => deltas_kernel::<1>(
+                0 => deltas_kernel::<0, FIXED>(
                     &deltas[..block * 4],
                     target,
                     block,
@@ -730,7 +732,15 @@ fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
                     &last[k..k + 4],
                     0,
                 ),
-                2 => deltas_kernel::<2>(
+                1 => deltas_kernel::<1, FIXED>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    0,
+                ),
+                2 => deltas_kernel::<2, FIXED>(
                     &deltas[..block * 4],
                     target,
                     block,
