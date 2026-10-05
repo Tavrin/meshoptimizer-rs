@@ -368,3 +368,46 @@ fn exp_dispatch_boundary_preserves_words_and_tail() {
         }
     }
 }
+
+#[test]
+fn repeated_filter_runs_preserve_alpha_and_changed_suffix() {
+    for (kind, stride) in [(1, 4), (1, 8), (2, 8)] {
+        for count in [4, 5, 17, 129] {
+            let mut source = vec![0xa5; count * stride + 13];
+            for i in 0..count {
+                let e = &mut source[i * stride..(i + 1) * stride];
+                let changed = (i % 19 == 7) as i16;
+                if stride == 4 {
+                    e.copy_from_slice(&[changed as u8, 0, 127, i as u8]);
+                } else {
+                    for (out, word) in e.chunks_exact_mut(2).zip([
+                        changed,
+                        0,
+                        if kind == 1 { 32767 } else { 0 },
+                        if kind == 1 { i as i16 } else { 16383 },
+                    ]) {
+                        out.copy_from_slice(&word.to_le_bytes());
+                    }
+                }
+            }
+            let run = |level| {
+                with_level(level, || {
+                    let mut out = source.clone();
+                    let mut w = Workspace::default();
+                    let status = if kind == 1 {
+                        decode_filter_oct(&mut out, count, stride, &mut w)
+                    } else {
+                        decode_filter_quat(&mut out, count, stride, &mut w)
+                    };
+                    assert_eq!(&out[count * stride..], &source[count * stride..]);
+                    (status, out, w.usage())
+                })
+                .unwrap()
+            };
+            let expected = run(Level::Scalar);
+            for level in levels() {
+                assert_eq!(run(level), expected);
+            }
+        }
+    }
+}

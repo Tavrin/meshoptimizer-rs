@@ -4460,3 +4460,20 @@ is consistently ~0.047/byte lower; that alone does not decide crossover.
 This covers the four named S3 cases (tiny12, tiny32, resident32, streaming12).
 Regression covers both threshold sides, exceptional words, all local ceilings,
 workspace usage and caller tails. Final paired S3 remains a required gate.
+
+
+### Fix-seven repeated-filter streaming maxima
+
+Replace the dispatcher's return-to-scalar repeated-key path with a bounded
+canonical first-record decode and packed exact-key run copies. Oct reads its
+three-component key, preserves each record's independent alpha, and copies
+only normalized components; Quat compares/copies all eight bytes. On a changed
+key resume regular SIMD or another repeated run without recursive stack use.
+The reference scalar arithmetic/cache remains unchanged. Pinned repeated Oct
+streaming view work falls 10.086 ->5.836 instructions/byte (both APIs), matching
+the size-dependent throughput diagnosis; source hash and N/2N receipts retained.
+Regression covers alpha variation, a changed suffix and later runs, both Oct
+widths and Quat, local scalar/SIMD ceilings, usage and untouched output tails.
+This targets native allocating view-1-streaming-s4 and the resident/streaming
+repeated-filter Node maxima. Varied-filter WASM maxima cannot be credited with
+this repeat-only gain; they remain separate parser/filter throughput targets.

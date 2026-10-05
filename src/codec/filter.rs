@@ -105,6 +105,60 @@ pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
     Ok(())
 }
 
+// The SIMD dispatcher has already found four identical keys. Decode the
+// first record canonically, then copy only its normalized components until
+// the key changes. Oct's alpha is independent and must remain untouched.
+#[cfg(feature = "simd")]
+pub(super) fn repeated(kind: u8, data: &mut [u8], stride: usize) -> Result<usize, Error> {
+    fn oct_run<const W: usize>(data: &mut [u8]) -> Result<usize, Error> {
+        let read = |e: &[u8]| {
+            if W == 4 {
+                u64::from(u32::from_le_bytes(e[..4].try_into().unwrap()))
+            } else {
+                u64::from_le_bytes(e[..8].try_into().unwrap())
+            }
+        };
+        let mask = if W == 4 {
+            0x00ff_ffff
+        } else {
+            0x0000_ffff_ffff_ffff
+        };
+        let key = read(data) & mask;
+        scalar_oct(&mut data[..W], W)?;
+        let normalized = read(data) & mask;
+        let mut used = W;
+        for e in data.as_chunks_mut::<W>().0.iter_mut().skip(1) {
+            let word = read(e);
+            if word & mask != key {
+                break;
+            }
+            let out = (word & !mask) | normalized;
+            e.copy_from_slice(&out.to_le_bytes()[..W]);
+            used += W;
+        }
+        Ok(used)
+    }
+    if kind == 1 {
+        if stride == 4 {
+            oct_run::<4>(data)
+        } else {
+            oct_run::<8>(data)
+        }
+    } else {
+        let key: [u8; 8] = data[..8].try_into().unwrap();
+        scalar_quat(&mut data[..8])?;
+        let normalized: [u8; 8] = data[..8].try_into().unwrap();
+        let mut used = 8;
+        for e in data.as_chunks_mut::<8>().0.iter_mut().skip(1) {
+            if *e != key {
+                break;
+            }
+            *e = normalized;
+            used += 8;
+        }
+        Ok(used)
+    }
+}
 /// Scalar meshopt_decodeFilterColor. Returns NumericalFailure where the C++
 /// float-to-int conversion is undefined: a zero alpha word (infinite scale)
 /// or a 16-bit record whose scaled component leaves the i32 range.

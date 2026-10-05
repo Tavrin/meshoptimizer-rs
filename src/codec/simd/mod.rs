@@ -118,13 +118,20 @@ pub(super) fn filter(kind: u8, data: &mut [u8], stride: usize) -> Option<Result<
         all(target_arch = "wasm32", target_feature = "simd128")
     ))]
     if let Some(token) = dispatch::baseline() {
-        // Preserve the scalar exact-record cache on repeated Oct/Quat runs.
+        let mut data = data;
         let key = if kind == 1 { stride * 3 / 4 } else { stride };
-        if (kind == 1 || kind == 2)
+        while (kind == 1 || kind == 2)
             && data.len() >= stride * 4
             && (1..4).all(|i| data[..key] == data[i * stride..i * stride + key])
         {
-            return None;
+            let used = match crate::codec::filter::repeated(kind, data, stride) {
+                Ok(used) => used,
+                Err(e) => return Some(Err(e)),
+            };
+            data = &mut data[used..];
+            if data.is_empty() {
+                return Some(Ok(()));
+            }
         }
         return Some(arch::filter(token, kind, data, stride));
     }
