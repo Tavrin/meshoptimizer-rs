@@ -6018,3 +6018,21 @@ inlining together, each in a separate validated commit. Do not repeat rejected
 D127–D141 candidates or infer time acceptance from counts. Add lean touched-family
 screening/D146 support before the single Phase 3 campaign; preserve the final
 matrix gate and frozen shapes. Abandoned families remain unqualified.
+
+## D162 — Constant-pitch small-grid marking
+
+Implement rank 1 from D161 using D142's previously unfinished representation:
+for resolutions 4..8, mark a private initialized 512-byte grid with pitch 8 and
+masked coordinates, then copy successful interior rows into the unchanged heap
+grid. Keep original resolution>8 fallback, signed casts, sample order, borders,
+heap requests/quotas and exact work/error behavior. No public output is written
+by failed marking. New assembly eliminates runtime-pitch products/dynamic grid
+indexing in that bounded store; original casts remain.
+
+All root feature-mode tests/strict Clippy, fourteen contracts and 30,000 native,
+libm and executed-WASM cases each pass (`marking-proof`). Fresh two-profile counts
+(`marking-counts`) support retention: medium owned instructions fall 6.40% Moss /
+10.24% default, branches 13.52%/13.82%; caller instructions fall 4.45%/7.15%.
+Tiny owned/caller instruction changes range -0.23%..-1.16%; branch differences
+~0.4% are fixed-cost noise, not a timing claim. Both consumer binaries, sources,
+counts and objdump are retained under p05-diagfix. No timing yet.

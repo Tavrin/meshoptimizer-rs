@@ -143,18 +143,28 @@ fn voxelize_dispatch<const ACCUMULATE: bool>(
     work: &mut Work,
 ) -> Result<(), Error> {
     if let Some(packed) = positions.packed() {
-        voxelize::<ACCUMULATE>(
-            grid, rowmap, voxels, indices, packed, resolution, scale, offset, options, work,
+        if !ACCUMULATE && resolution <= 8 {
+            voxelize::<ACCUMULATE, true>(
+                grid, rowmap, voxels, indices, packed, resolution, scale, offset, options, work,
+            )
+        } else {
+            voxelize::<ACCUMULATE, false>(
+                grid, rowmap, voxels, indices, packed, resolution, scale, offset, options, work,
+            )
+        }
+    } else if !ACCUMULATE && resolution <= 8 {
+        voxelize::<ACCUMULATE, true>(
+            grid, rowmap, voxels, indices, positions, resolution, scale, offset, options, work,
         )
     } else {
-        voxelize::<ACCUMULATE>(
+        voxelize::<ACCUMULATE, false>(
             grid, rowmap, voxels, indices, positions, resolution, scale, offset, options, work,
         )
     }
 }
 
 #[allow(clippy::too_many_arguments)]
-fn voxelize<const ACCUMULATE: bool>(
+fn voxelize<const ACCUMULATE: bool, const PADDED: bool>(
     grid: &mut [u8],
     rowmap: &[u32],
     voxels: &mut [Voxel],
@@ -166,6 +176,10 @@ fn voxelize<const ACCUMULATE: bool>(
     options: u32,
     work: &mut Work,
 ) -> Result<(), Error> {
+    // A fixed-pitch private marking grid avoids variable-stride arithmetic and
+    // dynamic bounds checks. The heap grid and its border keep their original
+    // allocation, initialization, quota, and rowpack representation.
+    let mut padded = [0u8; 512];
     let doubled_scale = scale * 2.0;
     let cutoff = (resolution - 3) as i32;
     let solve = options & REMESH_SOLVE != 0;
@@ -231,9 +245,24 @@ fn voxelize<const ACCUMULATE: bool>(
                     voxel.coord = ((x as u32) << 20) | ((y as u32) << 10) | z as u32;
                     voxel.octants |= 1 << ((hx & 1) | ((hy & 1) << 1) | ((hz & 1) << 2));
                     accumulate_voxel(voxel, point, [nx, ny, nz], weight, solve);
+                } else if PADDED {
+                    // The validated cutoff is <=5; masking preserves the cell
+                    // while making the fixed-array bound visible to codegen.
+                    let cell = (x & 7) | ((y & 7) << 3) | ((z & 7) << 6);
+                    padded[cell] = 1;
                 } else {
                     grid[idx] = 1;
                 }
+            }
+        }
+    }
+    if PADDED {
+        let side = resolution - 2;
+        for z in 0..side {
+            for y in 0..side {
+                let from = (z * 8 + y) * 8;
+                let to = 1 + resolution * (y + 1 + resolution * (z + 1));
+                grid[to..to + side].copy_from_slice(&padded[from..from + side]);
             }
         }
     }
