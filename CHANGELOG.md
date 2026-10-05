@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optional `parallel` feature (Rayon, enabling `std`): ordered batches of LOD
+  chains, vertex/index encoding, EXT view decoding and all meshlet builders.
+  With `clusterlod`, independent cluster-LOD DAG and hierarchy batches.
+- Per-item checked errors and limits, private worker workspaces, and byte
+  comparisons against sequential output at 1, 2, 8 and N threads.
+
 ## [0.1.0] - unreleased
 
 First public release. Ports meshoptimizer 1.3 (commit

@@ -1,0 +1,15 @@
+[package]
+name = "meshopt-p06-parity"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["parallel", "clusterlod"] }
+rayon = "=1.11.0"
+
+[profile.release]
+opt-level = 3
+codegen-units = 16
+lto = false

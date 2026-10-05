@@ -107,6 +107,8 @@
 //! - `clusterlod`: the cluster-LOD builder from upstream's `demo/clusterlod.h`.
 //!   It reproduces the pinned demo exactly; it is not a stable upstream API.
 //! - `experimental`: upstream functions and options marked experimental.
+//! - `parallel`: ordered Rayon batch APIs for independent meshes and buffer
+//!   views; enables `std`. See the `parallel` module for limits and error semantics.
 #![forbid(unsafe_code)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(missing_docs)]
@@ -164,6 +166,8 @@ pub use partition::*;
 
 #[cfg(feature = "clusterlod")]
 pub mod clusterlod;
+#[cfg(feature = "parallel")]
+pub mod parallel;
 /// Explicit destructive spelling for caller-buffer fetch optimization.
 /// This is the same checked operation as `optimize_vertex_fetch_into`.
 pub use remap::optimize_vertex_fetch_into as optimize_vertex_fetch_in_place;

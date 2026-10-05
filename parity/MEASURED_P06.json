@@ -1,0 +1,323 @@
+{
+  "schema": "meshopt-p06-summary/1",
+  "base": "a4b3c48",
+  "branch": "phase/0.6",
+  "oracle": "4c203430ca565cb59a468a91922c76c208169536",
+  "implemented": true,
+  "available_baseline_gates_passed": true,
+  "phase_0_5_qualified": false,
+  "phase_0_5_reason": "absent from published baseline; separate unmerged lane",
+  "safety": "crate still forbids unsafe; Rayon optional",
+  "determinism_threads": [
+    1,
+    2,
+    8,
+    32
+  ],
+  "gates": [
+    {
+      "name": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "fmt-driver",
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "parity/p06/Cargo.toml",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "clippy-all",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "clippy-no-default",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--no-default-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "test-all",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "test-no-default",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--no-default-features"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "test-parallel-only",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "parallel",
+        "--test",
+        "parallel",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "wasm-no-default",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "wasm-all",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--all-features"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "docs-all",
+      "command": [
+        "cargo",
+        "doc",
+        "--offline",
+        "--locked",
+        "--no-deps",
+        "--all-features"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "docs-no-default",
+      "command": [
+        "cargo",
+        "doc",
+        "--offline",
+        "--locked",
+        "--no-deps",
+        "--no-default-features"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "clippy-driver",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "parity/p06/Cargo.toml",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "build-driver",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--release",
+        "--manifest-path",
+        "parity/p06/Cargo.toml"
+      ],
+      "exit": 0
+    }
+  ],
+  "msrv": {
+    "command": [
+      "cargo",
+      "+1.88",
+      "test",
+      "--offline",
+      "--locked",
+      "--all-features"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 19.52178780201939
+  },
+  "parity_records": {
+    "geometry/records/p01x-run.json": {
+      "cases": 645,
+      "sha256": "3b6082dd5ee3c2c7867232b29a00a31ac005b320812d7c2d257a9aba7afc92b3"
+    },
+    "geometry/records/p01x-sweep.json": {
+      "cases": 64000,
+      "sha256": "9fc362527646d8c1a3434c7fbb6a2c299573e5c64cabb681eb8c49f2b9abad51"
+    },
+    "geometry/records/run.json": {
+      "cases": 279,
+      "sha256": "39d219ebe7723b7757931b5a6a9833cd4b97a5f18406894fb2563d7c8e3e3415"
+    },
+    "geometry/records/sweep.json": {
+      "cases": 10000,
+      "sha256": "d7d79e8c044bdaec48ef59842a726c707be0a4e7c60d7a0db27d24e9f56ee0dc"
+    },
+    "0.2/fixtures.json": {
+      "cases": 287,
+      "sha256": "bdb1aefb90d5bd33c3da47eb52eb0cf0d65c0c685b18cc6350844692d1fa64bc"
+    },
+    "0.2/malformed.json": {
+      "cases": 3637,
+      "sha256": "df10448215b291ec32d6af934fd133ce31df0f3b46cc017e2163b745e992aafb"
+    },
+    "0.2/sweep.json": {
+      "cases": 14000,
+      "sha256": "81742b6666a2c4a688236f61768e591486a925c7330efadaa393e9bdf2d49281"
+    },
+    "0.4/fixtures.json": {
+      "cases": 869,
+      "sha256": "da28d4f3752c0df34e273001a1cdaaecda68514b6c8c5c2a12731222bff54b99"
+    },
+    "0.4/malformed.json": {
+      "cases": 7653,
+      "sha256": "e612ee9690e4dc485bf04a8a2d2574b9621cfc3dab2ef5de6263b6f91af3afef"
+    },
+    "0.4/sweep.json": {
+      "cases": 44000,
+      "sha256": "671568ff68ce5dfcf3fecfa1591c5ae25b0231c16cdbd983e49d190140406451"
+    },
+    "0.3/run/record.json": {
+      "cases": 697,
+      "sha256": "4b3ce63753ba24aedc7e1c498e6291e9efa31ba563a8c9fbe6ae20e61e04ce36"
+    },
+    "0.3/sweep/record.json": {
+      "cases": 52000,
+      "sha256": "39a534dbfe60ff802ac979f9b473af13c61b6006cae6e156f6ac80912f51202c"
+    },
+    "0.3/clusterlod/record.json": {
+      "cases": 80,
+      "sha256": "87ea2490ac1ec3a642e0c1e8daf05b25eeda1f37dc4f9533315886bc9a51b52f"
+    }
+  },
+  "artifacts": "/mnt/linux-extra/meshopt-artifacts/p06",
+  "curve": {
+    "path": "/mnt/linux-extra/meshopt-artifacts/p06/parallel/curve.json",
+    "sha256": "6102415eaf92acb43dccf886a409faa2f6d3c59fdb4b23eadd98b3223401a0a8",
+    "pairs_per_case": 5,
+    "thread_counts": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ],
+    "burst_seconds": 56.934175392991165,
+    "load_range": [
+      15.46,
+      18.0
+    ],
+    "speedup_medians": {
+      "lod": [
+        1.0256135166469647,
+        2.00065674314702,
+        3.2113091799379485,
+        6.215983495188167,
+        8.201141615920683
+      ],
+      "encode": [
+        1.207453498095687,
+        2.1731869082997344,
+        3.45278594632159,
+        5.445448918887808,
+        7.599420523914286
+      ],
+      "decode": [
+        1.1927679509194271,
+        2.093631184601152,
+        3.0312896245075995,
+        4.2609073875803,
+        3.283832427471519
+      ],
+      "meshlets": [
+        1.1123810252189186,
+        1.552602672505018,
+        4.102406205750869,
+        3.871684236344588,
+        6.135856072092762
+      ],
+      "cluster_lod": [
+        0.9913670824461827,
+        1.9109007043130373,
+        3.9134500805008146,
+        5.504892141620857,
+        7.818246498636012
+      ],
+      "hierarchy": [
+        0.8451739001448441,
+        0.8174820241822705,
+        0.8516178960096734,
+        0.988160669776954,
+        0.6225413247084356
+      ]
+    }
+  },
+  "verification": {
+    "path": "/mnt/linux-extra/meshopt-artifacts/p06/verification.json",
+    "sha256": "0aebef72f0c76f820866ee60886c7f338bba96025a2ec7062a650cb99c4cc68d"
+  },
+  "binaries": {
+    "path": "/mnt/linux-extra/meshopt-artifacts/p06/binary-index.json",
+    "sha256": "9f2ef2ed13ad083d1e98e2a8d5e0dd6c8ae8d8b787cbeebfb322773ef36b9934"
+  }
+}

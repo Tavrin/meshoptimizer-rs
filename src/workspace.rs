@@ -486,7 +486,7 @@ impl Workspace {
 }
 
 // Child operation totals are u64 even on 32-bit targets.
-#[cfg(feature = "clusterlod")]
+#[cfg(any(feature = "clusterlod", feature = "parallel"))]
 impl Work {
     #[inline]
     pub(crate) fn add_processing(&mut self, count: u64) -> Result<(), Error> {
