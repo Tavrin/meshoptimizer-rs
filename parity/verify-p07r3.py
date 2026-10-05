@@ -67,6 +67,20 @@ for name, count in [("fixtures", 287), ("fixtures04", 582), ("malformed", 3637),
 for label, expected in [("performance", {r["case"] for r in inputs}), ("wasm-performance", {r["case"] for r in inputs if int.from_bytes((art / r["path"]).read_bytes()[4:8], "little") in [1, 2, 3, 7]})]:
     record = read(label)
     identity(record)
+    if label == 'wasm-performance':
+        node=read('node-build')
+        assert record['timing_binaries']==node['binaries']
+        for name,digest in node['binaries'].items():assert sha(art/'node-bin'/name)==digest
+        for name,digest in node['sources'].items():assert sha(root/name)==digest
+        proof=read('node-preflight')
+        assert proof['complete'] and proof['exit_code']==0 and proof['binaries']==node['binaries']
+        assert proof['script_sha256']==sha(art/'node-preflight.mjs')
+        assert proof['inputs_sha256']==sha(art/'node-preflight-inputs.json')
+        assert proof['benchmark_identity_sha256']==sha(art/'benchmark-identity.json')
+        golden={r['case']:r for r in read('benchmark-identity')['cases']}
+        assert {(r['case'],r['backend'],r['into']) for r in proof['cases']}=={(n,b,i) for n in expected for b in ['simd','scalar'] for i in [0,1]}
+        assert len(proof['cases'])==len(expected)*4
+        for row in proof['cases']:assert row['output_sha256']==golden[row['case']]['output_sha256']
     assert record["complete"]
     keys = [(r["api"], r["case"]) for r in record["rows"]]
     assert len(keys) == len(set(keys)) == len(expected) * 2
@@ -92,8 +106,8 @@ for label, expected in [("performance", {r["case"] for r in inputs}), ("wasm-per
         ratio = statistics.median(row["raw_seconds"]["rust"]) / statistics.median(row["raw_seconds"][baseline])
         assert row["time_ratio"] == ratio
     for segment in record["controller_segments"]:
-        assert sha(root / segment["source"]) == segment["sha256"]
-        assert sha(root / 'parity/p07_lease.py') == segment['admission_sha256']
+        assert sha(root / segment["source"]) == segment["sha256"] or sha(art/'controller-versions'/(segment['sha256']+'.py')) == segment['sha256']
+        assert sha(root / 'parity/p07_lease.py') == segment['admission_sha256'] or sha(art/'controller-versions'/(segment['admission_sha256']+'.py')) == segment['admission_sha256']
         if "original_source" in segment:
             assert sha(root / segment["original_source"]) == segment["original_sha256"]
         filename = segment.get("executed_controller_path", "native-executed-controller.py" if label == "performance" else "wasm-executed-controller.py")
@@ -158,7 +172,7 @@ identity(profile)
 assert len(profile['cases']) == 30 and profile['wall_seconds'] < 840
 assert all(row['exit_code'] == 0 for row in profile['cases'])
 assert profile['controller_sha256'] == sha(art / 'profile.py')
-assert profile['admission_sha256'] == sha(root / 'parity/p07_lease.py')
+assert profile['admission_sha256'] == sha(root / 'parity/p07_lease.py') or sha(art/'controller-versions'/(profile['admission_sha256']+'.py')) == profile['admission_sha256']
 assert profile['base_binary_sha256'] == sha(Path('/mnt/linux-extra/meshopt-artifacts/p07perf/bin/rust-simd'))
 for row in profile['cases']:
     gate_identity(row['before']); gate_identity(row['after'])

@@ -3667,3 +3667,91 @@ pauses/discards pairs. The owner changes GPU admission, not this condition.
 The wrapper may adapt its reservation using measured class history. Preserve
 that actual value separately from the owner's four-GB declaration; the scope
 cap must cover at least four GB. Never override or misreport its sizing.
+
+### Final admission and recovery receipts
+
+The shared queue admits the first native full-matrix burst ahead of the
+queued third probe/profiles. It checkpoints 153 rows after 690.923 seconds;
+queue order is recorded as observed, not presented as FIFO. Later the third
+probe runs exactly five pairs per API/case, then the 30 profile captures.
+The unchanged frozen candidate takes 0.580–0.635 of the starting binary's
+meshlet time in that probe. No code is changed after final sampling begins.
+
+A native continuation saves four further rows, then its post-pair reservation
+read sees the coordinator's transient file rewrite and raises StopIteration.
+It saves an empty unfinished row: no sample from the interrupted pair is
+accepted. The raw times from that one interrupted pair are unavailable; its
+trace and explicit discarded marker are retained. Retry reservation reads for
+200 ms and decline admission if still absent, allowing subsequent discarded
+pairs to retain raw times. All 157 accepted rows remain unchanged; resume the
+unfinished case with its original calibration, never replay a completed row.
+The next burst completes all 276 rows in 2m09s. Historical helper versions are
+archived and checked against the earlier segments' hashes.
+
+Node's first launch exits before any sample because the arithmetic timing
+modules were not prepared. Build the existing qualification crate's two
+wasm modules into a separate `node-bin`, preserving all six native/parity
+binary identities. Scalar Node timing remains diagnostic lowering inside the
+SIMD-enabled module. Untimed preflight verifies all 87 eligible inputs through
+both modules and APIs against the canonical golden outputs. Resume its zero-row
+record with the corrected paths; retain the failed executed adapter and log.
+These are controller repairs, not changed cases, bars or retries of failures.
+
+### Remaining gaps and best retained result
+
+One complete native matrix gives allocating/caller family means: vertex
+**1.832/1.967**, meshlet **1.329/1.534**, raw meshlet **1.228/1.315**.
+The starting means are 2.065/2.115, 1.901/2.401 and 1.726/2.031. These complete
+family means are the best retained round-three epoch; the paired probe is
+separate diagnostic evidence. No failed case is retried for a nicer result.
+The remaining SIMD bars are not waived.
+
+The final counters below compare fixed caller-buffer inputs and repeat counts,
+with exact identical outputs from starting Rust, current Rust and C++ SIMD.
+Counters include startup/transport/warmup and are not case-bar evidence.
+All 30 captures exit 0, under the shared queue, with source/binary identities.
+
+| Input | Instructions new/old | Cycles new/old | Instructions new/C++ | Cycles new/C++ | Branches new/C++ |
+|---|---:|---:|---:|---:|---:|
+| vertex-v0-resident-s12 | 1.369 | 0.961 | 2.487 | 2.249 | 10.018 |
+| vertex-v1-resident-s12 | 1.375 | 0.997 | 2.491 | 2.334 | 9.692 |
+| vertex-v1-resident-s12-level9 | 1.375 | 0.934 | 2.491 | 2.186 | 9.692 |
+| meshlet-64-126-v4-t3 | 0.628 | 0.574 | 1.718 | 1.467 | 3.252 |
+| meshlet-raw-64-126 | 0.630 | 0.593 | 1.542 | 1.293 | 2.201 |
+
+For the resident v1 vertex case, 60.54% of cycle samples fall in packed
+reconstruction (`deltas8_kernel`), 33.79% in byte-group decoding and 4.89% in
+block parsing. Independent consumption shortens the serial byte-load chain,
+while the new four-record reconstruction/scatter and checked iterations cost
+more instructions: roughly 1.37 of starting Rust and 2.49 of C++ in these
+stride-12 cases. The assembly retains dynamic strided scatter/tail/iterator
+branches and checked window advances. C++ explicitly unrolls all sixteen
+record writes; Rust retains counted output loops. Thus the smaller tables and
+latency path improve timings without eliminating this instruction-count gap.
+A further reconstruction rewrite remains justified by this profile; this round
+freezes its candidate before the one final matrix rather than retiming a patch.
+
+For typed meshlets, 84.86% of samples lie in the whole grouped kernel, and
+roughly 13% in the driver/API path. For raw meshlets, the grouped kernel takes
+76.40% and the driver 23.43%. Const-sized writes and one stream walk remove
+37% of starting instructions and 41–43% of cycles. Remaining bounds/count
+branches, the canonical u32-counter fallback guard and output packing explain
+extra work against C++: 1.718/1.542 instruction ratios and 3.252/2.201 branch
+ratios for typed/raw. Upstream's three-byte output combines two pairs into
+4+8-byte writes; Rust emits exact six-byte pairs with counted tails and no
+padding writes. Preserve these residuals and the best complete means instead
+of claiming the bars or a dedicated-host qualification.
+
+The first S4 request is premature: its unchanged numeric controller requires
+both matrices complete and exits before sampling while Node is still queued.
+Retain that receipt; submit its actual assessment after Node finishes.
+
+S4's actual dependent run completes in five seconds, with twenty added pairs
+among three borderline candidates and no fresh S4 D146. Native/Node finish
+sixteen/seventeen D146 cases. The independent verifier checks all 276/174
+unique rows, exact accepted-sample counts, recomputed intervals/early stopping,
+source/binary/golden/archive identities, helper-version proofs and static/Miri
+receipts. It passes. S1/S2 and S5 still fail both APIs; S3 has nineteen
+significant case/ceiling regressions. S4 passes caller-buffer and all frozen
+minima; allocating fails three maxima. Preserve these outcomes rather than
+claiming full bar, release/platform, Moss or phase-0.6 acceptance.

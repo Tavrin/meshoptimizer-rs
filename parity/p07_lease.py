@@ -32,8 +32,16 @@ def admission():
     assert admitted.resolve() == Path('/usr/bin/timeout').resolve()
     queue = Path(os.environ.get('MOSS_HEAVY_DIR', os.environ.get('MOSS_COORD_DIR', '/mnt/linux-extra/moss-coord')))
     receipt_path = queue / 'heavy.reservations'
-    receipt = next(line for line in receipt_path.read_text().splitlines() if line.split()[0] == str(active))
-    assert int(receipt.split()[1]) == int(os.environ['MOSS_HEAVY_RESERVED_GB'])
+    receipt = None
+    # The shared pruning writer can expose an empty reservation file briefly.
+    # Retry for a bounded interval; if still absent, decline admission so the
+    # numeric harness retains/discards the pair instead of losing an exception.
+    for attempt in range(20):
+        receipt = next((line for line in receipt_path.read_text().splitlines() if line.split() and line.split()[0] == str(active)), None)
+        if receipt is not None:
+            assert int(receipt.split()[1]) == int(os.environ['MOSS_HEAVY_RESERVED_GB'])
+            break
+        time.sleep(0.01)
     # Keep the spec's scoreboard exclusion. A when-idle unit with only a
     # sleep child is not an actively measuring scoreboard.
     units = subprocess.check_output(['systemctl','--user','list-units','moss-scoreboard-*','--state=active','--no-legend','--plain'], text=True)
@@ -49,7 +57,7 @@ def admission():
                     continue
                 if 'moss-scoreboard.sh' in command or 'moss-scoreboard.py' in command:
                     measuring.append({'pid':process,'cmd':command})
-    return {'admitted': not measuring, 'policy': POLICY, 'lease_holder': holder,
+    return {'admitted': not measuring and receipt is not None, 'policy': POLICY, 'lease_holder': holder,
             'units': units, 'measuring': measuring,
             'heavy_pid': active, 'declared_gb': 4, 'memory_cap_gb': cap, 'reserved_gb': int(os.environ['MOSS_HEAVY_RESERVED_GB']),
             'queue_receipt_path': str(receipt_path), 'queue_receipt': receipt,

@@ -41,9 +41,15 @@ controller = {'source':'parity/measure-p07-wasm-leased.py','sha256':q.m.sha(__fi
               'original_source':'parity/simd/wasm_measure.py','original_sha256':q.m.sha(original),
               'resumed_rows':len(done),'policy':'owner-visible-heavy-4GB-2026-10-05','pair_boundary_budget_seconds':690,'admission_sha256':q.m.sha(q.ROOT/'parity/p07_lease.py')}
 source = original.read_text()
+node_bin=q.ART/'node-bin'
+node_ids={p.name:q.m.sha(p) for p in node_bin.iterdir()}
+assert node_ids==__import__('json').loads((q.ART/'node-build.json').read_text())['binaries']
+if previous and previous['rows']:assert previous['timing_binaries']==node_ids
+controller['timing_binaries']=node_ids
+source=source.replace("str(BIN/'arithmetic-","str(node_bin/'arithmetic-")
 source = source.replace("if path.exists():raise ValueError('final wasm matrix already exists; do not repeat')", "assert not previous or not previous.get('complete',False)")
 source = source.replace("before=sources();", "admission=lease_admission\nbefore=sources();", 1)
-source = source.replace(";burst=time.monotonic()", "\nif previous:record['rows']=previous['rows'];record['admissions']=previous['admissions']\nrecord['controller_segments']=(previous.get('controller_segments',[]) if previous else [])+[controller]\nstate['record']=record;state['process']=proc\nburst=time.monotonic()",1)
+source = source.replace(";burst=time.monotonic()", "\nif previous:record['rows']=previous['rows'];record['admissions']=previous['admissions']\nrecord['timing_binaries']=node_ids\nrecord['controller_segments']=(previous.get('controller_segments',[]) if previous else [])+[controller]\nstate['record']=record;state['process']=proc\nburst=time.monotonic()",1)
 source = source.replace("        op=int.from_bytes(b[4:8],'little')", "        if ('caller-buffer' if into else 'allocating',name) in done:continue\n        check_budget()\n        op=int.from_bytes(b[4:8],'little')")
 source = source.replace("'telemetry':[],'iterations'", "'telemetry':[],'discarded':[],'iterations'")
 source = source.replace("        while len(row['raw_seconds']['rust'])<20:", "        if previous and previous.get('current_row',{}).get('case')==name and previous['current_row']['api']==row['api']:\n            row=previous['current_row'];q['iterations']=row['iterations']\n        record['current_row']=row;ci=row.get('interval')\n        while len(row['raw_seconds']['rust'])<20:\n            check_budget()")
@@ -61,7 +67,7 @@ executed.write_text(source)
 controller['executed_controller_path']=executed.name
 controller['executed_controller_sha256']=q.m.sha(executed)
 namespace = dict(q.__dict__,previous=previous,done=done,controller=controller,state=state,
-                 lease_admission=lease_admission,check_budget=check_budget)
+                 lease_admission=lease_admission,check_budget=check_budget,node_bin=node_bin,node_ids=node_ids)
 try:
     exec(compile(source,str(executed),'exec'),namespace)
 except BurstEnd:

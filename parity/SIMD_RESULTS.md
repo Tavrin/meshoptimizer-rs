@@ -277,3 +277,93 @@ failures. The current individual record is [SIMD_PERFORMANCE.md](SIMD_PERFORMANC
 P07-P3 in DECISIONS records profile evidence and the best observed ratios for
 the remaining gaps. The lane meets the brief's residual-evidence Done-when;
 it does not qualify an upstream-parity or release claim.
+
+## P07-R3 refresh — 2026-10-05
+
+Start `e6eac35`; implementation `4e7eea0`, shared-admission controller
+`88c80f7`. Evidence lives at `/mnt/linux-extra/meshopt-artifacts/p07r3`.
+Only native vertex byte groups/reconstruction and meshlet decoding change;
+filters, index/sequence, encoders, wasm algorithms and frozen bars are unchanged.
+The detailed upstream instruction comparison and rejected trials are recorded
+in DECISIONS, P07-R3.
+
+The private module now has **23 audited unsafe blocks**: the additional seams
+are a typed eight-byte unaligned load and two token-authorized whole-meshlet
+calls. Repository and published-package boundary gates pass. Formatting,
+all-target/all-feature clippy, all-feature tests, unsafe-free tests with and
+without std, MSRV 1.88, AArch64 and wasm clippy, wasm simd128 clippy, rustdoc
+and no_std SIMD configurations pass. AArch64 execution is not claimed.
+
+Miri passes five SIMD integration tests, three integer-kernel tests and eight
+scalar-codec tests. x86 runs use
+`RUSTFLAGS="-C target-feature=+ssse3,+popcnt,+sse4.1"`; no unsupported intrinsic
+is encountered. The new meshlet regression normally covers all 256 pair codes,
+odd tails, counter wrap, both widths and APIs. Its documented Miri subset
+covers every nibble plus mixed reuse/restart orders. Byte-header regressions
+cover all 256 headers in every format mode and strict lookahead boundaries.
+
+Exact differential archives pass: 869 fixtures, 7,653 malformed cases,
+22,000 seeded cases and 138 benchmark inputs, both APIs, scalar/SSE2/SSSE3/
+SSE4.1 and executed wasm without/with simd128. Successful destination bytes,
+error variants and successful caller-buffer tails match the canonical scalar
+Rust path. Separate C++ SIMD filter conformance rules are unchanged.
+The bounded ASan/libFuzzer run completes 611,462 executions in 301.428 wall
+seconds / 250.634 CPU seconds, peak RSS 453 MB, with no finding. Checkpointed
+lower bounds are 606,208 per supported native ceiling. This combined smoke
+does not qualify any per-target release fuzz budget. Historical exhaustive
+filter records are not rerun or credited as fresh round-three evidence.
+
+The one final native matrix completes **276 unique API/case rows**; the one
+Node matrix completes **174**. Native's first burst checkpoints at 153 rows;
+a continuation retains four more before an admission-file read fault. The
+repaired continuation completes the remaining 119 rows. Node's initial
+bootstrap failure accepts zero samples; the prepared timing modules then
+complete its full matrix in 4m53s. Every successful burst stays under 15
+minutes. DECISIONS records the actual shared-queue order, rejected/zero-sample
+adapters, one interrupted unaccepted pair, and preservation of accepted rows.
+Numeric inputs, source kernels, calibration and stopping policy stay fixed.
+
+| Family | Before allocating / caller-buffer | After allocating / caller-buffer |
+|---|---:|---:|
+| vertex | 2.065 / 2.115 | **1.832 / 1.967** |
+| meshlet | 1.901 / 2.401 | **1.329 / 1.534** |
+| meshlet-raw | 1.726 / 2.031 | **1.228 / 1.315** |
+
+Ratios are geometric means of stage-1 medians, Rust time / C++ SIMD time;
+lower is faster. The meshlet probe separately interleaves the starting binary
+and observes new/old 0.580–0.635 on its touched cases, exactly five pairs each.
+The final instruction/cycle captures retain source/binary/lease identities and
+exact outputs for both Rust epochs and C++. Meshlet instructions drop to about
+63% of starting Rust, with cycles at 57–59%. The remaining vertex gap lies
+primarily in packed reconstruction/scatter: 60.54% of sampled cycles in the
+resident v1 case, and roughly 2.49 times C++ instructions at stride twelve.
+Checked/counting loops and three-byte pair output also remain in meshlets.
+DECISIONS gives the per-input counters, branch counts and upstream comparison.
+
+The owner moves all new timing to the visible shared admission wrapper,
+`MOSS_HEAVY_GPU=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ...`.
+No lease wrapper is nested. Actual reservation, four-GB declaration, scope cap,
+ancestor wrapper and owned GPU holder are recorded separately. The scoreboard
+exclusion remains active; a sleeping when-idle service is eligible. New helper
+versions are archived by hash for earlier segments. Node arithmetic timing
+binaries live separately from the unchanged six native/parity binaries, and
+87 eligible inputs match canonical golden outputs in untimed preflight through
+both timing modules and APIs. Its scalar comparator remains diagnostic lowering.
+
+The independent round-three verifier passes archive members and hashes, both
+complete matrices, unique row membership, recomputed intervals and early
+stopping, fresh D146 eligibility, Node timing-module/golden identities, queue
+proofs, residual profile outputs, Miri and static receipts. S4 adds twenty
+pairs across three scalar-baseline borderline candidates, with no S4 D146.
+Native/Node use sixteen/seventeen fresh D146 cases. Every frozen S4 minimum
+passes; allocating S4 fails three case maxima and caller-buffer S4 passes.
+S1/S2 and S5 remain unmet for both APIs; S3 records nineteen significant
+case/ceiling regressions. Detailed unchanged-control results are descriptive,
+not attributed to these two kernel changes. SIMD_PERFORMANCE.md carries the
+full current tables, including failures. No failed case is rerun for selection.
+
+Done-when is satisfied by the two optimized kernels, exact proof and documented
+residual profiles/best ratios. This is not SIMD release, ARM execution,
+Windows/macOS, dedicated-host, Moss integration or phase-0.6 qualification.
+Retain source/binary archives and receipts outside the exact target; delete
+`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p07r3` at completion. No push.
