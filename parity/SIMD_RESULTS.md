@@ -1,5 +1,9 @@
 # P07 SIMD implementation and qualification
 
+The original evidence below belongs to implementation `2feefb2`. The P07-perf
+refresh is recorded separately at the end; historical ratios and safety-block
+counts describe that earlier source, not the refreshed kernels.
+
 The first amendment scope is implemented: vertex groups and reconstruction,
 Oct/Quat/Exp/Color filters, and meshlet vertex/triangle decoding. Index and
 sequence decoding remain scalar, as required by the accepted amendment.
@@ -183,3 +187,93 @@ AArch64 timing needs a dedicated named host to gate, or shared-CI ratios for
 reporting only. P1 is unestablished: the phase 0.6 parallel APIs are absent in
 this checkout; inventing them would exceed P07's scope. There is no thread-count
 or wasm-worker composition qualification in this record.
+
+## P07-perf refresh — 2026-10-05
+
+Current evidence is retained in `/mnt/linux-extra/meshopt-artifacts/p07perf`;
+the original `/mnt/linux-extra/meshopt-artifacts/p07` epoch is preserved.
+Upstream, the 138 frozen benchmark inputs and `SIMD_BAR.md` are unchanged.
+P07-P1/P2 in DECISIONS record the profile evidence, implementation choices,
+rejected estimates/prefetch and maintenance tradeoffs.
+
+The frozen candidate passes all-feature/scalar tests, the unsafe-free std
+tests, MSRV 1.88, native/AArch64/wasm Clippy, x86/wasm no_std SIMD checks,
+unsafe-free wasm, rustdoc, formatting and repository/package boundary checks.
+The current audit covers 20 individually documented blocks and one allowance.
+Miri passes four native SIMD integration tests, two integer-kernel tests and
+eight scalar codec tests. The ordinary vertex matrix stays complete; only
+Miri's matrix uses the bounded group/block-boundary subset described in P07-P2.
+
+Final canonical comparisons pass 869 fixtures, 7,653 malformed cases,
+22,000 seeded cases and 138 benchmark inputs under both APIs and every
+supported native ceiling, plus executed wasm with/without simd128. The
+independent verifier checks every archived input/output hash. Fresh checks of
+all 87 shipped-JS eligible inputs preserve destination tails and meet the
+separate upstream one-unit Oct/Quat conformance rule; other outputs are exact.
+Native and wasm exhaustive checks again cover all 2^32 sqrt/Exp patterns,
+2^24 Oct8 inputs, 10^8 seeded Oct16/Quat records each and edge combinations.
+
+The final combined ASan smoke exits 0 after 573,532 executions in 301.288 wall
+seconds and 289.093 process CPU seconds, with no crash artifacts. Checkpoint
+lower bounds are 567,296 calls each at scalar/SSE2/SSSE3/SSE4.1. This is a
+bounded smoke, not fulfillment of the per-target release CPU-hour budgets.
+The remaining platform, release sweep/fuzz and phase-0.6 composition records
+listed above remain unestablished by this local refresh.
+
+### Final performance and queue policy
+
+The owner replaced the lease-free/scoreboard gate with fair shared-lease
+queueing during this run. The three completed native rows from the earlier
+gate are preserved in `performance-pre-queue.json`; none is repeated.
+All subsequent timed work runs through the specified Moss `gpu-lease.sh run
+meshopt-timing:p07 -- ...`, with a 3,600-second queue timeout and retry on 75.
+The leased native/Node adapters use the original numerical controllers, retain
+completed keys and unfinished samples, and verify that the lease holder is an
+ancestor of the measurement process. They checkpoint at a pair boundary after
+690 seconds; a separate 840-second command limit bounds each lease. There is
+no scoreboard check under the owner's replacement policy.
+
+The one full native matrix completes 276 unique rows; Node completes 174.
+Native holds its lease for 504.318 seconds, Node for 82.754 seconds. The
+separate S4 borderline supplement holds its lease for about two seconds.
+Each final matrix and timed supplement command exits 0. Native uses seven fresh D146 cases, Node
+six; S4 needs twelve additional stage-1 pairs and no second stage. Raw samples,
+lease-holder telemetry, queue receipts, and exact executed controller hashes
+are retained. The unchanged controls remain in the final matrix as the owner
+confirmed. All frozen index/sequence throughput minima pass.
+
+Family geometric means of stage-1 Rust time / C++ time, allocating / caller
+buffer; before/after are descriptive matched-backend epochs on this shared
+host, not a dedicated-host A/B experiment:
+
+| Function | Before | Final |
+|---|---:|---:|
+| vertex | 2.283 / 2.610 | 2.065 / 2.115 |
+| view-none | 2.121 / 2.583 | 1.994 / 2.234 |
+| view-filtered | 2.255 / 2.617 | 1.799 / 1.690 |
+| Oct, varied | 2.662 / 2.668 | 1.538 / 1.557 |
+| Quat, varied | 2.607 / 3.218 | 1.349 / 1.339 |
+| Exp | 0.951 / 0.970 | 0.950 / 0.947 |
+| Color | 1.511 / 1.492 | 1.508 / 1.547 |
+| meshlet | 2.296 / 3.115 | 1.901 / 2.401 |
+| meshlet-raw | 1.830 / 2.181 | 1.726 / 2.031 |
+| index | 1.154 / 1.061 | 1.161 / 1.030 |
+| sequence | 1.094 / 1.082 | 1.268 / 1.159 |
+| Node S5, all eligible cases | 2.457 / 2.769 | 1.330 / 1.354 |
+
+| Bar | Allocating GM | Caller-buffer GM | Current verdict |
+|---|---:|---:|---|
+| S1 | 1.984 | 2.204 | fail both |
+| S2 | 1.496 | 1.451 | fail both |
+| S3 | — | — | 67 significant case/ceiling regressions |
+| S4, scalar C++ | 1.197 | 1.104 | allocating fail; caller buffer pass |
+| S5, shipped JS SIMD | 1.330 | 1.354 | fail both; 19 / 22 failed maxima |
+
+S4 allocating misses `index-2-v1-streaming-s2` (paired interval 1.531–1.823)
+and `index-2-v1-streaming-s4` (1.570–1.739), against the unchanged 1.50 case
+bar. S3 splits into 33 allocating and 34 caller-buffer comparisons; both the
+default and SSE2 ceilings are assessed independently. These failures remain
+failures. The current individual record is [SIMD_PERFORMANCE.md](SIMD_PERFORMANCE.md).
+P07-P3 in DECISIONS records profile evidence and the best observed ratios for
+the remaining gaps. The lane meets the brief's residual-evidence Done-when;
+it does not qualify an upstream-parity or release claim.

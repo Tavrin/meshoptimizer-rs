@@ -106,8 +106,11 @@ for label, expected in [("performance", {r["case"] for r in inputs}), ("wasm-per
         assert sha(root / segment["source"]) == segment["sha256"]
         if "original_source" in segment:
             assert sha(root / segment["original_source"]) == segment["original_sha256"]
-        filename = "native-executed-controller.py" if label == "performance" else "wasm-executed-controller.py"
+        filename = segment.get("executed_controller_path", "native-executed-controller.py" if label == "performance" else "wasm-executed-controller.py")
         assert sha(art / filename) == segment["executed_controller_sha256"]
+    for burst in record.get("lease_bursts", []):
+        assert burst["wall_seconds"] < 840 and burst["holder"]["admitted"]
+        assert burst["holder"]["lease_holder"].startswith("meshopt-timing:p07|")
     print(label, len(keys), "unique rows and admitted samples verified")
 
 assessment = read("s4-assessment")
@@ -116,7 +119,9 @@ assert assessment["complete"] and assessment["native_sha256"] == sha(art / "perf
 assert assessment["controller_sha256"] == sha(root / "parity/measure-simd-s4.py")
 native = read("performance")
 matrix = {(r["api"], r["case"]): r for r in native["rows"]}
-assert len(assessment["rows"]) == 48
+expected_s4 = {key for key, row in matrix.items() if row["family"] in ["index", "sequence"]}
+assert {(row["api"], row["case"]) for row in assessment["rows"]} == expected_s4
+assert len(assessment["rows"]) == len(expected_s4)
 for row in assessment["rows"]:
     original = matrix[(row["api"], row["case"])]
     raw = {k: original["raw_seconds"][k] + row["additional_raw_seconds"][k]
@@ -134,6 +139,23 @@ for row in assessment["rows"]:
         ci = interval([x / y for x, y in zip(stage["rust"], stage["cpp-scalar"])])
     assert row["interval"] == ci
     assert all(t["before"]["admitted"] and t["after"]["admitted"] for t in row["telemetry"])
+for label in ["s4", "profile-native", "profile-wasm", "profile-s4"]:
+    context = read(label + "-lease-context")
+    assert context["wall_seconds"] < 840
+    for gate in [context["before"], context["after"]]:
+        assert gate["admitted"] and gate["policy"] == "owner-queued-lease-2026-10-05"
+        assert gate["lease_holder"].startswith("meshopt-timing:p07|")
+    assert context["admission_sha256"] == sha(root / "parity/p07_lease.py")
+    wrapper = root / ("parity/measure-p07-s4-leased.py" if label == "s4" else "parity/profile-p07-leased.py")
+    archived_wrapper = art / "profile-p07-leased-pre-s4.py"
+    assert context["wrapper_sha256"] == sha(wrapper) or (label in ["profile-native", "profile-wasm"] and context["wrapper_sha256"] == sha(archived_wrapper))
+for folder, expected_captures in [("profiles-final", 44), ("profiles-s4-final", 8), ("profiles-wasm-isolated-final", 6)]:
+    record = json.loads((art / folder / "identity.json").read_text())
+    identity(record)
+    assert len(record["cases"]) == expected_captures and all(row["exit_code"] == 0 for row in record["cases"])
+    if folder == "profiles-s4-final":
+        assert {row["case"] for row in record["cases"]} == {"index-2-v1-streaming-s2", "index-2-v1-streaming-s4"}
+print("queued contexts and residual profiles verified")
 for backend in ["native", "wasm"]:
     directory = art / ("exhaustive-" + backend)
     complete = json.loads((directory / "complete.json").read_text())

@@ -3522,3 +3522,67 @@ correctness uses other cores. The final controller retains completed keys,
 exact executed controller text and all admission decisions. Polling changes
 from fifteen to two seconds; inputs, numerical rules, bars, backend order and
 stopping rules do not change.
+
+## P07-P3 — Final gaps, best ratios and owner-queued completion
+
+Implementation commit `5b84289` freezes the candidate. No production kernel
+changes after the final matrix starts. The owner supersedes the lease-free
+gate: run timed commands through the shared queue as `meshopt-timing:p07`,
+retry 75, and omit the scoreboard check. Preserve the first three completed
+native rows, then finish the single full matrix including unchanged controls.
+The new adapters hash the original numerical controller and exact executed
+text, verify lease-holder ancestry, retain unfinished rows/calibration/fresh
+stage-2 samples, and release at a 690-second pair boundary. The external
+840-second command limit keeps each lease below fifteen minutes. Native
+finishes in 504.318 leased seconds, Node in 82.754; neither needs a second
+leased matrix burst. Their queued commands and the S4 supplement exit 0.
+The earlier admission-only pauses and owner-switch receipt remain archived.
+
+Final GMs below use the complete registered case families. Diagnostic best
+ratios are matching resident cases from the five-pair iteration records;
+they are not substitutes for those family means. The complete before/after
+table, all failed bars and platform/release limits are in SIMD_RESULTS.
+
+| Remaining function gap | Final GM allocating / caller buffer; best observed diagnostic | Current profile evidence and decision |
+|---|---|---|
+| Quat | 1.349 / 1.339; resident 1.327 / 1.364 | Rust/C++ instructions fall 4.715 to 1.285 in matched 3,000-call probes; 88.94% sampled cycles remain in the filter. Packed gather/scatter is fixed; IEEE sqrt/div and canonical rounding remain. No reciprocal estimate or tolerance is adopted. |
+| Oct | 1.538 / 1.557; Oct16 resident 1.377 / 1.414 | Current instruction ratios 1.572 (Oct8) and 1.511 (Oct16), versus 3.501 before for Oct8. Filters account for 96.44% / 93.41% of cycles. Exact arithmetic and wrapping output still exceed upstream's estimate-based loop. |
+| Vertex | 2.065 / 2.115; stride-four resident 1.649 / 1.777 | v0/v1 instruction ratios fall 2.722/2.718 to 1.817/1.812. Bytes still consume 53.42%/58.47%, prefix reconstruction 43.94%/39.67%. The tiny probe has 44.35% prefix, 28.79% bytes and 13.12% memset; fixed initialized scratch/tails remain costly. Width-two and rotated XOR remain scalar. Keep the checked parser and strict lookahead. |
+| Views NONE / filtered | 1.994/2.234 and 1.799/1.690 | NONE has the same 1.817 instruction ratio as vertex; the varied Quat view is 1.699, with 39.16% prefix, 32.72% filter and 23.28% bytes. Validation/copies remain in the public timed API. These constituent profiles explain the remaining work without bypassing validation. |
+| Meshlet typed / raw | 1.901/2.401 and 1.726/2.031; typed resident 2.266/2.599, raw 2.046/2.229 | Steady-call instruction ratios are 2.734 / 2.448. Triangle kernels account for 70.03% / 65.69%; checked output extraction and callbacks remain. The final probe uses 300,000 calls, the initial short probe 3,000, so their whole-process instruction ratios are not an A/B comparison. Keep counter-wrap fallback and scalar wasm. |
+| Color | 1.508 / 1.547; kernel unchanged | Instruction ratio remains 1.478 versus 1.477 before, with 88.65% in the filter. Exact division, range checks and raw-word wrapping remain required. Historical caller-buffer GM 1.492 remains the best full-epoch ratio; no Color speedup is claimed. |
+| Exp / S3 | 0.950 / 0.947; kernel unchanged | Instruction ratio remains 0.875 versus 0.876 before. The C++ comparison is already competitive; significant scalar-Rust regressions in small/diagnostic-ceiling cases still count against S3. ISA/ceiling dispatch and short checked tails are retained. |
+| Node S5 | 1.330 / 1.354 versus 2.457 / 2.769 before | Isolated V8 captures attribute 93.4% of vertex and 95.0% of NONE-view ticks to Rust raw decoding; the varied Quat view has 67.6% raw and 26.3% filter. Transfer/wrapper code is a small sampled share. Packed wasm groups/reconstruction help, but checked decode and filtered tails still miss the mean/maxima bars. |
+| Allocating S4 | scalar-C++ GM 1.197; two v1 streaming maxima still fail | Exact failed inputs are profiled against scalar C++. Instruction ratios 0.969 (u16) / 0.954 (u32), with 96.06% / 92.06% in raw decode and 2.85% / 5.90% in memset. These 50-call diagnostic probes do not identify a decisive microarchitectural cause for the allocating timing miss or clear it. Index code is unchanged and outside the SIMD optimization scope. Retain intervals 1.531–1.823 and 1.570–1.739 against 1.50. |
+
+Current native/Node instruction, cycle, disassembly and V8 reports are retained
+in `profiles-final`, `profiles-tiny-final`, `profiles-wasm-isolated-final` and
+`profiles-s4-final`. Cycle reports have no lost samples. Captures started under
+the earlier gate retain both admission snapshots, including any overlapping
+end; they are diagnostic attribution, not accepted timing-bar pairs. The
+remaining captures and S4 follow the owner queue. Profile counters include
+startup, transport and warmup; no noisy wall-time result is promoted to a bar.
+
+S1/S2 fail both APIs. S3 has 67 significant case/ceiling regressions: default
+19/18 and SSE2 14/16 for allocating/caller-buffer. S4 passes caller-buffer;
+allocating fails the two v1 streaming cases above, while every frozen minimum
+passes. S5 fails both, with 19/22 failed maxima. Native/Node use seven/six
+fresh D146 cases; the S4 supplement adds twelve stage-1 pairs and no D146.
+No failed case is retried to select a better ratio, and family means remain
+stage-1 medians. The best complete-family ratios for the touched functions
+are the final epoch above. The unchanged controls are descriptive comparisons,
+not evidence that this patch changed their algorithms.
+
+The independent verifier initially had a fixed 48-row S4 expectation, missing
+the frozen million-element controls; replace it with the exact keys derived
+from the complete native matrix. That verification failure is retained, then
+the corrected verifier passes without changing a sample. An extra S4 profile
+adapter initially selected the already-completed native profile route; its
+no-op receipt/text is retained separately, then the corrected route captures
+both failing index inputs. No performance matrix or supplement is repeated.
+
+Done-when is satisfied by implementation plus residual profile/best-ratio
+evidence. Do not claim that the SIMD bars, full release gates, ARM execution,
+Windows/macOS identity, dedicated-host timing, Moss integration or phase-0.6
+composition are qualified. Retain all receipts/binaries/source archives
+outside the exact target, delete that target, and never push this branch.
