@@ -3832,3 +3832,59 @@ The historical 2.888 allocating maximum is not explained by this edit:
 retained diagnostic evidence shows a 1.300 instruction ratio and comparable
 memset shares. Collect matched counters and final admitted timing before
 deciding whether it persists; do not infer an allocation cause from time alone.
+
+### Frozen candidate, validation and final timing scope
+
+Implementation fixes are separately committed as a48d060, 70727c3, 72e03af,
+f72221b, b0f0377 and eb6bac6. The four-triangle regression extension and
+timing adapter are 52f22d5. Production source is frozen before timing.
+Evidence root: `/mnt/linux-extra/meshopt-artifacts/p07-fix4`. All 138 archived
+inputs are hard-linked unchanged from p07r3 and checked by SHA-256; the
+pinned upstream checkout passes check-reference.sh. Frozen benchmark parity
+passes both APIs, scalar/SSE2/SSSE3/SSE4.1 and executed wasm without/with SIMD.
+Fixtures pass 869 cases and malformed streams 7,653. All-feature tests,
+unsafe-free tests, native/wasm SIMD Clippy and the expanded five-test Miri
+integration run pass. Integer/sequence Miri and the larger seeded sweep are
+still running when final timing enters the visible queue. They are pinned
+to cores 24/25, separately from measurement core 26; affinity receipts are
+retained. No new unsafe block: boundary/package gates retain 23 blocks and
+one module-level allowance. No broader platform/release acceptance is claimed.
+
+The qualification binaries were built before a test-only pair-transition
+extension. build.json retains the original compiled_sources and records the
+new integration-test identity separately, with an explicit non-compiled source
+update; no linked library or driver source changed. The added ordinary test
+and subsequent Miri run both pass. The counter parser initially checked the
+wrong perf CSV column, accepting no aggregate record. It was corrected to
+verify 100-percent event scheduling, and all captures were recollected.
+Counter reruns are diagnostic, not timing retries.
+
+Current native counters against starting Rust: resident vertex stride12/32
+about 0.49 instructions, varied Quat view 0.55, tiny vertex 0.74, repeated
+tiny Oct view 0.80, Color 0.86–0.87, typed meshlet 0.95, raw meshlet 0.86,
+sequence 0.808 under both APIs. Reconstruction and tail effects are combined
+in these source-matched comparisons, not attributed as isolated A/B fixes.
+Native delta stack frame falls 0x168 to 0x98; vector stack stores fall twelve
+to one (tail baseline), with 104 to 37 stack operand sites across the whole
+function. Static sites include errors/tails; general-purpose address spills
+and checked-span branches remain. Wasm public/raw resident probes retire
+about 0.66–0.67 starting Rust instructions. V8 raw code is smaller, but work
+moved to a 32,976-byte vertex decode body plus prefix/scatter helpers; do not
+claim a whole-path code-size or spill reduction from raw-function size alone.
+
+Final timing measures 94 touched native cases / both APIs (188 rows): vertex,
+NONE/filtered views, Color, typed/raw meshlets and sequence. Standalone
+Oct/Quat/Exp and triangle index timing are outside this scope. Node measures
+73 touched eligible cases / both APIs (146 rows): vertex, sequence and views.
+The 292 Node timing-module preflight outputs match canonical golden hashes.
+Scalar Node timing remains diagnostic lowering in a SIMD-enabled module.
+Adapters retain 5–20 paired early stopping, fresh thirty-pair D146 only for
+borderline cases, both registered and brief maxima, complete telemetry and
+690-second pair-boundary checkpoints under the exact 840-second heavy wrapper.
+Sequence scalar-C++ S4 intervals participate in the same stopping decision,
+so no separate later S4 timing pass is needed. Starting Rust is interleaved
+only in sequence rows to investigate the historical allocating maximum.
+Native and Node queue requests use the required four-GB declaration; actual
+reservation and cap are distinct wrapper receipts. No nested lease wrapper.
+Unchanged standalone Exp S3 failures are retained as historical unclosed gaps,
+not erased by a scope-limited new S3 result.
