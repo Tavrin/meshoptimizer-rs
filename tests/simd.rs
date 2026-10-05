@@ -417,3 +417,40 @@ fn repeated_filter_runs_preserve_alpha_and_changed_suffix() {
         }
     }
 }
+
+#[test]
+#[cfg(target_arch = "x86_64")]
+fn oct_short_tails_match_canonical_root_rounding() {
+    let mut seed = 20261008u32;
+    for stride in [4, 8] {
+        for count in [1, 2, 3] {
+            for sample in 0..if cfg!(miri) { 8 } else { 4096 } {
+                let mut source = vec![0xa5; count * stride + 13];
+                for record in source[..count * stride].chunks_exact_mut(stride) {
+                    for byte in record.iter_mut() {
+                        *byte = random(&mut seed) as u8;
+                    }
+                    // Include the defined numerical-error path, independent alpha,
+                    // and extremes alongside seeded varied finite directions.
+                    if sample < 5 {
+                        record[..stride * 3 / 4].fill([0, 1, 127, 128, 255][sample]);
+                    }
+                }
+                let run = |level| {
+                    with_level(level, || {
+                        let mut out = source.clone();
+                        let mut w = Workspace::default();
+                        let status = decode_filter_oct(&mut out, count, stride, &mut w);
+                        assert_eq!(&out[count * stride..], &source[count * stride..]);
+                        (status, out, w.usage())
+                    })
+                    .unwrap()
+                };
+                let expected = run(Level::Scalar);
+                for level in levels() {
+                    assert_eq!(run(level), expected, "{stride}/{count}/{sample}/{level:?}");
+                }
+            }
+        }
+    }
+}

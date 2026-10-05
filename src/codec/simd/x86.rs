@@ -205,7 +205,9 @@ fn oct_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), cra
             );
         }
     }
-    crate::codec::filter::scalar_oct(tail, W)
+    crate::codec::filter::scalar_oct_with_root(tail, W, |v| {
+        fout(_mm_sqrt_ss(fload([v, 0.0, 0.0, 0.0])))[0]
+    })
 }
 #[target_feature(enable = "sse2")]
 fn quat_kernel(data: &mut [u8]) -> Result<(), crate::Error> {

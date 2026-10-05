@@ -4632,3 +4632,23 @@ tiny S3 branch overhead and the measured scalar-winning allocating shape, not
 by a claim that the historical large maximum is fixed. Both native candidates
 remain uncompiled/unmeasured after source edits while the mandatory disk gate
 is closed; no retained-before counter is evidence of a candidate improvement.
+
+### Fix-eight native Oct tail candidate
+
+Tiny Oct4 caller work is 12.0443 instructions/byte versus C++ 7.9413, and
+cycles 4.314 versus 2.7131 in the fresh pinned N/2N scout. Assembly retains
+software libm root work in the short canonical tail. Complete four-record
+SIMD groups already use correctly rounded hardware sqrt. Introduce a shared
+canonical Oct body parameterized only by its root operation; scalar/reference
+keeps the pinned libm backend, and x86's one-to-three-record tail supplies
+scalar SSE sqrt with the existing safe fixed-array helpers, inside the existing
+SSE2 target-feature kernel. No new unsafe block, arithmetic approximation,
+reassociation, heap scratch or padded recursive SIMD tail. Every actual squared
+length is a nonnegative finite f32 from bounded integer components; zero still
+returns NumericalFailure before normalization. Preserve alpha and scalar cache.
+
+Retain a targeted seeded 24,576-shape ordinary regression (small Miri subset)
+covering both widths, all short tail counts, extreme fields, errors, canonical
+bytes, usage and destination tails. Static boundary gate passes the same 23
+blocks and formatting passes. Runtime, final counter effect, parity, Miri and
+RFC/S3 remain pending; the disk floor forbids builds. No timing has started.

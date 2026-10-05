@@ -9,6 +9,16 @@ fn rounded(v: f32, sign: f32) -> i32 {
 }
 #[inline(always)]
 pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
+    scalar_oct_with_root(data, stride, sqrt)
+}
+// The arithmetic stays canonical; the native ISA tail supplies the same
+// correctly rounded root operation as its complete four-record groups.
+#[inline(always)]
+pub(super) fn scalar_oct_with_root(
+    data: &mut [u8],
+    stride: usize,
+    root: impl Fn(f32) -> f32,
+) -> Result<(), Error> {
     let mut previous = ([0i16; 3], [0i32; 3]);
     let mut valid = false;
     for element in data.chunks_exact_mut(stride) {
@@ -48,7 +58,7 @@ pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
         let t = if z >= 0.0 { 0.0 } else { z };
         x += if x >= 0.0 { t } else { -t };
         y += if y >= 0.0 { t } else { -t };
-        let length = sqrt(x * x + y * y + z * z);
+        let length = root(x * x + y * y + z * z);
         if length == 0.0 {
             return Err(Error::NumericalFailure);
         }
