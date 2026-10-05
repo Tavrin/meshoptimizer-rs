@@ -4532,3 +4532,26 @@ receipt already passes, and its test/production code is unchanged by this
 cfg(test)+cfg(miri)-only assertion. Refresh all build/proof identities and
 retain explicit original/final check sources rather than rerunning an
 unchanged seven-minute integration gate. No timing pair has been taken yet.
+
+### Fix-seven final pre-timing evidence closure
+
+At production/source head 4ebfd18 the independent verifier's pre-timing gates
+pass: 869 fixtures, 7653 malformed cases, all 138 frozen benchmark identities,
+438 timing-WASM backend/API preflights, scoped arithmetic sweeps, valid Color
+alpha-depth enumeration, upstream meshlet-tail reproduction, current pinned
+counters and seven check receipts. Both portability checks and the unchanged
+23-block unsafe boundary/package checks pass. The test-only Miri correction
+retains byte-identical codec binaries (test-only-binary-identity.json).
+The final native epoch is submitted using the exact owner wrapper and waits
+for shared RAM/GPU admission; no final pair exists before admission. Follow
+pair-boundary checkpoints with only unaccepted work; never repeat a completed
+row or accepted pair. Preserve old/new/C++ together, RFC-only early stopping,
+and fresh D146 pairs only for unresolved maximum intervals.
+
+A one-off tail reproduction controller mistakenly toggled benchmark mode at
+header offset 32 rather than the API flag at offset 16; it reached unsupported
+WASM Instant::now and was stopped. Correct the controller flag and rerun only
+that proof. The corrected 18 backend/API rows pass with the recorded upstream
+SIMD rejection and exact successful outputs. This was a proof-controller error,
+not a source change or timing sample. Keep its terminal failure in the session
+receipt; final JSON contains only the correctly framed proof.
