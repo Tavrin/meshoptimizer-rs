@@ -537,12 +537,36 @@ pub fn opacity_map_compact(
             .and_then(|n| n.checked_add(count * 4))
             .ok_or(Error::SizeOverflow)?;
         workspace.account_codec(bytes)?;
-        let mut old = reserve::<u8>(data.len())?;
-        old.extend_from_slice(data);
-        let mut table = reserve::<u32>(buckets)?;
-        table.resize(buckets, u32::MAX);
-        let mut remap = reserve::<i32>(count)?;
-        remap.resize(count, 0);
+        // Small calls need no heap scratch. Keep the same logical byte budget
+        // and retain independent heap fallbacks for larger inputs.
+        let mut old_inline = [0u8; 64];
+        let mut old_heap;
+        let old = if data.len() <= old_inline.len() {
+            old_inline[..data.len()].copy_from_slice(data);
+            &old_inline[..data.len()]
+        } else {
+            old_heap = reserve::<u8>(data.len())?;
+            old_heap.extend_from_slice(data);
+            &old_heap[..]
+        };
+        let mut table_inline = [u32::MAX; 16];
+        let mut table_heap;
+        let table = if buckets <= table_inline.len() {
+            &mut table_inline[..buckets]
+        } else {
+            table_heap = reserve::<u32>(buckets)?;
+            table_heap.resize(buckets, u32::MAX);
+            &mut table_heap[..]
+        };
+        let mut remap_inline = [0i32; 8];
+        let mut remap_heap;
+        let remap = if count <= remap_inline.len() {
+            &mut remap_inline[..count]
+        } else {
+            remap_heap = reserve::<i32>(count)?;
+            remap_heap.resize(count, 0);
+            &mut remap_heap[..]
+        };
         let (mut next, mut output_offset) = (0usize, 0usize);
         for i in 0..count {
             work.add(1)?;

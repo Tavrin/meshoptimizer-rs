@@ -1004,3 +1004,75 @@ fn opacity_measure_ranges_keep_global_sources_and_work_prefixes() {
         }
     }
 }
+
+#[test]
+fn compact_scratch_boundaries_keep_duplicates_and_limits() {
+    // Cross the byte, remap and hash-table stack capacities independently.
+    for count in [8usize, 9, 13, 17] {
+        for length in [count, 64, 65] {
+            let buckets = (count + count / 4).next_power_of_two();
+            let bytes = length + buckets * 4 + count * 4;
+            let total_work = (4 * count + 1) as u64;
+            for fuel in 0..=total_work {
+                let mut data = vec![0x11; length];
+                let mut levels = vec![1; count];
+                let original_offsets: Vec<_> = (0..count as u32).rev().collect();
+                let mut offsets = original_offsets.clone();
+                let mut indices: Vec<_> = (0..count as i32).chain([-3]).collect();
+                let mut ws = Workspace::new(Limits {
+                    max_bytes: bytes,
+                    max_work: fuel,
+                });
+                let result = opacity_map_compact(
+                    &mut data,
+                    &mut levels,
+                    &mut offsets,
+                    &mut indices,
+                    4,
+                    &mut ws,
+                );
+                assert_eq!(ws.usage().work, fuel);
+                if fuel == total_work {
+                    assert_eq!(result, Ok((1, 1)));
+                    assert_eq!(data, vec![0x11; length]);
+                    assert_eq!(levels, vec![1; count]);
+                    let mut expected_offsets = original_offsets;
+                    expected_offsets[0] = 0;
+                    expected_offsets[1] = 1;
+                    assert_eq!(offsets, expected_offsets);
+                    assert_eq!(&indices[..count], vec![0; count]);
+                    assert_eq!(indices[count], -3);
+                    assert_eq!(ws.usage().bytes, bytes);
+                } else {
+                    assert_eq!(result, Err(Error::LimitExceeded));
+                    if fuel < (2 * count + 1) as u64 {
+                        assert_eq!(offsets, original_offsets);
+                        assert_eq!(indices, (0..count as i32).chain([-3]).collect::<Vec<_>>());
+                    }
+                }
+            }
+            let mut data = vec![0x11; length];
+            let mut levels = vec![1; count];
+            let mut offsets: Vec<_> = (0..count as u32).collect();
+            let mut indices: Vec<_> = (0..count as i32).chain([-3]).collect();
+            let mut ws = Workspace::new(Limits {
+                max_bytes: bytes - 1,
+                max_work: total_work,
+            });
+            assert_eq!(
+                opacity_map_compact(
+                    &mut data,
+                    &mut levels,
+                    &mut offsets,
+                    &mut indices,
+                    4,
+                    &mut ws,
+                ),
+                Err(Error::LimitExceeded)
+            );
+            assert_eq!(ws.usage().work, (2 * count + 1) as u64);
+            assert_eq!(offsets, (0..count as u32).collect::<Vec<_>>());
+            assert_eq!(indices, (0..count as i32).chain([-3]).collect::<Vec<_>>());
+        }
+    }
+}

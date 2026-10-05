@@ -6161,3 +6161,19 @@ is explicitly historical-unmatched. Audit/manifests/binaries/sources remain outs
 cache; delete only the specified target and retain cleanup.json. Scope is complete;
 full P05 performance/release/integration acceptance remains open. Commit records
 with repository author, never push/merge/further-rebase or edit another branch.
+
+
+## D170 — Bounded inline scratch for small OMM compact calls
+
+Use 64 source bytes, 16 hash buckets and 8 remap entries on the stack, with
+independent fallible heap fallbacks beyond each bound. Preserve the existing
+logical byte budget, validation/error precedence, source copy, collision order,
+output tails, negative references and per-probe/per-entry work accounting.
+The frozen four-entry compact input needs no heap scratch; its timed driver is
+unchanged. No input-size specialization or reduced work charge.
+
+The boundary regression crosses all three capacities and checks duplicate
+outputs, negative references, exact byte limits and every work limit. It and
+the pinned raster vector pass using the admission-built integration binary.
+Full functional and counter/timing results will be recorded in the last3
+closure. This focused proof does not establish performance acceptance.

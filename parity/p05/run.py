@@ -32,7 +32,8 @@ contracts = ['raster_into_uses_caller_storage_and_preserves_atomic_failure',
              'normal_tangent_into_uses_caller_storage_and_preserves_failures',
              'normal_tangent_peak_storage_excludes_retired_remap_table',
              'strip_append_output_preserves_caller_prefixes_and_tails',
-             'opacity_measure_ranges_keep_global_sources_and_work_prefixes']
+             'opacity_measure_ranges_keep_global_sources_and_work_prefixes',
+             'compact_scratch_boundaries_keep_duplicates_and_limits']
 passed = result.returncode == 0 and f'{len(fixtures) + len(budgets) + len(contracts)} passed; 0 failed' in text and all(
     f'test {name} ... ok' in text for name in fixtures + budgets + contracts)
 summary = {'schema': 'meshopt-p05-run/1', 'phase': '0.5', 'passed': passed,
