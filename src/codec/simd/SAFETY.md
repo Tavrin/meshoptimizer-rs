@@ -34,14 +34,17 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/wasm32.rs:70` | fixed-array memory access: the exclusive array supplies 16 writable bytes; v128_store permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/x86.rs:10` | fixed-array memory access: the borrowed initialized array supplies exactly 16 readable bytes; loadu has no alignment requirement and retains no pointer. |
 | `src/codec/simd/x86.rs:17` | fixed-array memory access: the exclusive array supplies exactly 16 writable bytes; storeu requires no alignment, and the pointer is not retained. |
-| `src/codec/simd/x86.rs:99` | token-authorized target_feature call: Baseline is issued only for detected x86-64 SSE2; x86-64 makes SSE2 mandatory. All slice bounds are checked by the safe kernel. |
-| `src/codec/simd/x86.rs:105` | token-authorized target_feature call: Ssse3 is constructed only after SSSE3 AND POPCNT detection (or compile-time features in no_std); the kernel's complete input is typed. |
-| `src/codec/simd/x86.rs:168` | token-authorized target_feature call: Sse41 is issued only after SSSE3, POPCNT and SSE4.1 are detected; the kernel uses SSSE3/SSE4.1 on a complete initialized byte array. |
-| `src/codec/simd/x86.rs:200` | token-authorized target_feature call: Baseline proves SSE2. The kernel slices only validated component planes, stages short vectors, and scatters via checked destination slices. |
-| `src/codec/simd/x86.rs:251` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
-| `src/codec/simd/x86.rs:395` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
+| `src/codec/simd/x86.rs:246` | token-authorized target_feature call: Baseline is issued only for detected x86-64 SSE2; x86-64 makes SSE2 mandatory. All slice bounds are checked by the safe kernel. |
+| `src/codec/simd/x86.rs:285` | token-authorized target_feature call: Ssse3 is constructed only after SSSE3 AND POPCNT detection (or compile-time features in no_std); the kernel's complete input is typed. |
+| `src/codec/simd/x86.rs:333` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT. The kernel checks a complete 24-byte window before each group and writes checked output chunks only. |
+| `src/codec/simd/x86.rs:389` | token-authorized target_feature call: Sse41 is issued only after SSSE3, POPCNT and SSE4.1 are detected; the kernel uses SSSE3/SSE4.1 on a complete initialized byte array. |
+| `src/codec/simd/x86.rs:421` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; the kernel checks every 16-byte input window and emits only the scalar decoder's validated record count. |
+| `src/codec/simd/x86.rs:463` | token-authorized target_feature call: Baseline proves SSE2. The kernel slices only validated component planes, stages short vectors, and scatters via checked destination slices. |
+| `src/codec/simd/x86.rs:552` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
+| `src/codec/simd/x86.rs:726` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
+| `src/codec/simd/x86.rs:739` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT. The kernel retains the scalar parser's checked layout, group lookahead and bounded destination slices; stack scratch is 1,280 bytes, and every vector load/store is array-backed. |
 
-Inventory: **17 unsafe blocks**, one module-level allowance. The token-aware
+Inventory: **20 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
 for repository sources and the published package. The unsafe-free build is
 checked with --no-default-features and RUSTFLAGS=-Funsafe_code.

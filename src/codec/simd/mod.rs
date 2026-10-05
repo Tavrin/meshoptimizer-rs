@@ -37,6 +37,19 @@ pub(super) fn group(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> Option<us
     let _ = (data, out, bits);
     None
 }
+pub(super) fn bytes(
+    data: &[u8],
+    pos: usize,
+    out: &mut [u8],
+    bits: &[u32],
+) -> Option<Result<usize, crate::Error>> {
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::ssse3() {
+        return Some(arch::bytes(token, data, pos, out, bits));
+    }
+    let _ = (data, pos, out, bits);
+    None
+}
 pub(super) fn meshlet(data: &[u8; 16], code: u8, last: u32) -> Option<([u32; 4], usize)> {
     #[cfg(target_arch = "x86_64")]
     if let Some(token) = dispatch::sse41() {
@@ -47,6 +60,22 @@ pub(super) fn meshlet(data: &[u8; 16], code: u8, last: u32) -> Option<([u32; 4],
         return Some(arch::meshlet(token, data, code, last));
     }
     let _ = (data, code, last);
+    None
+}
+pub(super) fn meshlet_vertices(
+    source: &[u8],
+    bound: usize,
+    codes: &[u8],
+    count: usize,
+    out: &mut impl FnMut(usize, u32),
+) -> Option<Result<usize, crate::Error>> {
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::sse41() {
+        return Some(arch::meshlet_vertices(
+            token, source, bound, codes, count, out,
+        ));
+    }
+    let _ = (source, bound, codes, count, out);
     None
 }
 pub(super) fn filter(kind: u8, data: &mut [u8], stride: usize) -> Option<Result<(), crate::Error>> {
@@ -139,7 +168,10 @@ pub(super) fn deltas8(
     stride: usize,
     last: &[u8],
 ) -> bool {
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(any(
+        target_arch = "x86_64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    ))]
     if let Some(token) = dispatch::baseline() {
         arch::deltas8(token, buffer, target, count, stride, last);
         return true;
@@ -246,6 +278,20 @@ pub(super) fn triangles(
         return arch::triangles(token, source, bound, codes, data, count, out);
     }
     let _ = (source, bound, codes, data, count, out);
+    None
+}
+
+pub(super) fn vertex(
+    output: &mut [u8],
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Option<Result<(), crate::Error>> {
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::ssse3() {
+        return Some(arch::vertex(token, output, count, stride, data));
+    }
+    let _ = (output, count, stride, data);
     None
 }
 

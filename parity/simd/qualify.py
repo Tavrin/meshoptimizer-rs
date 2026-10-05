@@ -172,7 +172,7 @@ def bench(cases,diagnostic=False):
             if api=='caller-buffer':struct.pack_into('<I',probe,16,struct.unpack_from('<I',probe,16)[0]|128)
             gate=admission();record['admissions'].append(gate)
             while not gate['admitted']:
-                save(path,record);print('timing paused: GPU/scoreboard',flush=True);time.sleep(15);gate=admission();record['admissions'].append(gate)
+                save(path,record);print('timing paused: GPU/scoreboard',flush=True);time.sleep(2);gate=admission();record['admissions'].append(gate)
             struct.pack_into('<I',probe,32,1);trial=ds['simd'].call(probe)[2][0]
             iterations=max(1,min(1000000,math.ceil(.004/max(trial,1e-9))));struct.pack_into('<I',probe,36,iterations)
             active={k:d for k,d in ds.items() if k!='sse2' or family(name) in ['vertex','view-none','view-filtered']}
@@ -180,7 +180,7 @@ def bench(cases,diagnostic=False):
             while len(row['raw_seconds']['rust'])<(5 if diagnostic else 20):
                 gate=admission()
                 if not gate['admitted']:
-                    save(path,record);time.sleep(15);continue
+                    save(path,record);time.sleep(2);continue
                 pair={};hashes={};i=len(row['raw_seconds']['rust']);order=list(active);rotation=i%len(order);order=order[rotation:]+order[:rotation]
                 for k in order:
                     status,data,t=ds[k].call(probe);assert status==0,(name,k,status);pair[k]=t[0];hashes[k]=hashlib.sha256(data).hexdigest()
@@ -196,7 +196,7 @@ def bench(cases,diagnostic=False):
                 stage={k:[] for k in active};stage_telemetry=[]
                 while len(stage['rust'])<30:
                     gate=admission()
-                    if not gate['admitted']:save(path,record);time.sleep(15);continue
+                    if not gate['admitted']:save(path,record);time.sleep(2);continue
                     pair={};order=list(active);i=len(stage['rust']);rotation=i%len(order);order=order[rotation:]+order[:rotation]
                     for k in order:
                         status,data,t=active[k].call(probe);assert status==0;pair[k]=t[0]

@@ -1,5 +1,6 @@
 // Arithmetic order is the canonical scalar filter's order. Each backend
 // supplies exact IEEE vector operations; no estimates, FMA or reassociation.
+#[cfg(target_arch = "aarch64")]
 macro_rules! filter_kernel {
     ($feature:literal) => {
         #[target_feature(enable = $feature)]
@@ -165,10 +166,7 @@ macro_rules! filter_kernel {
     };
 }
 
-#[cfg(any(
-    target_arch = "aarch64",
-    all(target_arch = "wasm32", target_feature = "simd128")
-))]
+#[cfg(target_arch = "aarch64")]
 macro_rules! portable_group {
     ($feature:literal) => {
         #[target_feature(enable = $feature)]
@@ -215,7 +213,7 @@ macro_rules! portable_group {
     };
 }
 
-#[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
+#[cfg(target_arch = "aarch64")]
 macro_rules! triangle_kernel {
     ($feature:literal) => {
         #[target_feature(enable = $feature)]

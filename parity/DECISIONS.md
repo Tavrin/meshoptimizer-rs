@@ -3447,3 +3447,78 @@ pass; ARM execution, platform identity, release sweeps/fuzz budgets, dedicated
 ARM timing and phase-0.6 composition remain the records listed in SIMD_RESULTS.
 Retain the source/binary artifacts and manifest outside the prescribed Cargo
 target, then delete that target as the brief requires.
+
+## P07-P1 — Profile before the performance changes
+
+The perf lane starts at implementation `2feefb2`, bars `179ba52`, and the
+unchanged upstream `4c203430`. Retained binaries, framed caller-buffer inputs,
+four hardware counters, disassembly and cycle reports are in
+`/mnt/linux-extra/meshopt-artifacts/p07perf/profiles-before`. Counters include
+startup, transport, warmup and 3,000 calls; they diagnose costs, not timing bars.
+Cycle captures report zero lost samples. The tiny meshlet capture is short and
+its attribution is less precise than the resident filter/vertex captures.
+
+| Function | Observed root cause and upstream comparison | Candidate |
+|---|---|---|
+| Quat | 90.20% sampled cycles in Rust SIMD filter; scalar component gathering and scalar per-component rotated stores surround vector arithmetic. Upstream loads two packed vectors, shifts/sign-extends lanes and rotates four packed u64 records. | Packed loads/stores and per-record rotation, retaining canonical subtraction order and sign-biased truncation. |
+| Oct | Generic four-record gathering/scattering; upstream directly unpacks packed byte/halfword lanes. Upstream rsqrt and round-to-even are forbidden by exactness. | Packed unpack/repack with IEEE sqrt/div and canonical rounding. |
+| Vertex v0 | 42.31% cycles in separately called group kernel, 51.80% in raw decoder. Rust reconstructs escape masks on stack and stages every prefix/transpose; upstream builds masks in registers, unrolls four groups and shares checks. | Register mask composition, batched group dispatch, direct complete-vector loads/stores. |
+| Vertex v1 | 41.32% group kernel, 52.92% raw decoder; 16-bit and rotated XOR reconstruction remain scalar. Upstream vectorizes all three channel forms. | Shared group improvements, vector reconstruction where measured. |
+| Views NONE/filtered | Reuse the same vertex and filter kernels; validation remains inside both timed APIs. | Improve constituent kernels; keep view validation and budgets. |
+| Meshlet typed/raw | Per-four-vertex dispatch/copy and triangle state spilled through a byte array; upstream keeps its SIMD state in registers and batches packed output. | Inline small dispatch wrappers and keep triangle state in registers. |
+| Color | Already packed; exact division, range checks and wrapping output differ from upstream reciprocal estimates/saturating output. | Preserve exactness; measure remaining arithmetic cost. |
+| Exp | Already packed and near upstream; no evidence for a rewrite. | Retain kernel. |
+
+None of these upstream paths uses prefetching. Adding a raw-pointer prefetch
+would exceed the amendment's two allowed unsafe kinds; no prefetch is adopted.
+Keep strict 24-byte group lookahead and checked staged tails. No AVX tier,
+estimate, FMA, tolerance, workload or bar change is authorized.
+
+## P07-P2 — Packed kernels and decoder-level dispatch
+
+Replace x86/wasm Oct and Quat's generic component gathering with packed lane
+loads, sign extension, vector rounding and packed wrapping output. Quat keeps
+the scalar subtraction order, exact sqrt/div, sign-dependent half-unit bias,
+and the saved rotation selector. Oct retains zero-length rejection. The NEON
+macro path remains unchanged; this host supplies compile checks, not NEON
+execution evidence. Exp and Color arithmetic are retained.
+
+Byte groups construct escape masks in registers and use immutable group
+configuration constants. Native byte-plane decoding batches four full groups
+with a 96-byte window, but every general/tail group retains the required
+24-byte lookahead, including a zero-bit group. This is bounded unrolling, not
+speculative memory access. Prefix reconstruction reads full planes directly,
+uses checked packed stores for stride four, and extracts complete wide-stride
+records from vector registers. Short tails still use initialized array staging.
+Wasm receives packed byte-group and prefix reconstruction improvements; its
+meshlet path remains scalar as prescribed.
+
+Per-group ISA dispatch was still costly after the first byte-loop change.
+Move the checked native vertex decode body behind one SSSE3/POPCNT token;
+retain the original scalar parser as fallback and keep 16-bit/rotated-XOR
+reconstruction scalar. The backend copy preserves header, controls, padded
+tail, destination and error checks. This duplication is a maintenance cost:
+future scalar parser changes must update and differentially verify the native
+body. Meshlet vertex dispatch similarly covers its whole loop, and triangle
+state remains in vector registers until output extraction. Wraparound still
+falls back to the scalar decoder.
+
+All new unsafe operations are token-authorized target-feature calls. Loads
+and stores still use the existing fixed-array pointer seams; no raw pointer
+arithmetic, prefetch or unchecked indexing is added. The refreshed audit has
+20 individually documented blocks and one allowance. Native SIMD Miri covers
+all four integration tests and both integer-kernel tests; safe scalar codec
+Miri covers eight tests. Only Miri's large vertex matrix is bounded to nine
+boundary counts and strides 4/12; the normal native test retains its full
+count/stride matrix. A first oversized Miri run was deliberately stopped and
+its log/receipt retained; it is not credited as a completed check.
+
+Iteration records are diagnostic five-pair touched-function subsets. Two
+subsets and the final candidate's vertex subset collected zero rows while
+admission was occupied; their pause records are retained separately. A first
+diagnostic correctness process briefly shared the timing core's SMT sibling
+before being moved; that timing record remains diagnostic only. Final
+correctness uses other cores. The final controller retains completed keys,
+exact executed controller text and all admission decisions. Polling changes
+from fifteen to two seconds; inputs, numerical rules, bars, backend order and
+stopping rules do not change.

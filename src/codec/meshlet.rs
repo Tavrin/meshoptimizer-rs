@@ -384,6 +384,12 @@ fn decode_bytes<const VS: usize, const TS: usize>(
 /// starts at or before `bound`, and sixteen readable bytes follow `bound`.
 #[inline(always)]
 fn decode_vertices(s: &Stream<'_>, mut out: impl FnMut(usize, u32)) -> Result<usize, Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) =
+        super::simd::meshlet_vertices(s.source, s.bound, s.ctrl, s.vertex_count, &mut out)
+    {
+        return result;
+    }
     let count = s.vertex_count;
     let mut data = 0usize;
     let mut last = u32::MAX;

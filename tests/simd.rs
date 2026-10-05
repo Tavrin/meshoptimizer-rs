@@ -98,8 +98,20 @@ fn filters_match_scalar_with_extreme_words_and_tails() {
 #[test]
 fn vertex_versions_channels_boundaries_and_malformed_results() {
     let mut seed = 321u32;
-    for count in [0, 1, 15, 16, 17, 63, 64, 65, 255, 256, 257, 513] {
-        for stride in [4, 12, 32, 256] {
+    // Miri executes both group boundaries and the 256-vertex block boundary.
+    // Native tests and differential native/wasm corpora keep the larger matrix.
+    let counts: &[usize] = if cfg!(miri) {
+        &[0, 1, 15, 16, 17, 63, 64, 65, 257]
+    } else {
+        &[0, 1, 15, 16, 17, 63, 64, 65, 255, 256, 257, 513]
+    };
+    let strides: &[usize] = if cfg!(miri) {
+        &[4, 12]
+    } else {
+        &[4, 12, 32, 256]
+    };
+    for &count in counts {
+        for &stride in strides {
             let vertices: Vec<u8> = (0..count * stride)
                 .map(|_| random(&mut seed) as u8)
                 .collect();

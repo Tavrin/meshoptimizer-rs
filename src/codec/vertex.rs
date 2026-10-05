@@ -52,7 +52,7 @@ fn group(data: &[u8], pos: usize, out: &mut [u8; 16], bits: u32) -> Result<usize
     };
     Ok(pos + used)
 }
-fn decode_deltas<const WIDTH: usize, const XOR: bool>(
+pub(super) fn decode_deltas<const WIDTH: usize, const XOR: bool>(
     buffer: &[u8],
     target: &mut [u8],
     count: usize,
@@ -107,6 +107,10 @@ fn decode_deltas<const WIDTH: usize, const XOR: bool>(
     }
 }
 fn bytes(data: &[u8], mut pos: usize, out: &mut [u8], bits: &[u32]) -> Result<usize, Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::bytes(data, pos, out, bits) {
+        return result;
+    }
     let header = pos;
     let headers = (out.len() / 16).div_ceil(4);
     if data.len().saturating_sub(pos) < headers {
@@ -128,6 +132,10 @@ pub(super) fn decode(
     stride: usize,
     data: &[u8],
 ) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::vertex(output, count, stride, data) {
+        return result;
+    }
     let version = super::decode_vertex_version(data)?;
     let tail = stride + if version == 0 { 0 } else { stride / 4 };
     let padded = tail.max(if version == 0 { 32 } else { 24 });
