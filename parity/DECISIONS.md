@@ -4313,3 +4313,29 @@ no arithmetic order or rounding change. V8 counter totals include runtime
 work/tiering, so small residual differences do not establish causality or time
 acceptance. Archive both isolated trials and the matched r4/r5 baselines.
 Final actual wasm fixture/arithmetic proof and unchanged S5 maxima are required.
+
+### Fix-six frozen final scope and both verdict sets
+
+Retain Oct/rounding, x86 Exp convergence, tiny allocating preflight, and WASM
+scratch/Quat recovery; abandon meshlet metadata/inlining with retained counters.
+Priority-two filtered views inherit exact Oct/rounding reductions; vertex/NONE
+allocating maxima get the preflight division shortcut; Exp allocating maxima
+share the canonical baseline loop. Further zero-fill/allocator or arbitrary
+size-threshold changes have no demonstrated exact-parity gain and are abandoned
+before timing. WASM maxima use the compact parser and restored Quat rotation.
+No benchmark driver, frozen input, unsafe seam, scalar reference or bar changes.
+
+Native scope: eight families (vertex, NONE/filtered views, Oct, Quat, Exp,
+typed/raw meshlets); exclude unchanged Color and scalar sequence. WASM scope
+retains round-five's 73 eligible vertex/view/sequence cases: the allocating
+preflight and changed module lowering affect this decoder module. New controllers
+use the same admitted pairs to resolve both maximum thresholds (native registered
+1.30 or 1.50 plus RFC 1.50; WASM registered 1.60 plus RFC 1.50). Five to twenty
+pairs, then thirty fresh D146 pairs only if either applicable interval remains
+borderline; unresolved fails. This supersedes the earlier paragraph's proposal
+to stop solely at the registered maximum. S3 remains an independent per-family
+condition; no S3-specific rescue sampling. One final epoch, checkpoint/resume
+without repeating accepted rows or pairs, heavy 4GB timeout 840, 690-second
+pair-boundary budget. Independent verifier recomputes both verdict sets, stopping,
+source/input/binary hashes and lease receipts. Shared-host historical before/after
+means do not isolate causal latency; instruction improvements are not time bars.
