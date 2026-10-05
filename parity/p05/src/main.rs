@@ -473,6 +473,27 @@ fn commit_caller_storage<T: Copy>(values: &mut [T], zero: T) {
     }
 }
 
+// Match the C++ batch's one pre-sized allocation. This helper remains inside
+// the timed closure; input bytes and entry order match the original builder.
+#[inline]
+fn compact_batch_data(texture: &[u8], states: u8) -> (Vec<u8>, [u32; 4]) {
+    let total: usize = (0..4)
+        .map(|level| opacity_map_entry_size(level, states).unwrap())
+        .sum();
+    let mut data = vec![0u8; total];
+    let mut offsets = [0u32; 4];
+    let mut offset = 0;
+    for (level, entry_offset) in offsets.iter_mut().enumerate() {
+        *entry_offset = offset as u32;
+        let size = opacity_map_entry_size(level as u8, states).unwrap();
+        for j in 0..size {
+            data[offset + j] = texture[(level * 13 + j) % 64];
+        }
+        offset += size;
+    }
+    (data, offsets)
+}
+
 fn benchmark(
     family: &str,
     seed: u32,
@@ -722,15 +743,7 @@ fn benchmark(
         "omm_compact" => timed_iterations(iterations, |workspace| {
             let states = if seed & 1 == 0 { 2 } else { 4 };
             let mut levels = [0, 1, 2, 3];
-            let mut offsets = [0u32; 4];
-            let mut data = Vec::new();
-            for i in 0..4 {
-                offsets[i] = data.len() as u32;
-                let size = opacity_map_entry_size(levels[i], states).unwrap();
-                for j in 0..size {
-                    data.push(case.texture[(i * 13 + j) % 64]);
-                }
-            }
+            let (mut data, mut offsets) = compact_batch_data(&case.texture, states);
             let mut omm = [0i32, 1, 2, 3, 0, 2];
             black_box(
                 opacity_map_compact(

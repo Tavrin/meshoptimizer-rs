@@ -7,6 +7,41 @@ include!("../src/main.rs");
 mod resident_tests {
     use super::*;
     #[test]
+    fn presized_compact_batch_keeps_legacy_bytes_and_output_tails() {
+        // Six frozen seeds plus 32 extra seeds, both state counts. The legacy
+        // runner serializer includes speculative data and unused array tails.
+        for seed in 0..38 {
+            let case = case_with(seed, None);
+            let states = if seed & 1 == 0 { 2 } else { 4 };
+            let (mut data, mut offsets) = compact_batch_data(&case.texture, states);
+            assert_eq!(data.len(), if states == 2 { 12 } else { 22 });
+            let mut levels = [0, 1, 2, 3];
+            let mut indices = [0, 1, 2, 3, 0, 2];
+            let (count, size) = opacity_map_compact(
+                &mut data,
+                &mut levels,
+                &mut offsets,
+                &mut indices,
+                states,
+                &mut Workspace::default(),
+            )
+            .unwrap();
+            let mut out = Vec::new();
+            push_u64(&mut out, count);
+            push_u64(&mut out, size);
+            out.extend_from_slice(&data);
+            out.extend_from_slice(&levels);
+            for value in offsets {
+                push_u32(&mut out, value);
+            }
+            for value in indices {
+                out.extend_from_slice(&value.to_le_bytes());
+            }
+            assert_eq!(out, run("omm_compact", seed, &case).unwrap());
+        }
+    }
+
+    #[test]
     fn resident_inputs_reuse_storage_and_keep_exact_outputs() {
         let mut resident = None;
         let key = (19, 128, 256, 0);

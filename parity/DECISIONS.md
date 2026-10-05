@@ -6212,3 +6212,20 @@ finite extent vertices. It checks statistics/extent, every phase boundary and
 final scan exhaustion, preserving triangle and pixel-scan charges. Root tests
 and strict Clippy pass in all/all-no-default/experimental modes. Full sweeps and
 final counter/timing receipts will complete this decision's evidence.
+
+
+## D173 — Owner-authorized symmetric compact batch construction
+
+The user's cost-budget follow-up explicitly requests bounded tiny scratch and
+pre-sized construction before the one timing pass. That authorizes a new
+compact harness epoch: allocate the exact total byte count once, as C++ does,
+and fill the same level-ordered texture bytes at the same offsets. Keep all
+construction inside the batch timer, the four entries/six references, API call,
+output consumption, seed/shape inventory, pairing, bars and D146 unchanged.
+No library behavior is changed by this commit. Native/WASM/libm parity and
+focused batch-output tests verify the runner; source hashes bind the new epoch.
+
+Before/after compact results must disclose both D170's shipped scratch change
+and this setup correction. They are not an isolated library speedup measurement;
+historical full-matrix summaries remain historical. Cost-budget instruction
+savings are diagnostic only, not substituted for the final time measurements.
