@@ -4339,3 +4339,35 @@ without repeating accepted rows or pairs, heavy 4GB timeout 840, 690-second
 pair-boundary budget. Independent verifier recomputes both verdict sets, stopping,
 source/input/binary hashes and lease receipts. Shared-host historical before/after
 means do not isolate causal latency; instruction improvements are not time bars.
+
+### Fix-six native final negative result
+
+Native epoch completes 212 unique API rows in one visible admitted heavy-4GB
+burst: wrapper 226 seconds, exit zero. No accepted row/pair repeats. Both maximum
+sets determine early stopping and D146 eligibility. No post-measurement edit.
+
+Stage-one family means A/C: Oct 1.125/1.193, typed meshlets 1.221/1.409, raw
+meshlets 1.088/1.306, Exp 0.917/1.065, vertex 1.141/1.087, NONE views
+1.061/1.073, filtered views 1.162/1.107, Quat 1.170/1.235. Allocating Oct
+passes both ratio bars; caller Oct retains one maximum failure. Several means
+or maxima still fail. Native maximum failures: 27 registered, 10 RFC. S3 is
+an additional condition, not cleared by favorable mean or maximum ratios.
+
+The x86 Exp convergence attempt is unsuccessful. Both named caller cases still
+fail S3: tiny-s32 1.8624–2.3610, resident-s32 1.0703–1.1177; tiny is substantially
+worse than fix five. Two additional failures: allocating streaming-s12
+1.0035–1.0578 and caller tiny-s12 2.0598–2.7099. Final S3 failures increase
+2 ->4. Equal/near-equal reference-loop instruction work did not establish
+no time regression; no causal host/code-layout explanation is demonstrated.
+Keep the measured unqualified candidate and these negative intervals visible;
+abandon further S3/Exp tuning within this one-final-pass brief. Do not report
+S3 fixed, or adopt approximations, a changed bar, extra samples or an unmeasured
+post-timing revert. Allocating Exp streaming-s32 clears its old C++ maximum,
+but that does not clear Exp's S3 condition.
+
+Meshlet tuning remains explicitly abandoned after the two rejected development
+trials; current caller means remain above the RFC mean. Tiny/allocating and
+filtered-view maxima also remain residual failures. Further tuning is abandoned
+within this completed native pass; WASM final measurements and independent
+whole-epoch verification remain pending at this decision. No full release,
+platform or Moss integration acceptance is established.
