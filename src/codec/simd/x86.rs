@@ -932,20 +932,20 @@ pub(super) fn triangles(
     unsafe { triangles_kernel(source, bound, codes, data, count, out) }
 }
 
-pub(super) fn vertex(
+pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     _token: Ssse3,
-    output: &mut [u8],
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
     let kernel = match (count <= 32, stride) {
-        (true, 4) => vertex_kernel::<128, 4>,
-        (false, 4) => vertex_kernel::<1024, 4>,
-        (true, 32) => vertex_kernel::<128, 32>,
-        (false, 32) => vertex_kernel::<1024, 32>,
-        (true, _) => vertex_kernel::<128, 0>,
-        (false, _) => vertex_kernel::<1024, 0>,
+        (true, 4) => vertex_kernel::<128, 4, D>,
+        (false, 4) => vertex_kernel::<1024, 4, D>,
+        (true, 32) => vertex_kernel::<128, 32, D>,
+        (false, 32) => vertex_kernel::<1024, 32, D>,
+        (true, _) => vertex_kernel::<128, 0, D>,
+        (false, _) => vertex_kernel::<1024, 0, D>,
     };
     // SAFETY: Ssse3 proves SSSE3 and POPCNT for every private kernel choice.
     // All retain checked layout, group lookahead and bounded destinations;
@@ -953,8 +953,12 @@ pub(super) fn vertex(
     unsafe { kernel(output, count, stride, data) }
 }
 #[target_feature(enable = "ssse3,popcnt")]
-fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
-    output: &mut [u8],
+fn vertex_kernel<
+    const SCRATCH: usize,
+    const FIXED: usize,
+    D: crate::codec::vertex::Destination + ?Sized,
+>(
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],
@@ -990,7 +994,7 @@ fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
         };
         // Each bounded block fits 8 KiB. Write directly into its checked
         // destination slice, avoiding zeroing/copying an extra stack block.
-        let block_output = &mut output[offset * stride..(offset + block) * stride];
+        let block_output = output.block(offset * stride, (offset + block) * stride);
         for k in (0..stride).step_by(4) {
             let control = if version == 0 { 0 } else { controls[k / 4] };
             for j in 0..4 {

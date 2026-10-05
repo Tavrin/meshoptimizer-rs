@@ -321,8 +321,8 @@ pub(super) fn triangles(
     None
 }
 
-pub(super) fn vertex(
-    output: &mut [u8],
+pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],

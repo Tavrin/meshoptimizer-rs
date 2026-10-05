@@ -635,24 +635,28 @@ fn bytes_header_kernel<const H: usize>(
     Ok(pos)
 }
 
-pub(super) fn vertex(
+pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     _token: Baseline,
-    output: &mut [u8],
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],
 ) -> Result<(), crate::Error> {
     match stride {
-        4 => vertex_kernel::<1024, 4>(output, count, stride, data),
-        8 => vertex_kernel::<1024, 8>(output, count, stride, data),
-        12 => vertex_kernel::<1024, 12>(output, count, stride, data),
-        32 => vertex_kernel::<1024, 32>(output, count, stride, data),
-        _ => vertex_kernel::<1024, 0>(output, count, stride, data),
+        4 => vertex_kernel::<1024, 4, D>(output, count, stride, data),
+        8 => vertex_kernel::<1024, 8, D>(output, count, stride, data),
+        12 => vertex_kernel::<1024, 12, D>(output, count, stride, data),
+        32 => vertex_kernel::<1024, 32, D>(output, count, stride, data),
+        _ => vertex_kernel::<1024, 0, D>(output, count, stride, data),
     }
 }
 #[target_feature(enable = "simd128")]
-fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
-    output: &mut [u8],
+fn vertex_kernel<
+    const SCRATCH: usize,
+    const FIXED: usize,
+    D: crate::codec::vertex::Destination + ?Sized,
+>(
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],
@@ -688,7 +692,7 @@ fn vertex_kernel<const SCRATCH: usize, const FIXED: usize>(
         };
         // Each bounded block fits 8 KiB. Write directly into its checked
         // destination slice, avoiding zeroing/copying an extra stack block.
-        let block_output = &mut output[offset * stride..(offset + block) * stride];
+        let block_output = output.block(offset * stride, (offset + block) * stride);
         for k in (0..stride).step_by(4) {
             let control = if version == 0 { 0 } else { controls[k / 4] };
             for j in 0..4 {

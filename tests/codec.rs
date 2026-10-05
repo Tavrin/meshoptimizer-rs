@@ -377,3 +377,79 @@ fn allocating_vertex_preflight_at_minimum_block_boundary() {
         }
     }
 }
+
+#[test]
+fn allocating_vertex_blocks_preserve_capacity_limits_and_filtered_bytes() {
+    let strides: &[usize] = if cfg!(miri) {
+        &[4, 32]
+    } else {
+        &[4, 12, 32, 256]
+    };
+    for &stride in strides {
+        let block = ((8192 / stride) & !15).min(256);
+        let counts: &[usize] = if cfg!(miri) {
+            &[block + 1]
+        } else {
+            &[0, block - 1, block, block + 1, block * 2 + 1]
+        };
+        for &count in counts {
+            let bytes = count * stride;
+            let data: Vec<u8> = (0..bytes).map(|i| (i * 37 + i / stride) as u8).collect();
+            for version in [0, 1] {
+                let mut w = Workspace::default();
+                let source = encode_vertex_buffer(
+                    &data,
+                    count,
+                    stride,
+                    VertexEncoding::new(version, 2).unwrap(),
+                    &mut w,
+                )
+                .unwrap();
+                let owned = decode_vertex_buffer(count, stride, &source, &mut w).unwrap();
+                assert_eq!(owned, data);
+                assert_eq!(owned.capacity(), bytes);
+                assert_eq!(w.usage().bytes, bytes);
+                if count != 0 {
+                    let mut bounded = Workspace::new(Limits {
+                        max_bytes: bytes - 1,
+                        max_work: 1 << 34,
+                    });
+                    assert_eq!(
+                        decode_vertex_buffer(count, stride, &source, &mut bounded),
+                        Err(Error::LimitExceeded)
+                    );
+                    let mut extra = source.clone();
+                    extra.push(0);
+                    assert_eq!(
+                        decode_vertex_buffer(count, stride, &extra, &mut w),
+                        Err(Error::InvalidStream)
+                    );
+                }
+                if count > 0 && version == 0 {
+                    let mut expected = vec![0xa5; bytes + 7];
+                    decode_buffer_view_into(
+                        &mut expected,
+                        Mode::Attributes,
+                        Filter::Exponential,
+                        count,
+                        stride,
+                        &source,
+                        &mut w,
+                    )
+                    .unwrap();
+                    let owned = decode_buffer_view(
+                        Mode::Attributes,
+                        Filter::Exponential,
+                        count,
+                        stride,
+                        &source,
+                        &mut w,
+                    )
+                    .unwrap();
+                    assert_eq!(owned, expected[..bytes]);
+                    assert_eq!(&expected[bytes..], &[0xa5; 7]);
+                }
+            }
+        }
+    }
+}

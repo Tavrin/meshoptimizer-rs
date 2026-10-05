@@ -1,6 +1,29 @@
 // meshoptimizer 1.3 scalar decoder, MIT, Arseny Kapoulkine.
 // Byte-group parsing also reuses the Moss dc4af42a decoder (MIT).
 use crate::Error;
+use alloc::vec::Vec;
+
+// Both sinks expose initialized, checked block slices. The allocating sink
+// initializes each block just before reconstruction, keeping those writes hot
+// instead of clearing the entire output in a separate memory pass. Its caller
+// reserves the complete output first, so extending the length cannot allocate.
+pub(super) trait Destination {
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8];
+}
+impl Destination for [u8] {
+    #[inline]
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8] {
+        &mut self[start..end]
+    }
+}
+impl Destination for Vec<u8> {
+    #[inline]
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8] {
+        debug_assert!(end <= self.capacity());
+        self.resize(end, 0);
+        &mut self[start..end]
+    }
+}
 
 #[inline]
 fn packed<const BITS: u32>(data: &[u8; 24], out: &mut [u8; 16]) -> usize {
@@ -140,8 +163,8 @@ fn bytes(data: &[u8], mut pos: usize, out: &mut [u8], bits: &[u32]) -> Result<us
     }
     Ok(pos)
 }
-pub(super) fn decode(
-    output: &mut [u8],
+pub(super) fn decode<D: Destination + ?Sized>(
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],
@@ -178,7 +201,7 @@ pub(super) fn decode(
         };
         // Each bounded block fits 8 KiB. Write directly into its checked
         // destination slice, avoiding zeroing/copying an extra stack block.
-        let block_output = &mut output[offset * stride..(offset + block) * stride];
+        let block_output = output.block(offset * stride, (offset + block) * stride);
         for k in (0..stride).step_by(4) {
             let control = if version == 0 { 0 } else { controls[k / 4] };
             for j in 0..4 {

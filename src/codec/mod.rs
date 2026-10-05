@@ -305,7 +305,9 @@ fn allocate(
     if out.capacity() != bytes {
         workspace.account_codec(out.capacity())?;
     }
-    if mode == Mode::Indices {
+    if mode == Mode::Attributes {
+        vertex::decode(&mut out, count, stride, source)?;
+    } else if mode == Mode::Indices {
         index::sequence_append(&mut out, count, stride, source)?;
     } else {
         out.resize(bytes, 0);
