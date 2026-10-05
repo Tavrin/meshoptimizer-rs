@@ -354,7 +354,7 @@ mod tests {
                 status.unwrap();
                 #[cfg(not(miri))]
                 assert_eq!(actual, expected);
-                // Rust arithmetic permits nondeterministic NaN sign/payload;
+                // Rust arithmetic permits nondeterministic NaN signs;
                 // Miri explores it separately from its x86 intrinsic emulation.
                 // Native/wasm qualification still requires exact output bits.
                 #[cfg(miri)]
@@ -366,7 +366,9 @@ mod tests {
                 {
                     assert!(
                         a == e
-                            || (f32::from_le_bytes(*a).is_nan() && f32::from_le_bytes(*e).is_nan())
+                            || (f32::from_le_bytes(*a).is_nan()
+                                && f32::from_le_bytes(*e).is_nan()
+                                && (u32::from_le_bytes(*a) ^ u32::from_le_bytes(*e)) == 0x80000000)
                     );
                 }
             }

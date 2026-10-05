@@ -4520,11 +4520,11 @@ The new explicit Exp small-window test fails only under Miri: for input
 while scalar evaluation yields 0x7fc00000. Native bit-exact tests pass.
 Rust arithmetic permits nondeterministic NaN sign/payload, and Miri explores
 those choices separately from x86 intrinsic emulation; see
-https://doc.rust-lang.org/std/primitive.f32.html#nan-bit-patterns and
-https://github.com/rust-lang/miri#floating-point-nondeterminism.
+[Rust NaN semantics](https://doc.rust-lang.org/std/primitive.f32.html#nan-bit-patterns)
+and [Miri float semantics](https://github.com/rust-lang/miri#floating-point-nondeterminism).
 Do not change arithmetic or normalize production output. In this Miri-only
 assertion, require byte equality for all non-NaN words and both values NaN
-for a NaN result. Keep unconditional native byte equality and actual-wasm
+with identical quiet bit/payload and only the sign differing. Keep native byte equality and actual-wasm
 frozen/edge/finite arithmetic equality. Preserve the failed integer receipt
 in pre-miri-test-fix. No UB diagnostic occurred. Re-run the changed library
 Miri target and remaining sequence target; the seven-test integration Miri
