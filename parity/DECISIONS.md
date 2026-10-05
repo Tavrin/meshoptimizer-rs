@@ -3820,3 +3820,15 @@ because consumption is data-dependent. Separate pair/odd tails keep exact
 counts. Counter overflow still abandons SIMD for the scalar u32 semantics.
 No new memory seam: vector packing uses the existing array store. Existing
 all-code/odd-tail/counter-wrap regression is required before acceptance.
+
+### Fix 6: safe sequence cursor
+
+Sequence retains a remaining slice and checks its five-byte first chunk
+instead of numeric position-plus-five on each index. Single-byte values
+advance one byte directly; multi-byte values preserve all four continuation
+steps, overlong acceptance, wrapping baselines and the exact four-byte final
+tail. Triangle index decoding is unchanged. No unsafe code is added.
+The historical 2.888 allocating maximum is not explained by this edit:
+retained diagnostic evidence shows a 1.300 instruction ratio and comparable
+memset shares. Collect matched counters and final admitted timing before
+deciding whether it persists; do not infer an allocation cause from time alone.

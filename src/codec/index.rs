@@ -195,6 +195,30 @@ fn triangles_width<const STRIDE: usize, const TRI_BYTES: usize>(
     Ok(())
 }
 
+// Sequence lookahead uses remaining length, avoiding numeric cursor
+// addition/overflow checks. The four padding bytes remain visible, matching
+// the original five-byte varint semantics even for overlong encodings.
+#[inline]
+fn decode_sequence_vbyte(cursor: &mut &[u8]) -> Result<u32, Error> {
+    let bytes = cursor.first_chunk::<5>().ok_or(Error::InvalidStream)?;
+    let lead = bytes[0];
+    if lead < 128 {
+        *cursor = &cursor[1..];
+        return Ok(u32::from(lead));
+    }
+    let mut result = u32::from(lead & 127);
+    let mut used = 1;
+    for (i, &group) in bytes[1..].iter().enumerate() {
+        used += 1;
+        result |= u32::from(group & 127) << ((i + 1) * 7);
+        if group < 128 {
+            break;
+        }
+    }
+    *cursor = &cursor[used..];
+    Ok(result)
+}
+
 fn sequence_width<const STRIDE: usize>(
     output: &mut [u8],
     count: usize,
@@ -210,11 +234,10 @@ fn sequence_width<const STRIDE: usize>(
     if version > 1 {
         return Err(Error::UnsupportedVersion);
     }
-    let safe_end = data.len() - 4;
-    let mut position = 1usize;
+    let mut cursor = &data[1..];
     let mut last = [0u32; 2];
     for output in output.as_chunks_mut::<STRIDE>().0 {
-        let mut value = decode_vbyte(data, &mut position)?;
+        let mut value = decode_sequence_vbyte(&mut cursor)?;
         let baseline = (value & 1) as usize;
         value >>= 1;
         let delta = (value >> 1) ^ 0u32.wrapping_sub(value & 1);
@@ -222,7 +245,7 @@ fn sequence_width<const STRIDE: usize>(
         last[baseline] = index;
         output.copy_from_slice(&index.to_le_bytes()[..STRIDE]);
     }
-    if position != safe_end {
+    if cursor.len() != 4 {
         return Err(Error::InvalidStream);
     }
     Ok(())
