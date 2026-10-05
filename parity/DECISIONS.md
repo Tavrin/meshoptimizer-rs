@@ -3888,3 +3888,27 @@ Native and Node queue requests use the required four-GB declaration; actual
 reservation and cap are distinct wrapper receipts. No nested lease wrapper.
 Unchanged standalone Exp S3 failures are retained as historical unclosed gaps,
 not erased by a scope-limited new S3 result.
+
+### Expanded-seed failure retained
+
+The larger optional sweep requested 10,000 cases per family, rather than the
+prior 1,000-case SIMD smoke: P02's 70,000 cases pass. The strict P04 comparison
+stops after 99,264 completed cases at seed-20261005-op20-9264. Its mutated
+odd-tail code is 0x1c: a nonzero unused high nibble. Pinned upstream scalar
+decodes five vertices / one triangle successfully; upstream SIMD consumes
+both triangle nibbles through decodeTriangleGroup and ends beyond bound
+(-3). Current native ceilings, both wasm builds and both starting Rust
+binaries accept identical scalar bytes. Reproduction input, all statuses and
+output hashes, the failed log and complete partial ZIP are retained. This is
+a pre-existing upstream scalar/SIMD malformed-tail disagreement, not a fix-4
+regression; the expanded strict sweep remains FAIL. No harness exception,
+smaller replacement sweep or altered frozen input is used to make it green.
+The verifier explicitly retains this shortfall. All frozen comparisons pass.
+
+All seven static/test/Miri receipts now pass. Native burst one checkpoints at
+its 690-second pair boundary and releases after 11m34s with exit zero. Resume
+only unfinished rows and accepted partial samples; no completed row is rerun.
+Node remains in the visible shared queue. Allocation-sensitive sequence gaps
+persist in the single pass; the row's matched starting Rust is retained.
+Further counter-only cold-packet/kernel-fault diagnostics are prepared for
+after the timing jobs, rather than introducing competing memory traffic.
