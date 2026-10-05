@@ -352,7 +352,23 @@ mod tests {
             crate::codec::filter::scalar_exp(&mut expected);
             if let Some(status) = super::filter(3, &mut actual, 4) {
                 status.unwrap();
+                #[cfg(not(miri))]
                 assert_eq!(actual, expected);
+                // Rust arithmetic permits nondeterministic NaN sign/payload;
+                // Miri explores it separately from its x86 intrinsic emulation.
+                // Native/wasm qualification still requires exact output bits.
+                #[cfg(miri)]
+                for (a, e) in actual
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
+                    .zip(expected.as_chunks::<4>().0)
+                {
+                    assert!(
+                        a == e
+                            || (f32::from_le_bytes(*a).is_nan() && f32::from_le_bytes(*e).is_nan())
+                    );
+                }
             }
         }
     }

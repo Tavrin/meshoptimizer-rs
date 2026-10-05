@@ -4511,3 +4511,24 @@ exact tail change and its existing edge/tail parity regression. The 4-MiB Exp
 boundary regression runs natively; Miri instead executes small explicit Exp
 kernel windows directly, plus all existing filter/meshlet/ISA seam tests.
 No new unsafe block; update line inventory for the same 23 audited blocks.
+
+
+### Fix-seven Miri NaN assertion correction before timing
+
+The new explicit Exp small-window test fails only under Miri: for input
+0x80000000 (0 times negative infinity), SSE emulation yields 0xffc00000,
+while scalar evaluation yields 0x7fc00000. Native bit-exact tests pass.
+Rust arithmetic permits nondeterministic NaN sign/payload, and Miri explores
+those choices separately from x86 intrinsic emulation; see
+https://doc.rust-lang.org/std/primitive.f32.html#nan-bit-patterns and
+https://github.com/rust-lang/miri#floating-point-nondeterminism.
+Do not change arithmetic or normalize production output. In this Miri-only
+assertion, require byte equality for all non-NaN words and both values NaN
+for a NaN result. Keep unconditional native byte equality and actual-wasm
+frozen/edge/finite arithmetic equality. Preserve the failed integer receipt
+in pre-miri-test-fix. No UB diagnostic occurred. Re-run the changed library
+Miri target and remaining sequence target; the seven-test integration Miri
+receipt already passes, and its test/production code is unchanged by this
+cfg(test)+cfg(miri)-only assertion. Refresh all build/proof identities and
+retain explicit original/final check sources rather than rerunning an
+unchanged seven-minute integration gate. No timing pair has been taken yet.
