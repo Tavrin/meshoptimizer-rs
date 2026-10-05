@@ -3575,3 +3575,213 @@ corpora. The exact named target
 `/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodrec` was deleted after
 verification; `target-cleanup.json` and `artifact-manifest.json` are the
 receipts. No push or integration/runtime qualification is performed.
+
+## D155 — P06 independent batches and resource determinism
+
+Implement SPEC-p06 on phase/0.6 from published a4b3c48 only. Rayon 1.11.0 is
+optional, pinned and compatible with Rust 1.88; `parallel` enables `std`.
+Default/no_std algorithms and the unsafe prohibition are unchanged. Use ordered
+preallocated result slots, fallible allocation before execution, and an inner
+Result per item. A bad item never cancels the rest. Panics retain Rayon semantics.
+Use the global/current pool; an existing pool's install selects a custom pool.
+
+Every executing thread has a private thread-local Workspace. Clear it before
+and after each item. Retaining arbitrary preceding scratch could make a later
+item exceed its budget depending on scheduling; reuse across items is rejected
+for this API. A LOD chain runs levels sequentially through the existing plain
+or attribute simplifier, keeping original vertex references and error bits.
+Charge all live level outputs plus scratch and cumulative work to one chain
+budget. Result slots and Rayon infrastructure are batch-level overhead excluded
+from item limits; callers must bound aggregate live outputs themselves.
+
+Parallelize independent meshes, full views and full cluster-LOD builds. Mutable
+cluster-LOD positions are disjoint borrowed slices, with the same late-failure
+mutation contract as the sequential demo. Do not parallelize groups inside a
+single DAG: dilation shares positions and later levels consume prior groups.
+Preserve callback order, refinement IDs and hierarchy order. Add view decoding
+alongside the requested encoding, composing the existing scalar view API for
+later SIMD integration. No per-view block split or float reduction is added.
+
+The baseline contains 0.1/0.1.x/0.2/0.3/0.4. Phase 0.5 modules, tests and a
+0.5 dispatcher are absent; p05 is a separate unmerged worktree. Record this
+qualification limit instead of merging, copying that lane, or inventing a
+0.5 pass. Run every available existing exact parity gate unchanged. A p06
+thread-count test additionally compares every meaningful byte and f32 bit at
+1, 2, 8 and available_parallelism threads, including mixed errors, limits,
+worker histories, dilation and concurrent calls. Reversal cost: cheap before
+integration; API changes would break consumers after publication.
+
+## D156 — Owner's fast measurement directive for P06
+
+The binding owner directive on 2026-10-05 supersedes older unconditional
+10–30-pair/full-repeat timing rules for this lane. During iteration, measure
+only touched cases/families at about five interleaved pairs. For a final bar
+verdict start at five, stop when clearly within/over the bar, cap at twenty;
+only borderline cases use D146's second stage. Run a full timing matrix once
+at the end. P06 has no hard speed bar, so the final new-workload speed curve
+uses exactly five alternating sequential-Rust/parallel-Rust pairs per family
+at 1/2/4/8/16 threads. No legacy performance matrix is rerun; legacy exact
+parity/build gates are not relaxed. No iterative timing is needed for the
+additive wrappers.
+
+Use the pinned upstream demo/pirate.obj (Clint Bellanger, CC-BY-SA 3.0) as an
+authored realistic mesh, with sixteen deterministic spatial variants. Report
+this single-model corpus honestly, not as private Moss assets or broad mesh
+coverage. Pool creation, parsing, generation, serialization and output hashing
+are outside timing; validation, output/scratch allocation, execution and
+required fresh dilation-input copies are inside. Compare complete serialized
+outputs after every measured sample. Pin one allowed logical CPU per physical
+core, selecting by /proc/stat load; retain topology, loads, raw times, executable,
+source, dependency and input SHA-256 identities. Use Cargo release defaults in
+the unpublished dependent driver; the library's profile does not configure it.
+
+Admit warm-ups and each pair only with no GPU lease holder and no actively
+measuring moss-scoreboard-* service. A service with only a sleep child is idle.
+Retain admission observations before and after each pair, finish the current
+pair if a lease starts, then pause. Each burst has a deadline below fifteen
+minutes and releases all worker cores on exit; resumption keeps completed pairs.
+No busy measurement process waits for admission. No gain is presumed and no
+noisy sample is removed. The curve compares parallel and sequential Rust,
+not an algorithmic C++ performance claim.
+
+## D157 — P06 final local result
+
+All implemented batches are qualified against their sequential operations at
+1/2/8/32 threads, including bitwise bounds/errors/dilation, item errors and
+resource boundaries. The seven differential tests pass. Both Clippy modes
+with warnings denied, both feature-mode test suites, parallel without clusterlod,
+fmt, strict rustdoc, no-default/all-feature WASM builds and the P06 driver
+fmt/Clippy/build pass. Rust 1.88 all-feature tests and doc examples also pass.
+Default and no-default dependency trees still contain only pinned libm.
+Parallel WASM execution and remote-platform acceptance are not claimed.
+
+Every available existing exact gate passes against unmodified pinned C++ and
+executed WASM: geometry 279 fixtures + 10,000 seeded cases; preprocessing
+645 fixtures + 64,000 seeded cases; 0.2 287 fixtures + 3,637 malformed +
+14,000 seeded cases; 0.3 697 fixture/generated messages + 52,000 sweep
+messages + 80 cluster-LOD demo cases; 0.4 869 fixtures + 7,653 malformed +
+44,000 seeded cases. Applicable upstream JS suites run in those harnesses.
+There are zero mismatches. Prior performance/fuzz/release records are unchanged
+and are not promoted to P06 acceptance. Phase 0.5 remains absent/unqualified
+in this baseline; its integration owner must run that gate after integration.
+
+The one final curve takes 56.93 seconds and keeps all 150 alternating pairs.
+Every observed admission is clear; the scoreboard's only child is sleep. Load
+is 15.46–18.00. At 1/2/4/8/16 threads, paired median speed-ups versus sequential
+Rust are LOD 1.026/2.001/3.211/6.216/8.201, encoding
+1.207/2.173/3.453/5.445/7.599, decoding 1.193/2.094/3.031/4.261/3.284,
+meshlets 1.112/1.553/4.102/3.872/6.136, cluster LOD
+0.991/1.911/3.913/5.505/7.818, hierarchy 0.845/0.817/0.852/0.988/0.623.
+Small forests do not amortize batching; retain that slowdown. Sixteen-thread
+cluster LOD pairs range 1.82–10.23x; the shared-load median is no universal
+promise. There is no hard P06 bar or borderline D146 case. D156's fast owner
+method is followed; no repeated full matrix or iterative timing is performed.
+
+The external read-only verifier rechecks every recorded source, dependency,
+archive/member hash, meaningful comparison and corpus inventory. Retain slim
+summary MEASURED_P06.json and reviewable method/table in parity/p06/README.md.
+Evidence stays under /mnt/linux-extra/meshopt-artifacts/p06, separate from the
+specified disposable target. Preserve exact binaries and sources, verify hashes,
+then delete only codex-meshopt-p06. Commit only on phase/0.6 with the authorized
+author; no push, merge, rebase or other worktree change. The remaining 0.5
+qualification prerequisite is recorded rather than concealed or bypassed.
+
+
+## D158 — P06 review fixes 2–5: late mutation and small hierarchy dispatch
+
+Finding 1 is resolved by the integration owner; do not rerun or alter the 0.5
+lane here. Findings 2–5 are addressed in this checkout on phase/0.6.
+
+Replace the unproven partial-failure coverage with an explicit 16-triangle
+curved open disk witness: dilation changes position bits before max_work=3200
+returns LimitExceeded. Small successful neighbours on both sides share the same
+limits. Compare complete group outputs/errors and every position bit against
+sequential execution at 1/2/8/N (32 here) threads, repeating fresh inputs three
+times in each pool. Both successes and the failed item's mutation are asserted.
+Add hierarchy tests on either side of both dispatch cutoffs, with ordered
+invalid items and tight work/memory limits.
+
+Quick hierarchy-only profile: five alternating pairs at 1/2/4/8 threads,
+plus one dispatch-only control per pair (pool.install, indexed output slots,
+parallel traversal, no hierarchy or Workspace work). The 16-thread baseline
+was paused before samples when a new GPU lease appeared; keep those four rows
+rather than extending this diagnostic. The burst lasted 7.693 seconds, with
+loads 12.90–22.68 across admission observations. This same pinned Pirate family
+has 16 forests, 231 groups and 1848 group-by-level visits (eight levels each).
+Serial medians were 54.062/57.358/53.020/64.411 us; full batch medians were
+91.051/58.700/54.101/151.004 us. Dispatch-only medians were
+15.860/13.946/16.361/18.885 us: fixed pool entry/task dispatch alone consumes a
+substantial fraction of the serial work. It does not amortize on this family.
+Scheduler-sensitive outliers remain; this control does not establish allocator
+contention or a universal crossover size. No profiler sampling or long timing
+matrix is needed to decide this small-workload fallback.
+
+Run hierarchy items sequentially inside the batch API when total groups <=256
+and sum(groups.len * max(level_count,1)) <=2048. Saturating arithmetic affects
+only dispatch selection; normal per-item validation and limits retain their
+precedence. Preserve ordered slots, item Workspace clearing, errors and output
+bits. Larger forests still use Rayon. The conservative round-number cutoff
+covers the measured small family; it is not a measured optimal crossover, and
+larger-family performance is not qualified here. Reject unconditional serial
+execution for all forests and an arbitrary per-thread cutoff.
+
+Final hierarchy-only check: five pairs at 1/2/4/8/16 threads, 7.586-second burst,
+loads 29.11–30.60. Paired medians S/batch are 0.878/0.836/0.775/0.545/0.725x.
+Serial medians are 59.582/54.703/55.093/57.969/75.432 us; batch medians are
+67.356/68.409/83.276/112.933/105.147 us. Every output matches across calls and
+thread counts. Preserve these residual slowdowns: the existing transport times
+caller-side pool.install, even though the small batch now dispatches no items.
+The dispatch-only control reaches median 2867.606/3568.975 us at 8/16 threads
+under this load. The fallback removes internal parallel item scheduling; it
+does not remove custom-pool entry or promise a gain under shared scheduling.
+
+Each timed pair was admitted with no GPU lease holder and no actively measuring
+moss-scoreboard unit (only sleep children). After the diagnostic's last completed
+row a new lease appeared, and all workers were released before waiting. No
+measurements ran while waiting. Preserve complete raw pairs, controls, loads,
+affinity/admission observations, output hashes, source/dependency/input identities
+and exact binaries under /mnt/linux-extra/meshopt-artifacts/p06fix/{before,after}.
+The baseline curve intentionally remains incomplete; the final curve is complete
+for the selected hierarchy family only. Other families and historical P06
+qualification records are unchanged, not reverified or promoted by this fix.
+
+Document that Rayon lazily initializes its global pool on first use and panics
+inside Rayon if initialization fails, distinct from per-item Error isolation.
+Small sequential hierarchy batches need no global pool; other batches/larger
+hierarchies use the current pool. Remove phase 0.6 from README's remaining work.
+The lean driver now supports one-family/short-burst selection and a dispatch
+control. Exclude the dynamic CPU scaling percentage from immutable resume
+identity; loads remain observations. No API changes or new dependencies.
+
+
+Final fix gates: cargo fmt (crate and driver), strict Clippy --all-targets in
+all-feature/no-default modes, both test suites, all nine deterministic parallel
+tests, WASM builds in both modes, and driver strict Clippy pass. Gate logs and
+exit statuses are retained as p06fix/gates.{log,json}. The parallel-only suite
+without clusterlod also passed during the fix. Before/after archived sources,
+all 45 timing pairs, dispatch controls, all output/binary hashes, admission
+checks and sub-five-minute deadlines were verified before target deletion.
+No new C++/legacy-parity, GPU execution, diverse-corpus, larger-forest speed,
+remote CI or release qualification is claimed by these focused fixes.
+
+## D159 — Assemble the first 0.2.0 integration tranche
+
+Merge parity/rfc113 at 9027712 (including recovery 9589e0c), then phase/0.6
+at 70686e6 into release/0.2.0 from published main a4b3c48, only in rel020.
+Keep RFC 113 decisions D147–D154; renumber P06's D147–D150 to D155–D158
+and update their references. Preserve both branches' code and every decision.
+The package remains 0.1.0 until the coordinator bumps it at release.
+
+Re-run fmt, strict Clippy, tests and wasm32 builds in all-feature and
+no-default modes, 0.1/0.1.x/0.2/0.3/0.4 fixture runs and 2,000-case-per-family
+sweeps, the 80-case cluster-LOD demo gate, RFC 113's 15 supported layouts and
+90 codec comparisons, and all nine P06 thread-count determinism tests.
+Use only /mnt/linux-extra/moss-cargo-targets/codex-meshopt-rel020 for builds
+and remove it after preserving and verifying evidence. Retain fresh records
+under /mnt/linux-extra/meshopt-artifacts/rel020.
+
+No timing is rerun: the source branches' measured evidence stands, with its
+recorded corpus, profiles and remaining limitations. RFC 113 runs with
+--pairs 0. The two stride-32 S2 protect-mask setups remain invalid, outside
+the fifteen supported layouts. Phase 0.5 and phase 0.7 remain outside this
+first integration tranche; no remote, GPU or Moss runtime acceptance is added.

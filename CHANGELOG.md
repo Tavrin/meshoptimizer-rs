@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optional `parallel` feature (Rayon, enabling `std`): ordered batches of LOD
+  chains, vertex/index encoding, EXT view decoding and all meshlet builders.
+  With `clusterlod`, independent cluster-LOD DAG and hierarchy batches.
+- Per-item checked errors and limits, private worker workspaces, and byte
+  comparisons against sequential output at 1, 2, 8 and N threads.
+
+### Changed
+
+- Cluster-LOD cook scaling: borrow validated attributes and boundary flags
+  instead of copying them per group, while retaining bounded simplification
+  scratch and invalidating the position fast path after dilation.
+- RFC 113 recovery: fifteen supported S2 layouts and ninety codec comparisons
+  match; aggregate Rust/scalar-C++ ratios are 1.196× (thin LTO) and 1.090×
+  (Cargo defaults) on the recorded frozen corpus. The two stride-32 S2 setups
+  remain invalid because their protect mask exceeds the layout.
+- Parallel hierarchy batches use sequential dispatch for small forests;
+  deterministic coverage includes dispatch boundaries and position mutation
+  before late cluster-LOD failures.
+
 ## [0.1.0] - unreleased
 
 First public release. Ports meshoptimizer 1.3 (commit

@@ -42,6 +42,7 @@ Rust 1.88 or later. The library is imported as `meshoptimizer_rs`.
 | `std` | yes | `std::error::Error` for `Error`. Disable default features for `no_std`; an allocator is still required. |
 | `clusterlod` | no | The cluster-LOD builder from upstream's `demo/clusterlod.h`. It reproduces the pinned demo exactly; the demo is not a stable upstream API. |
 | `experimental` | no | Upstream functions and options marked experimental. |
+| `parallel` | no | Rayon batches of independent meshes and buffer views; enables `std`. |
 
 ## Quickstart
 
@@ -113,6 +114,61 @@ let decoded = decode_index_buffer(indices.len(), 4, &packed, &mut workspace)?; /
 ```
 
 These examples are compiled and run as doc tests in `src/lib.rs`.
+
+### Parallel batches
+
+Enable `parallel` to use `meshoptimizer_rs::parallel`. Batch functions take
+slices of descriptors and return results in input order. Each successful item
+has the same bytes as its sequential call, regardless of the number of threads.
+
+```rust
+use meshoptimizer_rs::parallel::{encode_buffers_batch, EncodeInput};
+use meshoptimizer_rs::{codec::IndexEncoding, Limits};
+
+let indices = [0, 1, 2, 2, 1, 3];
+let inputs = [EncodeInput::Triangles {
+    indices: &indices,
+    encoding: IndexEncoding::DEFAULT,
+}];
+let results = encode_buffers_batch(&inputs, Limits::default())?;
+let encoded = results[0].as_ref()?;
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`simplify_lod_chains_batch` simplifies each chain's levels in order, using the
+previous level's indices and the original positions and optional attributes.
+It returns the sequential simplifier's error values unchanged. It adds no
+compaction, cache optimization or consumer-specific LOD policy.
+`encode_buffers_batch` accepts vertex, triangle and index-sequence buffers;
+`decode_buffer_views_batch` decodes complete EXT views.
+`build_meshlets_batch` selects the scan, standard, flex or spatial builder per
+mesh. With `clusterlod`, `build_cluster_lod_batch` builds independent DAGs and
+`build_cluster_hierarchies_batch` builds their spatial forests. A DAG retains
+sequential group order and refinement IDs; its shared border dilation prevents
+independent execution of groups within that mesh. Dilation can change an item's
+positions even on failure, as in the sequential API.
+
+The return type is `Result<Vec<Result<T, Error>>, Error>`. The outer error
+means result-slot allocation failed before any item ran. An inner error belongs
+to that item; other items still run. Panics propagate through Rayon.
+Every executing thread has a private `Workspace`, cleared between items so
+retained scratch cannot make limit outcomes depend on scheduling. Limits apply
+per item; a chain charges all live level outputs and cumulative work. The
+batch's result slots and Rayon infrastructure are outside those limits. All
+successful outputs remain live together, so callers should bound batch size
+when aggregate memory matters.
+
+Calls use Rayon's global pool, or the pool selected by
+`pool.install(|| encode_buffers_batch(&inputs, limits))`. The library does not
+explicitly create a pool. Rayon lazily initializes its global pool on first use
+when no pool was configured. If that initialization
+fails, Rayon panics; this infrastructure failure is distinct from the per-item
+`Error` isolation described above. Default and `no_std` builds do not compile
+Rayon or these APIs. Small hierarchy batches run sequentially inside the batch
+API to avoid dispatch overhead; larger forests use Rayon (see the function rustdoc).
+Parallel execution requires native threads; the scalar WASM build is unchanged.
+See [the p06 record](parity/p06/README.md) for thread-count determinism and the
+measured speed curve against sequential Rust.
 
 ### API conventions
 
@@ -209,7 +265,7 @@ Caller-buffer (`_into`) and in-place forms are listed in the rustdoc.
 - Phase 0.5: the analyzers (`meshopt_analyzeVertexCache`, `…Overdraw`,
   `…VertexFetch`, `…Coverage`), opacity maps, tangent and normal generation, and
   remeshing.
-- Phase 0.6 and 0.7 work (see [Roadmap](#roadmap)).
+- Phase 0.7 work (see [Roadmap](#roadmap)).
 - SIMD decoders and filters. The codecs produce upstream's scalar output and
   are scalar code.
 
@@ -278,8 +334,20 @@ LTO (1.23 / 1.37). Profiling shows more instructions and branches in the
 adjacency and partition code; see
 [MEASURED_PERFORMANCE.md](parity/MEASURED_PERFORMANCE.md).
 
-The `clusterlod` build path is not yet competitive with C++. It has no
-qualified timing record and is not covered by the bar.
+The `clusterlod` build path now borrows validated attributes and boundary flags
+without per-group copies, preserves bounded scratch, and invalidates the
+position fast path after dilation. The RFC 113 recovery's frozen S2 corpus
+measured aggregate Rust/scalar-C++ ratios of 1.196× under thin LTO and 1.090×
+under Cargo defaults; all fifteen supported layouts and ninety codec
+comparisons matched. See [the recovery record](parity/results/rfc113-clod-recover.md).
+These measurements cover that corpus on Linux x86-64. The two stride-32 S2
+setups remain invalid because their protect mask exceeds the layout.
+
+The optional `parallel` batches have thread-count determinism coverage at
+1, 2, 8 and N threads. Their speed curve compares parallel with sequential
+Rust on one authored mesh family; small hierarchy batches retain measured
+slowdowns, and use a sequential dispatch fallback. See
+[the P06 record](parity/p06/README.md).
 
 The bar compares against scalar C++. Upstream's SIMD vertex decoder is 2–5×
 faster than this crate on the recorded cases (Rust/SIMD throughput
@@ -360,8 +428,6 @@ them, and none of their code is used.
 
 - 0.5: the rest of the 1.3 API (analyzers, opacity maps, tangents, normals and
   remeshing).
-- 0.6: `parallel` batch APIs (Rayon) for LOD chains, buffer views and
-  cluster LOD, with output byte-identical to the serial calls.
 - 0.7: SIMD decoders and filters (SSE2/SSSE3/SSE4.1, NEON, wasm simd128) in
   one audited `unsafe` module with runtime dispatch, checked against the scalar
   path.
