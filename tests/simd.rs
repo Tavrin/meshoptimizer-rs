@@ -423,7 +423,12 @@ fn repeated_filter_runs_preserve_alpha_and_changed_suffix() {
 fn oct_short_tails_match_canonical_root_rounding() {
     let mut seed = 20261008u32;
     for stride in [4, 8] {
-        for count in [1, 2, 3] {
+        for count in if cfg!(miri) {
+            &[1, 2, 3, 4][..]
+        } else {
+            &[1, 2, 3, 4, 5, 7, 8][..]
+        } {
+            let count = *count;
             for sample in 0..if cfg!(miri) { 8 } else { 4096 } {
                 let mut source = vec![0xa5; count * stride + 13];
                 for record in source[..count * stride].chunks_exact_mut(stride) {

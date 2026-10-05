@@ -177,9 +177,20 @@ fn oct_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), cra
             return Err(crate::Error::NumericalFailure);
         }
         let ss = div(splat(if W == 4 { 127.0 } else { 32767.0 }), length);
-        let r = round_vector(mul(x, ss), x);
-        let g = round_vector(mul(y, ss), y);
-        let b = round_vector(mul(z, ss), z);
+        // These components start as exact finite integers. Reflection uses
+        // addition, so cancellation and every zero component produce +0.
+        // Their sign bit therefore selects the canonical +/-0.5 bias without
+        // repeating three floating-point comparisons. Quat keeps its general
+        // comparator; sqrt/div and all arithmetic ordering stay unchanged.
+        let round = |value, sign| {
+            _mm_cvttps_epi32(add(
+                value,
+                _mm_or_ps(_mm_and_ps(sign, splat(-0.0)), splat(0.5)),
+            ))
+        };
+        let r = round(mul(x, ss), x);
+        let g = round(mul(y, ss), y);
+        let b = round(mul(z, ss), z);
         if W == 4 {
             let packed = _mm_or_si128(
                 _mm_or_si128(
