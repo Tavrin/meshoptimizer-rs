@@ -64,6 +64,20 @@ pub(super) fn decode_deltas<const WIDTH: usize, const XOR: bool>(
     if WIDTH == 1 && !XOR && super::simd::deltas8(buffer, target, count, stride, last) {
         return;
     }
+    scalar_deltas::<WIDTH, XOR>(buffer, target, count, stride, last, rot, 0);
+}
+// Shared canonical short/tail path. `start` skips the already reconstructed
+// complete records while plane spacing remains the original block count.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn scalar_deltas<const WIDTH: usize, const XOR: bool>(
+    buffer: &[u8],
+    target: &mut [u8],
+    count: usize,
+    stride: usize,
+    last: &[u8],
+    rot: u32,
+    start: usize,
+) {
     for component in (0..4).step_by(WIDTH) {
         let mut previous = 0u32;
         for j in 0..WIDTH {
@@ -86,12 +100,12 @@ pub(super) fn decode_deltas<const WIDTH: usize, const XOR: bool>(
             c0
         };
         for (i, record) in target.chunks_mut(stride).enumerate() {
-            let mut value = u32::from(c0[i]);
+            let mut value = u32::from(c0[start + i]);
             if WIDTH >= 2 {
-                value |= u32::from(c1[i]) << 8;
+                value |= u32::from(c1[start + i]) << 8;
             }
             if WIDTH == 4 {
-                value |= u32::from(c2[i]) << 16 | u32::from(c3[i]) << 24;
+                value |= u32::from(c2[start + i]) << 16 | u32::from(c3[start + i]) << 24;
             }
             value = if XOR {
                 value.rotate_left(rot) ^ previous

@@ -579,19 +579,11 @@ fn deltas_kernel<const CHANNEL: u8>(
     rot: u32,
 ) {
     let mut previous = _mm_set1_epi32(i32::from_le_bytes(last[..4].try_into().unwrap()));
-    for start in (0..count).step_by(16) {
-        let n = (count - start).min(16);
-        let mut planes = [_mm_setzero_si128(); 4];
-        for (c, p) in planes.iter_mut().enumerate() {
-            let plane = &buffer[c * count + start..c * count + start + n];
-            let mut input = [0; 16];
-            *p = if let Some(full) = plane.first_chunk::<16>() {
-                load(full)
-            } else {
-                input[..n].copy_from_slice(plane);
-                load(&input)
-            };
-        }
+    let full = count & !15;
+    for start in (0..full).step_by(16) {
+        let planes = core::array::from_fn::<_, 4, _>(|c| {
+            load(buffer[c * count + start..].first_chunk::<16>().unwrap())
+        });
         let ab0 = _mm_unpacklo_epi8(planes[0], planes[1]);
         let ab1 = _mm_unpackhi_epi8(planes[0], planes[1]);
         let cd0 = _mm_unpacklo_epi8(planes[2], planes[3]);
@@ -602,45 +594,39 @@ fn deltas_kernel<const CHANNEL: u8>(
             _mm_unpacklo_epi16(ab1, cd1),
             _mm_unpackhi_epi16(ab1, cd1),
         ];
-        if n == 16 {
-            // One complete destination span; no partial-record decisions in
-            // the unrolled path. Each vector stays live until its four stores.
-            let dst = &mut target[start * stride..(start + 15) * stride + 4];
-            macro_rules! emit {
-                ($g:literal) => {{
-                    let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
-                    previous = _mm_shuffle_epi32::<0xff>(r);
-                    scatter4(&mut dst[$g * 4 * stride..], stride, r);
-                }};
-            }
-            emit!(0);
-            emit!(1);
-            emit!(2);
-            emit!(3);
-            continue;
+        // One complete destination span; no partial-record decisions in
+        // the unrolled path. Each vector stays live until its four stores.
+        let dst = &mut target[start * stride..(start + 15) * stride + 4];
+        macro_rules! emit {
+            ($g:literal) => {{
+                let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
+                previous = _mm_shuffle_epi32::<0xff>(r);
+                scatter4(&mut dst[$g * 4 * stride..], stride, r);
+            }};
         }
-        for (g, mut r) in records.into_iter().enumerate().take(n.div_ceil(4)) {
-            r = delta_prefix::<CHANNEL>(r, previous, rot);
-            previous = _mm_shuffle_epi32::<0xff>(r);
-            let index = start + g * 4;
-            let live = (count - index).min(4);
-            if stride == 4 && live == 4 {
-                store(target[index * 4..].first_chunk_mut().unwrap(), r);
-            } else {
-                let words = [
-                    _mm_cvtsi128_si32(r),
-                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0x55>(r)),
-                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0xaa>(r)),
-                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0xff>(r)),
-                ];
-                let dst = &mut target[index * stride..(index + live - 1) * stride + 4];
-                for (word, out) in words.into_iter().take(live).zip(dst.chunks_mut(stride)) {
-                    out[..4].copy_from_slice(&word.to_le_bytes());
-                }
-            }
+        emit!(0);
+        emit!(1);
+        emit!(2);
+        emit!(3);
+    }
+    if full < count {
+        let mut last = [0; 16];
+        store(&mut last, previous);
+        let dst = &mut target[full * stride..];
+        match CHANNEL {
+            0 => crate::codec::vertex::scalar_deltas::<1, false>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+            1 => crate::codec::vertex::scalar_deltas::<2, false>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+            _ => crate::codec::vertex::scalar_deltas::<4, true>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
         }
     }
 }
+
 #[inline]
 #[target_feature(enable = "sse2")]
 fn delta_prefix<const CHANNEL: u8>(mut r: __m128i, previous: __m128i, rot: u32) -> __m128i {

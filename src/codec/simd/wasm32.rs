@@ -476,19 +476,11 @@ fn deltas_kernel<const CHANNEL: u8>(
     rot: u32,
 ) {
     let mut previous = i32x4_splat(i32::from_le_bytes(last[..4].try_into().unwrap()));
-    for start in (0..count).step_by(16) {
-        let n = (count - start).min(16);
-        let mut planes = [i8x16_splat(0); 4];
-        for (c, p) in planes.iter_mut().enumerate() {
-            let plane = &buffer[c * count + start..c * count + start + n];
-            let mut input = [0; 16];
-            *p = if let Some(full) = plane.first_chunk::<16>() {
-                load(full)
-            } else {
-                input[..n].copy_from_slice(plane);
-                load(&input)
-            };
-        }
+    let full = count & !15;
+    for start in (0..full).step_by(16) {
+        let planes = core::array::from_fn::<_, 4, _>(|c| {
+            load(buffer[c * count + start..].first_chunk::<16>().unwrap())
+        });
         let ab0 = unpack_bytes(planes[0], planes[1]);
         let cd0 = unpack_bytes(planes[2], planes[3]);
         let ab1 = i8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
@@ -503,31 +495,33 @@ fn deltas_kernel<const CHANNEL: u8>(
             i16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(ab1, cd1),
             i16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(ab1, cd1),
         ];
-        if n == 16 {
-            let dst = &mut target[start * stride..(start + 15) * stride + 4];
-            macro_rules! emit {
-                ($g:literal) => {{
-                    let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
-                    previous = i32x4_splat(i32x4_extract_lane::<3>(r));
-                    scatter4(&mut dst[$g * 4 * stride..], stride, r);
-                }};
-            }
-            emit!(0);
-            emit!(1);
-            emit!(2);
-            emit!(3);
-        } else {
-            for (g, r) in records.into_iter().enumerate().take(n.div_ceil(4)) {
-                let r = delta_prefix::<CHANNEL>(r, previous, rot);
+        let dst = &mut target[start * stride..(start + 15) * stride + 4];
+        macro_rules! emit {
+            ($g:literal) => {{
+                let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
                 previous = i32x4_splat(i32x4_extract_lane::<3>(r));
-                let mut bytes = [0; 16];
-                store(&mut bytes, r);
-                let index = start + g * 4;
-                for i in 0..(count - index).min(4) {
-                    target[(index + i) * stride..(index + i) * stride + 4]
-                        .copy_from_slice(&bytes[i * 4..i * 4 + 4]);
-                }
-            }
+                scatter4(&mut dst[$g * 4 * stride..], stride, r);
+            }};
+        }
+        emit!(0);
+        emit!(1);
+        emit!(2);
+        emit!(3);
+    }
+    if full < count {
+        let mut last = [0; 16];
+        store(&mut last, previous);
+        let dst = &mut target[full * stride..];
+        match CHANNEL {
+            0 => crate::codec::vertex::scalar_deltas::<1, false>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+            1 => crate::codec::vertex::scalar_deltas::<2, false>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+            _ => crate::codec::vertex::scalar_deltas::<4, true>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
         }
     }
 }

@@ -3784,3 +3784,14 @@ layout and errors are copied from the validated native path. This replaces
 per-group runtime dispatch and sixteen per-plane prefix stages. No new
 unsafe seam. Native Miri cannot establish wasm correctness: executed wasm
 parity, counters and codegen inspection remain mandatory and pending disk.
+
+### Fix 3: canonical short reconstruction and tails
+
+Only complete groups enter the vector transpose. The remaining zero to
+fifteen records use the shared canonical scalar reconstruction with original
+plane spacing and the final SIMD prefix as their baseline. This removes four
+partial-plane staging copies and partial scatter loops on every block tail,
+including the frozen seventeen-record inputs, rather than choosing a timing
+threshold. Tiny calls with no complete group never stage vectors. Count zero
+executes neither path. Existing boundary/tail regression coverage is retained;
+S3 is still unestablished until the final admitted pass.
