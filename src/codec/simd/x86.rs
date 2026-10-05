@@ -602,28 +602,25 @@ fn deltas_kernel<const CHANNEL: u8>(
             _mm_unpacklo_epi16(ab1, cd1),
             _mm_unpackhi_epi16(ab1, cd1),
         ];
+        if n == 16 {
+            // One complete destination span; no partial-record decisions in
+            // the unrolled path. Each vector stays live until its four stores.
+            let dst = &mut target[start * stride..(start + 15) * stride + 4];
+            macro_rules! emit {
+                ($g:literal) => {{
+                    let r = delta_prefix::<CHANNEL>(records[$g], previous, rot);
+                    previous = _mm_shuffle_epi32::<0xff>(r);
+                    scatter4(&mut dst[$g * 4 * stride..], stride, r);
+                }};
+            }
+            emit!(0);
+            emit!(1);
+            emit!(2);
+            emit!(3);
+            continue;
+        }
         for (g, mut r) in records.into_iter().enumerate().take(n.div_ceil(4)) {
-            r = if CHANNEL == 0 {
-                _mm_xor_si128(
-                    _mm_and_si128(_mm_srli_epi16::<1>(r), _mm_set1_epi8(127)),
-                    _mm_sub_epi8(_mm_setzero_si128(), _mm_and_si128(r, _mm_set1_epi8(1))),
-                )
-            } else if CHANNEL == 1 {
-                _mm_xor_si128(
-                    _mm_srli_epi16::<1>(r),
-                    _mm_sub_epi16(_mm_setzero_si128(), _mm_and_si128(r, _mm_set1_epi16(1))),
-                )
-            } else {
-                _mm_or_si128(
-                    _mm_sll_epi32(r, _mm_cvtsi32_si128(rot as i32)),
-                    _mm_srl_epi32(r, _mm_cvtsi32_si128((32 - rot) as i32)),
-                )
-            };
-            // Prefix across four packed records; byte/halfword carries stay
-            // within their components, XOR lanes preserve rotated-bit identity.
-            r = combine::<CHANNEL>(r, _mm_slli_si128::<4>(r));
-            r = combine::<CHANNEL>(r, _mm_slli_si128::<8>(r));
-            r = combine::<CHANNEL>(r, previous);
+            r = delta_prefix::<CHANNEL>(r, previous, rot);
             previous = _mm_shuffle_epi32::<0xff>(r);
             let index = start + g * 4;
             let live = (count - index).min(4);
@@ -642,6 +639,47 @@ fn deltas_kernel<const CHANNEL: u8>(
                 }
             }
         }
+    }
+}
+#[inline]
+#[target_feature(enable = "sse2")]
+fn delta_prefix<const CHANNEL: u8>(mut r: __m128i, previous: __m128i, rot: u32) -> __m128i {
+    r = if CHANNEL == 0 {
+        _mm_xor_si128(
+            _mm_and_si128(_mm_srli_epi16::<1>(r), _mm_set1_epi8(127)),
+            _mm_sub_epi8(_mm_setzero_si128(), _mm_and_si128(r, _mm_set1_epi8(1))),
+        )
+    } else if CHANNEL == 1 {
+        _mm_xor_si128(
+            _mm_srli_epi16::<1>(r),
+            _mm_sub_epi16(_mm_setzero_si128(), _mm_and_si128(r, _mm_set1_epi16(1))),
+        )
+    } else {
+        _mm_or_si128(
+            _mm_sll_epi32(r, _mm_cvtsi32_si128(rot as i32)),
+            _mm_srl_epi32(r, _mm_cvtsi32_si128((32 - rot) as i32)),
+        )
+    };
+    // Prefix across four packed records; byte/halfword carries stay
+    // within their components, XOR lanes preserve rotated-bit identity.
+    r = combine::<CHANNEL>(r, _mm_slli_si128::<4>(r));
+    r = combine::<CHANNEL>(r, _mm_slli_si128::<8>(r));
+    r = combine::<CHANNEL>(r, previous);
+    r
+}
+#[inline]
+#[target_feature(enable = "sse2")]
+fn scatter4(dst: &mut [u8], stride: usize, r: __m128i) {
+    if stride == 4 {
+        store(dst.first_chunk_mut().unwrap(), r);
+    } else {
+        dst[..4].copy_from_slice(&_mm_cvtsi128_si32(r).to_le_bytes());
+        dst[stride..stride + 4]
+            .copy_from_slice(&_mm_cvtsi128_si32(_mm_shuffle_epi32::<0x55>(r)).to_le_bytes());
+        dst[stride * 2..stride * 2 + 4]
+            .copy_from_slice(&_mm_cvtsi128_si32(_mm_shuffle_epi32::<0xaa>(r)).to_le_bytes());
+        dst[stride * 3..stride * 3 + 4]
+            .copy_from_slice(&_mm_cvtsi128_si32(_mm_shuffle_epi32::<0xff>(r)).to_le_bytes());
     }
 }
 #[inline]

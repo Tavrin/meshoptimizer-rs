@@ -3755,3 +3755,21 @@ receipts. It passes. S1/S2 and S5 still fail both APIs; S3 has nineteen
 significant case/ceiling regressions. S4 passes caller-buffer and all frozen
 minima; allocating fails three maxima. Preserve these outcomes rather than
 claiming full bar, release/platform, Moss or phase-0.6 acceptance.
+
+## P07-F4 — execution from e41f4bb
+
+The explicit brief authorizes six separate fix commits; no push, merge or
+rebase. Frozen inputs and SIMD_BAR stay unchanged. The brief's 1.25/1.50
+summary differs from registered S1 1.10/1.30 and S5 maximum 1.60; assess
+both, without replacing either. Initial disk admission is 16 GiB free, below
+the required 25 GiB. Build/counter/parity/Miri/timing work is paused while
+code work continues; no alternate target or foreign cleanup is authorized.
+
+### Fix 1: native reconstruction
+
+Complete sixteen-record groups now use four explicit prefix/scatter calls,
+with four explicit stores each and one checked complete destination span.
+Partial groups retain initialized staging and counted live stores. All three
+channel operations reuse exactly the existing integer arithmetic. No new
+unsafe block or padding write. Validation remains pending disk admission;
+source structure alone does not establish removed machine-code spills.
