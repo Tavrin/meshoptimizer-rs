@@ -349,7 +349,12 @@ fn exp_dispatch_boundary_preserves_words_and_tail() {
                 0x00ffffff,
             ];
             let mut source = vec![0xa5; count * stride + 11];
-            for (i, w) in source[..count * stride].chunks_exact_mut(4).enumerate() {
+            for (i, w) in source[..count * stride]
+                .as_chunks_mut::<4>()
+                .0
+                .iter_mut()
+                .enumerate()
+            {
                 w.copy_from_slice(&u32::to_le_bytes(words[i % words.len()]));
             }
             let run = |level| {
@@ -381,7 +386,7 @@ fn repeated_filter_runs_preserve_alpha_and_changed_suffix() {
                 if stride == 4 {
                     e.copy_from_slice(&[changed as u8, 0, 127, i as u8]);
                 } else {
-                    for (out, word) in e.chunks_exact_mut(2).zip([
+                    for (out, word) in e.as_chunks_mut::<2>().0.iter_mut().zip([
                         changed,
                         0,
                         if kind == 1 { 32767 } else { 0 },
