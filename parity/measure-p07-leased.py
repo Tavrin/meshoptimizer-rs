@@ -23,8 +23,9 @@ done = {(r['api'], r['case']) for r in previous['rows']} if previous else set()
 state = {}
 began = time.monotonic()
 scope = sys.argv[1] if len(sys.argv) > 1 else 'touched'
-assert scope in ['touched', 'full']
-cases = [(name, b) for name, b in q.corpus() if scope == 'full' or q.family(name) in ['vertex', 'view-none', 'view-filtered', 'oct', 'quat', 'meshlet', 'meshlet-raw']]
+assert scope in ['touched', 'full', 'fix4']
+families = ['vertex', 'view-none', 'view-filtered', 'color', 'meshlet', 'meshlet-raw', 'sequence'] if scope == 'fix4' else ['vertex', 'view-none', 'view-filtered', 'oct', 'quat', 'meshlet', 'meshlet-raw']
+cases = [(name, b) for name, b in q.corpus() if scope == 'full' or q.family(name) in families]
 
 
 from p07_lease import admission
@@ -62,12 +63,35 @@ source = source.replace("stage={k:[] for k in active};stage_telemetry=[]", "pend
 source = source.replace("                row['stage2']={'raw_seconds':stage", "                row.pop('stage2_partial',None)\n                row['stage2']={'raw_seconds':stage")
 source = source.replace("            raw.append(row);save(path,record)", "            record.pop('current_row',None);raw.append(row);save(path,record)")
 source = source.replace("record['complete']=True;save(path,record)", "record['scope_complete']=True;record['complete']=len(raw)==276;save(path,record)")
+if scope == 'fix4':
+    old_sequence = q.ART.parent / 'p07r3/bin/rust-simd'
+    controller['sequence_before_binary_sha256'] = q.m.sha(old_sequence)
+    source = source.replace("'sse2':Rust('sse2')}", "'sse2':Rust('sse2'),'before':m.Driver(old_sequence)}")
+    source = source.replace("if k!='sse2' or family(name) in ['vertex','view-none','view-filtered']", "if (k!='sse2' or family(name) in ['vertex','view-none','view-filtered']) and (k!='before' or family(name)=='sequence')")
+    # One pass resolves both registered and brief maxima; S4's scalar-C++
+    # interval participates in the same stopping/D146 decision for sequence.
+    source = source.replace("if ci[1]<=limit(name) or ci[0]>limit(name):break", "if settled(row, name):break")
+    source = source.replace("if not diagnostic and row['interval'][0]<=limit(name)<row['interval'][1]:", "if not diagnostic and not settled(row, name):")
+    source = source.replace("record['scope_complete']=True;record['complete']=len(raw)==276", "record['scope_complete']=True;record['complete']=len(raw)==len(cases)*2")
+
+
+def settled(row, name):
+    raw = row['raw_seconds']
+    ci = q.interval([x/y for x,y in zip(raw['rust'],raw['simd'])])
+    if any(ci[0] <= bar < ci[1] for bar in {q.limit(name), 1.50}):
+        return False
+    if q.family(name) == 'sequence':
+        scalar = q.interval([x/y for x,y in zip(raw['rust'],raw['cpp-scalar'])])
+        if scalar[0] <= 1.50 < scalar[1]:
+            return False
+    return True
+
 executed = q.ART / ('native-leased-executed-' + str(os.getpid()) + '.py')
 executed.write_text(source)
 controller['executed_controller_path'] = executed.name
 controller['executed_controller_sha256'] = q.m.sha(executed)
 namespace = dict(q.__dict__, previous=previous, done=done, controller=controller, state=state,
-                 admission=admission, check_budget=check_budget)
+                 admission=admission, check_budget=check_budget, settled=settled, old_sequence=q.ART.parent/'p07r3/bin/rust-simd')
 exec(compile(source, str(executed), 'exec'), namespace)
 try:
     namespace['bench'](cases)

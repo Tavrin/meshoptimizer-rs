@@ -247,12 +247,19 @@ fn meshlet_all_pair_codes_odd_tails_and_counter_wrap() {
         (0..=255).collect()
     };
     for code in codes {
-        for tc in [1, 2] {
+        for tc in [1, 2, 3, 4, 5] {
+            let pair_codes = [code, code.rotate_left(4), code ^ 0x55];
             let mut source = vec![7; 16];
-            let n = extra(code & 15) + if tc == 2 { extra(code >> 4) } else { 0 };
+            let n: usize = (0..tc)
+                .map(|i| {
+                    let pair = pair_codes[i / 2];
+                    extra((pair >> ((i % 2) * 4)) & 15)
+                })
+                .sum();
             source.extend((0..n).map(|i| (i * 71 + 19) as u8));
             source.extend([0; 14]);
-            source.extend([255, code]);
+            source.push(255);
+            source.extend_from_slice(&pair_codes[..tc.div_ceil(2)]);
             for len in [source.len() - 1, source.len()] {
                 let expected = run(&source[..len], 4, tc, Level::Scalar);
                 for l in levels() {

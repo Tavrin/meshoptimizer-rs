@@ -62,6 +62,14 @@ source = source.replace("            row['stage2']={'raw_seconds':stage,'interva
 source = source.replace("        record['rows'].append(row);save(path,record)", "        record.pop('current_row',None);record['rows'].append(row);save(path,record)")
 # A completed stage-1 row can resume directly inside its fresh second stage.
 source = source.replace("        row['interval']=ci", "        ci=row.get('interval',ci) if len(row['raw_seconds']['rust'])==20 else ci\n        row['interval']=ci",1)
+scope = sys.argv[1] if len(sys.argv) > 1 else 'full'
+assert scope in ['full', 'fix4']
+controller['scope'] = scope
+if scope == 'fix4':
+    source = source.replace("if op not in [1,2,3,7]:continue", "if op not in [1,3,7]:continue")
+    source = source.replace("if ci[1]<=1.60 or ci[0]>1.60:break", "if all(ci[1]<=bar or ci[0]>bar for bar in [1.50,1.60]):break")
+    source = source.replace("if ci[0]<=1.60<ci[1]:", "if any(ci[0]<=bar<ci[1] for bar in [1.50,1.60]):")
+
 executed = q.ART/('wasm-leased-executed-'+str(os.getpid())+'.py')
 executed.write_text(source)
 controller['executed_controller_path']=executed.name
