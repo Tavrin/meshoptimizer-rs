@@ -4590,3 +4590,45 @@ means to separate historical epoch drift from candidate new/old movement.
 Typed caller meshlets improve within pairs by 0.877 and close mean to 1.244;
 raw caller improves 0.951 and closes mean to 1.190. These are scoped results,
 not a release qualification.
+
+
+### Fix-eight first counter analysis and kill decisions
+
+Start clean at 3f58dda (phase/0.7). Full fix8/fix7/fix4 and RUN-RULES read;
+no subagents, no push/merge/rebase. Read-only map and first cheap pinned
+CPU26 N/2N measurement recorded in moss-scratch/p07-fix8 within 20 minutes.
+Artifacts: /mnt/linux-extra/meshopt-artifacts/p07-fix8. Frozen inputs and
+round-seven controls are hardlinked read-only, with independent hash checks.
+Builds pause below 25 GiB free; the exact codex-p07-fix8 target is disposable.
+
+Fresh Exp tiny12 allocating instructions/byte 2.7059 versus scalar 2.6814;
+caller 2.0392 versus 2.0147: fixed extra branch, same scalar_exp arithmetic.
+Large Exp32 allocating cycles/byte 0.2856 versus scalar 0.2405, while caller
+is tied (0.2308/0.2307). Assembly shows canonical scalar_exp already packed
+and unrolled; retain canonical lowering for every native Exp size, removing
+the shape branch instead of inferring another crossover from noisy cycles.
+Keep explicit ISA arithmetic tests; no reassociation or exceptional-word change.
+One final paired timing pass must establish RFC/S3; counters are not acceptance.
+
+Kill decisions: native vertex-v1-streaming-s4 and view-1-streaming-s4 allocating
+have essentially identical instruction work to caller (~6.1066 and 5.4043/byte).
+Fresh cycles do not reproduce a distinct allocating deficit against C++, and
+both baselines initialize output. No isolated cause for their historical maxima;
+abandon these residuals now, without parser or allocation speculation.
+WASM residual shape scout covers unfiltered12, repeated Oct8/Exp12 and varied
+Oct4/Oct8/Quat8/Exp12, both APIs, paired N/2N public-path counters. V8 process
+subtraction includes tiering/GC: even some C++ cycle differences are negative,
+and allocating/caller instruction differences reverse between shapes. Source
+inspection finds common bounded parser plus copy/allocation seams, but no
+isolated cause for the view geomeans/maxima. Abandon all WASM residuals at
+this first counter-level analysis; do not retime or claim gains for them.
+Retain their round-seven failures, explicitly historical, in the final report.
+
+The native large Exp allocating counter preference does not reproduce or explain
+its historical 1.596–3.944 RFC maximum interval against C++. Treat that maximum's
+specific cause as unidentified and abandoned under the first-analysis kill rule.
+The proposed shared canonical lowering is justified by the directly identified
+tiny S3 branch overhead and the measured scalar-winning allocating shape, not
+by a claim that the historical large maximum is fixed. Both native candidates
+remain uncompiled/unmeasured after source edits while the mandatory disk gate
+is closed; no retained-before counter is evidence of a candidate improvement.

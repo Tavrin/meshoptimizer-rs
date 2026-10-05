@@ -398,20 +398,18 @@ pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
     }
     scalar_quat(data)
 }
+#[inline(always)]
 pub(super) fn exp(data: &mut [u8], stride: usize) {
-    #[cfg(feature = "simd")]
-    {
-        #[cfg(target_arch = "x86_64")]
-        let use_simd = data.len() > 4 * 1024 * 1024 && stride != 12;
-        #[cfg(not(target_arch = "x86_64"))]
-        let use_simd = true;
-        if use_simd && super::simd::filter(3, data, 4).is_some() {
-            return;
-        }
+    // Native scalar lowering is already vectorized. Its shared body avoids
+    // tiny size-dispatch overhead and wins the allocating streaming shape.
+    #[cfg(all(feature = "simd", not(target_arch = "x86_64")))]
+    if super::simd::filter(3, data, 4).is_some() {
+        return;
     }
     let _ = stride;
     scalar_exp(data)
 }
+
 pub(super) fn color(data: &mut [u8], stride: usize) -> Result<(), Error> {
     #[cfg(feature = "simd")]
     if let Some(result) = super::simd::filter(4, data, stride) {
