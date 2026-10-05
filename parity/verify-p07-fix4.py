@@ -35,7 +35,7 @@ assert inputs == old_inputs
 for r in inputs: assert sha(ART/r['path']) == r['sha256']
 assert sha(ROOT/'parity/SIMD_BAR.md') == json.loads((ART.parent/'p07r3/build.json').read_text())['sources']['parity/SIMD_BAR.md']
 proofs = {}
-for label in ['fixtures','malformed','fixtures04','malformed04','benchmark-identity','sweep02','sweep04']:
+for label in ['fixtures','malformed','fixtures04','malformed04','benchmark-identity','sweep02']:
     rec=read(label)
     assert rec['sources']==build['sources'] and rec['binaries']==build['binaries'] and rec['mismatches']==0
     assert sha(ART/(label+'.zip')) == rec['archive_sha256']
@@ -45,6 +45,16 @@ for label in ['fixtures','malformed','fixtures04','malformed04','benchmark-ident
             assert hashlib.sha256(z.read(r['case']+'.input')).hexdigest()==r['input_sha256']
             if r['status']==0: assert hashlib.sha256(z.read(r['case']+'.output')).hexdigest()==r['output_sha256']
     proofs[label]=len(rec['cases'])
+failure=read('sweep04-failure')
+assert failure['sources']==build['sources'] and failure['binaries']==build['binaries']
+assert failure['status']=='failed-expanded-cpp-simd-conformance'
+assert sha(ART/'sweep04.zip')==failure['archive_sha256'] and sha(ART/'sweep.log')==failure['log_sha256']
+repro=read('seed-failure-reproduction');assert repro==failure['reproduction']
+assert sha(ART/(repro['case']+'.input'))==repro['input_sha256']
+rr={r['backend']:r for r in repro['rows']}
+assert rr['cpp-simd']['status']==-3 and rr['cpp-scalar']['status']==0
+assert all(r['status']==0 and r['output_sha256']==rr['cpp-scalar']['output_sha256'] for k,r in rr.items() if k!='cpp-simd')
+proofs['expanded_sweep04']={'verdict':'FAIL; pre-existing upstream scalar/SIMD odd-tail status disagreement','completed_before_failure':failure['completed_cases_before_failure'],'first_failed_case':failure['first_failed_case']}
 golden={r['case']:r for r in read('benchmark-identity')['cases']}
 node_build=read('node-build')
 for name,h in node_build['binaries'].items(): assert sha(ART/'node-bin'/name)==h
