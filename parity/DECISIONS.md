@@ -4064,3 +4064,35 @@ changed resident work negligibly and tiny vertex only 0.997 starting;
 revert those annotations before the single final timing epoch. Do not
 introduce an input-size threshold selected from historical failed cases.
 Native S1 and remaining filtered-view maxima are explicitly still at risk.
+
+
+### Fix-five sequence allocation investigation and bounded initialization
+
+Allocation interposition and mmap/munmap/brk traces on the frozen v1
+streaming-s4 request establish exact 8,388,612-byte output allocations,
+not capacity growth. Both drivers allocate a new output while the old one
+is live. C++ releases its old vector before decoding; Rust assignment
+releases it after decoding. Rust additionally reserves an unused caller
+buffer in the allocating benchmark path. Those are harness differences,
+not established causes of the 2.876 time ratio; retain the frozen harness
+instead of changing lifetime/allocator policy to select a passing result.
+
+The production allocating API did zero-fill every output page before
+writing decoded records. Decode into initialized 64-record stack blocks
+and append into the pre-reserved/accounted exact-capacity Vec instead.
+No MaybeUninit, unsafe initialization, capacity growth, private allocator
+or changed byte/work accounting. The per-record append trial was rejected:
+streaming allocation work 7.25 vs 5.25 instructions/byte. Block append
+takes 5.492 (about 1.046 starting); caller-buffer stays 5.25. Cold packet
+minor faults stay about 3,074 vs starting 3,074, and C++ about 4,081.
+Warm faults are near zero. Cold user instructions rise 44.25M to 46.28M
+while warm user cycles fall 9.24M to 8.87M (diagnostic, noisy, not a bar).
+Removing a separate zero-fill pass therefore does not prove a page-fault
+count explanation. Kernel page-fault latency is not measured. Final matched
+starting/new/C++ sequence rows must determine acceptance; if the maximum
+persists, cause attribution remains unresolved rather than fabricated.
+
+Block-boundary regression covers 63/64/65/127/128/129 records, versions 0/1,
+widths 2/4, exact retained capacity/resource limits, invalid headers,
+unsupported versions, extra encoded bytes and untouched caller tails.
+Focused codec/SIMD tests and 138 native benchmark goldens pass.

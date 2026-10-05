@@ -305,8 +305,12 @@ fn allocate(
     if out.capacity() != bytes {
         workspace.account_codec(out.capacity())?;
     }
-    out.resize(bytes, 0);
-    raw(mode, &mut out, count, stride, source)?;
+    if mode == Mode::Indices {
+        index::sequence_append(&mut out, count, stride, source)?;
+    } else {
+        out.resize(bytes, 0);
+        raw(mode, &mut out, count, stride, source)?;
+    }
     apply(filter, &mut out, stride)?;
     Ok(out)
 }

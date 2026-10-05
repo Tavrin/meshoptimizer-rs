@@ -224,31 +224,74 @@ fn sequence_width<const STRIDE: usize>(
     count: usize,
     data: &[u8],
 ) -> Result<(), Error> {
-    if data.len() < 1 + count + 4 {
-        return Err(Error::InvalidStream);
-    }
-    if data[0] & 0xf0 != SEQUENCE_HEADER {
-        return Err(Error::InvalidStream);
-    }
-    let version = data[0] & 0x0f;
-    if version > 1 {
-        return Err(Error::UnsupportedVersion);
-    }
-    let mut cursor = &data[1..];
+    let mut cursor = sequence_start(count, data)?;
     let mut last = [0u32; 2];
     for output in output.as_chunks_mut::<STRIDE>().0 {
-        let mut value = decode_sequence_vbyte(&mut cursor)?;
-        let baseline = (value & 1) as usize;
-        value >>= 1;
-        let delta = (value >> 1) ^ 0u32.wrapping_sub(value & 1);
-        let index = last[baseline].wrapping_add(delta);
-        last[baseline] = index;
+        let index = sequence_one(&mut cursor, &mut last)?;
         output.copy_from_slice(&index.to_le_bytes()[..STRIDE]);
     }
     if cursor.len() != 4 {
         return Err(Error::InvalidStream);
     }
     Ok(())
+}
+
+#[inline]
+fn sequence_start(count: usize, data: &[u8]) -> Result<&[u8], Error> {
+    if data.len() < 1 + count + 4 || data[0] & 0xf0 != SEQUENCE_HEADER {
+        return Err(Error::InvalidStream);
+    }
+    if data[0] & 0x0f > 1 {
+        return Err(Error::UnsupportedVersion);
+    }
+    Ok(&data[1..])
+}
+#[inline]
+fn sequence_one(cursor: &mut &[u8], last: &mut [u32; 2]) -> Result<u32, Error> {
+    let value = decode_sequence_vbyte(cursor)?;
+    let baseline = (value & 1) as usize;
+    let value = value >> 1;
+    let delta = (value >> 1) ^ 0u32.wrapping_sub(value & 1);
+    let index = last[baseline].wrapping_add(delta);
+    last[baseline] = index;
+    Ok(index)
+}
+
+// Capacity has already been reserved and accounted. Decode small initialized
+// stack blocks and append them without a second full-output zero-fill pass.
+// Appending a block amortizes Vec's capacity check; errors still stop at once.
+fn sequence_append_width<const STRIDE: usize>(
+    output: &mut alloc::vec::Vec<u8>,
+    count: usize,
+    data: &[u8],
+) -> Result<(), Error> {
+    let mut cursor = sequence_start(count, data)?;
+    let mut last = [0u32; 2];
+    let mut block = [0u8; 256];
+    for first in (0..count).step_by(64) {
+        let size = (count - first).min(64) * STRIDE;
+        for record in block[..size].as_chunks_mut::<STRIDE>().0 {
+            let index = sequence_one(&mut cursor, &mut last)?;
+            record.copy_from_slice(&index.to_le_bytes()[..STRIDE]);
+        }
+        output.extend_from_slice(&block[..size]);
+    }
+    if cursor.len() != 4 {
+        return Err(Error::InvalidStream);
+    }
+    Ok(())
+}
+pub(super) fn sequence_append(
+    output: &mut alloc::vec::Vec<u8>,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), Error> {
+    if stride == 2 {
+        sequence_append_width::<2>(output, count, data)
+    } else {
+        sequence_append_width::<4>(output, count, data)
+    }
 }
 
 pub(super) fn triangles(

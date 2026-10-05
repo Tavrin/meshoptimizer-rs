@@ -250,3 +250,62 @@ fn decoder_accounts_retained_geometry_workspace_without_allocating_scratch() {
     decode_index_sequence_into(&mut output, 1, 4, &source, &mut w).unwrap();
     assert_eq!(w.usage().bytes, 0);
 }
+
+#[test]
+fn allocating_sequence_blocks_preserve_limits_headers_and_tails() {
+    for count in [63, 64, 65, 127, 128, 129] {
+        let indices: Vec<u32> = (0..count)
+            .map(|i| match i % 3 {
+                0 => u32::MAX.wrapping_sub(i as u32),
+                1 => i as u32,
+                _ => 70000 + i as u32,
+            })
+            .collect();
+        for version in [0, 1] {
+            let source = encode_index_sequence(
+                &indices,
+                IndexEncoding::new(version).unwrap(),
+                &mut Workspace::default(),
+            )
+            .unwrap();
+            for stride in [2, 4] {
+                let bytes = count * stride;
+                let mut w = Workspace::new(Limits {
+                    max_bytes: bytes,
+                    max_work: 1 << 34,
+                });
+                let owned = decode_index_sequence(count, stride, &source, &mut w).unwrap();
+                assert_eq!(owned.len(), bytes);
+                assert_eq!(owned.capacity(), bytes);
+                assert_eq!(w.usage().bytes, bytes);
+                let mut into = vec![0xa5; bytes + 7];
+                decode_index_sequence_into(&mut into, count, stride, &source, &mut w).unwrap();
+                assert_eq!(&into[..bytes], owned);
+                assert_eq!(&into[bytes..], &[0xa5; 7]);
+                let mut limited = Workspace::new(Limits {
+                    max_bytes: bytes - 1,
+                    max_work: 1 << 34,
+                });
+                assert_eq!(
+                    decode_index_sequence(count, stride, &source, &mut limited),
+                    Err(Error::LimitExceeded)
+                );
+                for header in [0, 0xe0, 0xd2] {
+                    let mut bad = source.clone();
+                    bad[0] = header;
+                    assert_eq!(
+                        decode_index_sequence(count, stride, &bad, &mut w).unwrap_err(),
+                        decode_index_sequence_into(&mut into, count, stride, &bad, &mut w)
+                            .unwrap_err()
+                    );
+                }
+                let mut extra = source.clone();
+                extra.push(0);
+                assert_eq!(
+                    decode_index_sequence(count, stride, &extra, &mut w),
+                    Err(Error::InvalidStream)
+                );
+            }
+        }
+    }
+}
