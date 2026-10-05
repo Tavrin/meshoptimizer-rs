@@ -4123,3 +4123,25 @@ before entering the block; the single call remains authorized by Ssse3.
 No lint suppression or unsafe function declaration is added. Retain the
 failed log and pre-fix identities under pre-lint-fix, rebuild and rerun
 source-bound correctness/static checks before timing.
+
+
+### Fix-five final timing scope and verifier
+
+Measure 124 native cases (248 API rows): vertex, NONE and filtered views,
+standalone Oct/Quat/Exp/Color, typed/raw meshlets and sequence. Node scope
+is the same 73 eligible cases / 146 API rows as fix four (vertex/views/
+sequence); upstream JS exposes no standalone filters or meshlet API.
+Use only registered maxima for early stopping; no second generic 1.50
+brief threshold on S1/S5. Five to twenty pairs and fresh borderline-only
+D146 remain unchanged. Sequence also interleaves fix-four Rust in this
+same pass. Both controllers checkpoint accepted pairs, stage-two partials
+and every prior lease receipt; release at the pair-boundary 690-second
+budget and requeue under the visible heavy 4GB timeout-840 wrapper.
+
+No 276-row full matrix or case-selection retries. Family means and S3
+remain independent gates. Independently verify source/binary/BAR/input
+hashes, exact frozen archives, expected upstream tail split, Node output
+hashes, unique scope, stopping intervals, D146 eligibility, paired lease
+telemetry, wrapper exits and safety/test/portability receipts. Before is
+fix four where measured and the clearly labeled fix-three standalone
+Oct/Quat/Exp epoch otherwise. No missing release/platform gates are cleared.
