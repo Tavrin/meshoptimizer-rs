@@ -320,9 +320,14 @@ fn preflight(mode: Mode, count: usize, stride: usize, source: &[u8]) -> Result<(
         match mode {
             Mode::Attributes => {
                 let version = decode_vertex_version(source)?;
-                let block = ((8192 / stride) & !15).min(256);
-                let full = count / block;
-                let rest = count % block;
+                // Valid vertex strides imply a block of at least 32 records.
+                // Tiny calls therefore need no block-size or quotient division.
+                let (full, rest, block) = if count <= 32 {
+                    (0, count, 32)
+                } else {
+                    let block = ((8192 / stride) & !15).min(256);
+                    (count / block, count % block, block)
+                };
                 let body = if version == 0 {
                     let header = |n: usize| n.div_ceil(16).div_ceil(4);
                     (full * header(block) + if rest > 0 { header(rest) } else { 0 })

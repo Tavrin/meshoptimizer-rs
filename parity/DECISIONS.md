@@ -4280,3 +4280,22 @@ A separate typed/raw caller-wrapper inline(always) trial was rejected: typed
 resident 4.281 vs 4.279 instructions/byte; raw 3.362 vs 3.314; no useful gain.
 Retain source/counters/binary as meshlet-inline artifacts and restore original
 wrapper attributes. No caller clear/copy was removed because none exists.
+
+### Fix-six tiny allocating preflight and meshlet stop decision
+
+Valid vertex strides imply blocks of at least 32 records. For count <=32,
+preflight needs neither 8192/stride nor count/block division. Keep identical
+minimum-body/tail checks, early resource checks and actual capacity accounting.
+Native tiny v1/s12 allocating instructions fall 23.157 to 23.098/byte; the
+instruction saving is small, but two integer divisions disappear from this
+setup. Regression covers 0/1/31/32/33 records, strides 4/12/256, versions 0/1,
+malformed lengths, exact budgets and caller tails. The first test mistakenly
+used a zero-count EXT view (registered invalid metadata); correct the test,
+retain its failure log and run the meaningful boundary checks again.
+
+A packed-u32 meshlet metadata trial worsens typed resident caller work 4.279
+->4.528 and raw 3.314->3.458/byte; reject it and retain patch/binary/counters.
+Together with the rejected wrapper inlining trial and absence of timed decoder
+clear/copy, abandon further meshlet edits in this round. No changed output
+padding, unchecked access, counter semantics or scalar fallback. Re-measure
+both meshlet families once in the final touched-family epoch, failures included.

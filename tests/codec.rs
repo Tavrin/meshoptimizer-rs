@@ -309,3 +309,71 @@ fn allocating_sequence_blocks_preserve_limits_headers_and_tails() {
         }
     }
 }
+
+#[test]
+fn allocating_vertex_preflight_at_minimum_block_boundary() {
+    // Every legal stride admits at least 32 records per block. Compare both
+    // sides of that preflight shortcut, including zero and malformed inputs.
+    let counts: &[usize] = if cfg!(miri) {
+        &[0, 32, 33]
+    } else {
+        &[0, 1, 31, 32, 33]
+    };
+    let strides: &[usize] = if cfg!(miri) { &[256] } else { &[4, 12, 256] };
+    for &count in counts {
+        for &stride in strides {
+            let bytes = count * stride;
+            let data: Vec<u8> = (0..bytes).map(|i| (i * 13) as u8).collect();
+            for version in [0, 1] {
+                let source = encode_vertex_buffer(
+                    &data,
+                    count,
+                    stride,
+                    VertexEncoding::new(version, 2).unwrap(),
+                    &mut Workspace::default(),
+                )
+                .unwrap();
+                let mut w = Workspace::new(Limits {
+                    max_bytes: bytes,
+                    max_work: 1 << 34,
+                });
+                assert_eq!(
+                    decode_vertex_buffer(count, stride, &source, &mut w).unwrap(),
+                    data
+                );
+                if version == 0 && count > 0 {
+                    assert_eq!(
+                        decode_buffer_view(
+                            Mode::Attributes,
+                            Filter::None,
+                            count,
+                            stride,
+                            &source,
+                            &mut w
+                        )
+                        .unwrap(),
+                        data
+                    );
+                }
+                for len in [0, 1, source.len().saturating_sub(1)] {
+                    let mut out = vec![0xa5; bytes + 7];
+                    let owned = decode_vertex_buffer(count, stride, &source[..len], &mut w);
+                    let into =
+                        decode_vertex_buffer_into(&mut out, count, stride, &source[..len], &mut w);
+                    assert_eq!(owned.unwrap_err(), into.unwrap_err());
+                    assert_eq!(&out[bytes..], &[0xa5; 7]);
+                }
+                if bytes > 0 {
+                    w.set_limits(Limits {
+                        max_bytes: bytes - 1,
+                        max_work: 1 << 34,
+                    });
+                    assert_eq!(
+                        decode_vertex_buffer(count, stride, &source, &mut w),
+                        Err(Error::LimitExceeded)
+                    );
+                }
+            }
+        }
+    }
+}
