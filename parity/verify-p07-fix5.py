@@ -151,6 +151,9 @@ for api in ['allocating','caller-buffer']:
         if interval(raw['rust'],raw['cpp-scalar'])[1]>1.5:max_failures.append(r['case'])
     scalar_gm=gm(statistics.median(r['raw_seconds']['rust'])/statistics.median(r['raw_seconds']['cpp-scalar']) for r in seq)
     summary['s4'][api]={'scope':'sequence only','scalar_cpp_geomean':scalar_gm,'maximum_failures':max_failures,'minimum_failures':minimum_failures,'pass':scalar_gm<=1.25 and not max_failures and not minimum_failures}
+    scalar_before=gm(statistics.median(old_n[api,r['case']]['raw_seconds']['rust'])/statistics.median(old_n[api,r['case']]['raw_seconds']['cpp-scalar']) for r in seq)
+    summary['s4'][api]['before_scalar_cpp_geomean']=scalar_before
+    summary['families'][api]['sequence'].update({'reference':'cpp-scalar','before':scalar_before,'after':scalar_gm,'registered_pass':summary['s4'][api]['pass'],'failed_registered_cases':sorted(set(max_failures+minimum_failures))})
     wr=[r for r in wasm['rows'] if r['api']==api];mean=gm(r['time_ratio'] for r in wr)
     summary['wasm'][api]={'before':gm(old_w[api,r['case']]['time_ratio'] for r in wr),'after':mean,'worst_stage1_ratio':max(r['time_ratio'] for r in wr),'registered_pass':mean<=1.25 and all(r['interval'][1]<=1.6 for r in wr),'brief_pass':mean<=1.25 and all(r['interval'][1]<=1.5 for r in wr),'failed_registered_cases':[r['case'] for r in wr if r['interval'][1]>1.6]}
 summary['s3_final_significant_comparisons']=len(summary['s3_final_failures'])
