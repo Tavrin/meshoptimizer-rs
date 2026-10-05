@@ -586,3 +586,22 @@ Exp/Oct are now validated, disk-derived abandonments voided, WASM fixed-stride r
 Native vertex A retains prior failed evidence1.538–2.847 after fresh built-code first analysis.
 
 - caller-buffer / varied-filter-3-tiny-s32: 1.0390–1.1085.
+
+
+## P07 fix9 final scoped epoch
+
+Single paired epoch:170 native API/case rows and122 WASM rows; all source,
+binary, fixture, early-stop/D146, control and shared-admission receipts verify.
+All measured family means pass. Requested WASM stride32 maxima and native
+Oct4 A/C pass; tiny Exp32 caller S3 clears. RFC/S3 closure remains false:
+- native allocating vertex-v1-streaming-s4:95% upper2.1032;
+- native allocating varied-view3-streaming-s32:upper2.1222;
+- WASM allocating vertex-v0-tiny-s4:upper1.5114 (unresolved interval);
+- WASM allocating view-none-tiny-s12:upper2.4748 (unresolved interval);
+- native allocating varied-filter3-tiny-s12 S3:1.0190–1.2718.
+
+These failed maxima/S3 do not prove paired regressions against fix8: each
+corresponding new/old interval includes1. No rescue epoch or subsequent
+engine edit. Current full case/family tables, proofs and limits are in
+P07_FIX9_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix9.
+No untouched-family, other-platform, release or Moss integration acceptance.
