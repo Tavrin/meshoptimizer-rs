@@ -3586,3 +3586,76 @@ evidence. Do not claim that the SIMD bars, full release gates, ARM execution,
 Windows/macOS identity, dedicated-host timing, Moss integration or phase-0.6
 composition are qualified. Retain all receipts/binaries/source archives
 outside the exact target, delete that target, and never push this branch.
+
+## P07-R3 — Third performance round: vertex and meshlet structure
+
+Start `e6eac35` on `phase/0.7`; upstream remains
+`4c203430ca565cb59a468a91922c76c208169536`. Only vertex reconstruction,
+byte-group decoding and meshlet decoding are optimized. Filters, index/sequence,
+encoders, bars and frozen inputs are unchanged. This owner's explicit target
+`codex-meshopt-p07r3` supersedes the spec's earlier target spelling. Evidence
+is retained at `/mnt/linux-extra/meshopt-artifacts/p07r3` outside that target.
+No subagents or push are authorized. The first two diagnostics used the owner's
+`gpu-lease.sh run meshopt-timing:p07 -- ...`. The coordinator then requires
+visible shared admission: from diagnostic three onward, every timed burst uses
+`MOSS_HEAVY_GPU=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ...`,
+without nesting a lease command. Cancel the still-queued third direct request
+before it measures anything. The admission receipts check both wrapper and
+lease ancestry, queue telemetry and the declared four-GB peak. Five paired
+touched-case probes precede one complete native/Node matrix with existing
+early stopping and pair-boundary checkpoints.
+
+The prior source's instruction/cycle captures in `p07perf/profiles-final`
+are the initial profile evidence (P07-P3). Source and disassembly comparison
+against the pinned kernels finds these concrete structural differences:
+
+| Function | Starting structure and upstream instruction comparison | Round-three change |
+|---|---|---|
+| Vertex `decodeBytesGroupSimd` | Rust branches for 0/8 bits and converts two-bit headers through a bit-width array; upstream indexes nine header-space configuration rows directly. Both use `pshufb`, two `pmulhuw`, interleave, sentinel compare, movemask, SAD and escape shuffles. Rust's 16-byte escape table entries double upstream's eight-byte table footprint. | Direct v0/v1 header-space indices, branchless 0/literal rows, const-specialized header shifts, and typed eight-byte unaligned loads. |
+| Vertex group consumption | Rust derives consumed bytes from `popcnt(pmovmskb(mask))`, serializing the next load behind SIMD extraction. Upstream's x64 `SIMD_LATENCYOPT` instead loads the packed u64, ANDs shifted fields, masks one bit per escape and popcounts it independently. | Same scalar-u64 escape count and explicit advance tables, so the next group's position is independent of the SIMD shuffle result. |
+| Byte-plane headers | The original native path tests for 96 remaining bytes but still performs four per-group lookahead checks. Upstream explicitly unrolls four groups under a shared 96-byte check. | Checked `[u8; 96]` window and four explicitly unrolled groups; each consumes at most 24 bytes. General/tail paths still reject any group with fewer than 24 remaining bytes, even zero groups. |
+| Vertex reconstruction | Byte prefixes are computed in four component planes before transposition; halfword and rotated-XOR channels remain scalar. Upstream transposes first and reconstructs all three channel forms using packed vector records. | Packed four-record prefix kernels for byte/halfword sums and rotated u32 XOR, complete checked stores and scalar-sized tail writes. |
+| Meshlet triangle groups | Separate shuffle/increment vectors live in a 48-byte tuple; upstream packs increment bytes into the unused first six shuffle bytes and derives increments with `pslldq 10`. Rust extracts an edge-format value and invokes an output callback per triangle. | Packed 16-byte masks and separate byte metadata, register output extraction, then a decoder-level grouped-output path for typed and raw destinations. |
+| Meshlet validation/state | Rust extracts the byte counter from SIMD state and repeats group, lookahead, output-index and odd-tail decisions. Upstream keeps vertex/triangle state in registers and writes complete groups directly. Scalar Rust's u32 counter must still be preserved when the byte state reaches 256. | Single checked stream walk, vector-resident vertex state, const-sized full-group writes, separate counted tails, exact final consumption and unchanged scalar fallback on counter wrap. |
+
+The first five-pair probe exposes a slower initial vertex rewrite: resident
+stride-12 allocating/caller ratios are about 2.7/2.8. This failed diagnostic
+and its exact sources/binaries are retained in `iteration1`; they are not
+final evidence. The subsequent probe adds the independently loaded u64
+consumption path and smaller shuffle tables, and interleaves the starting
+Rust binary as an additional diagnostic backend. There is no unchanged-source
+retry to select a nicer timing result.
+
+All unsafe operations remain in the audited module: token-authorized calls
+and fixed-array unaligned loads/stores. The eight-byte load is a new typed
+seam with its own argument; grouped meshlet wrappers are token calls. No raw
+pointer arithmetic, uninitialized storage, unchecked access, prefetch, AVX,
+estimate, tolerance, arithmetic filter change or corpus/bar alteration is
+introduced. Meshlet malformed-prefix writes can occur before exact final
+consumption rejects the stream; successful bytes and typed errors remain
+canonical, and error prefix bytes are outside the contract. wasm meshlets
+retain scalar decoding.
+
+Ordinary regressions cover all 256 pair codes, odd tails, counter-wrap
+fallback, both output widths and both APIs, and all 256 byte headers in each
+of the three format modes at strict lookahead thresholds. Miri's meshlet
+regression bounds pair-code execution to all nibble values plus mixed
+reuse/restart orders; the native and differential matrices remain complete.
+
+The grouped-output/preflight trial is rejected: the second interleaved probe
+shows meshlet new/starting-binary ratios 1.55–1.81. Its disassembly exposes
+repeated sink slice replacement, dynamic-sized memcpy and a second complete
+metadata scan. `iteration2` preserves the trial's sources/binaries and samples.
+Replace it with const-sized full-group output, separate counted tails, a single
+stream walk and scalar counter tracking. Final exact consumption determines
+malformed length errors; every individual memory load remains checked.
+The starting binary in the same probe confirms vertex improvements: new/old
+0.753–0.775 for resident stride four and 0.919–0.971 for stride twelve. The
+probe is diagnostic only and does not replace complete-family means.
+
+The first visible-admission adapter misinterprets `MOSS_HEAVY_ADMITTED` as a
+text receipt: it is the resolved command executable. It exits before any pair
+in `diagnostic3-adapter-rejected.log`. Read the live `heavy.reservations` row
+instead, check its wrapper PID/reserved GB and the ancestor's four-GB timeout
+command, and hash the admitted executable. The numeric harness and compiled
+sources are unchanged; no completed pair is retried.

@@ -363,6 +363,12 @@ fn decode_bytes<const VS: usize, const TS: usize>(
     vertices: &mut [u8],
     triangles: &mut [u8],
 ) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::meshlet_bytes::<VS, TS>(
+        s.source, s.bound, s.ctrl, s.codes, vertices, triangles,
+    ) {
+        return result;
+    }
     let vertices = vertices.as_chunks_mut::<VS>().0;
     let triangles = triangles.as_chunks_mut::<TS>().0;
     decode_core(
@@ -376,6 +382,27 @@ fn decode_bytes<const VS: usize, const TS: usize>(
             // Stored without the extra edge vertex: 0xcbac becomes a | b << 8 | c << 16.
             triangles[i].copy_from_slice(&(tri >> 8).to_le_bytes()[..TS]);
         },
+    )
+}
+
+#[inline(always)]
+fn decode_raw(
+    s: &Stream<'_>,
+    triangle_count: usize,
+    vertices: &mut [u32],
+    triangles: &mut [u32],
+) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) =
+        super::simd::meshlet_raw(s.source, s.bound, s.ctrl, s.codes, vertices, triangles)
+    {
+        return result;
+    }
+    decode_core(
+        s,
+        triangle_count,
+        |i, r| vertices[i] = r,
+        |i, tri| triangles[i] = tri >> 8,
     )
 }
 
@@ -563,12 +590,7 @@ pub fn decode_meshlet_raw_into(
             &mut vertices[..vertex_count],
             &mut triangles[..triangle_count],
         );
-        decode_core(
-            &s,
-            triangle_count,
-            |i, r| v[i] = r,
-            |i, tri| t[i] = tri >> 8,
-        )
+        decode_raw(&s, triangle_count, v, t)
     })();
     workspace.finish(&work);
     result
@@ -653,12 +675,7 @@ pub fn decode_meshlet_raw(
         vertices: allocate(vertex_count)?,
         triangles: allocate(triangle_count)?,
     };
-    let result = decode_core(
-        &s,
-        triangle_count,
-        |i, r| out.vertices[i] = r,
-        |i, tri| out.triangles[i] = tri >> 8,
-    );
+    let result = decode_raw(&s, triangle_count, &mut out.vertices, &mut out.triangles);
     workspace.finish(&work);
     result?;
     workspace.account_codec(checked_bytes(

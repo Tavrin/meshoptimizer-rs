@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / 'simd'))
 import qualify as q
 
 assert os.environ.get('MOSS_GPU_LEASE') == '1'
-assert os.environ.get('MOSS_GPU_LEASE_LABEL') == 'meshopt-timing:p07'
+assert os.environ.get('MOSS_GPU_LEASE_LABEL') == 'heavy:timeout'
 path = q.ART / 'performance.json'
 previous = json.loads(path.read_text()) if path.exists() else None
 assert not previous or not previous.get('complete', False)
@@ -27,17 +27,7 @@ assert scope in ['touched', 'full']
 cases = [(name, b) for name, b in q.corpus() if scope == 'full' or q.family(name) in ['vertex', 'view-none', 'view-filtered', 'oct', 'quat', 'meshlet', 'meshlet-raw']]
 
 
-def admission():
-    holder = (Path(os.environ.get('MOSS_GPU_LEASE_DIR', '/tmp/moss-gpu-lease')) / 'holder').read_text().strip()
-    label, pid, since = holder.split('|')
-    assert label == 'meshopt-timing:p07'
-    ancestor = os.getpid()
-    while ancestor != int(pid):
-        status = (Path('/proc') / str(ancestor) / 'status').read_text()
-        ancestor = int(next(line.split()[1] for line in status.splitlines() if line.startswith('PPid:')))
-        assert ancestor > 1, 'lease holder must be an ancestor of this controller'
-    return {'admitted': True, 'policy': 'owner-queued-lease-2026-10-05', 'lease_holder': holder,
-            'load': os.getloadavg(), 'unix': time.time()}
+from p07_lease import admission
 
 
 class BurstEnd(Exception):
@@ -52,8 +42,8 @@ def check_budget():
 
 controller = {'source': 'parity/measure-p07-leased.py', 'sha256': q.m.sha(__file__),
               'original_source': 'parity/simd/qualify.py', 'original_sha256': q.m.sha(q.ROOT / 'parity/simd/qualify.py'),
-              'resumed_rows': len(done), 'scope': scope, 'policy': 'owner-queued-lease-2026-10-05',
-              'pair_boundary_budget_seconds': 690}
+              'resumed_rows': len(done), 'scope': scope, 'policy': 'owner-visible-heavy-4GB-2026-10-05',
+              'pair_boundary_budget_seconds': 690,'admission_sha256':q.m.sha(q.ROOT/'parity/p07_lease.py')}
 source = inspect.getsource(q.bench)
 source = source.replace("if path.exists() and not diagnostic:raise ValueError('final matrix already exists; do not repeat')", "assert not previous or not previous.get('complete', False)")
 source = source.replace("    for api in ['allocating','caller-buffer']:",

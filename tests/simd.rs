@@ -194,3 +194,85 @@ fn meshlet_controls_widths_partial_groups_and_tail_preservation() {
         }
     }
 }
+
+#[test]
+fn meshlet_all_pair_codes_odd_tails_and_counter_wrap() {
+    let run = |source: &[u8], vc: usize, tc: usize, l| {
+        with_level(l, || {
+            let mut w = Workspace::default();
+            let mut rows = Vec::new();
+            for vs in [2, 4] {
+                for ts in [3, 4] {
+                    let mut v = vec![0xcc; vc * vs + 7];
+                    let mut t = vec![0xcc; tc * ts + 7];
+                    let r = decode_meshlet_into(&mut v, vc, vs, &mut t, tc, ts, source, &mut w);
+                    assert_eq!(&v[vc * vs..], &[0xcc; 7]);
+                    assert_eq!(&t[tc * ts..], &[0xcc; 7]);
+                    rows.push((
+                        r,
+                        if r.is_ok() { v } else { Vec::new() },
+                        if r.is_ok() { t } else { Vec::new() },
+                    ));
+                }
+            }
+            let mut v = vec![0xcccccccc; vc + 7];
+            let mut t = vec![0xcccccccc; tc + 7];
+            let r = decode_meshlet_raw_into(&mut v, vc, &mut t, tc, source, &mut w);
+            assert_eq!(&v[vc..], &[0xcccccccc; 7]);
+            assert_eq!(&t[tc..], &[0xcccccccc; 7]);
+            (
+                rows,
+                r,
+                if r.is_ok() { v } else { Vec::new() },
+                if r.is_ok() { t } else { Vec::new() },
+            )
+        })
+        .unwrap()
+    };
+    let extra = |n: u8| {
+        if n < 12 {
+            usize::from(n & 1)
+        } else {
+            usize::from(n - 12)
+        }
+    };
+    // Miri covers every individual nibble and mixed reuse/restart ordering;
+    // the ordinary test covers all 256 paired codes, both odd/even tails.
+    let codes: Vec<u8> = if cfg!(miri) {
+        (0..16)
+            .map(|i| i * 17)
+            .chain([0x0f, 0xf0, 0xce, 0xec, 0xbd, 0xdb])
+            .collect()
+    } else {
+        (0..=255).collect()
+    };
+    for code in codes {
+        for tc in [1, 2] {
+            let mut source = vec![7; 16];
+            let n = extra(code & 15) + if tc == 2 { extra(code >> 4) } else { 0 };
+            source.extend((0..n).map(|i| (i * 71 + 19) as u8));
+            source.extend([0; 14]);
+            source.extend([255, code]);
+            for len in [source.len() - 1, source.len()] {
+                let expected = run(&source[..len], 4, tc, Level::Scalar);
+                for l in levels() {
+                    assert_eq!(
+                        run(&source[..len], 4, tc, l),
+                        expected,
+                        "{code}/{tc}/{len}/{l:?}"
+                    );
+                }
+            }
+        }
+    }
+    for tc in [85usize, 86, 255, 256] {
+        let codes = tc.div_ceil(2);
+        let mut source = vec![0; 16usize.saturating_sub(1 + codes)];
+        source.push(0);
+        source.extend(vec![0xcc; codes]);
+        let expected = run(&source, 1, tc, Level::Scalar);
+        for l in levels() {
+            assert_eq!(run(&source, 1, tc, l), expected, "counter/{tc}/{l:?}");
+        }
+    }
+}

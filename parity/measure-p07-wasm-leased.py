@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / 'simd'))
 import qualify as q
 
 assert os.environ.get('MOSS_GPU_LEASE') == '1'
-assert os.environ.get('MOSS_GPU_LEASE_LABEL') == 'meshopt-timing:p07'
+assert os.environ.get('MOSS_GPU_LEASE_LABEL') == 'heavy:timeout'
 path = q.ART / 'wasm-performance.json'
 previous = json.loads(path.read_text()) if path.exists() else None
 assert not previous or not previous.get('complete', False)
@@ -23,16 +23,7 @@ state = {}
 began = time.monotonic()
 
 
-def lease_admission():
-    holder = (Path(os.environ.get('MOSS_GPU_LEASE_DIR','/tmp/moss-gpu-lease'))/'holder').read_text().strip()
-    label,pid,since = holder.split('|')
-    assert label == 'meshopt-timing:p07'
-    ancestor = os.getpid()
-    while ancestor != int(pid):
-        status = (Path('/proc')/str(ancestor)/'status').read_text()
-        ancestor = int(next(line.split()[1] for line in status.splitlines() if line.startswith('PPid:')))
-        assert ancestor > 1
-    return {'admitted':True,'policy':'owner-queued-lease-2026-10-05','lease_holder':holder,'load':os.getloadavg(),'unix':time.time()}
+from p07_lease import admission as lease_admission
 
 
 class BurstEnd(Exception):
@@ -48,7 +39,7 @@ def check_budget():
 original = q.ROOT/'parity/simd/wasm_measure.py'
 controller = {'source':'parity/measure-p07-wasm-leased.py','sha256':q.m.sha(__file__),
               'original_source':'parity/simd/wasm_measure.py','original_sha256':q.m.sha(original),
-              'resumed_rows':len(done),'policy':'owner-queued-lease-2026-10-05','pair_boundary_budget_seconds':690}
+              'resumed_rows':len(done),'policy':'owner-visible-heavy-4GB-2026-10-05','pair_boundary_budget_seconds':690,'admission_sha256':q.m.sha(q.ROOT/'parity/p07_lease.py')}
 source = original.read_text()
 source = source.replace("if path.exists():raise ValueError('final wasm matrix already exists; do not repeat')", "assert not previous or not previous.get('complete',False)")
 source = source.replace("before=sources();", "admission=lease_admission\nbefore=sources();", 1)

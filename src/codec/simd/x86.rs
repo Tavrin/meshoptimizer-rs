@@ -11,6 +11,26 @@ fn load(bytes: &[u8; 16]) -> __m128i {
 }
 #[inline]
 #[target_feature(enable = "sse2")]
+fn load8(bytes: &[u8; 8]) -> __m128i {
+    // SAFETY: the initialized array supplies eight readable bytes; loadl
+    // permits byte alignment, zeroes upper lanes and retains no pointer.
+    unsafe { _mm_loadl_epi64(bytes.as_ptr().cast()) }
+}
+const GROUP_MASKS: [[u8; 8]; 256] = {
+    let mut table = [[128; 8]; 256];
+    let mut i = 0;
+    while i < 256 {
+        let mut j = 0;
+        while j < 8 {
+            table[i][j] = super::MASKS[i][j];
+            j += 1;
+        }
+        i += 1;
+    }
+    table
+};
+#[inline]
+#[target_feature(enable = "sse2")]
 fn store(bytes: &mut [u8; 16], value: __m128i) {
     // SAFETY: the exclusive array supplies exactly 16 writable bytes; storeu
     // requires no alignment, and the pointer is not retained.
@@ -248,11 +268,14 @@ pub(super) fn filter(
 
 // Keep the decode configuration in memory: selecting scalar-built constants
 // made LLVM synthesize shuffle masks in registers on every packed group.
+// Header-space indices: v0=0..3, v1 low=4..7, v1 high=5..8.
+// Zero and literal groups use the same branchless shuffle path as packed groups.
 const GROUP_CONFIG: [[[u8; 16]; 4]; 9] = {
     let mut table = [[[0; 16]; 4]; 9];
-    let mut bits = 0;
-    while bits < 9 {
-        let (rep, even, odd, escape) = match bits {
+    let bits = [0, 2, 4, 8, 0, 1, 2, 4, 8];
+    let mut h = 0;
+    while h < 9 {
+        let (rep, even, odd, escape) = match bits[h] {
             1 => (
                 [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                 [0, 1, 64, 0, 16, 0, 4, 0, 0, 1, 64, 0, 16, 0, 4, 0],
@@ -271,32 +294,59 @@ const GROUP_CONFIG: [[[u8; 16]; 4]; 9] = {
                 [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
                 15,
             ),
-            _ => ([0; 16], [0; 16], [0; 16], 0),
+            0 => ([128; 16], [0; 16], [0; 16], 1),
+            _ => ([128; 16], [0; 16], [0; 16], 0),
         };
-        table[bits] = [[escape as u8; 16], rep, even, odd];
-        bits += 1;
+        table[h] = [[escape; 16], rep, even, odd];
+        h += 1;
     }
     table
 };
+const GROUP_SKIP: [usize; 9] = [0, 4, 8, 0, 0, 2, 4, 8, 0];
+const GROUP_SHIFT: [u32; 9] = [4, 1, 2, 3, 4, 0, 1, 2, 3];
+const GROUP_LANES: [u64; 9] = [
+    0,
+    0x55555555,
+    0x1111111111111111,
+    0,
+    0,
+    0xffff,
+    0x55555555,
+    0x1111111111111111,
+    0,
+];
+const GROUP_ADVANCE: [usize; 9] = [0, 4, 8, 16, 0, 2, 4, 8, 16];
 
 pub(super) fn group(_token: Ssse3, data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
     // SAFETY: Ssse3 is constructed only after SSSE3 AND POPCNT detection (or
     // compile-time features in no_std); the kernel's complete input is typed.
-    unsafe { group_kernel(data, out, bits) }
+    unsafe {
+        group_kernel(
+            data,
+            out,
+            match bits {
+                0 => 0,
+                1 => 5,
+                2 => 1,
+                4 => 2,
+                8 => 3,
+                _ => unreachable!(),
+            },
+        )
+    }
 }
 #[inline]
 #[target_feature(enable = "ssse3,popcnt")]
-fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
-    if bits == 0 {
-        out.fill(0);
-        return 0;
-    }
-    if bits == 8 {
-        out.copy_from_slice(&data[..16]);
-        return 16;
-    }
-    let [sent, rep, even, odd] = &GROUP_CONFIG[bits as usize];
-    let input = load(data.first_chunk::<16>().unwrap());
+fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
+    // Derive consumption from the original packed bits, independently of the
+    // SIMD escape/shuffle chain, as upstream SIMD_LATENCYOPT does on x64.
+    let n = GROUP_SHIFT[h];
+    let mut packed = u64::from_le_bytes(*data.first_chunk::<8>().unwrap());
+    packed &= packed >> n;
+    packed &= packed >> (n >> 1);
+    let used = GROUP_ADVANCE[h] + (packed & GROUP_LANES[h]).count_ones() as usize;
+    let [sent, rep, even, odd] = &GROUP_CONFIG[h];
+    let input = load8(data.first_chunk::<8>().unwrap());
     let words = _mm_shuffle_epi8(input, load(rep));
     let fields = _mm_or_si128(
         _mm_mulhi_epu16(words, load(even)),
@@ -306,19 +356,19 @@ fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
     let sel = _mm_and_si128(fields, sent);
     let mask = _mm_cmpeq_epi8(sel, sent);
     let m = _mm_movemask_epi8(mask) as usize;
-    let lo = m & 255;
-    let hi = m >> 8;
     let counts = _mm_sad_epu8(mask, _mm_setzero_si128());
     let upper = _mm_sub_epi8(
-        load(&super::MASKS[hi]),
+        load8(&GROUP_MASKS[m >> 8]),
         _mm_shuffle_epi8(counts, _mm_setzero_si128()),
     );
-    let shuf = _mm_unpacklo_epi64(load(&super::MASKS[lo]), upper);
-    let skip = (bits * 2) as usize;
+    let shuf = _mm_unpacklo_epi64(load8(&GROUP_MASKS[m & 255]), upper);
+    let skip = GROUP_SKIP[h];
     let rest = load(data[skip..].first_chunk::<16>().unwrap());
-    let result = _mm_or_si128(_mm_shuffle_epi8(rest, shuf), _mm_andnot_si128(mask, sel));
-    store(out, result);
-    skip + m.count_ones() as usize
+    store(
+        out,
+        _mm_or_si128(_mm_shuffle_epi8(rest, shuf), _mm_andnot_si128(mask, sel)),
+    );
+    used
 }
 
 pub(super) fn bytes(
@@ -330,15 +380,42 @@ pub(super) fn bytes(
 ) -> Result<usize, crate::Error> {
     // SAFETY: Ssse3 proves SSSE3 and POPCNT. The kernel checks a complete
     // 24-byte window before each group and writes checked output chunks only.
-    unsafe { bytes_kernel(data, pos, out, bits) }
+    unsafe {
+        bytes_kernel(
+            data,
+            pos,
+            out,
+            if bits[1] == 1 {
+                4
+            } else if bits[0] == 1 {
+                5
+            } else {
+                0
+            },
+        )
+    }
 }
 #[inline]
 #[target_feature(enable = "ssse3,popcnt")]
 fn bytes_kernel(
     data: &[u8],
+    pos: usize,
+    out: &mut [u8],
+    hshift: usize,
+) -> Result<usize, crate::Error> {
+    match hshift {
+        0 => bytes_header_kernel::<0>(data, pos, out),
+        4 => bytes_header_kernel::<4>(data, pos, out),
+        5 => bytes_header_kernel::<5>(data, pos, out),
+        _ => unreachable!(),
+    }
+}
+#[inline]
+#[target_feature(enable = "ssse3,popcnt")]
+fn bytes_header_kernel<const H: usize>(
+    data: &[u8],
     mut pos: usize,
     out: &mut [u8],
-    bits: &[u32],
 ) -> Result<usize, crate::Error> {
     let headers = (out.len() / 16).div_ceil(4);
     let header = data
@@ -348,25 +425,48 @@ fn bytes_kernel(
     let (blocks, tail) = out.as_chunks_mut::<64>();
     for (i, block) in blocks.iter_mut().enumerate() {
         let control = header[i];
-        // This bound covers even four fully escaped groups. It preserves the
-        // scalar lookahead rule on all paths, including zero/literal shortcuts.
-        if data.len().saturating_sub(pos) >= 96 {
-            if control == 0 && bits[0] == 0 {
+        if let Some(window) = data.get(pos..).and_then(|v| v.first_chunk::<96>()) {
+            if control == 0 && H != 5 {
                 block.fill(0);
                 continue;
             }
-            if control == 255 && bits[3] == 8 {
-                block.copy_from_slice(&data[pos..pos + 64]);
+            if control == 255 && H != 4 {
+                block.copy_from_slice(&window[..64]);
                 pos += 64;
                 continue;
             }
-        }
-        for (j, chunk) in block.as_chunks_mut::<16>().0.iter_mut().enumerate() {
-            let window = data
-                .get(pos..)
-                .and_then(|v| v.first_chunk::<24>())
-                .ok_or(crate::Error::InvalidStream)?;
-            pos += group_kernel(window, chunk, bits[usize::from((control >> (j * 2)) & 3)]);
+            // Each group consumes at most 24 bytes. A single checked 96-byte
+            // array therefore proves all four lookaheads, even full escapes.
+            let chunks = block.as_chunks_mut::<16>().0;
+            let mut used = group_kernel(
+                window.first_chunk().unwrap(),
+                &mut chunks[0],
+                H + usize::from(control & 3),
+            );
+            used += group_kernel(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[1],
+                H + usize::from((control >> 2) & 3),
+            );
+            used += group_kernel(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[2],
+                H + usize::from((control >> 4) & 3),
+            );
+            used += group_kernel(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[3],
+                H + usize::from(control >> 6),
+            );
+            pos += used;
+        } else {
+            for (j, chunk) in block.as_chunks_mut::<16>().0.iter_mut().enumerate() {
+                let window = data
+                    .get(pos..)
+                    .and_then(|v| v.first_chunk::<24>())
+                    .ok_or(crate::Error::InvalidStream)?;
+                pos += group_kernel(window, chunk, H + usize::from((control >> (j * 2)) & 3));
+            }
         }
     }
     for (j, chunk) in tail.as_chunks_mut::<16>().0.iter_mut().enumerate() {
@@ -377,7 +477,7 @@ fn bytes_kernel(
         pos += group_kernel(
             window,
             chunk,
-            bits[usize::from((header[blocks.len()] >> (j * 2)) & 3)],
+            H + usize::from((header[blocks.len()] >> (j * 2)) & 3),
         );
     }
     Ok(pos)
@@ -465,83 +565,94 @@ pub(super) fn deltas8(
 #[inline]
 #[target_feature(enable = "sse2")]
 fn deltas8_kernel(buffer: &[u8], target: &mut [u8], count: usize, stride: usize, last: &[u8]) {
-    let mut previous = [last[0], last[1], last[2], last[3]];
+    deltas_kernel::<0>(buffer, target, count, stride, last, 0);
+}
+
+#[inline]
+#[target_feature(enable = "sse2")]
+fn deltas_kernel<const CHANNEL: u8>(
+    buffer: &[u8],
+    target: &mut [u8],
+    count: usize,
+    stride: usize,
+    last: &[u8],
+    rot: u32,
+) {
+    let mut previous = _mm_set1_epi32(i32::from_le_bytes(last[..4].try_into().unwrap()));
     for start in (0..count).step_by(16) {
         let n = (count - start).min(16);
         let mut planes = [_mm_setzero_si128(); 4];
-        for c in 0..4 {
+        for (c, p) in planes.iter_mut().enumerate() {
             let plane = &buffer[c * count + start..c * count + start + n];
             let mut input = [0; 16];
-            let v = if let Some(full) = plane.first_chunk::<16>() {
+            *p = if let Some(full) = plane.first_chunk::<16>() {
                 load(full)
             } else {
                 input[..n].copy_from_slice(plane);
                 load(&input)
             };
-            let mut r = _mm_xor_si128(
-                _mm_and_si128(_mm_srli_epi16::<1>(v), _mm_set1_epi8(127)),
-                _mm_sub_epi8(_mm_setzero_si128(), _mm_and_si128(v, _mm_set1_epi8(1))),
-            );
-            r = _mm_add_epi8(r, _mm_slli_si128::<1>(r));
-            r = _mm_add_epi8(r, _mm_slli_si128::<2>(r));
-            r = _mm_add_epi8(r, _mm_slli_si128::<4>(r));
-            r = _mm_add_epi8(r, _mm_slli_si128::<8>(r));
-            r = _mm_add_epi8(r, _mm_set1_epi8(previous[c] as i8));
-            previous[c] = if n == 16 {
-                _mm_cvtsi128_si32(_mm_srli_si128::<15>(r)) as u8
-            } else {
-                let mut bytes = [0; 16];
-                store(&mut bytes, r);
-                bytes[n - 1]
-            };
-            planes[c] = r;
         }
         let ab0 = _mm_unpacklo_epi8(planes[0], planes[1]);
         let ab1 = _mm_unpackhi_epi8(planes[0], planes[1]);
         let cd0 = _mm_unpacklo_epi8(planes[2], planes[3]);
         let cd1 = _mm_unpackhi_epi8(planes[2], planes[3]);
-        let packed = [
+        let records = [
             _mm_unpacklo_epi16(ab0, cd0),
             _mm_unpackhi_epi16(ab0, cd0),
             _mm_unpacklo_epi16(ab1, cd1),
             _mm_unpackhi_epi16(ab1, cd1),
         ];
-        if stride == 4 && n == 16 {
-            for (chunk, v) in target[start * 4..(start + 16) * 4]
-                .as_chunks_mut::<16>()
-                .0
-                .iter_mut()
-                .zip(packed)
-            {
-                store(chunk, v);
-            }
-            continue;
-        }
-        if n == 16 {
-            let mut records = target[start * stride..(start + 15) * stride + 4].chunks_mut(stride);
-            for v in packed {
-                // Keep complete records in registers instead of staging 64
-                // bytes and reloading each strided four-byte destination.
+        for (g, mut r) in records.into_iter().enumerate().take(n.div_ceil(4)) {
+            r = if CHANNEL == 0 {
+                _mm_xor_si128(
+                    _mm_and_si128(_mm_srli_epi16::<1>(r), _mm_set1_epi8(127)),
+                    _mm_sub_epi8(_mm_setzero_si128(), _mm_and_si128(r, _mm_set1_epi8(1))),
+                )
+            } else if CHANNEL == 1 {
+                _mm_xor_si128(
+                    _mm_srli_epi16::<1>(r),
+                    _mm_sub_epi16(_mm_setzero_si128(), _mm_and_si128(r, _mm_set1_epi16(1))),
+                )
+            } else {
+                _mm_or_si128(
+                    _mm_sll_epi32(r, _mm_cvtsi32_si128(rot as i32)),
+                    _mm_srl_epi32(r, _mm_cvtsi32_si128((32 - rot) as i32)),
+                )
+            };
+            // Prefix across four packed records; byte/halfword carries stay
+            // within their components, XOR lanes preserve rotated-bit identity.
+            r = combine::<CHANNEL>(r, _mm_slli_si128::<4>(r));
+            r = combine::<CHANNEL>(r, _mm_slli_si128::<8>(r));
+            r = combine::<CHANNEL>(r, previous);
+            previous = _mm_shuffle_epi32::<0xff>(r);
+            let index = start + g * 4;
+            let live = (count - index).min(4);
+            if stride == 4 && live == 4 {
+                store(target[index * 4..].first_chunk_mut().unwrap(), r);
+            } else {
                 let words = [
-                    _mm_cvtsi128_si32(v),
-                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0x55>(v)),
-                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0xaa>(v)),
-                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0xff>(v)),
+                    _mm_cvtsi128_si32(r),
+                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0x55>(r)),
+                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0xaa>(r)),
+                    _mm_cvtsi128_si32(_mm_shuffle_epi32::<0xff>(r)),
                 ];
-                for word in words {
-                    records.next().unwrap()[..4].copy_from_slice(&word.to_le_bytes());
+                let dst = &mut target[index * stride..(index + live - 1) * stride + 4];
+                for (word, out) in words.into_iter().take(live).zip(dst.chunks_mut(stride)) {
+                    out[..4].copy_from_slice(&word.to_le_bytes());
                 }
             }
-            continue;
         }
-        let mut bytes = [0; 64];
-        for (chunk, v) in bytes.as_chunks_mut::<16>().0.iter_mut().zip(packed) {
-            store(chunk, v);
-        }
-        for i in 0..n {
-            target[(start + i) * stride..(start + i) * stride + 4]
-                .copy_from_slice(&bytes[i * 4..i * 4 + 4]);
-        }
+    }
+}
+#[inline]
+#[target_feature(enable = "sse2")]
+fn combine<const CHANNEL: u8>(a: __m128i, b: __m128i) -> __m128i {
+    if CHANNEL == 0 {
+        _mm_add_epi8(a, b)
+    } else if CHANNEL == 1 {
+        _mm_add_epi16(a, b)
+    } else {
+        _mm_xor_si128(a, b)
     }
 }
 
@@ -673,6 +784,32 @@ fn color_kernel<const W: usize, const N: usize>(data: &mut [u8]) -> Result<(), c
     crate::codec::filter::scalar_color(tail, W)
 }
 
+// Upstream packs next[10..16] into the unused shuffle[0..6].
+const TRIANGLE_MASKS: [[u8; 16]; 256] = {
+    let mut masks = [[0; 16]; 256];
+    let mut i = 0;
+    while i < 256 {
+        let (shuf, next, _, _) = super::TRIANGLE_TABLES[i];
+        let mut j = 0;
+        while j < 16 {
+            masks[i][j] = if j < 6 { next[j + 10] } else { shuf[j] };
+            j += 1;
+        }
+        i += 1;
+    }
+    masks
+};
+const TRIANGLE_META: [[u8; 3]; 256] = {
+    let mut meta = [[0; 3]; 256];
+    let mut i = 0;
+    while i < 256 {
+        let (_, next, used, first) = super::TRIANGLE_TABLES[i];
+        meta[i] = [used as u8, first as u8, next[15]];
+        i += 1;
+    }
+    meta
+};
+
 #[target_feature(enable = "ssse3,sse4.1")]
 fn triangles_kernel(
     source: &[u8],
@@ -683,13 +820,16 @@ fn triangles_kernel(
     out: &mut impl FnMut(usize, u32),
 ) -> Option<Result<usize, crate::Error>> {
     let mut state = _mm_setzero_si128();
+    let mut counter = 0usize;
     for i in (0..count).step_by(2) {
         if data > bound {
             return Some(Err(crate::Error::InvalidStream));
         }
-        let (shuf, next, used, first_used) = super::TRIANGLE_TABLES[codes[i / 2] as usize];
-        let counter = _mm_cvtsi128_si32(_mm_srli_si128::<15>(state)) as u8;
-        if usize::from(counter) + usize::from(next[15]) >= 256 {
+        let code = codes[i / 2] as usize;
+        let mask = load(&TRIANGLE_MASKS[code]);
+        let [used, first_used, advance] = TRIANGLE_META[code].map(usize::from);
+        counter += advance;
+        if counter >= 256 {
             return None;
         }
         if i + 1 < count && data + first_used > bound {
@@ -699,13 +839,13 @@ fn triangles_kernel(
             return Some(Err(crate::Error::InvalidStream));
         };
         let merged = _mm_blend_epi16::<7>(state, load(window));
-        state = _mm_add_epi8(_mm_shuffle_epi8(merged, load(&shuf)), load(&next));
-        let mut bytes = [0; 16];
-        store(&mut bytes, state);
+        state = _mm_add_epi8(_mm_shuffle_epi8(merged, mask), _mm_slli_si128::<10>(mask));
+        let packed = _mm_cvtsi128_si64(_mm_srli_si128::<9>(state)) as u64;
+        let bytes = packed.to_le_bytes();
         for k in 0..(count - i).min(2) {
-            let a = u32::from(bytes[9 + k * 3]);
-            let b = u32::from(bytes[10 + k * 3]);
-            let c = u32::from(bytes[11 + k * 3]);
+            let a = u32::from(bytes[k * 3]);
+            let b = u32::from(bytes[1 + k * 3]);
+            let c = u32::from(bytes[2 + k * 3]);
             out(i + k, c | (a << 8) | (b << 16) | (c << 24));
         }
         data += if i + 1 < count { used } else { first_used };
@@ -794,11 +934,9 @@ fn vertex_kernel(
                             pos,
                             out,
                             if version == 0 {
-                                &[0, 2, 4, 8]
-                            } else if ctrl == 0 {
-                                &[0, 1, 2, 4]
+                                0
                             } else {
-                                &[1, 2, 4, 8]
+                                4 + usize::from(ctrl)
                             },
                         )?
                     }
@@ -813,7 +951,7 @@ fn vertex_kernel(
             let target = &mut target[..target_len];
             match channel & 3 {
                 0 => deltas8_kernel(&deltas[..block * 4], target, block, stride, &last[k..k + 4]),
-                1 => crate::codec::vertex::decode_deltas::<2, false>(
+                1 => deltas_kernel::<1>(
                     &deltas[..block * 4],
                     target,
                     block,
@@ -821,7 +959,7 @@ fn vertex_kernel(
                     &last[k..k + 4],
                     0,
                 ),
-                2 => crate::codec::vertex::decode_deltas::<4, true>(
+                2 => deltas_kernel::<2>(
                     &deltas[..block * 4],
                     target,
                     block,
@@ -839,4 +977,240 @@ fn vertex_kernel(
         return Err(crate::Error::InvalidStream);
     }
     Ok(())
+}
+
+// Grouped output avoids an edge-format scalar callback for every triangle.
+// Full groups use const-sized copies; counted tails are separate.
+trait MeshletSink {
+    fn vertices<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]);
+    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u8; 8]);
+}
+struct ByteSink<'a, const VS: usize, const TS: usize> {
+    vertices: &'a mut [u8],
+    triangles: &'a mut [u8],
+}
+impl<const VS: usize, const TS: usize> MeshletSink for ByteSink<'_, VS, TS> {
+    #[inline(always)]
+    fn vertices<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]) {
+        let dst = &mut self.vertices[index * VS..(index + LIVE) * VS];
+        if VS == 4 {
+            dst.copy_from_slice(&values[..LIVE * 4]);
+        } else {
+            for (out, v) in dst
+                .as_chunks_mut::<VS>()
+                .0
+                .iter_mut()
+                .zip(values.as_chunks::<4>().0)
+            {
+                out.copy_from_slice(&v[..VS]);
+            }
+        }
+    }
+    #[inline(always)]
+    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u8; 8]) {
+        self.triangles[index * TS..(index + LIVE) * TS].copy_from_slice(&values[..LIVE * TS]);
+    }
+}
+struct RawSink<'a> {
+    vertices: &'a mut [u32],
+    triangles: &'a mut [u32],
+}
+impl MeshletSink for RawSink<'_> {
+    #[inline(always)]
+    fn vertices<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]) {
+        for (out, v) in self.vertices[index..index + LIVE]
+            .iter_mut()
+            .zip(values.as_chunks::<4>().0)
+        {
+            *out = u32::from_le_bytes(*v);
+        }
+    }
+    #[inline(always)]
+    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u8; 8]) {
+        for (out, v) in self.triangles[index..index + LIVE]
+            .iter_mut()
+            .zip(values.as_chunks::<4>().0)
+        {
+            *out = u32::from_le_bytes(*v);
+        }
+    }
+}
+#[allow(clippy::too_many_arguments)]
+pub(super) fn meshlet_bytes<const VS: usize, const TS: usize>(
+    _token: Sse41,
+    source: &[u8],
+    bound: usize,
+    ctrl: &[u8],
+    codes: &[u8],
+    vertices: &mut [u8],
+    triangles: &mut [u8],
+) -> Option<Result<(), crate::Error>> {
+    let vc = vertices.len() / VS;
+    let tc = triangles.len() / TS;
+    // SAFETY: Sse41 proves SSSE3/SSE4.1; every input load is checked and
+    // array-backed, and complete groups and tails use counted output slices.
+    unsafe {
+        meshlet_output_kernel::<TS>(
+            source,
+            bound,
+            ctrl,
+            codes,
+            vc,
+            tc,
+            &mut ByteSink::<VS, TS> {
+                vertices,
+                triangles,
+            },
+        )
+    }
+}
+pub(super) fn meshlet_raw(
+    _token: Sse41,
+    source: &[u8],
+    bound: usize,
+    ctrl: &[u8],
+    codes: &[u8],
+    vertices: &mut [u32],
+    triangles: &mut [u32],
+) -> Option<Result<(), crate::Error>> {
+    let vc = vertices.len();
+    let tc = triangles.len();
+    // SAFETY: Sse41 proves SSSE3/SSE4.1; every input load is checked and
+    // array-backed, and complete groups and tails use counted output slices.
+    unsafe {
+        meshlet_output_kernel::<4>(
+            source,
+            bound,
+            ctrl,
+            codes,
+            vc,
+            tc,
+            &mut RawSink {
+                vertices,
+                triangles,
+            },
+        )
+    }
+}
+#[inline]
+#[target_feature(enable = "ssse3,sse4.1")]
+fn meshlet_vertex_step(
+    last: __m128i,
+    source: &mut &[u8],
+    code: u8,
+) -> Result<__m128i, crate::Error> {
+    let window = source
+        .first_chunk::<16>()
+        .ok_or(crate::Error::InvalidStream)?;
+    let (mask, used) = super::meshlet_mask(code);
+    let v = _mm_shuffle_epi8(load(window), load(&mask));
+    let d = _mm_xor_si128(
+        _mm_srli_epi32::<1>(v),
+        _mm_sub_epi32(_mm_setzero_si128(), _mm_and_si128(v, _mm_set1_epi32(1))),
+    );
+    let mut r = _mm_add_epi32(d, _mm_set1_epi32(1));
+    r = _mm_add_epi32(r, _mm_slli_si128::<8>(r));
+    r = _mm_add_epi32(r, _mm_slli_si128::<4>(r));
+    r = _mm_add_epi32(r, _mm_shuffle_epi32::<0xff>(last));
+    *source = &source[used..];
+    Ok(r)
+}
+#[inline]
+#[target_feature(enable = "ssse3,sse4.1")]
+fn meshlet_triangle_step<const TAIL: bool>(
+    state: __m128i,
+    source: &mut &[u8],
+    code: u8,
+    counter: &mut usize,
+) -> Option<Result<__m128i, crate::Error>> {
+    let [used, first, advance] = TRIANGLE_META[code as usize];
+    *counter += usize::from(advance);
+    if *counter >= 256 {
+        return None;
+    }
+    let Some(window) = source.first_chunk::<16>() else {
+        return Some(Err(crate::Error::InvalidStream));
+    };
+    let mask = load(&TRIANGLE_MASKS[code as usize]);
+    let merged = _mm_blend_epi16::<7>(state, load(window));
+    let r = _mm_add_epi8(_mm_shuffle_epi8(merged, mask), _mm_slli_si128::<10>(mask));
+    *source = &source[usize::from(if TAIL { first } else { used })..];
+    Some(Ok(r))
+}
+#[inline]
+#[target_feature(enable = "ssse3,sse4.1")]
+fn triangle_output<const TS: usize>(state: __m128i) -> [u8; 8] {
+    let packed = if TS == 4 {
+        _mm_shuffle_epi8(
+            state,
+            _mm_setr_epi8(9, 10, 11, -1, 12, 13, 14, -1, 0, 0, 0, 0, 0, 0, 0, 0),
+        )
+    } else {
+        _mm_srli_si128::<9>(state)
+    };
+    (_mm_cvtsi128_si64(packed) as u64).to_le_bytes()
+}
+#[target_feature(enable = "ssse3,sse4.1")]
+#[allow(clippy::too_many_arguments)]
+fn meshlet_output_kernel<const TS: usize>(
+    source: &[u8],
+    bound: usize,
+    ctrl: &[u8],
+    codes: &[u8],
+    vc: usize,
+    tc: usize,
+    sink: &mut impl MeshletSink,
+) -> Option<Result<(), crate::Error>> {
+    let mut remaining = source;
+    let mut last = _mm_set1_epi32(-1);
+    for (g, &code) in ctrl[..vc / 4].iter().enumerate() {
+        last = match meshlet_vertex_step(last, &mut remaining, code) {
+            Ok(v) => v,
+            Err(e) => return Some(Err(e)),
+        };
+        let mut values = [0; 16];
+        store(&mut values, last);
+        sink.vertices::<4>(g * 4, values);
+    }
+    if !vc.is_multiple_of(4) {
+        last = match meshlet_vertex_step(last, &mut remaining, ctrl[vc / 4]) {
+            Ok(v) => v,
+            Err(e) => return Some(Err(e)),
+        };
+        let mut values = [0; 16];
+        store(&mut values, last);
+        match vc % 4 {
+            1 => sink.vertices::<1>(vc & !3, values),
+            2 => sink.vertices::<2>(vc & !3, values),
+            _ => sink.vertices::<3>(vc & !3, values),
+        }
+    }
+    let mut state = _mm_setzero_si128();
+    let mut counter = 0;
+    for (g, &code) in codes[..tc / 2].iter().enumerate() {
+        state = match meshlet_triangle_step::<false>(state, &mut remaining, code, &mut counter)? {
+            Ok(v) => v,
+            Err(e) => return Some(Err(e)),
+        };
+        sink.triangles::<2>(g * 2, triangle_output::<TS>(state));
+    }
+    if !tc.is_multiple_of(2) {
+        state = match meshlet_triangle_step::<true>(
+            state,
+            &mut remaining,
+            codes[tc / 2],
+            &mut counter,
+        )? {
+            Ok(v) => v,
+            Err(e) => return Some(Err(e)),
+        };
+        sink.triangles::<1>(tc & !1, triangle_output::<TS>(state));
+    }
+    // Monotonic consumption and exact final length preserve the scalar bound
+    // errors. Earlier malformed-prefix writes are outside the output contract.
+    Some(if source.len() - remaining.len() == bound {
+        Ok(())
+    } else {
+        Err(crate::Error::InvalidStream)
+    })
 }

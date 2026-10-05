@@ -78,6 +78,39 @@ pub(super) fn meshlet_vertices(
     let _ = (source, bound, codes, count, out);
     None
 }
+#[allow(clippy::too_many_arguments)]
+pub(super) fn meshlet_bytes<const VS: usize, const TS: usize>(
+    source: &[u8],
+    bound: usize,
+    ctrl: &[u8],
+    codes: &[u8],
+    vertices: &mut [u8],
+    triangles: &mut [u8],
+) -> Option<Result<(), crate::Error>> {
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::sse41() {
+        return arch::meshlet_bytes::<VS, TS>(
+            token, source, bound, ctrl, codes, vertices, triangles,
+        );
+    }
+    let _ = (source, bound, ctrl, codes, vertices, triangles);
+    None
+}
+pub(super) fn meshlet_raw(
+    source: &[u8],
+    bound: usize,
+    ctrl: &[u8],
+    codes: &[u8],
+    vertices: &mut [u32],
+    triangles: &mut [u32],
+) -> Option<Result<(), crate::Error>> {
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::sse41() {
+        return arch::meshlet_raw(token, source, bound, ctrl, codes, vertices, triangles);
+    }
+    let _ = (source, bound, ctrl, codes, vertices, triangles);
+    None
+}
 pub(super) fn filter(kind: u8, data: &mut [u8], stride: usize) -> Option<Result<(), crate::Error>> {
     #[cfg(any(
         target_arch = "x86_64",
@@ -385,6 +418,75 @@ mod tests {
                     *v = last;
                 }
                 assert_eq!((actual, used), (expected, offset));
+            }
+        }
+    }
+    #[test]
+    fn byte_headers_share_lookahead_without_accepting_short_groups() {
+        for bits in [[0u32, 2, 4, 8], [0, 1, 2, 4], [1, 2, 4, 8]] {
+            for header in 0..=255u8 {
+                // Alternating escapes/literals, unaligned input and exact
+                // fast-window/tail thresholds exercise all header-space rows.
+                let mut storage = [0u8; 99];
+                storage[1] = header;
+                for (i, b) in storage[2..].iter_mut().enumerate() {
+                    *b = (i * 71 + 255) as u8;
+                }
+                for length in [23usize, 24, 25, 95, 96, 97] {
+                    let source = &storage[1..1 + length];
+                    let mut expected = [0u8; 64];
+                    let mut pos = 1;
+                    let mut ok = true;
+                    for (g, chunk) in expected.as_chunks_mut::<16>().0.iter_mut().enumerate() {
+                        if source.len().saturating_sub(pos) < 24 {
+                            ok = false;
+                            break;
+                        }
+                        let b = bits[usize::from((header >> (g * 2)) & 3)];
+                        if b == 0 {
+                            chunk.fill(0);
+                            continue;
+                        }
+                        if b == 8 {
+                            chunk.copy_from_slice(&source[pos..pos + 16]);
+                            pos += 16;
+                            continue;
+                        }
+                        let start = pos;
+                        pos += (b * 2) as usize;
+                        let escape = (1u8 << b) - 1;
+                        for (i, v) in chunk.iter_mut().enumerate() {
+                            let shift = if b == 1 {
+                                i as u32 % 8
+                            } else {
+                                8 - b - (i as u32 % (8 / b)) * b
+                            };
+                            let field = (source[start + i / (8 / b) as usize] >> shift) & escape;
+                            *v = if field == escape {
+                                let value = source[pos];
+                                pos += 1;
+                                value
+                            } else {
+                                field
+                            };
+                        }
+                    }
+                    let mut out = [0xcc; 64];
+                    if let Some(result) = super::bytes(source, 0, &mut out, &bits) {
+                        assert_eq!(
+                            result,
+                            if ok {
+                                Ok(pos)
+                            } else {
+                                Err(crate::Error::InvalidStream)
+                            },
+                            "{bits:?}/{header}/{length}"
+                        );
+                        if ok {
+                            assert_eq!(out, expected);
+                        }
+                    }
+                }
             }
         }
     }
