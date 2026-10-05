@@ -4855,3 +4855,41 @@ corresponding new/old interval includes1. No rescue epoch or subsequent
 engine edit. Current full case/family tables, proofs and limits are in
 P07_FIX9_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix9.
 No untouched-family, other-platform, release or Moss integration acceptance.
+
+## P07 fix10 — 2026-10-06
+
+Frozen streaming fixtures are large calls: 2,097,153 x 4 and 262,145 x 32,
+about 8 MiB output each. Reject the many-small-calls premise for these inputs.
+N/2N user instruction counters find Rust/C++ ratios 1.025 and 1.089, not
+2.1; do not attribute historical elapsed differences to validation/dispatch.
+Keep one exact-size fallible reservation and initialize each bounded vertex
+output block immediately before reconstruction. This removes the separate
+whole-output zeroing pass while retaining initialized safe slices, all checks,
+resource/error semantics and the same 23 unsafe blocks. Counter work increases
+1.6%/0.07%; no instruction-speed claim. The single final timing epoch adjudicates
+performance. Allocating vertex and filtered views share this fix.
+
+WASM epoch fix10-js-allocating compares allocating JavaScript adapters: one
+fresh zeroed Uint8Array returned per call, reusable WASM input/output scratch,
+matching source/output copies. Rust uses public decode_*_into, matching upstream
+JS's intended target-buffer interface and reusable WASM scratch. This is
+explicitly not qualification of Rust's Vec-returning WASM API. Reject adding
+a dummy allocation to C++, changing upstream library behavior, or retaining
+Rust's extra WASM Vec allocation under a supposedly symmetric label.
+
+Register every frozen native row and every upstream-public-JS eligible row,
+with both APIs, before timing. Fresh A/A for the changed Rust binaries and all
+WASM rows in the new epoch; reuse native C++ A/A only with byte-identical
+comparator and unchanged native wrapper. Missing prior A/A gets a frozen fresh
+measurement, independent of final failures. Both A/A upper bounds must be
+<=1.25 for case maxima; family means include all rows. 5–20 rotating paired
+samples, borderline-only 30 fresh pairs, no pooling or repeat-to-pass. Shared
+4GB heavy/GPU admission, timeout840, checkpoint690, release between bursts.
+
+Development receipts include two corrected regression-authoring failures
+(private VertexEncoding fields, EXT v1 UnsupportedVersion), a discarded
+build identity attempt overlapping a test edit, and successful final native
+checks/Miri block regression. Runtime sources match compiled native/WASM
+binaries; later differences are test cfg(miri) coverage and safety line inventory,
+recorded in final-source-binding.json. Below25GiB shared free disk closes
+further builds. Existing matching binaries can run parity and measurements.
