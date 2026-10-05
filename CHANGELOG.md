@@ -15,9 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   APIs for LOD chains, vertex/index encoding, EXT view decoding and all four
   meshlet builders. With `clusterlod`, batches of independent cluster-LOD DAGs
   and hierarchy forests are also available.
-- Per-item checked errors and limits, private worker workspaces and deterministic
-  output at any thread count. Tests compare sequential output at 1, 2, 8 and
-  N threads, including failure isolation and late position mutation.
+- Batches check errors and limits per item and give each worker a private
+  workspace. Output is deterministic at any thread count; tests compare it with
+  sequential output at 1, 2, 8 and N threads, including failure isolation and
+  late position mutation.
 - RFC 113 harness: three-way Rust/scalar-C++/Moss-style-C++ comparisons,
   portable layout and codec checks, scratch-budget regressions, profiling and
   adaptive paired timing with source and binary identities.
@@ -25,21 +26,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sixteen variants of one authored mesh. The full-family curve records
   16-thread medians of 8.201× for LOD chains, 7.599× for mixed encoding,
   3.284× for EXT view decoding, 6.136× for standard meshlets and 7.818× for
-  cluster LOD. See [the P06 record](parity/p06/README.md) for the full table,
-  dispersion and hierarchy follow-up; these are shared-host corpus results.
+  cluster LOD. These results come from one corpus on a shared host. See
+  [the P06 record](parity/p06/README.md) for the full table, dispersion and
+  hierarchy follow-up.
 
 ### Changed
 
-- Cluster-LOD builds reuse validated data and compact sparse groups. Borrowed
-  attributes and boundary flags remove per-group copies while preserving
-  bounded simplification scratch. Dilation invalidates the cached position
+- Cluster-LOD builds reuse validated data and compact sparse groups. Validated
+  attributes and boundary flags are borrowed instead of copied per group, and
+  simplification scratch stays bounded. Dilation invalidates the cached position
   range before further simplification.
-- The final RFC 113 recovery measures aggregate Rust/scalar-C++ time ratios of
+- The final RFC 113 recovery measured aggregate Rust/scalar-C++ time ratios of
   1.196× with the Moss-like consumer profile (thin LTO) and 1.090× with Cargo
   release defaults. All 15 supported S2 layouts and all 90 codec comparisons
   are byte-identical. See [the recovery record](parity/results/rfc113-clod-recover.md).
 - Small hierarchy batches run sequentially to avoid Rayon dispatch overhead.
-  The follow-up still records slowdowns, including caller-side `pool.install`.
+  The hierarchy follow-up still records slowdowns, including caller-side
+  `pool.install`.
 
 ### Known limitations
 
@@ -47,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   included. SIMD work remains planned for phase 0.7.
 - The two stride-32 S2 setups remain invalid because their protect mask exceeds
   the layout. Existing preprocessing and partitioning timing residuals remain;
-  see the README. These records do not establish Moss runtime or GPU integration.
+  see the README. These records do not cover Moss runtime or GPU integration.
 
 ## [0.1.0] - unreleased
 

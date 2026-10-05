@@ -262,8 +262,8 @@ Caller-buffer (`_into`) and in-place forms are listed in the rustdoc.
 
 ### Parallel batches (phase 0.6, `parallel` feature)
 
-These batch APIs compose the sequential Rust operations. Their recorded tests
-compare output at 1, 2, 8 and N threads; output order and per-item errors do not
+These batch APIs are built from the sequential Rust operations. Tests compare
+their output at 1, 2, 8 and N threads; output order and per-item errors do not
 depend on thread count.
 
 | Operation | Batch API | Status |
@@ -364,17 +364,18 @@ All 15 supported layouts and all 90 codec comparisons matched byte for byte.
 The two stride-32 S2 setups remain invalid because their protect mask exceeds
 the layout. See [the recovery record](parity/results/rfc113-clod-recover.md)
 for raw timing identities, adaptive sampling and per-mesh results. These
-measurements cover that corpus; they do not establish Moss runtime performance.
+measurements cover only that corpus and say nothing about Moss runtime
+performance.
 
 ### Parallel batch speed
 
-The following full-family curve compares parallel batches with sequential Rust
+The full-family curve below compares parallel batches with sequential Rust
 on an AMD Ryzen 9 7945HX (16 physical cores / 32 logical CPUs), using Cargo
 release defaults (`opt-level = 3`, 16 codegen units, LTO false). Inputs are
 sixteen translated/scaled variants of the pinned upstream `demo/pirate.obj`,
-2,889 vertices / 5,010 triangles per mesh. This is one authored mesh, not a
-diverse asset suite or a Moss cook benchmark. The shared host's one-minute
-load was 15.46–18.00.
+2,889 vertices / 5,010 triangles per mesh. Because every input comes from one
+authored mesh, this is neither a varied asset suite nor a Moss cook benchmark.
+The shared host's one-minute load was 15.46–18.00.
 
 Each speed-up is the median of five paired sequential/parallel time ratios;
 values below one mean batching is slower. Serial milliseconds are the median
@@ -398,7 +399,8 @@ these measured slowdowns.
 
 Decoding gains decline after eight threads. Dispersion is material: at sixteen
 threads, cluster LOD ranges 1.82–10.23× and meshlets 4.71–9.81× across the five
-pairs. These medians are not universal gains or C++ algorithmic comparisons.
+pairs. The medians do not carry over to other inputs, and they do not compare
+against C++.
 See [the P06 record](parity/p06/README.md) for raw pairs, identities,
 thread-count determinism tests and the hierarchy follow-up.
 
