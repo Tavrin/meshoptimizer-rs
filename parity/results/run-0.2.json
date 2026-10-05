@@ -25,8 +25,8 @@
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "0c24e3b6d741ac899ca206a9d7681568fd940a5490677e83b1ca09eaaa5f9733",
-        "wasm": "52789b8159b7a2f061e181b48a4ae142b6171bc4060d53d8abcd434c2b29273c"
+        "rust": "922d3ab26f7a45202bb3ab9a4da7312c59e8de867178ca75cb4b0e0650e5ff7e",
+        "wasm": "b2a78c27a9f15e073646598acb5cfaea31c7a55d9ae4dce9a14efe436e5883ab"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536"
     },
@@ -44,17 +44,17 @@
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "0c24e3b6d741ac899ca206a9d7681568fd940a5490677e83b1ca09eaaa5f9733",
-        "wasm": "52789b8159b7a2f061e181b48a4ae142b6171bc4060d53d8abcd434c2b29273c"
+        "rust": "922d3ab26f7a45202bb3ab9a4da7312c59e8de867178ca75cb4b0e0650e5ff7e",
+        "wasm": "b2a78c27a9f15e073646598acb5cfaea31c7a55d9ae4dce9a14efe436e5883ab"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536"
     }
   },
   "artifacts": {
-    "run-0.2/fixtures.json": "01f6e7337d22723b8eee239628e5044e3475b1fc5f43c22ea1d8b306fce2072d",
-    "run-0.2/fixtures.zip": "2ef626dce70c497037c634284c879e6512f2281ecc664d9a888ebf818dc04d28",
-    "run-0.2/malformed.json": "0fc678a1fe14e2e8c2642472277a325bc2367a7c4f0630bf020b2787487ea7fc",
-    "run-0.2/malformed.zip": "c7ed3938a31ab1a1b575a73f2dcc0ced7b598486f990c0cdb95d3b5b898166ea"
+    "run-0.2/fixtures.json": "958710d457de63e1d1d7ea22fb1b8bc5cad670651ddf1d425f82fcff682af4df",
+    "run-0.2/fixtures.zip": "cfec672eb20ca0e634484a0b6602593d2a56a57f802632beb380efacf8af2f38",
+    "run-0.2/malformed.json": "9a80bce9c3d21fc09080e3510d8ab887e4fae877a31cdda4a648ae227ee02a86",
+    "run-0.2/malformed.zip": "bc063c691051686b5a421df888b04674d62cf07603680576c364a967dd022bbc"
   },
   "detail_artifact": "run-0.2/fixtures.json",
   "seed": null,

@@ -1,0 +1,495 @@
+{
+  "schema": "meshopt-p05-diagfix-phase0/1",
+  "passed": true,
+  "rebase_from": "80663a8",
+  "rebase_onto": "419dc7ad2b16c29e9fe00fe5adce3f4f211c9ac4",
+  "rebased_head": "6109413a973d7bd00f85bf887f409c426aca6121",
+  "artifact_directory": "/mnt/linux-extra/meshopt-artifacts/p05-diagfix/phase0",
+  "receipts": [
+    {
+      "label": "lock-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.027689218521118164
+    },
+    {
+      "label": "lock-parity-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "parity/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.023376941680908203
+    },
+    {
+      "label": "lock-parity-codec-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "parity/codec/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.026229381561279297
+    },
+    {
+      "label": "lock-parity-p03-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "parity/p03/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.02502298355102539
+    },
+    {
+      "label": "lock-parity-p05-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "parity/p05/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.02627110481262207
+    },
+    {
+      "label": "lock-parity-p06-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "parity/p06/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.02856898307800293
+    },
+    {
+      "label": "lock-fuzz-p05-Cargo.toml",
+      "command": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "fuzz/p05/Cargo.toml"
+      ],
+      "exit": 0,
+      "seconds": 0.03575634956359863
+    },
+    {
+      "label": "tests-all",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features"
+      ],
+      "exit": 0,
+      "seconds": 1.0055229663848877
+    },
+    {
+      "label": "clippy-all",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 4.806915998458862
+    },
+    {
+      "label": "tests-nodefault",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--no-default-features"
+      ],
+      "exit": 0,
+      "seconds": 6.037092208862305
+    },
+    {
+      "label": "clippy-nodefault",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--no-default-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 2.3162055015563965
+    },
+    {
+      "label": "tests-experimental",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--no-default-features",
+        "--features",
+        "experimental"
+      ],
+      "exit": 0,
+      "seconds": 6.326963663101196
+    },
+    {
+      "label": "clippy-experimental",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--no-default-features",
+        "--features",
+        "experimental",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0,
+      "seconds": 2.386471748352051
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.8124282360076904
+    },
+    {
+      "label": "0.1-run",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.1"
+      ],
+      "exit": 0,
+      "seconds": 52.095175981521606
+    },
+    {
+      "label": "0.1-sweep",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.1"
+      ],
+      "exit": 0,
+      "seconds": 219.0266239643097
+    },
+    {
+      "label": "0.2-run",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.2"
+      ],
+      "exit": 0,
+      "seconds": 42.56159710884094
+    },
+    {
+      "label": "0.2-sweep",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.2"
+      ],
+      "exit": 0,
+      "seconds": 21.32283902168274
+    },
+    {
+      "label": "0.3-run",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.3"
+      ],
+      "exit": 0,
+      "seconds": 46.13898253440857
+    },
+    {
+      "label": "0.3-sweep",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.3"
+      ],
+      "exit": 0,
+      "seconds": 18.619261026382446
+    },
+    {
+      "label": "0.4-run",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.4"
+      ],
+      "exit": 0,
+      "seconds": 24.856499671936035
+    },
+    {
+      "label": "0.4-sweep",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.4"
+      ],
+      "exit": 0,
+      "seconds": 48.21642255783081
+    },
+    {
+      "label": "clusterlod",
+      "command": [
+        "python3",
+        "parity/p03/runner.py",
+        "clusterlod"
+      ],
+      "exit": 0,
+      "seconds": 10.69678807258606
+    },
+    {
+      "label": "p05-run",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.5"
+      ],
+      "exit": 0,
+      "seconds": 0.1934351921081543
+    },
+    {
+      "label": "p05-native",
+      "command": [
+        "python3",
+        "parity/p05/sweep.py"
+      ],
+      "exit": 0,
+      "seconds": 22.737777948379517
+    },
+    {
+      "label": "p05-libm",
+      "command": [
+        "python3",
+        "parity/p05/sweep.py",
+        "--no-default-identity"
+      ],
+      "exit": 0,
+      "seconds": 21.634283304214478
+    },
+    {
+      "label": "p05-wasm",
+      "command": [
+        "python3",
+        "parity/p05/sweep.py",
+        "--wasm-identity"
+      ],
+      "exit": 0,
+      "seconds": 11.20084834098816
+    },
+    {
+      "label": "p01x-run",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.1.x",
+        "--record-directory",
+        "p01x-run"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "p01x-sweep",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.1.x",
+        "--cases-per-family",
+        "2000",
+        "--record-directory",
+        "p01x-sweep"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "js",
+      "command": [
+        "parity/report.sh",
+        "--execute",
+        "js",
+        "--require-coverage"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "consumer-tests-all",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "parity/p05/Cargo.toml",
+        "--all-features"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "consumer-clippy-all",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "parity/p05/Cargo.toml",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "consumer-tests-nodefault",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "parity/p05/Cargo.toml",
+        "--no-default-features"
+      ],
+      "exit": 0
+    },
+    {
+      "label": "consumer-clippy-nodefault",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "parity/p05/Cargo.toml",
+        "--all-targets",
+        "--no-default-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit": 0
+    }
+  ],
+  "rfc113_supported_layouts": 15,
+  "rfc113_codec_comparisons": 90,
+  "rfc113_timing_pairs": 0,
+  "root_tests": {
+    "all": 149,
+    "no_default": 123,
+    "no_default_experimental": 128
+  },
+  "p05_native_libm_wasm_cases_each": 30000,
+  "p01x_sweep_comparisons": 64000,
+  "source_sha256": {
+    "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
+    "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
+    "src/strip.rs": "92f5e49e3b9e8da606471d8c1f00bd515f03e9b0f865f8b58f2e47c2e5a3c792",
+    "src/input.rs": "04599aa36739daa5ff4c3047f95b4d066f15c11cc77094b29ec7ca2566cdc253",
+    "src/simplify.rs": "f96c04ea2e6f2096f7e9b3cd1182258936c43d2378773c0c726e86cbb351d44d",
+    "src/meshlet.rs": "5923a30f15fa9f4d355b3e4008a9f6815359f3c46fd7575a25f4dea0bda8e8e5",
+    "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
+    "src/cache.rs": "c2724d97ec08e9c674ffc01dba9dc26265cd3e3858b82c0ca8f1c1f3c21e949d",
+    "src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
+    "src/parallel.rs": "a2f495210f0626f1f125763cc7d8fa856859dd8a3c4b9944e8b3b7dc16b8694f",
+    "src/tangent.rs": "e31665b1f146ea32ac258cb4eded8276de4b521b4b0449d8c8994b23f82dcf4e",
+    "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+    "src/raster.rs": "30f6279cacaae48e43a563a88bc0abb13fb537fad925f6c4c63f947c890a3dd4",
+    "src/opacity.rs": "ef66935a5d21272333b21ad5bd321a5db69fe9afe5b643ea2a119450086d974a",
+    "src/processing.rs": "a95e2eee270d988e7178b8054ccb0d891279883006db492d6e8ed58c3e27d9b5",
+    "src/remesh.rs": "a70c4287ae98b9c3e87b7415799de31e1b781fad2d6a7936c14b05b95edd0b80",
+    "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+    "src/remap.rs": "faaeeee5d47efe47de4c4141e8584a0d5e536aece8c0079a53ba4e939864d866",
+    "src/math.rs": "b107247818c7d55bd4240f099b3fa7bf0d0e3b9eb93de465b1c0fd4371540b72",
+    "src/simplify_extra.rs": "479379cfef8e5fd0ab220fd930bf5db9ce10d285c6dce3938ac7cb62d5c2f0be",
+    "src/workspace.rs": "22c4e1e086999d16b2e9211e901c161b9058597e684516400a063e6c8282c18b",
+    "src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
+    "src/normal.rs": "0ea24cf42fcdab3f2f2593cfc223de055874e2c16290341503628fe5e65a3ec3",
+    "src/lib.rs": "fa71be48b1d54e740974c4e2b56071ab1d7fbf6bb7abb3afc88fae0cc139f714",
+    "src/meshlet_util.rs": "6f95800d8f29ec4764b86ed0756e4816adc0337a6a4c280e16c391f187168820",
+    "src/budget.rs": "c339aa1d7e35cbe4fcacb8c94bae75ff63f755f8df2f17765294d82505a0873b",
+    "src/spatial.rs": "c1829a02b7821a5076a21be5a053154fa3e46e6439d3ce7dbda52c038128559c",
+    "src/codec/vertex.rs": "00ec7582f90e20b52510acf087de82ad86c2881a0702dfdc975a72841e2661e9",
+    "src/codec/meshlet.rs": "28566bbdbb5e23a043b458b1de52c6f87abb2e15620d164520805ca57346f6c7",
+    "src/codec/filter_encode.rs": "4b0c04978a871a7b9bf7f76e83e63bc1547d87fa036541dcef9c755a662437c7",
+    "src/codec/index.rs": "bc4e428ba0723d3bcf13de164ca67cbcc8a33591b2aee0818184f3db38a15b62",
+    "src/codec/filter.rs": "ffd346c0b03618fa08d4bfaa57c206773bb1101105185fb2ff3c2436b3a76037",
+    "src/codec/index_encode.rs": "b079a144b3a052fc46658b26014774e9650b2b9fc683f6b9fcbd8324110d3446",
+    "src/codec/encode.rs": "a301f0209e35742b906d28bbea7f3bb735921fd279afdc4832c5949e188f6ff5",
+    "src/codec/mod.rs": "742f269e2b05509ac802e7d94aae00affa59f9729c66fec2d85b0b94b67bfda7",
+    "src/codec/vertex_encode.rs": "9bb21e53054effa20aa127a701a7657ff8b02d9ce34f59fc719df256f2017534",
+    "src/clusterlod/mod.rs": "a41370baec3e5bf07b17f5789725260322fbe6cf175c4ad54c04714364e5b2e5",
+    "src/clusterlod/support/input.rs": "b51cec4182809662d329b7e4efb81f06b114b41df407f700b984e2dbd1d22a8a",
+    "src/clusterlod/support/simplify.rs": "4e1baa97f9048439f8b8af5a2a53e83867e9a4b080873e52fa50947070b8f06d",
+    "src/clusterlod/support/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "src/clusterlod/support/simplify_extra.rs": "301db10220b7e7078f4f87b2dba0d672bd74a5877ff9d5675bd7eab554b0e15a",
+    "src/clusterlod/support/workspace.rs": "79859b9613aa305b4f7ba338fc91718aa04cd9d52b58d3cc38656ac136083fda",
+    "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
+    "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46",
+    "tests/codec.rs": "9e2cfa156249e79ccdc52287a5b05856021f6b5972f61ed6edd17c22d9cd9e01",
+    "tests/codec04.rs": "a3d845c5c6a058a68ee47edd7379729a9c80035772d9a52601febcc631546604",
+    "tests/p05.rs": "57354ec72b168e89320ca30ffb15e34d8d50a8eb228ef972bdf667baaaeee3ee",
+    "tests/parallel.rs": "52cb056f9e39a0b8350b288f3fdd8fb0a2ae5a5db40f5867c24ce03c6f6ccdf3",
+    "tests/api.rs": "dfa34266d8dd786fda699c82f8ee6dd16471ce601ca186d4cf96245f2419dfab",
+    "tests/meshlets.rs": "e5ba1a483f4db617a600937c63d958811abef7af1aca88afaa03cc7a7a6ff296",
+    "tests/preprocessing.rs": "8959d2b7ea2571e3131210c8de8d639f27639b2980f734a5a5afcf1caf9b1d30",
+    "Cargo.toml": "c68cf0a6cb67cd9c93564e7b7016cac4142f4a48bc4bbbb8aee964793d67c51b",
+    "Cargo.lock": "497177bae14fd6391616b6a160a75aed01cc729214c3722845801fc711641e2d",
+    "parity/p05/Cargo.toml": "48a4256440e31f439f979a238d7238f598326b586fdc3a0f4ae27d6e76b65a66",
+    "parity/p05/Cargo.lock": "aa36e7a2d23c94764fc12d8b6e8fd37681357025f1b750e90548d153336877a3"
+  },
+  "proof_sha256": {
+    "rfc113-cpp": "9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f",
+    "sources.tar.gz": "56a56e9c28b285957fdb4422e26444c54c20ec7a77a5c703cf27df8b294de8f4",
+    "rfc113-rust": "2802542351adc9417f3336950bc120fda15ac2799d3a10d4d40d3c46f8d9ff1b",
+    "rfc113-codec-cpp": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
+    "meshopt_p03_parity.wasm": "e7e8bdf2cbaf7b29fe0fdd4c36c3f8fdc3684976b2c53cf5fdccb5256f7fdce8",
+    "meshopt-p03-driver": "304f27790e7fd4de4e6176938f3787ae31323e79251dfd5688f523442617390a",
+    "p03-reference": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
+    "rfc113-moss-cpp": "16aab10d502e76cd35b2e7d2c6037c407726a06a935e577a7d39d74fa9189395"
+  },
+  "limits": "Functional Phase 0 only; historical benchmarks/fuzz identities do not qualify this source for performance or release."
+}

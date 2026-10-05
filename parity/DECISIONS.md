@@ -5977,3 +5977,27 @@ Rejected scheduling assumptions are also closed: waiting for a quiet/load-free
 host, periodic free-lease gaps, scoreboard polling, and direct lease submission
 are obsolete. D114 introduced fair lease scheduling; D120 supersedes it with
 visible shared heavy admission. None authorizes a new burst after this owner stop.
+
+## D160 — P05 diagfix Phase 0: integrate rewritten release history
+
+SPEC-p05-diagfix explicitly authorizes its one initial rebase in this worktree;
+its later no-rebase rule applies after Phase 0. Rebase the four 0.5 commits from
+80663a8 onto origin/release/0.2.0 at 419dc7a, preserving release preprocessing,
+meshlets, cluster LOD and parallel APIs together with all 0.5 modules/evidence.
+Keep release package/version/features and include both sets of tests. Preserve
+Workspace's value-initialized cache reservations and later retained simplifier
+accounting, adding the 0.5 timestamp seam and index validation fast path. Keep
+both decision histories; label the old 0.5 excluded-branch coverage as historical.
+No other branch is changed; the backup remains at 80663a8. Never push or rebase
+again in this lane. Refresh the two 0.5 consumer/fuzz lockfiles to version 0.2.0.
+
+All Phase 0 functional gates pass before diagnosis: fmt; strict root Clippy and
+149/123/128 tests in all/no-default/no-default+experimental modes; both consumer
+Clippy/test modes; full 0.1/0.1.x/0.2/0.3/0.4 fixtures and seeded strict C++/WASM
+sweeps (including 50,000 0.1 and 64,000 0.1.x comparisons); upstream JS suites;
+80 cluster-LOD cases; all 15 supported RFC113 layouts and 90 codec comparisons
+with zero timing pairs. P05 native/libm/executed-WASM each match 30,000 cases.
+No corpus/bar changes, unsafe or SIMD. Receipts, exact sources and proof binaries
+are under /mnt/linux-extra/meshopt-artifacts/p05-diagfix/phase0; the slim record is
+parity/results/p05-diagfix-phase0.json. Historical performance/fuzz records are
+not promoted to current evidence. This closes Phase 0, not performance acceptance.
