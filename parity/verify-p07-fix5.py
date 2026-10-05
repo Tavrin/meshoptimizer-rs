@@ -55,7 +55,13 @@ for r in repro['rows']:
     if r['status']==0: assert r['output_sha256']=='84f10ea2dbf10053d297030ad90332fba171139f972049575862fda7f5c777f7'
 proofs['upstream_tail']='expected pinned upstream scalar/SIMD split; all Rust levels match scalar'
 golden={r['case']:r for r in read('benchmark-identity')['cases']}
-node_build=read('node-build')
+node_build=read('node-build');assert node_build['sources']==build['sources']
+color_depth=read('color-depth-proof');assert color_depth['passed'] and color_depth['sources']==build['sources'] and color_depth['binaries']==build['binaries']
+for stride,first,last in [(4,1,255),(8,4,65535)]:
+    rs=[r for r in color_depth['rows'] if r['stride']==stride]
+    assert len(rs)==7 and len({r['backend'] for r in rs})==7 and len({r['output_sha256'] for r in rs})==1
+    for r in rs:assert r['status']==0 and r['alpha_range']==[first,last] and r['count']==4*(last-first+1) and sha(ART/f'color-depth-s{stride}.input')==r['input_sha256']
+proofs['color_depth']='all valid alpha depths; extreme channels; native levels and actual wasm'
 for name,h in node_build['binaries'].items():
     assert sha(ART/'node-bin'/name)==h and b'simd128' in (ART/'node-bin'/name).read_bytes()
 preflight=read('node-preflight');assert preflight['passed']
