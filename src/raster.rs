@@ -1,4 +1,5 @@
 //! Scalar software rasterizer used by the two upstream raster analyzers.
+use crate::input::PositionReader;
 use crate::workspace::{checked_bytes, topology, Work};
 use crate::{Error, Positions, Workspace};
 use alloc::vec::Vec;
@@ -42,13 +43,13 @@ fn reserve<T: Default + Clone>(count: usize) -> Result<Vec<T>, Error> {
 
 fn transform(
     indices: &[u32],
-    positions: Positions<'_>,
+    positions: impl PositionReader,
     work: &mut Work,
 ) -> Result<(Vec<[f32; 3]>, f32), Error> {
     let mut minv = [f32::MAX; 3];
     let mut maxv = [-f32::MAX; 3];
     work.scan(0..positions.len(), |i| {
-        let value = positions.get(i).ok_or(Error::InvalidLayout)?;
+        let value = positions.read(i);
         for j in 0..3 {
             if !value[j].is_finite() {
                 return Err(Error::NumericalFailure);
@@ -88,9 +89,8 @@ fn transform(
         if !bulk_transform {
             work.add(1)?;
         }
-        let value = positions
-            .get(index as usize)
-            .ok_or(Error::IndexOutOfBounds)?;
+        // topology checked indices before this reader is selected.
+        let value = positions.read(index as usize);
         transformed[i] = [
             (value[0] - minv[0]) * scale,
             (value[1] - minv[1]) * scale,
@@ -208,7 +208,11 @@ fn analyze(
             )?)
             .ok_or(Error::SizeOverflow)?;
         workspace.account_codec(bytes)?;
-        let (triangles, extent) = transform(indices, positions, &mut work)?;
+        let (triangles, extent) = if let Some(packed) = positions.packed_values() {
+            transform(indices, packed, &mut work)?
+        } else {
+            transform(indices, positions, &mut work)?
+        };
         let mut buffer = reserve::<Pixel>(VIEWPORT * VIEWPORT)?;
         let mut overdraw = OverdrawStatistics::default();
         let mut result_coverage = CoverageStatistics {
@@ -277,6 +281,32 @@ pub fn analyze_coverage(
 mod tests {
     use super::*;
     use crate::Limits;
+
+    #[test]
+    fn packed_transform_keeps_logical_mapped_positions() {
+        let storage = [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [f32::NAN; 3],
+        ];
+        let mapping = [2, 0, 1];
+        let ordered = mapping.map(|i| storage[i as usize]);
+        let mapped = Positions::from_packed(&storage).mapped(&mapping);
+        let reference = Positions::from_packed(&ordered);
+        let mut actual_ws = Workspace::default();
+        let mut reference_ws = Workspace::default();
+        assert_eq!(
+            analyze_overdraw(&[0, 1, 2], mapped, &mut actual_ws),
+            analyze_overdraw(&[0, 1, 2], reference, &mut reference_ws)
+        );
+        assert_eq!(actual_ws.usage(), reference_ws.usage());
+        assert_eq!(
+            analyze_coverage(&[0, 1, 2], mapped, &mut actual_ws),
+            analyze_coverage(&[0, 1, 2], reference, &mut reference_ws)
+        );
+        assert_eq!(actual_ws.usage(), reference_ws.usage());
+    }
 
     #[test]
     fn pixel_scan_keeps_tight_fuel_and_statistics_prefixes() {

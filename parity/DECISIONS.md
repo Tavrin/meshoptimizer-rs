@@ -6085,3 +6085,23 @@ default overdraw change: tiny instructions -25.00%, branches -32.69%; medium
 instructions -3.96%, branches -4.80%. Ratios to C++ improve 1.501->1.125 tiny and
 1.072->1.030 medium. Moss is instruction-neutral; coverage changes are at most
 +0.13% in these counts. No timing inference or changed bar. Retain the fix.
+
+## D166 — Select a checked packed viewport reader once
+
+Dispatch transform on the release's packed_values helper, which refuses a
+logical mapped view; use PositionReader for direct packed reads and the existing
+checked generic layout. Preserve scalar min/max/transform order, finite checks,
+all visits, allocations and typed public errors. Regression coverage adds
+padded floats and unaligned LE/BE bytes with ignored NaN padding, exact values
+and fuel/error/usage boundaries, plus unused-NaN numerical precedence. A private
+mapped-view regression excludes a NaN storage row and compares logical reordered
+geometry/usage to a materialized equivalent. The older 0.5 packed helper alone
+does not check the release's mapping field, so it is not used by this new path.
+
+151/125/130 root tests (all/no-default/experimental), strict Clippy, fourteen
+phase contracts and native/libm/executed-WASM 30,000 cases each pass. Receipts
+are raster-reader-mapped-proof; earlier reader-only proof/counts remain historical.
+Final counts/assembly are raster-reader-mapped-counts: most observed cases are
+instruction-neutral; default medium overdraw improves slightly (~0.2%). This
+retains an explicit checked layout seam without claiming a large or timed gain.
+No other API, float operation, unsafe, SIMD or frozen input is changed.

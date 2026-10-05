@@ -145,6 +145,97 @@ fn pinned_raster_vector() {
     let coverage = analyze_coverage(&indices, positions, &mut workspace).unwrap();
     assert_eq!(coverage.coverage.map(f32::to_bits), [0, 0, 0x3f800000]);
     assert_eq!(coverage.extent.to_bits(), 0x3f800000);
+
+    // Layout dispatch must preserve exact raster values, ignored padding and
+    // charge/error prefixes, including the newly direct packed transform.
+    use meshoptimizer_rs::ByteOrder;
+    let mut strided = vec![f32::NAN];
+    let mut little = vec![0xcd];
+    let mut big = vec![0xcd];
+    for i in 0..positions.len() {
+        let p = positions.get(i).unwrap();
+        strided.extend(p);
+        strided.push(f32::NAN);
+        for value in p.into_iter().chain([f32::NAN]) {
+            little.extend(value.to_bits().to_le_bytes());
+            big.extend(value.to_bits().to_be_bytes());
+        }
+    }
+    let views = [
+        positions,
+        Positions::from_interleaved(&strided, 4, 4, 1).unwrap(),
+        Positions::from_bytes(&little, 4, 16, 1, ByteOrder::LittleEndian).unwrap(),
+        Positions::from_bytes(&big, 4, 16, 1, ByteOrder::BigEndian).unwrap(),
+    ];
+    for view in views {
+        let mut ws = Workspace::default();
+        let actual = analyze_overdraw(&indices, view, &mut ws).unwrap();
+        let usage = ws.usage();
+        assert_eq!(
+            (
+                actual.pixels_covered,
+                actual.pixels_shaded,
+                actual.overdraw.to_bits()
+            ),
+            (
+                overdraw.pixels_covered,
+                overdraw.pixels_shaded,
+                overdraw.overdraw.to_bits()
+            )
+        );
+        let actual = analyze_coverage(&indices, view, &mut ws).unwrap();
+        assert_eq!(
+            actual.coverage.map(f32::to_bits),
+            coverage.coverage.map(f32::to_bits)
+        );
+        assert_eq!(actual.extent.to_bits(), coverage.extent.to_bits());
+        for fuel in [0, 1, 8, 9, 12, 13, usage.work - 1, usage.work] {
+            let limits = Limits {
+                max_bytes: usage.bytes,
+                max_work: fuel,
+            };
+            let mut reference = Workspace::new(limits);
+            let mut actual = Workspace::new(limits);
+            assert_eq!(
+                analyze_overdraw(&indices, view, &mut actual),
+                analyze_overdraw(&indices, positions, &mut reference)
+            );
+            assert_eq!(actual.usage(), reference.usage());
+            assert_eq!(
+                analyze_coverage(&indices, view, &mut actual),
+                analyze_coverage(&indices, positions, &mut reference)
+            );
+            assert_eq!(actual.usage(), reference.usage());
+        }
+    }
+    let invalid = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [f32::NAN; 3],
+    ];
+    let packed = Positions::from_packed(&invalid);
+    let flat: Vec<_> = invalid.iter().flatten().copied().collect();
+    let view = Positions::from_interleaved(&flat, 5, 3, 0).unwrap();
+    for positions in [packed, view] {
+        for fuel in [13, 14] {
+            let mut ws = Workspace::new(Limits {
+                max_bytes: 1 << 21,
+                max_work: fuel,
+            });
+            let expected = if fuel == 13 {
+                Error::LimitExceeded
+            } else {
+                Error::NumericalFailure
+            };
+            assert_eq!(
+                analyze_overdraw(&indices, positions, &mut ws),
+                Err(expected)
+            );
+            assert_eq!(ws.usage().work, fuel);
+        }
+    }
 }
 
 #[test]
