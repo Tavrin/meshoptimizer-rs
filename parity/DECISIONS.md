@@ -6049,3 +6049,23 @@ next step (`accumulation-counts`): medium owned instruction ratios to C++ are
 1.292 Moss / 1.276 default, caller 1.248/1.242, versus D162 1.347/1.340 and
 1.322/1.327. Tiny ratios remain ~1.47–1.49 owned/~1.43–1.45 caller. These are
 instruction diagnostics, not timing qualification. No timing occurred.
+
+## D164 — Skip the first redundant viewport clear; refine reduction diagnosis
+
+Remove only axis-zero Pixel::fill because reserve already initializes all
+65,536 pixels to positive zero. Keep clears between views and unchanged work,
+heap, scalar raster operations and failure behavior. Assembly now guards the
+memset call with axis!=0, removing one 1 MiB clear per call. Retired instruction
+counts are neutral (<0.002% change) because bulk memset retirement is not a
+measure of written bytes; no timing speedup inferred. All root checks and three
+30,000-case exact sweeps pass (`raster-clear-proof`, `raster-clear-counts`).
+
+Further default assembly inspection identifies the missing overdraw vector
+reduction: the full-fuel selector remains inside its scalar pixel loop, while
+Moss emits packed integer reductions and default coverage already vectorizes.
+The baseline tiny overdraw cost is 6,376,421 instructions/1,127,511 branches
+(default), 4,595,281/742,413 (Moss), 4,249,103/678,716 (C++). Refine D161's plan
+with a covered/tight-fuel pixel-scan specialization before the packed reader.
+Keep charge-before-read and partial private statistics/fuel in the fallback;
+only integer sums may vectorize. This is distinct from rejected cache expansion
+and OMM state specialization. P05_DIAGNOSIS.md records the evidence and ranking.

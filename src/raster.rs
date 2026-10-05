@@ -192,7 +192,10 @@ fn analyze(
             ..CoverageStatistics::default()
         };
         for axis in 0..3 {
-            buffer.fill(Pixel::default());
+            // reserve initializes positive zero; clear only between views.
+            if axis != 0 {
+                buffer.fill(Pixel::default());
+            }
             for tri in triangles.as_chunks::<3>().0 {
                 work.add(1)?;
                 let [a, b, c] = *tri;

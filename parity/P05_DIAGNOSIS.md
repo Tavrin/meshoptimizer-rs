@@ -78,6 +78,14 @@ the worst owned/caller observation on shape 0. M/D = Moss/default.
   Remove the first repeated clear (4 MiB -> 3 MiB initialization writes). Packed
   positions still go through `Positions::get` in both transform loops; select
   a reader once, retaining checked generic layouts and all numerical/fuel checks.
+  Further assembly read after D163 separates the pixel reduction: default
+  overdraw's covered loop at `5cd13..5cd48` remains scalar and tests the fuel
+  selector before each pixel (`5cd40`); coverage has a separate vector loop.
+  Moss overdraw emits packed `paddd` reductions. On tiny shape 0, default
+  overdraw retires 6,376,421 instructions/1,127,511 branches vs Moss
+  4,595,281/742,413 and C++ 4,249,103/678,716. Add a const-covered pixel scan
+  retaining the original charge-before-read fallback. This is viewport analysis,
+  not the rejected OMM state specialization or cache-kernel expansion.
 * **OMM compact:** medium default has 446 branches vs 391, three temporary arrays
   (old bytes, hash table, remap), and a separate `hash_bytes` call. The helper is
   70 instructions/6 conditional branches and uses four-byte chunk iteration,
@@ -150,8 +158,9 @@ an approved residual, or acceptance of an unmeasured family.
 | 1 | Fixed 8-pitch 512-byte marking grid for resolution 4..8 | Remove two runtime products and grid guard in repeated hot marking; target several percent of total instructions | Low/medium: copy successful interior back; retain borders, heap quotas, fuel and all float operations. Existing resolution-16 fallback goldens. ~1h |
 | 2 | Same bounded representation plus 64-entry row map for accumulation | Remove runtime products/grid-row guards from the other ~42% sampled path | Medium: identical cell numbering/voxel and octant bits, original higher-resolution fallback. ~1h |
 | 3 | Omit initial redundant raster clear | One fewer 1 MiB clear/call; 25% fewer initialization writes | Low: newly initialized positive-zero buffer, clear between axes. ~15min |
-| 4 | Packed raster transform reader selected once | Fewer per-position layout/Option checks, primarily large-input/default codegen | Low/medium: preserve finite checks, scalar operation order and fuel prefixes; generic layout witness. ~30min |
-| 5 | Inline OMM compact byte hash | Remove call boundary; expect small instruction saving and expose chunk codegen | Low: retain exact arithmetic and probes. Abandon if assembly/counts show a no-op or regression. ~15min |
+| 4 | Specialize covered pixel reductions, retain tight-fuel scan | Remove default scalar fuel selector and permit automatic integer reduction vectorization; target the 1.78M default/Moss tiny-instruction gap | Low/medium: exact visit charges and error prefixes; integer sums only, no floating reassociation. ~30min |
+| 5 | Packed raster transform reader selected once | Fewer per-position layout/Option checks, primarily large-input/default codegen | Low/medium: preserve finite checks, scalar operation order and fuel prefixes; generic layout witness. ~30min |
+| 6 | Inline OMM compact byte hash | Remove call boundary; expect small instruction saving and expose chunk codegen | Low: retain exact arithmetic and probes. Abandon if assembly/counts show a no-op or regression. ~15min |
 
 Each retained change requires fresh two-profile instruction counts/objdump plus
 strict native/libm/executed-WASM 0.5 sweeps and root tests/Clippy. Existing frozen
