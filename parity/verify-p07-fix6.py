@@ -173,7 +173,8 @@ for r in counter['rows']:
     if r['backend']=='after':assert r['binary_sha256']==build['binaries']['rust-simd']
 assert all(r['effective_encoded_rustflags']==r['environment_overrides'].get('RUSTFLAGS','').replace(' ', '\x1f') for r in checks)
 for r in read('portability-checks')['commands']: assert r['exit_code']==0 and sha(ART/r['log'])==r['log_sha256']
-assert read('safety-gates')['passed']
+safety=read('safety-gates');assert safety['passed']
+for row in safety['commands']:assert row['exit_code']==0 and sha(ART/row['log'])==row['log_sha256']
 summary['aggregate_bars']={}
 for label,fs,bar_mean,bar_max in [('s1',{'vertex','view-none','meshlet','meshlet-raw'},1.10,1.30),('s2',{'view-filtered','oct','quat','exp'},1.25,1.50)]:
     summary[label]={};summary['aggregate_bars'][label]={}
@@ -183,7 +184,10 @@ for label,fs,bar_mean,bar_max in [('s1',{'vertex','view-none','meshlet','meshlet
         summary[label][api]=mean<=bar_mean and not failed
         summary['aggregate_bars'][label][api]={'geomean':mean,'maximum_failures':failed,'pass':summary[label][api]}
 arithmetic=read('arithmetic-proof');assert arithmetic['passed'] and arithmetic['sources']==build['sources']
-for row in arithmetic['rows']:assert row['exit_code']==0 and sha(ART/row['log'])==row['log_sha256']
+for row in arithmetic['rows']:
+    assert row['exit_code']==0 and sha(ART/row['log'])==row['log_sha256']
+    binary=ART/('dev-bin/final-arithmetic' if row['backend']=='native' else 'node-bin/arithmetic-simd.wasm')
+    assert sha(binary)==row['binary_sha256']
 summary['arithmetic_proof']=arithmetic
 summary['verified']=True
 (ART/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')

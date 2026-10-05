@@ -500,3 +500,26 @@ Registered varied-filter S3 final significant comparisons: 2.
 Source-bound verifier passes; numeric failures are retained. No broader
 release/platform/integration acceptance is claimed. The historical codec
 wasm SIMD flag shortfall is corrected and disclosed in the new report.
+
+
+## Fix-six scoped result — 2026-10-05
+
+See [P07_FIX6_PERFORMANCE.md](P07_FIX6_PERFORMANCE.md) for both verdict sets,
+all rows, rejected trials and exact proof limits. Registered bars and frozen
+inputs are unchanged. A/C means allocating/caller-buffer.
+
+| Family | A before → after | C before → after | RFC A / C | Registered A / C |
+|---|---:|---:|---|---|
+| oct | 1.318 → 1.125 | 1.285 → 1.193 | pass / **FAIL** | pass / **FAIL** |
+| meshlet | 1.212 → 1.221 | 1.417 → 1.409 | pass / **FAIL** | **FAIL** / **FAIL** |
+| meshlet-raw | 0.997 → 1.088 | 1.337 → 1.306 | pass / **FAIL** | pass / **FAIL** |
+| exp | 1.003 → 0.917 | 0.910 → 1.065 | **FAIL** / **FAIL** | **FAIL** / **FAIL** |
+| vertex | 1.090 → 1.141 | 1.055 → 1.087 | **FAIL** / pass | **FAIL** / pass |
+| view-none | 1.122 → 1.061 | 1.025 → 1.073 | pass / pass | **FAIL** / **FAIL** |
+| view-filtered | 1.189 → 1.162 | 1.113 → 1.107 | **FAIL** / pass | **FAIL** / pass |
+| quat | 1.220 → 1.170 | 1.199 → 1.235 | pass / **FAIL** | pass / **FAIL** |
+| wasm eligible scope | 1.179 → 1.203 | 1.168 → 1.153 | **FAIL** / **FAIL** | **FAIL** / **FAIL** |
+
+Final native varied-filter S3 significant comparisons: 4.
+Independent source-bound verification passes; numeric failures remain failures.
+No broader release, platform or integration acceptance.

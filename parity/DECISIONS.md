@@ -4350,7 +4350,7 @@ Stage-one family means A/C: Oct 1.125/1.193, typed meshlets 1.221/1.409, raw
 meshlets 1.088/1.306, Exp 0.917/1.065, vertex 1.141/1.087, NONE views
 1.061/1.073, filtered views 1.162/1.107, Quat 1.170/1.235. Allocating Oct
 passes both ratio bars; caller Oct retains one maximum failure. Several means
-or maxima still fail. Native maximum failures: 27 registered, 10 RFC. S3 is
+or maxima still fail. Native maximum failures: 27 registered, 11 RFC. S3 is
 an additional condition, not cleared by favorable mean or maximum ratios.
 
 The x86 Exp convergence attempt is unsuccessful. Both named caller cases still
@@ -4371,3 +4371,37 @@ filtered-view maxima also remain residual failures. Further tuning is abandoned
 within this completed native pass; WASM final measurements and independent
 whole-epoch verification remain pending at this decision. No full release,
 platform or Moss integration acceptance is established.
+
+
+### Fix-six final result and cleanup decision
+
+Combined independent verification passes: 212 native rows, 146 Node rows;
+source/input/BAR/binary hashes, paired intervals, both maximum thresholds,
+early stopping, borderline-only D146, S3 and all lease/controller receipts.
+One final epoch in two admitted bursts: native 226s, WASM 188s, exit zero.
+No accepted pair/row repeats; queued logs and admission receipts are retained.
+
+WASM allocating mean regresses 1.179 ->1.203; caller mean improves
+1.168 ->1.153 (round-four caller was 1.156). Both fail RFC and registered
+maxima. Instruction recovery therefore does not establish a successful WASM
+performance fix. Abandon further WASM/maxima tuning within this one-pass brief;
+keep negative evidence and the measured source. Native S3 is still failed,
+with four significant comparisons vs two before. No changed bar, approximate
+arithmetic, favorable retry or unmeasured final-source revert. This is a scoped
+execution stop, not performance/release acceptance.
+
+Final family means and both verdict sets are in P07_FIX6_PERFORMANCE.md and
+SIMD_RESULTS.md. The report distinguishes ratio-only gates from S3, and retains
+all per-case intervals. Correctness/safety gates pass: 869 frozen fixture cases,
+7653 malformed cases, 138 benchmark identities, 292 Node hashes, exhaustive
+Oct8 plus finite Oct16/Quat and edge proofs on native/actual SIMD wasm, unchanged
+valid-alpha Color and upstream odd-tail reproduction, seven test/Clippy/Miri
+receipts, MSRV/no-std portability and the 23-block unsafe boundary/package audit.
+No ARM execution, dedicated-host, other-platform, full native matrix, native
+triangle-index, phase-0.6, Moss integration or release qualification.
+
+Delete only /mnt/linux-extra/moss-cargo-targets/codex-p07-fix6 after checks
+and timings have closed. Preserve every retained artifact outside the target
+at /mnt/linux-extra/meshopt-artifacts/p07-fix6. cleanup.json records allocated
+bytes and target absence; final-evidence.json inventories the clean committed
+source archive and every artifact hash. No push, merge, rebase or subagent.
