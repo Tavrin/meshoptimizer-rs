@@ -16,7 +16,10 @@
 //!
 //! Work uses the current Rayon pool (normally the global pool). Use
 //! [`rayon::ThreadPool::install`] to select an existing pool; the crate does not
-//! create pools. Native threads are required for parallel execution.
+//! explicitly create pools. Rayon lazily initializes the global pool on first
+//! use if none was configured; initialization failure panics inside Rayon,
+//! rather than returning a per-item [`Error`]. Native threads are required for
+//! parallel execution.
 //!
 //! ```
 //! use meshoptimizer_rs::{parallel::{encode_buffers_batch, EncodeInput}, codec::IndexEncoding, Limits};
@@ -428,17 +431,39 @@ pub struct ClusterHierarchyInput<'a> {
 }
 
 /// Build independent spatial forests using [`crate::clusterlod::build_hierarchy`].
+///
+/// Small batches (at most 256 total groups and 2048 group-by-level visits) run
+/// sequentially on the calling thread to avoid dispatch overhead. Larger batches
+/// use the current Rayon pool. Ordering, workspace reset and per-item limits are
+/// identical on both paths. This cutoff is a workload heuristic, not a speed guarantee.
 #[cfg(feature = "clusterlod")]
 pub fn build_cluster_hierarchies_batch(
     inputs: &[ClusterHierarchyInput<'_>],
     limits: Limits,
 ) -> BatchResult<Vec<crate::clusterlod::Node>> {
-    batch(inputs, limits, |input, workspace| {
+    // D150: the measured 231-group/1848-visit family does not amortize
+    // Rayon dispatch. Saturate this heuristic; validation stays per item.
+    let (groups, visits) = inputs.iter().fold((0usize, 0usize), |(groups, visits), i| {
+        (
+            groups.saturating_add(i.groups.len()),
+            visits.saturating_add(i.groups.len().saturating_mul(i.level_count.max(1))),
+        )
+    });
+    let run = |input: &ClusterHierarchyInput<'_>, workspace: &mut Workspace| {
         crate::clusterlod::build_hierarchy(
             input.groups,
             input.node_width,
             input.level_count,
             workspace,
         )
-    })
+    };
+    if groups <= 256 && visits <= 2048 {
+        let mut result = slots(inputs.len())?;
+        for (out, input) in result.iter_mut().zip(inputs) {
+            *out = item(limits, |workspace| run(input, workspace));
+        }
+        Ok(result)
+    } else {
+        batch(inputs, limits, run)
+    }
 }

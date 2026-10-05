@@ -3454,3 +3454,81 @@ specified disposable target. Preserve exact binaries and sources, verify hashes,
 then delete only codex-meshopt-p06. Commit only on phase/0.6 with the authorized
 author; no push, merge, rebase or other worktree change. The remaining 0.5
 qualification prerequisite is recorded rather than concealed or bypassed.
+
+
+## D150 — P06 review fixes 2–5: late mutation and small hierarchy dispatch
+
+Finding 1 is resolved by the integration owner; do not rerun or alter the 0.5
+lane here. Findings 2–5 are addressed in this checkout on phase/0.6.
+
+Replace the unproven partial-failure coverage with an explicit 16-triangle
+curved open disk witness: dilation changes position bits before max_work=3200
+returns LimitExceeded. Small successful neighbours on both sides share the same
+limits. Compare complete group outputs/errors and every position bit against
+sequential execution at 1/2/8/N (32 here) threads, repeating fresh inputs three
+times in each pool. Both successes and the failed item's mutation are asserted.
+Add hierarchy tests on either side of both dispatch cutoffs, with ordered
+invalid items and tight work/memory limits.
+
+Quick hierarchy-only profile: five alternating pairs at 1/2/4/8 threads,
+plus one dispatch-only control per pair (pool.install, indexed output slots,
+parallel traversal, no hierarchy or Workspace work). The 16-thread baseline
+was paused before samples when a new GPU lease appeared; keep those four rows
+rather than extending this diagnostic. The burst lasted 7.693 seconds, with
+loads 12.90–22.68 across admission observations. This same pinned Pirate family
+has 16 forests, 231 groups and 1848 group-by-level visits (eight levels each).
+Serial medians were 54.062/57.358/53.020/64.411 us; full batch medians were
+91.051/58.700/54.101/151.004 us. Dispatch-only medians were
+15.860/13.946/16.361/18.885 us: fixed pool entry/task dispatch alone consumes a
+substantial fraction of the serial work. It does not amortize on this family.
+Scheduler-sensitive outliers remain; this control does not establish allocator
+contention or a universal crossover size. No profiler sampling or long timing
+matrix is needed to decide this small-workload fallback.
+
+Run hierarchy items sequentially inside the batch API when total groups <=256
+and sum(groups.len * max(level_count,1)) <=2048. Saturating arithmetic affects
+only dispatch selection; normal per-item validation and limits retain their
+precedence. Preserve ordered slots, item Workspace clearing, errors and output
+bits. Larger forests still use Rayon. The conservative round-number cutoff
+covers the measured small family; it is not a measured optimal crossover, and
+larger-family performance is not qualified here. Reject unconditional serial
+execution for all forests and an arbitrary per-thread cutoff.
+
+Final hierarchy-only check: five pairs at 1/2/4/8/16 threads, 7.586-second burst,
+loads 29.11–30.60. Paired medians S/batch are 0.878/0.836/0.775/0.545/0.725x.
+Serial medians are 59.582/54.703/55.093/57.969/75.432 us; batch medians are
+67.356/68.409/83.276/112.933/105.147 us. Every output matches across calls and
+thread counts. Preserve these residual slowdowns: the existing transport times
+caller-side pool.install, even though the small batch now dispatches no items.
+The dispatch-only control reaches median 2867.606/3568.975 us at 8/16 threads
+under this load. The fallback removes internal parallel item scheduling; it
+does not remove custom-pool entry or promise a gain under shared scheduling.
+
+Each timed pair was admitted with no GPU lease holder and no actively measuring
+moss-scoreboard unit (only sleep children). After the diagnostic's last completed
+row a new lease appeared, and all workers were released before waiting. No
+measurements ran while waiting. Preserve complete raw pairs, controls, loads,
+affinity/admission observations, output hashes, source/dependency/input identities
+and exact binaries under /mnt/linux-extra/meshopt-artifacts/p06fix/{before,after}.
+The baseline curve intentionally remains incomplete; the final curve is complete
+for the selected hierarchy family only. Other families and historical P06
+qualification records are unchanged, not reverified or promoted by this fix.
+
+Document that Rayon lazily initializes its global pool on first use and panics
+inside Rayon if initialization fails, distinct from per-item Error isolation.
+Small sequential hierarchy batches need no global pool; other batches/larger
+hierarchies use the current pool. Remove phase 0.6 from README's remaining work.
+The lean driver now supports one-family/short-burst selection and a dispatch
+control. Exclude the dynamic CPU scaling percentage from immutable resume
+identity; loads remain observations. No API changes or new dependencies.
+
+
+Final fix gates: cargo fmt (crate and driver), strict Clippy --all-targets in
+all-feature/no-default modes, both test suites, all nine deterministic parallel
+tests, WASM builds in both modes, and driver strict Clippy pass. Gate logs and
+exit statuses are retained as p06fix/gates.{log,json}. The parallel-only suite
+without clusterlod also passed during the fix. Before/after archived sources,
+all 45 timing pairs, dispatch controls, all output/binary hashes, admission
+checks and sub-five-minute deadlines were verified before target deletion.
+No new C++/legacy-parity, GPU execution, diverse-corpus, larger-forest speed,
+remote CI or release qualification is claimed by these focused fixes.

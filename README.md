@@ -159,8 +159,13 @@ successful outputs remain live together, so callers should bound batch size
 when aggregate memory matters.
 
 Calls use Rayon's global pool, or the pool selected by
-`pool.install(|| encode_buffers_batch(&inputs, limits))`. The library creates
-no pool. Default and `no_std` builds do not compile Rayon or these APIs.
+`pool.install(|| encode_buffers_batch(&inputs, limits))`. The library does not
+explicitly create a pool. Rayon lazily initializes its global pool on first use
+when no pool was configured. If that initialization
+fails, Rayon panics; this infrastructure failure is distinct from the per-item
+`Error` isolation described above. Default and `no_std` builds do not compile
+Rayon or these APIs. Small hierarchy batches run sequentially inside the batch
+API to avoid dispatch overhead; larger forests use Rayon (see the function rustdoc).
 Parallel execution requires native threads; the scalar WASM build is unchanged.
 See [the p06 record](parity/p06/README.md) for thread-count determinism and the
 measured speed curve against sequential Rust.
@@ -260,7 +265,7 @@ Caller-buffer (`_into`) and in-place forms are listed in the rustdoc.
 - Phase 0.5: the analyzers (`meshopt_analyzeVertexCache`, `…Overdraw`,
   `…VertexFetch`, `…Coverage`), opacity maps, tangent and normal generation, and
   remeshing.
-- Phase 0.6 and 0.7 work (see [Roadmap](#roadmap)).
+- Phase 0.7 work (see [Roadmap](#roadmap)).
 - SIMD decoders and filters. The codecs produce upstream's scalar output and
   are scalar code.
 

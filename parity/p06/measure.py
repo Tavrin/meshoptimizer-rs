@@ -26,6 +26,12 @@ def sha(path):
 def command(args):
     return subprocess.check_output(args, text=True).strip()
 
+def machine_identity():
+    machine = json.loads(command(['lscpu', '-J']))
+    # Current frequency/load is an observation, not immutable machine identity.
+    machine['lscpu'] = [row for row in machine['lscpu'] if row['field'] != 'CPU(s) scaling MHz:']
+    return machine
+
 def sources():
     files = [ROOT / 'Cargo.toml', ROOT / 'Cargo.lock', *sorted((ROOT / 'src').rglob('*.rs')),
              *sorted((ROOT / 'tests').glob('*.rs')),
@@ -110,6 +116,9 @@ def save(record):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--family', choices=FAMILIES, help='measure only this family')
+    parser.add_argument('--burst-seconds', type=int, default=600)
+    parser.add_argument('--profile-hierarchy', action='store_true')
     args = parser.parse_args()
     ART.mkdir(parents=True, exist_ok=True)
     binary = TARGET / 'release/meshopt-p06-parity'
@@ -117,7 +126,7 @@ def main():
     identity = {'sources': sources(), 'binary_sha256': sha(binary), 'obj_sha256': sha(obj),
                 'reference': command(['git', '-C', str(REF), 'rev-parse', 'HEAD']),
                 'rustc': command(['rustc', '-Vv']), 'cargo': command(['cargo', '-V']),
-                'machine': command(['lscpu', '-J']),
+                'machine': machine_identity(),
                 'profile': {'opt_level': 3, 'codegen_units': 16, 'lto': False},
                 'dependencies': json.loads(command(['cargo', 'metadata', '--offline', '--locked',
                                        '--format-version', '1', '--manifest-path', str(ROOT / 'parity/p06/Cargo.toml')]))['packages']}
@@ -143,14 +152,14 @@ def main():
     burst = {'started_unix': time.time(), 'cores': cores, 'ended_unix': None}
     record['bursts'].append(burst); save(record)
     try:
-        for family in FAMILIES:
+        for family in ([args.family] if args.family else FAMILIES):
             for threads in THREADS:
                 key = f'{family}/{threads}'
                 if key in record['cases'] and len(record['cases'][key]['pairs']) == 5:
                     continue
                 observation = admission(); record['admissions'].append(observation); save(record)
-                if not observation['admitted'] or time.monotonic() - started > 600:
-                    print('Paused: admission or ten-minute burst limit.', flush=True); return 75
+                if not observation['admitted'] or time.monotonic() - started > args.burst_seconds:
+                    print('Paused: admission or burst limit.', flush=True); return 75
                 selected = [c['cpu'] for c in cores[:threads]]
                 driver = subprocess.Popen(['taskset', '-c', ','.join(map(str, selected)), str(binary), family,
                                           str(threads), str(obj), '16'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -187,7 +196,7 @@ def main():
                     case['affinities'].append(affinities); case['warmups'] += 1
                     while len(case['pairs']) < 5:
                         before = admission(); record['admissions'].append(before); save(record)
-                        if not before['admitted'] or time.monotonic() - started > 600:
+                        if not before['admitted'] or time.monotonic() - started > args.burst_seconds:
                             return 75
                         order = ['S', 'P'] if len(case['pairs']) % 2 == 0 else ['P', 'S']
                         times = {}
@@ -195,9 +204,11 @@ def main():
                             times[kind], data = sample(driver, kind)
                             if data != expected:
                                 raise ValueError('timed sample byte mismatch')
+                        dispatch = sample(driver, 'D')[0] if args.profile_hierarchy and family == 'hierarchy' else None
                         after = admission()
                         case['pairs'].append({'sequential_seconds': times['S'], 'parallel_seconds': times['P'],
                                               'speedup': times['S'] / times['P'], 'order': order,
+                                              'dispatch_seconds': dispatch,
                                               'before': before, 'after': after})
                         case['speedup_median'] = statistics.median(p['speedup'] for p in case['pairs'])
                         case['speedup_range'] = [min(p['speedup'] for p in case['pairs']), max(p['speedup'] for p in case['pairs'])]

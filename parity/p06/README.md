@@ -24,11 +24,13 @@ harnesses run unchanged, with records isolated under the external p06 directory.
 Phase 0.5 is not in the published 0.1.0 baseline or its dispatcher; this lane
 cannot establish that unmerged phase's parity. It does not alter p05.
 
-The seven new integration tests compare every meaningful output byte and float
+The nine integration tests compare every meaningful output byte and float
 bit at 1, 2, 8 and N threads (N = 32 on this host). They cover both simplifiers,
 attributes/flags, all four meshlet builders, mixed vertex/triangle/sequence
 encoding, EXT filters and errors, cluster DAGs, hierarchy fields and dilation
-including partial failure. Tight byte/work budgets, failure isolation, empty
+including an asserted `LimitExceeded` after curved-boundary position mutation,
+with successful neighbours and repeated calls at every registered thread count.
+Hierarchy tests cover both sides of the small-batch dispatch cutoff. Tight byte/work budgets, failure isolation, empty
 input, scheduling histories, custom pools and concurrent global-pool calls are
 included. Whole-chain tests enforce cumulative work and live output storage.
 Default/no_std builds exclude the batch module; WASM compile checks also pass
@@ -91,3 +93,23 @@ hashes, every ZIP buffer/member, full corpus inventories and the timing curve.
 The slim [MEASURED_P06.json](../MEASURED_P06.json) points to its retained records.
 Phase 0.5 remains the explicit missing integration prerequisite; no 0.5, release
 fuzz, historical performance-bar, remote CI or Moss integration pass is implied.
+
+
+## Review fix follow-up (2026-10-05)
+
+[D150](../DECISIONS.md) records the hierarchy dispatch profile and late-mutation
+witness. Small hierarchy batches now run sequentially within the API (<=256 total
+groups and <=2048 group-by-level visits); larger batches retain Rayon. This is a
+conservative heuristic covering the measured family, not an optimal crossover.
+The new failure witness asserts changed position bits and `LimitExceeded`, plus
+two successful neighbours, at 1/2/8/N threads over repeated calls.
+
+The hierarchy-only diagnostic retained five pairs at 1/2/4/8 threads before a
+new GPU lease paused it; its 16-thread row was not measured. Dispatch alone cost
+14–19 us against 53–64 us serial work. The final check retained five pairs at
+1/2/4/8/16 threads, with paired medians **0.878/0.836/0.775/0.545/0.725x**.
+Caller-side `pool.install` remains timed, including its scheduling overhead;
+these residual slowdowns are retained rather than claimed as gains. Both bursts
+lasted under eight seconds; admission observations and source/binary identities
+are in `/mnt/linux-extra/meshopt-artifacts/p06fix/{before,after}/parallel/curve.json`.
+The earlier full-family curve and qualification record above are historical.

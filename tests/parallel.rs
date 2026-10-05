@@ -656,3 +656,150 @@ fn global_pool_and_concurrent_calls_keep_order() {
         }
     });
 }
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn cluster_lod_late_failure_mutates_positions_and_isolates_neighbours() {
+    // Simplifying a curved open boundary dilates it before the work budget
+    // runs out. A straight grid does not establish this late-failure contract.
+    let n = 16;
+    let mut disk = vec![[0., 0., 0.]];
+    disk.extend((0..n).map(|i| {
+        let a = i as f32 * core::f32::consts::TAU / n as f32;
+        [a.cos(), a.sin(), 0.]
+    }));
+    let indices = (0..n)
+        .flat_map(|i| [0, i as u32 + 1, ((i + 1) % n) as u32 + 1])
+        .collect();
+    let meshes = [mesh(2, 1), (disk, indices), mesh(2, 2)];
+    let mut config = clusterlod::default_config(8).unwrap();
+    config.simplify_dilate_borders = true;
+    let limits = Limits {
+        max_bytes: usize::MAX,
+        max_work: 3200,
+    };
+    let bits = |p: &Vec<[f32; 3]>| p.iter().flatten().map(|v| v.to_bits()).collect::<Vec<_>>();
+    let mut expected_positions: Vec<_> = meshes.iter().map(|m| m.0.clone()).collect();
+    let expected: Vec<_> = expected_positions
+        .iter_mut()
+        .enumerate()
+        .map(|(i, positions)| {
+            clusterlod::build(
+                config,
+                clusterlod::Mesh {
+                    indices: &meshes[i].1,
+                    positions,
+                    attributes: None,
+                    vertex_lock: None,
+                    attribute_weights: &[],
+                    attribute_protect_mask: 0,
+                },
+                &mut Workspace::new(limits),
+            )
+            .map(|v| group_bytes(&v))
+        })
+        .collect();
+    assert!(expected[0].is_ok());
+    assert_eq!(expected[1], Err(Error::LimitExceeded));
+    assert_ne!(bits(&expected_positions[1]), bits(&meshes[1].0));
+    assert!(expected[2].is_ok());
+    for pool in pools() {
+        // Repeat with fresh inputs to include worker scheduling histories.
+        for _ in 0..3 {
+            let mut positions: Vec<_> = meshes.iter().map(|m| m.0.clone()).collect();
+            let mut inputs: Vec<_> = positions
+                .iter_mut()
+                .enumerate()
+                .map(|(i, positions)| ClusterLodInput {
+                    config,
+                    mesh: clusterlod::Mesh {
+                        indices: &meshes[i].1,
+                        positions,
+                        attributes: None,
+                        vertex_lock: None,
+                        attribute_weights: &[],
+                        attribute_protect_mask: 0,
+                    },
+                })
+                .collect();
+            let actual = pool
+                .install(|| build_cluster_lod_batch(&mut inputs, limits))
+                .unwrap();
+            assert_eq!(
+                actual
+                    .into_iter()
+                    .map(|v| v.map(|v| group_bytes(&v)))
+                    .collect::<Vec<_>>(),
+                expected
+            );
+            assert_eq!(
+                positions.iter().map(bits).collect::<Vec<_>>(),
+                expected_positions.iter().map(bits).collect::<Vec<_>>()
+            );
+            assert_ne!(bits(&positions[1]), bits(&meshes[1].0));
+        }
+    }
+}
+
+#[cfg(feature = "clusterlod")]
+#[test]
+fn hierarchy_small_and_large_batches_preserve_order_and_limits() {
+    for (count, level_count) in [(128, 1), (129, 1), (128, 8), (128, 9)] {
+        let groups: Vec<_> = (0..count)
+            .map(|i| clusterlod::Group {
+                depth: (i % level_count) as i32,
+                simplified: clusterlod::LodBounds {
+                    center: [i as f32, 0., 0.],
+                    radius: 1.,
+                    error: 0.,
+                },
+            })
+            .collect();
+        let inputs = [
+            ClusterHierarchyInput {
+                groups: &groups,
+                node_width: 4,
+                level_count,
+            },
+            ClusterHierarchyInput {
+                groups: &groups,
+                node_width: 1,
+                level_count,
+            },
+        ];
+        for limits in [
+            Limits::default(),
+            Limits {
+                max_bytes: 1024,
+                max_work: 100,
+            },
+        ] {
+            let expected: Vec<_> = inputs
+                .iter()
+                .map(|i| {
+                    clusterlod::build_hierarchy(
+                        i.groups,
+                        i.node_width,
+                        i.level_count,
+                        &mut Workspace::new(limits),
+                    )
+                    .map(|v| node_bytes(&v))
+                })
+                .collect();
+            assert_eq!(expected[0].is_ok(), limits == Limits::default());
+            assert!(expected[1].is_err());
+            for pool in pools() {
+                let actual = pool
+                    .install(|| build_cluster_hierarchies_batch(&inputs, limits))
+                    .unwrap();
+                assert_eq!(
+                    actual
+                        .into_iter()
+                        .map(|v| v.map(|v| node_bytes(&v)))
+                        .collect::<Vec<_>>(),
+                    expected
+                );
+            }
+        }
+    }
+}

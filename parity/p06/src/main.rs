@@ -3,6 +3,7 @@
 use meshoptimizer_rs::codec::*;
 use meshoptimizer_rs::parallel::*;
 use meshoptimizer_rs::*;
+use rayon::prelude::*;
 use std::hint::black_box;
 use std::io::{self, BufRead, Write};
 use std::time::Instant;
@@ -378,6 +379,18 @@ fn main() {
             .collect();
         }
     }
+    if family == "hierarchy" {
+        eprintln!(
+            "hierarchy groups: {:?}",
+            meshes
+                .iter()
+                .map(|m| (
+                    m.groups.len(),
+                    m.groups.iter().map(|g| g.depth as usize + 1).max().unwrap()
+                ))
+                .collect::<Vec<_>>()
+        );
+    }
     let mut out = io::stdout().lock();
     out.write_all(b"R").unwrap();
     out.flush().unwrap();
@@ -386,8 +399,23 @@ fn main() {
         if line == "Q" {
             break;
         }
-        assert!(line == "S" || line == "P");
-        let (time, bytes) = sample(family, &meshes, line == "P", &pool);
+        assert!(line == "S" || line == "P" || (line == "D" && family == "hierarchy"));
+        let (time, bytes) = if line == "D" {
+            // Lower-bound control: current-pool entry, indexed result slots and
+            // task dispatch, without hierarchy work or per-item scratch.
+            let start = Instant::now();
+            let mut slots = vec![0usize; meshes.len()];
+            pool.install(|| {
+                slots.par_iter_mut().enumerate().for_each(|(i, slot)| {
+                    *slot = black_box(i);
+                })
+            });
+            let time = start.elapsed().as_secs_f64();
+            black_box(slots);
+            (time, Vec::new())
+        } else {
+            sample(family, &meshes, line == "P", &pool)
+        };
         out.write_all(b"T").unwrap();
         out.write_all(&time.to_le_bytes()).unwrap();
         out.write_all(&(bytes.len() as u64).to_le_bytes()).unwrap();
