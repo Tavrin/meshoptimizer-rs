@@ -3885,3 +3885,2095 @@ to a passing summary. No Git metadata operation was performed.
 The named temporary Cargo target was deleted after retaining binaries and
 hash-checking the artifacts; the verifier gives the same two benchmark errors
 without the target directory.
+
+## D71 — 0.5 performance measurement correction
+
+The first 0.5 timing record was incomplete: three representative inputs per
+family, ten pairs, no comparable C++ requested-storage measurement, and no
+million-triangle or topology-variety corpus. The P05 follow-up keeps the RFC
+1.25 geometric-mean, 1.50 maximum-case and 1.25 memory limits unchanged. It
+uses 20 alternating pairs per case on the measured least-busy physical core,
+records load around each pair, and never waits for quiet. The expanded matrix
+has 160 family/API cases per profile, including random, connected,
+seam-heavy, sparse and explicitly disconnected topologies and
+million-triangle cases for geometry-dependent operations. OMM functions that
+ignore the mesh use six varied parameter/input cases. The C++ scalar-strict
+driver measures scratch requests through meshoptimizer's allocator callback
+and adds requested output vectors; Rust uses per-call workspace requested
+storage. Caller-owned destinations are excluded from both sides.
+
+The apparent 2–4x gaps in `stripify_bound`, `unstripify_bound`, and
+`opacity_map_entry_size` required a harness correction before interpreting
+them. Both drivers now batch at least 100,000 calls, vary valid inputs within
+the batch, dispatch outside the timed helper loop, and consume each result
+with equivalent compiler barriers. The earlier Rust loop built an unused
+`Workspace` on each helper call, while C++ used a volatile XOR sink; `perf`
+instruction counts exposed that asymmetry. Superseded measurements remain in
+the external artifact tree. The final records alone determine the verdict.
+
+## D72 — 0.5 second safe-Rust optimization pass and timing isolation
+
+The formatted 160-case benchmark still misses the unchanged bars, especially
+on million-triangle stripify/unstripify/remesh, disconnected tangent/normal
+cases, and the cache and OMM analyzers. Before the next timed run, the Rust
+pass batches work-budget charges where the number of visits is known:
+stripify valence setup and triangle emission, unstripify decoding,
+vertex-fetch cache visits and remesh voxel samples. Each path retains the scalar fallback for low work
+limits, including the original failure point and partial usage. Position
+accessors in remesh, tangents and normals are forced inline; standard builds
+use scalar `f32::sqrt` (and OMM sampling uses `f32::floor`) while `no_std`
+keeps `libm`. Validation in normal/tangent generation and OMM measurement
+uses `Work::scan` to avoid per-record fuel checks when the budget covers the
+scan. These changes are expected to reduce the measured hot-path instructions,
+especially for large meshes and repeated texture samples; no speedup is
+claimed before paired measurements and exact parity checks.
+
+A follow-up index-validation path first takes the maximum of a valid index
+stream and charges the full scan once. Invalid inputs and low fuel replay the
+old per-index scan, preserving the first error and its charged prefix. This
+targets the extra Rust validation pass in cache/fetch analysis, stripification,
+normal/tangent generation and OMM measurement. It is expected to help large
+index streams while keeping exact validation semantics.
+
+Remesh voxelization now has separate compile-time mark and accumulate modes.
+The selected mode is fixed for each pass, removing a per-voxel option branch
+from the million-triangle hot path without changing the sampling order or
+floating-point expressions. Its expected gain is concentrated in remesh.
+Unstripify also writes the three triangle indices through one checked output
+slice; this removes a small array-to-slice copy in its million-index loop.
+Vertex-cache analysis now computes the three miss flags directly from the
+triangle's three indices, matching the pinned scalar C++ loop more closely
+than an iterator filter and count. This targets its 2.5x worst medium case.
+Normal and tangent generation now batch exact adjacency, per-face geometry and
+accumulation visit charges when the fuel covers the phase. Tangent accumulation
+still charges only nondegenerate faces; tight budgets use per-corner charging.
+This targets the repeated fuel branch in their hot loops.
+Remesh also batches its full-position extent scan and uses the counted view
+scanner for finite-value validation, avoiding a per-vertex fuel check in each
+of two passes over million-mesh inputs.
+The OMM texture sampler and floor helper are forced inline so repeated raster
+edge samples can avoid a nested call and reuse fixed texture dimensions.
+Overdraw and coverage rasterization now charge the known bounding-box pixel
+visits once per triangle and the fixed viewport scan once per axis, with the
+old per-pixel fallback under tight fuel limits. Position validation uses a
+counted scan and transformed index visits are charged together. This targets
+their default-profile near-bar cases without changing any pixel arithmetic.
+Focused tests confirm that the exact successful work budget still succeeds and
+one fewer unit rejects stripification, unstripification, fetch analysis,
+tangent/normal generation and remeshing. The index-validation unit test also
+checks the first error and charged prefix across invalid indices and low fuel.
+
+The C++ allocator hook now skips its tracking-map lookup outside the memory
+probe, removing an unfair timed C++ overhead. Perf profiling repeats each
+selected worst case at least ten times and omits Rust response hashing; the
+whole-driver instruction comparison still includes fixture setup and is
+diagnostic, not an algorithm-only count. At the coordinator's request, timed
+benchmarks were initially held until 23:30 Paris on 2026-10-04, then deferred
+to 02:30 Paris on 2026-10-05 unless the `p01x` benchmark binary exited first.
+At 23:01 Paris on 2026-10-04, the process check found only `p01x` coordinator
+services and no benchmark binary, so the replacement timing run began under
+the early-start condition. Parity and correctness checks completed before it.
+
+Strict Clippy exposed that caller-buffer tangent and normal benchmark branches
+fed unit return values to `black_box`. They now consume the resulting output
+buffers, matching the C++ driver's observable destination reads. This makes
+their timed work explicit; old candidate timings are superseded.
+The replacement benchmark summaries and detail records pin hashes
+of every Rust library source, P05 benchmark/fixture driver source and pinned
+C++ reference source; the
+artifact verifier rejects a source edit after measurement. It also verifies
+that each retained perf run used the worst failing case and that its compact
+instruction summary matches the hashed raw record.
+
+Before the timing window, the candidate passes eight focused 0.5 tests,
+including both exact-budget tests, all-feature and no-default-feature test
+configurations, strict Clippy in all-feature and no-default experimental
+configurations, 30,000 native C++ differential cases and 30,000 executed WASM
+identity cases with zero mismatches. The then-stale benchmark and perf
+identities were replaced after the `p01x` benchmark process cleared.
+
+## D73 — 0.5 adjacency-pair hot-path follow-up
+
+The D72 timed run and perf profiles exposed normal-group pair merging as the
+largest Rust sample on its worst seam-heavy case; the same pair loop appears
+in tangent merging. Both loops now charge the known number of adjacency pairs
+once when the remaining work budget covers the group, retaining per-pair
+charging under a tight budget. Normal merging also avoids loading and dotting
+face normals until the two corners share an edge, and hoists the first face's
+normal out of the inner loop. The ordered floating-point dot expression and
+`dp > cutoff` predicate are unchanged, including NaN behavior. Expected effect:
+fewer work-limit branches and dot products for seam-heavy normal meshes, and
+fewer work-limit branches for tangent meshes. The change is conditional on
+exact parity, tight-budget tests, and replacement benchmark/profile records.
+
+The replacement records meet those evidence conditions. Eight focused P05
+tests, 30,000 native differential cases and 30,000 executed WASM identity
+cases pass with zero mismatches. The full 160-case, 20-pair matrices and
+worst-failing-family `perf stat`/`perf record` runs are source- and binary-hash
+bound. `parity/report.sh --phase 0.5 --verify-artifacts` exits 0 with
+`verified: true`, no errors and `performance_qualified: false`. Moss passes
+9/21 API groups and Cargo defaults pass 7/21. The same seam-heavy normal
+case fell from 1.63x to 1.34x in Moss and 1.71x to 1.48x in defaults; the
+normal family still misses geometric-mean and caller-buffer memory limits.
+The selected Moss tangent million-triangle instruction ratio fell from
+1.41x to 1.37x but the family remains above time and caller-buffer memory
+limits. These observations support retaining the exact D73 change, not a
+performance-qualification claim.
+
+The remaining failing families and their selected-case instruction ratios
+are recorded in `P05_PERFORMANCE.md`. Stripify and unstripify retain large
+million-triangle timing maxima; cache/fetch and OMM retain algorithmic
+instruction gaps; default overdraw has a connected-mesh maximum above 1.50;
+and tangent/normal caller APIs require complete staged results to preserve
+their atomic failure contract. The current safe-Rust pass does not close those
+gaps. No bar change or exception is applied, and the release performance gate
+remains blocked.
+
+## D74 — 0.5 sequential strip-decoder reads before the deferred timing gate
+
+The completed D73 profiles still identify `unstripify_core` as the hot Rust
+symbol on the million-triangle case. Its loop loaded the two preceding strip
+indices by checked indexing on every visit, although those values are the
+previous two elements of the same sequential stream. It now carries those
+two values through the loop, including across restart markers, and retains
+the same validation, work charges, winding swap, degeneracy test and writes.
+Expected effect: fewer indexed loads and bounds checks on long strips, with
+the largest possible gain on the million-triangle unstripify case. This is
+an exact safe-Rust loop transformation, pending differential parity and the
+coordinator's 02:30 Paris load-gated timed rerun.
+
+The output cursor now advances a checked three-element slice only when a
+nondegenerate triangle is emitted. The initial bound check proves the cursor
+has room for every possible emitted triangle; the per-emission split carries
+the remaining output span without recomputing `size..size+3`. Expected effect:
+less checked-range arithmetic and a simpler sequential store path on long
+strips. Caller-buffer tails and partial writes under tight work limits keep
+their original behavior.
+
+## D75 — 0.5 cache-transform counter bound
+
+The cache analyzer's per-miss `checked_add(1)` cannot overflow after the
+existing topology gate: it accepts at most `u32::MAX` index entries, and each
+entry can cause at most one transform. The hot loop now uses a plain increment,
+retaining the same u32 value and every possible public error. Expected effect:
+remove an overflow branch and error path on each cache miss, particularly on
+the seam-heavy cache case where the final D73 time and instruction ratios
+still miss the bar. Exact parity, budget checks, and the deferred timed run
+will qualify the change.
+
+## D76 — 0.5 scalar OMM raster setup and midpoint expansion
+
+The D73 default `perf record` on the failing caller-buffer raster case places
+substantial Rust samples in the three-corner array-map machinery, alongside
+the recursive raster routine. The initial three UV samples are now written
+explicitly in the same order. Recursive midpoint generation now calls an
+always-inlined scalar helper for edges 0-1, 1-2 and 2-0, removing a dynamic
+`% 3` edge lookup while preserving each `(a+b)/2` and texture sample in order.
+Expected effect: lower small-case OMM raster overhead and repeated recursion
+cost without changing the result or the atomic caller-buffer staging contract.
+The unchanged memory bar can still fail for that caller API. Differential
+parity and the deferred load-gated benchmark determine retention.
+
+## D77 — 0.5 contiguous raster rows
+
+The default overdraw profile selects a connected-mesh case with a 1.82x
+maximum, and most Rust samples lie in the software raster analyzer. For each
+bounding-box row, the pixel loop now iterates a checked contiguous row slice
+instead of recomputing and checking a full-buffer index for every pixel. Empty
+bounding boxes return after the same zero work charge. Axis permutation uses
+three explicit triangle vertices in place of an array-map call. Pixel visit
+order, depth comparisons, float steps, work-budget failure points and output
+remain unchanged. Expected effect: fewer bounds checks and indexing operations
+on shaded and covered pixels, especially the connected overdraw case. This
+change awaits native/WASM differential checks and the deferred timed matrix.
+
+## D78 — 0.5 direct tangent-corner loads
+
+The D73 Moss tangent profile attributes its largest Rust sample to
+accumulation. The three per-face positions are now read explicitly in corner
+order, replacing an array-map wrapper inside that hot loop. This matches the
+already explicit normal-face accumulation and preserves the same three
+validated indices, position values and floating-point operations. Expected
+effect: less per-face iterator/setup overhead in large tangent meshes. Exact
+parity and load-gated timings will decide its measured effect.
+
+## D79 — 0.5 explicit voxel sample coordinates
+
+`perf record` places almost all selected worst-case remesh samples in the two
+voxel passes. The inner sample loop now converts its three point components
+and clamps the three voxel coordinates directly, replacing two fixed-size
+array maps. Invariant doubled scale, grid cutoff and solve-option values are
+computed once per pass. The exact scalar multiplication/cast order and unsigned
+clamp condition remain the same. Expected effect: less array/closure overhead
+and repeated setup per voxel sample, especially for seam-heavy remesh inputs.
+Native/WASM parity and the deferred timed matrix remain the retention gates.
+
+## D80 — 0.5 direct normal/tangent hash and face reads
+
+The tangent profile also samples remap hashing, while face tangent generation
+and normal remap hashing used fixed three-element array maps. These paths now
+load the three values directly. Signed zero still hashes as positive zero,
+normal-bit shifts remain identical, and triangle corners are read in their
+original order. Expected effect: less fixed-array iterator machinery in the
+normal/tangent setup loops, with the strongest effect on large input meshes.
+The exact differential and load-gated timing records will test the result.
+
+## D81 — 0.5 caller-buffer OMM raster without staged output on sufficient fuel
+
+The unchanged memory bar previously failed without a finite ratio because
+C++ requests zero scratch for caller-buffer OMM rasterization while Rust staged
+the complete result. `raster_state` charges exactly `(4^(level+1)-1)/3` visits;
+its level-one edge-specialized path charges the same four children as the
+ordinary recursion. After the existing destination-length and input checks,
+the caller API now writes directly into the caller's buffer only when its
+remaining full-call work limit covers that count. It reports zero new output
+storage, and leaves any caller tail untouched. Under a tighter work budget it
+uses the original staged path, preserving the destination and the exact
+failure prefix. The shared setup helper keeps allocating and caller results
+bit-identical. A focused test covers levels 0–3 in both state formats,
+zero-scratch success, equal bytes, untouched tails and atomic low-fuel and
+invalid-input errors.
+Expected effect: eliminate the caller memory failure and an allocation/copy,
+with a possible caller timing gain. The full differential sweep and timed
+matrix are the retention gates; the separate OMM allocating API still owns
+its output.
+
+## D82 — 0.5 inline eight-triangle strip-buffer removal
+
+The D73 stripify profile spends nearly half of Rust samples in `memmove` while
+the hot loop shifts at most seven triangles in its fixed eight-slot buffer.
+Both ordered removals now copy those few triangle records in a small inline
+loop, preserving order and the subsequent valence updates. The start-triangle
+heuristic also reads its three valences explicitly instead of an array-map
+wrapper. Expected effect: avoid a libc call on every emitted triangle and
+reduce tiny-array setup, targeting the million-triangle stripify maximum.
+The C++ path also uses `memmove`, so only the load-gated paired measurement can
+establish whether this safe-Rust specialization beats it. Native and WASM
+output parity remain mandatory.
+
+## D83 — 0.5 executed caller-buffer OMM identity witness
+
+The differential driver now invokes caller-buffer OMM rasterization alongside
+the allocating API for each raster case, asserts identical bytes, an untouched
+caller tail, and zero requested Rust scratch, then emits the unchanged
+allocating bytes for the pinned C++ comparison. This executes the new D81
+path in both the native 30,000-case sweep and WASM identity run. It extends
+evidence for the new caller behavior without changing the scalar C++ oracle
+or the benchmark case and bar definitions.
+
+## D84 — 0.5 native scalar log2 for OMM level selection
+
+`opacity_map_measure` still called the software `libm::log2f` in standard
+builds for each triangle with adaptive subdivision. It now uses `f32::log2`
+there, while the `no_std` path retains `libm::log2f`. The input clamp,
+rounding to a level, quantized keys and probe order are unchanged. Expected
+effect: fewer instructions in adaptive OMM measurement, particularly on
+large meshes; no effect when `target_edge == 0`. Native, WASM and no-default
+parity are required before retaining the change. The load-gated timed run
+will decide its measured effect.
+
+The freshly rebuilt release drivers pass 30,000 native C++ differential
+cases and 30,000 executed WASM identity cases with zero mismatches. The
+all-feature focused tests and the no-default experimental test suite pass;
+strict all-feature Clippy and `fmt --check` exit 0. These results establish
+the output and feature-mode gates, while the timed effect remains pending.
+
+## D85 — 0.5 inline the six-value OMM measurement hash
+
+The prior worst-case OMM measure `perf record` has a distinct `hash_update`
+sample bucket for 5.4% of Rust samples on the million-triangle connected
+mesh. The helper processes exactly six quantized integers per triangle, so
+it is now explicitly inlined at its sole call site. The hash multiplications,
+updates, key values and probe order are identical. Expected effect: avoid a
+million small calls and permit fixed-length loop optimization in large OMM
+measurement; the impact on other families should be zero. Rebuilt native
+and WASM differential identity and the load-gated timed matrix remain the
+retention checks.
+
+## D86 — 0.5 complete timing admission and interrupted-run checkpoints
+
+The resumed review found that the old external load gate checked only time
+and load. The coordinator now also requires no GPU lease holder and no active
+`moss-scoreboard-*` user unit. `p05/timing_gate.py` records all four conditions
+and repeats blocked checks every 120 seconds. Each calibration and timed pair,
+and each `perf stat` and `perf record` invocation, must pass this admission.
+Compilation and exact-output checks remain available while the gate is closed.
+Core selection occurs after admission, immediately before measurement; pairs
+retain that same core. The verifier checks admission evidence in every sample.
+
+The expanded benchmark now atomically checkpoints completed cases outside git.
+A resumed run accepts them only with identical Rust and C++ binaries, source
+hashes, consumer overrides and an available original core. It rejects source
+changes during a matrix and deletes the partial checkpoint after completion.
+The timing bar, corpus, per-case batch sizes and 20 alternating pairs are
+unchanged. Current-source records will replace D73 only after admitted runs.
+
+## D87 — 0.5 atomic normal/tangent caller output after fallible setup
+
+The D73 memory failures counted a complete staged output in each caller API.
+Both generators now finish topology, remap, adjacency, group construction and
+fallible scratch allocation before writing the caller buffer. At that point
+the remaining counted work is at most one accumulation visit per corner; a
+remaining-fuel check proves that no later operation can fail. A tighter fuel
+limit retains the previous staging path and its exact failure prefix. Normal
+smoothing scratch is allocated before the first caller write.
+
+A conservative u64 bound for all hash probes, adjacency visits, possible
+corner pairs, faces and accumulation permits initial admission with a byte
+budget that excludes output storage. When that bound is too conservative,
+the original memory admission remains, then the actual remaining-fuel check
+can still eliminate staging after grouping. Requested storage excludes output
+only when it is actually written in the caller buffer. No floating-point
+operation or output order changes. This extends D81's atomic caller principle
+to the remaining two memory-failing APIs, without a second algorithm pass.
+
+The focused test covers all tangent options, three normal smoothing values,
+identical output, untouched tails, reduced storage, memory rejection, and
+every fuel limit through successful completion. The native/WASM differential
+driver now executes both caller generators as an identity and storage witness.
+The allocating output remains the pinned C++ comparison payload. Timed gains
+and family memory acceptance remain pending the coordinator's admission.
+
+## D88 — 0.5 execute differential parity with the no_std math path
+
+The parity consumer now forwards a default `std` feature explicitly to the
+crate, so `--no-default-features` builds the same std-based protocol driver
+with the crate's no_std/libm path. The ordinary and no-default sweeps rebuild
+their selected driver before execution and retain separate source- and
+binary-identified compressed records. WASM identity similarly rebuilds its
+driver and requires a current native sweep. This executes D84's adaptive level
+selection against the same C++ oracle in both crate feature modes, rather than
+using compilation alone as a no_std parity claim.
+
+`perf` input fixtures are retained as gzip files with compressed and original
+SHA-256 hashes; the verifier checks both. The raw fixture is removed after its
+profile runs, limiting disk growth while preserving replayable evidence.
+
+The resumed candidate passes each 30,000-case native, no-default/libm and
+executed WASM sweep with zero mismatches, plus all 114 distinct benchmark
+corpus shapes (including the million-triangle cases) against pinned C++.
+All-feature, no-default, and no-default experimental test suites pass; strict
+root and parity-driver Clippy and both formatting checks exit 0. Compressing
+45 superseded profile inputs reduced their storage from 657,123,624 to
+104,873,398 bytes without discarding their replay bytes. Timings remain
+pending the complete admission; no D73 ratio is a current-source claim.
+
+## D89 — 0.5 decoder fuel specialization and tangent probe keys
+
+While timing admission was still closed, the D73 strip-decoder hot path was
+specialized into two const-generic loops. A full-fuel call charges its stream
+once and enters a loop containing no work-budget condition; a tight budget
+retains the per-index charge and exact partial-output failure point. Sequential
+index reads, restart handling, winding and destination slice advancement are
+identical to D74. This makes removal of the successful-loop fuel branch explicit
+instead of depending on optimizer loop unswitching.
+
+The tangent remap loop now reads each candidate position, normal and UV once
+and passes those same values to hashing and collision comparisons. Probe order,
+canonical signed-zero handling and equality are unchanged. Expected effect:
+fewer repeated view/index loads in collision-heavy remap work. Fresh native,
+no-default and WASM differential checks and the admitted timing/profile runs
+are the retention gates. The waiting benchmark process was stopped before any
+sample and will restart with the replacement source and binaries.
+
+## D90 — 0.5 raster-tree fuel specialization
+
+OMM rasterization already has the exact full-tree visit count used by D81's
+atomic caller admission. Both allocating and caller paths now charge that
+count once when the remaining budget covers it, then use a const-generic
+recursive routine with no per-node work-budget test. Tight budgets retain
+the previous per-node charges, including the four level-one specialized
+children, preserving their exact error and usage prefix. Texture sampling,
+midpoint arithmetic, recursion order and packed writes are unchanged.
+Expected effect: reduce work-accounting branches and writes in the profiled
+OMM raster hot path. The existing level/state atomic caller test and fresh
+native/no-default/WASM sweeps gate retention; timing still awaits admission.
+
+## D91 — 0.5 initialize scratch once, while preserving reuse
+
+Cache timestamps, fetch flags and strip valences were filled with zero after
+`Workspace::prepare` had already zero-initialized any newly added entries.
+The three 0.5 consumers now clear only the prefix retained from the preceding
+call; growth still receives zeroes from `prepare`. Shrinking clears the full
+newly used retained prefix, and later growth reinitializes the newly visible
+entries as before. This removes redundant clearing for the fresh-workspace
+benchmark calls without changing reusable-workspace behavior, memory limits
+or counted work. The shared workspace allocator is unchanged.
+
+Normal and tangent remap tables similarly initialize directly to their empty
+u32 sentinel instead of zero-initializing and then overwriting the entire
+table. Allocation sizes, checks, failure ordering and probe values are the
+same. Expected effect: reduce initialization stores in the profiled cache,
+fetch, strip and remap families. Exact feature-mode/WASM parity and the
+admitted paired matrices qualify the change; no timing gain is assumed.
+
+## D92 — 0.5 requested memory is a peak of live generator storage
+
+D87 removed output staging, but projecting its storage against the retained
+D73 C++ counters still exceeded 1.25 on tiny normals/tangents and disconnected
+tangents. The source lifetime trace found that Rust's quota estimate summed
+the remap table with later adjacency/groups even though the table is dropped
+inside `build_remap` before those allocations. It also omitted the extra
+adjacency offset and rounded tangent per-face storage (16-byte tangent,
+4-byte group, 1-byte sign) to 24 rather than 21 requested bytes.
+
+The generators now account the maximum of the remap phase and the later live
+output-plus-scratch phase, using the actual requested element sizes and extra
+offset. Retained workspace capacity is still added by `account_codec`; caller
+buffers and allocator overhead remain excluded in both languages. A staged
+low-fuel path still includes its complete owned output. This corrects the
+comparison basis and permits budgets matching the true requested peak; it
+does not lower the bar, remove an allocation from the count, or use RSS.
+
+A focused externally visible budget test checks the pinned eight-vertex,
+four-face C++ peaks of 228 normal and 248 tangent bytes, untouched caller tails,
+and atomic rejection one byte below the tangent peak. Caller identity witnesses
+now allow the remap phase to dominate both API peaks, so they do not assume
+every input's peak decreases by exactly the output size. Fresh feature-mode
+parity and both measured consumer memory matrices remain required.
+
+The final D92 rebuild passes 30,000 native, 30,000 no-default/libm and 30,000
+executed WASM differential cases with zero mismatches, and all 114 expanded
+corpus shapes against C++. Normal/tangent caller witnesses compare f32 bits,
+including signed zero, rather than float equality. The 11-test fixture run,
+all-feature/no-default/no-default experimental suites, strict root and consumer
+Clippy, formatting and diff whitespace checks pass. The admitted runner was
+restarted only after these checks; no candidate timed sample ran before the
+coordinator's time, load, lease and scoreboard conditions.
+
+## D93 — 0.5 profiler success case and driver source identity
+
+The profiling script wrote its detailed summary only after a failing family.
+If a consumer eventually passed every family, the empty profile set would
+therefore fail while hashing a missing summary. It now always writes a final
+summary, including the valid empty set; no perf invocation is needed in that
+case. The benchmark source identity also covers both C++ harness sources,
+including the profiling driver, rather than only `bench.cpp`.
+
+This changes evidence orchestration only. Production Rust and all executed
+D92 native/no-default/WASM/corpus results are unchanged. The waiting runner
+was restarted before any admitted sample, so both matrices will identify the
+complete harness source. Timing still waits for load, lease and scoreboard
+admission after the already-passed 02:30 threshold.
+
+## D94 — 0.5 coordinator admission amendment and per-run CPU telemetry
+
+The coordinator replaced the timing gate on 2026-10-05: admission now requires
+no GPU lease holder and no scoreboard unit actively measuring. Load average
+and the former time cutoff no longer gate admission. A unit whose MainPID has
+exactly one child named `sleep` is waiting and is explicitly permitted; unknown
+status or other active children block. Unit state, MainPID and child inventory
+are retained with every admission. Blocked checks still repeat every 120 seconds.
+The waiting D93 runner was stopped before any timed sample.
+
+The same-core alternating pair protocol and three one-second least-busy
+physical-core selection remain unchanged. Every measured pair now records
+load before/after, elapsed seconds and `/proc/stat` busy/total ticks and usage
+for every allowed logical CPU, including the selected core and its siblings.
+Profiler stat/record runs retain the same CPU telemetry and load, with a
+30-second subprocess limit. Benchmark batches target 20 milliseconds per
+backend, cap at ten million iterations, and use one iteration for longer
+calls; Rust requests have a 30-second response deadline. All benchmark inputs
+are finite, previously checked expanded-corpus cases. Admission is checked
+before calibration, memory probes, warm-up pairs, every measured pair, and
+every perf invocation. A lease/measurement that begins within a pair is
+observed at the next boundary: finish that pair, then pause.
+
+The verifier requires the revised admission evidence and valid per-CPU
+counters without applying a load threshold. Syntax, live waiting-unit
+classification and counter/verifier agreement pass. Production Rust and D92
+native/no-default/WASM exact parity are unchanged. Both consumer profiles
+will rebuild from the source-bound harness before measurements.
+
+## D95 — owner requires family acceptance and bounded focused iteration
+
+The binding owner directive supersedes the documented-whole-family shortfall
+alternative for tonight's 0.2.0 delivery: every 0.5 family mean must meet 1.25
+under both profiles. Only genuinely unreachable individual edge cases may be
+residuals with fresh profiles; a failing family is not accepted. The subsequent
+measurement directive stops repeated full matrices. The D94 matrix was stopped
+at 21 complete Moss cases and retained externally as diagnostic evidence.
+
+Iteration uses only the touched families/cases, five alternating same-core
+pairs per case, with separate diagnostic artifacts that cannot overwrite final
+summaries. Initial focused diagnostics cover the still-unmeasured D74–D92
+normal, tangent, vertex-cache and OMM-measure changes. Exact parity remains
+mandatory before timing. The amended lease/measurement gate and per-CPU/load
+telemetry remain in force. Affinity is released for both drivers before each
+admission check, including blocked waits. At ten minutes the burst releases
+CPU affinity for 30 seconds and selects a fresh least-busy physical core;
+long admission waits likewise trigger a fresh selection. Every pair records
+its CPU; Rust requests and perf subprocesses have 30-second deadlines.
+
+The final full matrix runs once after focused optimization, starting at five
+pairs per case and screening at 5, 10 and 20, stopping a clearly passing or
+failing maximum at each look. The interval on mean log paired ratio uses
+Student-t with a Bonferroni allocation of 0.05/3 to each of the three two-sided
+looks (critical values 3.960786482770179, 2.933324088373988 and
+2.625105913222785). This accounts for repeated screening; raw samples and
+screen bounds are retained. Family means and memory still use stage 1.
+Only cases still borderline at the twenty-pair cap receive D146's exactly
+30 fresh pairs and two-sided 95% df=29 interval. That stage never pools
+selection samples and never clears a family mean or memory failure. The owner
+specifically requires fast bounded bursts; these rules supersede the former
+fixed twenty-pair requirement and D146's stage-2 trigger for clear failures.
+
+## D96 — five-pair baseline and fresh worst-case profiles
+
+D95 focused diagnostics completed 48 cases per profile with exactly five
+alternating pairs. Baseline artifacts, binaries, compressed fixture inputs,
+perf data and source snapshots are retained in external `baseline-D95`.
+The Moss means/maxima are: cache 1.394/1.875, measure 1.276/1.487,
+tangents allocating 1.286/1.422 and caller 1.349/1.612, normals allocating
+1.225/1.353 and caller 1.251/1.372. Default: cache 1.401/1.833,
+measure 1.289/1.425, tangents 1.357/1.428 and 1.382/1.605,
+normals 1.259/1.526 and 1.334/1.544. Every measured memory group passes;
+normal/tangent peaks match C++ (ratio 1.0), measure is at most 1.156.
+
+Fresh Moss whole-driver instruction ratios are cache 1.548, measure 1.384,
+tangents 1.317 and normals 1.287. Cache samples concentrate in its analyzer
+(86%) and topology validation (13%). Tangents concentrate in accumulation,
+merging, remap and generator finalization; normal accumulation, merging and
+smoothing dominate. These are diagnostics, not final acceptance.
+
+The initial diagnostic profiler path ternary returned a string instead of a
+Path. It stopped before perf calls. The corrected path resumed profiling
+without discarding or reusing the completed timing samples; a reconstructed
+original harness source is retained with its verified hash. No production
+Rust changed between the two baseline consumer matrices.
+
+## D97 — dispatch packed normal/tangent position reads once
+
+Normal and tangent generators now choose a packed position reader once at
+entry. Private monomorphized helpers read that slice directly; interleaved
+and byte layouts use the existing checked Positions path. There is no new
+public API, allocation, unsafe operation or SIMD. Validation, counted visits,
+merge order, floating arithmetic, output and memory accounting are unchanged.
+This targets repeated layout dispatch in the profiled accumulation/remap
+paths, especially with default non-LTO consumer code generation.
+
+The existing caller-storage/fuel contract test now compares packed allocating
+results with packed, padded interleaved (including unused NaN padding), little
+endian and big endian caller views. It checks output bits, untouched tails,
+all fuel boundaries, atomic failures and identical counted work. Fresh exact
+native/no-default/WASM sweeps and focused normal/tangent corpus checks gate
+retention. Only those two families will be remeasured with five paired samples
+under each profile before retaining the performance change.
+
+D97's extended contract, strict all-feature/no-default Clippy, 30,000 native,
+30,000 libm and 30,000 executed WASM differential cases pass exactly. Both
+normal/tangent families also pass all sixteen expanded shapes including
+million triangles. A counted-scan reader method is compiled only with its
+experimental normal consumer. The five-pair D97 runner had no samples while
+waiting on a GPU lease, so it was stopped to finish independent D98 changes.
+No intermediate timing samples are reused or claimed.
+
+## D98 — specialize disabled cache simulation and batch bounded OMM visits
+
+The cache analyzer dispatches warp simulation, primitive-group flushing and
+fuel accounting once into const-generic kernels. When warp simulation is
+zero, it does not compute the three unused pre-update misses; zero group
+size removes its counter/flush path. The checked topology pass, duplicate
+index update order, wrapping timestamps, final unique scan, requested bytes
+and tight-fuel prefix are unchanged. Existing exact-boundary tests now cover
+all four warp/group combinations. This targets the freshly profiled seam-heavy
+cache case (warp/group both zero), not an altered benchmark contract.
+
+OMM measurement proves a worst-case bound of `triangles * (buckets + 1)`
+after validation. If remaining fuel covers it, a const-generic loop counts
+actual triangle/probe visits locally and charges once, including the exact
+prefix on a numerical error. Overflow or insufficient fuel uses the original
+per-visit path. Hash equality checks level before the six UV integers, matching
+C++'s short-circuit order without changing deduplication. A focused test checks
+identical numerical-failure work prefixes in fast and tight paths, and the
+one-visit-short fuel failure. Memory requests and float calculations are unchanged.
+
+Combined D97/D98 retention requires fresh native/libm/WASM parity, the touched
+expanded corpus and strict checks, then only cache/measure/normal/tangent
+five-pair diagnostics under both profiles. Full final matrices remain deferred.
+The C++ reference build is reused only when its source/header/driver hashes,
+exact flags, compiler executable hash and retained binary hash all match,
+reducing repeated compilation without relaxing binary provenance.
+
+D98 strict all-feature/no-default Clippy, twelve fixture/contract/budget tests,
+30,000 native, 30,000 libm and 30,000 WASM cases and all 32 touched expanded
+shapes pass exactly. Its waiting timing process again had no samples because
+the heavy GPU lease remained held. It was stopped before D99 was applied;
+these checks are functional proof, not measured speedups.
+
+## D99 — initialize strip outputs as they are emitted
+
+The allocating strip/unstrip paths previously reserved and zero-initialized
+the full worst-case bound before overwriting the used prefix. Both algorithms
+emit sequentially and never read output, so a private monomorphized writer
+now appends into a fallibly pre-reserved Vec. Caller writers still copy the
+same values into the provided slice, preserving each failure prefix and tail.
+Every valid append fits the checked upstream bound; no allocation is needed
+after the initial reserve. Debug assertions guard that capacity invariant.
+There is no unsafe code or uninitialized Rust value. Requested output storage
+still counts the full reserved bound, so memory accounting and limits are
+unchanged. Input validation, visit charges, restart/degenerate handling and
+allocation-failure ordering remain unchanged.
+
+This targets the admitted D94 million-triangle allocating strip case at 1.795
+while its caller form was 1.113. The old data is diagnostic evidence, not a
+final qualification under the new early-stopping rule. A focused contract test
+compares allocating/caller results and counted work at every fuel boundary,
+checks that partial writes equal the exact completed result prefix, and checks
+untouched tails. Fresh exact feature-mode/WASM/corpus proof precedes a six-family
+five-pair diagnostic. No timed D97/D98 samples are discarded or reused because
+none had been admitted during their lease waits.
+
+D99 strict Clippy in all-feature and no-default modes, all thirteen phase-0.5
+fixture/contract/budget tests, 30,000 native, 30,000 libm and 30,000 executed
+WASM cases and all 48 distinct touched expanded shapes pass exactly. The
+six-family diagnostic again reached the admission gate without a timed sample;
+the capture GPU lease remained held. It was stopped before the harness-only
+D100 change, so no measurement is discarded or pooled.
+
+## D100 — implement the owner's bounded final maximum decision
+
+Iteration still requires an explicit touched-family list and exactly five
+interleaved pairs per case. Diagnostic `all` is rejected. Final mode alone
+requires the complete matrix, screening after 5, 10 and 20 pairs and stopping
+at the first clear result. Each screening uses the paired mean log ratio and
+a two-sided Student interval with alpha 0.05/3 for the three possible looks
+(Bonferroni correction); critical values for df 4/9/19 are
+3.960786482770179, 2.933324088373988 and 2.625105913222785. Clear failures
+return for optimization; only cases still borderline at 20 enter D146.
+
+D146 collects exactly 30 fresh alternating pairs using the same retained
+binaries, resident input and calibrated iteration count. It selects a fresh
+least-busy physical core, then fixes that core for the entire case, including
+admission and burst pauses. Its two-sided 95% mean-log interval uses df29
+critical value 2.045229642132703. Upper endpoint <=1.5 passes; lower endpoint
+>1.5 fails; overlap is INCONCLUSIVE and fails. Stage-one medians, maxima,
+family geometric means and requested-memory ratios remain unchanged and
+visible; stage-two samples never enter their calculation. Family means still
+must be <=1.25 and memory <=1.25 under both profiles.
+
+Both streams retain pair order/index, load before/after, CPU utilization,
+admission and elapsed time. Checkpoints now retain all core selections. The
+verifier recomputes screening/interval decisions, rejects premature or late
+stopping, requires exactly the 160 cases/21 API groups and consumer settings,
+and validates stage-two input/binary/core identity and fresh admission times.
+Ten-minute burst release and lease/scoreboard pause behavior remain D94/D95.
+Eighteen synthetic protocol checks using a retained admitted utilization record
+passed, including early-stop rejection, bad identities, mixed-core sampling,
+old timestamps and wrong alternating order. These are harness correctness
+checks, not performance measurements or production changes. The full final
+matrix remains deferred until focused optimization is complete.
+
+## D101 — remove proven redundant normal/tangent loop work while gated
+
+The D100 six-family timing process still had no admitted samples when stopped;
+the capture lease remained held. All-feature, no-default and libm/experimental
+root test suites had meanwhile passed. Production changes remain grounded in
+the retained D95 normal/tangent profiles, whose hottest loops include smoothing
+and tangent accumulation; no speedup is claimed before fresh diagnostics.
+
+Normal smoothing's scratch allocation is freshly default-initialized to
+positive zero before its first use. Remove that first redundant full-buffer
+clear, retaining the same clear before every subsequent smoothing pass. Caller
+and allocating paths both provide this fresh storage, so arithmetic, padding,
+allocation ordering, requested bytes and error atomicity are unchanged.
+
+Tangent accumulation dispatches once on a checked bound of three visits per
+face. If remaining fuel covers it, a const-generic loop skips per-face work
+checks, counts three visits only for each nondegenerate tangent face and
+charges once on completion. The tight/overflow fallback retains the previous
+per-face/per-corner exhaustion point. All corner math and iteration order are
+identical; finite input validation and all fallible allocation precede this
+loop. Existing exact work-boundary/caller tests and fresh native/libm/WASM
+and expanded touched-case differential checks must pass before diagnostics.
+
+D101 strict all-feature/no-default Clippy, the thirteen phase fixtures and
+contract/budget tests, 30,000 native, 30,000 libm and 30,000 executed WASM
+cases and all 48 expanded touched shapes pass exactly. The six-family,
+five-pair runner rebuilt its Moss binary and is polling the GPU lease gate;
+the current scoreboard MainPID has only a sleep child and does not block.
+Current-candidate speed and the final complete matrix remain unmeasured.
+
+## D102 — branchless fetch misses under a proven byte bound
+
+The D101 runner remained asleep at the lease gate with no admitted timed
+samples. Its all-feature, no-default and libm/experimental test suites and
+consumer formatting also passed. The functional-artifact preflight reported
+no non-benchmark errors; the final benchmark records still refer to D73.
+The waiting process was stopped before this production edit.
+
+D73's default fetch mean 1.332/max 1.518 and instruction ratio 1.42 motivate
+removing its per-cache-miss overflow branch. With the existing vertex-size
+range 1..=256, an index spans at most five 64-byte lines. At most
+`u32::MAX / (5*64)` indices therefore prove the entire u32 accumulation safe.
+A const-generic kernel counts misses branchlessly in that bounded case.
+Larger streams retain checked additions and the identical overflow error/work
+prefix. Fuel dispatch retains both the locally counted bulk path and exact
+per-index/per-line exhaustion fallback. Validation, visited flags, line
+order, tag updates, arithmetic and requested memory remain unchanged.
+
+Existing fetch exact-work-boundary tests, native/libm/WASM differential sweeps
+and expanded touched shapes gate retention. The next five-pair diagnostic
+adds only fetch to the six already changed families (88 rows per profile),
+not a full matrix. No speedup is claimed before admitted measurements.
+
+D102 passes strict all-feature/no-default Clippy, all-feature/no-default/
+libm-experimental suites, thirteen phase fixtures/contracts/budget tests,
+formatting, 30,000 native, 30,000 libm and 30,000 executed WASM differential
+cases, and all 56 expanded touched shapes exactly. The existing fetch budget
+test now covers sizes 1, 12, 64, 127, 128, 255 and 256, including five-line
+unaligned vertices. The seven-family runner admitted 39 Moss cases before a
+new capture lease began; it finished its pair and released affinity at the
+next boundary, then resumed 120-second blocked checks.
+
+Complete five-pair Moss groups so far: strip allocating GM 0.962532/max
+1.149211, strip caller 0.968451/1.184244; unstrip allocating 1.077230/2.182479,
+unstrip caller 1.265043/6.077575. Memory ratios are 1.0. Seven of eight cache
+cases are present; a partial mean is not an accepted family result. The default
+profile and remaining Moss groups/profiles are pending. Static inspection of
+the retained current Rust/C++ decoder binaries motivates a prepared, unapplied
+branchless-degeneracy/checked-triangle writer candidate. Prepared OMM packed-UV
+and range-accounting code is likewise unapplied pending its measurements.
+Neither prototype is a retained optimization or a measured speedup.
+
+## D103 — prioritize the measured decoder failure during the long lease wait
+
+After more than thirty minutes paused at a subsequent capture lease, preserve
+all 39 completed D102 Moss cases, their exact Rust/C++ binaries and bound
+production/harness source snapshot externally in `baseline-D102-partial`.
+Stop the sleeping runner, retaining every sample. Its complete sixteen unstrip
+cases also seed a source/binary-bound historical worst-case perf run before
+new-candidate timing. Remaining changed families/default cases are pending,
+not silently accepted or discarded; this was a focused diagnostic, never the
+full final matrix.
+
+The decoder now tests its three winding-invariant degeneracy comparisons
+before any winding swap, using boolean bitwise conjunction to avoid parity-
+dependent short-circuit branches. This preserves the same integer result and
+all visit/failure prefixes. Caller emission advances checked whole three-index
+chunks instead of adding/checking a growing output range; the initial bound
+proves sufficient chunks for every possible emission. Extra tails, all tight-
+fuel partial prefixes, heap requests and the allocating append path remain
+unchanged. No explicit SIMD or unsafe code is introduced. The retained scalar
+C++ library's compiler-generated packed loads/shuffle are diagnostic codegen,
+not a relaxation of the enforced no-hand-SIMD baseline.
+
+Static inspection motivates these changes but does not prove a speedup.
+Existing all-fuel prefix/tail tests and fresh exact feature-mode/WASM/expanded
+unstrip proof precede sixteen-row, five-pair diagnostics under both profiles.
+
+Diagnostics now accept optional `--cases family:shape` filters, restricting
+only the named families and keeping other selected families complete. This
+allows the pending million-triangle cache case without repeating its seven
+completed D102 cases. Such mixed-source diagnostic observations remain
+separately identified and cannot qualify a family. Final mode rejects every
+case filter and the verifier requires an empty filter map and all 160 cases.
+Checkpoint identities include filters; resumed same-source streams require
+identical allowed-CPU inventory and select a fresh least-busy physical core
+while retaining their earlier core selections and completed case samples.
+
+## D104 — match caller-page commitment and initialize owned decoder chunks
+
+Preserve all fifteen completed D103 Moss cases, binaries and bound source
+snapshot externally in `baseline-D103-partial` before stopping its sleeping
+last-case runner. D103 passed thirteen fixtures/contracts/budget tests, strict
+checks, 30,000 native, 30,000 libm and 30,000 executed WASM cases and eight
+expanded unstrip shapes. Its allocating million case still measured 2.897.
+D102's frozen worst caller perf run completed: Rust/C++ instructions
+4,850,674,589/3,840,368,115 = 1.263, cycles 1,452,598,786/1,039,605,494;
+branch misses 106,787/145,491. These whole-process counts include setup and
+do not support blaming the 6.078 wall ratio solely on decoder branch misses.
+
+An untimed mechanical allocation probe, using the actual host's optimized
+Rust/C++ standard-vector constructors and reading `/proc/self/stat` minor
+fault counts, identified asymmetric caller setup. For 32 MB of zeroed u32s,
+Rust incurs 1 fault at construction then 7,813 on first writes; C++ incurs
+7,816 at construction then zero on first writes. Rust's zeroed Vec obtains
+lazy calloc pages whereas C++ vector initialization has eagerly touched them.
+The old separate warm-up requests discard their caller buffers, so they do
+not commit the later measured request's storage. This is an identified harness
+asymmetry, not a lowered timing bar or an accepted performance result.
+
+Both phase-0.5 drivers now write opaque positive zero to one element per
+<=4 KiB span and the final element of the used caller-buffer type, after all
+setup and before the API timer. This commits every caller output page in both
+languages, preserves initial contents, and adds no timed instruction or heap
+request. Scratch allocations and allocating outputs remain inside the API
+measurement. Unused Rust caller types are not touched. All six caller families
+use the same policy; only phase 0.5 changes. Native, libm and WASM parity and
+fresh consumer binaries qualify retention.
+
+The allocating unstrip API now pre-reserves and initializes its full checked
+bound, then uses the same checked triangle-chunk decoder as caller storage
+and truncates to the returned count. It removes the per-emission Vec reserve
+and length update, matches C++'s initialized owned output, and preserves all
+quota checks, requested bytes, allocation order and exact work/failure prefixes.
+Strip's successful append-output implementation remains unchanged.
+
+The D104 resumed validation passes all thirteen phase tests, strict root
+checks, 30,000 native, 30,000 libm and 30,000 executed WASM cases and eight
+expanded unstrip shapes exactly. No D104 timed sample had been admitted when
+its initial waiting process was stopped for the following harness refinements.
+
+The C++ normal/tangent sinks now retain the output pointer directly through
+an opaque compiler barrier, matching Rust's buffer retention instead of
+converting possibly negative float components to unsigned integers. The bound
+helper barriers still consume their varying scalar results. This removes a
+harness-only undefined conversion; every C++ API/output remains unchanged.
+
+Profiling checks binary hashes before running, selects a fresh least-busy
+physical core after first admission and input preparation, then fixes that
+case's core for both backends and stat/record runs. Each family retains its
+three-interval selection; `benchmark_cpu` remains the earlier diagnostic CPU.
+The verifier checks both identities and the independent profile-core metadata.
+This prevents an initial long gate wait from starting a profile on a stale
+selection. Children exit and release affinity after each bounded run; the
+unaffined parent waits at the lease/measurement gate. Production parity is
+unchanged by these orchestration-only refinements.
+
+D104 consumer strict Clippy now also passes all-feature and no-default checks.
+Four negative CLI probes reject an out-of-range diagnostic case, a filter for
+an unselected family, every final-mode case filter, and diagnostic full matrices
+before a build or timing starts. Archives copy only the profile summary's
+referenced input/data files and verify their hashes, avoiding stale family
+files and keeping retained evidence small. Fresh D104 pairs remain pending the
+shared lease; no final matrix or acceptance is claimed.
+
+While D104 waits, an external OMM prototype preserves packed/interleaved UV
+reads and batches charged probes over 128-triangle ranges whenever the whole
+input bound cannot fit the remaining fuel. Its new boundary/source contract
+passes in std and libm builds. An additional 480 untimed differential calls
+against the retained implementation cover varied strides, finite/nonfinite
+UVs, range sizes and fuel limits, with identical results/errors, work prefixes
+and requested bytes. This prototype is not applied to production or measured;
+it remains a candidate only if fresh OMM diagnostics miss the bar.
+
+Fresh D104 complete Cargo test suites pass in all-feature, no-default and
+no-default-plus-experimental modes; every suite reports zero failures. Logs
+and compact suite counts are retained externally in `D104-full-tests.json`.
+The external OMM prototype also passes all 480 retained-implementation calls
+in native std mode, for 960 total std/libm differential comparisons.
+
+A second external prototype specializes normal accumulation's covered/tight
+work paths at compile time, retaining the original upfront/full or per-corner
+charge order. All thirteen phase contracts and 600 bit-exact owned/caller
+comparisons pass in each std/libm mode, including caller tails, errors, usage
+and requested bytes. Like the OMM prototype, it is not production or timing
+evidence, and will only be retained if the pending focused diagnostics warrant
+it. D104's unstrip archive and the following five-family pending diagnostics
+are chained with explicit exit/source/binary/row-count checks; only one own
+benchmark process can measure at a time. The separate four-family remaining
+changed-path script is prepared but not launched.
+
+## D105 — bounded OMM probe accounting and covered normal accumulation
+
+D104 admitted zero samples during its initial lease wait. Preserve its complete
+untimed source and successful proof logs externally before stopping only the
+own sleeping benchmark/chainer and applying the two externally validated
+prototypes. The D95 retained diagnostics still miss OMM measure's family mean
+and several normal groups; these are production candidates for those measured
+hot paths, not unmeasured speedup claims.
+
+OMM measurement dispatches packed UV pairs once, retaining the general padded
+reader and identical six finite checks/math. When the whole-input probe bound
+cannot be covered, each 128-triangle range independently proves its maximum
+probe visits and selects batched or exact per-probe charging. Shared hash/output
+storage and global source indices preserve deduplication and source order;
+no allocation or requested-memory change is introduced. A production contract
+covers the 129th triangle, packed/padded unused NaNs, exact exhaustion and the
+first invalid UV across the boundary. External std/libm differential comparisons
+match retained values/errors/usage/storage in 960 calls.
+
+Normal accumulation specializes the covered and tight work loops at compile
+time, keeping upfront complete charging or the original exact per-corner
+prefix. Every floating operation and corner order is unchanged. All phase
+contracts and 1,200 external std/libm owned/caller comparisons pass with exact
+float bits, tails, errors, work and requested bytes. No unsafe or hand SIMD.
+
+Diagnostic full-matrix rejection now checks the resolved family set, including
+a spelling with all fifteen explicit comma-separated names. The final-only
+full matrix, five-pair diagnostics, two-minute gate and bounded early/D146
+policy remain unchanged. Rebuild and fresh native/libm/WASM proof precede
+focused timing; no D105 performance qualification is claimed yet.
+
+D105 passes fourteen phase tests, strict library/consumer Clippy in both feature
+modes, 79 all-feature, 74 no-default and 79 no-default-plus-experimental tests.
+Fresh standard native, libm native and executed WASM sweeps each pass 30,000
+cases. The expanded check was extended after its first eight-shape run, then
+rerun successfully across all 24 unstrip/normal/OMM shapes, including each
+million-triangle input. The explicit fifteen-name diagnostic full-matrix CLI
+probe fails before building, as intended. All source/binary identities and
+proof logs are retained; the restarted focused queue still requires admission.
+
+A final D105 orchestration review found that the next case's untimed fixture
+was prepared before its calibration admission check. Admission now precedes
+case setup, so a lease starting during the prior case's last pair pauses before
+new large fixture work. Both stage-one and fresh D146 pairs release parent and
+Rust affinity immediately after recording their counters, before checkpoint
+work or the next gate. This tightens the finish-current-pair rule without
+changing a timer, iteration, threshold, sample or production output. The initial
+D105 wait admitted no sample before its own sleeping workers were restarted;
+the production's 90,000 differential, 24-shape and full test proofs remain
+current because no Rust/C++ source or build configuration changed.
+
+The live D105 benchmark/verifier passes all eighteen focused protocol checks
+for conservative early stopping, fresh D146 pass/fail classification, and
+rejection of pooled/extra stages, wrong hashes, stale admission times, switched
+cores and reversed pair order. These are untimed protocol checks using retained
+admission/utilization metadata; they are not performance samples.
+
+D105 completes and archives sixteen five-pair unstrip cases per consumer in
+`baseline-D105-unstrip`, including each bound source, Rust/C++ binary, and fresh
+worst-case stat/record profile. Caller means/maxima are 0.723/1.157 Moss and
+0.742/1.224 default; all sixteen caller cases pass time and requested memory.
+Allocating means are 0.885/0.891, but the tiny and million cases still miss
+maximum: Moss tiny 1.543, million 1.851; default tiny 1.560, million 1.791.
+Moss worst-case whole-process instruction ratio is 1.065 and cycles are nearly
+equal to C++, so repeated long-loop profiling does not reproduce the short
+owned benchmark's wall gap. This is motivation to inspect allocator/setup
+state, not permission to waive either case. Their residuals are not accepted.
+
+The queued pending-path diagnostic first measures the million-triangle Moss
+cache case at 0.998 (five pairs), then pauses before fetch at a new GPU lease.
+Its other groups/default profile remain pending. The seven earlier D102 cache
+cases are preserved separately; source-mixed diagnostics do not qualify a
+family. No final full matrix has run.
+
+## D106 — resident benchmark inputs and direct decoder validation
+
+Preserve the completed one-row D105 Moss pending cache diagnostic alongside
+its identical source/Rust/C++ snapshot in `baseline-D105-unstrip`, then stop
+only the own waiting workers. Fresh owned unstrip profiling is 1.065/1.068
+instructions Rust/C++ across consumers; the short benchmark still misses its
+tiny and million cases. No exception is made.
+
+The C++ benchmark keeps immutable case inputs resident throughout calibration,
+warm-up and every pair. Rust previously regenerated all case vectors and
+constructed/dropped a large serialization/hash buffer for every BENCH request,
+outside the API timer. Those asymmetric allocator changes can relocate owned
+outputs onto fresh pages. Rust now retains exactly one immutable case and its
+verified hash, keyed by seed/count/triangles/style; changed keys drop the old
+case before construction. All families use the same input-residency policy as
+C++. This reduces untimed machine occupancy without warming an owned output
+outside its API or altering the timer/iterations/bar. Two untimed contracts
+prove same-key storage reuse and byte-identical fixture hashes/output after
+seed/layout changes. Timing effects remain unmeasured; current archived ratios
+cannot be presented as matched algorithm-only speedups.
+
+The owned unstrip wrapper gains an inline hint. Its validation helper uses
+explicit typed arguments instead of a captured mutable closure, preserving
+all checked bounds, allocation/quota order, work prefixes, outputs and caller
+tails. All thirteen existing external phase contracts pass before application.
+Fresh production native/libm/WASM proof and focused five-pair unstrip cases
+0/7 precede the pending cache/fetch/measure/normal/tangent groups. The latter
+require fresh method-consistent observations; the earlier cache row is kept
+as historical evidence rather than pooled into the new source.
+
+D106 consumer cache tests passed, but strict Clippy detected an included-source
+test-layout lint: the WASM library includes the CLI before its FFI declarations,
+so the CLI's final test module preceded more library items. Move the two tests
+to a dedicated integration target including the same private CLI helpers. No
+production statement changes; new same-source consumer strict checks and
+differential identities precede timing. The own initial D106 wait admitted
+zero samples before restart.
+
+After the integration-test layout correction, D106 passes both consumer cache
+tests in std/libm mode and strict consumer Clippy with all features/no defaults.
+Production's fourteen phase tests, 79/74/79 complete feature-mode tests,
+30,000 native, 30,000 libm and 30,000 executed WASM cases all pass; eight expanded
+decoder shapes remain exact. The 0/7 focused timing source is frozen and the
+archive/pending-path chain has explicit success/identity guards. No fresh D106
+sample has been admitted yet; only the binding lease/measurement gate applies.
+
+While D106 remains gated, an external raster candidate mirrors scalar C++'s
+`rasterizeOpacityRec<2>/<4>` dispatch: specialize validated state format once
+alongside covered/tight charging, retaining every floating operation, sample,
+bit emission and work prefix. All external phase contracts and 2,400 std/libm
+owned/caller differential comparisons pass for levels 0–4, varied UVs, padded
+texture strides, tight fuel and untouched tails, with identical requested
+storage. It remains outside production and unmeasured, to be considered only
+if fresh raster diagnostics still miss; the timed D106 source stays frozen.
+
+The waiting interval also produces an external remesh candidate. For each
+voxelization pass, a checked triangle-count times maximum sampling bound selects
+a const-generic uncharged loop only when all visits fit remaining work. That
+loop totals actual visits (including degenerate triangles) and charges once;
+the tight path retains the original triangle/sample exhaustion prefixes.
+There is no new allocation, floating operation, or public API. All thirteen
+external phase contracts pass, followed by 3,600 comparisons per feature mode
+(7,200 std/libm total) covering bound/allocating/caller outputs, zero/short/full
+destinations, degeneracies, all four options, four resolutions and exact fuel
+boundaries. Values, tails, errors, work and requested bytes match production.
+This candidate remains unapplied and unmeasured pending fresh remesh evidence.
+The D106 decoder run still has zero samples after an hour of lease admission
+waits; the scoreboard's sole sleeping child does not block it.
+
+## D107 — allocate only matched selected caller outputs in both drivers
+
+Resume by reviewing the complete uncommitted implementation, D95/D100 owner
+protocol, D106 validation receipts and checkpointed measurements. D106 finishes
+its four five-pair decoder cases under both profiles: Moss allocating/caller
+focused means 1.147/0.972 and maxima 1.295/1.047; default focused means
+1.319/1.033 and maxima 1.756/1.202. These two-shape focused means are not full
+family means. The default tiny allocating case remains an ordinary failure,
+not an accepted edge residual. The million allocating ratios are 1.017/0.991.
+
+Retain the exact D106 source archive, both timing streams and binary hashes in
+`frozen-D106`. Stop only the own sleeping obsolete-family chainer and waiting
+profiler after all focused pairs have completed. Complete the pending default
+perf evidence from that frozen artifact directory, using its original Rust
+and C++ binaries; its source never changes. No D106/D107 samples are pooled.
+
+Finish the external conditional-buffer candidates before applying them. The
+initial external Rust draft redundantly conditioned the untimed parity OMM
+branch; discard that change. Both drivers now allocate only the selected caller
+API's exact bound: strip bound, actual prepared unstrip bound, raster entry
+size, four/three floats per tangent/normal corner, or the remesh bound. No
+caller-output vector is allocated for an allocating or allocation-free API.
+Rust flattens UV storage only for OMM measure. Each selected caller buffer is
+still initialized and page-committed before the timer; owned output and scratch
+remain inside the timer. All timer loops, calibration, memory accounting,
+input residency, thresholds and scalar C++ options remain unchanged. This is
+matched untimed setup, not an algorithm speedup or a relaxed acceptance bar.
+
+External standard/libm drivers pass strict Clippy and 102 representative exact
+C++ comparisons each, with matching input hashes and output bytes. C++ syntax
+validation passes. Fresh production consumer checks and native/libm/WASM
+records precede a five-pair recheck of only decoder shapes 0/7, then the pending
+changed families. The D106 failing maximum still requires optimization; final
+acceptance requires all complete family/API means and memory ratios to pass
+under both profiles and D100/D146 maximum decisions.
+
+D107 production refresh passes both consumer resident tests in each feature
+mode, consumer formatting and strict Clippy, fourteen phase contracts, and
+30,000 native, 30,000 libm and 30,000 executed WASM cases exactly. The frozen
+D106 default profile completes from its original retained binaries: tiny owned
+decoder instruction ratio 1.373, with 63.4% of Rust samples in unstripify and
+16.3% in freeing. Source inspection finds reserve_output out of line in the
+default binary, preventing knowledge of the returned empty Vec from simplifying
+initialization. A one-annotation external prototype is under existing-contract
+validation while D107 remains frozen. It is not yet a production/timing change.
+
+## D108 — expose owned strip allocation and decoder wrapper to consumers
+
+Archive complete D107 four-case/five-pair diagnostics and fresh profiles in
+`baseline-D107-unstrip`, verifying both source/binary snapshots before source
+changes. Moss focused allocating/caller means are 1.190/1.156, maxima
+1.317/1.251; defaults are 1.369/1.049, maxima 1.659/1.206. Both million
+allocating cases pass, but the default tiny allocating failure is not waived.
+Its fresh instruction ratio is 1.370. These are two-shape diagnostic means,
+not complete family means or final maximum decisions.
+
+D106/D107 default assembly retains reserve_output as an opaque call, and the
+owned wrapper performs vector-length/capacity dispatch plus dynamic workspace
+accounting despite the consuming benchmark creating a fresh default workspace.
+The external inline-helper prototype passes fourteen phase contracts in both
+standard/libm modes. Its generated code removes the helper call, but a plain
+inline hint still leaves the owned wrapper out of line. Require inlining for
+the small fallible allocation helper and the owned unstrip wrapper so consumer
+optimization can propagate the empty Vec and caller workspace. Algorithms,
+allocation/quota order, fallible reserves, work charging, failure prefixes,
+checked bounds and outputs do not change. No unsafe or hand SIMD is added.
+
+Fresh feature-mode checks and native/libm/WASM proof precede five-pair decoder
+shapes 0/7 under both consumers. The helper is shared with owned stripify, so
+stripify also receives fresh focused coverage before final qualification.
+All families still require the unchanged owner bars and D100/D146 protocol.
+
+## D109 — admit brief free-lease windows without synchronized long polling
+
+D108 finishes validation with 79/74/79 passing complete feature-mode tests,
+strict root/consumer checks, 90,000 native/libm/WASM exact differential cases
+and all eighteen final/D146 protocol checks. It admits zero timing samples
+while repeated two-minute polls find an occupied lease. A manual receipt at
+09:45:23 finds FREE and a scoreboard with only a sleep child just fourteen
+seconds after the runner's blocked receipt. This demonstrates that the fixed
+long cadence misses available windows; machine load is not the blocker.
+
+Stop only the own zero-sample waiting queue/driver and change phase-0.5 gate
+polling to fifteen seconds. The owner explicitly requires admission whenever
+no lease holder or actively measuring scoreboard is present; polling cadence
+is orchestration, not a measurement threshold. Every admitted boundary still
+checks fresh status, releases waiting affinity, selects a fresh least-busy
+core after long waits, completes only the current pair if a lease starts, and
+uses the same ten-minute burst limit. No timer, corpus, samples, statistical
+screen, D146 protocol, production library or Rust/C++ driver changes. No
+previous measurements are pooled into this source identity. Native/libm/WASM
+proof remains current because those sources and build settings are unchanged.
+
+## D110 — calibrate resident batches after matched warm-up
+
+Archive complete D108/D109 decoder diagnostics and fresh profiles in
+`baseline-D109-unstrip`. Default focused cases pass; Moss tiny allocating
+measures 1.849, while its fresh whole-process instruction ratio is 1.281.
+Moss tiny's cold one-call probe selected only 14,358 iterations; its resident
+Rust/C++ medians are 62.4/34.0 ns, so batches last roughly 0.9/0.5 ms rather
+than the intended twenty milliseconds. Its five ratios include 2.865/3.098,
+so the undersized batch is a concrete method problem, not a residual waiver.
+
+After the existing equal-iteration warm-up pair, recalculate equal iterations
+from the maximum measured resident per-call time of those two warmed batches.
+Keep the twenty-millisecond target, ten-million cap, one-iteration minimum for
+large calls and 100,000 minimum for helpers. When the count changes, both
+backends receive another matching warm-up at the final count before sampling.
+Retain cold/warm per-call times and both iteration counts with each row. Owned
+allocation remains inside every API call; no returned output is prewarmed or
+reused. Input residency, corpus, pair order, core/gate, ten-minute burst,
+requested memory and D100/D146 thresholds/sampling remain unchanged.
+
+No production Rust/C++ or build setting changes, so D108's exact native/libm/
+WASM and feature-mode proofs remain current. Fresh five-pair decoder shapes
+0/7 under both profiles check the corrected batch calibration before any
+pending-family diagnostics. Final evidence must use the corrected method;
+older streams remain source-identified diagnostics and are never pooled.
+
+The first D110 launch rejected a busy executable before any calibration or
+sample: an orphan pending-family child had already launched during the D108
+queue-parent handoff. Stop its own shell, then stop the benchmark at a blocked
+pair boundary. Preserve all 36 completed old-method Moss cases, their original
+source tar and both binary hashes in `baseline-D109-pending-partial`. Its native
+source and loaded method were still D109; the on-disk D110 Python edit would
+have correctly rejected its final qualification. No record is pooled or
+accepted, and the corrected D110 driver restarts only after that child exits.
+
+## D111 — select each benchmark API outside both timed loops
+
+Archive D110's complete four-row/five-pair decoder diagnostics and fresh
+worst-case profiles in `baseline-D110-unstrip`. Warmed batch calibration does
+not clear Moss tiny's 2.889 maximum; default focused decoder rows pass. No
+maximum is waived. All raw cold/warm calibration and iteration counts remain
+visible, and previous short batches are not reused.
+
+The Rust driver's timed loop previously matched the runtime operation string
+on every iteration, while C++ switched on an integer. Trivial helper loops
+were already dispatched outside timing, but ordinary small APIs still relied
+on different compiler unswitching decisions in their large multi-family loop.
+Both drivers now select the API once before entering the timer and invoke a
+statically typed Rust closure/C++ lambda loop. Bodies are copied mechanically:
+API parameters, caller/allocating branches, fresh Rust workspace creation and
+destruction, owned-output drop, result barriers, requested-memory collection,
+iteration counts and timer duration are unchanged. Compiler-independent API
+selection is a matched method correction, not a measured library speedup.
+
+The external Rust candidate passes strict Clippy and the C++ candidate passes
+syntax validation before application. Fresh consumer contracts and production
+native/libm/WASM identity precede five-pair decoder shapes 0/7. D108 library
+source and its full feature-mode tests remain unchanged. Final timing and the
+pending changed-family diagnostics require the D111 matched-dispatch method;
+source/binary snapshots prevent pooling older-method results. All owner bars,
+fifteen-second lease polling, ten-minute bursts and D100/D146 rules persist.
+
+The separately retained old-method partial Moss fetch group has mean 1.335
+(maximum 1.442); it is a failing whole-family diagnostic, not a residual.
+An external safe-Rust fetch candidate replaces general ceiling division with
+a proven-safe add/shift, totals known-valid cache-line visits outside the inner
+line loop, and sums exclusively zero/one visited flags. Its standard and libm
+contracts each compare 23,220 calls against production across every vertex
+width, exact fuel boundaries and workspace reuse. It is not applied or timed;
+fresh method-consistent fetch measurements decide whether it is needed.
+
+## D112 — initialize small decoder outputs by emission and simplify fetch work
+
+Preserve D111's full focused streams and fresh profiles in
+`baseline-D111-unstrip` before applying production changes. Default focused
+allocating/caller means are 1.174/1.097, maxima 1.293/1.338. Moss caller mean
+1.018/max 1.149 and million owned ratio 0.998 pass, but tiny owned 2.883 fails.
+Its fresh whole-process instruction ratio is 1.227 and cycle ratio 2.243;
+Rust profile includes 17.7% in memset, versus 2.15% C++. Stable warmed batches
+rule out the previous undersized-batch explanation. No residual is accepted.
+
+Owned unstrip outputs with checked bound <=64 u32s use the already existing
+safe Vec append emission: only emitted triangles are initialized, and the
+successful Vec length is their count. Larger outputs retain the initialized
+whole-chunk path that passes the million case. Both paths make the same single
+fallible full-bound reservation and enforce identical checked bounds, quota/
+allocation order, charging, failure usage and exact output. Caller decoding
+is unchanged. External standard/libm runs each pass fourteen phase contracts,
+including every existing tight-fuel owned/caller prefix and tail witness.
+
+The old-method complete Moss fetch diagnostic misses the family mean at
+1.335 across eight cases, with large-case ratios 1.298–1.442. Dispatcher cost
+is negligible relative to these large calls; the safe instruction reductions
+already validated externally are therefore worth retaining without another
+full unchanged-group iteration. Replace general ceil division by (end+63)/64:
+validated total vertex bytes <=isize::MAX proves that addition safe on 32/64
+bits. In overflow-checked mode preserve each exact visited prefix; in the
+proven-safe mode add the whole index count and each tag-span length instead
+of incrementing a visit count in the inner line loop. Sum the visited bytes,
+which can only be zero/one after existing initialization and writes. All
+23,220 standard and 23,220 libm width/fuel/reuse comparisons match output bits,
+errors, counted work and requested storage. No unsafe or explicit SIMD.
+
+Remove two whitespace-only C++ driver lines identified by diff-check. Timed
+statements and dispatch/calibration/gate/statistical method do not change.
+Fresh full feature-mode checks and native/libm/WASM proof precede focused
+five-pair decoder shapes 0/7 and complete eight-shape fetch under both profiles.
+Only those touched production families are remeasured in this iteration.
+
+D112 initial root strict Clippy rejects the deliberate add/shift as manual
+ceil division; consumer checks had passed. Add a scoped lint allowance to that
+single let statement, with the existing non-overflow proof and codegen reason.
+No API or timing sample had run. Restart strict/full parity validation after
+this source-only annotation. The external no-restart adjacent-window decoder
+candidate also passes fourteen standard/libm phase contracts, including first/
+second input exhaustion; it remains unapplied pending the small-append timing.
+
+## D113 — retain output storage directly and specialize common decoder/fetch loops
+
+Archive D112's complete twelve-row streams and worst-case profiles for both
+consumers in `baseline-D112-focused`. Moss fetch mean/max are 1.290/1.359;
+all its maxima and memory pass, but its family mean does not. Default fetch
+also misses the mean. Moss tiny owned decoder remains 2.835; no edge residual
+is accepted. Its full requested bound and million path remain exact.
+
+An identified sink asymmetry survives matched dispatch: Rust made entire
+owned Vec descriptors opaque through by-value black_box, while C++ retained
+pointers/scalars and let its destructor use known metadata. Retain each Rust
+owned output's data pointer and count, then drop it normally; the inline helper
+never makes ownership/capacity metadata opaque. C++ retains the corresponding
+owned pointer/count. Explicitly retain all six caller output pointers in both
+drivers, including previously count-only strip/unstrip/raster/remesh sinks;
+normal/tangent already retained storage. Retain all three OMM measure buffers
+and all in-place compact data/metadata arrays. This also closes the possibility
+that inlining discards caller writes. All API calls, data operations, parameters,
+allocation/destruction positions and timers remain unchanged. External Rust
+strict Clippy and C++ syntax checks pass before application.
+
+The no-restart decoder selects adjacent three-element windows once, with
+winding parity equal to the original input index (window index plus two).
+The tight path charges its first two input visits separately, preserving
+first/second exhaustion and every subsequent emission prefix. Restarted strips
+retain the original decoder. Fourteen standard/libm phase contracts pass in
+both modes before application; caller tails and every tight-fuel prefix remain
+covered. The small append/full large chunk output split is unchanged.
+
+Fetch profiling puts 91% of Rust samples in its general tag-range loop, with
+whole-process instruction ratio 1.443. For validated vertex widths <=64 and
+already proven fuel/u32 bounds, an index touches exactly one or two lines.
+Specialize that common path: visit the first line directly, conditionally
+visit the second, and charge exactly 2*index_count plus second-line count.
+The earlier checked upper bound 6*index_count proves safe arithmetic/fuel.
+Wider vertices and tight/overflow-checking cases keep their exact old path.
+23,220 standard and 23,220 libm width/fuel/reuse comparisons each pass against
+D112 production before application. No new allocation, unsafe or explicit SIMD.
+
+Fresh full feature-mode checks and native/libm/WASM identity precede twelve
+five-pair decoder/fetch diagnostic rows per consumer. Sinks touch other ordinary
+APIs, so pending family observations and final evidence must use this method;
+all earlier diagnostics remain separately source-bound and are never pooled.
+The owner bar, lease/scoreboard gate, fifteen-second polling, ten-minute bursts
+and D100/D146 sampling/maximum decisions remain unchanged.
+
+D113 complete validation passes 79/74/79 feature-mode tests, strict root Clippy
+in all three modes, both consumer Clippy/resident modes, and 30,000 native,
+30,000 libm and 30,000 executed WASM cases. HEAD remains 11a2b5a on phase/0.5;
+the clean scalar reference remains 4c203430ca565cb59a468a91922c76c208169536.
+No D113 sample is admitted during the initial occupied Moss lease wait.
+
+## D114 — owner schedules timing through the shared lease queue
+
+The owner supersedes the lease-free/scoreboard gate: captures hand the lease
+back to back, so gap waiting starves this lane. Stop the zero-sample D113
+waiter at its blocked boundary. The complete worktree/source/binary checkpoint
+and prior validation remain externally retained; no measurements are discarded.
+
+Every benchmark/profile command now enters the shared gpu-lease.sh queue with
+MOSS_GPU_LEASE_TIMEOUT=3600 and a meshopt-timing:p05-* label. Admission verifies
+the wrapper's lease environment, matching held label/PID and ancestor chain.
+The scoreboard check is removed because the shared lease serializes its work.
+Unknown/wrong/uncovered ownership fails immediately; it never times outside
+its own lease. Pair receipts retain the holder, ancestry, load and CPU counters.
+
+lease_run.py wraps the granted command with an independent 840-second timeout
+and five-second kill grace, below the owner's fifteen-minute burst limit.
+Benchmark commands end after ten minutes at a completed-case boundary (76),
+retain source/binary-bound completed rows, release, and requeue. Profile commands
+likewise retain completed family records and requeue at the next family boundary.
+Exit 75 retries queue admission; other errors, including a hard timeout, stop.
+Inherited lease markers are cleared outside the queue to force a fresh grant.
+Source/reference changes between grants abort rather than pooling revisions.
+Stage-one 5/10/20 and fresh D146 decisions, paired API timers, caller allocation,
+output retention, production Rust/C++, memory and owner bars do not change.
+
+Python syntax, twelve receipt checks (one positive, eleven negative), eighteen
+final/D146 protocol checks and queued-runner 75/76 retry/hard-cap checks pass.
+These are synthetic protocol checks, not timing evidence. All Rust/C++/Cargo
+source hashes match D113's strict/test validation. Native/libm/executed-WASM
+identity receipts are refreshed before the queued focused measurements.
+
+The nested 840-second timeout uses foreground mode, preserving the shared
+wrapper's process group. A synthetic supervised command and sleep descendant
+share that group and terminate under group TERM; the retained receipt explicitly
+contains no API timing. Fresh D114 native/libm/executed-WASM sweeps each match
+30,000 cases after this process-control refinement. No Rust/C++/Cargo source
+changes or production test repetition is needed. Submit the focused diagnostics
+as meshopt-timing:p05-{moss,default}-focus, with separate leased worst-case profiles.
+
+## D115 — inline the checked decoder into its already inlined owned wrapper
+
+The D114 shared queue admits both profiles and profiles: Moss focus completes
+in 39 seconds. Preserve all twelve rows/binaries/source/perf evidence per profile
+in baseline-D114-focused before source mutation. Complete fetch mean/max passes:
+Moss 0.932/1.081, default 0.929/1.105, memory 1.0. The two decoder edge cases pass
+for default (owned maximum 1.184, caller 1.195). Moss caller maximum is 1.210,
+but tiny owned is 2.145, with million owned 0.986; it is a clear failure and no
+residual is accepted. The subset decoder mean is not a complete family mean.
+
+Fresh tiny Moss profile has instruction ratio 1.088 but cycle ratio 1.692;
+68% of Rust cycles are in the inlined main driver. Both binaries still call an
+out-of-line unstripify_checked<Vec<u32>> despite the public owned wrapper being
+always inline. Its mutable workspace/output boundary prevents consumer folding
+of known fresh workspace metadata and quota state. Change only that existing
+private checked helper from inline to inline(always). All checks, allocation,
+work/error order and algorithms remain identical; restarted and plain decoder
+paths are both retained. No harness or other production family changes.
+
+Full strict/test/native/libm/executed-WASM proof precedes five pairs for decoder
+shapes 0/7 only (four rows per consumer), submitted through D114 queued bursts.
+The prior fetch evidence remains source-bound to D114, never pooled into the
+new source's final matrix. The final matrix still has not started.
+
+## D116 — expose the emitting decoder loop instead of its mutable Vec boundary
+
+D115's checked helper is now absent from the Moss symbol table, but the next
+emitting unstripify_loop<false,Vec<u32>> remains out of line. Tiny owned Moss
+still clearly fails at 2.229 (41.67ns versus 18.93ns); default maximum passes
+at 1.090. Both caller edge maxima and million owned pass; memory is 1.0.
+Retain all four-row streams, source/binaries and fresh failing profiles in
+baseline-D115-focused before mutation. No partial decoder mean is promoted.
+
+The emitting call can mutate Vec pointer/capacity/length through its append
+interface, leaving the consumer unable to scalarize ownership metadata across
+that boundary. Also mark unstripify_loop and its plain adjacent-window helper
+inline(always). This is solely a code-generation hint; all data, bounds, work,
+quota/error order and append/chunk behavior are unchanged. Full proof precedes
+four-row decoder-edge diagnostics under both profiles through queued leases.
+
+## D117 — matched standalone timer functions in the two drivers
+
+D116 completes both four-row profiles and fresh failing profiles. Preserve all
+records/binaries/sources in baseline-D116-focused before mutation. Moss tiny
+owned remains above the bar (maximum 1.555; 42.39ns versus 28.53ns medians),
+while default maximum 1.226, all caller maxima and million owned pass. Neither
+the partial mean nor borderline diagnostic maximum establishes acceptance.
+
+Inlining the emitting loop removes its symbols but does not remove the Moss/
+default owned gap. Inspect generated timer/dispatcher boundaries: most timed
+loops merge into the benchmark/command machinery; only one monomorph remains
+separate. Test matched non-inlined timed_iterations functions in Rust and C++.
+Each statically selected closure still invokes its API inside the same timed
+loop; allocations, fresh workspace creation/destruction, requested memory and
+pointer/count sinks stay timed. Call into the timer is outside its clock in
+both languages. This isolates register allocation from the large dispatcher,
+without changing API work, parameters, output or allocation sizes. Tiny helper
+loops are untouched. All production Rust is unchanged from D116.
+
+Strict/full proof precedes four-row decoder-edge diagnostics per profile. The
+new method affects ordinary timer loops, so remaining touched-family diagnostics
+and the eventual single final matrix must use it. Prior streams stay separately
+source-bound and are never pooled. Queued ownership and all bars remain unchanged.
+
+## D118 — fixed initialized chunks for small owned decoder outputs too
+
+Archive D117 both four-row streams and fresh failing profiles in
+baseline-D117-focused. Moss owned tiny still fails at 2.056 (41.41ns/20.15ns),
+million owned passes 0.999. Caller edge maxima pass below 0.906; default owned/
+caller maxima pass 1.007/1.034. Matched standalone timers retain allocation/
+workspace work and expose the remaining owned-only gap. No residual is accepted.
+
+Remove D112's <=64 Vec-append branch. All owned sizes now use the existing full
+fallible bound reservation, initialized storage and fixed three-element chunk
+emitter, as large outputs already did. C++ initializes that same bound. The
+mutable decoder borrows the chunk slice instead of the Vec descriptor, so it
+cannot modify allocation pointer/capacity/length; truncation happens once after
+its count returns. This removes per-triangle reserve/length bookkeeping and
+keeps ownership metadata local to the caller. Allocation size/error ordering,
+quota, counted work, restart/plain algorithms, returned values and caller tails
+are unchanged. Initialization stays timed; no unsafe or explicit SIMD is used.
+Full proof precedes the same four-row five-pair decoder edge diagnostics per
+consumer. Other families and the D117 matched/queued method are untouched.
+
+## D119 — select owned/caller API before each statically typed timer loop
+
+D118 initialized chunks reduce tiny Moss owned to 31.83ns; its maximum 1.551
+still misses the unchanged bar. Preserve complete streams/source/binaries and
+profiles in baseline-D118-focused. An external LD_PRELOAD allocation counter
+under a separate shared queued lease subtracts zero-iteration setup from
+10,000 owned calls: both Rust profiles and C++ perform exactly 10,000 mallocs
+of 108 bytes and 10,000 frees, with zero calloc/realloc delta. Command-line
+length differs by four bytes in one setup allocation. Instrumented times are
+excluded; no extra allocation is inferred and no timing artifact is promoted.
+
+Ordinary timer closures still selected caller versus owned inside every loop.
+Move that mode choice before the timer in both drivers for the six dual-mode
+families. Every closure now contains one statically selected API with the same
+arguments, sinks, workspace/allocation/destruction, per-call memory and timing.
+Existing per-iteration scalar argument setup stays inside both closures. This
+removes repeated mode dispatch and the mixed caller-buffer/owned allocation
+metadata boundary, letting the two compilers optimize those paths independently.
+Family dispatch, standalone timer functions, calibration, owned/caller storage,
+lease queue, statistical rules and production Rust are unchanged from D118.
+Rust consumer fmt and C++ syntax pass before full strict/native/libm/WASM proof;
+only decoder shapes 0/7 receive the next five-pair diagnostic probe.
+
+## D120 — visible shared admission replaces direct lease submission
+
+The owner supersedes D114 scheduling: every next timed burst enters
+MOSS_HEAVY_GPU=1 moss-heavy.sh 4 timeout 840, with its meshopt-timing:p05-*
+dashboard lane. Four GB is the declared peak, adjustable explicitly if needed.
+The shared wrapper reserves memory, queues visibly, and obtains/releases the
+GPU lease itself. No direct or nested gpu-lease.sh call remains in this lane.
+Timing receipts verify the admitted timeout, reserved memory, heavy ancestor,
+matching dashboard lane, own lease ancestor and the kernel flock in holder
+fdinfo/200 for the shared lock inode. This rejects advisory stale metadata.
+
+The foreground 840-second timeout plus five-second kill grace retains the
+shared descendant cleanup. Ten-minute complete-case/family checkpoints release
+and requeue, 75 retries admission, 76 resumes a completed checkpointed burst.
+Source/reference identities remain immutable between bursts. No scoreboard or
+lease-free gap polling returns. Statistical rules, corpus and bars are unchanged.
+D119's complete focused streams and profiles were archived before this change;
+Moss tiny owned still fails at 1.550 (28.06ns/17.60ns medians), default maximum
+passes 1.102, and both caller and million-owned probes pass. No partial mean
+qualifies the decoder and no residual is accepted.
+
+## D121 — retain decoded input slice metadata outside both decoder timers
+
+D119 selects the API before timing but Rust still unwraps the optional fixture
+Vec on every decoder iteration. Borrow its initialized slice once before the
+mode choice; C++ likewise caches its prepared strip data pointer before timing.
+Both still pass exactly the same strip length/data/restart value to every call.
+No API work, allocation, initialization, workspace/error checks or result sinks
+move outside the timer. Production Rust stays at D118. Full strict/native/libm/
+executed-WASM proof precedes only the four decoder edge rows per profile under
+D120 visible admission. This probes the remaining tiny Moss gap without pooling
+prior samples or altering the bar.
+
+## D122 — keep Vec ownership local to fallible output reservation
+
+D121's first visible admission completed all four Moss decoder-edge rows with
+five pairs each, a 26-second lease and measured 0.5 GB process peak against the
+honest 4 GB declaration. Its own heavy/lease ancestor and kernel-fd receipts
+pass. Tiny owned remains a clear diagnostic failure at 1.561; caller maximum
+1.111 and million owned 1.050 pass. The two-case owned mean 1.280 is incomplete,
+not a full family verdict. Archive source, binary, stream, admission log and
+assembly in baseline-D121-partial. Default was not measured at D121; its older
+D119 complete source-bound streams remain separate. Stop only the queued,
+unadmitted profile/chainer; no live timed burst is interrupted. Current failing
+profiles have not been recollected at D121, so do not claim that they have.
+
+D119's retained worst-case profile places 46.9% of Rust cycles in the decoder
+timer and 37.4% in free. Current D121 assembly still has three overlapping
+metadata accesses around a private Result<Vec> allocation boundary. Change that
+helper to reserve into a borrowed local Vec and return Result<()>; owned strip
+and decoder wrappers construct the same empty Vec locally. The same checked
+bound, exact fallible reservation, allocation error mapping, quota/error/work
+order, initialization, outputs and requested capacity remain. This removes an
+ownership transfer through the private result representation without moving
+any allocation or API work outside timing. No public API, unsafe or SIMD change.
+
+An external same-driver prototype passes fourteen existing phase contracts in
+both std and libm and strict Clippy. Its Moss assembly eliminates those three
+overlapping accesses (474 to 457 static assembly lines); this is code-generation
+evidence, not measured speedup. Full root/consumer/native/libm/executed-WASM
+proof precedes eight diagnostic rows per consumer: only strip/decoder shapes
+0/7, five pairs each. Both profiles and their failing profiles share a bounded
+D120 heavy admission, checkpointing independently and requeueing at complete
+case/family boundaries. The 1.25/1.50 bars and final D146 rule remain unchanged.
+
+D122 completes eight five-pair strip/decoder rows per consumer in one visible
+78-second admission, peak 0.5 GB, exit 0 for the combined diagnostic/profile
+worker. All eight API-subset groups pass time/memory; no failing-family profile
+is required for these subsets. Preserve both matching sources/binaries and
+empty completed profile summaries in baseline-D122-focused. Owned decoder
+maxima are 0.999 Moss / 1.033 default; caller 1.118 / 1.152. Strip owned maxima
+1.407 / 1.459, caller 1.149 / 1.144. Requested-memory ratios are all 1.0.
+These are edge-subset observations, never full family qualification or a
+matched-core causal speedup against old streams. The next five-pair diagnostics
+cover only pending cache/OMM measure/normal/tangent families (48 rows per profile),
+then other touched families. The final matrix still has not started.
+
+## D123 — specialize merge charging and bounded normal probes; inline cache slices
+
+D122 pending diagnostics complete all 48 rows per consumer with five pairs in
+one visible 217-second admission, peak 0.5 GB. Archive exact source, binaries,
+streams and fresh failing profiles in baseline-D122-pending. OMM measure passes
+(Moss/default means 1.176/1.154, maxima 1.381/1.302, memory 1.156). Tangent owned
+means still fail 1.263/1.269, and default caller fails 1.291. Cache maxima fail
+1.541/1.766; Moss normal owned maximum fails 1.535. No failing mean is waived.
+
+Fresh tangent profiles place 47–55% of cycles in merge; normal hashing costs
+20.5% and merging 15.0% in its Moss worst case. Specialize the existing merge
+bulk-charge choice with const-generic loops: same checked pair count, precharge,
+pair order and tight-budget fallback. Normal hashing proves at most buckets
+visits per vertex over 128-entry chunks, then charges actual probes locally;
+uncovered chunks retain per-probe error/work prefixes. Allocation, initialization,
+hash/equality/probe order and floating operations remain unchanged. No new storage.
+
+Inline cache entry/kernel and borrow the validated timestamp prefix ending at
+each triangle's maximum index. This proves its three accesses with one safe
+slice bound. Disabled warp sizing needs only a nonzero presence flag for warp
+counts; enabled sizing retains its exact counter. Validation, work errors and
+requested memory stay unchanged. Fresh strict, native/libm and executed WASM
+proof precedes only these three touched families: 40 five-pair rows per profile
+plus fresh failing profiles, through D120 shared admission. No speedup or final
+qualification is inferred before that run; the complete final matrix is pending.
+
+## D124 — reject cache slicing regression; specialize timestamp preparation
+
+Archive both D123 streams and fresh failing profiles in baseline-D123-focus.
+Its visible lease lasted 167 seconds, combined worker exit 0. Normals pass all
+four groups (Moss/default owned means 1.189/1.178, caller 1.145/1.180; every max
+<=1.318, memory 1.0). Tangent owned passes 1.243/1.206 and default caller 1.240;
+Moss caller mean still fails 1.275, maximum 1.340 on the million case. Retain the
+proven merge/hash changes, with no mean waiver or full qualification claim.
+
+Cache worsens to means 1.364/1.402, maxima 1.737/1.855. Its fresh Moss tiny
+instruction ratio is 2.066 versus D122 1.933; preparation/reservation functions
+remain prominent. Restore the exact D122 cache kernel/entry, rejecting all
+D123 cache slicing, inlining and disabled-warp counter changes. Factor the
+existing Workspace preparation body into an always-inlined private helper.
+The generic entry keeps its identical behavior; a timestamp-only private entry
+passes fixed zero lengths for the other buffers, exposing those zero-size
+reservations. Preflight capacity accounting, reservation/truncation order,
+actual-capacity accounting, quota clear-on-error and initialization remain exact.
+No allocation or workspace work moves outside the API timer.
+
+Fresh D123 million tangent profiling places 11.9% of cycles in remap hashing.
+Apply normal hashing's same checked 128-entry bound/actual-probe charging there.
+The tight-fuel fallback retains every per-probe failure prefix; hash, equality,
+probe order, float operations, allocations and outputs remain unchanged. No
+speculative sign/math reordering is included. Strict/native/libm/executed-WASM
+proof precedes only cache/tangent diagnostics (24 five-pair rows per consumer),
+with fresh failing-family profiles in one bounded visible shared admission.
+Final acceptance and all bars remain unchanged.
+
+## D125 — match complete statistic retention in analyzer timers
+
+D124 completes both 24-row streams and profiles in a 117-second visible
+admission, archived with exact source/binaries in baseline-D124-focus. All
+tangent groups pass: Moss owned/caller means 1.248/1.236, default 1.228/1.231,
+maxima <=1.351 and memory 1.0. Cache means pass 1.105/1.116; Moss maximum 1.450
+passes, default tiny remains 1.613. Its fresh whole-process instruction ratio
+is 1.992, dominated by analyzer, kernel and fallible allocation. No residual
+or full family qualification is inferred from five-pair diagnostics.
+
+Driver inspection identifies asymmetric statistic sinks for cache, fetch,
+overdraw and coverage: Rust makes the complete returned struct opaque by value,
+while C++ retains a single scalar using a volatile read/modify/write. Both now
+retain a pointer to the complete local struct with their existing opaque
+compiler barrier. Return production, result storage, all API work, allocation,
+workspace creation/destruction and parameters remain timed; no result field
+is omitted from the sink. Complete untimed result-byte comparison still runs
+before any timings. No production Rust, corpus, calibration or bar changes.
+
+Consumer formatting and C++ syntax pass. Full strict/native/libm/executed-WASM
+proof precedes only those four affected analyzers (32 five-pair rows per profile)
+and fresh failing-family profiles via D120 admission. Previously passed tangent,
+normal and OMM diagnostics stay separately source-bound; final qualification
+still requires fresh complete matrices under this matched method.
+
+## D126 — expose fallible cache entry to caller optimization
+
+D125 completes 32 rows per consumer plus fresh failing cache profiles in an
+89-second shared admission; archive exact sources/binaries in baseline-D125-focus.
+Fetch, overdraw and coverage pass both profiles. Cache means pass 1.147/1.149;
+Moss tiny maximum 1.492 passes diagnostically, default tiny still fails 1.591.
+Matched complete-statistic pointer retention remains; it does not prove a
+causal speedup or excuse the remaining edge. No residual is accepted.
+
+Replace the cache's anonymous result closure with a private always-inlined
+helper containing the identical body. Inline the public wrapper and timestamp
+preparation; expose the tiny workspace begin/finish methods with ordinary
+inline hints. This lets fresh-workspace callers propagate their known empty
+buffers/default limits through the fallible entry, especially without LTO.
+The eight cache kernels retain ordinary out-of-line boundaries: D123's
+regressing kernel inlining/slicing remains rejected. All parameter/index/size
+checks, reservation/accounting, work dispatch, result math and begin/finish
+order stay exact; explicit-limit and retained-workspace calls remain supported.
+No heap, API, unsafe, SIMD or timing-boundary changes.
+
+Strict/native/libm/executed-WASM proof precedes five-pair diagnostics for cache
+and the two still-pending D105 raster/remesh families (36 rows per consumer),
+plus fresh failing-family profiles through shared admission. Untouched passed
+families are not remeasured during this iteration. One complete final matrix
+per consumer remains pending after focused acceptance; bars/D146 are unchanged.
+
+## D127 — specialize raster states/floor and remesh work dispatch
+
+Archive D126 both 36-row streams and failing profiles in baseline-D126-focus.
+The 86-second shared admission completes exact matching evidence. Cache now
+passes both profiles (means 1.093/1.151, maxima 1.346/1.499, memory 1.0), with
+no accepted residual. Raster owned/caller means fail 1.366/1.439 Moss and
+1.423/1.507 default; default remesh means fail 1.296/1.259. Memory is 1.0.
+Fresh default instruction ratios are raster 1.338 and remesh 1.485. Raster
+cycles split 44.1% recursion, 33.7% setup, 10.6% floorf; remesh spends 98.1%
+in its two voxelization modes. Means must pass; neither gap is an edge waiver.
+
+Promote the previously prepared, independently checked raster-state and remesh
+charging candidates. Raster dispatches once on its already validated 2/4 state
+format and propagates it as a const generic through recursion/emission. Recursion,
+precharged visit count, tight-budget fallback, geometry/float order and bytes
+remain unchanged. Replace sample's finite floor with scalar bit rounding derived
+from libm's MIT-licensed generic floor (musl). Values >=2^23 are already integral;
+smaller finite magnitudes mask fractional bits, rounding negatives downward.
+Preserve signed zero and the existing feature-specific non-finite handler. This
+removes the observed host floorf call without unsafe, hand SIMD or fast math.
+An external source-extracted floor proof checks 33,426,938 exponent/mantissa/
+sign/boundary/non-finite patterns against std floor with zero mismatches; inputs
+are opaque to avoid folding. It is semantic evidence, not a timing measurement.
+
+Remesh proves a checked whole-input upper bound on triangle/sample visits and
+uses a const charging kernel, counting actual visits once when covered. The
+bound uses validated resolution and clamped sample limits. Overflow/tight fuel
+retains every original per-triangle/sample error and usage prefix. Allocation,
+voxels, accumulation order, output/tails and quotas remain unchanged. Full strict
+native/libm/executed-WASM proof precedes only these two families: 28 five-pair
+rows per consumer plus fresh failing profiles via shared admission. Final
+matrices remain pending; all bars and D146 rules are unchanged.
+
+
+## D128 — queued five-family prototype and strict artifact-side proof
+
+D127 completes 28 five-pair rows per profile in a 97-second visible admission;
+archive exact sources/binaries/streams/fresh profiles in baseline-D127-focus.
+Raster Moss owned mean 1.245 passes, but caller maximum 1.596 fails. Default
+raster means 1.302/1.361 fail. Remesh regresses to Moss means 1.467/1.358,
+default 1.483/1.304, and maxima up to 2.126. Reject its whole-input charging
+specialization; neither lower instruction counts nor parity excuses slower time.
+
+Prepare D128 in an artifact-side source copy while D127 waits, using a uniquely
+named consumer in the required shared Cargo target. Root timing sources remain
+frozen. Inline named raster owned/caller bodies and setup, revert remesh charging
+to the original per-triangle bound and specialize validated packed position reads,
+flatten the covered no-warp/no-group cache loop, inline the owned strip wrapper,
+and cache immutable tangent neighbor endpoints on a 256-byte stack array for
+covered groups of at most 32 corners. Pair/union order, outputs, error/work
+prefixes, quotas, heap requests and floating operations remain exact; tight
+budgets and larger tangent groups retain the existing loops. No unsafe/SIMD/API
+or timing-boundary change. Native/libm/executed-WASM each match 30,000 cases;
+format, strict Clippy, required tests and fourteen phase contracts all pass.
+
+The immediately following visible admission completes 50 five-pair rows per
+profile and fresh profiles; archive in D128-proof/baseline-D128-focused. Moss
+all nine subset/API groups pass (raster means 1.125/1.140, maxima 1.234/1.246;
+remesh owned mean 1.248 remains close to the bar). Tangents pass both profiles:
+Moss means 1.165/1.169, default 1.172/1.195, maxima <=1.339, memory 1.0.
+Default owned strip subset mean/max 1.309/1.626, cache subset mean 1.336,
+raster means 1.340/1.365, and owned remesh mean 1.264 still fail. Every heap
+ratio is 1.0. Subset means do not qualify full families; no residual is accepted.
+
+## D129 — expose small helpers and separate per-triangle remesh sample charging
+
+Promote the exact D128 prototype production changes after its admission ends
+and its matching evidence is archived. Its default fresh profiles put 59.8%
+of raster cycles in edge, 14.3% of strip cycles in key, and cache reservation/
+accounting calls prominently in the tiny path. Inline private raster edge,
+strip first/next/key, and workspace reserve/total helpers so the default consumer
+can fold known zero reservations and small values. Bodies, reservation order,
+capacity/quota accounting and validation remain unchanged. Shared helper
+semantics are checked in every required root feature mode.
+
+Factor remesh's original sample loop into const charging kernels selected AFTER
+the original per-triangle visits check/precharge. A stack record passes the
+already computed origin, edges, normal, sample count, reciprocal and weight.
+Covered triangles have no inner charging branch; tight triangles retain each
+original sample visit/error prefix. No global work bound, extra heap, new
+floating operation, geometry order or initialization change is introduced.
+
+Fresh full root/consumer strict/native/libm/executed-WASM proof gates the next
+visible bounded admission: only cache/strip edge controls and complete raster/
+remesh families, 34 five-pair rows per profile plus fresh failing profiles.
+The worker releases/requeues if proof is unfinished. No timing result or final
+qualification is inferred from preparation; all bars/D146 remain unchanged.
+
+
+D129 completes both streams and fresh profiles, archived in baseline-D129-focus.
+Moss cache/strip/raster pass their diagnostic groups; default cache subset also
+passes (mean/max 1.207/1.219). Default strip subset mean 1.303 and raster means
+1.337/1.397 still fail. Extracted remesh sample kernels regress to means
+1.538/1.449 Moss, 1.562/1.445 default; reject that extraction. Default raster's
+fresh profile now puts 64.2% in the array-map closure despite edge inlining.
+Default strip's million profile puts 85.6% in its owned Vec-emitting core.
+
+## D130 — reject sample-row charging dispatch
+
+An independently proved artifact-side alternative restores D128 remesh and
+selects covered/tight sample loops once per row inside each triangle. Native,
+libm and executed WASM each match 30,000 cases; all strict checks/contracts pass.
+Sixteen five-pair rows per profile plus fresh profiles complete in a visible
+72-second admission (D130-proof/baseline-D130-remesh). Both profiles regress:
+owned/caller means 1.514/1.392 Moss, 1.510/1.407 default; maxima up to 2.170.
+Reject it too. D128's unchanged per-triangle loop remains the retained starting
+point; branch removal and lower instruction counts cannot substitute for time.
+
+## D131 — direct raster edges and checked owned strip emission
+
+Prepare another frozen artifact-side prototype while admissions wait. Replace
+raster's nine-edge array map with nine explicit calls in identical edge order,
+eliminating the profiled array-drain closure without changing any sample or
+floating operation. Owned strip uses the existing SliceOutput over its exactly
+reserved, initialized allocation, then truncates to the same emitted count.
+C++ already initializes that owned bound; initialization remains inside the API
+timer in both drivers. Owned output/scratch/usage stay charged identically,
+allocation/error/work order and bytes remain exact. No extra allocation.
+
+All strict root/consumer checks/contracts and 30,000-case native/libm/executed-
+WASM proofs pass before the queued sixteen-row/profile raster/strip burst.
+Only strip shapes 0/7 and complete raster are measured, five pairs plus fresh
+failing profiles. Root and prototype timing sources remain frozen while queued.
+
+## D132 — scalar voxel coordinate clamp without signed float conversion
+
+D128 remesh's original per-triangle work loop remains intact in this artifact-
+side candidate. In its grid-marking pass only, extract the integer part from
+float bits before shifting/clamping to the validated cutoff <=253. Magnitudes
+below one and NaNs map to zero; negative integral/large/infinite coordinates
+select cutoff; other positive coordinates shift the significand and clamp.
+This is exactly the original saturating i32 cast, signed right shift and
+unsigned cutoff test. The accumulating pass keeps original casts/octant bits.
+All geometry/float operation order, work prefixes, heap storage and voxel order
+remain. No unsafe, SIMD or new API.
+
+A source-extracted scalar proof compares 134,615,444 exponent/sign/mantissa and
+all-cutoff integer/ULP-boundary cases against the original expression with zero
+mismatches. This is semantic evidence, never timing. Full strict/native/libm/
+executed-WASM proof gates a separately queued sixteen-row/profile remesh burst.
+No source promotion, speedup or qualification is inferred before measurement;
+the complete final matrix remains pending and no residual has been accepted.
+
+
+D131 completes in a 57-second visible admission with no failing groups;
+archive D131-proof/baseline-D131-raster-strip. Moss owned/caller strip subset
+means 1.081/1.105, default 1.176/0.997, maxima <=1.257. Raster complete-family
+means 1.097/1.159 Moss and 1.105/1.127 default, maxima <=1.302. Memory is 1.0.
+This clears the prior Moss caller maximum and default raster means; full final
+qualification is still required. D132 completes in 78 seconds with fresh
+profiles (D132-proof/baseline-D132-coordinates), but regresses remesh means to
+1.588/1.485 Moss, 1.682/1.524 default. Reject scalar bit coordinate conversion;
+retain its exactness proof as rejected-candidate evidence, not a speedup.
+
+## D133 — separate packed remesh kernels and specialize solve mode
+
+Another artifact-side remesh candidate restores D128's original per-triangle
+loop/casts. Dispatch once on the already validated solve flag, propagate it as
+a const generic, and inline quadric accumulation so unused solve fields can be
+removed. Give the packed/strided voxelization kernels an explicit out-of-line
+boundary; D128's private kernels were merged into the dispatch wrappers.
+Input validation, float/order/coordinates, options, voxel accumulation, heap,
+quota/accounting and tight-work prefixes remain unchanged. No unsafe, SIMD or
+API change. Full strict/contracts/native/libm/executed-WASM proof gates only
+sixteen five-pair remesh rows per profile plus fresh failing profiles through
+the visible queue. This is prepared code, not acceptance; no residual is waived.
+
+
+## D134 — expose remesh entry and owned-bound specialization
+
+Prepare/prove a separate artifact-side alternative while D133 waits at the
+shared wrapper's disk floor. Restore D128 remesh exactly and inline its private
+run/position dispatch and public owned/bound/caller wrappers. This exposes the
+None/Some destination and fresh-workspace limit values to caller optimization,
+especially in Cargo defaults. Bodies, work/errors, requested heap, float/voxel
+order and output initialization remain identical. Strict feature-mode checks,
+contracts and 30,000 native/libm/executed-WASM cases all pass. Expanded native/
+libm checks match all eight remesh shape controls, including the million case.
+
+Queue sixteen five-pair rows per profile immediately behind D133; the external
+worker releases/requeues while its predecessor is unfinished and skips timing
+if D133 already clears every diagnostic group. No redundant measurement is
+performed in that case. Root sources remain frozen; no lease/disk gate bypass.
+Remove only this lane's completed debug incremental compiler cache to reduce
+disk pressure, retaining every source/binary/parity/profiling receipt. Future
+prototype debug proof disables incremental caching in the same required target.
+
+## D135 — memoize each remesh sample row's rounded base point
+
+Prepare a further artifact-side fallback from D128 while the two admissions
+wait. Compute u*reciprocal and each rounded origin+u*edge once per sample row,
+then add the original v*edge inside the inner loop. Each output coordinate has
+the same multiplication/addition grouping and rounding; no reassociation,
+recurrence or fused operation is introduced. Original per-triangle charging
+and every tight sample-work/error prefix remain. No new heap, API or SIMD.
+Full strict/native/libm/executed-WASM proof precedes a staged sixteen-row/profile
+remesh burst, run only if both earlier candidates still miss the bar. The final
+matrix launcher is prepared but has not started; acceptance/residual rules stand.
+
+
+D135 passes full strict/contracts/native/libm/executed-WASM proof and expanded
+eight-shape remesh checks in both modes. Its actual default-profile grid and
+accumulation kernels have respectively 1385/1547 instructions, exactly matching
+D128's opcodes/registers/branches and referenced float constants after binding
+ELF constants; only relocation/error metadata differs. The compiler already
+performs the proposed row-base reuse. Reject this default-mean follow-on before
+measurement and cancel only its identified queued heavy-wrapper PID. No timed
+burst was interrupted; preserve static/source/binary evidence in D135-*.
+D133/D134 remain queued with independent tested changes; bars remain fixed.
+
+
+D133 finishes both sixteen-row/profile streams and fresh profiles in 131
+seconds (D133-proof/baseline-D133-solve). Owned means 1.277/1.303 fail, default
+caller 1.254 fails; retain its narrower kernel instruction profile as evidence,
+not acceptance. D134 finishes in 221 seconds (D134-proof/baseline-D134-entry),
+but blanket run/entry inlining regresses default means to 1.446/1.434. Moss
+owned mean 1.285 and both maxima around 1.53 fail. Reject that inlining too.
+
+## D136 — reuse successful owned-bound validation with exact work charges
+
+The owned remesher already validates these same immutable index/position views,
+resolution and flags inside its successful bound call. A private const flag
+lets only its second run reuse that proof, charging the identical index and
+position visits. Bound/caller entry points still perform every original check.
+A successful bound proves these fresh validation charges fit the unchanged
+work limit; later work, allocation/quota errors and prefixes remain exact.
+No geometry or float calculation, allocation order, heap, API or SIMD change.
+This artifact-side candidate also retains D134's entry hints for comparison.
+Full strict/contracts/native/libm/executed-WASM proof passes before the queued
+sixteen-row/profile burst. No speedup or final acceptance is inferred.
+
+## D137 — equivalent scalar saturating coordinate conversion
+
+Prepare a further artifact-side remesh fallback from D128 while D136 waits.
+Convert the bit-cleared nonnegative magnitude to u32 with Rust's saturating
+truncation, then clamp to the signed endpoint and restore the sign with
+wrapping integer negation. This exactly retains i32 saturation, signed zero,
+NaN-to-zero, infinities and all finite coordinate/octant bits. Geometry float
+operations, original per-triangle work loop, errors and heap remain unchanged.
+A source-extracted proof matches 33,558,016 exponent/sign/mantissa/boundary cases
+against the original signed cast with zero mismatches. Full strict/native/libm/
+executed-WASM proof gates a staged sixteen-row/profile remesh fallback. No unsafe,
+SIMD, approximation or public API; no timing claim before admission.
+
+## D138 — validation reuse with original remesh entry boundaries
+
+D134's unconditional entry expansion is rejected. Prepare another artifact-
+side candidate from D136 that keeps its proved owned-validation reuse but
+restores D128's public/private entry and voxelization dispatch boundaries.
+This isolates validation memoization from regressing code expansion. Float,
+heap, work/error prefix and input/output semantics remain unchanged. Full
+strict/native/libm/executed-WASM proof precedes staged remesh-only diagnostics,
+conditionally skipped if an earlier candidate clears both profiles. Final
+full matrices still have not started; no mean or maximum residual is waived.
+
+
+D136 completes both sixteen-row/profile streams and fresh profiles in 242
+seconds (D136-proof/baseline-D136-validated). Moss means 1.277/1.282 and default
+1.395/1.437 fail. D137 completes in 190 seconds (D137-proof/baseline-D137-cast),
+but equivalent unsigned conversion also regresses: Moss means 1.479/1.432,
+default 1.712/1.617. Reject both measured candidates; semantic equivalence and
+changed instruction selection cannot establish speed. D138 validation-only
+with original entry boundaries remains queued, strict proof complete.
+
+## D139 — bound only the grid-marking cell conversion
+
+Prepare another artifact-side remesh fallback from D128 while D138 waits.
+Grid marking needs the clamped cell, not the full signed coordinate/octant bits.
+Clamp its conversion input to finite [0,506] with max/min, mapping NaNs to zero;
+return cutoff for original values <=-1 and otherwise shift/clamp the converted
+cell. The validated cutoff is at most253, so large positive values still select
+the identical cutoff. Sub-unit negatives, signed zeros, NaNs and infinities
+retain the original cast/shift/unsigned-clamp result. Accumulation keeps its
+original coordinate casts and octant bits. Original sample geometry/float
+expression grouping, per-triangle work, errors, allocation and heap stay exact.
+
+A source-extracted proof matches134,615,444 exponent/sign/mantissa/all-cutoff/
+integer-ULP boundary cases against the old expression in BOTH native and executed
+WASM with zero mismatches. These are semantic proofs, never speed measurements.
+Full strict/contracts/native/libm/executed-WASM proof gates a staged remesh-only
+sixteen-row/profile burst, skipped if D138 already clears both profiles. Actual
+Moss/default configurations are prebuilt without timing. No unsafe, explicit
+SIMD, public API, corpus or bar change. Final matrices have not started.
+
+
+D138 completes in a178-second visible admission with fresh default profiles
+(D138-proof/baseline-D138-validation-only). Moss owned/caller means1.243/1.196
+pass, maxima1.422/1.425 and memory1.0. Default means1.293/1.307 still fail,
+maxima<=1.492. Validation reuse alone does not clear the default bar; neither
+mean is an edge residual. D139's max/min intentionally yields finite zero for
+NaNs, unlike clamp; document the local manual-clamp Clippy exception. Cancel
+only the unproved queued D139 wrapper before that annotation, rerun all strict/
+identity proof, then requeue its immutable proved source. No timing was collected
+on the failed lint revision. Root timing sources remain unchanged.
+
+## D140 — derive the finite grid conversion bound once per voxelization
+
+Prepare an artifact-side D139 fallback using the validated actual cutoff.
+Compute its exactly representable twice-cutoff upper bound once, cap its integer
+source at253, and clip each grid-only conversion to[0,upper]. The shifted cell
+is already <=cutoff, eliminating three repeated integer clamps per sample.
+Original negative-cell handling, signed zeros, NaNs/infinities, floating sample
+geometry/grouping, work/error prefixes, allocations and output stay exact.
+Accumulation keeps its old signed coordinate/octant conversion. Independent
+native and executed-WASM proofs each match134,615,444 original-expression cases
+with zero mismatches, including every cutoff and integer/ULP boundaries. Full
+strict/native/libm/executed-WASM proof gates a remesh-only16-row/profile staged
+burst; skip it if D139 clears both profiles. No unsafe, explicit SIMD, public
+API, bar or corpus change. Full final matrices remain unrun.
+
+
+D139 completes both profiles in 192 seconds (D139-proof/baseline-D139-grid).
+Moss means1.406/1.256 and default1.388/1.357 fail. D140 finishes in88 seconds:
+Moss1.419/1.328, default1.468/1.396, with failing maxima too. Reject both grid
+conversion candidates. Exact native/WASM scalar proofs establish semantics,
+not speed; no failing mean can become a residual. Heap ratios remain1.0.
+
+## D141 — scalar direct half-cell conversion for grid marking
+
+Prepare an artifact-side D128 fallback while D140 waits. Grid-only coordinates
+use `(value * 0.5) as u8`, with the original <=-1 cutoff selection and final
+cutoff clamp. Saturation at255 remains above the maximum validated cutoff253;
+subnormals round only below the first integer boundary. Accumulating signed
+coordinate/octant conversion and all sample geometry stay unchanged. Independent
+native and executed-WASM proofs each compare134,615,444 cases with the original
+expression, zero mismatches. Full strict/contracts/native/libm/executed-WASM
+proof passes. Stage only16 remesh rows per profile, five pairs, visibly admitted;
+skip timing if D140 passes. No heap, work, errors, public API, bar or SIMD change.
+
+## D142 — fixed-pitch private stack grid for small-resolution marking
+
+Prepare another artifact-side D128 fallback while D141 measures. Validated
+resolutions4..8 have cell coordinates0..5. Mark a512-byte stack grid with pitch8;
+coordinate masks preserve each value and prove its fixed-array index<=511.
+After successful marking, copy its occupied cube rows into the original heap
+grid's interior. Heap allocation/initialization/quota/order and outer border
+remain identical. Partial private grid contents on marking failure are dropped
+before any public output write; work visits/errors are unchanged. Sample float
+operations, original casts and sample order stay intact. Accumulation and all
+resolutions>8 use the original dynamic representation. No unsafe, explicit SIMD,
+new API or case/seed specialization. Existing pinned resolution16 tests exercise
+the fallback. Strict/native/libm/executed-WASM proof gates a conditional16-row/
+profile remesh burst. Full final matrices are still unrun; no residual accepted.
+
+
+D141 finishes in 173 seconds (D141-proof/baseline-D141-cell-byte). Moss means
+1.270/1.198, default1.274/1.272; only Moss caller passes. Reject this conversion
+candidate: all maxima/memory passing does not clear its failing means.
+
+D142 strict/native/libm/executed-WASM proof and expanded eight-shape std/libm
+checks pass. Its admission finishes in 34 seconds with exit1 after 16 complete
+Moss rows: means 1.195/1.168, maxima 1.264/1.261, heap 1.0. The external diagnostic
+worker expects the old C++ library basename after prototype package renaming.
+Actual renamed binary SHA matches the stream; its source/binaries/raw pairs are
+archived in D142-proof/baseline-D142-partial. No default timing/perf evidence,
+no promotion or performance qualification. Owner stop forbids another burst.
+
+## D143 — fixed-pitch accumulation prototype; abandoned without timing
+
+While D142 was in flight, extend its small-resolution private representation to
+accumulation: copy counted grid rows and row offsets into 512-byte/64-entry stack
+arrays, retaining heap requests/quotas and original signed cast/octant/float math.
+Resolution>8 keeps the original fallback. Root stays immutable during timing.
+Full root/consumer strict checks, contracts and30,000-case native/libm/executed-WASM
+proof pass. No timing was submitted. At the owner's wrap-up request, abandon this
+artifact-side candidate rather than queue another burst. It remains a hypothesis,
+not a measured rejection or a retained production optimization.
+
+## D144 — owner stop, validated tree, logical commits and diagnosis handoff
+
+The owner explicitly replaces the continue-to-qualification task with immediate
+wrap-up: no new timing; validated code only; logical commits using repo author
+configuration and no AI trailers; complete status/rejection record; delete this
+lane's exact Cargo target. This authorizes commits despite the original edit-only
+spec, and does not authorize rebase. All own timing controllers have ended.
+
+Promote only D131 raster/strip and restore D128 remesh over rejected D129 sample
+extraction. Other validated D129 files remain. Remesh default owned mean 1.2641
+fails; every family still lacks a current complete final matrix. No residual or
+unreachable claim. Fresh combined-tree fmt/strict Clippy,79/74/79 root feature-mode
+tests, two consumer resident tests per mode, fourteen phase contracts and native/
+libm/executed-WASM 30,000-case identity sweeps pass. Expanded selected-family parity
+covers 38 shapes per std/libm mode. `D144-functional-preflight.json` has zero functional
+errors and 51 historical benchmark/profile errors; full verify remains exit1.
+Do not relabel old final summaries as qualified. Preserve exact sources/proof bins
+and pending diagnosis scripts externally before deleting only
+`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p05perf`.
+
+### Current per-family observations (not current final acceptance)
+
+| Family | Before GM M / D | Latest applicable evidence GM (max), Moss | Default | Max heap ratio | Scope / status |
+|---|---:|---:|---:|---:|---|
+| `stripify` | 1.346 / 1.266 | 1.106 (1.176) | 1.176 (1.257) | 1.000 | D131 edge subset passes; full pending |
+| `stripify_bound` | 2.803 / 3.009 | 0.424 (0.476) | 0.423 (0.478) | 1.000 | D73 historical pass; fresh final pending |
+| `unstripify` | 1.149 / 1.154 | 1.010 (1.118) | 0.995 (1.152) | 1.000 | D122 edge subset passes; full pending |
+| `unstripify_bound` | 2.416 / 3.287 | 0.638 (0.671) | 0.503 (0.521) | 1.000 | D73 historical pass; fresh final pending |
+| `vertex_cache` | 1.817 / 1.857 | 1.057 (1.222) | 1.207 (1.219) | 1.000 | D129 edge subset passes; full pending |
+| `vertex_fetch` | 1.432 / 1.309 | 0.932 (1.062) | 0.925 (1.064) | 1.000 | D125 full-family diagnostic passes |
+| `overdraw` | 1.166 / 1.770 | 0.935 (1.096) | 1.005 (1.393) | 1.000 | D125 full-family diagnostic passes |
+| `coverage` | 1.260 / 1.725 | 0.940 (1.140) | 0.964 (1.205) | 1.000 | D125 full-family diagnostic passes |
+| `omm_measure` | 2.545 / 2.152 | 1.176 (1.381) | 1.154 (1.302) | 1.156 | D122 full-family diagnostic passes |
+| `omm_rasterize` | 1.434 / 1.973 | 1.159 (1.286) | 1.127 (1.301) | 1.000 | D131 full-family diagnostic passes |
+| `omm_entry_size` | 1.877 / 2.674 | 0.526 (0.540) | 0.488 (0.494) | 1.000 | D73 historical pass; fresh final pending |
+| `omm_compact` | 1.390 / 1.148 | 1.246 (1.319) | 1.115 (1.181) | 1.000 | D73 historical pass; fresh final pending |
+| `tangents` | 2.938 / 2.869 | 1.169 (1.330) | 1.195 (1.339) | 1.000 | D128 full-family diagnostic passes |
+| `normals` | 3.530 / 3.214 | 1.189 (1.275) | 1.180 (1.318) | 1.000 | D123 full-family diagnostic passes |
+| `remesh` | 1.613 / 1.732 | 1.248 (1.377) | 1.264 (1.348) | 1.000 | D128; default owned mean FAIL |
+
+## Candidate ledger and dead hypotheses at owner stop
+
+Every source candidate is recorded in D71–D143 above. This index distinguishes
+retained corrections from failed explanations, performance rejections, a compiler
+no-op, and unfinished hypotheses. All artifacts are under
+`/mnt/linux-extra/meshopt-artifacts/p05`; completed D128–D141 prototypes have
+source/binary-bound `Dnnn-proof/baseline-*` archives. Earlier streams use
+`baseline-Dnnn-*`, except frozen D106. D142 uses `D142-proof/baseline-D142-partial`.
+No samples across sources/methods are pooled. Lower instruction counts or
+semantic equivalence never establish a wall-time pass.
+
+| Candidate / hypothesis | Outcome and disposition |
+|---|---|
+| D71–D73: batched helper timing, matched strict scalar reference, analyzer/generator loop reductions and adjacent normal pairs | Retained foundations. D73 full matrix still fails12/21 Moss and14/21 default groups. Historical data uses the earlier method. |
+| D74–D85: sequential strip reads, cache bounds, scalar raster rows/setup, direct corner/voxel/hash reads, covered caller raster, eight-triangle removal, scalar log2 and inline OMM hash | Retained validated changes; caller witness D83. Individually untimed while gated, subsequently exercised by diagnostics. No individual speedup inferred. |
+| D87/D89–D92: covered caller normal/tangent storage, fuel-specialized decoder/raster, once-only scratch initialization, retired remap removal | Retained semantics and requested-heap reductions. D88 adds executed libm proof. Superseded narrow emission choices are listed below. |
+| D97/D98/D101/D102/D105: packed reads, disabled cache simulation, bounded OMM ranges, normal clear/charging, tangent accumulation and fetch bounds | Retained validated changes. Interim queues admitted no samples or partial samples; D102/D103 partial streams are preserved separately. |
+| D99/D112: append owned strip/unstrip output, including the <=64 small decoder branch | Rejected as the final ownership layout. D118 replaces decoder append with initialized chunks; D131 replaces strip append with SliceOutput. Exact capacity/work/heap retained. |
+| D103: branchless decoder degeneracy and checked triangle chunks | Retained, but D105 owned tiny/million maxima1.543/1.851 Moss and1.560/1.791 default still fail. Not sufficient alone. |
+| D104: caller page commitment and owned output chunks | Retained matching correction; not a sufficient explanation for the remaining owned-only gap. |
+| D106: resident immutable inputs and explicit decoder validation | Retained matching correction; focused default owned maximum1.756 still fails. Frozen D106 source/binaries preserved. |
+| D107: matched conditional caller buffers | Retained correction. Discarded its first draft's unrelated untimed OMM parity branch edit. Does not alone clear tiny owned decoding. |
+| D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive Moss tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
+| D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny Moss maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
+| D111: static API selection outside both loops | Retained method fix. Tiny owned Moss2.883 still fails. Wider dispatcher asymmetry is insufficient. |
+| D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 Moss still fails; D114 matched method subsequently clears fetch. |
+| D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned Moss2.145 still fails. |
+| D117: matched standalone timer functions | Retained method correction; tiny owned Moss2.056 still fails. |
+| D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny Moss maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
+| D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny Moss maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
+| D122: keep Vec ownership local to fallible reservation | Retained. Decoder edge subsets finally pass both profiles; full family remains unqualified. |
+| D123: cache kernel inlining, slicing and timestamp changes | Rejected: cache means1.364/1.402, maxima1.737/1.855. Restore kernel in D124. D123 normal merging/probe changes retained; tangent charging refined in D124. |
+| D124: original cache kernel, fixed timestamp preparation, actual tangent probes | Retained; tangents pass, cache default tiny maximum1.613 still fails. |
+| D125: make the complete statistics struct pointer opaque in both drivers | Retained matched sink correction. Fetch/overdraw/coverage pass; cache default max1.591 still fails. |
+| D126: inline cache entry and fixed timestamp seam, keep kernel out of line | Retained. Full cache diagnostic passes but default max1.499 is borderline; D129 edge subset passes. No final maximum accepted. |
+| D127: state-specialized raster and exact scalar floor | Retained; scalar proof33,426,938 cases. Raster default means1.302/1.361 still fail before D131. |
+| D128: inline raster setup/entry, packed remesh reader, flat no-warp cache, strip wrapper and bounded tangent endpoint cache | Retain cache/tangent/remesh; strip/raster superseded by D131. Mixed candidate is not accepted: default raster/strip/cache subsets fail and remesh owned mean 1.264 fails. |
+| D129: inline small strip/workspace helpers | Retained where still present; strip/raster replaced by D131. Per-triangle remesh extraction separately rejected below. |
+| D131: nine direct raster edges in original order and initialized checked owned strip output | Retained in final tree. Raster full diagnostic and strip edge subset pass both profiles, heap 1.0; no complete final matrix. |
+
+| Remesh candidate | Moss owned/caller GM | Default owned/caller GM | Decision |
+|---|---:|---:|---|
+| D127: whole-input charging | 1.467 / 1.358 | 1.482 / 1.304 | Rejected; at least one mean fails. |
+| D129: extracted sample helpers | 1.538 / 1.449 | 1.562 / 1.445 | Rejected; at least one mean fails. |
+| D130: covered/tight sample-row split | 1.514 / 1.392 | 1.510 / 1.407 | Rejected; at least one mean fails. |
+| D132: bit-decoded coordinate clamp | 1.588 / 1.485 | 1.682 / 1.524 | Rejected; at least one mean fails. |
+| D133: packed kernel boundaries / constant solve | 1.277 / 1.184 | 1.303 / 1.254 | Rejected; at least one mean fails. |
+| D134: blanket entry/run inlining | 1.285 / 1.242 | 1.446 / 1.434 | Rejected; at least one mean fails. |
+| D136: owned validation reuse + entry expansion | 1.277 / 1.282 | 1.395 / 1.437 | Rejected; at least one mean fails. |
+| D137: equivalent unsigned saturating cast | 1.479 / 1.432 | 1.712 / 1.617 | Rejected; at least one mean fails. |
+| D138: validation reuse only, original boundaries | 1.243 / 1.196 | 1.293 / 1.307 | Rejected; at least one mean fails. |
+| D139: finite[0,506] grid conversion clamp | 1.406 / 1.256 | 1.388 / 1.357 | Rejected; at least one mean fails. |
+| D140: twice-cutoff finite grid upper bound | 1.419 / 1.328 | 1.468 / 1.396 | Rejected; at least one mean fails. |
+| D141: direct saturating half-cell byte conversion | 1.270 / 1.198 | 1.274 / 1.272 | Rejected; at least one mean fails. |
+| D135: rounded base point per sample row | — | — | Rejected before timing: generated default marking/accumulation instructions, registers, branches and float constants identical to D128. Compiler already hoists it. |
+| D142: fixed-pitch512-byte stack marking grid, resolutions4..8 | 1.195 / 1.168 | unmeasured | Abandoned at owner stop; Moss maxima 1.264/1.261, heap 1.0. Wrapper exits1 after Moss due renamed C++ library basename; no default or perf run. Not a demonstrated performance rejection. |
+| D143: extend fixed-pitch stack grid/row map to accumulation | unmeasured | unmeasured | Abandoned without any timing submission; full strict/native/libm/executed-WASM proof passes. No performance inference. |
+
+The operative rejection is failure against the unchanged bar; none of these
+means is classified as a residual or as unreachable in safe Rust. D142/D143
+remain usable hypotheses for the next diagnosis lane. D139/D140/D141 independent
+native and executed-WASM conversion proofs each match134,615,444 cases; D132
+native proof matches134,615,444 and D137 native cast proof33,558,016. These proofs
+say nothing about speed. Source-extracted float/coordinate proof artifacts and
+expanded std/libm corpus receipts remain in the respective proof directories.
+
+Rejected scheduling assumptions are also closed: waiting for a quiet/load-free
+host, periodic free-lease gaps, scoreboard polling, and direct lease submission
+are obsolete. D114 introduced fair lease scheduling; D120 supersedes it with
+visible shared heavy admission. None authorizes a new burst after this owner stop.

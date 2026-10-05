@@ -1,6 +1,11 @@
 {
-  "schema": "meshopt-p05-wasm/1",
+  "schema": "meshopt-p05-sweep/1",
   "phase": "0.5",
+  "upstream": "4c203430ca565cb59a468a91922c76c208169536",
+  "seed_range": [
+    0,
+    1999
+  ],
   "counts": {
     "stripify": 2000,
     "stripify_bound": 2000,
@@ -20,9 +25,10 @@
   },
   "mismatches": [],
   "passed": true,
-  "detail_artifact": "wasm-0.5.jsonl.gz",
-  "detail_sha256": "fa5ef96e895770f93ae5e62e90ee027ff842bebc4954ead947969998bebba325",
-  "wasm_sha256": "9ffa9aedebb7f904f51962c3285e40b848c422921738b658c69b307d0a9ba533",
+  "detail_artifact": "no-default-0.5.jsonl.gz",
+  "detail_sha256": "2ce2b285bbdca3fcf53b12c2a37fe896406b50adbe044a1bfa4d6a1dd43d8f5f",
+  "rust_sha256": "8c72bcc049f2e7c6452be5092575ee156261380b0c3e24fdb867a549e4f2ee9d",
+  "cpp_sha256": "49134d48b26f058724e26ff1eaa5886a03ee1fcf319ce2625de32575c67718ac",
   "source_sha256": {
     "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
     "Cargo.toml": "bbb8a11fa1da7a55ab9f5339670158a1d9ad172baaf4d32ffd2d799eb6aed566",

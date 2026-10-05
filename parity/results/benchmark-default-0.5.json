@@ -9,144 +9,226 @@
   },
   "families": {
     "stripify:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.108463902304477,
-      "maximum": 1.3632590452547988,
-      "passed": true
+      "cases": 8,
+      "geometric_mean": 1.0936911783604293,
+      "maximum": 2.02171221183886,
+      "maximum_memory_ratio": 1.0,
+      "passed": false
     },
     "stripify:caller": {
-      "cases": 3,
-      "geometric_mean": 1.2661730084722391,
-      "maximum": 1.3584182780577496,
-      "passed": false
+      "cases": 8,
+      "geometric_mean": 1.0139191270052519,
+      "maximum": 1.2193353591716733,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
     },
     "stripify_bound:allocating": {
-      "cases": 3,
-      "geometric_mean": 3.0090373689931216,
-      "maximum": 3.498360359512051,
-      "passed": false
+      "cases": 8,
+      "geometric_mean": 0.42299983582540907,
+      "maximum": 0.4779645928463732,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
     },
     "unstripify:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.1538266613412915,
-      "maximum": 1.4025452052585101,
-      "passed": true
-    },
-    "unstripify:caller": {
-      "cases": 3,
-      "geometric_mean": 1.1051988214975088,
-      "maximum": 1.3629000291038995,
-      "passed": true
-    },
-    "unstripify_bound:allocating": {
-      "cases": 3,
-      "geometric_mean": 3.2874098699414005,
-      "maximum": 4.0218698103544614,
+      "cases": 8,
+      "geometric_mean": 1.3540449374817927,
+      "maximum": 3.5056346953984847,
+      "maximum_memory_ratio": 1.0,
       "passed": false
     },
+    "unstripify:caller": {
+      "cases": 8,
+      "geometric_mean": 1.383588515187781,
+      "maximum": 5.40341582624545,
+      "maximum_memory_ratio": 1.0,
+      "passed": false
+    },
+    "unstripify_bound:allocating": {
+      "cases": 8,
+      "geometric_mean": 0.5032239847117819,
+      "maximum": 0.520644628327877,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
+    },
     "vertex_cache:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.857158521787664,
-      "maximum": 1.9163649259927693,
+      "cases": 8,
+      "geometric_mean": 1.5030289042970262,
+      "maximum": 1.9766226294915274,
+      "maximum_memory_ratio": 1.0,
       "passed": false
     },
     "vertex_fetch:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.308551594566734,
-      "maximum": 1.3723712186414443,
+      "cases": 8,
+      "geometric_mean": 1.33226595374554,
+      "maximum": 1.5175918872767329,
+      "maximum_memory_ratio": 1.0,
       "passed": false
     },
     "overdraw:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.7695240529044518,
-      "maximum": 1.8554246348034331,
+      "cases": 8,
+      "geometric_mean": 1.1011819711878623,
+      "maximum": 1.8190066899053454,
+      "maximum_memory_ratio": 1.0,
       "passed": false
     },
     "coverage:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.7245624274629308,
-      "maximum": 1.8738573418442996,
-      "passed": false
+      "cases": 8,
+      "geometric_mean": 1.011454255091385,
+      "maximum": 1.3436658927738625,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
     },
     "omm_measure:allocating": {
-      "cases": 3,
-      "geometric_mean": 2.1516280626747393,
-      "maximum": 2.301422689133469,
+      "cases": 8,
+      "geometric_mean": 1.44977468442218,
+      "maximum": 1.6067969216874645,
+      "maximum_memory_ratio": 1.1555555555555554,
       "passed": false
     },
     "omm_rasterize:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.7062393482795175,
-      "maximum": 1.7723455556680663,
+      "cases": 6,
+      "geometric_mean": 1.5307941457300223,
+      "maximum": 1.6802827859101117,
+      "maximum_memory_ratio": 1.0,
       "passed": false
     },
     "omm_rasterize:caller": {
-      "cases": 3,
-      "geometric_mean": 1.9731757700467532,
-      "maximum": 2.1550615702584857,
+      "cases": 6,
+      "geometric_mean": 1.7656459871878545,
+      "maximum": 2.269244051506587,
+      "maximum_memory_ratio": null,
       "passed": false
     },
     "omm_entry_size:allocating": {
-      "cases": 3,
-      "geometric_mean": 2.673600515934129,
-      "maximum": 2.717155340498005,
-      "passed": false
+      "cases": 6,
+      "geometric_mean": 0.4875862172482049,
+      "maximum": 0.49447708087605646,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
     },
     "omm_compact:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.1483302886950038,
-      "maximum": 1.1887391531480573,
+      "cases": 6,
+      "geometric_mean": 1.1150761788845023,
+      "maximum": 1.1811647617301864,
+      "maximum_memory_ratio": 1.0,
       "passed": true
     },
     "tangents:allocating": {
-      "cases": 3,
-      "geometric_mean": 2.749979424436266,
-      "maximum": 2.990613663295158,
+      "cases": 8,
+      "geometric_mean": 1.658752148133421,
+      "maximum": 2.097304010496897,
+      "maximum_memory_ratio": 1.1636363636363636,
       "passed": false
     },
     "tangents:caller": {
-      "cases": 3,
-      "geometric_mean": 2.869164446129754,
-      "maximum": 3.0168898828853177,
+      "cases": 8,
+      "geometric_mean": 1.7089060528864102,
+      "maximum": 1.876155177604614,
+      "maximum_memory_ratio": 2.122279792746114,
       "passed": false
     },
     "normals:allocating": {
-      "cases": 3,
-      "geometric_mean": 3.2135543940258655,
-      "maximum": 3.2771044459523715,
+      "cases": 8,
+      "geometric_mean": 1.2890903815222474,
+      "maximum": 1.4786479101255852,
+      "maximum_memory_ratio": 1.1612903225806452,
       "passed": false
     },
     "normals:caller": {
-      "cases": 3,
-      "geometric_mean": 3.196589563100049,
-      "maximum": 3.3639499897620313,
+      "cases": 8,
+      "geometric_mean": 1.3111897515748767,
+      "maximum": 1.451828448630535,
+      "maximum_memory_ratio": 1.9089214380825565,
       "passed": false
     },
     "remesh:allocating": {
-      "cases": 3,
-      "geometric_mean": 1.7315527896702778,
-      "maximum": 1.8326727229951865,
+      "cases": 8,
+      "geometric_mean": 1.2939955450862564,
+      "maximum": 1.3795445247009128,
+      "maximum_memory_ratio": 1.0,
       "passed": false
     },
     "remesh:caller": {
-      "cases": 3,
-      "geometric_mean": 1.5283148770161012,
-      "maximum": 1.6286231074451296,
-      "passed": false
+      "cases": 8,
+      "geometric_mean": 1.2128147885539093,
+      "maximum": 1.3230688836503244,
+      "maximum_memory_ratio": 1.0,
+      "passed": true
     }
   },
   "time_passed": false,
-  "memory_passed": null,
-  "corpus_complete": false,
+  "memory_passed": false,
+  "corpus_complete": true,
   "passed": false,
-  "rust_sha256": "903f5d07d9ccd207146f7bf0dd790ca482f02db3e0932eb1846a27a0b71300b5",
-  "cpp_sha256": "91e876fadda83ee8e2d29bb74b390d670c9ff414f7eb22dc5fbafc0a2afedfe8",
+  "rust_sha256": "eaf511d85cce0907eea6c13f6e2e799edfb855ec6be1e38f7629d5fe07ba39e3",
+  "cpp_sha256": "72e445bc1dc8cc8e66d1be066bc94ed6f19b7d66b9237d89bf0072057c7442f9",
   "effective_profile_overrides": {
     "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
     "CARGO_PROFILE_RELEASE_DEBUG": "0",
     "CARGO_PROFILE_RELEASE_LTO": "false",
     "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "16"
   },
+  "source_sha256": {
+    "parity/p05/bench.cpp": "c72bd977fadd5a619e0eb44a24c2d1ebee1278cd4f74657b049314493a092961",
+    "parity/p05/benchmark.py": "208097174e02cf31ebb88b03dc4004006c92b23c938860aca3eef616e9331d67",
+    "parity/p05/fuzz.py": "d950c634ea9ae27745132d6a56b29dfe3289d35eaf6f20cbb147c36241145adb",
+    "parity/p05/profile.py": "5d2e5b0df92bbc44355a886ecd0117a0b3368f903c53e920a3eb47c26e281193",
+    "parity/p05/report.py": "d5b675677393b3cb43b831fcac4e4870815bad60c10b1f84c5a62e0329f5f906",
+    "parity/p05/run.py": "c621503cee0cc90431ca45ebb3e450ded71d8c4c8558472701faefa32ce64909",
+    "parity/p05/src/lib.rs": "15934e41b9c32cd3aa7570659d31e4295d82cb4ef165a1138935501834c31d34",
+    "parity/p05/src/main.rs": "8c5a8fa5e4d91c4f288070dc7cb6aeaebb2bce6abafb161fae18338d8874c1a2",
+    "parity/p05/sweep.py": "1bc98f0d8797659def17f89f2808e49bd534789c9331e5aaa3082f1c210145ad",
+    "parity/quiet.py": "45ff8df302acd61dcc360d925c73774958a273056c11e9849e0bf799f2f19505",
+    "src/analyze.rs": "8f1e0e26203a9513e0477073853566580de6a6d5e35e000dc29c88e347e5cbad",
+    "src/cache.rs": "81451bb46ef7d18564ea1e36d837cd9822b68af157ebad0e21a07400b149c3c9",
+    "src/codec/encode.rs": "a301f0209e35742b906d28bbea7f3bb735921fd279afdc4832c5949e188f6ff5",
+    "src/codec/filter.rs": "ffd346c0b03618fa08d4bfaa57c206773bb1101105185fb2ff3c2436b3a76037",
+    "src/codec/filter_encode.rs": "4b0c04978a871a7b9bf7f76e83e63bc1547d87fa036541dcef9c755a662437c7",
+    "src/codec/index.rs": "bc4e428ba0723d3bcf13de164ca67cbcc8a33591b2aee0818184f3db38a15b62",
+    "src/codec/index_encode.rs": "b079a144b3a052fc46658b26014774e9650b2b9fc683f6b9fcbd8324110d3446",
+    "src/codec/meshlet.rs": "28566bbdbb5e23a043b458b1de52c6f87abb2e15620d164520805ca57346f6c7",
+    "src/codec/mod.rs": "742f269e2b05509ac802e7d94aae00affa59f9729c66fec2d85b0b94b67bfda7",
+    "src/codec/vertex.rs": "00ec7582f90e20b52510acf087de82ad86c2881a0702dfdc975a72841e2661e9",
+    "src/codec/vertex_encode.rs": "9bb21e53054effa20aa127a701a7657ff8b02d9ce34f59fc719df256f2017534",
+    "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+    "src/input.rs": "69dfb8529a3624462ccd648cc341dd552cd296eab069383f2ae65a4083b0691b",
+    "src/lib.rs": "077fc3642af94171ea947b844c0d7bbca6917acb16eb71049e56ff0f88a4137a",
+    "src/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "src/normal.rs": "85c6cc0c4001b8022a75050d1febe619227c8b7a9b53852868483985eabe4111",
+    "src/opacity.rs": "b712678b09639a35647333e28a1d6e65b581a2cd099706a683013ddc97b49929",
+    "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+    "src/raster.rs": "f30d3114867c4468a44ea20c555334d00702fefb85bb4d8e3c01ef9418aecacf",
+    "src/remesh.rs": "7df8a8524f0953f2068778826499372c1ba45fa1e784abd8aa68ff6445a42339",
+    "src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
+    "src/simplify.rs": "fc4a3c4bd715adcf273340747fff4d602002ba055d070409aad52ec5c8845be9",
+    "src/strip.rs": "b3aa65c637447564e6a9efb0aacc39c59d8222b318dffecfafad0fffdd1a2953",
+    "src/tangent.rs": "00d54123e35470c458429f44f4eff816c8e499a043cdd89ce902fac106c1badd",
+    "src/workspace.rs": "81b5a514a2c49448aeb6b56d3c8baaf53d81ddd62cc60c6f818942ee47685f0e"
+  },
+  "reference_sha256": {
+    "src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+    "src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+    "src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+    "src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+    "src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+    "src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+    "src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+    "src/meshoptimizer.h": "e3688ef553f603391747895a5c221ef1528574cc7f8173782417a96cb531f61b",
+    "src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+    "src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+    "src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+    "src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+    "src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+    "src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+    "src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+    "src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+    "src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+    "src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+    "src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+    "src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+    "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+    "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
+  },
   "detail_artifact": "benchmark-0.5-default.json",
-  "detail_sha256": "8d0e75c9e33d2a078d777e9225fbbdf7df0d7ed5ce289216d94b03d35832c120"
+  "detail_sha256": "e49954994582a163d1fe5a186733b8b3d20c48713eb5ad4fb24b7730e81483df"
 }
