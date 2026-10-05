@@ -132,7 +132,9 @@ for row in assessment["rows"]:
 def gate_identity(gate):
     assert gate['admitted'] and gate['policy'] == 'owner-visible-heavy-4GB-2026-10-05'
     assert gate['lease_holder'].startswith('heavy:timeout|')
-    assert gate['reserved_gb'] >= 4 and gate['queue_receipt']
+    assert gate['declared_gb'] == 4 and gate['memory_cap_gb'] >= 4 and gate['reserved_gb'] >= 1
+    assert gate['queue_receipt'] and not gate['measuring']
+    assert int(gate['queue_receipt'].split()[1]) == gate['reserved_gb']
     chain = gate['ancestors']
     assert int(gate['lease_holder'].split('|')[1]) in {r['pid'] for r in chain}
     wrapper = next(r for r in chain if r['pid'] == gate['heavy_pid'])

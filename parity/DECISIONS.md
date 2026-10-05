@@ -3659,3 +3659,11 @@ in `diagnostic3-adapter-rejected.log`. Read the live `heavy.reservations` row
 instead, check its wrapper PID/reserved GB and the ancestor's four-GB timeout
 command, and hash the admitted executable. The numeric harness and compiled
 sources are unchanged; no completed pair is retried.
+
+Shared admission also retains the frozen scoreboard exclusion: an active
+when-idle unit with a sleep child is eligible; an actual scoreboard command
+pauses/discards pairs. The owner changes GPU admission, not this condition.
+
+The wrapper may adapt its reservation using measured class history. Preserve
+that actual value separately from the owner's four-GB declaration; the scope
+cap must cover at least four GB. Never override or misreport its sizing.

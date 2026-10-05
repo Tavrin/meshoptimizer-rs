@@ -1,6 +1,7 @@
 """Visible shared admission plus GPU lease, separate from the frozen harness."""
 import hashlib
 import os
+import subprocess
 import time
 from pathlib import Path
 
@@ -14,7 +15,9 @@ def admission():
     label, pid, since = holder.split('|')
     assert label == 'heavy:timeout'
     active = int(os.environ['MOSS_HEAVY_ACTIVE'])
-    assert int(os.environ['MOSS_HEAVY_RESERVED_GB']) >= 4
+    assert int(os.environ['MOSS_HEAVY_RESERVED_GB']) >= 1
+    cap = int(os.environ['MOSS_CARGO_MEMORY_MAX'].removesuffix('G'))
+    assert cap >= 4
     ancestor = os.getpid()
     chain = []
     while ancestor > 1:
@@ -30,9 +33,25 @@ def admission():
     queue = Path(os.environ.get('MOSS_HEAVY_DIR', os.environ.get('MOSS_COORD_DIR', '/mnt/linux-extra/moss-coord')))
     receipt_path = queue / 'heavy.reservations'
     receipt = next(line for line in receipt_path.read_text().splitlines() if line.split()[0] == str(active))
-    assert int(receipt.split()[1]) >= 4
-    return {'admitted': True, 'policy': POLICY, 'lease_holder': holder,
-            'heavy_pid': active, 'reserved_gb': int(os.environ['MOSS_HEAVY_RESERVED_GB']),
+    assert int(receipt.split()[1]) == int(os.environ['MOSS_HEAVY_RESERVED_GB'])
+    # Keep the spec's scoreboard exclusion. A when-idle unit with only a
+    # sleep child is not an actively measuring scoreboard.
+    units = subprocess.check_output(['systemctl','--user','list-units','moss-scoreboard-*','--state=active','--no-legend','--plain'], text=True)
+    measuring = []
+    for line in units.splitlines():
+        unit = line.split()[0]
+        group = subprocess.check_output(['systemctl','--user','show',unit,'-p','ControlGroup','--value'], text=True).strip()
+        for file in (Path('/sys/fs/cgroup') / group.lstrip('/')).rglob('cgroup.procs'):
+            for process in file.read_text().split():
+                try:
+                    command = (Path('/proc')/process/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
+                except FileNotFoundError:
+                    continue
+                if 'moss-scoreboard.sh' in command or 'moss-scoreboard.py' in command:
+                    measuring.append({'pid':process,'cmd':command})
+    return {'admitted': not measuring, 'policy': POLICY, 'lease_holder': holder,
+            'units': units, 'measuring': measuring,
+            'heavy_pid': active, 'declared_gb': 4, 'memory_cap_gb': cap, 'reserved_gb': int(os.environ['MOSS_HEAVY_RESERVED_GB']),
             'queue_receipt_path': str(receipt_path), 'queue_receipt': receipt,
             'admitted_command_path': str(admitted), 'admitted_command_sha256': hashlib.sha256(admitted.read_bytes()).hexdigest(),
             'ancestors': chain, 'load': os.getloadavg(), 'unix': time.time()}
