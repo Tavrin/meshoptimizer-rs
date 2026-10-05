@@ -1,0 +1,530 @@
+{
+  "schema": "meshopt-rel020-integration/1",
+  "passed": true,
+  "implementation_commit": "e4055567f37a0735a43c6dc58ef6f1a2c23c1e3f",
+  "merge_order": [
+    "parity/rfc113@9027712",
+    "phase/0.6@70686e6"
+  ],
+  "package_version": "0.1.0",
+  "version_bump_deferred_to_coordinator": true,
+  "decision_renumbering": {
+    "P06 D147": "D155",
+    "P06 D148": "D156",
+    "P06 D149": "D157",
+    "P06 D150": "D158"
+  },
+  "artifact_directory": "/mnt/linux-extra/meshopt-artifacts/rel020",
+  "artifacts": {
+    "gates.json": "5b42c6b04e9fb9d2f7b97cc810829fe4d8af8bd06ce387e49b530b15f3eab127",
+    "audit.json": "25efb698180c78fe1b6f8f12932e44d0d0ee8027f0c4a0d2d4d45dc4c0bc35e9",
+    "target-cleanup.json": "2c7503690a2b33d8cc9a8787341bca5414e6a4508566c135dcc83207ff33af02",
+    "artifact-manifest.json": "3bfd33f45fea4d46d4ea8ea4e87a9df083326adcbad78b1893d3ad5659bc5761"
+  },
+  "commands": [
+    {
+      "label": "oracle",
+      "command": [
+        "parity/check-reference.sh"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "fmt",
+      "command": [
+        "cargo",
+        "fmt",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "clippy-all",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log_sha256": "405c647e732e58333632b5ec62fe605275c36b6754cca1b1117606bd2e43f269"
+    },
+    {
+      "label": "clippy-no-default",
+      "command": [
+        "cargo",
+        "clippy",
+        "--offline",
+        "--locked",
+        "--all-targets",
+        "--no-default-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "log_sha256": "50ae15152d6ffb46fcbbd3694e24601a031599017b6ce41553bb61204881f527"
+    },
+    {
+      "label": "tests-all",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features"
+      ],
+      "exit_code": 0,
+      "log_sha256": "808551356e8b146c20029388142efaa36cf625ffc28d4641d792f8104f9f089d"
+    },
+    {
+      "label": "tests-no-default",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--no-default-features"
+      ],
+      "exit_code": 0,
+      "log_sha256": "f93e0b167f2e1c0b61f796b0f7b461ed2c836e20a48c0cb145c28ef1bb39c0ae"
+    },
+    {
+      "label": "wasm-all",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--all-features"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e7b20843ebcd7720b3fb210d341bf3be708289b71961364c97eef3e23ee325ba"
+    },
+    {
+      "label": "wasm-no-default",
+      "command": [
+        "cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--no-default-features"
+      ],
+      "exit_code": 0,
+      "log_sha256": "43e8ff41ec22962332e4fb98a1f181f7bb0dfd7045ec5519a422f6296dc2c356"
+    },
+    {
+      "label": "p06-determinism",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features",
+        "--test",
+        "parallel",
+        "--",
+        "--test-threads=1"
+      ],
+      "exit_code": 0,
+      "log_sha256": "f35079eb39cd34b8fe3a835adba49c79ffa8cc9f67c3529e5197565690993289"
+    },
+    {
+      "label": "run-0.1",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.1",
+        "--profile",
+        "scalar-strict"
+      ],
+      "exit_code": 0,
+      "log_sha256": "c8a8da2f26fcbeb1f5ad180e65620df3bbfc0ab48e61fd5b857ed61bce81f60c"
+    },
+    {
+      "label": "sweep-0.1",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.1",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261005"
+      ],
+      "exit_code": 0,
+      "log_sha256": "05a2134659cd422d973396b597fba722d3ecd0ce660ad04a796d67f66457b8a2"
+    },
+    {
+      "label": "run-0.1.x",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.1.x",
+        "--profile",
+        "scalar-strict",
+        "--record-directory",
+        "p01x-run"
+      ],
+      "exit_code": 0,
+      "log_sha256": "d14b85aab58672f1178edbcc6d43fcdd5962658ee736bf8cc32a2462ba1fe297"
+    },
+    {
+      "label": "sweep-0.1.x",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.1.x",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261005",
+        "--record-directory",
+        "p01x-sweep"
+      ],
+      "exit_code": 0,
+      "log_sha256": "9d3ff119ba496b6d94dc81ea7dabf4c97fc38ea252c867f3c83ca7bc78062bb5"
+    },
+    {
+      "label": "run-0.2",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.2",
+        "--profile",
+        "scalar-strict"
+      ],
+      "exit_code": 0,
+      "log_sha256": "11d126209b1d9d470e1ece6d1d1838a09201964490add3d9395232ddca190bf1"
+    },
+    {
+      "label": "sweep-0.2",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.2",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261005"
+      ],
+      "exit_code": 0,
+      "log_sha256": "40319e98ec36b8342e9d9e733144b0b771810077a53bf993873a25ccfb87101c"
+    },
+    {
+      "label": "run-0.3",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.3",
+        "--profile",
+        "scalar-strict"
+      ],
+      "exit_code": 0,
+      "log_sha256": "13ec4fa4c4143f7e62f84e850df26fb1dde96046edf780f77fb3f7a09d6979f2"
+    },
+    {
+      "label": "sweep-0.3",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.3",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261005"
+      ],
+      "exit_code": 0,
+      "log_sha256": "366215e7506a081aac7157e7bcf6e61a4a186499a380915da4c1885ad46dfd08"
+    },
+    {
+      "label": "run-0.4",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.4",
+        "--profile",
+        "scalar-strict"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e7fd46cbe60229f2f84f79585a9dad7af6f9314ce292a6e3f68ee5b1fdc5b771"
+    },
+    {
+      "label": "sweep-0.4",
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.4",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261005"
+      ],
+      "exit_code": 0,
+      "log_sha256": "2c62ac01f3f11973f941c148870212482cb92642e5eccfb4336b0ed8a84a51ef"
+    },
+    {
+      "label": "clusterlod-80",
+      "command": [
+        "python3",
+        "parity/p03/runner.py",
+        "clusterlod"
+      ],
+      "exit_code": 0,
+      "log_sha256": "92f6b09ad77034235296bc6824e0d460c408afc37bcd61586ad7db5518bb6407"
+    },
+    {
+      "label": "rfc113-layouts",
+      "command": [
+        "python3",
+        "parity/rfc113/run.py",
+        "--pairs",
+        "0"
+      ],
+      "exit_code": 0,
+      "log_sha256": "f08c985df793fdd90dcc4cabc648d0954345c1d8d98e2904e0a6ea54711f669c"
+    },
+    {
+      "label": "rfc113-codecs",
+      "command": [
+        "python3",
+        "parity/rfc113/codec.py"
+      ],
+      "exit_code": 0,
+      "log_sha256": "34058b57f1ee19dc585265606f29929d710ed95791502116823b4a1d95291645"
+    }
+  ],
+  "corrected_attempts": [
+    {
+      "label": "run-0.1.x",
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.1.x",
+        "--profile",
+        "scalar-strict"
+      ],
+      "started": "2026-10-05T04:19:08.264410+00:00",
+      "finished": "2026-10-05T04:19:08.335759+00:00",
+      "exit_code": 1,
+      "log": "run-0.1.x-attempt1.log",
+      "log_sha256": "c1f6345a92842e7bce9c5c7971b9cdf6ce718d8564ac669c6d3fc56d04181082",
+      "reason": "shared default record directory; resumed with --record-directory p01x-run"
+    }
+  ],
+  "parity": {
+    "run": {
+      "phase": "0.1",
+      "mismatches": 0,
+      "counts": {
+        "vertex_cache": 50,
+        "overdraw": 50,
+        "simplify": 65,
+        "simplify_with_attributes": 62,
+        "simplify_scale": 52
+      },
+      "records": {}
+    },
+    "sweep": {
+      "phase": "0.1",
+      "mismatches": 0,
+      "counts": {
+        "vertex_cache": 2000,
+        "overdraw": 2000,
+        "simplify": 2000,
+        "simplify_with_attributes": 2000,
+        "simplify_scale": 2000
+      },
+      "records": {}
+    },
+    "p01x-run": {
+      "phase": "0.1.x",
+      "mismatches": 0,
+      "counts": {
+        "vertex_cache_strip": 17,
+        "vertex_cache_fifo": 17,
+        "generate_vertex_remap": 16,
+        "generate_vertex_remap_multi": 16,
+        "generate_vertex_remap_custom": 19,
+        "remap_vertex_buffer": 16,
+        "remap_index_buffer": 18,
+        "filter_index_buffer": 17,
+        "filter_index_buffer_multi": 16,
+        "generate_shadow_index_buffer": 16,
+        "generate_shadow_index_buffer_multi": 16,
+        "generate_position_remap": 16,
+        "generate_adjacency_index_buffer": 17,
+        "generate_tessellation_index_buffer": 17,
+        "generate_provoking_index_buffer": 17,
+        "vertex_fetch": 23,
+        "vertex_fetch_remap": 18,
+        "simplify_sloppy": 19,
+        "simplify_prune": 18,
+        "simplify_points": 21,
+        "simplify_with_update": 20,
+        "quantize_unorm": 47,
+        "quantize_snorm": 16,
+        "quantize_half": 34,
+        "quantize_float": 25,
+        "dequantize_half": 29,
+        "compute_position_exponent": 36,
+        "simplify_sparse": 19,
+        "simplify_prune_option": 20,
+        "simplify_preserve_folds": 17,
+        "simplify_error_clamped": 16,
+        "simplify_regularize_light": 16
+      },
+      "records": {}
+    },
+    "p01x-sweep": {
+      "phase": "0.1.x",
+      "mismatches": 0,
+      "counts": {
+        "vertex_cache_strip": 2000,
+        "vertex_cache_fifo": 2000,
+        "generate_vertex_remap": 2000,
+        "generate_vertex_remap_multi": 2000,
+        "generate_vertex_remap_custom": 2000,
+        "remap_vertex_buffer": 2000,
+        "remap_index_buffer": 2000,
+        "filter_index_buffer": 2000,
+        "filter_index_buffer_multi": 2000,
+        "generate_shadow_index_buffer": 2000,
+        "generate_shadow_index_buffer_multi": 2000,
+        "generate_position_remap": 2000,
+        "generate_adjacency_index_buffer": 2000,
+        "generate_tessellation_index_buffer": 2000,
+        "generate_provoking_index_buffer": 2000,
+        "vertex_fetch": 2000,
+        "vertex_fetch_remap": 2000,
+        "simplify_sloppy": 2000,
+        "simplify_prune": 2000,
+        "simplify_points": 2000,
+        "simplify_with_update": 2000,
+        "quantize_unorm": 2000,
+        "quantize_snorm": 2000,
+        "quantize_half": 2000,
+        "quantize_float": 2000,
+        "dequantize_half": 2000,
+        "compute_position_exponent": 2000,
+        "simplify_sparse": 2000,
+        "simplify_prune_option": 2000,
+        "simplify_preserve_folds": 2000,
+        "simplify_error_clamped": 2000,
+        "simplify_regularize_light": 2000
+      },
+      "records": {}
+    },
+    "run-0.2": {
+      "phase": "0.2",
+      "mismatches": 0,
+      "counts": {},
+      "records": {
+        "fixtures": 287,
+        "malformed": 3637
+      }
+    },
+    "sweep-0.2": {
+      "phase": "0.2",
+      "mismatches": 0,
+      "counts": {},
+      "records": {
+        "sweep": 14000
+      }
+    },
+    "run-0.3": {
+      "phase": "0.3",
+      "mismatches": 0,
+      "counts": {
+        "upstream-fixtures": 47,
+        "build_meshlets": 25,
+        "build_meshlets_scan": 25,
+        "build_meshlets_flex": 25,
+        "build_meshlets_spatial": 25,
+        "build_meshlets_bound": 25,
+        "compute_cluster_bounds": 25,
+        "compute_meshlet_bounds": 25,
+        "compute_sphere_bounds": 25,
+        "optimize_meshlet": 25,
+        "optimize_meshlet_level": 25,
+        "extract_meshlet_indices": 25,
+        "partition_clusters": 25,
+        "spatial_sort_remap": 25,
+        "spatial_sort_triangles": 25,
+        "spatial_cluster_points": 25
+      },
+      "records": {}
+    },
+    "sweep-0.3": {
+      "phase": "0.3",
+      "mismatches": 0,
+      "counts": {
+        "build_meshlets": 2000,
+        "build_meshlets_scan": 2000,
+        "build_meshlets_flex": 2000,
+        "build_meshlets_spatial": 2000,
+        "build_meshlets_bound": 2000,
+        "compute_cluster_bounds": 2000,
+        "compute_meshlet_bounds": 2000,
+        "compute_sphere_bounds": 2000,
+        "optimize_meshlet": 2000,
+        "optimize_meshlet_level": 2000,
+        "extract_meshlet_indices": 2000,
+        "partition_clusters": 2000,
+        "spatial_sort_remap": 2000,
+        "spatial_sort_triangles": 2000,
+        "spatial_cluster_points": 2000
+      },
+      "records": {}
+    },
+    "run-0.4": {
+      "phase": "0.4",
+      "mismatches": 0,
+      "counts": {},
+      "records": {
+        "fixtures": 869,
+        "malformed": 7653
+      }
+    },
+    "sweep-0.4": {
+      "phase": "0.4",
+      "mismatches": 0,
+      "counts": {},
+      "records": {
+        "sweep": 44000
+      }
+    }
+  },
+  "rfc113": {
+    "supported_layouts": 15,
+    "invalid_stride32_setups": 2,
+    "codec_comparisons": 90,
+    "mismatches": 0
+  },
+  "p06_determinism_tests": 9,
+  "timing_rerun": false,
+  "target_deleted": true,
+  "execution_source_identity_unchanged": true,
+  "post_validation_changes": [
+    "README coverage status",
+    "D159 outcome",
+    "integration evidence summaries"
+  ],
+  "limitations": [
+    "two invalid stride-32 S2 protect-mask setups",
+    "phase 0.5 and 0.7 not merged",
+    "branch timing evidence retained without remeasurement",
+    "no remote, GPU or Moss runtime acceptance"
+  ]
+}

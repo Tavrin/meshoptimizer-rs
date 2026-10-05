@@ -3785,3 +3785,21 @@ recorded corpus, profiles and remaining limitations. RFC 113 runs with
 --pairs 0. The two stride-32 S2 protect-mask setups remain invalid, outside
 the fifteen supported layouts. Phase 0.5 and phase 0.7 remain outside this
 first integration tranche; no remote, GPU or Moss runtime acceptance is added.
+
+Final integration gates all exit 0: both strict Clippy/test/wasm32 modes,
+fmt, all nine P06 determinism tests, every registered 0.1–0.4 fixture run
+and 2,000-case-per-family sweep including 0.1.x, all 80 cluster-LOD demo
+cases, fifteen supported RFC 113 layouts and ninety codec comparisons.
+There are zero parity mismatches. The first preprocessing invocation only
+hit the artifact directory's immutable-record guard; it was retained as a
+failed routing attempt and rerun with separate p01x-run/p01x-sweep directories.
+No corpus, case budget or algorithm was changed to pass.
+
+The independent artifact audit verifies source hashes, archive/member hashes
+and executable identities, and preserves exact harness binaries and the
+implementation source archive before deleting the named Cargo target.
+parity/results/integration-0.2.0.json links the gate, audit, manifest and
+target-deletion receipts under /mnt/linux-extra/meshopt-artifacts/rel020.
+Only coverage wording and this outcome/evidence were added after validation;
+algorithm, test, harness and dependency bytes remain the validated bytes.
+Package version remains 0.1.0. No timing, push or other-worktree change.

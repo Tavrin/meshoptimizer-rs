@@ -4,24 +4,24 @@
   "command": "sweep",
   "passed": true,
   "phase": "0.1",
-  "seed": 20261004,
+  "seed": 20261005,
   "profile": "scalar-strict",
   "detail_artifact": "sweep/sweep.json",
   "artifacts": {
-    "sweep/sweep.json": "4b4cce2dfa24e44bd3765f513be71eec72989c20169bf86d18c21650eccac84c",
-    "sweep/sweep-buffers.zip": "8b12102890bbf4c491f713ac7eff40c506a3b62a7092da1887eddc6fc62a7780",
-    "sweep/sources.tar.gz": "089147f5e719ec8b982015c84273205731c013cd8db81d89dd07a960aafc9cc0",
-    "sweep/binaries/fixture_exporter": "b0f14f4ff0c78c010c9b42e0de34cf6284c3688d8c490f77f7ab05e3447b4921",
-    "sweep/binaries/rust": "af17aa2a927814c287005404405c7cada849d797857acabd2af9d4e95742b281",
-    "sweep/binaries/p01x_fixture_exporter": "c9bbb7f71fd859f5fbe3ee56b2fbc2fd8bff9cf1a653650c43fd619517f2621e",
-    "sweep/binaries/wasm": "1b27baaaa322505cd23230f76dd88793774034df075bff8f66e187fe5f752024",
+    "sweep/sweep.json": "344aedaefb39c616996691007ba2764c60105192055bf0ba78a5aa441677edba",
+    "sweep/sweep-buffers.zip": "ad125396f867627c2ceae908a5630e8707e093d0e427e392c5b6eef40438808a",
+    "sweep/sources.tar.gz": "e93c8b9b48fc1a55b77af88c014815ea228d65b2979848fc270e5e850c577561",
+    "sweep/binaries/fixture_exporter": "79352d6e9a9d1e4c1ff639badad414fa40f18bc22101a95e4c1c477162c1ba93",
+    "sweep/binaries/rust": "bb23e414e070d01fd0f1d8fb8b8b04bf6075936edcbbd876e949e732ccfbc901",
+    "sweep/binaries/p01x_fixture_exporter": "d485eaf1508da22913d137eeb95cd3c8e065833fc1ca5f017badb708b457ebbd",
+    "sweep/binaries/wasm": "2c644e00fb40db87ea2d80bb06ff0fb03c4c4a75a34b3f1a6f8795e68417d1c8",
     "sweep/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
   },
   "identities": {
     "source_sha256": {
       "rust_and_harness": {
-        "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",
-        "Cargo.toml": "d6f8244495b79dbc96d257da63d2fed85f0ce985eeba07f9cbde3972964ea779",
+        "Cargo.lock": "fe3bd8e84d0e1651fecd941b3770f76c19b20cc6ef3c2a4925ac29863a0f35ce",
+        "Cargo.toml": "40eead65ca7940e0e6e9f02abc5cc5e554cd72570828ed24f6694224b7f5a8d6",
         "fuzz/Cargo.lock": "b4c046db935bf92048885d012e8270ef7d5b3192129e04a4fdddaa89f7e534aa",
         "fuzz/Cargo.toml": "4681bf49dddaef79ed59f3ae243cd7e765572b417d1d0bd312b4250561f4d6eb",
         "fuzz/codec/Cargo.toml": "b4b9a2c68f3d65806dd8be7a9dd547ad2c098b0223aef8f43fb4104a5f55820b",
@@ -155,6 +155,9 @@
         "parity/p03/runner.py": "5a9f416c1f4ea90b7bf3e7c01c1c64c88630dd84d816f3ab4777103e6bfac1e5",
         "parity/p03/src/lib.rs": "cc2b121d6789146f0e904247386fd2362c8dee86c0c3c4e125348f350e84306a",
         "parity/p03/src/main.rs": "9d5da52bce006919d571de7a6c72decf69b29f7079f08bf2fc02fcc1f5ec31c8",
+        "parity/p06/Cargo.toml": "f79b4d5f493aeacfecf213adb8fa97af63d52f7ade3ae5a7736171af0a55f537",
+        "parity/p06/measure.py": "6448b0c2e07e1b00649a562f6e9b3afed2dbe894838dabf6411fc3625f695eb5",
+        "parity/p06/src/main.rs": "62f6e78256868b618974414f12e353e8a204ce3b27f4fb393f371c6765f237ac",
         "parity/perf_profile.py": "8379a785944e50aaa8bab8e5216a4a574f9f3d625405081363d4a23a6204b39e",
         "parity/performance.py": "fbdbc94c474f803dda95bcc2e4f4ebfd2180bfaf2efd571fc8f6c10947a53839",
         "parity/profile.py": "a7cfaef355bd9d96978dbae8c4675b05367b596f3131e525c26ea9de8f4a7b3a",
@@ -173,7 +176,8 @@
         "parity/rfc113/reference.cpp": "c6b1cb017b7eab6bb647e41041c99ccaaedae06175fc2db4e8d62485ead22ac4",
         "parity/rfc113/report.py": "e6f23681859458cf3850c55cccfafa918e3d481c1136bfd9c242b385e4872739",
         "parity/rfc113/run.py": "23cc57a7e070046d048c86eeaad51d7d92c5d357cf9ad581182b317af8e16b11",
-        "parity/rfc113/test_harness.py": "421d4cfd22c17eeb106c207335c12fc670d4050ef71b5e18aeadeaf967f5b02a",
+        "parity/rfc113/test_harness.py": "a227191d567bbacdb89caea97989ca6dde8acb32b5030409655f63d6042159bf",
+        "parity/rfc113/timing.py": "8692f0ae4361a7d04520504d457cf952e2600c5792ad34739963002dec784404",
         "parity/run.sh": "405001cc7af6880f40cc56967401eebe2c5d9ad93a4b8258878dd24956068cc8",
         "parity/runner.py": "9e6a666057c54f5747ae6a7f7bef4dc0cd09cd63bf2353a2e4e38df1fe26afbf",
         "parity/src/lib.rs": "1b16588bc50085f8183866500482f97c30185a1e0a864c6d36496774207f146f",
@@ -187,9 +191,9 @@
         "parity/wasm.cjs": "4ebb96263f7cc058c81e8a546908eb8f18d9ec6c4e64ee1b217c4c916b262865",
         "src/budget.rs": "c339aa1d7e35cbe4fcacb8c94bae75ff63f755f8df2f17765294d82505a0873b",
         "src/cache.rs": "c2724d97ec08e9c674ffc01dba9dc26265cd3e3858b82c0ca8f1c1f3c21e949d",
-        "src/clusterlod/mod.rs": "9318710eaed5dce69046535266b7f4cdfa2a530a309af07bb4fa926d69fec21a",
+        "src/clusterlod/mod.rs": "a41370baec3e5bf07b17f5789725260322fbe6cf175c4ad54c04714364e5b2e5",
         "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46",
-        "src/clusterlod/support/input.rs": "a2bb1f3c76260954bf3b92cfa267a2026406a896bcd3307aa555716e4fda1190",
+        "src/clusterlod/support/input.rs": "b51cec4182809662d329b7e4efb81f06b114b41df407f700b984e2dbd1d22a8a",
         "src/clusterlod/support/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
         "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
         "src/clusterlod/support/simplify.rs": "4e1baa97f9048439f8b8af5a2a53e83867e9a4b080873e52fa50947070b8f06d",
@@ -206,12 +210,13 @@
         "src/codec/vertex_encode.rs": "9bb21e53054effa20aa127a701a7657ff8b02d9ce34f59fc719df256f2017534",
         "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
         "src/input.rs": "69833ea8920157c953c4e80d5bb9e5d4fd9798457b7e6bdb842bfebb7bc5aae0",
-        "src/lib.rs": "3cc33cd5a8420cbbd6815dcf84c2ec0d85a323dd9ca609939afb36c7f3073736",
+        "src/lib.rs": "ae70ae44d3c984e3b0a32f14f4b3c4d4a7e8540accf183ac0789c8bde4ac4b53",
         "src/math.rs": "b107247818c7d55bd4240f099b3fa7bf0d0e3b9eb93de465b1c0fd4371540b72",
         "src/meshlet.rs": "5923a30f15fa9f4d355b3e4008a9f6815359f3c46fd7575a25f4dea0bda8e8e5",
         "src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
         "src/meshlet_util.rs": "6f95800d8f29ec4764b86ed0756e4816adc0337a6a4c280e16c391f187168820",
         "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+        "src/parallel.rs": "a2f495210f0626f1f125763cc7d8fa856859dd8a3c4b9944e8b3b7dc16b8694f",
         "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
         "src/processing.rs": "a95e2eee270d988e7178b8054ccb0d891279883006db492d6e8ed58c3e27d9b5",
         "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
@@ -219,11 +224,12 @@
         "src/simplify.rs": "f96c04ea2e6f2096f7e9b3cd1182258936c43d2378773c0c726e86cbb351d44d",
         "src/simplify_extra.rs": "479379cfef8e5fd0ab220fd930bf5db9ce10d285c6dce3938ac7cb62d5c2f0be",
         "src/spatial.rs": "c1829a02b7821a5076a21be5a053154fa3e46e6439d3ce7dbda52c038128559c",
-        "src/workspace.rs": "c85d395bc2431d4523760762bf1f900ffde1992695a0c9c7e291c5cdcbfdcf03",
+        "src/workspace.rs": "ae95ae265aa3084e8a592843158014ba19167d3bd49b3df649198ae7107bc053",
         "tests/api.rs": "dfa34266d8dd786fda699c82f8ee6dd16471ce601ca186d4cf96245f2419dfab",
         "tests/codec.rs": "9e2cfa156249e79ccdc52287a5b05856021f6b5972f61ed6edd17c22d9cd9e01",
         "tests/codec04.rs": "a3d845c5c6a058a68ee47edd7379729a9c80035772d9a52601febcc631546604",
-        "tests/meshlets.rs": "bf98900a60b3eb60f881ecaeba191f33108e4a01957931e39cf510bfd6f74709",
+        "tests/meshlets.rs": "e5ba1a483f4db617a600937c63d958811abef7af1aca88afaa03cc7a7a6ff296",
+        "tests/parallel.rs": "52cb056f9e39a0b8350b288f3fdd8fb0a2ae5a5db40f5867c24ce03c6f6ccdf3",
         "tests/preprocessing.rs": "8959d2b7ea2571e3131210c8de8d639f27639b2980f734a5a5afcf1caf9b1d30"
       },
       "upstream": {
@@ -436,10 +442,10 @@
     },
     "executable_sha256": {
       "cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
-      "rust": "af17aa2a927814c287005404405c7cada849d797857acabd2af9d4e95742b281",
-      "wasm": "1b27baaaa322505cd23230f76dd88793774034df075bff8f66e187fe5f752024",
-      "fixture_exporter": "b0f14f4ff0c78c010c9b42e0de34cf6284c3688d8c490f77f7ab05e3447b4921",
-      "p01x_fixture_exporter": "c9bbb7f71fd859f5fbe3ee56b2fbc2fd8bff9cf1a653650c43fd619517f2621e"
+      "rust": "bb23e414e070d01fd0f1d8fb8b8b04bf6075936edcbbd876e949e732ccfbc901",
+      "wasm": "2c644e00fb40db87ea2d80bb06ff0fb03c4c4a75a34b3f1a6f8795e68417d1c8",
+      "fixture_exporter": "79352d6e9a9d1e4c1ff639badad414fa40f18bc22101a95e4c1c477162c1ba93",
+      "p01x_fixture_exporter": "d485eaf1508da22913d137eeb95cd3c8e065833fc1ca5f017badb708b457ebbd"
     },
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
     "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
@@ -501,14 +507,14 @@
   },
   "required_cases_per_family": 2000,
   "mismatches": 0,
-  "started_unix": 1791154864.477037,
-  "finished_unix": 1791154901.9185383,
+  "started_unix": 1791173900.7297223,
+  "finished_unix": 1791173947.5970006,
   "functions": {
     "vertex_cache": {
       "count": 2000,
       "mismatches": 0,
       "seeds": [
-        20261004
+        20261005
       ],
       "input_families": {
         "medium-grid": 19,
@@ -528,7 +534,7 @@
       "count": 2000,
       "mismatches": 0,
       "seeds": [
-        20261004
+        20261005
       ],
       "input_families": {
         "medium-grid": 19,
@@ -548,7 +554,7 @@
       "count": 2000,
       "mismatches": 0,
       "seeds": [
-        20261004
+        20261005
       ],
       "input_families": {
         "medium-grid": 19,
@@ -568,7 +574,7 @@
       "count": 2000,
       "mismatches": 0,
       "seeds": [
-        20261004
+        20261005
       ],
       "input_families": {
         "medium-grid": 19,
@@ -588,7 +594,7 @@
       "count": 2000,
       "mismatches": 0,
       "seeds": [
-        20261004
+        20261005
       ],
       "input_families": {
         "medium-grid": 19,

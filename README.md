@@ -241,7 +241,7 @@ seeded sweep case and executed wasm32 run, with zero mismatches. Sources:
 | `meshopt_extractMeshletIndices` | `extract_meshlet_indices` | exact |
 | `meshopt_partitionClusters` | `partition_clusters` | exact; one timing residual |
 | `meshopt_spatialSortRemap`, `…Triangles`, `meshopt_spatialClusterPoints` | `spatial_sort_remap`, `spatial_sort_triangles`, `spatial_cluster_points` | exact |
-| `demo/clusterlod.h` | `clusterlod` module (feature) | exact against the pinned demo; not yet competitive in speed |
+| `demo/clusterlod.h` | `clusterlod` module (feature) | exact against the pinned demo; RFC 113 recovery measured on the frozen S2 corpus |
 
 ### Compression codecs (phases 0.2 and 0.4, `codec` module)
 

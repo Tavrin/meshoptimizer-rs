@@ -19,22 +19,22 @@
         "7": 2000
       },
       "mismatches": 0,
-      "simd_filter_conformance_cases": 6502,
+      "simd_filter_conformance_cases": 6506,
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "8243bf4a9fcd8315efab0337a1aae525d2c67bd7c62157507695628da2829758",
-        "wasm": "43fccbcbe92b1833f0cbe670cfe0abdcba68418a2ab4524f8f54db765ab16b33"
+        "rust": "0c24e3b6d741ac899ca206a9d7681568fd940a5490677e83b1ca09eaaa5f9733",
+        "wasm": "52789b8159b7a2f061e181b48a4ae142b6171bc4060d53d8abcd434c2b29273c"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536"
     }
   },
   "artifacts": {
-    "sweep-0.2/sweep.json": "5cba05a515e3eb6ad485699cd3be270fd8cf0589769f9c8c00a4f52b393d9103",
-    "sweep-0.2/sweep.zip": "b2631565f0863d5a18dacd6ae3b0535f162e202027570e95f9e99eb26ffcdd64"
+    "sweep-0.2/sweep.json": "0bbb6ee63daa0042ae315389411995f88de705929842723b03a0b4ebceaf8a5f",
+    "sweep-0.2/sweep.zip": "187951a2d37b8eb1ddf5553c576d77473f11265b707f1cb3f59e0c7f37094a03"
   },
   "detail_artifact": "sweep-0.2/sweep.json",
-  "seed": 20261004,
+  "seed": 20261005,
   "mismatches": 0,
   "passed": true
 }
