@@ -4027,3 +4027,19 @@ The added alpha-boundary/wrap regression and existing extreme/tail tests pass;
 development wasm exact outputs pass on 42 filter/view cases. No approximate
 division, saturation or changed rounding is introduced. Final all-level
 parity, Miri and one leased timing epoch remain required.
+
+
+### Fix-five meshlet instruction/store repair
+
+The starting 12-byte typed triangle copy spills one vector to the stack.
+Emit native words explicitly, consume typed output spans, and SIMD-shuffle
+16-bit vertex references into contiguous packed output. Four-byte metadata
+records remove multiply-by-three addressing. Keep counter-wrap fallback,
+per-window bounds, odd tails and exact caller tail preservation. Raw sinks
+retain indexed output: consuming their spans increased representative
+instructions from 3.418 to 3.750 per byte and was rejected. The revised
+raw path takes 3.251 (0.951 starting); typed v4/t3 takes 4.461 vs 4.830
+(0.924), with zero vector stack stores vs one in the starting kernel.
+Focused SIMD/codec/codec04 tests and all 138 benchmark exact outputs pass.
+Safety model is unchanged; no new unsafe block. Final Miri/parity and timing
+remain required. Further unchecked input/output spans are rejected.

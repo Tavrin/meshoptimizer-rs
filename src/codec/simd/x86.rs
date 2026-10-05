@@ -820,12 +820,12 @@ const TRIANGLE_MASKS: [[u8; 16]; 256] = {
     }
     masks
 };
-const TRIANGLE_META: [[u8; 3]; 256] = {
-    let mut meta = [[0; 3]; 256];
+const TRIANGLE_META: [[u8; 4]; 256] = {
+    let mut meta = [[0; 4]; 256];
     let mut i = 0;
     while i < 256 {
         let (_, next, used, first) = super::TRIANGLE_TABLES[i];
-        meta[i] = [used as u8, first as u8, next[15]];
+        meta[i] = [used as u8, first as u8, next[15], 0];
         i += 1;
     }
     meta
@@ -848,7 +848,7 @@ fn triangles_kernel(
         }
         let code = codes[i / 2] as usize;
         let mask = load(&TRIANGLE_MASKS[code]);
-        let [used, first_used, advance] = TRIANGLE_META[code].map(usize::from);
+        let [used, first_used, advance, _] = TRIANGLE_META[code].map(usize::from);
         counter += advance;
         if counter >= 256 {
             return None;
@@ -1003,33 +1003,36 @@ fn vertex_kernel(
 // Grouped output avoids an edge-format scalar callback for every triangle.
 // Full groups use const-sized copies; counted tails are separate.
 trait MeshletSink {
+    const VERTEX_WIDTH: usize;
     fn vertices<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]);
-    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]);
+    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u32; 4]);
 }
 struct ByteSink<'a, const VS: usize, const TS: usize> {
     vertices: &'a mut [u8],
     triangles: &'a mut [u8],
 }
 impl<const VS: usize, const TS: usize> MeshletSink for ByteSink<'_, VS, TS> {
+    const VERTEX_WIDTH: usize = VS;
     #[inline(always)]
-    fn vertices<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]) {
-        let dst = &mut self.vertices[index * VS..(index + LIVE) * VS];
-        if VS == 4 {
-            dst.copy_from_slice(&values[..LIVE * 4]);
-        } else {
-            for (out, v) in dst
-                .as_chunks_mut::<VS>()
-                .0
-                .iter_mut()
-                .zip(values.as_chunks::<4>().0)
-            {
-                out.copy_from_slice(&v[..VS]);
-            }
-        }
+    fn vertices<const LIVE: usize>(&mut self, _index: usize, values: [u8; 16]) {
+        let (dst, rest) = core::mem::take(&mut self.vertices).split_at_mut(LIVE * VS);
+        self.vertices = rest;
+        dst.copy_from_slice(&values[..LIVE * VS]);
     }
     #[inline(always)]
-    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]) {
-        self.triangles[index * TS..(index + LIVE) * TS].copy_from_slice(&values[..LIVE * TS]);
+    fn triangles<const LIVE: usize>(&mut self, _index: usize, values: [u32; 4]) {
+        let (dst, rest) = core::mem::take(&mut self.triangles).split_at_mut(LIVE * TS);
+        self.triangles = rest;
+        if TS == 3 && LIVE == 4 {
+            // Two explicit native words avoid the partial-vector memcpy spill.
+            let lo = u64::from(values[0]) | (u64::from(values[1]) << 32);
+            let hi = values[2];
+            dst[..8].copy_from_slice(&lo.to_le_bytes());
+            dst[8..].copy_from_slice(&hi.to_le_bytes());
+        } else {
+            let bytes = values.map(u32::to_le_bytes);
+            dst.copy_from_slice(&bytes.as_flattened()[..LIVE * TS]);
+        }
     }
 }
 struct RawSink<'a> {
@@ -1037,6 +1040,7 @@ struct RawSink<'a> {
     triangles: &'a mut [u32],
 }
 impl MeshletSink for RawSink<'_> {
+    const VERTEX_WIDTH: usize = 4;
     #[inline(always)]
     fn vertices<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]) {
         for (out, v) in self.vertices[index..index + LIVE]
@@ -1047,13 +1051,8 @@ impl MeshletSink for RawSink<'_> {
         }
     }
     #[inline(always)]
-    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u8; 16]) {
-        for (out, v) in self.triangles[index..index + LIVE]
-            .iter_mut()
-            .zip(values.as_chunks::<4>().0)
-        {
-            *out = u32::from_le_bytes(*v);
-        }
+    fn triangles<const LIVE: usize>(&mut self, index: usize, values: [u32; 4]) {
+        self.triangles[index..index + LIVE].copy_from_slice(&values[..LIVE]);
     }
 }
 #[allow(clippy::too_many_arguments)]
@@ -1071,7 +1070,7 @@ pub(super) fn meshlet_bytes<const VS: usize, const TS: usize>(
     // SAFETY: Sse41 proves SSSE3/SSE4.1; every input load is checked and
     // array-backed, and complete groups and tails use counted output slices.
     unsafe {
-        meshlet_output_kernel::<TS>(
+        meshlet_output_kernel::<TS, _>(
             source,
             bound,
             ctrl,
@@ -1099,7 +1098,7 @@ pub(super) fn meshlet_raw(
     // SAFETY: Sse41 proves SSSE3/SSE4.1; every input load is checked and
     // array-backed, and complete groups and tails use counted output slices.
     unsafe {
-        meshlet_output_kernel::<4>(
+        meshlet_output_kernel::<4, _>(
             source,
             bound,
             ctrl,
@@ -1144,7 +1143,7 @@ fn meshlet_triangle_step<const TAIL: bool, const CHECK: bool>(
     code: u8,
     counter: &mut usize,
 ) -> Option<Result<__m128i, crate::Error>> {
-    let [used, first, advance] = TRIANGLE_META[code as usize];
+    let [used, first, advance, _] = TRIANGLE_META[code as usize];
     *counter += usize::from(advance);
     if CHECK && *counter >= 256 {
         return None;
@@ -1172,21 +1171,24 @@ fn triangle_output<const TS: usize>(state: __m128i) -> __m128i {
 }
 #[inline]
 #[target_feature(enable = "ssse3,sse4.1")]
-fn triangle_bytes<const TS: usize>(state: __m128i) -> [u8; 16] {
-    let mut bytes = [0; 16];
-    store(&mut bytes, triangle_output::<TS>(state));
-    bytes
+fn triangle_words(state: __m128i) -> [u32; 4] {
+    [
+        _mm_cvtsi128_si32(state) as u32,
+        _mm_extract_epi32::<1>(state) as u32,
+        _mm_extract_epi32::<2>(state) as u32,
+        _mm_extract_epi32::<3>(state) as u32,
+    ]
 }
 #[target_feature(enable = "ssse3,sse4.1")]
 #[allow(clippy::too_many_arguments)]
-fn meshlet_output_kernel<const TS: usize>(
+fn meshlet_output_kernel<const TS: usize, S: MeshletSink>(
     source: &[u8],
     bound: usize,
     ctrl: &[u8],
     codes: &[u8],
     vc: usize,
     tc: usize,
-    sink: &mut impl MeshletSink,
+    sink: &mut S,
 ) -> Option<Result<(), crate::Error>> {
     let mut remaining = source;
     let mut last = _mm_set1_epi32(-1);
@@ -1196,7 +1198,17 @@ fn meshlet_output_kernel<const TS: usize>(
             Err(e) => return Some(Err(e)),
         };
         let mut values = [0; 16];
-        store(&mut values, last);
+        store(
+            &mut values,
+            if S::VERTEX_WIDTH == 2 {
+                _mm_shuffle_epi8(
+                    last,
+                    _mm_setr_epi8(0, 1, 4, 5, 8, 9, 12, 13, -1, -1, -1, -1, -1, -1, -1, -1),
+                )
+            } else {
+                last
+            },
+        );
         sink.vertices::<4>(g * 4, values);
     }
     if !vc.is_multiple_of(4) {
@@ -1205,7 +1217,17 @@ fn meshlet_output_kernel<const TS: usize>(
             Err(e) => return Some(Err(e)),
         };
         let mut values = [0; 16];
-        store(&mut values, last);
+        store(
+            &mut values,
+            if S::VERTEX_WIDTH == 2 {
+                _mm_shuffle_epi8(
+                    last,
+                    _mm_setr_epi8(0, 1, 4, 5, 8, 9, 12, 13, -1, -1, -1, -1, -1, -1, -1, -1),
+                )
+            } else {
+                last
+            },
+        );
         match vc % 4 {
             1 => sink.vertices::<1>(vc & !3, values),
             2 => sink.vertices::<2>(vc & !3, values),
@@ -1252,9 +1274,7 @@ fn meshlet_output_kernel<const TS: usize>(
         } else {
             _mm_unpacklo_epi64(first, second)
         };
-        let mut bytes = [0; 16];
-        store(&mut bytes, packed);
-        sink.triangles::<4>(g * 4, bytes);
+        sink.triangles::<4>(g * 4, triangle_words(packed));
     }
     if tc % 4 >= 2 {
         state = match meshlet_triangle_step::<false, true>(
@@ -1266,7 +1286,7 @@ fn meshlet_output_kernel<const TS: usize>(
             Ok(v) => v,
             Err(e) => return Some(Err(e)),
         };
-        sink.triangles::<2>(tc & !3, triangle_bytes::<TS>(state));
+        sink.triangles::<2>(tc & !3, triangle_words(triangle_output::<TS>(state)));
     }
     if !tc.is_multiple_of(2) {
         state = match meshlet_triangle_step::<true, true>(
@@ -1278,7 +1298,7 @@ fn meshlet_output_kernel<const TS: usize>(
             Ok(v) => v,
             Err(e) => return Some(Err(e)),
         };
-        sink.triangles::<1>(tc & !1, triangle_bytes::<TS>(state));
+        sink.triangles::<1>(tc & !1, triangle_words(triangle_output::<TS>(state)));
     }
     // Monotonic consumption and exact final length preserve the scalar bound
     // errors. Earlier malformed-prefix writes are outside the output contract.
