@@ -339,6 +339,7 @@ fn color_alpha_conversion_bounds_and_wrap() {
 }
 
 #[test]
+#[cfg(not(miri))]
 fn exp_dispatch_boundary_preserves_words_and_tail() {
     for stride in [4, 12, 32] {
         let boundary = 4 * 1024 * 1024 / stride;

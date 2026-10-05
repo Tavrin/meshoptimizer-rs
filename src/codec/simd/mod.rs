@@ -342,6 +342,22 @@ pub(super) fn vertex(
 #[cfg(test)]
 mod tests {
     #[test]
+    fn explicit_exp_kernel_matches_canonical_small_windows() {
+        for count in [0, 1, 3, 4, 15, 16, 17, 31, 32, 33] {
+            let words = [0u32, 0xffffffff, 0x80000000, 0x7fffffff, 0xff123456];
+            let mut actual: alloc::vec::Vec<u8> = (0..count)
+                .flat_map(|i| words[i % words.len()].to_le_bytes())
+                .collect();
+            let mut expected = actual.clone();
+            crate::codec::filter::scalar_exp(&mut expected);
+            if let Some(status) = super::filter(3, &mut actual, 4) {
+                status.unwrap();
+                assert_eq!(actual, expected);
+            }
+        }
+    }
+
+    #[test]
     fn delta_prefixes_stage_partial_unaligned_vectors() {
         for count in [1, 15, 16, 17, 33] {
             let buffer: alloc::vec::Vec<u8> = (0..count * 4).map(|i| (i * 31 + 17) as u8).collect();
