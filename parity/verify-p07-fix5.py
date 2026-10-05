@@ -168,8 +168,14 @@ for r in counter['rows']:
 assert all(r['effective_encoded_rustflags']==r['environment_overrides'].get('RUSTFLAGS','').replace(' ', '\x1f') for r in checks)
 for r in read('portability-checks')['commands']: assert r['exit_code']==0 and sha(ART/r['log'])==r['log_sha256']
 assert read('safety-gates')['passed']
-summary['s1']={a:all(v['registered_pass'] for f,v in fs.items() if f in ['vertex','view-none','meshlet','meshlet-raw']) for a,fs in summary['families'].items()}
-summary['s2']={a:all(v['registered_pass'] for f,v in fs.items() if f in ['view-filtered','oct','quat','exp','color']) for a,fs in summary['families'].items()}
+summary['aggregate_bars']={}
+for label,fs,bar_mean,bar_max in [('s1',{'vertex','view-none','meshlet','meshlet-raw'},1.10,1.30),('s2',{'view-filtered','oct','quat','exp','color'},1.25,1.50)]:
+    summary[label]={};summary['aggregate_bars'][label]={}
+    for api in ['allocating','caller-buffer']:
+        rows=[r for r in native['rows'] if r['api']==api and family(r['case']) in fs]
+        mean=gm(r['time_ratio'] for r in rows);failed=[r['case'] for r in rows if r['interval'][1]>bar_max]
+        summary[label][api]=mean<=bar_mean and not failed
+        summary['aggregate_bars'][label][api]={'geomean':mean,'maximum_failures':failed,'pass':summary[label][api]}
 summary['verified']=True
 (ART/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
 print(json.dumps(summary,indent=2))
