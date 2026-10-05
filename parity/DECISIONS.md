@@ -4299,3 +4299,17 @@ Together with the rejected wrapper inlining trial and absence of timed decoder
 clear/copy, abandon further meshlet edits in this round. No changed output
 padding, unchecked access, counter semantics or scalar fallback. Re-measure
 both meshlet families once in the final touched-family epoch, failures included.
+
+### Fix-six WASM regression recovery
+
+Matched V8 N/2N instruction diagnostics find round-five resident vertex raw
+work around 12.362/12.376 vs round-four 12.024/12.129 per byte. Removing the
+wasm-only 128/1024 tiny scratch split restores one monomorphic 1024-byte parser:
+raw v0 12.047, v1 12.137 in the isolated trial. Native retains its bounded tiny
+scratch. Restore canonical scalar u64 Quat rotations after packed SIMD math;
+that checked varied Quat view falls 13.988 ->13.324 instructions/byte, vs
+round-four 13.419. This deliberately rejects round-five's dynamic swizzles;
+no arithmetic order or rounding change. V8 counter totals include runtime
+work/tiering, so small residual differences do not establish causality or time
+acceptance. Archive both isolated trials and the matched r4/r5 baselines.
+Final actual wasm fixture/arithmetic proof and unchanged S5 maxima are required.
