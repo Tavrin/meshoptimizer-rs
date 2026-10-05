@@ -3529,3 +3529,49 @@ and reserves D146's 30-pair stage for unresolved 20-pair intervals. `--case`
 and `--pairs 5` select affected cases for diagnostic iteration. Final results
 use one adaptive pass per profile. Admission and stopping regressions are
 part of the focused harness tests.
+
+## D154 — Final cluster-LOD recovery acceptance and cleanup
+
+The implementation `9589e0cab7fdf8eef50654a744a6f05a20a01047` meets
+both unchanged bars on one final adaptive pass per Rust profile. Consumer
+Rust/scalar-C++ aggregate is **1.1959471126155838**, Cargo defaults
+**1.0899528253461015**. Every mesh is below 1.5; observed maxima are
+1.269240275051873 and 1.315468938081677 respectively (the full-precision
+records are authoritative). Moss-style comparison aggregates are 1.1604228528
+and 1.1280284467. The profiles use different admitted bursts and loads, so
+these wall times do not rank the profiles or claim quiet-machine performance.
+
+Only the four affected meshes received five diagnostic pairs. The final pass
+retains 98 fresh interleaved three-way pairs: 49 per profile, 5–9 per mesh.
+Every stopping interval passes; no borderline case reached 20 pairs, and no
+D146 second stage was needed. Longest active burst: 23.405 seconds.
+Every pair-start admission and every current source/binary identity was
+independently rechecked before cleanup.
+
+Queued GPU work left short free windows between leases. The initial periodic
+attempt was stopped while paused, before any measured pair. The retained
+`measure-on-release.py` adapter watches holder process exits with Linux pidfd
+notifications and performs a fresh unchanged admission check after an exit.
+Periodic failed checks retain D152's 300-second cadence; cooldown stays 60
+seconds. The observer never acquires a lease or interrupts another job, and
+all drivers close before waiting. It checks the prepared source/executable
+manifest instead of rebuilding between free windows. Its own hash and the
+prepared-build manifest hash are included in the result identities. Timers,
+interleaving, core selection, stopping intervals and aggregate calculation
+remain those of the committed runner.
+
+Both final profiles match all 15 supported layouts byte for byte against
+scalar and Moss-style C++; all 90 codec comparisons, 12 three-way cases and
+517 byte limits pass. All 0.1–0.4 fixture/seeded gates and the 80 cluster-LOD
+C++/native/WASM cases pass, with independently verified manifests. Both
+feature test/clippy configurations and fmt pass. D149's single-cluster memory
+guarantee and D150's unconditional post-dilation invalidation remain intact.
+
+Evidence is in `/mnt/linux-extra/meshopt-artifacts/clodrec` and the detailed
+handoff is `parity/results/rfc113-clod-recover.md`. Twenty required native/WASM
+executable identities were retained and hash-verified, along with baseline
+and implementation source archives, raw perf data, raw pairs and validation
+corpora. The exact named target
+`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodrec` was deleted after
+verification; `target-cleanup.json` and `artifact-manifest.json` are the
+receipts. No push or integration/runtime qualification is performed.

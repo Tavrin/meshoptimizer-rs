@@ -1,5 +1,7 @@
 # RFC 113 clodBuild parity against Moss S2
 
+Historical review-fix result below. The subsequent recovery meets both performance bars; see [the recovery report](rfc113-clod-recover.md) and D153–D154.
+
 **Verdict:** all 15 valid layout cases have byte-identical DAG, local indices, hierarchy, cluster and meshlet bounds. All 90 codec payload comparisons match. The nine-mesh paired cook ratio is **2.383×** scalar C++ and **2.399×** Moss-style SIMD C++; the consumer scalar performance bar is not met. Cargo-defaults scalar aggregate is **2.389×** (not met). Stride 32 remains invalid under the exact S2 protect mask.
 
 ## Setup and identity
