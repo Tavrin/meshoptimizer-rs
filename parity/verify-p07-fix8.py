@@ -14,6 +14,8 @@ for n,h in build['binaries'].items():assert sha(ART/'bin'/n)==h
 identity=read('native-identity');assert identity['sources']==build['sources'] and identity['binaries']==build['binaries'] and identity['passed']
 for row in read('checks'):
  assert row['exit_code']==0 and row['sources']==build['sources'] and sha(ART/row['log'])==row['log_sha256']
+effect=read('counter-effect');assert effect['passed'] and effect['sources']==build['sources']
+assert read('baseline-counters')['sources']==read('control-build')['sources']
 counters=read('final-counters');assert counters['complete'] and counters['sources']==build['sources']
 for r in counters['rows']:
  assert r['binary_sha256']==build['binaries']['rust-simd']

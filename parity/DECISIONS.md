@@ -4652,3 +4652,15 @@ covering both widths, all short tail counts, extreme fields, errors, canonical
 bytes, usage and destination tails. Static boundary gate passes the same 23
 blocks and formatting passes. Runtime, final counter effect, parity, Miri and
 RFC/S3 remain pending; the disk floor forbids builds. No timing has started.
+
+### Fix-eight terminal disk block
+
+Bounded 600-second disk wait exits 75 before Cargo. Final free 16603815936 bytes
+versus 26843545600 required; no resource-floor bypass or another lane deletion.
+The wait process exited, and codex-p07-fix8 was never created: absence verified.
+Source candidates 5b9da67/513340c are preserved with authored regression;
+post-change instruction effect, compilation, runtime parity, ordinary/Miri/MSRV
+checks and ONE final timing epoch are all unrun. No RFC/S3 acceptance. Static
+23-block boundary, formatting, controller syntax and retained hashes pass.
+Status: incomplete, blocked by the mandatory disk gate. Detailed receipts and
+remaining steps are retained; never promote old qualification to these candidates.

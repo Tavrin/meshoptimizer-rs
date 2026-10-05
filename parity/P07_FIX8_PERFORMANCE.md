@@ -94,3 +94,10 @@ final epoch with round-seven controls in each pair. Preserve the inherited
 pair early stops and fresh 30-pair D146 stages only for borderline maxima.
 No WASM rescue epoch; do not retime an unproven candidate. Record all failures.
 Delete only `/mnt/linux-extra/moss-cargo-targets/codex-p07-fix8` at the final stop.
+
+Terminal receipt: bounded 600-second disk wait exited **75** before Cargo.
+Final free bytes: **16603815936**, below **26843545600** required.
+The wait process has exited; the exact target was never created and is confirmed
+absent. No queued or background candidate work remains. `terminal-receipt.json`
+binds the logs; `remaining-work.json` lists every unrun gate. Fix-eight execution
+is **incomplete and blocked**, with the final timing allowance still unused.
