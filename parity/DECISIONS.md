@@ -8052,3 +8052,12 @@ and levels, including uncommon-stride fallbacks. Instructions fall another
 retain the instruction reduction for the registered paired final timing.
 The unchanged decoder's instructions remain exactly 1.000. No unsafe loads
 or elapsed claim. Receipts: build/parity/counters-vertex-strides.json.
+
+## V03-8 — Fixed-offset sequence varints; keep the index writer
+
+The shared fixed-offset writer passes 17,264 byte comparisons and reduces
+sequence instructions ~20% allocating / ~21% caller, but increases index
+instructions 2.35%. Reject it for index encoding. Give sequence its own
+constant-offset writer and restore the index writer; this isolated variant
+also passes all 17,264 comparisons. Keep sequence's improvement and retain
+both varints and sequence-varints receipts. No timing verdict.

@@ -48,6 +48,28 @@ pub(super) fn sequence_bound(index_count: usize, vertex_count: u64) -> Result<us
 
 /// Varint-7 into a five-byte window; returns the bytes used.
 #[inline(always)]
+fn sequence_vbyte5(out: &mut [u8; 5], mut v: u32) -> usize {
+    // Constant byte offsets let each terminating branch eliminate the
+    // dynamic window index and loop counter. A u32 needs at most five bytes.
+    macro_rules! emit {
+        ($i:literal) => {
+            if v < 128 {
+                out[$i] = v as u8;
+                return $i + 1;
+            }
+            out[$i] = v as u8 | 128;
+            v >>= 7;
+        };
+    }
+    emit!(0);
+    emit!(1);
+    emit!(2);
+    emit!(3);
+    out[4] = v as u8;
+    5
+}
+
+#[inline(always)]
 fn vbyte5(out: &mut [u8; 5], mut v: u32) -> usize {
     let mut n = 0;
     loop {
@@ -291,7 +313,7 @@ pub(super) fn encode_index_sequence(
         let window: &mut [u8; 5] = (&mut out[pos..pos + 5])
             .try_into()
             .map_err(|_| Error::BufferTooSmall)?;
-        pos += vbyte5(window, (v << 1) | current as u32);
+        pos += sequence_vbyte5(window, (v << 1) | current as u32);
         last[current & 1] = index;
     }
     if pos > safe_end {
