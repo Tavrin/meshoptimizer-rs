@@ -185,7 +185,11 @@ fn encode_bytes(
 
 #[inline]
 fn word(data: &[u8], at: usize) -> u32 {
-    u32::from_le_bytes([data[at], data[at + 1], data[at + 2], data[at + 3]])
+    u32::from_le_bytes(
+        *data[at..]
+            .first_chunk::<4>()
+            .expect("validated vertex word"),
+    )
 }
 
 /// encodeDeltas for the four byte lanes k4..k4+4, which share one channel.
@@ -198,6 +202,25 @@ fn deltas(
     k4: usize,
     channel: u8,
 ) {
+    match stride {
+        4 => deltas_fixed::<4>(lanes, data, count, stride, last, k4, channel),
+        12 => deltas_fixed::<12>(lanes, data, count, stride, last, k4, channel),
+        32 => deltas_fixed::<32>(lanes, data, count, stride, last, k4, channel),
+        _ => deltas_fixed::<0>(lanes, data, count, stride, last, k4, channel),
+    }
+}
+
+fn deltas_fixed<const STRIDE: usize>(
+    lanes: &mut [[u8; BLOCK_MAX]; 4],
+    data: &[u8],
+    count: usize,
+    stride: usize,
+    last: &[u8],
+    k4: usize,
+    channel: u8,
+) {
+    let stride = if STRIDE == 0 { stride } else { STRIDE };
+    let k4 = if STRIDE == 4 { 0 } else { k4 };
     let mut p = word(last, k4);
     let [l0, l1, l2, l3] = lanes;
     let rows = data.chunks_exact(stride).take(count);

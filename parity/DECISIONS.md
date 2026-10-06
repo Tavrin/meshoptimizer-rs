@@ -8041,3 +8041,14 @@ All 17,264 byte comparisons pass after adding immutable cook-like geometry.
 Resident allocating instructions fall to 0.920 of baseline for v0 and 0.940
 for v1 across s4/s12/s32; the untouched streaming decoder stays at 1.000.
 Keep this independently validated change; receipts are vertex-sizes.json.
+
+## V03-7 — Constant vertex delta strides and checked word windows
+
+Select common s4/s12/s32 delta loops once and read words through a single
+checked four-byte window. All 17,264 byte comparisons pass across versions
+and levels, including uncommon-stride fallbacks. Instructions fall another
+20–22% for v0 and 24–26% for v1 relative to compact Sizes. Branches fall
+24–32%. Diagnostic cycles vary with shared-host noise, including regressions;
+retain the instruction reduction for the registered paired final timing.
+The unchanged decoder's instructions remain exactly 1.000. No unsafe loads
+or elapsed claim. Receipts: build/parity/counters-vertex-strides.json.
