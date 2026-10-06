@@ -5,7 +5,7 @@
   "phase": "0.3",
   "passed": true,
   "mismatches": 0,
-  "seed": 20261004,
+  "seed": 20261002,
   "cases": {
     "build_meshlets": 2000,
     "build_meshlets_scan": 2000,
@@ -26,7 +26,7 @@
   "fixture_count": 0,
   "detail_artifact": "sweep/record.json",
   "artifacts": {
-    "sweep/record.json": "b19dbb62c3ab203eb393cf4579d80d2b8ea06f0a3daae8901a242ed0cf83633e",
-    "sweep/corpus.bin": "8ba4d5d665ce8eab4f7530938b53ab8dbe476ff2190e6ff4d4807e06b83b6479"
+    "sweep/record.json": "3719aba974bd4f1a126e11be356d604fe034a5344cf940801398fb50777f9341",
+    "sweep/corpus.bin": "20e7522343d0d72f3240b9ea68f4ea6b85621ae58c200b6689896830310a1242"
   }
 }

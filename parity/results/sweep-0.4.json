@@ -34,25 +34,25 @@
         "25": 2000
       },
       "mismatches": 0,
-      "simd_filter_conformance_cases": 6502,
+      "simd_filter_conformance_cases": 6516,
       "executable_sha256": {
         "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
         "simd": "2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58",
-        "rust": "922d3ab26f7a45202bb3ab9a4da7312c59e8de867178ca75cb4b0e0650e5ff7e",
-        "wasm": "b2a78c27a9f15e073646598acb5cfaea31c7a55d9ae4dce9a14efe436e5883ab"
+        "rust": "b741132cb8440442b45840103ae2f3ad067732d933e5601b49302c84f28ab1d0",
+        "wasm": "d0997a6509d2601ede70148f166a9d737ba30c0e11afb3d538ebc70c806de7e9"
       },
       "reference_revision": "4c203430ca565cb59a468a91922c76c208169536",
-      "cpp_undefined_cases": 78,
-      "cross_decoded_cases": 15304,
+      "cpp_undefined_cases": 75,
+      "cross_decoded_cases": 15329,
       "color_simd_max_unit_difference": 255
     }
   },
   "artifacts": {
-    "sweep-0.4/sweep.json": "a6ef5fbb8a9301b018247734c8c7c80a0980c51a79cf80f2115270ee12235117",
-    "sweep-0.4/sweep.zip": "8313cff9f66da39bd172a58725139354e7fe9adb372bbf44076196614aad0ce8"
+    "sweep-0.4/sweep.json": "66e12990eb91e901500ce0e5067a43581840110e1fb036b3c657a2643025aa16",
+    "sweep-0.4/sweep.zip": "ad52f2e653b83219aab0cbb67abcad9cb15a0ec25099ca3952e56ee5fefcdc87"
   },
   "detail_artifact": "sweep-0.4/sweep.json",
-  "seed": 20261004,
+  "seed": 20261002,
   "mismatches": 0,
   "passed": true
 }

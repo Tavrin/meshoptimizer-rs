@@ -9,12 +9,14 @@ import subprocess
 import tempfile
 import threading
 import time
+import tomllib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = Path(__file__).resolve().parent.parent
 COMMANDS = [
     ["cargo", "fmt", "--check"],
     ["cargo", "clippy", "--locked", "--all-targets", "--all-features", "--", "-D", "warnings"],
+    ["cargo", "test", "--locked"],
     ["cargo", "test", "--locked", "--all-features"],
     ["cargo", "test", "--locked", "--no-default-features"],
     ["cargo", "build", "--target", "wasm32-unknown-unknown", "--no-default-features"],
@@ -37,7 +39,7 @@ def sha(path):
 
 
 def snapshot():
-    files = [ROOT / "Cargo.toml", ROOT / "Cargo.lock", *ROOT.glob("src/*.rs"), *ROOT.glob("tests/*.rs"),
+    files = [ROOT / "Cargo.toml", ROOT / "Cargo.lock", *ROOT.glob("src/**/*.rs"), *ROOT.glob("tests/*.rs"),
              ROOT / "parity/gates.py", ROOT / "parity/gates.sh", ROOT / ".github/workflows/ci.yml",
              *[ROOT / name for name in ["README.md", "LICENSE", "UPSTREAM.md", "CHANGELOG.md", "CONTRIBUTING.md", "SECURITY.md"]]]
     return {str(p.relative_to(ROOT)): sha(p) for p in sorted(files)}
@@ -163,7 +165,8 @@ def main():
     record["identities_unchanged"] = record["source_sha256"] == snapshot()
     record["passed"] = len(record["commands"]) == len(COMMANDS) and all(c["exit"] == 0 for c in record["commands"]) and record["identities_unchanged"]
     record["finished_unix"] = time.time()
-    package_name = "meshoptimizer-rs-0.1.0.crate"
+    metadata = tomllib.loads((ROOT / "Cargo.toml").read_text())["package"]
+    package_name = f'{metadata["name"]}-{metadata["version"]}.crate'
     candidates = [target / "package" / package_name, target / "package/tmp-crate" / package_name]
     packages = [p for p in candidates if p.is_file()]
     if record["passed"] and len(packages) != 1:

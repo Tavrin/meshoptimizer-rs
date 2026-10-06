@@ -1,6 +1,10 @@
 #![forbid(unsafe_code)]
 use meshoptimizer_rs::{codec::*, Limits, Workspace};
 pub fn exercise(entry: u8, data: &[u8]) {
+    differential(entry, data);
+    exercise_reference(entry, data);
+}
+fn exercise_reference(entry: u8, data: &[u8]) {
     if data.len() < 9 {
         return;
     }
@@ -256,6 +260,117 @@ fn exercise04(
             let _ = encode_index_buffer_bound(count, stride.wrapping_mul(count));
             let _ = encode_index_sequence_bound(count, stride.wrapping_mul(count));
             let _ = encode_meshlet_bound(count, stride);
+        }
+    }
+}
+
+// All decoder targets compare the exact typed result and successful meaningful
+// bytes under every level this process can execute. Each process covers all ISAs.
+static LEVEL_COUNTS: [std::sync::atomic::AtomicU64; 6] =
+    [const { std::sync::atomic::AtomicU64::new(0) }; 6];
+fn differential(entry: u8, data: &[u8]) {
+    if data.len() < 9 || !matches!(entry, 0..=12 | 23 | 26..=29) {
+        return;
+    }
+    let count = u32::from_le_bytes(data[..4].try_into().unwrap()) as usize;
+    let stride = u16::from_le_bytes(data[4..6].try_into().unwrap()) as usize;
+    let source = &data[9..];
+    let run = || {
+        let mut ws = Workspace::new(Limits {
+            max_bytes: 65536,
+            max_work: 131072,
+        });
+        let mut out = vec![0xcc; usize::from(data[8]) * 256];
+        let r = match entry {
+            0 => decode_vertex_buffer(count, stride, source, &mut ws),
+            1 => decode_vertex_buffer_into(&mut out, count, stride, source, &mut ws).map(|()| out),
+            2 => decode_index_buffer(count, stride, source, &mut ws),
+            3 => decode_index_buffer_into(&mut out, count, stride, source, &mut ws).map(|()| out),
+            4 => decode_index_sequence(count, stride, source, &mut ws),
+            5 => decode_index_sequence_into(&mut out, count, stride, source, &mut ws).map(|()| out),
+            6..=8 | 23 => {
+                let n = source.len().min(out.len());
+                out[..n].copy_from_slice(&source[..n]);
+                match entry {
+                    6 => decode_filter_oct(&mut out, count, stride, &mut ws),
+                    7 => decode_filter_quat(&mut out, count, stride, &mut ws),
+                    8 => decode_filter_exp(&mut out, count, stride, &mut ws),
+                    _ => decode_filter_color(&mut out, count, stride, &mut ws),
+                }
+                .map(|()| out)
+            }
+            9 => decode_vertex_version(source).map(|version| vec![version]),
+            10 => decode_index_version(source).map(|version| vec![version]),
+            11 | 12 => {
+                let mode =
+                    [Mode::Attributes, Mode::Triangles, Mode::Indices][usize::from(data[6] % 3)];
+                let filter = [
+                    Filter::None,
+                    Filter::Octahedral,
+                    Filter::Quaternion,
+                    Filter::Exponential,
+                ][usize::from(data[7] % 4)];
+                if entry == 11 {
+                    decode_buffer_view(mode, filter, count, stride, source, &mut ws)
+                } else {
+                    decode_buffer_view_into(&mut out, mode, filter, count, stride, source, &mut ws)
+                        .map(|()| out)
+                }
+            }
+            26 | 27 => {
+                let vc = usize::from(data[6]);
+                let tc = (usize::from(data[7]) + (count & 1) * 256).min(256);
+                let vs = [2, 4][(count >> 1) & 1];
+                let ts = [3, 4][(count >> 2) & 1];
+                if entry == 26 {
+                    decode_meshlet(vc, vs, tc, ts, source, &mut ws)
+                        .map(|d| [d.vertices, d.triangles].concat())
+                } else {
+                    let half = out.len() / 2;
+                    let (v, t) = out.split_at_mut(half);
+                    decode_meshlet_into(v, vc, vs, t, tc, ts, source, &mut ws).map(|()| out)
+                }
+            }
+            _ => {
+                let (vc, tc) = (usize::from(data[6]), usize::from(data[7]));
+                if entry == 28 {
+                    decode_meshlet_raw(vc, tc, source, &mut ws).map(|d| {
+                        d.vertices
+                            .into_iter()
+                            .chain(d.triangles)
+                            .flat_map(u32::to_le_bytes)
+                            .collect()
+                    })
+                } else {
+                    let mut v = [0xccu32; 256];
+                    let mut t = [0xccu32; 256];
+                    decode_meshlet_raw_into(&mut v, vc, &mut t, tc, source, &mut ws)
+                        .map(|()| v.into_iter().chain(t).flat_map(u32::to_le_bytes).collect())
+                }
+            }
+        };
+        r
+    };
+    let expected = with_level(Level::Scalar, run).unwrap();
+    let n = LEVEL_COUNTS[0].fetch_add(1, std::sync::atomic::Ordering::Relaxed) + 1;
+    for l in [
+        Level::Sse2,
+        Level::Ssse3,
+        Level::Sse41,
+        Level::Neon,
+        Level::Wasm,
+    ] {
+        if let Ok(actual) = with_level(l, run) {
+            LEVEL_COUNTS[l as usize].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            assert_eq!(actual, expected, "entry {entry}, level {l:?}");
+        }
+    }
+    if n.is_multiple_of(1024) {
+        if let Ok(path) = std::env::var("MESHOPT_FUZZ_COUNTS") {
+            let counts = LEVEL_COUNTS
+                .each_ref()
+                .map(|c| c.load(std::sync::atomic::Ordering::Relaxed));
+            std::fs::write(path, format!("{counts:?}\n")).expect("write per-level checkpoint");
         }
     }
 }

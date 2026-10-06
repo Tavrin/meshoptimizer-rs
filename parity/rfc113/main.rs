@@ -20,15 +20,15 @@ fn run(input: &[u8]) -> Result<Vec<u8>, String> {
     if input.len() < 16 || !matches!(&input[..4],b"R113"|b"R11B"|b"R11T") { return Err("bad input".into()); }
     let bounds_mode=&input[..4]==b"R11B";
     let nv=word(input,4) as usize; let ni=word(input,8) as usize; let stride=word(input,12) as usize;
-    if nv > 4<<20 || ni > 16<<20 || stride < 32 || stride > 256 || stride%4 != 0 || ni%3 != 0 ||
+    if nv > 4<<20 || ni > 16<<20 || !(32..=256).contains(&stride) || !stride.is_multiple_of(4) || !ni.is_multiple_of(3) ||
         16usize.checked_add(nv.checked_mul(stride).ok_or("size overflow")?)
         .and_then(|v|v.checked_add(ni*4)).and_then(|v|v.checked_add(nv)) != Some(input.len()) {
         return Err("bad input sizes".into());
     }
-    let floats: Vec<f32> = input[16..16+nv*stride].chunks_exact(4)
-        .map(|b|f32::from_le_bytes(b.try_into().unwrap())).collect();
-    let indices: Vec<u32> = input[16+nv*stride..16+nv*stride+ni*4].chunks_exact(4)
-        .map(|b|u32::from_le_bytes(b.try_into().unwrap())).collect();
+    let floats: Vec<f32> = input[16..16+nv*stride].as_chunks::<4>().0.iter()
+        .map(|b|f32::from_le_bytes(*b)).collect();
+    let indices: Vec<u32> = input[16+nv*stride..16+nv*stride+ni*4].as_chunks::<4>().0.iter()
+        .map(|b|u32::from_le_bytes(*b)).collect();
     let locks: Vec<VertexFlags> = input[16+nv*stride+ni*4..].iter()
         .map(|&b|VertexFlags::from_bits(b).map_err(|e|e.to_string())).collect::<Result<_,_>>()?;
     let mut positions: Vec<[f32;3]> = floats.chunks_exact(stride/4).map(|v|[v[0],v[1],v[2]]).collect();

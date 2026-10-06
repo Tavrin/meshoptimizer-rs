@@ -3,7 +3,8 @@
 Enable `parallel` for `meshoptimizer_rs::parallel`; it enables `std` and pins
 Rayon 1.11.0. Cluster DAG/forest batches also require `clusterlod`. See the
 module rustdoc and README for descriptors, ordered errors and per-item budgets.
-The default and no-default dependency trees still contain only libm.
+The default and no-default dependency trees still contain only libm; the
+default `simd` feature adds no dependency.
 
 ## Reproduce
 

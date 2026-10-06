@@ -1,6 +1,29 @@
 // meshoptimizer 1.3 scalar decoder, MIT, Arseny Kapoulkine.
 // Byte-group parsing also reuses the Moss dc4af42a decoder (MIT).
 use crate::Error;
+use alloc::vec::Vec;
+
+// Both sinks expose initialized, checked block slices. The allocating sink
+// initializes each block just before reconstruction, keeping those writes hot
+// instead of clearing the entire output in a separate memory pass. Its caller
+// reserves the complete output first, so extending the length cannot allocate.
+pub(super) trait Destination {
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8];
+}
+impl Destination for [u8] {
+    #[inline]
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8] {
+        &mut self[start..end]
+    }
+}
+impl Destination for Vec<u8> {
+    #[inline]
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8] {
+        debug_assert!(end <= self.capacity());
+        self.resize(end, 0);
+        &mut self[start..end]
+    }
+}
 
 #[inline]
 fn packed<const BITS: u32>(data: &[u8; 24], out: &mut [u8; 16]) -> usize {
@@ -32,6 +55,10 @@ fn group(data: &[u8], pos: usize, out: &mut [u8; 16], bits: u32) -> Result<usize
         .ok_or(Error::InvalidStream)?
         .try_into()
         .map_err(|_| Error::InvalidStream)?;
+    #[cfg(feature = "simd")]
+    if let Some(used) = super::simd::group(source, out, bits) {
+        return Ok(pos + used);
+    }
     let used = match bits {
         0 => {
             out.fill(0);
@@ -48,13 +75,31 @@ fn group(data: &[u8], pos: usize, out: &mut [u8; 16], bits: u32) -> Result<usize
     };
     Ok(pos + used)
 }
-fn decode_deltas<const WIDTH: usize, const XOR: bool>(
+pub(super) fn decode_deltas<const WIDTH: usize, const XOR: bool>(
     buffer: &[u8],
     target: &mut [u8],
     count: usize,
     stride: usize,
     last: &[u8],
     rot: u32,
+) {
+    #[cfg(feature = "simd")]
+    if WIDTH == 1 && !XOR && super::simd::deltas8(buffer, target, count, stride, last) {
+        return;
+    }
+    scalar_deltas::<WIDTH, XOR>(buffer, target, count, stride, last, rot, 0);
+}
+// Shared canonical short/tail path. `start` skips the already reconstructed
+// complete records while plane spacing remains the original block count.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn scalar_deltas<const WIDTH: usize, const XOR: bool>(
+    buffer: &[u8],
+    target: &mut [u8],
+    count: usize,
+    stride: usize,
+    last: &[u8],
+    rot: u32,
+    start: usize,
 ) {
     for component in (0..4).step_by(WIDTH) {
         let mut previous = 0u32;
@@ -78,12 +123,12 @@ fn decode_deltas<const WIDTH: usize, const XOR: bool>(
             c0
         };
         for (i, record) in target.chunks_mut(stride).enumerate() {
-            let mut value = u32::from(c0[i]);
+            let mut value = u32::from(c0[start + i]);
             if WIDTH >= 2 {
-                value |= u32::from(c1[i]) << 8;
+                value |= u32::from(c1[start + i]) << 8;
             }
             if WIDTH == 4 {
-                value |= u32::from(c2[i]) << 16 | u32::from(c3[i]) << 24;
+                value |= u32::from(c2[start + i]) << 16 | u32::from(c3[start + i]) << 24;
             }
             value = if XOR {
                 value.rotate_left(rot) ^ previous
@@ -99,6 +144,10 @@ fn decode_deltas<const WIDTH: usize, const XOR: bool>(
     }
 }
 fn bytes(data: &[u8], mut pos: usize, out: &mut [u8], bits: &[u32]) -> Result<usize, Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::bytes(data, pos, out, bits) {
+        return result;
+    }
     let header = pos;
     let headers = (out.len() / 16).div_ceil(4);
     if data.len().saturating_sub(pos) < headers {
@@ -114,12 +163,16 @@ fn bytes(data: &[u8], mut pos: usize, out: &mut [u8], bits: &[u32]) -> Result<us
     }
     Ok(pos)
 }
-pub(super) fn decode(
-    output: &mut [u8],
+pub(super) fn decode<D: Destination + ?Sized>(
+    output: &mut D,
     count: usize,
     stride: usize,
     data: &[u8],
 ) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::vertex(output, count, stride, data) {
+        return result;
+    }
     let version = super::decode_vertex_version(data)?;
     let tail = stride + if version == 0 { 0 } else { stride / 4 };
     let padded = tail.max(if version == 0 { 32 } else { 24 });
@@ -148,7 +201,7 @@ pub(super) fn decode(
         };
         // Each bounded block fits 8 KiB. Write directly into its checked
         // destination slice, avoiding zeroing/copying an extra stack block.
-        let block_output = &mut output[offset * stride..(offset + block) * stride];
+        let block_output = output.block(offset * stride, (offset + block) * stride);
         for k in (0..stride).step_by(4) {
             let control = if version == 0 { 0 } else { controls[k / 4] };
             for j in 0..4 {

@@ -7,7 +7,18 @@ use crate::{math::sqrt, Error};
 fn rounded(v: f32, sign: f32) -> i32 {
     (v + if sign >= 0.0 { 0.5 } else { -0.5 }) as i32
 }
-pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
+#[inline(always)]
+pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
+    scalar_oct_with_root(data, stride, sqrt)
+}
+// The arithmetic stays canonical; the native ISA tail supplies the same
+// correctly rounded root operation as its complete four-record groups.
+#[inline(always)]
+pub(super) fn scalar_oct_with_root(
+    data: &mut [u8],
+    stride: usize,
+    root: impl Fn(f32) -> f32,
+) -> Result<(), Error> {
     let mut previous = ([0i16; 3], [0i32; 3]);
     let mut valid = false;
     for element in data.chunks_exact_mut(stride) {
@@ -47,7 +58,7 @@ pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
         let t = if z >= 0.0 { 0.0 } else { z };
         x += if x >= 0.0 { t } else { -t };
         y += if y >= 0.0 { t } else { -t };
-        let length = sqrt(x * x + y * y + z * z);
+        let length = root(x * x + y * y + z * z);
         if length == 0.0 {
             return Err(Error::NumericalFailure);
         }
@@ -69,7 +80,8 @@ pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
     }
     Ok(())
 }
-pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
+#[inline(always)]
+pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
     let scale = 32767.0 / sqrt(2.0);
     let mut previous = ([0i16; 4], [0u8; 8]);
     let mut valid = false;
@@ -104,10 +116,72 @@ pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
     }
     Ok(())
 }
+
+// The SIMD dispatcher has already found four identical keys. Decode the
+// first record canonically, then copy only its normalized components until
+// the key changes. Oct's alpha is independent and must remain untouched.
+#[cfg(all(
+    feature = "simd",
+    any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    )
+))]
+pub(super) fn repeated(kind: u8, data: &mut [u8], stride: usize) -> Result<usize, Error> {
+    fn oct_run<const W: usize>(data: &mut [u8]) -> Result<usize, Error> {
+        let read = |e: &[u8]| {
+            if W == 4 {
+                u64::from(u32::from_le_bytes(e[..4].try_into().unwrap()))
+            } else {
+                u64::from_le_bytes(e[..8].try_into().unwrap())
+            }
+        };
+        let mask = if W == 4 {
+            0x00ff_ffff
+        } else {
+            0x0000_ffff_ffff_ffff
+        };
+        let key = read(data) & mask;
+        scalar_oct(&mut data[..W], W)?;
+        let normalized = read(data) & mask;
+        let mut used = W;
+        for e in data.as_chunks_mut::<W>().0.iter_mut().skip(1) {
+            let word = read(e);
+            if word & mask != key {
+                break;
+            }
+            let out = (word & !mask) | normalized;
+            e.copy_from_slice(&out.to_le_bytes()[..W]);
+            used += W;
+        }
+        Ok(used)
+    }
+    if kind == 1 {
+        if stride == 4 {
+            oct_run::<4>(data)
+        } else {
+            oct_run::<8>(data)
+        }
+    } else {
+        let key: [u8; 8] = data[..8].try_into().unwrap();
+        scalar_quat(&mut data[..8])?;
+        let normalized: [u8; 8] = data[..8].try_into().unwrap();
+        let mut used = 8;
+        for e in data.as_chunks_mut::<8>().0.iter_mut().skip(1) {
+            if *e != key {
+                break;
+            }
+            *e = normalized;
+            used += 8;
+        }
+        Ok(used)
+    }
+}
 /// Scalar meshopt_decodeFilterColor. Returns NumericalFailure where the C++
 /// float-to-int conversion is undefined: a zero alpha word (infinite scale)
 /// or a 16-bit record whose scaled component leaves the i32 range.
-pub(super) fn color(data: &mut [u8], stride: usize) -> Result<(), Error> {
+pub(super) fn scalar_color(data: &mut [u8], stride: usize) -> Result<(), Error> {
     // Chunks of up to 64 records take a vectorizable path whose conversion is
     // exact below 2^22; a chunk with any larger (or non-finite) value is
     // restored from its copy and redone with the per-record checked path.
@@ -307,7 +381,10 @@ fn color_record(y: i32, co: i32, cg: i32, alpha: i32, max: f32) -> ([i32; 4], bo
     });
     (values, valid)
 }
-pub(super) fn exp(data: &mut [u8]) {
+// Keep one lowering for the canonical comparator and size-dispatched path.
+// Inlining it separately into allocating/caller wrappers changes vectorization.
+#[inline(never)]
+pub(super) fn scalar_exp(data: &mut [u8]) {
     for word in data.as_chunks_mut::<4>().0 {
         let v = u32::from_le_bytes(*word);
         let m = ((v << 8) as i32) >> 8;
@@ -315,6 +392,40 @@ pub(super) fn exp(data: &mut [u8]) {
         let decoded = f32::from_bits((e.wrapping_add(127) as u32) << 23) * m as f32;
         word.copy_from_slice(&decoded.to_bits().to_le_bytes());
     }
+}
+
+pub(super) fn oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::filter(1, data, stride) {
+        return result;
+    }
+    scalar_oct(data, stride)
+}
+pub(super) fn quat(data: &mut [u8]) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::filter(2, data, 8) {
+        return result;
+    }
+    scalar_quat(data)
+}
+#[inline(always)]
+pub(super) fn exp(data: &mut [u8], stride: usize) {
+    // Native scalar lowering is already vectorized. Its shared body avoids
+    // tiny size-dispatch overhead and wins the allocating streaming shape.
+    #[cfg(all(feature = "simd", not(target_arch = "x86_64")))]
+    if super::simd::filter(3, data, 4).is_some() {
+        return;
+    }
+    let _ = stride;
+    scalar_exp(data)
+}
+
+pub(super) fn color(data: &mut [u8], stride: usize) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::filter(4, data, stride) {
+        return result;
+    }
+    scalar_color(data, stride)
 }
 
 #[cfg(test)]

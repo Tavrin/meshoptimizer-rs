@@ -5,6 +5,9 @@ edition = "2021"
 rust-version = "1.88"
 publish = false
 
+[features]
+simd = ["meshoptimizer-rs/std", "meshoptimizer-rs/simd", "meshoptimizer-rs/parity-internals"]
+
 [dependencies]
 meshoptimizer-rs = { path = "../..", default-features = false }
 

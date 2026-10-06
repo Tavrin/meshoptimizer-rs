@@ -363,6 +363,19 @@ fn decode_bytes<const VS: usize, const TS: usize>(
     vertices: &mut [u8],
     triangles: &mut [u8],
 ) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if s.vertex_count == 1 && triangle_count == 1 {
+        let (v, t) = decode_single(s)?;
+        vertices[..VS].copy_from_slice(&v.to_le_bytes()[..VS]);
+        triangles[..TS].copy_from_slice(&t.to_le_bytes()[..TS]);
+        return Ok(());
+    }
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::meshlet_bytes::<VS, TS>(
+        s.source, s.bound, s.ctrl, s.codes, vertices, triangles,
+    ) {
+        return result;
+    }
     let vertices = vertices.as_chunks_mut::<VS>().0;
     let triangles = triangles.as_chunks_mut::<TS>().0;
     decode_core(
@@ -379,11 +392,95 @@ fn decode_bytes<const VS: usize, const TS: usize>(
     )
 }
 
+#[inline(always)]
+fn decode_raw(
+    s: &Stream<'_>,
+    triangle_count: usize,
+    vertices: &mut [u32],
+    triangles: &mut [u32],
+) -> Result<(), Error> {
+    #[cfg(feature = "simd")]
+    if s.vertex_count == 1 && triangle_count == 1 {
+        let (v, t) = decode_single(s)?;
+        vertices[0] = v;
+        triangles[0] = t;
+        return Ok(());
+    }
+    #[cfg(feature = "simd")]
+    if let Some(result) =
+        super::simd::meshlet_raw(s.source, s.bound, s.ctrl, s.codes, vertices, triangles)
+    {
+        return result;
+    }
+    decode_core(
+        s,
+        triangle_count,
+        |i, r| vertices[i] = r,
+        |i, tri| triangles[i] = tri >> 8,
+    )
+}
+
+// One vertex still consumes the entire padded group of four deltas. The
+// triangle starts with an empty FIFO and counter zero; its unused high nibble
+// does not consume bytes. Keep the reference lookahead and exact final bound.
+#[cfg(feature = "simd")]
+#[inline]
+fn decode_single(s: &Stream<'_>) -> Result<(u32, u32), Error> {
+    let window = s.source.first_chunk::<16>().ok_or(Error::InvalidStream)?;
+    let ctrl = s.ctrl[0];
+    let (length, used) = if ctrl == 255 {
+        (4, 16)
+    } else {
+        let low = ctrl & 15;
+        let high = ctrl >> 4;
+        (
+            usize::from((low & 1) | ((high & 1) << 1)),
+            low.count_ones() as usize + 2 * high.count_ones() as usize,
+        )
+    };
+    let mask = u32::MAX >> ((4 - length) * 8 % 32);
+    let word = if length == 0 {
+        0
+    } else {
+        u32::from_le_bytes(window[..4].try_into().unwrap()) & mask
+    };
+    let vertex = (word >> 1) ^ 0u32.wrapping_sub(word & 1);
+    if used > s.bound {
+        return Err(Error::InvalidStream);
+    }
+    let w = s.source.get(used..used + 3).ok_or(Error::InvalidStream)?;
+    let code = s.codes[0] & 15;
+    let (triangle, extra) = match code {
+        0..=11 => (
+            if code & 1 == 0 {
+                0
+            } else {
+                u32::from(w[0]) << 16
+            },
+            usize::from(code & 1),
+        ),
+        12 => (0x020100, 0),
+        13 => (u32::from(w[0]) | 0x010000, 1),
+        14 => (u32::from(w[0]) | (u32::from(w[1]) << 8), 2),
+        _ => (u32::from_le_bytes([w[0], w[1], w[2], 0]), 3),
+    };
+    if used + extra != s.bound {
+        return Err(Error::InvalidStream);
+    }
+    Ok((vertex, triangle))
+}
+
 /// Decode vertex references into `out` (at most 256, one group of four per
 /// control byte). Each group reads one bounded 16-byte window: the group
 /// starts at or before `bound`, and sixteen readable bytes follow `bound`.
 #[inline(always)]
 fn decode_vertices(s: &Stream<'_>, mut out: impl FnMut(usize, u32)) -> Result<usize, Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) =
+        super::simd::meshlet_vertices(s.source, s.bound, s.ctrl, s.vertex_count, &mut out)
+    {
+        return result;
+    }
     let count = s.vertex_count;
     let mut data = 0usize;
     let mut last = u32::MAX;
@@ -392,6 +489,18 @@ fn decode_vertices(s: &Stream<'_>, mut out: impl FnMut(usize, u32)) -> Result<us
             return Err(Error::InvalidStream);
         }
         let window = s.source.get(data..data + 16).ok_or(Error::InvalidStream)?;
+        #[cfg(feature = "simd")]
+        if let Some((values, used)) = super::simd::meshlet(window.try_into().unwrap(), code4, last)
+        {
+            for (k, r) in values.into_iter().enumerate() {
+                if g * 4 + k < count {
+                    out(g * 4 + k, r);
+                }
+            }
+            last = values[3];
+            data += used;
+            continue;
+        }
         let mut offset = 0usize;
         for k in 0..4 {
             let code = ((code4 >> k) & 1) | ((code4 >> (k + 3)) & 2);
@@ -430,6 +539,12 @@ fn decode_triangles(
     triangle_count: usize,
     mut out: impl FnMut(usize, u32),
 ) -> Result<usize, Error> {
+    #[cfg(feature = "simd")]
+    if let Some(result) =
+        super::simd::triangles(s.source, s.bound, s.codes, extra, triangle_count, &mut out)
+    {
+        return result;
+    }
     let mut next = 0u32;
     let mut fifo = [0u32; 3];
     for i in 0..triangle_count {
@@ -539,12 +654,7 @@ pub fn decode_meshlet_raw_into(
             &mut vertices[..vertex_count],
             &mut triangles[..triangle_count],
         );
-        decode_core(
-            &s,
-            triangle_count,
-            |i, r| v[i] = r,
-            |i, tri| t[i] = tri >> 8,
-        )
+        decode_raw(&s, triangle_count, v, t)
     })();
     workspace.finish(&work);
     result
@@ -629,12 +739,7 @@ pub fn decode_meshlet_raw(
         vertices: allocate(vertex_count)?,
         triangles: allocate(triangle_count)?,
     };
-    let result = decode_core(
-        &s,
-        triangle_count,
-        |i, r| out.vertices[i] = r,
-        |i, tri| out.triangles[i] = tri >> 8,
-    );
+    let result = decode_raw(&s, triangle_count, &mut out.vertices, &mut out.triangles);
     workspace.finish(&work);
     result?;
     workspace.account_codec(checked_bytes(
@@ -642,4 +747,56 @@ pub fn decode_meshlet_raw(
         4,
     )?)?;
     Ok(out)
+}
+
+#[cfg(all(test, feature = "simd"))]
+mod tests {
+    use super::*;
+    use crate::codec::simd::dispatch::{with_level, Level};
+
+    #[test]
+    fn single_matches_reference_for_all_controls_and_triangle_codes() {
+        for ctrl in 0..=255u8 {
+            for code in 0..=15u8 {
+                let used = if ctrl == 255 {
+                    16
+                } else {
+                    (ctrl & 15).count_ones() as usize + 2 * (ctrl >> 4).count_ones() as usize
+                };
+                let extra = if code < 12 {
+                    usize::from(code & 1)
+                } else {
+                    usize::from(code - 12)
+                };
+                for mismatch in [false, true] {
+                    let bound = used + extra + usize::from(mismatch);
+                    let mut source = [0u8; 36];
+                    for (i, b) in source.iter_mut().enumerate() {
+                        *b = (i as u8).wrapping_mul(97).wrapping_add(255);
+                    }
+                    // The unused high triangle nibble must never affect decoding.
+                    let codes = [code | ((15 - code) << 4)];
+                    let controls = [ctrl];
+                    let s = Stream {
+                        codes: &codes,
+                        ctrl: &controls,
+                        source: &source,
+                        bound,
+                        vertex_count: 1,
+                    };
+                    let mut v = 0;
+                    let mut t = 0;
+                    let expected = with_level(Level::Scalar, || {
+                        decode_core(&s, 1, |_, x| v = x, |_, x| t = x >> 8)
+                    })
+                    .unwrap();
+                    assert_eq!(
+                        decode_single(&s),
+                        expected.map(|()| (v, t)),
+                        "ctrl={ctrl} code={code} bound={bound}"
+                    );
+                }
+            }
+        }
+    }
 }

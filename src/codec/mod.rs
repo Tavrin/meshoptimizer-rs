@@ -1,4 +1,4 @@
-//! Safe meshoptimizer 1.3 codecs, with explicit little-endian byte buffers.
+//! meshoptimizer 1.3 codecs, with explicit little-endian byte buffers.
 //!
 //! Raw vertex, triangle and sequence codecs support versions 0 and 1 for
 //! both encoding and decoding. Encoders take explicit per-call
@@ -22,6 +22,14 @@
 //! with the geometry APIs.
 
 mod encode;
+#[cfg(feature = "simd")]
+mod simd;
+
+/// Diagnostic dispatch control; outside semver. Overrides only lower detected ISA.
+#[cfg(all(feature = "simd", feature = "parity-internals"))]
+#[doc(hidden)]
+pub use simd::dispatch::{detected_level, with_level, Level};
+
 mod filter;
 mod filter_encode;
 mod index;
@@ -233,7 +241,7 @@ fn apply(filter: Filter, data: &mut [u8], stride: usize) -> Result<(), Error> {
         Filter::Octahedral => filter::oct(data, stride),
         Filter::Quaternion => filter::quat(data),
         Filter::Exponential => {
-            filter::exp(data);
+            filter::exp(data, stride);
             Ok(())
         }
     }
@@ -297,8 +305,14 @@ fn allocate(
     if out.capacity() != bytes {
         workspace.account_codec(out.capacity())?;
     }
-    out.resize(bytes, 0);
-    raw(mode, &mut out, count, stride, source)?;
+    if mode == Mode::Attributes {
+        vertex::decode(&mut out, count, stride, source)?;
+    } else if mode == Mode::Indices {
+        index::sequence_append(&mut out, count, stride, source)?;
+    } else {
+        out.resize(bytes, 0);
+        raw(mode, &mut out, count, stride, source)?;
+    }
     apply(filter, &mut out, stride)?;
     Ok(out)
 }
@@ -308,9 +322,14 @@ fn preflight(mode: Mode, count: usize, stride: usize, source: &[u8]) -> Result<(
         match mode {
             Mode::Attributes => {
                 let version = decode_vertex_version(source)?;
-                let block = ((8192 / stride) & !15).min(256);
-                let full = count / block;
-                let rest = count % block;
+                // Valid vertex strides imply a block of at least 32 records.
+                // Tiny calls therefore need no block-size or quotient division.
+                let (full, rest, block) = if count <= 32 {
+                    (0, count, 32)
+                } else {
+                    let block = ((8192 / stride) & !15).min(256);
+                    (count / block, count % block, block)
+                };
                 let body = if version == 0 {
                     let header = |n: usize| n.div_ceil(16).div_ceil(4);
                     (full * header(block) + if rest > 0 { header(rest) } else { 0 })
@@ -497,13 +516,14 @@ pub fn decode_buffer_view_into(
         0,
     )
 }
-fn post(
+fn post<const EXP: bool>(
     filter: Filter,
     data: &mut [u8],
     count: usize,
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
+    let filter = if EXP { Filter::Exponential } else { filter };
     let mut work = workspace.begin();
     let result = (|| {
         filter_layout(filter, stride)?;
@@ -527,7 +547,7 @@ pub fn decode_filter_oct(
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    post(Filter::Octahedral, data, count, stride, workspace)
+    post::<false>(Filter::Octahedral, data, count, stride, workspace)
 }
 /// Apply canonical scalar Quat decoding (meshopt_decodeFilterQuat).
 /// A late numerical error can modify preceding records; the tail is preserved.
@@ -537,7 +557,7 @@ pub fn decode_filter_quat(
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    post(Filter::Quaternion, data, count, stride, workspace)
+    post::<false>(Filter::Quaternion, data, count, stride, workspace)
 }
 /// Apply scalar Exp decoding (meshopt_decodeFilterExp), preserving float bits.
 pub fn decode_filter_exp(
@@ -546,7 +566,7 @@ pub fn decode_filter_exp(
     stride: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    post(Filter::Exponential, data, count, stride, workspace)
+    post::<true>(Filter::Exponential, data, count, stride, workspace)
 }
 /// Apply canonical scalar Color decoding (meshopt_decodeFilterColor): YCoCg-R
 /// plus alpha back to RGBA, stride 4 (u8) or 8 (u16). Outside the EXT
@@ -574,4 +594,11 @@ pub fn decode_filter_color(
     })();
     workspace.finish(&work);
     result
+}
+
+/// Hardware sqrt diagnostic for the exhaustive target qualification; outside semver.
+#[cfg(all(feature = "simd", feature = "parity-internals"))]
+#[doc(hidden)]
+pub fn simd_sqrt4(values: [f32; 4]) -> Option<[f32; 4]> {
+    simd::sqrt4(values)
 }

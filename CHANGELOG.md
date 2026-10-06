@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Phase 0.5 scalar analyzers, opacity maps, tangents, and experimental normals
+  and remeshing, preserving checked limits and caller-buffer APIs.
+- Phase 0.7 audited SIMD vertex/filter/meshlet kernels with runtime dispatch;
+  `simd` is enabled by default and can be disabled for an unsafe-free build.
+
 - Optional `parallel` feature, using Rayon and enabling `std`: ordered batch
   APIs for LOD chains, vertex/index encoding, EXT view decoding and all four
   meshlet builders. With `clusterlod`, batches of independent cluster-LOD DAGs
@@ -46,8 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known limitations
 
-- Phase 0.5 (analyzers, opacity maps, tangents, normals and remeshing) is not
-  included. SIMD work remains planned for phase 0.7.
+- Existing phase performance records retain their original qualification scope;
+  integration parity and safety gates do not establish fresh performance.
 - The two stride-32 S2 setups remain invalid because their protect mask exceeds
   the layout. Existing preprocessing and partitioning timing residuals remain;
   see the README. These records do not cover Moss runtime or GPU integration.
