@@ -143,3 +143,51 @@ named owned target used 154,753,713 bytes (<5 GiB) and was deleted after evidenc
 Next diagnosis: reduce tiny Oct/Quat setup cost and reproduce the historical
 streaming consumer profile. No further implementation edit or elapsed rerun
 is part of this completed stream.
+
+## Round 2 — SPEC-p03-tiny (2026-10-06)
+
+**Tiny maximum acceptance: PASS.** All four required rows pass the registered upper95 <=1.5 rule, then all 18 Oct/Quat confirmation rows pass with both independent A/A intervals inside [0.8,1.25]. The earlier round 1 results and the failed round 2 attempt remain retained. Other encoder verdicts remain the round 1 verdicts; their elapsed rows were outside this spec and were not rerun.
+
+Ratios are Rust/C++ 1.3. Before below is the published round 1 ledger; the receipt also retains matched baseline samples in each new stream. Each stream used the same frozen inputs and generic release/fat-LTO/one-codegen-unit consumers, CPU26, nominal Student log-ratio intervals and the unchanged 5–20-pair stopping rule.
+
+| Row | API | Round 1 median (95%) | Tiny qualification median (95%) | Full confirmation median (95%) | Verdict |
+|---|---|---:|---:|---:|---|
+| `oct-tiny-s8` | allocating | 1.517 (1.502–1.556) | 1.417 (1.373–1.436) | 1.424 (1.342–1.461) | PASS |
+| `oct-tiny-s8` | caller | 1.515 (1.493–1.532) | 1.387 (1.378–1.391) | 1.384 (1.354–1.422) | PASS |
+| `quat-tiny` | allocating | 1.495 (1.475–1.521) | 1.376 (1.362–1.387) | 1.379 (1.359–1.401) | PASS |
+| `quat-tiny` | caller | 1.663 (1.543–1.743) | 1.398 (1.376–1.416) | 1.401 (1.399–1.405) | PASS |
+
+The four-row qualification took 0.420s; full confirmation took 4.719s. Every row stopped at five pairs. Full confirmation retains all 18 rows and validates every timed output; no row was excluded. The first failed implementation was changed on counter/disassembly evidence before a new immutable stream, rather than repeating its samples. The mandated full confirmation is the only repeat of the final implementation.
+
+| API/family | Rows | Confirmation geometric mean | Maximum upper95 | Verdict |
+|---|---:|---:|---:|---|
+| allocating/oct | 6 | 0.622 | 1.461 | PASS |
+| allocating/quat | 3 | 0.789 | 1.401 | PASS |
+| caller/oct | 6 | 0.555 | 1.422 | PASS |
+| caller/quat | 3 | 0.751 | 1.405 | PASS |
+
+All family means stay <=1.25. In the matched confirmation stream, Quat allocating/caller means move from 0.747/0.707 to 0.789/0.751: this is a measured mean slowdown within the registered bar, retained without disguising it as a family gain. No other Oct/Quat row changes its PASS verdict.
+
+### Cause and retained fix
+
+The shared runtime filter dispatch reserves a 0x288-byte kernel frame and keeps unrelated setup in the tiny call. Zero-record caller probes measured 281/299 Rust instructions for Oct/Quat versus 107/105 C++; the specialized checked paths reduce these to 241/211. Validation, budget accounting, initialized allocation and tail preservation stay in the same shared helpers; only internal kernel closures specialize the Oct/Quat call.
+
+Oct retains four-record arithmetic and uses direct integer repair of the bounded magic-float quantizer for <=32 records. Quat uses a separate <=32-record loop and a non-inlined per-record helper: it hoists scale setup, performs fixed cyclic rotations after the original first-strict-maximum selection, and limits live selector/swizzle state to one record. Conversion to i16 is exact because the original clamped float expression is finite and within [-32767.5,32767.5], whose truncated results fit i16. The original multiplication/rounding order is preserved. Bulk arithmetic stays unchanged; no unsafe code or public API changes were added.
+
+Complete allocating/caller instruction counts (N=10,000/20,000 subtraction, 100% PMU scheduling): Oct 1872/1635 -> 1705/1465; Quat 2339/2102 -> 2337/2109. Quat wins elapsed time through shorter dependence/live-range costs despite nearly unchanged instruction counts. PMU cycles are diagnostic, not acceptance or a timer-floor claim.
+
+### Failed attempts and correctness
+
+Retain scalar Oct candidates (2031 and 2170 caller instructions, rejected), vector tiny Quat repair (2084, insufficient cause reduction), fixed rotations in a cross-record loop (2182, rejected), IEEE variable-shift truncation (2488, rejected), and the isolated magic-float record helper (2381). Two scalar Oct failures triggered the read-only follow-up in READONLY-AFTER-TWO.md. The isolated i16 record helper then reduced dependence cost and passed elapsed qualification. Every compiled candidate passed 17,264 exact scalar/SIMD-oracle comparisons, including both APIs, filter precisions and vertex levels0–9 in both versions.
+
+The first elapsed attempt passes Oct but fails Quat allocating 1.657 (1.653–1.664), caller 1.664 (1.658–1.671). Its complete samples, source/binary hashes and A/A controls remain in the receipt. Initial launcher import and bytearray-hash exceptions exited1 before any samples; their causes/corrections are retained in MILESTONES.md. No timer-resolution exception was needed.
+
+`cargo test --offline --locked`: exit0 (139 tests including four doctests). `cargo test --offline --locked --no-default-features --test codec`: exit0. Strict library Clippy, formatting and pinned clean C++ reference checks: exit0. The new regression covers counts0/1/3/4/17/31/32/33, every Oct/Quat precision, ties, zero signs, folds, clamps and non-finite inputs against the existing bulk kernels. Final frozen source/binary identities match both successful timing streams.
+
+### Reproduction and retained evidence
+
+[Machine receipt](results/p03-tiny-round2.json), [controller](encoders/tiny.py). Durable artifacts: `/mnt/linux-extra/moss-scratch/meshopt-v03-tiny`; baseline and C++ copies are hash-checked against the retained round 1 build/stream. It contains all candidate binaries, PMU/disassembly, parity receipts, failed/final samples, final source copy and admission receipts. The JSON binds 703 raw files by SHA-256.
+
+Commands used `MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-tiny-* /mnt/linux-extra/moss-coord/bin/moss-heavy.sh <2 or 4> timeout 840 python3 parity/encoders/tiny.py <action> <epoch>`. Final actions: `build record16`, `parity record16`, `counters record16`, `verify`, `MESHOPT_TINY_FINAL=record16 ... freeze`, `measure tiny-record16`, then `measure confirmation`. Every admitted run finished in <15min. All Cargo work used `/mnt/linux-extra/moss-cargo-targets/codex-meshopt-tiny`, CARGO_INCREMENTAL=0 and CARGO_PROFILE_DEV_DEBUG=0; its final 86,792,129-byte footprint was <5GB and was deleted after all owned jobs ended.
+
+Not run: other encoder elapsed rows, historical/default/Moss-profile streaming reproduction, GPU/downstream runtime, executed WASM, remote architectures or release qualification. Round 1 evidence for those separate boundaries is preserved.

@@ -8172,3 +8172,38 @@ all binaries, sources, raw counters, failed attempts and lease receipts in
 meshopt-v03. Delete only the owned named target after every job is reaped.
 Native remote platforms, executed WASM, default/Moss profile timing and
 downstream engine integration are not acceptance from this focused campaign.
+
+## V03-16 — Diagnose tiny fixed cost without weakening checks
+
+SPEC-p03-tiny binds worktree v03 at a14cbc1. Hash-check the archived matched
+consumer before fresh PMU/disassembly. Preserve CPU26, frozen corpus, C++1.3
+pin, generic release/fat-LTO profile, 5–20-pair nominal CI/A/A rules and 1.5
+upper95 bar. Specialize internal Oct/Quat kernel closures using the same
+validation/accounting bodies. Retain safe initialized allocation and caller
+buffer tails. Zero-record budgets and disassembly establish a real fixed
+cost; no timer floor or public API change is inferred.
+
+## V03-17 — Keep failed tiny interventions and shorten Quat live ranges
+
+Scalar Oct candidates increase caller instructions to2031/2170; reject them
+without timing and record the required read-only follow-up. Keep four-record
+Oct arithmetic with bounded integer quantizer repair for <=32 records.
+A first elapsed epoch passes Oct, fails Quat at1.657/1.664; retain every pair.
+Reject bit-significand variable shifts and cross-record fixed rotations.
+Isolate a per-record Quat helper, hoist scale, preserve first strict maximum,
+cyclic swizzle, sign and float evaluation order. The finite expression's
+truncated result fits i16 exactly, so the safe i16 conversion preserves bytes.
+Nearly unchanged instructions can hide shorter dependence chains: final
+acceptance uses paired elapsed samples, never counters alone. No new unsafe.
+
+## V03-18 — Close tiny round 2 with certified rows and bounded scope
+
+Final record16 epoch: all17264 scalar/SIMD exact comparisons and cargo test
+exit0. Four tiny qualification rows pass, then all18 Oct/Quat confirmation
+rows pass; all A/A intervals resolve and all family means remain <=1.25.
+Keep the matched Quat family mean slowdown (0.747/0.707 ->0.789/0.751) within
+the bar rather than claiming every mean improved. Other encoder elapsed
+rows are not rerun and their prior verdicts are retained. No downstream,
+WASM-execution, GPU, original streaming-profile or release acceptance claim.
+Append performance/diagnosis reports; bind raw evidence by hash. Delete the
+owned 86,792,129-byte target after jobs end; commit as Tavrin, no push/trailers.

@@ -372,6 +372,31 @@ fn filter_into(
     data: &[f32],
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
+    filter_into_with(
+        kind,
+        destination,
+        count,
+        stride,
+        bits,
+        data,
+        workspace,
+        |out| filter_run(kind, out, stride, bits, data),
+    )
+}
+
+// Monomorphize Oct/Quat calls so generic filter dispatch and unrelated kernel
+// stack setup do not dominate small inputs. Validation/accounting is shared.
+#[allow(clippy::too_many_arguments)]
+fn filter_into_with(
+    kind: Kind,
+    destination: &mut [u8],
+    count: usize,
+    stride: usize,
+    bits: u32,
+    data: &[f32],
+    workspace: &mut Workspace,
+    run: impl FnOnce(&mut [u8]) -> Result<(), Error>,
+) -> Result<(), Error> {
     let mut work = workspace.begin();
     let result = (|| {
         let bytes = filter_layout(kind, count, stride, bits, data)?;
@@ -381,7 +406,7 @@ fn filter_into(
         workspace.account_codec(0)?;
         work.add(data.len())?;
         work.add(bytes / 4)?;
-        filter_run(kind, &mut destination[..bytes], stride, bits, data)
+        run(&mut destination[..bytes])
     })();
     workspace.finish(&work);
     result
@@ -394,6 +419,20 @@ fn filter_vec(
     bits: u32,
     data: &[f32],
     workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    filter_vec_with(kind, count, stride, bits, data, workspace, |out| {
+        filter_run(kind, out, stride, bits, data)
+    })
+}
+
+fn filter_vec_with(
+    kind: Kind,
+    count: usize,
+    stride: usize,
+    bits: u32,
+    data: &[f32],
+    workspace: &mut Workspace,
+    run: impl FnOnce(&mut [u8]) -> Result<(), Error>,
 ) -> Result<Vec<u8>, Error> {
     let mut work = workspace.begin();
     let check = (|| {
@@ -412,7 +451,7 @@ fn filter_vec(
         workspace.account_codec(out.capacity())?;
     }
     out.resize(bytes, 0);
-    filter_run(kind, &mut out, stride, bits, data)?;
+    run(&mut out)?;
     Ok(out)
 }
 
@@ -426,7 +465,10 @@ pub fn encode_filter_oct(
     data: &[f32],
     workspace: &mut Workspace,
 ) -> Result<Vec<u8>, Error> {
-    filter_vec(Kind::Oct, count, stride, bits, data, workspace)
+    filter_vec_with(Kind::Oct, count, stride, bits, data, workspace, |out| {
+        filter_encode::oct(out, stride, bits, data);
+        Ok(())
+    })
 }
 /// Caller-buffer form of [`encode_filter_oct`]; the destination tail is preserved.
 pub fn encode_filter_oct_into(
@@ -437,7 +479,19 @@ pub fn encode_filter_oct_into(
     data: &[f32],
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    filter_into(Kind::Oct, destination, count, stride, bits, data, workspace)
+    filter_into_with(
+        Kind::Oct,
+        destination,
+        count,
+        stride,
+        bits,
+        data,
+        workspace,
+        |out| {
+            filter_encode::oct(out, stride, bits, data);
+            Ok(())
+        },
+    )
 }
 /// Quaternion filter encoder (meshopt_encodeFilterQuat): four floats per
 /// quaternion, stride 8, 4..=16 bits.
@@ -448,7 +502,10 @@ pub fn encode_filter_quat(
     data: &[f32],
     workspace: &mut Workspace,
 ) -> Result<Vec<u8>, Error> {
-    filter_vec(Kind::Quat, count, stride, bits, data, workspace)
+    filter_vec_with(Kind::Quat, count, stride, bits, data, workspace, |out| {
+        filter_encode::quat(out, bits, data);
+        Ok(())
+    })
 }
 /// Caller-buffer form of [`encode_filter_quat`]; the destination tail is preserved.
 pub fn encode_filter_quat_into(
@@ -459,7 +516,7 @@ pub fn encode_filter_quat_into(
     data: &[f32],
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    filter_into(
+    filter_into_with(
         Kind::Quat,
         destination,
         count,
@@ -467,6 +524,10 @@ pub fn encode_filter_quat_into(
         bits,
         data,
         workspace,
+        |out| {
+            filter_encode::quat(out, bits, data);
+            Ok(())
+        },
     )
 }
 /// Exponential filter encoder (meshopt_encodeFilterExp): stride / 4 floats

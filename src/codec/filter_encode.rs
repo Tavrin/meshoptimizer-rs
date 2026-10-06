@@ -82,22 +82,58 @@ fn records(out: &mut [u8], stride: usize, data: &[f32], f: impl Fn([f32; 4]) -> 
     }
 }
 
-pub(super) fn oct(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
-    if stride == 4 {
-        oct_fixed::<4>(out, bits, data);
+/// Bounded quantization for small calls. Clamping makes the input finite and
+/// bounded by 32767.5, including NaN (mapped to -1 like the reference).
+/// Repair the integer nearest result directly, avoiding a second magic sum.
+#[inline(always)]
+fn snorm_tiny(v: f32, n: u32) -> i32 {
+    let scale = ((1i32 << (n - 1)) - 1) as f32;
+    let round = if v >= 0.0 { 0.5 } else { -0.5 };
+    let v = if v >= -1.0 { v } else { -1.0 };
+    let v = if v <= 1.0 { v } else { 1.0 };
+    let f = v * scale + round;
+    const MAGIC: f32 = 12582912.0;
+    let sum = f + MAGIC;
+    let nearest = sum - MAGIC;
+    let integer = (sum.to_bits() as i32).wrapping_sub(MAGIC.to_bits() as i32);
+    let sign = 1 | ((f.to_bits() as i32) >> 31);
+    integer - if nearest.abs() > f.abs() { sign } else { 0 }
+}
+
+#[inline(always)]
+fn snorm_mode<const TINY: bool>(v: f32, n: u32) -> i32 {
+    if TINY {
+        snorm_tiny(v, n)
     } else {
-        oct_fixed::<8>(out, bits, data);
+        snorm(v, n)
     }
 }
 
-fn oct_fixed<const STRIDE: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
+pub(super) fn oct(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
+    // Small calls keep the lane arithmetic but use a shorter bounded
+    // quantizer. Separate kernels keep their setup out of generic dispatch.
+    if data.len() <= 32 * 4 {
+        if stride == 4 {
+            oct_fixed::<4, true>(out, bits, data);
+        } else {
+            oct_fixed::<8, true>(out, bits, data);
+        }
+    } else if stride == 4 {
+        oct_fixed::<4, false>(out, bits, data);
+    } else {
+        oct_fixed::<8, false>(out, bits, data);
+    }
+}
+
+#[inline(never)]
+fn oct_fixed<const STRIDE: usize, const TINY: bool>(out: &mut [u8], bits: u32, data: &[f32]) {
     let stride = STRIDE;
     let byte_bits = stride as u32 * 2;
     // Component-major lanes over four records (vectorizes); the remainder
     // uses the per-record form, with identical arithmetic per value.
     let (inputs, rest_in) = data.as_chunks::<16>();
     let mut blocks = out.chunks_exact_mut(stride * 4);
-    let one = snorm(1.0, bits);
+    let one = snorm_mode::<TINY>(1.0, bits);
     for (block, input) in (&mut blocks).zip(inputs) {
         let c = |k: usize| -> [f32; 4] { core::array::from_fn(|r| input[r * 4 + k]) };
         let (mut nx, mut ny, nz, nw) = (c(0), c(1), c(2), c(3));
@@ -123,9 +159,9 @@ fn oct_fixed<const STRIDE: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
                 (1.0 - nx[l].abs()) * sv
             };
         }
-        let fu = u.map(|x| snorm(x, bits));
-        let fv = v.map(|x| snorm(x, bits));
-        let fw = nw.map(|x| snorm(x, byte_bits));
+        let fu = u.map(|x| snorm_mode::<TINY>(x, bits));
+        let fv = v.map(|x| snorm_mode::<TINY>(x, bits));
+        let fw = nw.map(|x| snorm_mode::<TINY>(x, byte_bits));
         if stride == 4 {
             let words: [u32; 4] = core::array::from_fn(|r| {
                 (fu[r] as u32 & 0xff)
@@ -151,7 +187,7 @@ fn oct_fixed<const STRIDE: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
         }
     }
     let rest_out = blocks.into_remainder();
-    oct_records(
+    oct_records::<TINY>(
         rest_out,
         stride,
         bits,
@@ -160,7 +196,13 @@ fn oct_fixed<const STRIDE: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
     );
 }
 
-fn oct_records(out: &mut [u8], stride: usize, bits: u32, byte_bits: u32, data: &[f32]) {
+fn oct_records<const TINY: bool>(
+    out: &mut [u8],
+    stride: usize,
+    bits: u32,
+    byte_bits: u32,
+    data: &[f32],
+) {
     records(out, stride, data, |[mut nx, mut ny, nz, nw]| {
         let nl = nx.abs() + ny.abs() + nz.abs();
         let ns = if nl == 0.0 { 0.0 } else { 1.0 / nl };
@@ -177,15 +219,74 @@ fn oct_records(out: &mut [u8], stride: usize, bits: u32, byte_bits: u32, data: &
             (1.0 - nx.abs()) * if ny >= 0.0 { 1.0 } else { -1.0 }
         };
         [
-            snorm(u, bits),
-            snorm(v, bits),
-            snorm(1.0, bits),
-            snorm(nw, byte_bits),
+            snorm_mode::<TINY>(u, bits),
+            snorm_mode::<TINY>(v, bits),
+            snorm_mode::<TINY>(1.0, bits),
+            snorm_mode::<TINY>(nw, byte_bits),
         ]
     });
 }
 
 pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
+    if data.len() <= 32 * 4 {
+        quat_tiny(out, bits, data);
+    } else {
+        quat_bulk(out, bits, data);
+    }
+}
+
+#[inline(never)]
+fn quat_tiny(out: &mut [u8], bits: u32, data: &[f32]) {
+    let scale = ((1i32 << (bits - 1)) - 1) as f32;
+    let one = ((1i32 << (bits - 1)) - 1) & !3;
+    for (dst, q) in out
+        .as_chunks_mut::<8>()
+        .0
+        .iter_mut()
+        .zip(data.as_chunks::<4>().0)
+    {
+        *dst = quat_record(q, scale, one).to_le_bytes();
+    }
+}
+
+// Keep vectorization within one quaternion. Cross-record SLP leaves packed
+// selectors, gathered swizzles and quantization intermediates live together.
+#[inline(never)]
+fn quat_record(q: &[f32; 4], scale: f32, one: i32) -> u64 {
+    let [qx, qy, qz, qw] = *q;
+    let mut largest = qx;
+    let mut qc = 0;
+    if qy.abs() > largest.abs() {
+        largest = qy;
+        qc = 1;
+    }
+    if qz.abs() > largest.abs() {
+        largest = qz;
+        qc = 2;
+    }
+    if qw.abs() > largest.abs() {
+        largest = qw;
+        qc = 3;
+    }
+    let rotated = match qc {
+        0 => [qy, qz, qw],
+        1 => [qz, qw, qx],
+        2 => [qw, qx, qy],
+        _ => [qx, qy, qz],
+    };
+    let sign = if largest < 0.0 { -1.0 } else { 1.0 };
+    let [x, y, z] = rotated.map(|v| {
+        let v = v * sqrt(2.0) * sign;
+        let round = if v >= 0.0 { 0.5 } else { -0.5 };
+        let v = if v >= -1.0 { v } else { -1.0 };
+        let v = if v <= 1.0 { v } else { 1.0 };
+        (v * scale + round) as i16 as u16
+    });
+    u64::from(x) | u64::from(y) << 16 | u64::from(z) << 32 | u64::from((one | qc) as u16) << 48
+}
+
+#[inline(never)]
+fn quat_bulk(out: &mut [u8], bits: u32, data: &[f32]) {
     let scaler = sqrt(2.0);
     let (inputs, rest) = data.as_chunks::<16>();
     let (blocks, rest_out) = out.as_chunks_mut::<32>();
@@ -390,4 +491,48 @@ pub(super) fn color(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
         let a = (unorm(c[3], bits) >> 1) | (1 << (bits - 1));
         [y, co, cg, a]
     });
+}
+
+#[cfg(test)]
+mod tiny_tests {
+    use super::{oct, oct_fixed, quat, quat_bulk};
+
+    #[test]
+    fn tiny_matches_bulk_at_precision_and_dispatch_boundaries() {
+        // Ties, signed zero, folds, clamps and non-finite snorm inputs.
+        let values = [
+            [0.0, -0.0, 0.0, -0.0],
+            [0.5, -0.5, -0.5, 1.0],
+            [-0.5, 0.5, 0.5, -1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [f32::NAN, 0.0, -1.0, f32::NAN],
+            [f32::INFINITY, f32::NEG_INFINITY, 0.0, 2.0],
+        ];
+        for count in [0, 1, 3, 4, 17, 31, 32, 33] {
+            let data: Vec<f32> = (0..count).flat_map(|i| values[i % values.len()]).collect();
+            for stride in [4, 8] {
+                for bits in 2..=if stride == 4 { 8 } else { 16 } {
+                    let mut actual = vec![0; count * stride];
+                    let mut expected = actual.clone();
+                    oct(&mut actual, stride, bits, &data);
+                    if stride == 4 {
+                        oct_fixed::<4, false>(&mut expected, bits, &data);
+                    } else {
+                        oct_fixed::<8, false>(&mut expected, bits, &data);
+                    }
+                    assert_eq!(
+                        actual, expected,
+                        "Oct count={count} stride={stride} bits={bits}"
+                    );
+                }
+            }
+            for bits in 4..=16 {
+                let mut actual = vec![0; count * 8];
+                let mut expected = actual.clone();
+                quat(&mut actual, bits, &data);
+                quat_bulk(&mut expected, bits, &data);
+                assert_eq!(actual, expected, "Quat count={count} bits={bits}");
+            }
+        }
+    }
 }

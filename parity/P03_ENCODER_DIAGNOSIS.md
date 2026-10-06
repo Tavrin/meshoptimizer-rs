@@ -166,3 +166,38 @@ resets the exponent; 1.3 reuses the previous exponent. A strict zero-only
 validation amendment preserves the initial 44 sample rows unchanged and
 resumes the untimed suffix. No implementation/consumer/input/threshold or
 completed sample changes; no completed row is rerun.
+
+## Tiny round 2: fixed dispatch and short live ranges
+
+Baseline a14cbc1 source and archived rust-after binary were hash-verified
+before the first PMU/disassembly run. No elapsed samples preceded diagnosis.
+CPU26, 10,000/20,000 calls, all four PMU events100% scheduled; N/2N
+subtraction removes process/input startup. Retain noisy/negative cycle and
+branch-miss differences rather than treating them as time acceptance.
+
+Baseline filter_run at0x45a70 reserves0x288 bytes at0x45a7a, dispatches a
+runtime Kind jump table and calls the Oct tail closure. Zero-record caller
+Oct/Quat instruction budgets are281/299 vs107/105 C++; specialized internal
+closures reduce them to241/211 while retaining layout/resource checks.
+Baseline allocating vs caller adds237 instructions in Rust vs198 in C++:
+allocation is a contributor, but both failing APIs need dispatch/kernel fixes.
+
+Reject both scalar Oct interventions after exact parity and counters;
+READONLY-AFTER-TWO.md records diagnosis before returning to lane arithmetic.
+Use tiny-only direct integer repair of the existing bounded magic sum.
+For Quat, indexed cross-record gathers/packed selectors and three conversion
+chains retain dependent intermediates. Isolate one-record quantization and
+fixed rotations, hoist scale, and cast the proven finite [-32767.5,32767.5]
+expression to i16. This avoids the expensive magic repair chain without
+adding unsafe code. Fixed-rotation cross-record and variable-shift candidates
+remain rejected. Final quat_record at0x538b0 in assembly-record16.txt uses
+local selector branches and direct truncating conversion with no shared bulk
+frame. Bulk Quat arithmetic stays original.
+
+Final instructions/call allocating/caller: Oct1705/1465 vs1872/1635 before;
+Quat2337/2109 vs2339/2102 before. Instruction count alone would miss Quat's
+latency improvement: elapsed qualification and full confirmation both pass.
+One failed elapsed epoch remains retained and was never repeated unchanged.
+See the appended round 2 ledger in P03_ENCODER_PERFORMANCE.md and the complete
+hash/sample receipt results/p03-tiny-round2.json. The stop condition is four
+certified rows plus all18 confirmation rows retaining PASS; no floor exception.
