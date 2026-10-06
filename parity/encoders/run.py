@@ -99,7 +99,7 @@ def counters(epoch):
  rows=json.loads((ART/'inputs.json').read_text());records=[]
  selected=[r for r in rows if ('resident' in r['name'] and ('-l2' in r['name'] or not r['name'].startswith('vertex'))) or r['name']=='vertex-v1-streaming-s4']
  family=os.environ.get('MESHOPT_COUNTER_FAMILY')
- if family:selected=[r for r in selected if r['name'].startswith(family+'-')]
+ if family:selected=[r for r in selected if any(r['name'].startswith(f+'-') for f in family.split(','))]
  for row in selected:
   for into in [False,True]:
    for backend in ['cpp','rust-'+epoch]:

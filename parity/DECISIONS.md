@@ -7998,3 +7998,21 @@ required numeric checks: the fixed layouts remove substantially more work
 than the unsafe validation knockout without changing failure behavior.
 Evidence: meshopt-v03/build-exp-strides.json, parity-exp-strides.json and
 counters-exp-strides.json. No timing verdict.
+
+## V03-3 — Reject ordinary saturated snorm casts
+
+The safe cast candidate preserves all 17,198 byte-parity cases, but increases
+resident instructions by 47.6% Oct4, 43.7% Oct8 and 69.7% Quat (both APIs).
+Retain the existing exact bounded magic-float conversion and record the
+rejected candidate's source/binary/counters in build-snorm-cast.json,
+parity-snorm-cast.json and counters-snorm-cast.json. No timing was used to
+select or rescue the candidate. Next test fixed Oct output layouts, independently.
+
+## V03-4 — Specialize Oct's two validated output layouts
+
+Select stride4/stride8 once before the hot loop, so constant block sizes and
+stores survive optimization. Preserve the existing exact snorm helper and
+all arithmetic/tails. All 17,198 byte comparisons pass. Resident allocating
+instructions fall to 0.5610/0.5113 of baseline for Oct4/Oct8; caller ratios
+0.5604/0.5107. Retain the layout fix (build/parity/counters-oct-layout.json),
+with no elapsed-time claim.

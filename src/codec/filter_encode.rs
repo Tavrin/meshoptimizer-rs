@@ -83,6 +83,15 @@ fn records(out: &mut [u8], stride: usize, data: &[f32], f: impl Fn([f32; 4]) -> 
 }
 
 pub(super) fn oct(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
+    if stride == 4 {
+        oct_fixed::<4>(out, bits, data);
+    } else {
+        oct_fixed::<8>(out, bits, data);
+    }
+}
+
+fn oct_fixed<const STRIDE: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
+    let stride = STRIDE;
     let byte_bits = stride as u32 * 2;
     // Component-major lanes over four records (vectorizes); the remainder
     // uses the per-record form, with identical arithmetic per value.
