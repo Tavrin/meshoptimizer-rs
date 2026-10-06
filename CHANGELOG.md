@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Specialize common vertex, Oct and Exp encoder layouts; compact vertex group
+  measurements, batch exact quaternion swizzles, and use constant sequence
+  varint offsets and packed directed edge comparisons. Output bytes remain
+  identical to pinned meshoptimizer 1.3 across both versions and levels0–9.
+- Stage large owned stride-four vertex decodes in initialized blocks while
+  preserving resource limits and malformed-tail checks. The matched profile
+  passes the streaming maximum, but establishes no gain over its baseline.
+- Record one native encoder qualification stream and meshopt0.6.2 comparison.
+  Tiny Oct/Quat maxima remain failing; see
+  [round 1 evidence](parity/P03_ENCODER_PERFORMANCE.md).
+
 ## [0.2.0] - 2026-10-06
 
 ### Added

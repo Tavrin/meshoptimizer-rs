@@ -150,3 +150,19 @@ seamed, sparse and million-smooth cook geometry, each verified against its
 original manifest. The seeded byte matrix reaches 17,264 comparisons. Every
 vertex version/level 0–9 remains represented by exact randomized parity even
 though final timing concentrates on v0 and v1 levels0–3/default2.
+
+## Final elapsed verdict
+
+The completed single stream resolves all 224 rows. Every allocating/caller
+family mean improves and passes <=1.25; vertex/index/sequence/Exp pass maxima.
+Tiny Oct8 and Quat maxima fail or straddle the registered <=1.5 upper95 rule.
+The exact allocating streaming case is 0.958 (0.797–1.140) vs C++, but the
+matched baseline already passes at 0.952. Counter/locality improvement does
+not establish an elapsed gain or reproduction of the old consumer gap.
+See [complete results and maximum ledger](P03_ENCODER_PERFORMANCE.md).
+
+The old peer also differs at Exp Separate zeros: optlog2(0)=0 in 0.25, which
+resets the exponent; 1.3 reuses the previous exponent. A strict zero-only
+validation amendment preserves the initial 44 sample rows unchanged and
+resumes the untimed suffix. No implementation/consumer/input/threshold or
+completed sample changes; no completed row is rerun.

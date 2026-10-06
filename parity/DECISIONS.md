@@ -8150,3 +8150,25 @@ sample existed before this check. This is one interrupted stream, not a rerun
 or an opportunity to tune implementations. Retain both failed peer checks and
 the read-only diagnosis. meshopt-v03/timing-validation-amendment.json records
 all old/new policy and prefix identities.
+
+## V03-15 — Close the campaign with honest maximum failures
+
+The single stream completes 224 rows and 1,229 paired rounds; all A/A resolve,
+none excluded. All 12 API/family means pass <=1.25. Vertex/index/sequence/Exp
+pass the upper95 maximum <=1.5 in both APIs. Oct8 allocating is a resolved
+maximum failure, caller Oct8 straddles the bar; Quat caller is a resolved
+failure, allocating Quat's point1.495 is below the bar but upper1.521 crosses
+it. Round1 performance acceptance remains FAIL. Keep every failed row and
+the exact unchanged 44-row prefix; no timing-driven source edit or rerun.
+
+Streaming allocating passes at 0.958 (95%0.797–1.140), but before already
+passes at 0.952. Staging's elapsed gain and removal of the historical-profile
+gap are not established. Keep the safe initialized path and its validated
+limits/tails; preserve this qualification boundary. Next diagnosis targets
+tiny filter setup and the original historical consumer profile.
+
+Commit the complete sample/hash receipt and lean README comparison; retain
+all binaries, sources, raw counters, failed attempts and lease receipts in
+meshopt-v03. Delete only the owned named target after every job is reaped.
+Native remote platforms, executed WASM, default/Moss profile timing and
+downstream engine integration are not acceptance from this focused campaign.
