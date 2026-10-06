@@ -8061,3 +8061,13 @@ instructions 2.35%. Reject it for index encoding. Give sequence its own
 constant-offset writer and restore the index writer; this isolated variant
 also passes all 17,264 comparisons. Keep sequence's improvement and retain
 both varints and sequence-varints receipts. No timing verdict.
+
+## V03-9 — Pack FIFO edge keys without changing search order
+
+Represent each directed pair of u32 indices as an exact u64 key. Compare
+three precomputed rotated keys in the original newest-first FIFO order,
+including sentinel pairs and tie priority. All 17,264 byte comparisons pass.
+Resident index instructions fall 21.6% allocating / 21.7% caller against the
+restored index baseline; diagnostic cycles fall ~19–20%. Sequence instructions
+remain unchanged. Keep safe packing; no SIMD or unsafe memory operations.
+Receipts: build/parity/counters-index-pairs.json. No elapsed verdict.

@@ -93,16 +93,22 @@ fn encode_index(out: &mut [u8], pos: &mut usize, index: u32, last: u32) {
 }
 
 #[inline]
-fn edge_fifo(fifo: &[[u32; 2]; 16], a: u32, b: u32, c: u32, offset: usize) -> Option<usize> {
+fn edge_pair(a: u32, b: u32) -> u64 {
+    u64::from(a) | (u64::from(b) << 32)
+}
+
+#[inline]
+fn edge_fifo(fifo: &[u64; 16], a: u32, b: u32, c: u32, offset: usize) -> Option<usize> {
+    let (ab, bc, ca) = (edge_pair(a, b), edge_pair(b, c), edge_pair(c, a));
     for i in 0..16 {
-        let [e0, e1] = fifo[offset.wrapping_sub(1 + i) & 15];
-        if e0 == a && e1 == b {
+        let edge = fifo[offset.wrapping_sub(1 + i) & 15];
+        if edge == ab {
             return Some(i << 2);
         }
-        if e0 == b && e1 == c {
+        if edge == bc {
             return Some((i << 2) | 1);
         }
-        if e0 == c && e1 == a {
+        if edge == ca {
             return Some((i << 2) | 2);
         }
     }
@@ -115,7 +121,7 @@ fn vertex_fifo(fifo: &[u32; 16], v: u32, offset: usize) -> Option<usize> {
 }
 
 struct Fifos {
-    edges: [[u32; 2]; 16],
+    edges: [u64; 16],
     vertices: [u32; 16],
     edge_offset: usize,
     vertex_offset: usize,
@@ -123,7 +129,7 @@ struct Fifos {
 impl Fifos {
     #[inline]
     fn push_edge(&mut self, a: u32, b: u32) {
-        self.edges[self.edge_offset] = [a, b];
+        self.edges[self.edge_offset] = edge_pair(a, b);
         self.edge_offset = (self.edge_offset + 1) & 15;
     }
     #[inline]
@@ -147,7 +153,7 @@ pub(super) fn encode_index_buffer(
     }
     out[0] = INDEX_HEADER | version;
     let mut f = Fifos {
-        edges: [[u32::MAX; 2]; 16],
+        edges: [u64::MAX; 16],
         vertices: [u32::MAX; 16],
         edge_offset: 0,
         vertex_offset: 0,
