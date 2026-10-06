@@ -495,6 +495,8 @@ pub(super) fn color(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
 
 #[cfg(test)]
 mod tiny_tests {
+    use alloc::{vec, vec::Vec};
+
     use super::{oct, oct_fixed, quat, quat_bulk};
 
     #[test]

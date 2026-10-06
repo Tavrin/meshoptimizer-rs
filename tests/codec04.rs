@@ -374,8 +374,10 @@ fn quaternion_encoder_preserves_first_maximum_nan_and_signed_zero() {
     ] {
         let encoded = encode_filter_quat(9, 8, bits, &q, &mut Workspace::default()).unwrap();
         let words: Vec<i16> = encoded
-            .chunks_exact(2)
-            .map(|b| i16::from_le_bytes(b.try_into().unwrap()))
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|&b| i16::from_le_bytes(b))
             .collect();
         assert_eq!(words, expected);
         let mut destination = [0xa5; 79];
