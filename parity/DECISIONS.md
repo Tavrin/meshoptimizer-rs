@@ -8016,3 +8016,18 @@ all arithmetic/tails. All 17,198 byte comparisons pass. Resident allocating
 instructions fall to 0.5610/0.5113 of baseline for Oct4/Oct8; caller ratios
 0.5604/0.5107. Retain the layout fix (build/parity/counters-oct-layout.json),
 with no elapsed-time claim.
+
+## V03-5 — Trade Quat gathers for explicit four-record swizzles
+
+Keep first strict maximum selection and the cyclic/sign/quantization contract,
+including NaN and signed-zero goldens pinned to scalar 1.3. Two-bit mask blends
+avoid spilling selectors and gathering components individually. All 17,198
+byte comparisons pass; the focused selector/tie/NaN regression passes.
+
+The initial four-equality-mask candidate increases instructions 76.2% but
+reduces diagnostic cycles 18.2% allocating / 13.0% caller. The binary blend
+candidate reduces those extra instructions slightly (72.7/72.8% over original)
+and reduces cycles 21.0/21.4%, with 44/48% fewer branches. Retain binary blends
+for the final paired timing: this is a dependency/branch tradeoff, not an
+instruction win or established elapsed gain. Preserve both candidate receipts.
+No unsafe code or approximate arithmetic is introduced.

@@ -187,11 +187,57 @@ fn oct_records(out: &mut [u8], stride: usize, bits: u32, byte_bits: u32, data: &
 
 pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
     let scaler = sqrt(2.0);
-    for (record, q) in out
+    let (inputs, rest) = data.as_chunks::<16>();
+    let (blocks, rest_out) = out.as_chunks_mut::<32>();
+    let one = snorm(1.0, bits) & !3;
+    for (block, input) in blocks.iter_mut().zip(inputs) {
+        let q: [[f32; 4]; 4] = core::array::from_fn(|c| core::array::from_fn(|r| input[r * 4 + c]));
+        let mut largest = q[0];
+        let mut selectors = [0u32; 4];
+        for c in 1..4 {
+            for r in 0..4 {
+                // Bit selects preserve the first strict maximum, including NaN
+                // and signed-zero behavior, without gathering q[selector].
+                let mask = 0u32.wrapping_sub(u32::from(q[c][r].abs() > largest[r].abs()));
+                selectors[r] = (selectors[r] & !mask) | (c as u32 & mask);
+                largest[r] =
+                    f32::from_bits((largest[r].to_bits() & !mask) | (q[c][r].to_bits() & mask));
+            }
+        }
+        let signs = largest.map(|x| if x < 0.0 { -1.0 } else { 1.0 });
+        let low = selectors.map(|s| 0u32.wrapping_sub(s & 1));
+        let high = selectors.map(|s| 0u32.wrapping_sub(s >> 1));
+        let select = |a: [f32; 4], b: [f32; 4], masks: [u32; 4]| -> [f32; 4] {
+            core::array::from_fn(|r| {
+                f32::from_bits(a[r].to_bits() ^ ((a[r].to_bits() ^ b[r].to_bits()) & masks[r]))
+            })
+        };
+        let q01 = select(q[0], q[1], low);
+        let q12 = select(q[1], q[2], low);
+        let q23 = select(q[2], q[3], low);
+        let q30 = select(q[3], q[0], low);
+        let (sx, sy, sz) = (
+            select(q12, q30, high),
+            select(q23, q01, high),
+            select(q30, q12, high),
+        );
+        let quantize = |v: [f32; 4]| -> [i32; 4] {
+            core::array::from_fn(|r| snorm(v[r] * scaler * signs[r], bits))
+        };
+        let (x, y, z) = (quantize(sx), quantize(sy), quantize(sz));
+        for (r, dst) in block.as_chunks_mut::<8>().0.iter_mut().enumerate() {
+            let packed = u64::from(x[r] as u16)
+                | u64::from(y[r] as u16) << 16
+                | u64::from(z[r] as u16) << 32
+                | u64::from((one | selectors[r] as i32) as u16) << 48;
+            *dst = packed.to_le_bytes();
+        }
+    }
+    for (record, q) in rest_out
         .as_chunks_mut::<8>()
         .0
         .iter_mut()
-        .zip(data.as_chunks::<4>().0)
+        .zip(rest.as_chunks::<4>().0)
     {
         let mut qc = 0;
         for i in 1..4 {
@@ -199,15 +245,17 @@ pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
                 qc = i;
             }
         }
-        // Double cover: the sign of the largest component is discarded.
         let sign = if q[qc] < 0.0 { -1.0 } else { 1.0 };
-        let values = [
-            snorm(q[(qc + 1) & 3] * scaler * sign, bits),
-            snorm(q[(qc + 2) & 3] * scaler * sign, bits),
-            snorm(q[(qc + 3) & 3] * scaler * sign, bits),
-            (snorm(1.0, bits) & !3) | qc as i32,
-        ];
-        store4(record, 8, values);
+        store4(
+            record,
+            8,
+            [
+                snorm(q[(qc + 1) & 3] * scaler * sign, bits),
+                snorm(q[(qc + 2) & 3] * scaler * sign, bits),
+                snorm(q[(qc + 3) & 3] * scaler * sign, bits),
+                one | qc as i32,
+            ],
+        );
     }
 }
 
@@ -264,7 +312,10 @@ fn exp_mode<const MODE: u8>(out: &mut [u8], stride: usize, bits: u32, data: &[f3
 
 /// One mode/layout, monomorphized. False marks an undefined conversion.
 fn exp_fixed<const MODE: u8, const FLOATS: usize>(
-    out: &mut [u8], stride: usize, bits: u32, data: &[f32],
+    out: &mut [u8],
+    stride: usize,
+    bits: u32,
+    data: &[f32],
 ) -> bool {
     const MIN_EXP: i32 = -100;
     const MASK: i32 = (1 << 24) - 1;
