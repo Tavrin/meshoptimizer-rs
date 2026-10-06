@@ -48,9 +48,9 @@ impl Writer<'_> {
 #[derive(Clone, Copy, Default)]
 struct Sizes {
     zero: bool,
-    ge1: usize,
-    ge3: usize,
-    ge15: usize,
+    ge1: u8,
+    ge3: u8,
+    ge15: u8,
 }
 impl Sizes {
     #[inline]
@@ -64,9 +64,9 @@ impl Sizes {
         }
         Self {
             zero: ge1 == 0,
-            ge1: usize::from(ge1),
-            ge3: usize::from(ge3),
-            ge15: usize::from(ge15),
+            ge1,
+            ge3,
+            ge15,
         }
     }
     // encodeBytesGroupMeasure; size_t(-1) marks an impossible zero group.
@@ -80,9 +80,9 @@ impl Sizes {
                     usize::MAX
                 }
             }
-            1 => 2 + self.ge1,
-            2 => 4 + self.ge3,
-            4 => 8 + self.ge15,
+            1 => 2 + usize::from(self.ge1),
+            2 => 4 + usize::from(self.ge3),
+            4 => 8 + usize::from(self.ge15),
             _ => GROUP,
         }
     }

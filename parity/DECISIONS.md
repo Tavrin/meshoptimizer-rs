@@ -8031,3 +8031,13 @@ and reduces cycles 21.0/21.4%, with 44/48% fewer branches. Retain binary blends
 for the final paired timing: this is a dependency/branch tradeoff, not an
 instruction win or established elapsed gain. Preserve both candidate receipts.
 No unsafe code or approximate arithmetic is introduced.
+
+## V03-6 — Compact vertex group measurements
+
+Each threshold count is at most 16. Store three byte counts plus the zero flag
+in four bytes instead of a 32-byte aggregate; widen only when computing sizes.
+Control selection, previous-bit ties and writer capacity checks remain exact.
+All 17,264 byte comparisons pass after adding immutable cook-like geometry.
+Resident allocating instructions fall to 0.920 of baseline for v0 and 0.940
+for v1 across s4/s12/s32; the untouched streaming decoder stays at 1.000.
+Keep this independently validated change; receipts are vertex-sizes.json.
