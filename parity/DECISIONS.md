@@ -8071,3 +8071,19 @@ Resident index instructions fall 21.6% allocating / 21.7% caller against the
 restored index baseline; diagnostic cycles fall ~19–20%. Sequence instructions
 remain unchanged. Keep safe packing; no SIMD or unsafe memory operations.
 Receipts: build/parity/counters-index-pairs.json. No elapsed verdict.
+
+## V03-10 — Initialized staging for large owned stride-four decodes
+
+For output >=1 MiB at stride4, reconstruct into one initialized 1 KiB stack
+block and append only its decoded live bytes to the fully reserved Vec.
+Destination finish is a default no-op for the existing slice/Vec sinks and
+called by scalar, x86 and WASM reconstruction. All initialization, resource
+preflight, capacity accounting, parse/tail validation and fallible reservation
+remain intact. No new production unsafe block; audit inventory stays 23.
+
+All 17,264 byte comparisons and the focused two-version/level/block-tail
+regression pass. Frozen allocating decoder instructions fall only 0.45%;
+diagnostic cycles fall 24%, with substantial host variation in other epochs.
+Keep the safe allocation/locality experiment for final paired qualification;
+neither counters nor the prior historical failure establish current latency.
+Receipts: build/parity/counters-streaming-stage.json and test-streaming-stage.log.

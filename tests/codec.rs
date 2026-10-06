@@ -453,3 +453,41 @@ fn allocating_vertex_blocks_preserve_capacity_limits_and_filtered_bytes() {
         }
     }
 }
+
+#[test]
+fn large_stride_four_owned_decode_preserves_limits_and_tail_checks() {
+    let count = 262145;
+    let data: Vec<u8> = (0..count * 4).map(|i| (i * 19 + i / 4) as u8).collect();
+    for version in [0, 1] {
+        let source = encode_vertex_buffer(
+            &data,
+            count,
+            4,
+            VertexEncoding::new(version, 2).unwrap(),
+            &mut Workspace::default(),
+        )
+        .unwrap();
+        let mut workspace = Workspace::new(Limits {
+            max_bytes: data.len(),
+            max_work: 1 << 34,
+        });
+        let decoded = decode_vertex_buffer(count, 4, &source, &mut workspace).unwrap();
+        assert_eq!(decoded, data);
+        assert_eq!(decoded.capacity(), data.len());
+        assert_eq!(workspace.usage().bytes, data.len());
+        let mut limited = Workspace::new(Limits {
+            max_bytes: data.len() - 1,
+            max_work: 1 << 34,
+        });
+        assert_eq!(
+            decode_vertex_buffer(count, 4, &source, &mut limited),
+            Err(Error::LimitExceeded)
+        );
+        let mut extra = source.clone();
+        extra.push(0);
+        assert_eq!(
+            decode_vertex_buffer(count, 4, &extra, &mut workspace),
+            Err(Error::InvalidStream)
+        );
+    }
+}
