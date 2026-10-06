@@ -7985,3 +7985,16 @@ max<=1.50 bars. Never retry completed streams to get a favorable verdict.
 Use only the named disposable target, incremental/debug disabled, byte-level
 25 GiB build floor, shared CPU admission and <=840s admitted commands. Initial
 resource-blocked build attempts are retained separately from executed checks.
+
+## V03-2 — Specialize common exponential record widths
+
+Retain safe constant layouts for Exp strides 4/8/12/16, with the original
+fully dynamic fallback. Exponent history, mode selection, validity checks,
+float operation order and encoded bytes are unchanged. The resident stride12
+N/2N counters fall to 0.6568/0.4198/0.3736/0.4443 of baseline instructions
+for modes Separate/SharedVector/SharedComponent/Clamped (allocating; caller
+ratios 0.6566/0.4194/0.3732/0.4439). All 17,198 parity cases pass. Keep the
+required numeric checks: the fixed layouts remove substantially more work
+than the unsafe validation knockout without changing failure behavior.
+Evidence: meshopt-v03/build-exp-strides.json, parity-exp-strides.json and
+counters-exp-strides.json. No timing verdict.

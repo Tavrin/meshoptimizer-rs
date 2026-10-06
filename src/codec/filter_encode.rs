@@ -241,12 +241,27 @@ pub(super) fn exp(
     }
 }
 
-/// One mode, monomorphized. Returns false if any conversion was undefined.
+/// Common layouts retain a constant record width through the component loops.
+/// The dynamic fallback handles every other supported stride identically.
 fn exp_mode<const MODE: u8>(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) -> bool {
+    match stride {
+        4 => exp_fixed::<MODE, 1>(out, stride, bits, data),
+        8 => exp_fixed::<MODE, 2>(out, stride, bits, data),
+        12 => exp_fixed::<MODE, 3>(out, stride, bits, data),
+        16 => exp_fixed::<MODE, 4>(out, stride, bits, data),
+        _ => exp_fixed::<MODE, 0>(out, stride, bits, data),
+    }
+}
+
+/// One mode/layout, monomorphized. False marks an undefined conversion.
+fn exp_fixed<const MODE: u8, const FLOATS: usize>(
+    out: &mut [u8], stride: usize, bits: u32, data: &[f32],
+) -> bool {
     const MIN_EXP: i32 = -100;
     const MASK: i32 = (1 << 24) - 1;
     const MAX: i32 = MASK >> 1;
-    let floats = stride / 4;
+    let floats = if FLOATS == 0 { stride / 4 } else { FLOATS };
+    let stride = floats * 4;
     let mut component = [if MODE == SEPARATE { 0 } else { MIN_EXP }; 64];
     let component = &mut component[..floats];
     if MODE == SHARED_COMPONENT {
