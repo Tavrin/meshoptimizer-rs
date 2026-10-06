@@ -4905,3 +4905,30 @@ child or samples. CPU admission verifies the queue wrapper requested GPU=0,
 absence of a held lease, affinity, reservation, timeout ancestry, scoreboard
 quietness and owned-proof exclusion. RUN-RULES now explicitly matches this
 coordinator correction. GPU availability is no longer an admission gate.
+
+Final fix10 decision: retain the source-bound block-initialization candidate
+and symmetric JS adapter, with negative performance acceptance recorded.
+The allocating vertex gap is resolved FAIL (CI 1.529-2.118, new/old 0.991-1.197).
+The allocating Exp-view32 gap remains unresolved by the frozen A/A cutoff
+(Rust upper 1.284), with final 1.619-2.590 and new/old 0.697-1.002. Neither paired
+new/old interval proves a speedup, and neither target is demonstrated closed.
+N/2N instructions increase 1.6%/0.07%, page-fault subtraction is near zero,
+and cycle deltas disagree with final paired ratios; fixed allocation/setup
+attribution is not established. Further tuning is explicitly abandoned at
+the single final-pass boundary. Reject retiming an A/A width to clear 1.25,
+retiming a failed maximum, dropping triangle-index, weakening a cutoff, or
+calling an unresolved target a performance pass. Root cause remains open.
+
+Full final coverage:276 native+174 public-JS API rows; all family means pass.
+Native allocating vertex/index/filtered-view fail resolved maxima; all native
+caller and all eligible JS adapter families pass this RFC rule. Four resolved
+max failures are retained;86 native+70 JS unresolved rows remain in all means
+and are listed with widths. Independent S3 still fails caller Exp resident32
+(default/scalar1.026-1.124), reported separately. Exact frozen proofs, allocation
+count symmetry, Miri, MSRV/no-std, native/WASM Clippy+simd128, formatting and
+unchanged 23-block audit pass. The independent verifier recomputes both stages,
+new/old and S3 intervals, every family/resolution/verdict, complete fixture/API
+coverage, reused intervals, and source/binary/build/reference/admission hashes.
+All final timing is CPU-only after coordinator correction. Artifacts and
+cleanup receipts remain outside the deleted owned target. No release or
+integration, Vec-returning WASM allocation-speed, or unavailable-host claim.

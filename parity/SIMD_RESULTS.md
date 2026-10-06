@@ -605,3 +605,56 @@ corresponding new/old interval includes1. No rescue epoch or subsequent
 engine edit. Current full case/family tables, proofs and limits are in
 P07_FIX9_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix9.
 No untouched-family, other-platform, release or Moss integration acceptance.
+
+## P07 fix10 full RFC qualification — 2026-10-06
+
+Single final pass: all 138 native cases / 276 API rows and all 87 upstream-JS
+eligible cases / 174 API rows. Family mean <=1.25 on all rows; maximum upper 95%
+<=1.50 only where both frozen A/A upper bounds <=1.25. Counts resolve 190/ 276
+native and 104/ 174 JS rows; excluded rows and A/A widths remain in
+[P07_RELEASE_QUALIFICATION.md](P07_RELEASE_QUALIFICATION.md).
+
+| Platform / family | Allocating mean / resolved max / verdict | Caller mean / resolved max / verdict |
+|---|---|---|
+| native / color | 0.996 / 1.364 / PASS | 1.105 / 1.401 / PASS |
+| native / exp | 0.896 / 1.465 / PASS | 0.895 / 1.270 / PASS |
+| native / index | 1.187 / 3.625 / FAIL | 1.142 / 1.444 / PASS |
+| native / meshlet | 1.132 / 1.431 / PASS | 1.240 / 1.483 / PASS |
+| native / meshlet-raw | 1.171 / 1.353 / PASS | 1.233 / 1.490 / PASS |
+| native / oct | 0.931 / 1.492 / PASS | 0.932 / 1.496 / PASS |
+| native / quat | 0.886 / 1.460 / PASS | 0.868 / 1.467 / PASS |
+| native / sequence | 1.131 / 1.457 / PASS | 1.080 / 1.477 / PASS |
+| native / vertex | 1.116 / 2.118 / FAIL | 1.051 / 1.440 / PASS |
+| native / view-filtered | 1.089 / 1.636 / FAIL | 1.028 / 1.436 / PASS |
+| native / view-none | 1.040 / 1.266 / PASS | 1.033 / 1.447 / PASS |
+| wasm / index | 0.877 / 1.422 / PASS | 1.042 / 1.337 / PASS |
+| wasm / sequence | 0.864 / 1.049 / PASS | 0.815 / 0.956 / PASS |
+| wasm / vertex | 0.913 / 1.481 / PASS | 0.858 / 1.260 / PASS |
+| wasm / view-filtered | 0.889 / 1.471 / PASS | 0.945 / 1.466 / PASS |
+| wasm / view-none | 0.954 / 1.311 / PASS | 0.838 / 0.963 / PASS |
+
+Overall RFC FAIL: four resolved allocating maxima fail (vertex, triangle-index,
+filtered-view); every family mean and every native caller family pass. All
+measured JS adapter families pass the requested rule. The requested vertex
+gap remains FAIL (1.529–2.118); requested Exp-view32 remains unresolvable
+under frozen Rust A/A upper 1.284, with final 1.619–2.590. Neither gap is closed.
+S3 independently fails caller varied-filter-3-resident-s32, default Rust/scalar
+CI 1.026–1.124. No rescue timing or further engine edit.
+
+WASM is the new symmetric JS allocating-adapter epoch, not qualification of
+the Vec-returning Rust WASM API. One fresh returned JS array per allocating
+call on all four slots, none for caller, verified by six exact-output probes.
+Native Rust/Cpp/old controls use the full Vec/caller matrix. Native scalar,
+all local SIMD ceilings, scalar/SIMD WASM, 869 fixtures, 7653 malformed inputs,
+138 benchmark inputs and 522 timing-module outputs pass exact frozen proofs;
+Miri, native/WASM MSRV+Clippy, unsafe-free/all-feature tests, format and 23-block
+audit/package receipts pass. Source/binary provenance and independent CI,
+new/old, S3, means/resolution/verdict recomputation are retained.
+
+Coordinator CPU-only correction applies to every remaining burst; all final
+timing uses MOSS_HEAVY_GPU=0 heavy 4 timeout 840 with CPU26 pinning and rotating
+interleaved slots. Previous completed GPU A/A receipts stay immutable; the
+unstarted queued GPU request was canceled, no running burst killed. Native
+final bursts 693.3/451.7s, JS final 450.4s, all wrapper exits 0. Artifact directory:
+`/mnt/linux-extra/meshopt-artifacts/p07-fix10`; target deleted after owned jobs
+exit. No ARM/Windows/Moss/release/integration acceptance.
