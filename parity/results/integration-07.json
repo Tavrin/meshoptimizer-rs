@@ -1,0 +1,818 @@
+{
+  "schema": "meshopt-integrate-07/1",
+  "passed": true,
+  "scope": "local CPU integration of phase/0.7 into release/0.2.0; no performance or release qualification",
+  "worktree": "/home/etienne/dev/meshopt-wt/rel020",
+  "branch": "release/0.2.0",
+  "release_parent": "d5ee8ce",
+  "incoming_parent": "c52ac6eea4d18361133ba0eb8328d47949074c86",
+  "common_base": "a4b3c483e38c2484232c4f5b748bf0fbb0fff182",
+  "package_version": "0.2.0",
+  "reference": "4c203430ca565cb59a468a91922c76c208169536",
+  "artifact_directory": "/mnt/linux-extra/moss-scratch/meshopt-integ-07",
+  "merge_preservation": {
+    "HEAD": {
+      "blocks": 252,
+      "all_retained_verbatim": true,
+      "sha256": "04d4bf5b88d24f703ad8d489891d3273e3d3018c9f4abd8dd6c67154138a609a"
+    },
+    "phase/0.7": {
+      "blocks": 146,
+      "all_retained_verbatim": true,
+      "sha256": "805a091a1d90b2d796be9d25301a7cbe12e4d94003f1a9502fae257236861ac2"
+    },
+    "release_public_exports_preserved_verbatim": true,
+    "scalar_modules": {
+      "analyze": true,
+      "normal": true,
+      "opacity": true,
+      "parallel": true,
+      "raster": true,
+      "remesh": true,
+      "strip": true,
+      "tangent": true
+    }
+  },
+  "integration_repairs": [
+    "Retain scalar/parallel/cluster-LOD APIs together with the incoming SIMD default, feature, audited module and runtime dispatch.",
+    "Make package dry-run verification derive the package name/version from Cargo.toml.",
+    "Import test dispatch controls internally so default-feature tests compile without parity-internals.",
+    "Compile the diagnostic x86 sqrt helper only with parity-internals; regenerate exact safety line inventory.",
+    "Refresh the SIMD subcrate lockfile to root version 0.2.0.",
+    "Add default-feature tests to CI and foundation checks; recursively fingerprint all Rust source modules.",
+    "Refresh stale merged coverage and safety documentation.",
+    "Resolve RFC113 range/divisibility/fixed-byte-chunk and codec fuzz checkpoint Clippy warnings with Rust 1.88-supported methods; refresh broad geometry snapshots and retain prior receipts."
+  ],
+  "gate_count": 33,
+  "foundation_commands": 17,
+  "lock_count": 12,
+  "tests": {
+    "default": 135,
+    "all_features": 170,
+    "no_default_features": 130,
+    "msrv_1_88_all_features": 170,
+    "msrv_1_88_no_default_features": 130,
+    "parallel_determinism_tests": 9
+  },
+  "gates": {
+    "locks": {
+      "command": [
+        "bash",
+        "-c",
+        "set -e; for manifest in Cargo.toml parity/Cargo.toml parity/codec/Cargo.toml parity/p03/Cargo.toml parity/p05/Cargo.toml parity/p06/Cargo.toml parity/rfc113/Cargo.toml parity/simd/Cargo.toml fuzz/Cargo.toml fuzz/codec/Cargo.toml fuzz/p03/Cargo.toml fuzz/p05/Cargo.toml; do cargo metadata --offline --format-version 1 --manifest-path \"$manifest\" >/dev/null; cargo metadata --offline --locked --all-features --format-version 1 --manifest-path \"$manifest\" >/dev/null; done"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/locks.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/locks"
+    },
+    "foundation-final": {
+      "command": [
+        "parity/gates.sh"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/foundation-final.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/foundation-final"
+    },
+    "subcrates": {
+      "command": [
+        "bash",
+        "-c",
+        "set -e; failed=0; for m in parity/codec/Cargo.toml parity/p03/Cargo.toml parity/p05/Cargo.toml parity/p06/Cargo.toml parity/rfc113/Cargo.toml parity/simd/Cargo.toml fuzz/codec/Cargo.toml fuzz/p03/Cargo.toml fuzz/p05/Cargo.toml; do cargo clippy --offline --locked --manifest-path \"$m\" --all-targets --all-features -- -D warnings || failed=1; done; test \"$failed\" = 0; cargo package --offline --locked --list --allow-dirty > \"$MESHOPT_ARTIFACTS/package-list.txt\"; python3 parity/simd/check_package.py < \"$MESHOPT_ARTIFACTS/package-list.txt\"; test -n \"$(rg src/codec/simd/SAFETY.md \"$MESHOPT_ARTIFACTS/package-list.txt\")\""
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/subcrates.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/subcrates"
+    },
+    "rfc113": {
+      "command": [
+        "bash",
+        "-c",
+        "set -e; cargo +1.88 check --offline --locked --manifest-path parity/rfc113/Cargo.toml; python3 parity/rfc113/run.py --pairs 0"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/rfc113.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/rfc113"
+    },
+    "boundary": {
+      "command": [
+        "bash",
+        "-c",
+        "set -e; parity/check-unsafe-boundary.sh; RUSTFLAGS=-Funsafe_code cargo test --offline --locked --no-default-features; RUSTFLAGS=-Funsafe_code cargo test --offline --locked --no-default-features --features std"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/boundary.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/boundary"
+    },
+    "wasm": {
+      "command": [
+        "bash",
+        "-c",
+        "set -e; cargo build --offline --locked --target wasm32-unknown-unknown --all-features; cargo clippy --offline --locked --all-features --target wasm32-unknown-unknown -- -D warnings; RUSTFLAGS=\"-C target-feature=+simd128\" cargo clippy --offline --locked --all-features --target wasm32-unknown-unknown -- -D warnings; RUSTFLAGS=\"-C target-feature=+simd128\" cargo build --offline --locked --all-features --target wasm32-unknown-unknown"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/wasm.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/wasm"
+    },
+    "miri-lib": {
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features",
+        "--lib",
+        "codec::simd"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/miri-lib.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/miri-lib"
+    },
+    "miri-filters": {
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features",
+        "--test",
+        "simd",
+        "filters_match_scalar_with_extreme_words_and_tails"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/miri-filters.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/miri-filters"
+    },
+    "miri-meshlet": {
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features",
+        "--test",
+        "simd",
+        "meshlet_controls_widths_partial_groups_and_tail_preservation"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/miri-meshlet.log",
+      "declared_gb": null,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/miri-meshlet"
+    },
+    "miri-dispatch": {
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--offline",
+        "--locked",
+        "--all-features",
+        "--test",
+        "simd",
+        "lowering_is_checked_nested_and_unwind_safe"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/miri-dispatch.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/miri-dispatch"
+    },
+    "miri-codec": {
+      "command": [
+        "cargo",
+        "+nightly",
+        "miri",
+        "test",
+        "--offline",
+        "--locked",
+        "--no-default-features",
+        "--test",
+        "codec"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/miri-codec.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/miri-codec"
+    },
+    "geometry-run": {
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "all"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/geometry-run.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/geometry-run"
+    },
+    "geometry-extended-refresh": {
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.1.x",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261002"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/geometry-extended-refresh.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/geometry-extended"
+    },
+    "geometry-extended-verify": {
+      "command": [
+        "python3",
+        "/mnt/linux-extra/moss-scratch/meshopt-integ-07/verify_extended.py"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/geometry-extended-verify.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/geometry-extended-verify"
+    },
+    "geometry-sweep": {
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.1",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261002"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/geometry-sweep.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/geometry-sweep"
+    },
+    "js": {
+      "command": [
+        "parity/report.sh",
+        "--execute",
+        "js",
+        "--require-coverage"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/js.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/js"
+    },
+    "native-identity-export": {
+      "command": [
+        "parity/report.sh",
+        "--export-identity",
+        "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/native-identity"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/native-identity-export.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/geometry-run"
+    },
+    "native-identity-check": {
+      "command": [
+        "parity/report.sh",
+        "--identity-check",
+        "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/native-identity"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/native-identity-check.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/native-identity-check"
+    },
+    "codec-run": {
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.2"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/codec-run.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/codec-run"
+    },
+    "codec-sweep": {
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.2",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261002"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/codec-sweep.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/codec-sweep"
+    },
+    "meshlets-run": {
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.3"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/meshlets-run.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/meshlets-run"
+    },
+    "meshlets-sweep": {
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.3",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261002"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/meshlets-sweep.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/meshlets-sweep"
+    },
+    "clusterlod": {
+      "command": [
+        "python3",
+        "parity/p03/runner.py",
+        "clusterlod"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/clusterlod.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/clusterlod"
+    },
+    "encoders-run": {
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.4"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/encoders-run.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/encoders-run"
+    },
+    "encoders-sweep": {
+      "command": [
+        "parity/sweep.sh",
+        "--phase",
+        "0.4",
+        "--cases-per-family",
+        "2000",
+        "--seed",
+        "20261002"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/encoders-sweep.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/encoders-sweep"
+    },
+    "scalar-run": {
+      "command": [
+        "parity/run.sh",
+        "--phase",
+        "0.5"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/scalar-run.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/scalar-run"
+    },
+    "scalar-sweep": {
+      "command": [
+        "python3",
+        "parity/p05/sweep.py"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/scalar-sweep.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/scalar-sweep"
+    },
+    "scalar-libm": {
+      "command": [
+        "python3",
+        "parity/p05/sweep.py",
+        "--no-default-identity"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/scalar-libm.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/scalar-libm"
+    },
+    "scalar-wasm": {
+      "command": [
+        "python3",
+        "parity/p05/sweep.py",
+        "--wasm-identity"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/scalar-wasm.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/scalar-sweep"
+    },
+    "simd-build": {
+      "command": [
+        "python3",
+        "parity/simd/qualify.py",
+        "build"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/simd-build.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/simd"
+    },
+    "simd-fixtures": {
+      "command": [
+        "python3",
+        "parity/simd/qualify.py",
+        "fixtures"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/simd-fixtures.log",
+      "declared_gb": 4,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/simd"
+    },
+    "simd-sweep": {
+      "command": [
+        "python3",
+        "parity/simd/qualify.py",
+        "sweep",
+        "--cases",
+        "1000"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/simd-sweep.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/simd"
+    },
+    "simd-identity": {
+      "command": [
+        "python3",
+        "parity/simd/identity.py",
+        "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/simd",
+        "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/simd/bin/rust-simd"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/simd-identity.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/simd-identity"
+    },
+    "verify-final": {
+      "command": [
+        "python3",
+        "/mnt/linux-extra/moss-scratch/meshopt-integ-07/verify.py"
+      ],
+      "exit": 0,
+      "log": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/verify-final.log",
+      "declared_gb": 2,
+      "artifact": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/artifacts/verify-final"
+    }
+  },
+  "strict_parity": {
+    "geometry_0_1_sweep": {
+      "families": 5,
+      "cases_per_family": 2000,
+      "comparisons": 10000,
+      "seed": 20261002,
+      "mismatches": 0
+    },
+    "geometry_0_1_extended_sweep": {
+      "families": 32,
+      "cases_per_family": 2000,
+      "comparisons": 64000,
+      "seed": 20261002,
+      "mismatches": 0,
+      "independent_verification": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/extended-verification.json"
+    },
+    "codec_0_2": {
+      "fixtures": 287,
+      "malformed": 3637,
+      "sweep_comparisons": 14000,
+      "mismatches": 0
+    },
+    "meshlets_0_3": {
+      "upstream_fixtures": 47,
+      "families": 15,
+      "cases_per_family": 2000,
+      "sweep_cases": 30000,
+      "variants": "allocating and into",
+      "mismatches": 0
+    },
+    "cluster_lod": {
+      "three_way_cases": 80,
+      "mismatches": 0
+    },
+    "rfc113_harness": {
+      "supported_layout_cases": 15,
+      "unsupported_stride_32_cases": 2,
+      "timing_pairs": 0,
+      "mismatches_on_supported_layouts": 0
+    },
+    "encoders_0_4": {
+      "fixtures": 869,
+      "malformed": 7653,
+      "sweep_comparisons": 44000,
+      "mismatches": 0
+    },
+    "scalar_0_5": {
+      "native_cases": 30000,
+      "libm_no_default_cases": 30000,
+      "executed_wasm_cases": 30000,
+      "fixture_and_contract_tests": 15,
+      "mismatches": 0
+    },
+    "simd": {
+      "unique_cases": 30660,
+      "fixtures_and_malformed": 8522,
+      "seeded_cases": 22000,
+      "large_output_identity_cases": 138,
+      "native_replay": {
+        "passed": true,
+        "counts": {
+          "scalar": 30660,
+          "sse2": 30660,
+          "ssse3": 30660,
+          "sse41": 30660
+        },
+        "binary_sha256": "93c3aa3a7b2a647c25f7d198120eb5284bdb1664a414206a3effd76c423e1b86",
+        "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n"
+      },
+      "wasm": "scalar and simd128 executed",
+      "timing_samples": 0,
+      "mismatches": 0
+    },
+    "upstream_js_suites": 5,
+    "linux_native_identity_pairs": 280,
+    "contract": "Rust output bytes/status match the strict scalar oracle; documented upstream C++ SIMD filter conformance remains separate."
+  },
+  "safety": {
+    "unsafe_allowances": 1,
+    "audited_blocks": 23,
+    "miri_tests": 18,
+    "miri_scope": "x86 focused SIMD/dispatch plus scalar codecs; no ARM execution claim"
+  },
+  "ci": {
+    "workflows": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/simd.yml"
+    ],
+    "default_tests_added": true,
+    "local_equivalent_commands_passed": true,
+    "remote_execution": false,
+    "publish_dry_run": "offline local registry package/build verification; no upload or registry availability claim"
+  },
+  "resources": {
+    "wrapper": "/mnt/linux-extra/moss-coord/bin/moss-heavy.sh",
+    "gpu": 0,
+    "one_build_at_a_time": true,
+    "disk_stop_free_gib": 25,
+    "ordinary_launch_free_gib": 26,
+    "build_launch_free_gib": 28,
+    "target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-integ07",
+    "cleanup_receipt": "/mnt/linux-extra/moss-scratch/meshopt-integ-07/closeout.json"
+  },
+  "earlier_nonzero_attempts": [
+    {
+      "name": "default",
+      "exit": 143,
+      "started": 1791245309.2855978,
+      "finished": 1791245346.5007396
+    },
+    {
+      "name": "default",
+      "exit": 101,
+      "started": 1791245350.3608048,
+      "finished": 1791245409.6468809
+    },
+    {
+      "name": "miri-meshlet",
+      "exit": 143,
+      "started": 1791246008.0396087,
+      "finished": 1791246256.9059594
+    },
+    {
+      "name": "miri-dispatch",
+      "exit": 143,
+      "started": 1791246531.8918293,
+      "finished": 1791246717.7763946
+    },
+    {
+      "name": "geometry-sweep",
+      "exit": 143,
+      "started": 1791247166.9988282,
+      "finished": 1791247227.1080396
+    },
+    {
+      "name": "geometry-sweep",
+      "exit": 143,
+      "started": 1791247300.1670246,
+      "finished": 1791247545.3017447
+    },
+    {
+      "name": "geometry-sweep",
+      "exit": 143,
+      "started": 1791247557.501945,
+      "finished": 1791247893.8348339
+    },
+    {
+      "name": "meshlets-run",
+      "exit": 143,
+      "started": 1791249430.6804616,
+      "finished": 1791249542.741681
+    },
+    {
+      "name": "simd-identity",
+      "exit": 143,
+      "started": 1791250326.0310915,
+      "finished": 1791250356.1835828
+    },
+    {
+      "name": "subcrates",
+      "exit": 101,
+      "started": 1791251181.460801,
+      "finished": 1791251196.3807995
+    },
+    {
+      "name": "subcrates",
+      "exit": 101,
+      "started": 1791251282.8574953,
+      "finished": 1791251291.0257542
+    },
+    {
+      "name": "rfc113",
+      "exit": 143,
+      "started": 1791251354.4127827,
+      "finished": 1791251459.5515275
+    }
+  ],
+  "interrupted_attempt_policy": "Retain interruption logs/artifact directories, rerun unfinished phases at unchanged count/seed; no interrupted prefix receives pass credit. Completed extended sweep independently verified after combined job interruption.",
+  "retained_prior_attempt_logs": [
+    "before-rfc113-lint/geometry-extended-verify.log",
+    "before-rfc113-lint/geometry-run.log",
+    "before-rfc113-lint/geometry-sweep.log",
+    "before-rfc113-lint/native-identity-check.log",
+    "before-rfc113-lint/native-identity-export.log",
+    "geometry-sweep-disk-pause.log",
+    "geometry-sweep-second-disk-pause.log",
+    "meshlets-run-disk-pause.log",
+    "miri-meshlet-disk-pause.log",
+    "rfc113-disk-pause.log",
+    "simd-identity-disk-pause.log",
+    "subcrates-before-codec-lint.log",
+    "subcrates-before-rfc113-lint.log"
+  ],
+  "timing_runs": 0,
+  "pushes": 0,
+  "unrun": [
+    "Remote Windows/macOS/ARM matrix",
+    "Manual/scheduled extended exhaustive and fuzz matrices",
+    "Performance requalification",
+    "Release/publish acceptance",
+    "Parallel WASM runtime qualification",
+    "Moss runtime/GPU acceptance"
+  ],
+  "shared_admission_receipts_sha256": "e9fd37caeb9178c29714cdd512ab7285ba1c043f1aaf3b46dc8c552d64bf9b30",
+  "wrapper_final_snapshot_sha256": "8c62d79e8ca06ab0aa1d68c1b1ccc3835fdb762a848ca541057179b5cf7bdd1b",
+  "source_sha256": {
+    "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
+    "src/budget.rs": "c339aa1d7e35cbe4fcacb8c94bae75ff63f755f8df2f17765294d82505a0873b",
+    "src/cache.rs": "c2724d97ec08e9c674ffc01dba9dc26265cd3e3858b82c0ca8f1c1f3c21e949d",
+    "src/clusterlod/mod.rs": "a41370baec3e5bf07b17f5789725260322fbe6cf175c4ad54c04714364e5b2e5",
+    "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46",
+    "src/clusterlod/support/input.rs": "b51cec4182809662d329b7e4efb81f06b114b41df407f700b984e2dbd1d22a8a",
+    "src/clusterlod/support/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
+    "src/clusterlod/support/simplify.rs": "4e1baa97f9048439f8b8af5a2a53e83867e9a4b080873e52fa50947070b8f06d",
+    "src/clusterlod/support/simplify_extra.rs": "301db10220b7e7078f4f87b2dba0d672bd74a5877ff9d5675bd7eab554b0e15a",
+    "src/clusterlod/support/workspace.rs": "79859b9613aa305b4f7ba338fc91718aa04cd9d52b58d3cc38656ac136083fda",
+    "src/codec/encode.rs": "a301f0209e35742b906d28bbea7f3bb735921fd279afdc4832c5949e188f6ff5",
+    "src/codec/filter.rs": "873add008aad73fab4fd3812f9e416ff084320c960ebc5e4e96a21833a3ed3a8",
+    "src/codec/filter_encode.rs": "4b0c04978a871a7b9bf7f76e83e63bc1547d87fa036541dcef9c755a662437c7",
+    "src/codec/index.rs": "f22348f319afab7857c2620f3f1c99ff85e5cbae68890b0ee2880894e0c84877",
+    "src/codec/index_encode.rs": "b079a144b3a052fc46658b26014774e9650b2b9fc683f6b9fcbd8324110d3446",
+    "src/codec/meshlet.rs": "72d74d24787bbaa62288435c677f8fee1f689144d0927b2fc78338c3f8f70f5f",
+    "src/codec/mod.rs": "130912389110150a588eba1f61a2e877aa400560191d9a7f02008e8a80d907fb",
+    "src/codec/simd/aarch64.rs": "e9ed3d1830a29d5ed348ebe2cb6bc0a09b9faa352fa5ad4273658cd34db73509",
+    "src/codec/simd/dispatch.rs": "0db9cb454a0314fc111b278911f1e2bd9b5f788518fc56dd28defabf2915e9d5",
+    "src/codec/simd/kernels.rs": "e08323103fc8dea3fc86dc0623bb768bcb7c2707de308c604c49b67efca9f101",
+    "src/codec/simd/mod.rs": "f950e9a34a64e526bd065932bd0aa15f40da5e2523957ccae0d808e7673e3cf0",
+    "src/codec/simd/wasm32.rs": "9d048844c882c56f5096de6679d077bc2c90f1c28bb6c322e04c2bb567735161",
+    "src/codec/simd/x86.rs": "ea43f4c77fb51fa5b783d46e90d38ac3cc81cfbea8a35e85e4e42ef5274a12f7",
+    "src/codec/vertex.rs": "9bc2899d2f989d66747a1ca71808111c1696eeadaff36e2808ec46327de9bc1e",
+    "src/codec/vertex_encode.rs": "9bb21e53054effa20aa127a701a7657ff8b02d9ce34f59fc719df256f2017534",
+    "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+    "src/input.rs": "04599aa36739daa5ff4c3047f95b4d066f15c11cc77094b29ec7ca2566cdc253",
+    "src/lib.rs": "ed7e54f5bbb6fcbc8914dd2a87ea122a09180f8a8faa95b55add24ae5fde581d",
+    "src/math.rs": "b107247818c7d55bd4240f099b3fa7bf0d0e3b9eb93de465b1c0fd4371540b72",
+    "src/meshlet.rs": "5923a30f15fa9f4d355b3e4008a9f6815359f3c46fd7575a25f4dea0bda8e8e5",
+    "src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
+    "src/meshlet_util.rs": "6f95800d8f29ec4764b86ed0756e4816adc0337a6a4c280e16c391f187168820",
+    "src/normal.rs": "0ea24cf42fcdab3f2f2593cfc223de055874e2c16290341503628fe5e65a3ec3",
+    "src/opacity.rs": "917aefa39df376d6ae22bf57f02d49f7e3d5cfab4f2e3eabf5bbb1d5fdb6892d",
+    "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+    "src/parallel.rs": "a2f495210f0626f1f125763cc7d8fa856859dd8a3c4b9944e8b3b7dc16b8694f",
+    "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
+    "src/processing.rs": "a95e2eee270d988e7178b8054ccb0d891279883006db492d6e8ed58c3e27d9b5",
+    "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
+    "src/raster.rs": "042987f046b947ae1c48e6603ce4652c2442e904bc836dd53893eee41b5dea07",
+    "src/remap.rs": "faaeeee5d47efe47de4c4141e8584a0d5e536aece8c0079a53ba4e939864d866",
+    "src/remesh.rs": "1638a9aeb75bdd85b638be766a6f35126ce1ece8947a32a38ef66867ceee08ec",
+    "src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
+    "src/simplify.rs": "f96c04ea2e6f2096f7e9b3cd1182258936c43d2378773c0c726e86cbb351d44d",
+    "src/simplify_extra.rs": "479379cfef8e5fd0ab220fd930bf5db9ce10d285c6dce3938ac7cb62d5c2f0be",
+    "src/spatial.rs": "c1829a02b7821a5076a21be5a053154fa3e46e6439d3ce7dbda52c038128559c",
+    "src/strip.rs": "92f5e49e3b9e8da606471d8c1f00bd515f03e9b0f865f8b58f2e47c2e5a3c792",
+    "src/tangent.rs": "e31665b1f146ea32ac258cb4eded8276de4b521b4b0449d8c8994b23f82dcf4e",
+    "src/workspace.rs": "22c4e1e086999d16b2e9211e901c161b9058597e684516400a063e6c8282c18b"
+  },
+  "lock_sha256": {
+    "Cargo.lock": "497177bae14fd6391616b6a160a75aed01cc729214c3722845801fc711641e2d",
+    "fuzz/Cargo.lock": "ec7d5fd957db14c36eacdc9aacdfe20e0d9d7b3cc3a3b721099a3bb09a32794d",
+    "fuzz/codec/Cargo.lock": "135865735070a75808dff87c8e08e269cf50f4a700576bb5402e84d3ec338fa9",
+    "fuzz/p03/Cargo.lock": "f4e4fecd0b935c05635c30d4a230777ba211c8dd0c667c66e13219c19f071110",
+    "fuzz/p05/Cargo.lock": "74ede119d26fdb57259a34903b205268a8c260fabf215a5f75bffd1fbd30a828",
+    "parity/Cargo.lock": "3fc2a8afd7d3deaf315602da8076014736a0e44d64f956ad5878fdae92ee2515",
+    "parity/codec/Cargo.lock": "75dfca933972c3394b7669df0f192bf95e6980ee104f5abafdad1bc7965ad99b",
+    "parity/p03/Cargo.lock": "a6647915f9c32b3ba9a52cd2d28e2c20efc70b6f002b34a4f644749c01ec7232",
+    "parity/p05/Cargo.lock": "aa36e7a2d23c94764fc12d8b6e8fd37681357025f1b750e90548d153336877a3",
+    "parity/p06/Cargo.lock": "f606833a078d3abc8638335f7d95ba7f06012a9da7924641eff5e30f376ae1c5",
+    "parity/rfc113/Cargo.lock": "162506920de2577d3322ee4bdce0a0e627acfe5cd685e440ea9507b4ecfecb7d",
+    "parity/simd/Cargo.lock": "d4050402547d8f85778937f38a84c4095eea08e0d1a6c07fdc671526afd9b8b3"
+  },
+  "verification_sha256": "94c28184fbd4689f6fc8356dae941fdc5e035f42b7ae162b7a65dd7030be7886",
+  "gate_receipts_sha256": "f985a00f266cd7997209a4c90eac615367cb5de5aeaa3564043bc26fcb91663f",
+  "gate_log_sha256": {
+    "locks": "e38901af0a82d83fad91c2dea60471a267b2f96d0a6cdbf5c9e54e4b40d8e655",
+    "foundation-final": "76286608262c4b648993a7bf05baf8c144b78375a0ce3c8af0fee8e845a72c58",
+    "subcrates": "f5b5e7e5169241e6ef33af5d92747ca03e8db44175cb8c78a068568f5b22a0b6",
+    "rfc113": "4060b450dcd74f522438383cddefa422401b5ac8d867ff2846483f85362b4d5e",
+    "boundary": "0cb0f297a2de9587ed2a2dbf4754acc138280045888ddfacac7167ac57eb2f91",
+    "wasm": "4b1dc7729685d9375f261f9490083772a9bc54be9045ddfa324b704d3fa21e1a",
+    "miri-lib": "c63d7fa12f44431eb3d64d8b0562c6d2a96d66c57e4d082e9663daa63ae5edf9",
+    "miri-filters": "619eb2a6c90f77da1fd011f502bca99e6d401b26ff8339e68f39aef69058e8e4",
+    "miri-meshlet": "6183dec031a01e646dac5b0043d5a44dc6529fd640f5b71f31e04de58e0045e3",
+    "miri-dispatch": "db8843a6febb67fa64a83ffbf812dfef67abb695a24c0b3a6798b7e9aa9454f1",
+    "miri-codec": "66a1ca5c8ae998feddd2984fafa1ed71edaea8908fc20a7b810a9c88c6361d7a",
+    "geometry-run": "63ef4b2ae64990c5cdec13f03d85809bc0ee0313f10ecfca7e9cece72a2ce115",
+    "geometry-extended-refresh": "d32e3b02bfcd057cb79dacceb1cf4c7c23e2f4a3f008d935c3af0857049dcab1",
+    "geometry-extended-verify": "dd77c6853c1ea7a90ea967d099b9944d2679d7a3dbb308ad9e4f36d4003b4e1c",
+    "geometry-sweep": "339dec275450de88ee5a46ddbccc46e1a4057b8a62e88d432c40a2792198cc88",
+    "js": "dc13053a2ed06aeeeadf0ca9e628a2f82e7fcc3ceaaac9b431b3f95ea819f223",
+    "native-identity-export": "58aefa9d73a0fbe4e964b97b7d052913ac35c9bc394242efa28224dd4d05377b",
+    "native-identity-check": "fd6e06a045830ecde7cf341fbe16a5a352e9d188342365631eaece01adca42d2",
+    "codec-run": "85ec20290553e8426877dd1fcd7982aac155a5c067efdcdf0be4f2584f7fb26d",
+    "codec-sweep": "30b6f2fb3f2093da051a1934ffc29e06fba17302dba9d8a6ee0a2f91ef0a94af",
+    "meshlets-run": "2b2d4f71eda019d51780569692f8d344f362ec118e133dedc68383b4f463a37d",
+    "meshlets-sweep": "54cc405236ba03870729e126be8fd2738b19da521066ecaeebe962b0ff9bb560",
+    "clusterlod": "7e6428a23ac8bfed87fc3f1f021c706991a7080622f53427de6ece9403b04a5b",
+    "encoders-run": "97b11ad14e154e5edb8ba732495b444fbefcc6662add4b152d7e5389d2898e35",
+    "encoders-sweep": "292cb4b0159561b1893d2a42408e59b71ed3a90d9b7b07965ec98224f0b57d66",
+    "scalar-run": "44c750ebb41fff04fb4fc9af6c40f00b6efe2e16c7fc5a4da7d00d84100b65d8",
+    "scalar-sweep": "c3857a14fbf19f304bf4688a0d9af7bc2e13f7b5466471fb6d34d631d161d129",
+    "scalar-libm": "3d726fdeb6453e1a5134a155c4d06c37c73e68350ad8b0b0d2ea79691944d979",
+    "scalar-wasm": "70c372ff128aae05e77bbd47702f4c2b6fc5f3f73c99e5f061674bf2371b57c1",
+    "simd-build": "b7ad30f2273850502c365d2f554bf8fc890f37c8a02a9b9320d292ca961c77a2",
+    "simd-fixtures": "c4932d55f64afaca141a031a8cce327b0c3168b7bf62f60b2fc2ccb65e4fde6c",
+    "simd-sweep": "f9cc2623fdc16392abfde54fe7d0c0cbcb12803d6693245bd92452aad4b8565d",
+    "simd-identity": "2a1f23846b62a3e6adc19c83862a0041b631ce66a35092f6ccd86aa96b5a6059",
+    "verify-final": "4abc72e67f8eb6152daf7399630c4ac7ab05a4a8a13fd207ae761e76a4831fd8"
+  },
+  "fresh_summary_sha256": {
+    "js.json": "f4c991eb009b20a62053616cb846b7d4d611e862f5cd61351779ac9267e6dcf3",
+    "no-default-0.5.json": "be693c43e0a8acf766d8a633c0cf73760f4e52919b693cf246a1d263510eb098",
+    "p01x-run.json": "d6fa2b8d6ea233483e71484c41e164cdf72bcc9d5b54a2b017bf17a4c0890d38",
+    "p01x-sweep.json": "ff286fd79c47e258d869b6ff3a6289fd1b35cd3ff62bc25ac820879bc34428c5",
+    "run-0.2.json": "044874e0a35eddbc351d6c7012396af5c2f029d94926f4781e77c7f2f8668ffb",
+    "run-0.3.json": "d5655f68bf994d3d25516a06a7e3061afa35b6e9cc5a53959dbe6d352d4e8816",
+    "run-0.4.json": "07f7ae9c142eb5bb1a76d146e2544fb3698e075adf00e3e9079133ef587fe5b8",
+    "run-0.5.json": "571f0d471f0b0dda380eb0dbaece2edc2985598234cd1d5f5990336bc76f08ba",
+    "run.json": "cd93ecd4098a3868e6cdff8bf4adb03b423c9b579ca6a31d3368cc3630b91ed1",
+    "sweep-0.2.json": "7b19861efa46d751b42f0837d797d0352ba41e7d0e42ce2d899e233d193a0384",
+    "sweep-0.3.json": "d84b8b2c4a445b7cf137a8fcedf10856910465c9d0e6ec0f6f981d50e792d090",
+    "sweep-0.4.json": "8e6d2c6a90196c80a3fc132aea1c46df5b2c1c266917a4d0070dfb19d0b074e4",
+    "sweep-0.5.json": "397c9b62af7bdfbdda72483547d4f18c5c0b33070a8111b735a901a932573729",
+    "sweep.json": "20e903ad5af72e7dcf474f1d18165b4ec082d4254898e0d7497de92fcb2b415b",
+    "wasm-0.5.json": "b0683cd4ff7c39d75806581700924db83a149022aefa445dca9e46ca926b1597"
+  },
+  "fresh_summary_artifacts": {
+    "run-0.5.json": "artifacts/scalar-run/run-0.5.log",
+    "sweep-0.5.json": "artifacts/scalar-sweep/sweep-0.5.jsonl.gz",
+    "no-default-0.5.json": "artifacts/scalar-libm/no-default-0.5.jsonl.gz",
+    "wasm-0.5.json": "artifacts/scalar-sweep/wasm-0.5.jsonl.gz"
+  },
+  "historical_records": "Preserved in merged-input-tree.tar.gz and unchanged historical parity documents; old benchmark/fuzz/release verdicts do not qualify this integration."
+}

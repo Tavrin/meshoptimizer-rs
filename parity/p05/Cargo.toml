@@ -1,0 +1,15 @@
+[package]
+name = "meshopt-p05-parity"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = ["std"]
+std = ["meshoptimizer-rs/std"]
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["experimental"] }

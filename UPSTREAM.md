@@ -11,6 +11,7 @@ tree. The harness rejects any other or modified reference checkout.
 | `src/overdraw.rs` | `src/overdrawoptimizer.cpp` | `meshopt_optimizeOverdraw` |
 | `src/simplify.rs` | `src/simplifier.cpp` | `meshopt_simplify`, `meshopt_simplifyWithAttributes`, `meshopt_simplifyScale` |
 | `src/math.rs` | scalar `sqrtf` usage | pinned libm 0.2.16 backend |
+| `src/codec/simd/` | `src/vertexcodec.cpp`, `src/vertexfilter.cpp`, `src/meshletcodec.cpp` | audited vertex, filter and meshlet SIMD kernels; scalar Rust remains the exact reference |
 
 The ported implementations were checked against the pinned source's tables,
 adjacency traversal, score updates, float summation order, cache timestamps,
@@ -36,6 +37,14 @@ Output for valid input must stay exact. The port adds no welding, compaction,
 implicit cache pass, general sorting, wider float accumulation or fused
 arithmetic. The overdraw centroid includes unused supplied vertices, as
 upstream does.
+
+SIMD byte shuffles and meshlet history tables follow the pinned decoder
+algorithms, with checked fixed-array windows and initialized tails. Filters
+retain the scalar Rust operation order, IEEE division/square root and
+sign-biased truncation rather than upstream SIMD's estimates or fused
+operations. Exceptional square-root bits use the canonical adapter described
+in parity/DECISIONS.md P07-D2. The safety audit and qualification limits are in
+src/codec/simd/SAFETY.md and parity/SIMD_RESULTS.md.
 
 The published package contains only Rust code and documentation. The only C++
 is in the parity harness, which is not published. See parity/COVERAGE.md for future API

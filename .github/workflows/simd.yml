@@ -1,0 +1,149 @@
+name: SIMD parity and safety
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 3 * * *"
+permissions:
+  contents: read
+jobs:
+  boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: parity/check-unsafe-boundary.sh
+      - run: cargo test --locked --no-default-features
+        env:
+          RUSTFLAGS: -Funsafe_code
+      - run: cargo test --locked --no-default-features --features std
+        env:
+          RUSTFLAGS: -Funsafe_code
+  miri:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+      - run: cargo miri test --all-features --lib codec::simd
+        env:
+          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
+      - run: cargo miri test --all-features --test simd filters_match_scalar_with_extreme_words_and_tails
+        env:
+          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
+      - run: cargo miri test --all-features --test simd meshlet_controls_widths_partial_groups_and_tail_preservation
+        env:
+          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
+      - run: cargo miri test --all-features --test simd lowering_is_checked_nested_and_unwind_safe
+      - run: cargo miri test --no-default-features --test codec
+  native-parity:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    env:
+      MESHOPT_REFERENCE: ${{ github.workspace }}/reference
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: zeux/meshoptimizer
+          ref: 4c203430ca565cb59a468a91922c76c208169536
+          fetch-depth: 0
+          path: reference
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: |
+          echo "CARGO_TARGET_DIR=$RUNNER_TEMP/simd-build" >> "$GITHUB_ENV"
+          echo "MESHOPT_ARTIFACTS=$RUNNER_TEMP/simd-artifacts" >> "$GITHUB_ENV"
+          cargo fetch --locked --manifest-path parity/codec/Cargo.toml
+      - run: cargo test --locked --all-features
+      - run: cargo clippy --locked --all-features --target wasm32-unknown-unknown -- -D warnings
+      - run: cargo clippy --locked --all-features --target wasm32-unknown-unknown -- -D warnings
+        env:
+          RUSTFLAGS: -C target-feature=+simd128
+      - run: python3 parity/simd/qualify.py build
+      - run: python3 parity/simd/qualify.py fixtures
+      - run: python3 parity/simd/qualify.py sweep --cases 1000
+      - if: github.event_name == 'workflow_dispatch'
+        run: |
+          cargo build --locked --release --manifest-path parity/simd/Cargo.toml
+          python3 parity/simd/run_exhaustive.py native --cpu 0
+          RUSTFLAGS="-C target-feature=+simd128" cargo build --locked --release --target wasm32-unknown-unknown --lib --manifest-path parity/simd/Cargo.toml
+          python3 parity/simd/run_exhaustive.py wasm --cpu 0
+          python3 parity/simd/qualify.py sweep --cases 10000
+          python3 parity/wasm-simd-seeded.py --cases 10000000 --cpu 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simd-${{ matrix.os }}
+          path: ${{ runner.temp }}/simd-artifacts/
+      - if: always()
+        run: rm -rf -- "$CARGO_TARGET_DIR"
+  platform-identity:
+    needs: native-parity
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-14, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          name: simd-ubuntu-latest
+          path: simd-records
+      - run: cargo build --locked --release --manifest-path parity/codec/Cargo.toml --features simd
+      - shell: bash
+        run: |
+          binary=parity/codec/target/release/codec-driver
+          if [[ "$RUNNER_OS" == Windows ]]; then binary="$binary.exe"; fi
+          python parity/simd/identity.py simd-records "$binary"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: simd-identity-${{ matrix.os }}
+          path: simd-records/identity.json
+  simd-fuzz:
+    needs: native-parity
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rust-src
+      - run: cargo install cargo-fuzz --version 0.13.2 --locked
+      - run: |
+          echo "CARGO_TARGET_DIR=$RUNNER_TEMP/simd-fuzz-build" >> "$GITHUB_ENV"
+          echo "MESHOPT_ARTIFACTS=$RUNNER_TEMP/simd-fuzz-artifacts" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          name: simd-${{ matrix.os }}
+          path: ${{ runner.temp }}/simd-fuzz-artifacts/
+      - run: python3 parity/seed-simd-fuzz.py
+      - run: python3 parity/simd/fuzz.py --cpu-seconds 60 --cpu 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simd-fuzz-${{ matrix.os }}
+          path: ${{ runner.temp }}/simd-fuzz-artifacts/
+      - if: always()
+        run: rm -rf -- "$CARGO_TARGET_DIR"

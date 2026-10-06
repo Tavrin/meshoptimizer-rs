@@ -1,0 +1,51 @@
+{
+  "schema": "meshopt-p05-profile/1",
+  "phase": "0.5",
+  "profile": "moss",
+  "profile_complete": true,
+  "benchmark_sha256": "7edbbb14a09e79ee39ddd6424dac876be4a2822dcb22dad5139778d8c4e7eec4",
+  "detail_artifact": "profiles-0.5-moss/summary.json",
+  "detail_sha256": "0c7dda93b1031cbb136e8d7566034f515f902eead5c59f28e413bac11cd2b6f8",
+  "families": {
+    "stripify": {
+      "cpp_instructions": 6113190032,
+      "rust_instructions": 6521897986,
+      "ratio": 1.0668567395845023
+    },
+    "unstripify": {
+      "cpp_instructions": 1890982028,
+      "rust_instructions": 2951924650,
+      "ratio": 1.5610537838490763
+    },
+    "vertex_cache": {
+      "cpp_instructions": 6415010284,
+      "rust_instructions": 11051034276,
+      "ratio": 1.7226837973374636
+    },
+    "omm_measure": {
+      "cpp_instructions": 6118386790,
+      "rust_instructions": 8430659046,
+      "ratio": 1.3779218829020778
+    },
+    "omm_rasterize": {
+      "cpp_instructions": 755423563,
+      "rust_instructions": 1350749176,
+      "ratio": 1.788068630843065
+    },
+    "tangents": {
+      "cpp_instructions": 13606883302,
+      "rust_instructions": 18596926326,
+      "ratio": 1.366729317305642
+    },
+    "normals": {
+      "cpp_instructions": 3743978761,
+      "rust_instructions": 5917988383,
+      "ratio": 1.5806682571616222
+    },
+    "remesh": {
+      "cpp_instructions": 2672089504,
+      "rust_instructions": 3911292603,
+      "ratio": 1.463758080388014
+    }
+  }
+}

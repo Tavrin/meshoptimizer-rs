@@ -1,0 +1,17 @@
+[package]
+name = "meshopt-simd-qualification"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[features]
+force-scalar = []
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["std", "simd", "parity-internals"] }
+libm = { version = "=0.2.16", default-features = false }
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1

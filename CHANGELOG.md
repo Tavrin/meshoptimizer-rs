@@ -7,7 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - unreleased
+## [0.2.0] - 2026-10-06
+
+### Added
+
+- Scalar APIs for stripification, vertex-cache/fetch and raster analysis,
+  opacity micromaps and tangent generation. Normal generation and remeshing
+  require `experimental`. These APIs also have checked limits and caller-buffer
+  forms.
+- Optional `parallel` feature using Rayon and `std`: ordered batches for LOD
+  chains, vertex/index encoding, EXT view decoding and all four meshlet builders.
+  With `clusterlod`, batches also build cluster-LOD DAGs and hierarchy forests.
+  Successful output matches sequential calls; per-item errors and limits are
+  checked with private worker workspaces.
+- Default `simd` feature: audited vertex, filter and meshlet decoding for x86
+  SSE2/SSSE3/SSE4.1, AArch64 NEON and wasm simd128. Runtime x86 dispatch uses
+  `std`; scalar fallback remains the canonical reference. Disable defaults for
+  an unsafe-free build, optionally adding `std`.
+
+### Changed
+
+- Cluster LOD reuses validated attributes and boundary flags, compacts sparse
+  groups and invalidates the cached position range after dilation. The frozen
+  RFC 113 recovery corpus records aggregate Rust/scalar-C++ ratios of 1.196
+  with thin LTO and 1.090 with Cargo defaults; 15 supported layouts and 90
+  codec comparisons match byte for byte.
+- P05's final selected compact/coverage/raster-overdraw scope passes its bars.
+  Opacity-map compact family means are 0.557 / 0.578× scalar C++ time under
+  thin-LTO / default consumer profiles. The full matrix was not refreshed.
+- Current native SIMD family means and caller-buffer families pass the
+  registered 0.2 rule; allocating index, vertex and filtered-view maxima fail.
+  Symmetric JavaScript WASM adapters pass that rule, without qualifying the
+  Vec-returning Rust WASM API. Unresolved A/A rows retain their interval widths.
+- Small hierarchy batches run sequentially to avoid Rayon dispatch overhead;
+  recorded caller-side pool overhead can still make batches slower.
+- README now records the meshopt 0.6.2 comparison. meshopt is faster at
+  allocating vertex decode and Oct/Quat/Exp encoding (Exp about 3.4×).
+  meshoptimizer-rs has lower five-case mean times for matched-v1 vertex encoding, Color
+  encoding, Exp/Color decoding and scan meshlets. These are shared-host
+  measurements on a Ryzen 9 7945HX, not universal speed claims.
+- MSRV remains **Rust 1.88**, edition 2021. Crate version is 0.2.0; internal
+  development phase numbers do not name published releases.
+
+### Known exceptions
+
+- Owner-approved allocating `vertex-v1-streaming-s4` exception: 1.529–2.118×
+  C++ time; use the caller-buffer API (owner records about 1.04×). The fix is
+  planned for 0.2.1. The later complete report also records resolved allocating index
+  maxima of 1.508–3.625 and 2.189–2.465, and filtered-view 1.343–1.636.
+- Allocating varied filtered-view stride-32 streaming remains unresolved,
+  interval 1.619–2.590; A/A upper bounds are 1.284 / 1.026. The roadmap names
+  the filtered-view maximum near 1.64 and a small S3 case; the latest S3 report
+  records caller-buffer `varied-filter-3-resident-s32` at 1.026–1.124× scalar Rust.
+- Older allocating fetch failure, inconclusive overdraw/sloppy maxima and
+  default partitioning 1.450 / 1.778 mean / max remain in their original scope.
+  Stricter SIMD amendment targets continue in 0.3, with encoder performance
+  first among 0.3 priorities.
+- The malformed meshlet tail accepted by upstream scalar and rejected by SSE
+  remains a strict-sweep discrepancy; Rust follows canonical scalar output.
+  Two stride-32 RFC 113 layouts are invalid because of their protect masks.
+- AVX2, AVX-512 and 32-bit ARM SIMD are absent. Compile-only checks and short
+  fuzz runs do not establish full per-target runtime or release fuzz budgets.
+
+See [README.md](README.md) for workarounds and links to the qualification records.
+
+## [0.1.0] - 2026-10-04
 
 First public release. Ports meshoptimizer 1.3 (commit
 `4c203430ca565cb59a468a91922c76c208169536`, `src` identical to tag v1.3) with
@@ -68,5 +132,6 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0

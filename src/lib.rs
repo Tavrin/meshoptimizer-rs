@@ -1,10 +1,12 @@
-//! A pure safe Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3.
+//! A Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3.
 //!
 //! Every ported function produces byte-identical output to meshoptimizer 1.3
 //! (scalar build). Differential runs against the C++ library, seeded sweeps,
 //! fuzzing and a wasm32 identity check prove this on the recorded inputs.
 //!
-//! The crate is safe Rust (`unsafe` is forbidden) and needs no C++ toolchain.
+//! The crate is safe Rust except for one module, `codec::simd`, which holds the SIMD kernels for vertex decoding, EXT filters and meshlet decoding. Every `unsafe` block there has a written safety argument, and every SIMD path must produce the same bytes as the scalar safe-Rust path, which is the reference and the fallback. Build with `default-features = false` (adding `std` if needed) to compile no `unsafe` code; output is identical. Cargo feature unification applies: if any other crate in the dependency graph enables `simd`, the module is compiled for the whole graph. Simplification, optimization, index decoding and all encoders contain no `unsafe` in either configuration. See the [safety audit](https://github.com/Tavrin/meshoptimizer-rs/blob/main/src/codec/simd/SAFETY.md).
+//!
+//! The crate needs no C++ toolchain.
 //! It supports `no_std` with `alloc`. Invalid input returns a typed [`Error`]
 //! instead of undefined behaviour. A reusable [`Workspace`] holds scratch
 //! memory, makes every allocation fallible and enforces per-call memory and
@@ -13,6 +15,12 @@
 //! This is an independent project. It is not affiliated with meshoptimizer or
 //! its author. Coverage, measured performance and the parity records are in the
 //! [README](https://github.com/Tavrin/meshoptimizer-rs#readme).
+//!
+//! Coverage includes vertex processing, simplification, meshlets and codecs
+//! (phases 0.1–0.4), analyzers, opacity maps, tangents, normals and remeshing
+//! (phase 0.5), optional parallel batches (phase 0.6), and SIMD codecs (phase 0.7).
+//! Cluster-LOD requires `clusterlod`; batches require `parallel` and `std`.
+//! Normal generation and remeshing require `experimental`.
 //!
 //! # Simplify a mesh
 //!
@@ -107,22 +115,42 @@
 //! - `clusterlod`: the cluster-LOD builder from upstream's `demo/clusterlod.h`.
 //!   It reproduces the pinned demo exactly; it is not a stable upstream API.
 //! - `experimental`: upstream functions and options marked experimental.
-#![forbid(unsafe_code)]
+//! - `parallel`: ordered Rayon batch APIs for independent meshes and buffer
+//!   views; enables `std`. See the `parallel` module for limits and error semantics.
+#![deny(unsafe_code)]
+#![cfg_attr(not(feature = "simd"), forbid(unsafe_code))]
+#![deny(
+    unsafe_op_in_unsafe_fn,
+    clippy::undocumented_unsafe_blocks,
+    clippy::multiple_unsafe_ops_per_block,
+    clippy::missing_safety_doc
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![deny(missing_docs)]
 
 extern crate alloc;
 
 mod budget;
+
+mod analyze;
 mod cache;
 pub mod codec;
 mod error;
 mod input;
 mod math;
+#[cfg(feature = "experimental")]
+mod normal;
+mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
+
+mod raster;
+#[cfg(feature = "experimental")]
+mod remesh;
 mod simplify;
+mod strip;
+mod tangent;
 mod workspace;
 pub use simplify::{
     simplify, simplify_into, simplify_points, simplify_points_into, simplify_prune,
@@ -131,6 +159,9 @@ pub use simplify::{
     SimplifyOptions, SimplifyResult, SimplifySettings,
 };
 
+pub use analyze::{
+    analyze_vertex_cache, analyze_vertex_fetch, VertexCacheStatistics, VertexFetchStatistics,
+};
 pub use cache::{
     optimize_vertex_cache, optimize_vertex_cache_fifo, optimize_vertex_cache_fifo_in_place,
     optimize_vertex_cache_fifo_into, optimize_vertex_cache_in_place, optimize_vertex_cache_into,
@@ -148,6 +179,22 @@ pub use quantize::{
     quantize_unorm,
 };
 pub use remap::*;
+
+#[cfg(feature = "experimental")]
+pub use normal::{generate_normals, generate_normals_into};
+pub use opacity::{
+    opacity_map_compact, opacity_map_entry_size, opacity_map_measure, opacity_map_measure_into,
+    opacity_map_rasterize, opacity_map_rasterize_into, OpacityMapMeasure,
+};
+pub use raster::{analyze_coverage, analyze_overdraw, CoverageStatistics, OverdrawStatistics};
+#[cfg(feature = "experimental")]
+pub use remesh::{remesh, remesh_bound, remesh_into, REMESH_SHELL, REMESH_SOLVE};
+pub use strip::{
+    stripify, stripify_bound, stripify_into, unstripify, unstripify_bound, unstripify_into,
+};
+pub use tangent::{
+    generate_tangents, generate_tangents_into, TANGENT_COMPATIBLE, TANGENT_ZERO_FALLBACK,
+};
 pub use workspace::{Limits, Usage, Workspace};
 
 mod meshlet;
@@ -164,6 +211,8 @@ pub use partition::*;
 
 #[cfg(feature = "clusterlod")]
 pub mod clusterlod;
+#[cfg(feature = "parallel")]
+pub mod parallel;
 /// Explicit destructive spelling for caller-buffer fetch optimization.
 /// This is the same checked operation as `optimize_vertex_fetch_into`.
 pub use remap::optimize_vertex_fetch_into as optimize_vertex_fetch_in_place;

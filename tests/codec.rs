@@ -250,3 +250,206 @@ fn decoder_accounts_retained_geometry_workspace_without_allocating_scratch() {
     decode_index_sequence_into(&mut output, 1, 4, &source, &mut w).unwrap();
     assert_eq!(w.usage().bytes, 0);
 }
+
+#[test]
+fn allocating_sequence_blocks_preserve_limits_headers_and_tails() {
+    for count in [63, 64, 65, 127, 128, 129] {
+        let indices: Vec<u32> = (0..count)
+            .map(|i| match i % 3 {
+                0 => u32::MAX.wrapping_sub(i as u32),
+                1 => i as u32,
+                _ => 70000 + i as u32,
+            })
+            .collect();
+        for version in [0, 1] {
+            let source = encode_index_sequence(
+                &indices,
+                IndexEncoding::new(version).unwrap(),
+                &mut Workspace::default(),
+            )
+            .unwrap();
+            for stride in [2, 4] {
+                let bytes = count * stride;
+                let mut w = Workspace::new(Limits {
+                    max_bytes: bytes,
+                    max_work: 1 << 34,
+                });
+                let owned = decode_index_sequence(count, stride, &source, &mut w).unwrap();
+                assert_eq!(owned.len(), bytes);
+                assert_eq!(owned.capacity(), bytes);
+                assert_eq!(w.usage().bytes, bytes);
+                let mut into = vec![0xa5; bytes + 7];
+                decode_index_sequence_into(&mut into, count, stride, &source, &mut w).unwrap();
+                assert_eq!(&into[..bytes], owned);
+                assert_eq!(&into[bytes..], &[0xa5; 7]);
+                let mut limited = Workspace::new(Limits {
+                    max_bytes: bytes - 1,
+                    max_work: 1 << 34,
+                });
+                assert_eq!(
+                    decode_index_sequence(count, stride, &source, &mut limited),
+                    Err(Error::LimitExceeded)
+                );
+                for header in [0, 0xe0, 0xd2] {
+                    let mut bad = source.clone();
+                    bad[0] = header;
+                    assert_eq!(
+                        decode_index_sequence(count, stride, &bad, &mut w).unwrap_err(),
+                        decode_index_sequence_into(&mut into, count, stride, &bad, &mut w)
+                            .unwrap_err()
+                    );
+                }
+                let mut extra = source.clone();
+                extra.push(0);
+                assert_eq!(
+                    decode_index_sequence(count, stride, &extra, &mut w),
+                    Err(Error::InvalidStream)
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn allocating_vertex_preflight_at_minimum_block_boundary() {
+    // Every legal stride admits at least 32 records per block. Compare both
+    // sides of that preflight shortcut, including zero and malformed inputs.
+    let counts: &[usize] = if cfg!(miri) {
+        &[0, 32, 33]
+    } else {
+        &[0, 1, 31, 32, 33]
+    };
+    let strides: &[usize] = if cfg!(miri) { &[256] } else { &[4, 12, 256] };
+    for &count in counts {
+        for &stride in strides {
+            let bytes = count * stride;
+            let data: Vec<u8> = (0..bytes).map(|i| (i * 13) as u8).collect();
+            for version in [0, 1] {
+                let source = encode_vertex_buffer(
+                    &data,
+                    count,
+                    stride,
+                    VertexEncoding::new(version, 2).unwrap(),
+                    &mut Workspace::default(),
+                )
+                .unwrap();
+                let mut w = Workspace::new(Limits {
+                    max_bytes: bytes,
+                    max_work: 1 << 34,
+                });
+                assert_eq!(
+                    decode_vertex_buffer(count, stride, &source, &mut w).unwrap(),
+                    data
+                );
+                if version == 0 && count > 0 {
+                    assert_eq!(
+                        decode_buffer_view(
+                            Mode::Attributes,
+                            Filter::None,
+                            count,
+                            stride,
+                            &source,
+                            &mut w
+                        )
+                        .unwrap(),
+                        data
+                    );
+                }
+                for len in [0, 1, source.len().saturating_sub(1)] {
+                    let mut out = vec![0xa5; bytes + 7];
+                    let owned = decode_vertex_buffer(count, stride, &source[..len], &mut w);
+                    let into =
+                        decode_vertex_buffer_into(&mut out, count, stride, &source[..len], &mut w);
+                    assert_eq!(owned.unwrap_err(), into.unwrap_err());
+                    assert_eq!(&out[bytes..], &[0xa5; 7]);
+                }
+                if bytes > 0 {
+                    w.set_limits(Limits {
+                        max_bytes: bytes - 1,
+                        max_work: 1 << 34,
+                    });
+                    assert_eq!(
+                        decode_vertex_buffer(count, stride, &source, &mut w),
+                        Err(Error::LimitExceeded)
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn allocating_vertex_blocks_preserve_capacity_limits_and_filtered_bytes() {
+    let strides: &[usize] = if cfg!(miri) {
+        &[4, 32]
+    } else {
+        &[4, 12, 32, 256]
+    };
+    for &stride in strides {
+        let block = ((8192 / stride) & !15).min(256);
+        let counts: &[usize] = if cfg!(miri) {
+            &[block + 1]
+        } else {
+            &[0, block - 1, block, block + 1, block * 2 + 1]
+        };
+        for &count in counts {
+            let bytes = count * stride;
+            let data: Vec<u8> = (0..bytes).map(|i| (i * 37 + i / stride) as u8).collect();
+            for version in [0, 1] {
+                let mut w = Workspace::default();
+                let source = encode_vertex_buffer(
+                    &data,
+                    count,
+                    stride,
+                    VertexEncoding::new(version, 2).unwrap(),
+                    &mut w,
+                )
+                .unwrap();
+                let owned = decode_vertex_buffer(count, stride, &source, &mut w).unwrap();
+                assert_eq!(owned, data);
+                assert_eq!(owned.capacity(), bytes);
+                assert_eq!(w.usage().bytes, bytes);
+                if count != 0 {
+                    let mut bounded = Workspace::new(Limits {
+                        max_bytes: bytes - 1,
+                        max_work: 1 << 34,
+                    });
+                    assert_eq!(
+                        decode_vertex_buffer(count, stride, &source, &mut bounded),
+                        Err(Error::LimitExceeded)
+                    );
+                    let mut extra = source.clone();
+                    extra.push(0);
+                    assert_eq!(
+                        decode_vertex_buffer(count, stride, &extra, &mut w),
+                        Err(Error::InvalidStream)
+                    );
+                }
+                if count > 0 && version == 0 {
+                    let mut expected = vec![0xa5; bytes + 7];
+                    decode_buffer_view_into(
+                        &mut expected,
+                        Mode::Attributes,
+                        Filter::Exponential,
+                        count,
+                        stride,
+                        &source,
+                        &mut w,
+                    )
+                    .unwrap();
+                    let owned = decode_buffer_view(
+                        Mode::Attributes,
+                        Filter::Exponential,
+                        count,
+                        stride,
+                        &source,
+                        &mut w,
+                    )
+                    .unwrap();
+                    assert_eq!(owned, expected[..bytes]);
+                    assert_eq!(&expected[bytes..], &[0xa5; 7]);
+                }
+            }
+        }
+    }
+}

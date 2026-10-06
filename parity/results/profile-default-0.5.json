@@ -1,0 +1,61 @@
+{
+  "schema": "meshopt-p05-profile/1",
+  "phase": "0.5",
+  "profile": "default",
+  "profile_complete": true,
+  "benchmark_sha256": "e49954994582a163d1fe5a186733b8b3d20c48713eb5ad4fb24b7730e81483df",
+  "detail_artifact": "profiles-0.5-default/summary.json",
+  "detail_sha256": "c80dfc43d8ae166b772df4dd3a1db87840d84655d834b98f74b366589b9c8407",
+  "families": {
+    "stripify": {
+      "cpp_instructions": 6273605195,
+      "rust_instructions": 6691221068,
+      "ratio": 1.0665671268783117
+    },
+    "unstripify": {
+      "cpp_instructions": 1329795083,
+      "rust_instructions": 2038155904,
+      "ratio": 1.5326841932682946
+    },
+    "vertex_cache": {
+      "cpp_instructions": 2505105702,
+      "rust_instructions": 4427182927,
+      "ratio": 1.767263921624334
+    },
+    "vertex_fetch": {
+      "cpp_instructions": 3479165377,
+      "rust_instructions": 4945333378,
+      "ratio": 1.4214137133843983
+    },
+    "overdraw": {
+      "cpp_instructions": 2327368657,
+      "rust_instructions": 4587598503,
+      "ratio": 1.9711524812375265
+    },
+    "omm_measure": {
+      "cpp_instructions": 3067932374,
+      "rust_instructions": 4576904382,
+      "ratio": 1.4918530867199618
+    },
+    "omm_rasterize": {
+      "cpp_instructions": 698432309,
+      "rust_instructions": 1432834337,
+      "ratio": 2.0515006515828293
+    },
+    "tangents": {
+      "cpp_instructions": 3822740658,
+      "rust_instructions": 7276955737,
+      "ratio": 1.903596500006148
+    },
+    "normals": {
+      "cpp_instructions": 11643889649,
+      "rust_instructions": 17886983590,
+      "ratio": 1.5361691092234089
+    },
+    "remesh": {
+      "cpp_instructions": 11037970652,
+      "rust_instructions": 16394008527,
+      "ratio": 1.4852375535198152
+    }
+  }
+}

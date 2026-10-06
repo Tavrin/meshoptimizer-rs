@@ -1,0 +1,228 @@
+{
+  "schema": "meshopt-p05-last3/1",
+  "source_commit": "68742a940df32a8e5dfd7b7fe8800f94fa828728",
+  "source_sha256": {
+    "Cargo.lock": "497177bae14fd6391616b6a160a75aed01cc729214c3722845801fc711641e2d",
+    "Cargo.toml": "c68cf0a6cb67cd9c93564e7b7016cac4142f4a48bc4bbbb8aee964793d67c51b",
+    "parity/p05/Cargo.lock": "aa36e7a2d23c94764fc12d8b6e8fd37681357025f1b750e90548d153336877a3",
+    "parity/p05/Cargo.toml": "48a4256440e31f439f979a238d7238f598326b586fdc3a0f4ae27d6e76b65a66",
+    "parity/p05/bench.cpp": "4c4ad87343fefec6c84ffbb128f089ab548cd4e3c585195a86628d469b25bac8",
+    "parity/p05/benchmark.py": "4c648995728b0c109d0572bb22b0add663836743d39843352fe779276cb646dc",
+    "parity/p05/fuzz.py": "d950c634ea9ae27745132d6a56b29dfe3289d35eaf6f20cbb147c36241145adb",
+    "parity/p05/lease_run.py": "f7d9049822fbb6cb9ceb1030d68218ba824b39229bee3d2f74411ff9ebf299df",
+    "parity/p05/profile.cpp": "30ed16c73e433f77c6c8a0a7900c30d894e68df012dd5e7d95b49b232543e76a",
+    "parity/p05/profile.py": "069c18fb352fd68493db1451807bb0429ba2009f98f81b7c013b844a54480cc3",
+    "parity/p05/report.py": "15cf877f11091351324d0b7130f92a817bb04c06714a894ac96c90293dffa12d",
+    "parity/p05/run.py": "b4706bf21bc2d353bcb51b44358c2b0edec1e6095ff54377071fa0965d39f0cb",
+    "parity/p05/src/lib.rs": "15934e41b9c32cd3aa7570659d31e4295d82cb4ef165a1138935501834c31d34",
+    "parity/p05/src/main.rs": "c25b6e9c5b4eff201fe1a5165e0c0c3889d30072d0dbbfc58de5f7b2aeecffca",
+    "parity/p05/sweep.py": "9434b1ae30332083990dbdf50fde188e78bc6c4657dec67bfa5bb7588e61a69d",
+    "parity/p05/test_lean.py": "eb6a4472e2537d9e039424fd7decf1dfcc1f06cca3243b96168f4f6d780d55d0",
+    "parity/p05/timing_gate.py": "d8ffa2c5e3f6637a07e95bebd50bb6cb08146b0db3020384798cee65501510f6",
+    "parity/quiet.py": "45ff8df302acd61dcc360d925c73774958a273056c11e9849e0bf799f2f19505",
+    "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
+    "src/budget.rs": "c339aa1d7e35cbe4fcacb8c94bae75ff63f755f8df2f17765294d82505a0873b",
+    "src/cache.rs": "c2724d97ec08e9c674ffc01dba9dc26265cd3e3858b82c0ca8f1c1f3c21e949d",
+    "src/clusterlod/mod.rs": "a41370baec3e5bf07b17f5789725260322fbe6cf175c4ad54c04714364e5b2e5",
+    "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46",
+    "src/clusterlod/support/input.rs": "b51cec4182809662d329b7e4efb81f06b114b41df407f700b984e2dbd1d22a8a",
+    "src/clusterlod/support/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
+    "src/clusterlod/support/simplify.rs": "4e1baa97f9048439f8b8af5a2a53e83867e9a4b080873e52fa50947070b8f06d",
+    "src/clusterlod/support/simplify_extra.rs": "301db10220b7e7078f4f87b2dba0d672bd74a5877ff9d5675bd7eab554b0e15a",
+    "src/clusterlod/support/workspace.rs": "79859b9613aa305b4f7ba338fc91718aa04cd9d52b58d3cc38656ac136083fda",
+    "src/codec/encode.rs": "a301f0209e35742b906d28bbea7f3bb735921fd279afdc4832c5949e188f6ff5",
+    "src/codec/filter.rs": "ffd346c0b03618fa08d4bfaa57c206773bb1101105185fb2ff3c2436b3a76037",
+    "src/codec/filter_encode.rs": "4b0c04978a871a7b9bf7f76e83e63bc1547d87fa036541dcef9c755a662437c7",
+    "src/codec/index.rs": "bc4e428ba0723d3bcf13de164ca67cbcc8a33591b2aee0818184f3db38a15b62",
+    "src/codec/index_encode.rs": "b079a144b3a052fc46658b26014774e9650b2b9fc683f6b9fcbd8324110d3446",
+    "src/codec/meshlet.rs": "28566bbdbb5e23a043b458b1de52c6f87abb2e15620d164520805ca57346f6c7",
+    "src/codec/mod.rs": "742f269e2b05509ac802e7d94aae00affa59f9729c66fec2d85b0b94b67bfda7",
+    "src/codec/vertex.rs": "00ec7582f90e20b52510acf087de82ad86c2881a0702dfdc975a72841e2661e9",
+    "src/codec/vertex_encode.rs": "9bb21e53054effa20aa127a701a7657ff8b02d9ce34f59fc719df256f2017534",
+    "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+    "src/input.rs": "04599aa36739daa5ff4c3047f95b4d066f15c11cc77094b29ec7ca2566cdc253",
+    "src/lib.rs": "fa71be48b1d54e740974c4e2b56071ab1d7fbf6bb7abb3afc88fae0cc139f714",
+    "src/math.rs": "b107247818c7d55bd4240f099b3fa7bf0d0e3b9eb93de465b1c0fd4371540b72",
+    "src/meshlet.rs": "5923a30f15fa9f4d355b3e4008a9f6815359f3c46fd7575a25f4dea0bda8e8e5",
+    "src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
+    "src/meshlet_util.rs": "6f95800d8f29ec4764b86ed0756e4816adc0337a6a4c280e16c391f187168820",
+    "src/normal.rs": "0ea24cf42fcdab3f2f2593cfc223de055874e2c16290341503628fe5e65a3ec3",
+    "src/opacity.rs": "917aefa39df376d6ae22bf57f02d49f7e3d5cfab4f2e3eabf5bbb1d5fdb6892d",
+    "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+    "src/parallel.rs": "a2f495210f0626f1f125763cc7d8fa856859dd8a3c4b9944e8b3b7dc16b8694f",
+    "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
+    "src/processing.rs": "a95e2eee270d988e7178b8054ccb0d891279883006db492d6e8ed58c3e27d9b5",
+    "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
+    "src/raster.rs": "042987f046b947ae1c48e6603ce4652c2442e904bc836dd53893eee41b5dea07",
+    "src/remap.rs": "faaeeee5d47efe47de4c4141e8584a0d5e536aece8c0079a53ba4e939864d866",
+    "src/remesh.rs": "1638a9aeb75bdd85b638be766a6f35126ce1ece8947a32a38ef66867ceee08ec",
+    "src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
+    "src/simplify.rs": "f96c04ea2e6f2096f7e9b3cd1182258936c43d2378773c0c726e86cbb351d44d",
+    "src/simplify_extra.rs": "479379cfef8e5fd0ab220fd930bf5db9ce10d285c6dce3938ac7cb62d5c2f0be",
+    "src/spatial.rs": "c1829a02b7821a5076a21be5a053154fa3e46e6439d3ce7dbda52c038128559c",
+    "src/strip.rs": "92f5e49e3b9e8da606471d8c1f00bd515f03e9b0f865f8b58f2e47c2e5a3c792",
+    "src/tangent.rs": "e31665b1f146ea32ac258cb4eded8276de4b521b4b0449d8c8994b23f82dcf4e",
+    "src/workspace.rs": "22c4e1e086999d16b2e9211e901c161b9058597e684516400a063e6c8282c18b"
+  },
+  "reference_sha256": {
+    "src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+    "src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+    "src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+    "src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+    "src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+    "src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+    "src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+    "src/meshoptimizer.h": "e3688ef553f603391747895a5c221ef1528574cc7f8173782417a96cb531f61b",
+    "src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+    "src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+    "src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+    "src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+    "src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+    "src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+    "src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+    "src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+    "src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+    "src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+    "src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+    "src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+    "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+    "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
+  },
+  "artifact_root": "/mnt/linux-extra/meshopt-artifacts/p05-last3-20261005",
+  "artifact_inventory_sha256": "7876a4ef2dfe07ad88ca1c699bb798fd15010f36d96d659b1fa5a24ab132fdcd",
+  "scope_complete": true,
+  "scope_passed": true,
+  "full_matrix_refreshed": false,
+  "long_fuzz_refreshed": false,
+  "release_verifier_run": false,
+  "before_after": [
+    {
+      "family": "omm_compact",
+      "metric": "geomean",
+      "moss": {
+        "before": 1.2944276630372131,
+        "after": 0.5566087914419117,
+        "passed": true
+      },
+      "default": {
+        "before": 1.2999212483018725,
+        "after": 0.5780512182840555,
+        "passed": true
+      }
+    },
+    {
+      "family": "overdraw",
+      "metric": "s7 median",
+      "moss": {
+        "before": 1.4285975985767687,
+        "after": 0.8872962153943454,
+        "passed": true
+      },
+      "default": {
+        "before": 1.714626822226738,
+        "after": 0.9465589668478902,
+        "passed": true
+      }
+    },
+    {
+      "family": "coverage",
+      "metric": "s7 median",
+      "moss": {
+        "before": 1.463044546846786,
+        "after": 0.9547563288462567,
+        "passed": true
+      },
+      "default": {
+        "before": 1.6158396678664193,
+        "after": 0.9551537890897117,
+        "passed": true
+      }
+    }
+  ],
+  "profiles": {
+    "moss": {
+      "cases": 22,
+      "scope_passed": true,
+      "families": {
+        "overdraw:allocating": {
+          "cases": 8,
+          "geometric_mean": 0.8859525977739837,
+          "maximum": 1.050621014759675,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "coverage:allocating": {
+          "cases": 8,
+          "geometric_mean": 0.9134111012661442,
+          "maximum": 1.1023993898098474,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "omm_compact:allocating": {
+          "cases": 6,
+          "geometric_mean": 0.5566087914419117,
+          "maximum": 0.5844106102032187,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        }
+      },
+      "detail_artifact": "timing/lean-0.5-moss.json",
+      "detail_sha256": "d9a937658af79ef3c4077de979f424fe5b960bce98fe70cafc9eecf0c73dde40",
+      "early_pair_counts": {
+        "5": 22
+      },
+      "D146_cases": []
+    },
+    "default": {
+      "cases": 22,
+      "scope_passed": true,
+      "families": {
+        "overdraw:allocating": {
+          "cases": 8,
+          "geometric_mean": 0.9983240179610904,
+          "maximum": 1.2302842610379785,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "coverage:allocating": {
+          "cases": 8,
+          "geometric_mean": 0.9944794184538264,
+          "maximum": 1.2269635820679359,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "omm_compact:allocating": {
+          "cases": 6,
+          "geometric_mean": 0.5780512182840555,
+          "maximum": 0.6243705856705293,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        }
+      },
+      "detail_artifact": "timing/lean-0.5-default.json",
+      "detail_sha256": "b557ec32ca1edafcf1df41d8553c9f8dca25f740dc4c3bc7b299d044f2292c4d",
+      "early_pair_counts": {
+        "5": 22
+      },
+      "D146_cases": []
+    }
+  },
+  "functional_cases": 90000,
+  "fixture_contracts": 15,
+  "cleanup": {
+    "path": "/mnt/linux-extra/moss-cargo-targets/codex-p05-last3",
+    "removed": true,
+    "before_bytes": 1757115512,
+    "after_exists": false,
+    "at_utc": "2026-10-05T18:26:55.010279+00:00"
+  },
+  "compact_harness_epoch": "68742a9",
+  "compact_setup_correction_included": true
+}

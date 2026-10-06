@@ -1,0 +1,73 @@
+{
+  "schema": "meshopt-p05-current-state/1",
+  "source_head": "df96a78d6d1cd53ceb69ba81df107571f622a5db",
+  "artifact_root": "/mnt/linux-extra/meshopt-artifacts/p05-measure-20261005",
+  "audit": {
+    "moss": {
+      "verified": true,
+      "cases": 160,
+      "early_pair_counts": {
+        "5": 159,
+        "20": 1
+      },
+      "stage2_cases": [],
+      "timing_groups_passed": 20,
+      "memory_passed": true,
+      "time_passed": false,
+      "detail_sha256": "86bfaa918516f642e69f59132e7845cb5ddec102be4cee62371f5898d34c46cf"
+    },
+    "default": {
+      "verified": true,
+      "cases": 160,
+      "early_pair_counts": {
+        "10": 8,
+        "5": 149,
+        "20": 3
+      },
+      "stage2_cases": [
+        "coverage:allocating:s7"
+      ],
+      "timing_groups_passed": 18,
+      "memory_passed": true,
+      "time_passed": false,
+      "detail_sha256": "27110834a4b3658e917e934c3dabeaf4f1e7532f2ac0bb67504015070a2aa3e6"
+    }
+  },
+  "exits": {
+    "moss": {
+      "exit_code": 1,
+      "meaning": "complete matrix, performance bar failed",
+      "log": "moss.log"
+    },
+    "default": {
+      "exit_code": 1,
+      "meaning": "complete matrix, performance bar failed",
+      "log": "default.log"
+    }
+  },
+  "cleanup": {
+    "target": "/mnt/linux-extra/moss-cargo-targets/codex-p05-measure",
+    "deleted": true,
+    "at": "2026-10-05T16:58:24.594731+00:00",
+    "retained_artifacts": "/mnt/linux-extra/meshopt-artifacts/p05-measure-20261005"
+  },
+  "artifact_sha256": {
+    "audit.json": "6e239fa0566a98fec100a295385c292614a3a5249784ea7fcbbc17c28f3e9dea",
+    "audit.py": "52cd83ba20c4163dcf3c8927ec161c5f04197b1361108f237aba6a60b9724bc5",
+    "benchmark-0.5-default-rust": "403c2698a749c967b19d78449be27cc6eee630fd221cc8f93e03169f13900fa2",
+    "benchmark-0.5-default.json": "27110834a4b3658e917e934c3dabeaf4f1e7532f2ac0bb67504015070a2aa3e6",
+    "benchmark-0.5-moss-rust": "4f5121112c9431f42cf3e39db153746251e8f3f4b90f049228f6ebfcb00e2519",
+    "benchmark-0.5-moss.json": "86bfaa918516f642e69f59132e7845cb5ddec102be4cee62371f5898d34c46cf",
+    "cleanup.json": "61ed2b3bbcab5d88a29e18071cced0c3c35a24ec00a28f62273fb9b35c682cad",
+    "default.log": "b825612a717a6e47c00c69068bdec1dfadcd1c0fc499891f95a18737fd8a942c",
+    "environment.json": "119ed6778263aa9ee8b43b72584995f0c1e02b5fa95d7cf3bd288aa9defeb372",
+    "exit-receipts.json": "c0d37d8627cbc9375e1f06cfd0ee2c47645f62a0df4c2c5c0e45e46878163df1",
+    "libmeshopt-p05-bench.build.json": "bf6eeeb1ba2cc1d7d03bee21e21abace6224d4dda783c22188f3b2feea3b4e25",
+    "libmeshopt-p05-bench.so": "1c185c246663cb7ffd2ea76f92ad94336b832cd507521dec051df6274493124c",
+    "moss.log": "e56017c3726fa9bf27070877809828abe16b0afeb7a47a0d48ca325589cfc7d5",
+    "sources.tar.gz": "591caac62f78656ca9b1866ea4cf52daa2fb8d5b2293008fc0bea87d601f57d4",
+    "timing-gate.jsonl": "eefc8618ae0042c6a8447a1e1dfb8f54fdb0f44e3fafae82f86742328a0d868f",
+    "write_record.py": "b6160ef79b49f3cbdfe3f4f6fd0d2de6a3f245cb322e084990a134edbc7af624"
+  },
+  "record_sha256": "510c4a9497253b675f64232d1e66d81880bc128f264554b58a03ffedb82e600f"
+}

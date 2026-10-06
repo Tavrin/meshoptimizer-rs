@@ -10,7 +10,7 @@ pub(crate) use input::{
     validate_vertex_flags, Attributes, AttributesMut, Positions, PositionsMut, VertexFlags,
 };
 pub(crate) use simplify::{
-    simplify_scale, simplify_sloppy, simplify_with_attributes, SimplifiedMesh, SimplifyOptions,
+    simplify_scale, simplify_sloppy, simplify_validated, SimplifiedMesh, SimplifyOptions,
     SimplifySettings,
 };
 pub(crate) use workspace::{Limits, Workspace};

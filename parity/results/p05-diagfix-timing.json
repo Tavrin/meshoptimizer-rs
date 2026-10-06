@@ -1,0 +1,325 @@
+{
+  "schema": "meshopt-p05-diagfix-close/1",
+  "implementation_head": "dffe7f539fe8bfa6cba8e50d8333a09da855eb4c",
+  "reference": "4c203430ca565cb59a468a91922c76c208169536",
+  "scope_completed": true,
+  "scope_performance_passed": false,
+  "full_p05_performance_qualified": false,
+  "release_accepted": false,
+  "artifact_directory": "/mnt/linux-extra/meshopt-artifacts/p05-diagfix",
+  "bar": {
+    "geometric_mean": 1.25,
+    "maximum": 1.5,
+    "maximum_memory_ratio": 1.25
+  },
+  "worst_api_by_family_profile": {
+    "remesh": {
+      "moss": {
+        "before_historical_unmatched": {
+          "geometric_mean": 1.2484,
+          "maximum": 1.377
+        },
+        "geometric_mean": 1.1297192603462436,
+        "maximum": 1.269511251772419,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "PASS"
+      },
+      "default": {
+        "before_historical_unmatched": {
+          "geometric_mean": 1.2641,
+          "maximum": 1.348
+        },
+        "geometric_mean": 1.1441646234325589,
+        "maximum": 1.2647822046761323,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "PASS"
+      }
+    },
+    "overdraw": {
+      "moss": {
+        "before_historical_unmatched": {
+          "geometric_mean": 0.935,
+          "maximum": 1.096
+        },
+        "geometric_mean": 0.9449967293179287,
+        "maximum": 1.0807837151249093,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "PASS"
+      },
+      "default": {
+        "before_historical_unmatched": {
+          "geometric_mean": 1.005,
+          "maximum": 1.393
+        },
+        "geometric_mean": 1.0059392099637767,
+        "maximum": 1.1832044730157916,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "PASS"
+      }
+    },
+    "coverage": {
+      "moss": {
+        "before_historical_unmatched": {
+          "geometric_mean": 0.94,
+          "maximum": 1.14
+        },
+        "geometric_mean": 0.9567247828770149,
+        "maximum": 1.1391970424041136,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "PASS"
+      },
+      "default": {
+        "before_historical_unmatched": {
+          "geometric_mean": 0.964,
+          "maximum": 1.205
+        },
+        "geometric_mean": 1.0372632985157917,
+        "maximum": 1.3614652775735876,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "PASS"
+      }
+    },
+    "omm_compact": {
+      "moss": {
+        "before_historical_unmatched": {
+          "geometric_mean": 1.246,
+          "maximum": 1.319
+        },
+        "geometric_mean": 1.3253530518554661,
+        "maximum": 1.330703604075175,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "FAIL mean; abandoned"
+      },
+      "default": {
+        "before_historical_unmatched": {
+          "geometric_mean": 1.115,
+          "maximum": 1.181
+        },
+        "geometric_mean": 1.2955372980988678,
+        "maximum": 1.335080031715848,
+        "maximum_memory_ratio": 1.0,
+        "verdict": "FAIL mean; abandoned"
+      }
+    }
+  },
+  "profiles": {
+    "moss": {
+      "rows": 38,
+      "pairs": 190,
+      "scope_passed": false,
+      "families": {
+        "overdraw:allocating": {
+          "cases": 8,
+          "geometric_mean": 0.9449967293179287,
+          "maximum": 1.0807837151249093,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "coverage:allocating": {
+          "cases": 8,
+          "geometric_mean": 0.9567247828770149,
+          "maximum": 1.1391970424041136,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "omm_compact:allocating": {
+          "cases": 6,
+          "geometric_mean": 1.3253530518554661,
+          "maximum": 1.330703604075175,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": false
+        },
+        "remesh:allocating": {
+          "cases": 8,
+          "geometric_mean": 1.1297192603462436,
+          "maximum": 1.269511251772419,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "remesh:caller": {
+          "cases": 8,
+          "geometric_mean": 1.1063444056521585,
+          "maximum": 1.2593886960743501,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        }
+      },
+      "record_sha256": "56784f64e95f67950e542bd0209f9ae674398244033b4bc68a750e29a168e0f8",
+      "rust_sha256": "c4135d10b47f6dfa560ab35c046e3ce790f726a147588a8ca6b3d601efbd51a0",
+      "cpp_sha256": "1c185c246663cb7ffd2ea76f92ad94336b832cd507521dec051df6274493124c"
+    },
+    "default": {
+      "rows": 38,
+      "pairs": 210,
+      "scope_passed": false,
+      "families": {
+        "overdraw:allocating": {
+          "cases": 8,
+          "geometric_mean": 1.0059392099637767,
+          "maximum": 1.1832044730157916,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "coverage:allocating": {
+          "cases": 8,
+          "geometric_mean": 1.0372632985157917,
+          "maximum": 1.3614652775735876,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "omm_compact:allocating": {
+          "cases": 6,
+          "geometric_mean": 1.2955372980988678,
+          "maximum": 1.335080031715848,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": false
+        },
+        "remesh:allocating": {
+          "cases": 8,
+          "geometric_mean": 1.1441646234325589,
+          "maximum": 1.2647822046761323,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        },
+        "remesh:caller": {
+          "cases": 8,
+          "geometric_mean": 1.1010791641230684,
+          "maximum": 1.2314734828074811,
+          "maximum_memory_ratio": 1.0,
+          "maximum_passed": true,
+          "passed": true
+        }
+      },
+      "record_sha256": "4e4c9d7924610c406e2805009189c884b7cebe59ca516667a609e2a7f228e1bf",
+      "rust_sha256": "8f5098965ebbcee5b3a0b10141cc1fed7e898fbd86ada687e890386fcda84f64",
+      "cpp_sha256": "1c185c246663cb7ffd2ea76f92ad94336b832cd507521dec051df6274493124c"
+    }
+  },
+  "total_rows": 76,
+  "total_pairs": 400,
+  "admission_receipts": 759,
+  "stage2_cases": [],
+  "functional": {
+    "phase0_record": "parity/results/p05-diagfix-phase0.json",
+    "root_tests": [
+      151,
+      125,
+      130
+    ],
+    "root_strict_clippy_modes": [
+      "all-features",
+      "no-default",
+      "no-default+experimental"
+    ],
+    "native_cases": 30000,
+    "libm_cases": 30000,
+    "executed_wasm_cases": 30000,
+    "frozen_std_libm_comparisons": 60,
+    "consumer_tests_and_strict_clippy": [
+      "std",
+      "libm"
+    ],
+    "lean_policy_tests": 5,
+    "final_library_receipts": "compact-hash-proof/receipts.json",
+    "final_consumer_receipts": "final-gates/receipts.json"
+  },
+  "artifacts": {
+    "audit": {
+      "path": "audit.json",
+      "sha256": "a8d9b1552f1fda828d49562df6da65075a30f9da43ab4db70f1343849293cb01"
+    },
+    "manifest": {
+      "path": "final-manifest.json",
+      "sha256": "9c515b90ecdb05c92aa1e3fbf4477d56037872706bf8b6d32e987f99ac17f9bd"
+    }
+  },
+  "family_disposition": {
+    "stripify": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "stripify_bound": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "unstripify": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "unstripify_bound": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "vertex_cache": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "vertex_fetch": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "omm_measure": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "omm_rasterize": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "omm_entry_size": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "tangents": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "normals": {
+      "disposition": "abandoned further optimization in this scope",
+      "evidence": "parity/P05_DIAGNOSIS.md structural causes and dispositions; D161; before/counts.json and assembly",
+      "performance": "unqualified; not timed in this campaign"
+    },
+    "remesh": {
+      "disposition": "fixed; selected frozen family passes both profiles",
+      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json"
+    },
+    "overdraw": {
+      "disposition": "fixed; selected frozen family passes both profiles",
+      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json"
+    },
+    "coverage": {
+      "disposition": "fixed; selected frozen family passes both profiles",
+      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json"
+    },
+    "omm_compact": {
+      "disposition": "abandoned further optimization after both-profile mean failure",
+      "evidence": "D167/D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json",
+      "performance": "FAIL in both profiles; not accepted as residual"
+    }
+  },
+  "limits": "Before timings are historical, unmatched and source-stale for this candidate. No measured speedup inference, full-matrix success, approved residual, safe-Rust lower bound, fuzz rerun, release or integration acceptance. No repeat timing campaign after failure.",
+  "cleanup": {
+    "artifact": "cleanup.json",
+    "sha256": "b10c9beeef336422b6ecaea8746b228aa025189083e9c4a05d0da106b0f9a8b6",
+    "target_removed": true
+  }
+}

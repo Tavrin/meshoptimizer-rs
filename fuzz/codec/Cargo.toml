@@ -7,7 +7,7 @@ publish=false
 cargo-fuzz=true
 [dependencies]
 libfuzzer-sys="=0.4.13"
-meshoptimizer-rs={path="../..",default-features=false}
+meshoptimizer-rs={path="../..",default-features=false,features=["std","simd","parity-internals"]}
 [lib]
 path="src.rs"
 [workspace]
@@ -233,6 +233,13 @@ bench=false
 [[bin]]
 name="filter_encode_into"
 path="fuzz_targets/filter_encode_into.rs"
+test=false
+doc=false
+bench=false
+
+[[bin]]
+name="simd"
+path="fuzz_targets/simd.rs"
 test=false
 doc=false
 bench=false

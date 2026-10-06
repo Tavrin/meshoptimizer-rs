@@ -197,6 +197,7 @@ pub enum ByteOrder {
 
 /// Independent upstream simplification vertex flags; unknown bits are rejected.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[repr(transparent)]
 pub struct VertexFlags(u8);
 
 impl VertexFlags {
@@ -216,6 +217,11 @@ impl VertexFlags {
         } else {
             Ok(Self(bits))
         }
+    }
+    // Boundary discovery temporarily uses bit 7. The builder clears that bit
+    // before borrowing this same one-byte storage as simplifier flags.
+    pub(crate) fn boundary_bits_mut(&mut self) -> &mut u8 {
+        &mut self.0
     }
     /// Return the upstream bit representation.
     pub const fn bits(self) -> u8 {
@@ -266,6 +272,7 @@ pub fn validate_vertex_flags(flags: Option<&[VertexFlags]>, count: usize) -> Res
 enum Storage<'a> {
     Floats(&'a [f32]),
     Bytes(&'a [u8], ByteOrder),
+    Source(crate::Attributes<'a>),
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -361,6 +368,7 @@ impl<'a> View<'a> {
             return None;
         }
         match self.storage {
+            Storage::Source(source) => source.get(vertex, component),
             Storage::Floats(data) => data
                 .get(self.offset + vertex * self.stride + component)
                 .copied(),
@@ -508,6 +516,21 @@ impl<'a> Positions<'a> {
 pub struct Attributes<'a>(View<'a>, Option<&'a [u32]>);
 
 impl<'a> Attributes<'a> {
+    // The cluster builder has already checked the complete immutable source.
+    // Keep its layout and byte order instead of copying every source vertex
+    // before each sparse group simplification.
+    pub(crate) fn from_source(source: crate::Attributes<'a>) -> Self {
+        Self(
+            View {
+                storage: Storage::Source(source),
+                count: source.len(),
+                width: source.components(),
+                stride: 0,
+                offset: 0,
+            },
+            None,
+        )
+    }
     /// Borrow interleaved attributes; stride and offset are in f32 elements.
     /// Zero components are supported; stride is at most 64 elements.
     pub fn from_interleaved(

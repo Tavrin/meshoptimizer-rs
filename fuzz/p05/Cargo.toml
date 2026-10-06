@@ -1,0 +1,123 @@
+[package]
+name = "meshopt-p05-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["experimental"] }
+
+[lib]
+path = "src.rs"
+
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "stripify"
+path = "fuzz_targets/stripify.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "stripify_bound"
+path = "fuzz_targets/stripify_bound.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "unstripify"
+path = "fuzz_targets/unstripify.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "unstripify_bound"
+path = "fuzz_targets/unstripify_bound.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "vertex_cache"
+path = "fuzz_targets/vertex_cache.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "vertex_fetch"
+path = "fuzz_targets/vertex_fetch.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "overdraw"
+path = "fuzz_targets/overdraw.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "coverage"
+path = "fuzz_targets/coverage.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "omm_measure"
+path = "fuzz_targets/omm_measure.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "omm_rasterize"
+path = "fuzz_targets/omm_rasterize.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "omm_entry_size"
+path = "fuzz_targets/omm_entry_size.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "omm_compact"
+path = "fuzz_targets/omm_compact.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "tangents"
+path = "fuzz_targets/tangents.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "normals"
+path = "fuzz_targets/normals.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "remesh"
+path = "fuzz_targets/remesh.rs"
+test = false
+doc = false
+bench = false
