@@ -194,14 +194,15 @@ pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
         let q: [[f32; 4]; 4] = core::array::from_fn(|c| core::array::from_fn(|r| input[r * 4 + c]));
         let mut largest = q[0];
         let mut selectors = [0u32; 4];
-        for c in 1..4 {
+        for (c, component) in q.iter().enumerate().skip(1) {
             for r in 0..4 {
                 // Bit selects preserve the first strict maximum, including NaN
                 // and signed-zero behavior, without gathering q[selector].
-                let mask = 0u32.wrapping_sub(u32::from(q[c][r].abs() > largest[r].abs()));
+                let mask = 0u32.wrapping_sub(u32::from(component[r].abs() > largest[r].abs()));
                 selectors[r] = (selectors[r] & !mask) | (c as u32 & mask);
-                largest[r] =
-                    f32::from_bits((largest[r].to_bits() & !mask) | (q[c][r].to_bits() & mask));
+                largest[r] = f32::from_bits(
+                    (largest[r].to_bits() & !mask) | (component[r].to_bits() & mask),
+                );
             }
         }
         let signs = largest.map(|x| if x < 0.0 { -1.0 } else { 1.0 });

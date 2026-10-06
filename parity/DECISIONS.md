@@ -8087,3 +8087,31 @@ diagnostic cycles fall 24%, with substantial host variation in other epochs.
 Keep the safe allocation/locality experiment for final paired qualification;
 neither counters nor the prior historical failure establish current latency.
 Receipts: build/parity/counters-streaming-stage.json and test-streaming-stage.log.
+
+## V03-11 — Final harness fairness and an explicit undefined oracle domain
+
+Use the same corrected consumer with original eb5b1a2 and final libraries:
+allocating requests no longer retain an unused caller destination. The old
+meshopt adapter converts only the input type its operation uses. These changes
+precede timing; original diagnostic binaries/receipts remain immutable.
+The unpublished FFI oracle receives the same narrow repository-audit exemption
+as parity/compare; package audit still forbids every unsafe operation outside
+the private SIMD module. No public crate unsafe code is added.
+
+Supplemental full-u32 tests initially hit C++ adapter status -3: it deliberately
+refuses sequence baseline negation of INT_MIN, an upstream undefined domain.
+Keep this guard. Record such cases as oracle SKIP, require before/after wrapped
+Rust bytes unchanged, and retain the existing fixed observed-GCC regression.
+Defined-domain bytes and short-capacity success/failure must match both C++
+oracles exactly. Preserve the initial failed check separately; no timing ran.
+
+## V03-12 — Strict lint and current-source verification
+
+Strict Clippy rejects the explicit Quat component index loop. Iterate the same
+three components with enumerate/skip; selector order and arithmetic stay exact.
+Refresh final binary, 17,264 byte comparisons and all 36 counter-effect rows
+after this source change, before timing. All 19 focused codec tests, 9 native
+SIMD tests, the staging unit, focused scalar Miri, 1.88 no-default check, WASM
+compile, strict library Clippy and formatting pass. WASM compile is not executed
+WASM parity. The package-list command first requires the library fix committed;
+retain that normal dirty-tree refusal and audit the committed source next.
