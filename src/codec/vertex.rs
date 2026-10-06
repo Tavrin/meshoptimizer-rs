@@ -3,12 +3,13 @@
 use crate::Error;
 use alloc::vec::Vec;
 
-// Both sinks expose initialized, checked block slices. The allocating sink
+// All sinks expose initialized, checked block slices. The allocating sink
 // initializes each block just before reconstruction, keeping those writes hot
 // instead of clearing the entire output in a separate memory pass. Its caller
 // reserves the complete output first, so extending the length cannot allocate.
 pub(super) trait Destination {
     fn block(&mut self, start: usize, end: usize) -> &mut [u8];
+    fn finish_block(&mut self) {}
 }
 impl Destination for [u8] {
     #[inline]
@@ -22,6 +23,37 @@ impl Destination for Vec<u8> {
         debug_assert!(end <= self.capacity());
         self.resize(end, 0);
         &mut self[start..end]
+    }
+}
+
+// A bounded, initialized staging block for large owned stride-four streams.
+// Decoding writes every live byte before finish_block appends it to reserved
+// output. It avoids repeatedly extending and zeroing the owned destination.
+pub(super) struct StreamingDestination<'a> {
+    output: &'a mut Vec<u8>,
+    scratch: [u8; 1024],
+    used: usize,
+}
+impl<'a> StreamingDestination<'a> {
+    pub(super) fn new(output: &'a mut Vec<u8>) -> Self {
+        Self {
+            output,
+            scratch: [0; 1024],
+            used: 0,
+        }
+    }
+}
+impl Destination for StreamingDestination<'_> {
+    #[inline]
+    fn block(&mut self, start: usize, end: usize) -> &mut [u8] {
+        debug_assert_eq!(start, self.output.len());
+        debug_assert!(end <= self.output.capacity());
+        self.used = end - start;
+        &mut self.scratch[..self.used]
+    }
+    #[inline]
+    fn finish_block(&mut self) {
+        self.output.extend_from_slice(&self.scratch[..self.used]);
     }
 }
 
@@ -267,10 +299,71 @@ pub(super) fn decode<D: Destination + ?Sized>(
             }
         }
         last[..stride].copy_from_slice(&block_output[(block - 1) * stride..]);
+        output.finish_block();
         offset += block;
     }
     if data.len().checked_sub(pos) != Some(padded) {
         return Err(Error::InvalidStream);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod streaming_tests {
+    use super::*;
+    use crate::{
+        codec::{encode_vertex_buffer, VertexEncoding},
+        Workspace,
+    };
+    use alloc::vec;
+
+    #[test]
+    fn staged_vertex_destination_matches_initialized_reference() {
+        let counts: &[usize] = if cfg!(miri) {
+            &[17, 257]
+        } else {
+            &[0, 1, 15, 16, 17, 255, 256, 257, 513]
+        };
+        let levels: &[u8] = if cfg!(miri) {
+            &[0, 2, 3]
+        } else {
+            &[0, 1, 2, 3, 9]
+        };
+        for &count in counts {
+            let data: Vec<u8> = (0..count * 4).map(|j| (j * 37 + j / 4) as u8).collect();
+            for version in [0, 1] {
+                for &level in levels {
+                    let source = encode_vertex_buffer(
+                        &data,
+                        count,
+                        4,
+                        VertexEncoding::new(version, level).unwrap(),
+                        &mut Workspace::default(),
+                    )
+                    .unwrap();
+                    let mut staged = Vec::new();
+                    staged.try_reserve_exact(data.len()).unwrap();
+                    decode(
+                        &mut StreamingDestination::new(&mut staged),
+                        count,
+                        4,
+                        &source,
+                    )
+                    .unwrap();
+                    let mut initialized = vec![0; data.len()];
+                    decode(&mut initialized[..], count, 4, &source).unwrap();
+                    assert_eq!(staged, data);
+                    assert_eq!(staged, initialized);
+                    assert_eq!(staged.capacity(), data.len());
+                    let mut bad = source.clone();
+                    bad.push(0);
+                    let mut output = Vec::with_capacity(data.len());
+                    assert_eq!(
+                        decode(&mut StreamingDestination::new(&mut output), count, 4, &bad),
+                        Err(Error::InvalidStream)
+                    );
+                }
+            }
+        }
+    }
 }

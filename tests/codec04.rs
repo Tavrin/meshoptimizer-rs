@@ -305,3 +305,85 @@ fn meshlet_codec_round_trips_and_rejects_malformed_streams() {
     assert_eq!(encode_meshlet(&[], &[], &mut w).unwrap(), [0; 16]);
     decode_meshlet_raw_into(&mut [], 0, &mut [], 0, &[0; 16], &mut w).unwrap();
 }
+
+#[test]
+fn quaternion_encoder_preserves_first_maximum_nan_and_signed_zero() {
+    // Pinned scalar meshoptimizer 1.3: four-record batches plus one tail.
+    let q = [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        -0.5,
+        -0.5,
+        -0.5,
+        -0.5,
+        0.0,
+        -0.0,
+        0.0,
+        -0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        f32::NAN,
+        0.5,
+        -0.5,
+        0.5,
+        0.5,
+        f32::NAN,
+        -0.5,
+        0.5,
+    ];
+    for (bits, expected) in [
+        (
+            4,
+            [
+                5, 5, 5, 4, 5, 5, 5, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0, 0, 0, 7,
+                5, -5, 5, 4, -7, -5, 5, 4,
+            ],
+        ),
+        (
+            12,
+            [
+                1447, 1447, 1447, 2044, 1447, 1447, 1447, 2044, 0, 0, 0, 2044, 0, 0, 0, 2044, 0, 0,
+                0, 2045, 0, 0, 0, 2046, 0, 0, 0, 2047, 1447, -1447, 1447, 2044, -2047, -1447, 1447,
+                2044,
+            ],
+        ),
+        (
+            16,
+            [
+                23170, 23170, 23170, 32764, 23170, 23170, 23170, 32764, 0, 0, 0, 32764, 0, 0, 0,
+                32764, 0, 0, 0, 32765, 0, 0, 0, 32766, 0, 0, 0, 32767, 23170, -23170, 23170, 32764,
+                -32767, -23170, 23170, 32764,
+            ],
+        ),
+    ] {
+        let encoded = encode_filter_quat(9, 8, bits, &q, &mut Workspace::default()).unwrap();
+        let words: Vec<i16> = encoded
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|&b| i16::from_le_bytes(b))
+            .collect();
+        assert_eq!(words, expected);
+        let mut destination = [0xa5; 79];
+        encode_filter_quat_into(&mut destination, 9, 8, bits, &q, &mut Workspace::default())
+            .unwrap();
+        assert_eq!(&destination[..72], encoded);
+        assert_eq!(&destination[72..], &[0xa5; 7]);
+    }
+}

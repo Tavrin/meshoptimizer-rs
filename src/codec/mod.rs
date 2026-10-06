@@ -306,7 +306,16 @@ fn allocate(
         workspace.account_codec(out.capacity())?;
     }
     if mode == Mode::Attributes {
-        vertex::decode(&mut out, count, stride, source)?;
+        if stride == 4 && bytes >= 1024 * 1024 {
+            vertex::decode(
+                &mut vertex::StreamingDestination::new(&mut out),
+                count,
+                stride,
+                source,
+            )?;
+        } else {
+            vertex::decode(&mut out, count, stride, source)?;
+        }
     } else if mode == Mode::Indices {
         index::sequence_append(&mut out, count, stride, source)?;
     } else {

@@ -7966,3 +7966,244 @@ phases, four native ISA replays of 30,660 cases each and 15 supported RFC113
 layouts pass. The final verifier checks 42 archive/binary retention entries.
 All interrupted prefixes and prior lint failures remain separate from passes.
 Delete only the specified owned build target after evidence retention.
+
+## V03-1 — Encoder diagnosis and immutable final timing
+
+Execute SPEC-p03-encoders in the owned perf/0.3-encoders worktree; never push.
+Retain eb5b1a2 sources and source-matched archived instruction probes before
+changing any production loop. Use disposable valid-input bounds/validation
+knockouts and existing caller-buffer APIs for the cost budget. All production
+fixes remain safe Rust; record rejected counter candidates as well as retained
+ones. Separate archived default-profile scout counters from freshly built
+release consumers. No elapsed-time experiment precedes the full diagnosis.
+
+Keep all vertex versions and levels in byte parity. Reuse the exact frozen
+vertex-v1-streaming-s4 request rather than generate a similarly named input.
+Final campaign includes before/after vs pinned C++1.3 and meshopt0.6.2, paired
+interleaving, 5-20 pairs, A/A upper<=1.25 resolution, and unchanged GM<=1.25 /
+max<=1.50 bars. Never retry completed streams to get a favorable verdict.
+Use only the named disposable target, incremental/debug disabled, byte-level
+25 GiB build floor, shared CPU admission and <=840s admitted commands. Initial
+resource-blocked build attempts are retained separately from executed checks.
+
+## V03-2 — Specialize common exponential record widths
+
+Retain safe constant layouts for Exp strides 4/8/12/16, with the original
+fully dynamic fallback. Exponent history, mode selection, validity checks,
+float operation order and encoded bytes are unchanged. The resident stride12
+N/2N counters fall to 0.6568/0.4198/0.3736/0.4443 of baseline instructions
+for modes Separate/SharedVector/SharedComponent/Clamped (allocating; caller
+ratios 0.6566/0.4194/0.3732/0.4439). All 17,198 parity cases pass. Keep the
+required numeric checks: the fixed layouts remove substantially more work
+than the unsafe validation knockout without changing failure behavior.
+Evidence: meshopt-v03/build-exp-strides.json, parity-exp-strides.json and
+counters-exp-strides.json. No timing verdict.
+
+## V03-3 — Reject ordinary saturated snorm casts
+
+The safe cast candidate preserves all 17,198 byte-parity cases, but increases
+resident instructions by 47.6% Oct4, 43.7% Oct8 and 69.7% Quat (both APIs).
+Retain the existing exact bounded magic-float conversion and record the
+rejected candidate's source/binary/counters in build-snorm-cast.json,
+parity-snorm-cast.json and counters-snorm-cast.json. No timing was used to
+select or rescue the candidate. Next test fixed Oct output layouts, independently.
+
+## V03-4 — Specialize Oct's two validated output layouts
+
+Select stride4/stride8 once before the hot loop, so constant block sizes and
+stores survive optimization. Preserve the existing exact snorm helper and
+all arithmetic/tails. All 17,198 byte comparisons pass. Resident allocating
+instructions fall to 0.5610/0.5113 of baseline for Oct4/Oct8; caller ratios
+0.5604/0.5107. Retain the layout fix (build/parity/counters-oct-layout.json),
+with no elapsed-time claim.
+
+## V03-5 — Trade Quat gathers for explicit four-record swizzles
+
+Keep first strict maximum selection and the cyclic/sign/quantization contract,
+including NaN and signed-zero goldens pinned to scalar 1.3. Two-bit mask blends
+avoid spilling selectors and gathering components individually. All 17,198
+byte comparisons pass; the focused selector/tie/NaN regression passes.
+
+The initial four-equality-mask candidate increases instructions 76.2% but
+reduces diagnostic cycles 18.2% allocating / 13.0% caller. The binary blend
+candidate reduces those extra instructions slightly (72.7/72.8% over original)
+and reduces cycles 21.0/21.4%, with 44/48% fewer branches. Retain binary blends
+for the final paired timing: this is a dependency/branch tradeoff, not an
+instruction win or established elapsed gain. Preserve both candidate receipts.
+No unsafe code or approximate arithmetic is introduced.
+
+## V03-6 — Compact vertex group measurements
+
+Each threshold count is at most 16. Store three byte counts plus the zero flag
+in four bytes instead of a 32-byte aggregate; widen only when computing sizes.
+Control selection, previous-bit ties and writer capacity checks remain exact.
+All 17,264 byte comparisons pass after adding immutable cook-like geometry.
+Resident allocating instructions fall to 0.920 of baseline for v0 and 0.940
+for v1 across s4/s12/s32; the untouched streaming decoder stays at 1.000.
+Keep this independently validated change; receipts are vertex-sizes.json.
+
+## V03-7 — Constant vertex delta strides and checked word windows
+
+Select common s4/s12/s32 delta loops once and read words through a single
+checked four-byte window. All 17,264 byte comparisons pass across versions
+and levels, including uncommon-stride fallbacks. Instructions fall another
+20–22% for v0 and 24–26% for v1 relative to compact Sizes. Branches fall
+24–32%. Diagnostic cycles vary with shared-host noise, including regressions;
+retain the instruction reduction for the registered paired final timing.
+The unchanged decoder's instructions remain exactly 1.000. No unsafe loads
+or elapsed claim. Receipts: build/parity/counters-vertex-strides.json.
+
+## V03-8 — Fixed-offset sequence varints; keep the index writer
+
+The shared fixed-offset writer passes 17,264 byte comparisons and reduces
+sequence instructions ~20% allocating / ~21% caller, but increases index
+instructions 2.35%. Reject it for index encoding. Give sequence its own
+constant-offset writer and restore the index writer; this isolated variant
+also passes all 17,264 comparisons. Keep sequence's improvement and retain
+both varints and sequence-varints receipts. No timing verdict.
+
+## V03-9 — Pack FIFO edge keys without changing search order
+
+Represent each directed pair of u32 indices as an exact u64 key. Compare
+three precomputed rotated keys in the original newest-first FIFO order,
+including sentinel pairs and tie priority. All 17,264 byte comparisons pass.
+Resident index instructions fall 21.6% allocating / 21.7% caller against the
+restored index baseline; diagnostic cycles fall ~19–20%. Sequence instructions
+remain unchanged. Keep safe packing; no SIMD or unsafe memory operations.
+Receipts: build/parity/counters-index-pairs.json. No elapsed verdict.
+
+## V03-10 — Initialized staging for large owned stride-four decodes
+
+For output >=1 MiB at stride4, reconstruct into one initialized 1 KiB stack
+block and append only its decoded live bytes to the fully reserved Vec.
+Destination finish is a default no-op for the existing slice/Vec sinks and
+called by scalar, x86 and WASM reconstruction. All initialization, resource
+preflight, capacity accounting, parse/tail validation and fallible reservation
+remain intact. No new production unsafe block; audit inventory stays 23.
+
+All 17,264 byte comparisons and the focused two-version/level/block-tail
+regression pass. Frozen allocating decoder instructions fall only 0.45%;
+diagnostic cycles fall 24%, with substantial host variation in other epochs.
+Keep the safe allocation/locality experiment for final paired qualification;
+neither counters nor the prior historical failure establish current latency.
+Receipts: build/parity/counters-streaming-stage.json and test-streaming-stage.log.
+
+## V03-11 — Final harness fairness and an explicit undefined oracle domain
+
+Use the same corrected consumer with original eb5b1a2 and final libraries:
+allocating requests no longer retain an unused caller destination. The old
+meshopt adapter converts only the input type its operation uses. These changes
+precede timing; original diagnostic binaries/receipts remain immutable.
+The unpublished FFI oracle receives the same narrow repository-audit exemption
+as parity/compare; package audit still forbids every unsafe operation outside
+the private SIMD module. No public crate unsafe code is added.
+
+Supplemental full-u32 tests initially hit C++ adapter status -3: it deliberately
+refuses sequence baseline negation of INT_MIN, an upstream undefined domain.
+Keep this guard. Record such cases as oracle SKIP, require before/after wrapped
+Rust bytes unchanged, and retain the existing fixed observed-GCC regression.
+Defined-domain bytes and short-capacity success/failure must match both C++
+oracles exactly. Preserve the initial failed check separately; no timing ran.
+
+## V03-12 — Strict lint and current-source verification
+
+Strict Clippy rejects the explicit Quat component index loop. Iterate the same
+three components with enumerate/skip; selector order and arithmetic stay exact.
+Refresh final binary, 17,264 byte comparisons and all 36 counter-effect rows
+after this source change, before timing. All 19 focused codec tests, 9 native
+SIMD tests, the staging unit, focused scalar Miri, 1.88 no-default check, WASM
+compile, strict library Clippy and formatting pass. WASM compile is not executed
+WASM parity. The package-list command first requires the library fix committed;
+retain that normal dirty-tree refusal and audit the committed source next.
+
+## V03-13 — Freeze the final paired stream
+
+Current-source verification is complete: 17,264 exact primary comparisons;
+6,978 supplemental defined-domain/full-width/capacity comparisons; 144 explicit
+undefined-oracle rows preserve baseline Rust behavior; 580 owned-sink checks
+pass across scalar/SSE2/SSSE3/SSE4.1, including threshold boundaries, malformed
+tails and the exact historical request. Published unsafe boundary passes.
+
+Freeze the 112 requests / 224 API rows, matching consumers and library binaries
+before timing. Require symmetric Rust and C++ A/A intervals [0.8,1.25] and
+max-row upper95<=1.5 in addition to GM<=1.25. One registered stream, 5–20 pairs
+per row. Resume only an unfinished suffix within bounded admitted bursts;
+never alter source, thresholds, rows or completed samples to improve results.
+Report every unresolved or failing row. Scoped release/fat-LTO generic x86-64
+results do not replace historical two-profile/all-family qualification.
+
+## V03-14 — Correct peer validation, preserve the elapsed prefix
+
+The stream stops before timing row45: Exp Separate 0.25 bytes differ on zero
+components. The original validator incorrectly required old-peer equality.
+After two failures of that shape, read-only source/value diagnosis identifies
+optlog2(0)=0: 0.25 resets the zero exponent; 1.3 inherits the preceding exponent.
+A strict predicate requires original input zero, zero mantissas in both outputs,
+and old exponent exactly -(bits-1). Every nonzero word must remain identical.
+All 224 arms now validate, with lossless cross-decode for old vertex differences.
+
+Keep the 44 completed rows byte-for-byte, including their failed tiny maxima.
+Retain an immutable prefix and hash-checked validation-only policy amendment.
+Resume row45 onward, changing no library/consumer binary, input, calibration,
+interleaving, stop rule, A/A threshold or completed sample. No row45 elapsed
+sample existed before this check. This is one interrupted stream, not a rerun
+or an opportunity to tune implementations. Retain both failed peer checks and
+the read-only diagnosis. meshopt-v03/timing-validation-amendment.json records
+all old/new policy and prefix identities.
+
+## V03-15 — Close the campaign with honest maximum failures
+
+The single stream completes 224 rows and 1,229 paired rounds; all A/A resolve,
+none excluded. All 12 API/family means pass <=1.25. Vertex/index/sequence/Exp
+pass the upper95 maximum <=1.5 in both APIs. Oct8 allocating is a resolved
+maximum failure, caller Oct8 straddles the bar; Quat caller is a resolved
+failure, allocating Quat's point1.495 is below the bar but upper1.521 crosses
+it. Round1 performance acceptance remains FAIL. Keep every failed row and
+the exact unchanged 44-row prefix; no timing-driven source edit or rerun.
+
+Streaming allocating passes at 0.958 (95%0.797–1.140), but before already
+passes at 0.952. Staging's elapsed gain and removal of the historical-profile
+gap are not established. Keep the safe initialized path and its validated
+limits/tails; preserve this qualification boundary. Next diagnosis targets
+tiny filter setup and the original historical consumer profile.
+
+Commit the complete sample/hash receipt and lean README comparison; retain
+all binaries, sources, raw counters, failed attempts and lease receipts in
+meshopt-v03. Delete only the owned named target after every job is reaped.
+Native remote platforms, executed WASM, default/Moss profile timing and
+downstream engine integration are not acceptance from this focused campaign.
+
+## V03-16 — Diagnose tiny fixed cost without weakening checks
+
+SPEC-p03-tiny binds worktree v03 at a14cbc1. Hash-check the archived matched
+consumer before fresh PMU/disassembly. Preserve CPU26, frozen corpus, C++1.3
+pin, generic release/fat-LTO profile, 5–20-pair nominal CI/A/A rules and 1.5
+upper95 bar. Specialize internal Oct/Quat kernel closures using the same
+validation/accounting bodies. Retain safe initialized allocation and caller
+buffer tails. Zero-record budgets and disassembly establish a real fixed
+cost; no timer floor or public API change is inferred.
+
+## V03-17 — Keep failed tiny interventions and shorten Quat live ranges
+
+Scalar Oct candidates increase caller instructions to2031/2170; reject them
+without timing and record the required read-only follow-up. Keep four-record
+Oct arithmetic with bounded integer quantizer repair for <=32 records.
+A first elapsed epoch passes Oct, fails Quat at1.657/1.664; retain every pair.
+Reject bit-significand variable shifts and cross-record fixed rotations.
+Isolate a per-record Quat helper, hoist scale, preserve first strict maximum,
+cyclic swizzle, sign and float evaluation order. The finite expression's
+truncated result fits i16 exactly, so the safe i16 conversion preserves bytes.
+Nearly unchanged instructions can hide shorter dependence chains: final
+acceptance uses paired elapsed samples, never counters alone. No new unsafe.
+
+## V03-18 — Close tiny round 2 with certified rows and bounded scope
+
+Final record16 epoch: all17264 scalar/SIMD exact comparisons and cargo test
+exit0. Four tiny qualification rows pass, then all18 Oct/Quat confirmation
+rows pass; all A/A intervals resolve and all family means remain <=1.25.
+Keep the matched Quat family mean slowdown (0.747/0.707 ->0.789/0.751) within
+the bar rather than claiming every mean improved. Other encoder elapsed
+rows are not rerun and their prior verdicts are retained. No downstream,
+WASM-execution, GPU, original streaming-profile or release acceptance claim.
+Append performance/diagnosis reports; bind raw evidence by hash. Delete the
+owned 86,792,129-byte target after jobs end; commit as Tavrin, no push/trailers.

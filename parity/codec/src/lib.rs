@@ -48,7 +48,11 @@ pub fn execute(b: &[u8]) -> Result<Vec<u8>, Error> {
         return Err(Error::LimitExceeded);
     }
     let into = m & 128 != 0;
-    let mut destination = vec![0u8; bytes + 16];
+    let mut destination = if into {
+        vec![0u8; bytes + 16]
+    } else {
+        Vec::new()
+    };
     let mode = match m & 127 {
         0 => Mode::Attributes,
         1 => Mode::Triangles,
@@ -244,7 +248,11 @@ fn codec04(
         20 | 21 => split.saturating_add((f.version as usize).saturating_mul(4)),
         _ => 0,
     };
-    let mut destination = vec![0u8; capacity.unwrap_or(bound).min(256 * 1024 * 1024)];
+    let mut destination = if into || capacity.is_some() {
+        vec![0u8; capacity.unwrap_or(bound).min(256 * 1024 * 1024)]
+    } else {
+        Vec::new()
+    };
     let mut raw_vertices = vec![0u32; if f.op == 21 { f.count } else { 0 }];
     let mut raw_triangles = vec![0u32; if f.op == 21 { f.version as usize } else { 0 }];
     let mut once = || -> Result<Output, Error> {

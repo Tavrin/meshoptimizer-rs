@@ -1060,6 +1060,7 @@ fn vertex_kernel<
             }
         }
         last[..stride].copy_from_slice(&block_output[(block - 1) * stride..]);
+        output.finish_block();
         offset += block;
     }
     if data.len().checked_sub(pos) != Some(padded) {

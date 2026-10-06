@@ -139,13 +139,39 @@ See the [P06 record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2
 
 ## Comparison with the meshopt crate
 
-The 2026-10-06 comparison uses meshopt **0.6.2** (bundled C++ **0.25**) and five frozen inputs on the Ryzen 9 7945HX in two consumer profiles.
+The **0.2.0** comparison from 2026-10-06 uses meshopt **0.6.2** (bundled C++ **0.25**) and five frozen inputs on the Ryzen 9 7945HX in two consumer profiles.
 **meshopt is faster at allocating vertex decode and Oct/Quat/Exp encoding** by five-case geometric mean in both profiles; **Exp encoding is about 3.4× faster**.
 meshoptimizer-rs is faster by the same measure at matched-v1 vertex encoding, Color encoding, Exp/Color decoding and scan meshlet construction; individual cases vary.
 meshoptimizer-rs has the 1.3 meshlet codecs, opacity maps, tangents, experimental normals/remeshing, cluster LOD and built-in parallel batches, which meshopt 0.6.2 lacks.
 It also has `no_std + alloc`, checked views, typed errors, per-call work/byte limits and reusable workspaces without a C++ toolchain.
 Default vertex encodings differ (ours v1, theirs v0), and some meshlet, partitioning and simplification outputs differ across upstream versions.
 These shared-host timings do not isolate language, compiler, wrapper or version costs; see the [full comparison, output checks and case intervals](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md).
+
+### Encoder round 1 for 0.3
+
+The development branch has a separate matched before/after run: native x86-64,
+generic release/fat LTO/one codegen unit, allocating APIs, frozen synthetic and
+cook inputs. Ratios below are family geometric means; lower is faster.
+The baseline and changed library use the identical corrected consumer.
+
+| Encoder | C++ 1.3 before → after | meshopt 0.6.2 before → after |
+|---|---:|---:|
+| Vertex | 0.904 → 0.658 | 0.909 → 0.662 |
+| Index | 1.027 → 0.920 | 1.054 → 0.946 |
+| Sequence | 1.228 → 0.967 | 1.229 → 0.970 |
+| Oct | 1.107 → 0.539 | 1.120 → 0.541 |
+| Quat | 0.787 → 0.673 | 0.763 → 0.650 |
+| Exp | 0.949 → 0.607 | 1.002 → 0.640 |
+
+All 224 allocating/caller rows resolve under A/A rules. Vertex, index,
+sequence and Exp pass the registered mean/max bars in both APIs. **Oct and
+Quat remain unqualified because tiny-case maximum intervals exceed or cross
+1.5×**, despite their improved means. The exact allocating streaming case
+passes here at 0.958× C++ (95% interval 0.797–1.140), and its matched baseline
+already passes at 0.952×; this establishes no staging gain or fix for the
+historical consumer-profile gap. The old peer has independently checked
+vertex/Exp-zero encoding differences. See the [complete rows, caller results,
+profile boundaries and retained evidence](parity/P03_ENCODER_PERFORMANCE.md).
 
 ## Safety and verification
 
@@ -200,9 +226,9 @@ See the [comparison's exception ledger](https://github.com/Tavrin/meshoptimizer-
 
 ## Priorities for 0.3
 
-1. **Encoder performance first:** close the Oct/Quat/Exp gaps against meshopt,
-   starting with Exp's roughly 3.4× gap. Measure matched versions and precision
-   settings; keep default-version comparisons separate.
+1. Finish encoder qualification: reduce tiny Oct/Quat setup costs and validate
+   the other consumer profiles. Reproduce the historical allocating streaming
+   gap in its original profile; retain matched versions and precision settings.
 2. Close resolved allocating codec maxima and default partitioning gaps;
    keep unresolved rows and the malformed-tail discrepancy listed.
 3. Meet the stricter SIMD amendment targets, requalify fetch/sloppy/overdraw
