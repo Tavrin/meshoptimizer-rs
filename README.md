@@ -20,7 +20,7 @@ and executed WASM checks establish parity on finite recorded inputs.
 They do not prove it for every possible input. See [UPSTREAM.md](UPSTREAM.md).
 
 Crate **0.2.0** includes the following development phases. Phase numbers
-identify work in the port; they are not published crate versions.
+label stages of the port, not published crate versions.
 
 | Phase | Included APIs |
 |---|---|
@@ -104,12 +104,12 @@ Recorded on an **AMD Ryzen 9 7945HX, Linux x86-64**, using a pinned core and
 interleaved pairs on a shared host. Ratios are Rust time / C++ time: lower is
 faster, 1.00 is equal. Validation, required copies and allocation are timed.
 The scalar baseline is pinned meshoptimizer 1.3 with SIMD and FMA contraction
-disabled. These records have different source, corpus and API scopes;
-no new full-tree timing was performed for this release preparation.
+disabled. The records below differ in source, corpus and API scope.
+No new full-tree timing was run while preparing this release.
 
-Moss is thin LTO with one codegen unit; defaults are Cargo consumer release
-settings, no LTO and sixteen codegen units. The crate-local fat-LTO profile
-does not apply to dependents.
+The Moss profile uses thin LTO and one codegen unit. The defaults profile uses
+Cargo's consumer release settings: no LTO and sixteen codegen units. The
+crate-local fat-LTO profile does not apply to dependents.
 
 | Recorded scope | Moss ratio | Defaults ratio | Evidence |
 |---|---:|---:|---|
@@ -122,9 +122,10 @@ does not apply to dependents.
 Current SIMD timings use a separate registered driver and SIMD/JS comparators.
 Native vertex decode has allocating / caller-buffer means of 1.116 / 1.051;
 the resolved allocating maximum still fails. Every current family mean and
-native caller-buffer family passes the registered 0.2 rule; allocating index,
-vertex and filtered-view maxima fail. The symmetric WASM JavaScript adapters
-pass that rule, which does not qualify the Vec-returning Rust WASM API.
+native caller-buffer family passes the registered 0.2 rule; the allocating
+index, vertex and filtered-view maxima fail. The symmetric WASM JavaScript
+adapters pass that rule, but that does not qualify the Vec-returning Rust WASM
+API.
 See the [full qualification and A/A widths](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P07_RELEASE_QUALIFICATION.md).
 
 The general family mean / case maximum bars are 1.25 / 1.50. For 0.2 SIMD,
@@ -140,9 +141,9 @@ See the [P06 record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2
 
 The 2026-10-06 comparison uses meshopt **0.6.2** (bundled C++ **0.25**) and five frozen inputs on the Ryzen 9 7945HX in two consumer profiles.
 **meshopt is faster at allocating vertex decode and Oct/Quat/Exp encoding** by five-case geometric mean in both profiles; **Exp encoding is about 3.4× faster**.
-Ours is faster by the same measure at matched-v1 vertex encoding, Color encoding, Exp/Color decoding and scan meshlet construction; individual cases vary.
-meshoptimizer-rs offers the 1.3 meshlet codecs, opacity maps, tangents, experimental normals/remeshing, cluster LOD and built-in parallel batches absent from meshopt 0.6.2.
-It also offers `no_std + alloc`, checked views, typed errors, per-call work/byte limits and reusable workspaces without a C++ toolchain.
+meshoptimizer-rs is faster by the same measure at matched-v1 vertex encoding, Color encoding, Exp/Color decoding and scan meshlet construction; individual cases vary.
+meshoptimizer-rs has the 1.3 meshlet codecs, opacity maps, tangents, experimental normals/remeshing, cluster LOD and built-in parallel batches, which meshopt 0.6.2 lacks.
+It also has `no_std + alloc`, checked views, typed errors, per-call work/byte limits and reusable workspaces without a C++ toolchain.
 Default vertex encodings differ (ours v1, theirs v0), and some meshlet, partitioning and simplification outputs differ across upstream versions.
 These shared-host timings do not isolate language, compiler, wrapper or version costs; see the [full comparison, output checks and case intervals](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md).
 
@@ -154,14 +155,14 @@ reservations. The only unsafe allowance is the private `codec::simd` module;
 each block has a safety argument in [SAFETY.md](src/codec/simd/SAFETY.md).
 Simplification, optimization, encoders and index/sequence decoding are safe Rust.
 Scalar builds forbid unsafe code. SIMD must match the canonical scalar bytes;
-filters retain scalar arithmetic rather than upstream SIMD approximations.
+filters keep scalar arithmetic instead of upstream's SIMD approximations.
 
 Recorded Miri runs cover scalar codecs, dispatch and unwind handling, x86
 integer kernels, filters and meshlets. NEON is not Miri-covered. Differential
 fixtures, seeded sweeps and fuzz targets compare outputs and malformed-input
-handling; CI defines cross-target replay and SIMD safety checks. These are
-bounded checks. Full per-target release fuzz budgets and execution on every
-supported platform are not established by a compile check or short smoke run.
+handling; CI defines cross-target replay and SIMD safety checks. These checks
+are bounded: a compile check or short smoke run does not establish full
+per-target release fuzz budgets or execution on every supported platform.
 See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/SIMD_RESULTS.md).
 
 ## Known exceptions for 0.2.0
@@ -169,7 +170,7 @@ See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/bl
 The owner's 2026-10-06 roadmap permits the allocating vertex exception and
 schedules its fix for **0.2.1**. Use `decode_vertex_buffer_into` where possible:
 the owner records about 1.04× for the caller-buffer form of that case.
-The later complete qualification retains these additional results:
+The later complete qualification also records these results:
 
 | Native allocating case | Final Rust/C++ 95% interval | Status |
 |---|---:|---|
@@ -179,16 +180,16 @@ The later complete qualification retains these additional results:
 | `view-1-streaming-s4` | 1.343–1.636 | Resolved maximum fails the upper-bound rule. |
 | `varied-view-3-streaming-s32` | 1.619–2.590 | Unresolved: Rust/C++ A/A upper bounds 1.284 / 1.026. |
 
-The roadmap also calls out the filtered-view maximum near 1.64 and a small S3
-case. The latest independent S3 report retains caller-buffer
+The roadmap also names the filtered-view maximum near 1.64 and a small S3
+case. The latest independent S3 report records caller-buffer
 `varied-filter-3-resident-s32` at 1.026–1.124× scalar Rust. The full report lists
-all excluded A/A rows and their interval widths; exclusion is not a speed pass.
+all excluded A/A rows and their interval widths; an excluded row has not passed.
 
 Older records retain a sparse allocating vertex-fetch maximum failure,
 inconclusive overdraw/sloppy-simplification maxima, and Cargo-default
 `partition_clusters` mean / max of 1.450 / 1.778. P05's final selected
 compact/coverage/raster-overdraw scope passes; the full matrix was not refreshed
-after those edits. Stricter SIMD amendment targets remain work for 0.3.
+after those edits. The stricter SIMD amendment targets are left for 0.3.
 
 A malformed meshlet tail is accepted by scalar upstream and Rust but rejected
 by upstream SSE. Rust follows the scalar oracle; the expanded strict sweep
@@ -203,7 +204,7 @@ See the [comparison's exception ledger](https://github.com/Tavrin/meshoptimizer-
    starting with Exp's roughly 3.4× gap. Measure matched versions and precision
    settings; keep default-version comparisons separate.
 2. Close resolved allocating codec maxima and default partitioning gaps;
-   retain unresolved rows and the malformed-tail discrepancy explicitly.
+   keep unresolved rows and the malformed-tail discrepancy listed.
 3. Meet the stricter SIMD amendment targets, requalify fetch/sloppy/overdraw
    residuals, and refresh the full P05 matrix against the integrated source.
 4. Extend runtime and performance evidence to AArch64 and other native systems,

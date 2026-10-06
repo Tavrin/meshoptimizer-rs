@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Scalar APIs for stripification, vertex-cache/fetch and raster analysis,
   opacity micromaps and tangent generation. Normal generation and remeshing
-  require `experimental`. Checked limits and caller-buffer forms are retained.
+  require `experimental`. These APIs also have checked limits and caller-buffer
+  forms.
 - Optional `parallel` feature using Rayon and `std`: ordered batches for LOD
   chains, vertex/index encoding, EXT view decoding and all four meshlet builders.
   With `clusterlod`, batches also build cluster-LOD DAGs and hierarchy forests.
@@ -42,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   recorded caller-side pool overhead can still make batches slower.
 - README now records the meshopt 0.6.2 comparison. meshopt is faster at
   allocating vertex decode and Oct/Quat/Exp encoding (Exp about 3.4×).
-  Ours has lower five-case mean times for matched-v1 vertex encoding, Color
+  meshoptimizer-rs has lower five-case mean times for matched-v1 vertex encoding, Color
   encoding, Exp/Color decoding and scan meshlets. These are shared-host
   measurements on a Ryzen 9 7945HX, not universal speed claims.
 - MSRV remains **Rust 1.88**, edition 2021. Crate version is 0.2.0; internal
@@ -51,13 +52,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Known exceptions
 
 - Owner-approved allocating `vertex-v1-streaming-s4` exception: 1.529–2.118×
-  C++ time; use the caller-buffer API (owner records about 1.04×). Fix targets
-  0.2.1. The later complete report also retains resolved allocating index
+  C++ time; use the caller-buffer API (owner records about 1.04×). The fix is
+  planned for 0.2.1. The later complete report also records resolved allocating index
   maxima of 1.508–3.625 and 2.189–2.465, and filtered-view 1.343–1.636.
 - Allocating varied filtered-view stride-32 streaming remains unresolved,
   interval 1.619–2.590; A/A upper bounds are 1.284 / 1.026. The roadmap names
   the filtered-view maximum near 1.64 and a small S3 case; the latest S3 report
-  retains caller-buffer `varied-filter-3-resident-s32` at 1.026–1.124× scalar Rust.
+  records caller-buffer `varied-filter-3-resident-s32` at 1.026–1.124× scalar Rust.
 - Older allocating fetch failure, inconclusive overdraw/sloppy maxima and
   default partitioning 1.450 / 1.778 mean / max remain in their original scope.
   Stricter SIMD amendment targets continue in 0.3, with encoder performance
