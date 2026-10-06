@@ -1,0 +1,42 @@
+[package]
+name = "meshopt-crate-comparison"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[features]
+default = []
+ours = ["dep:meshoptimizer-rs"]
+theirs = ["dep:meshopt"]
+full = ["meshoptimizer-rs?/experimental", "meshoptimizer-rs?/clusterlod", "meshoptimizer-rs?/parallel"]
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", optional = true }
+meshopt = { version = "=0.6.2", optional = true }
+
+[[bin]]
+name = "cmp-driver"
+path = "src/main.rs"
+[[bin]]
+name = "cmp-decode"
+path = "src/decode.rs"
+[[bin]]
+name = "cmp-full"
+path = "src/full.rs"
+[[bin]]
+name = "cmp-empty"
+path = "src/empty.rs"
+
+[profile.moss]
+inherits = "release"
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+
+[profile.defaults]
+inherits = "release"
+opt-level = 3
+lto = false
+codegen-units = 16
+strip = "symbols"
