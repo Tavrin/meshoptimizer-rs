@@ -368,11 +368,12 @@ Initialized checked slices and typed errors provide a memory-safe public boundar
 
 ### Priorities for 0.3
 
-1. Close default partitioning and the resolved native allocating codec maximum gaps; retain the unresolvable view case and canonical malformed-tail disagreement as explicit blockers.
-2. Requalify the existing fetch/sloppy/optimization-overdraw maximum gaps against the integrated source, then refresh the full P05 matrix; keep compiler/API/corpus epochs distinct.
-3. Extend execution and performance evidence to AArch64 and other native operating systems; compile-only support is not native runtime qualification.
-4. Broaden shared-input coverage beyond this comparison subset, especially quantization extrema, attributed/permissive simplification, partition sizes, filter precision and application wrapper/allocation shapes.
-5. Keep global allocator callbacks, raw C ABI and process-global codec versions as intentional API omissions; add adapters only if a concrete interoperability need warrants them.
+1. **Encoder performance first:** close the Oct/Quat/Exp encoding gaps against meshopt, starting with Exp at about 3.4×. Keep matched versions and precision settings explicit; default-version comparisons measure different encoding choices.
+2. Close default partitioning and the resolved native allocating codec maximum gaps; retain the unresolvable view case and canonical malformed-tail disagreement as explicit blockers.
+3. Requalify the existing fetch/sloppy/optimization-overdraw maximum gaps against the integrated source, then refresh the full P05 matrix; keep compiler/API/corpus epochs distinct.
+4. Extend execution and performance evidence to AArch64 and other native operating systems; compile-only support is not native runtime qualification.
+5. Broaden shared-input coverage beyond this comparison subset, especially quantization extrema, attributed/permissive simplification, partition sizes, filter precision and application wrapper/allocation shapes.
+6. Keep global allocator callbacks, raw C ABI and process-global codec versions as intentional API omissions; add adapters only if a concrete interoperability need warrants them.
 
 ## Choice guide for users
 

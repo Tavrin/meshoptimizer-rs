@@ -7,57 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-10-05
+## [0.2.0] - 2026-10-06
 
 ### Added
 
-- Phase 0.5 scalar analyzers, opacity maps, tangents, and experimental normals
-  and remeshing, preserving checked limits and caller-buffer APIs.
-- Phase 0.7 audited SIMD vertex/filter/meshlet kernels with runtime dispatch;
-  `simd` is enabled by default and can be disabled for an unsafe-free build.
-
-- Optional `parallel` feature, using Rayon and enabling `std`: ordered batch
-  APIs for LOD chains, vertex/index encoding, EXT view decoding and all four
-  meshlet builders. With `clusterlod`, batches of independent cluster-LOD DAGs
-  and hierarchy forests are also available.
-- Batches check errors and limits per item and give each worker a private
-  workspace. Output is deterministic at any thread count; tests compare it with
-  sequential output at 1, 2, 8 and N threads, including failure isolation and
-  late position mutation.
-- RFC 113 harness: three-way Rust/scalar-C++/Moss-style-C++ comparisons,
-  portable layout and codec checks, scratch-budget regressions, profiling and
-  adaptive paired timing with source and binary identities.
-- Parallel batch harness and recorded speed curves against sequential Rust on
-  sixteen variants of one authored mesh. The full-family curve records
-  16-thread medians of 8.201× for LOD chains, 7.599× for mixed encoding,
-  3.284× for EXT view decoding, 6.136× for standard meshlets and 7.818× for
-  cluster LOD. These results come from one corpus on a shared host. See
-  [the P06 record](parity/p06/README.md) for the full table, dispersion and
-  hierarchy follow-up.
+- Scalar APIs for stripification, vertex-cache/fetch and raster analysis,
+  opacity micromaps and tangent generation. Normal generation and remeshing
+  require `experimental`. Checked limits and caller-buffer forms are retained.
+- Optional `parallel` feature using Rayon and `std`: ordered batches for LOD
+  chains, vertex/index encoding, EXT view decoding and all four meshlet builders.
+  With `clusterlod`, batches also build cluster-LOD DAGs and hierarchy forests.
+  Successful output matches sequential calls; per-item errors and limits are
+  checked with private worker workspaces.
+- Default `simd` feature: audited vertex, filter and meshlet decoding for x86
+  SSE2/SSSE3/SSE4.1, AArch64 NEON and wasm simd128. Runtime x86 dispatch uses
+  `std`; scalar fallback remains the canonical reference. Disable defaults for
+  an unsafe-free build, optionally adding `std`.
 
 ### Changed
 
-- Cluster-LOD builds reuse validated data and compact sparse groups. Validated
-  attributes and boundary flags are borrowed instead of copied per group, and
-  simplification scratch stays bounded. Dilation invalidates the cached position
-  range before further simplification.
-- The final RFC 113 recovery measured aggregate Rust/scalar-C++ time ratios of
-  1.196× with the Moss-like consumer profile (thin LTO) and 1.090× with Cargo
-  release defaults. All 15 supported S2 layouts and all 90 codec comparisons
-  are byte-identical. See [the recovery record](parity/results/rfc113-clod-recover.md).
-- Small hierarchy batches run sequentially to avoid Rayon dispatch overhead.
-  The hierarchy follow-up still records slowdowns, including caller-side
-  `pool.install`.
+- Cluster LOD reuses validated attributes and boundary flags, compacts sparse
+  groups and invalidates the cached position range after dilation. The frozen
+  RFC 113 recovery corpus records aggregate Rust/scalar-C++ ratios of 1.196
+  with thin LTO and 1.090 with Cargo defaults; 15 supported layouts and 90
+  codec comparisons match byte for byte.
+- P05's final selected compact/coverage/raster-overdraw scope passes its bars.
+  Opacity-map compact family means are 0.557 / 0.578× scalar C++ time under
+  thin-LTO / default consumer profiles. The full matrix was not refreshed.
+- Current native SIMD family means and caller-buffer families pass the
+  registered 0.2 rule; allocating index, vertex and filtered-view maxima fail.
+  Symmetric JavaScript WASM adapters pass that rule, without qualifying the
+  Vec-returning Rust WASM API. Unresolved A/A rows retain their interval widths.
+- Small hierarchy batches run sequentially to avoid Rayon dispatch overhead;
+  recorded caller-side pool overhead can still make batches slower.
+- README now records the meshopt 0.6.2 comparison. meshopt is faster at
+  allocating vertex decode and Oct/Quat/Exp encoding (Exp about 3.4×).
+  Ours has lower five-case mean times for matched-v1 vertex encoding, Color
+  encoding, Exp/Color decoding and scan meshlets. These are shared-host
+  measurements on a Ryzen 9 7945HX, not universal speed claims.
+- MSRV remains **Rust 1.88**, edition 2021. Crate version is 0.2.0; internal
+  development phase numbers do not name published releases.
 
-### Known limitations
+### Known exceptions
 
-- Existing phase performance records retain their original qualification scope;
-  integration parity and safety gates do not establish fresh performance.
-- The two stride-32 S2 setups remain invalid because their protect mask exceeds
-  the layout. Existing preprocessing and partitioning timing residuals remain;
-  see the README. These records do not cover Moss runtime or GPU integration.
+- Owner-approved allocating `vertex-v1-streaming-s4` exception: 1.529–2.118×
+  C++ time; use the caller-buffer API (owner records about 1.04×). Fix targets
+  0.2.1. The later complete report also retains resolved allocating index
+  maxima of 1.508–3.625 and 2.189–2.465, and filtered-view 1.343–1.636.
+- Allocating varied filtered-view stride-32 streaming remains unresolved,
+  interval 1.619–2.590; A/A upper bounds are 1.284 / 1.026. The roadmap names
+  the filtered-view maximum near 1.64 and a small S3 case; the latest S3 report
+  retains caller-buffer `varied-filter-3-resident-s32` at 1.026–1.124× scalar Rust.
+- Older allocating fetch failure, inconclusive overdraw/sloppy maxima and
+  default partitioning 1.450 / 1.778 mean / max remain in their original scope.
+  Stricter SIMD amendment targets continue in 0.3, with encoder performance
+  first among 0.3 priorities.
+- The malformed meshlet tail accepted by upstream scalar and rejected by SSE
+  remains a strict-sweep discrepancy; Rust follows canonical scalar output.
+  Two stride-32 RFC 113 layouts are invalid because of their protect masks.
+- AVX2, AVX-512 and 32-bit ARM SIMD are absent. Compile-only checks and short
+  fuzz runs do not establish full per-target runtime or release fuzz budgets.
 
-## [0.1.0] - unreleased
+See [README.md](README.md) for workarounds and links to the qualification records.
+
+## [0.1.0] - 2026-10-04
 
 First public release. Ports meshoptimizer 1.3 (commit
 `4c203430ca565cb59a468a91922c76c208169536`, `src` identical to tag v1.3) with
