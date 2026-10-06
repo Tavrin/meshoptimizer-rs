@@ -8131,3 +8131,22 @@ per row. Resume only an unfinished suffix within bounded admitted bursts;
 never alter source, thresholds, rows or completed samples to improve results.
 Report every unresolved or failing row. Scoped release/fat-LTO generic x86-64
 results do not replace historical two-profile/all-family qualification.
+
+## V03-14 — Correct peer validation, preserve the elapsed prefix
+
+The stream stops before timing row45: Exp Separate 0.25 bytes differ on zero
+components. The original validator incorrectly required old-peer equality.
+After two failures of that shape, read-only source/value diagnosis identifies
+optlog2(0)=0: 0.25 resets the zero exponent; 1.3 inherits the preceding exponent.
+A strict predicate requires original input zero, zero mantissas in both outputs,
+and old exponent exactly -(bits-1). Every nonzero word must remain identical.
+All 224 arms now validate, with lossless cross-decode for old vertex differences.
+
+Keep the 44 completed rows byte-for-byte, including their failed tiny maxima.
+Retain an immutable prefix and hash-checked validation-only policy amendment.
+Resume row45 onward, changing no library/consumer binary, input, calibration,
+interleaving, stop rule, A/A threshold or completed sample. No row45 elapsed
+sample existed before this check. This is one interrupted stream, not a rerun
+or an opportunity to tune implementations. Retain both failed peer checks and
+the read-only diagnosis. meshopt-v03/timing-validation-amendment.json records
+all old/new policy and prefix identities.

@@ -4,6 +4,7 @@ import sys,json,struct,math,statistics,time,os,hashlib
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import run as lane
 A=lane.ART
+from peer_validation import exp_separate_zero_fields
 T95={5:2.776,6:2.571,7:2.447,8:2.365,9:2.306,10:2.262,11:2.228,12:2.201,13:2.179,14:2.160,15:2.145,16:2.131,17:2.120,18:2.110,19:2.101,20:2.093}
 def interval(xs):
  logs=[math.log(x) for x in xs];mean=statistics.mean(logs);r=T95[len(xs)]*statistics.stdev(logs)/math.sqrt(len(xs));return [math.exp(mean-r),math.exp(mean+r)]
@@ -13,14 +14,22 @@ def main():
  consumer={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in (lane.ROOT/'parity/codec').rglob('*') if p.is_file() and '__pycache__' not in p.parts}
  assert consumer==json.loads((A/'build-before-fair.json').read_text())['consumer']
  assert lane.sha(lane.ROOT/'parity/encoders/src/main.rs')==json.loads((A/'build-crate-fair.json').read_text())['consumer']
- policy={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in [Path(__file__),Path(lane.__file__),lane.ROOT/'parity/encoders/reference.cpp']}
+ policy={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in [Path(__file__),Path(lane.__file__),lane.ROOT/'parity/encoders/reference.cpp',lane.ROOT/'parity/encoders/peer_validation.py']}
  inputs_hash=lane.sha(A/'inputs.json')
  path=A/'timing.json';identities={k:lane.sha(A/k) for k in ['rust-before-fair','rust-after','cpp','crate']};start=time.monotonic()
  assert identities['rust-after']==manifest['binary']
  assert identities['rust-before-fair']==json.loads((A/'build-before-fair.json').read_text())['binary']
  assert identities['crate']==json.loads((A/'build-crate-fair.json').read_text())['binary']
  if path.exists():
-  result=json.loads(path.read_text());assert not result['completed'],'completed stream is immutable';assert result['binaries']==identities;assert result['consumer']==consumer and result['policy']==policy and result['inputs_hash']==inputs_hash
+  result=json.loads(path.read_text());assert not result['completed'],'completed stream is immutable';assert result['binaries']==identities;assert result['consumer']==consumer and result['inputs_hash']==inputs_hash
+  if result['policy']!=policy:
+   amendment=json.loads((A/'timing-validation-amendment.json').read_text())
+   assert amendment['old_policy']==result['policy'] and amendment['new_policy']==policy
+   assert amendment['prefix_rows']==len(result['rows'])
+   assert amendment['prefix_sha256']==hashlib.sha256(json.dumps(result['rows'],sort_keys=True,separators=(',',':')).encode()).hexdigest()
+   assert amendment['binaries']==identities and amendment['inputs_hash']==inputs_hash and amendment['consumer']==consumer
+   result['validation_amendments']=[{'receipt_sha256':lane.sha(A/'timing-validation-amendment.json'),'prefix_rows':amendment['prefix_rows'],'reason':amendment['reason']}]
+   result['policy']=policy
  else:result={'binaries':identities,'source':manifest['source'],'consumer':consumer,'policy':policy,'inputs_hash':inputs_hash,'cpu':26,'target_seconds':.008,'resolution_rule':'Rust A/A and C++ A/A 95% interval inside [0.8,1.25]','rows':[],'completed':False,'bursts':[]}
  ds={k:lane.Driver(A/v) for k,v in {'before':'rust-before-fair','after':'rust-after','cpp':'cpp','crate':'crate','rust-aa':'rust-after','cpp-aa':'cpp'}.items()}
  cases=json.loads((A/'inputs.json').read_text());total=len(cases)*2
@@ -33,6 +42,8 @@ def main():
   op=struct.unpack_from('<I',b,4)[0];n,s=struct.unpack_from('<II',b,8)
   if op==11:
    dec=lane.request(1,n,s,crateout);assert ds['cpp'].call(dec)[:2]==(0,bytes(b[44:])),row['name']
+  elif op==16 and struct.unpack_from('<I',b,16)[0]&127==0:
+   exp_separate_zero_fields(b[44:],struct.unpack_from('<I',b,28)[0],outputs['cpp'][1],crateout)
   elif op!=1:assert crateout==outputs['cpp'][1],(row['name'],'crate bytes')
   else:assert crateout==outputs['cpp'][1]
   probe=bytearray(b);struct.pack_into('<II',probe,32,1,1);trial=ds['cpp'].call(probe)[2][0];it=max(1,min(1000000,math.ceil(.008/max(trial,1e-9))));struct.pack_into('<I',probe,36,it)
