@@ -79,7 +79,7 @@ additive prediction: API accounting and memory locality can interact.
 After counter/parity validation of each fix, run one final immutable stream
 against C++ 1.3 and public meshopt 0.6.2 FFI adapters, plus the retained baseline.
 Two independent processes each for final Rust and C++ supply A/A resolution:
-both upper nominal 95% log-ratio bounds <=1.25. Begin with five alternating
+both nominal 95% log-ratio intervals inside [0.8, 1.25]. Begin with five alternating
 pairs; stop when the maximum bar is resolved and A/A passes, otherwise extend
 to at most twenty. Retain unresolved rows and every pair; no repeat-to-pass.
 Family bars on resolvable rows: geometric mean <=1.25, maximum <=1.50. Include
@@ -131,3 +131,22 @@ DSO file offsets (ELF executable LOAD VirtAddr minus Offset). Quat selector
 stack stores/scalar gathers are at 0xa62d1-0xa6312 and 0xa6341-0xa6382;
 corresponding sample offsets are 0xa52d1 and 0xa5341.
 
+
+## Frozen final consumer and corpus refinements
+
+Before any timing, remove unused caller destinations from allocating Rust
+requests and unused integer/float input copies from the old-crate FFI adapter.
+Rebuild eb5b1a2 with the identical final consumer as `rust-before-fair`; preserve
+the original diagnostic binary unchanged. Bind both consumers, policy scripts,
+binaries, production source and input-manifest hashes in the timing record.
+Use symmetric A/A bounds [0.8,1.25] so either direction of drift is rejected.
+Maximum acceptance additionally requires each resolved row's upper95 <=1.5;
+retain medians and point maximum separately. These are stricter checks, set
+before any elapsed campaign.
+
+The frozen final corpus has 112 requests / 224 API rows. In addition to tiny,
+resident and streaming synthetic inputs, it contains archived medium smooth,
+seamed, sparse and million-smooth cook geometry, each verified against its
+original manifest. The seeded byte matrix reaches 17,264 comparisons. Every
+vertex version/level 0–9 remains represented by exact randomized parity even
+though final timing concentrates on v0 and v1 levels0–3/default2.

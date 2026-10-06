@@ -8115,3 +8115,19 @@ SIMD tests, the staging unit, focused scalar Miri, 1.88 no-default check, WASM
 compile, strict library Clippy and formatting pass. WASM compile is not executed
 WASM parity. The package-list command first requires the library fix committed;
 retain that normal dirty-tree refusal and audit the committed source next.
+
+## V03-13 — Freeze the final paired stream
+
+Current-source verification is complete: 17,264 exact primary comparisons;
+6,978 supplemental defined-domain/full-width/capacity comparisons; 144 explicit
+undefined-oracle rows preserve baseline Rust behavior; 580 owned-sink checks
+pass across scalar/SSE2/SSSE3/SSE4.1, including threshold boundaries, malformed
+tails and the exact historical request. Published unsafe boundary passes.
+
+Freeze the 112 requests / 224 API rows, matching consumers and library binaries
+before timing. Require symmetric Rust and C++ A/A intervals [0.8,1.25] and
+max-row upper95<=1.5 in addition to GM<=1.25. One registered stream, 5–20 pairs
+per row. Resume only an unfinished suffix within bounded admitted bursts;
+never alter source, thresholds, rows or completed samples to improve results.
+Report every unresolved or failing row. Scoped release/fat-LTO generic x86-64
+results do not replace historical two-profile/all-family qualification.

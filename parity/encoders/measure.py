@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One final paired stream, 5-20 pairs; A/A upper<=1.25 resolution."""
+"""One final paired stream, 5-20 pairs; symmetric A/A resolution."""
 import sys,json,struct,math,statistics,time,os,hashlib
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import run as lane
@@ -10,11 +10,19 @@ def interval(xs):
 def main():
  assert os.environ.get('MOSS_HEAVY_ACTIVE')
  manifest=json.loads((A/'build-after.json').read_text());assert manifest['source']=={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in (lane.ROOT/'src').rglob('*.rs')}
- path=A/'timing.json';identities={k:lane.sha(A/k) for k in ['rust-before','rust-after','cpp','crate']};start=time.monotonic()
+ consumer={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in (lane.ROOT/'parity/codec').rglob('*') if p.is_file() and '__pycache__' not in p.parts}
+ assert consumer==json.loads((A/'build-before-fair.json').read_text())['consumer']
+ assert lane.sha(lane.ROOT/'parity/encoders/src/main.rs')==json.loads((A/'build-crate-fair.json').read_text())['consumer']
+ policy={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in [Path(__file__),Path(lane.__file__),lane.ROOT/'parity/encoders/reference.cpp']}
+ inputs_hash=lane.sha(A/'inputs.json')
+ path=A/'timing.json';identities={k:lane.sha(A/k) for k in ['rust-before-fair','rust-after','cpp','crate']};start=time.monotonic()
+ assert identities['rust-after']==manifest['binary']
+ assert identities['rust-before-fair']==json.loads((A/'build-before-fair.json').read_text())['binary']
+ assert identities['crate']==json.loads((A/'build-crate-fair.json').read_text())['binary']
  if path.exists():
-  result=json.loads(path.read_text());assert not result['completed'],'completed stream is immutable';assert result['binaries']==identities
- else:result={'binaries':identities,'source':manifest['source'],'cpu':26,'target_seconds':.008,'resolution_rule':'Rust A/A and C++ A/A upper95 <=1.25','rows':[],'completed':False,'bursts':[]}
- ds={k:lane.Driver(A/v) for k,v in {'before':'rust-before','after':'rust-after','cpp':'cpp','crate':'crate','rust-aa':'rust-after','cpp-aa':'cpp'}.items()}
+  result=json.loads(path.read_text());assert not result['completed'],'completed stream is immutable';assert result['binaries']==identities;assert result['consumer']==consumer and result['policy']==policy and result['inputs_hash']==inputs_hash
+ else:result={'binaries':identities,'source':manifest['source'],'consumer':consumer,'policy':policy,'inputs_hash':inputs_hash,'cpu':26,'target_seconds':.008,'resolution_rule':'Rust A/A and C++ A/A 95% interval inside [0.8,1.25]','rows':[],'completed':False,'bursts':[]}
+ ds={k:lane.Driver(A/v) for k,v in {'before':'rust-before-fair','after':'rust-after','cpp':'cpp','crate':'crate','rust-aa':'rust-after','cpp-aa':'cpp'}.items()}
  cases=json.loads((A/'inputs.json').read_text());total=len(cases)*2
  for j in range(len(result['rows']),total):
   row=cases[j//2];api=j%2;b=bytearray(Path(row['path']).read_bytes());assert hashlib.sha256(b).hexdigest()==row['sha256']
@@ -37,10 +45,10 @@ def main():
    i+=1
    if i>=5:
     ci=interval([x/y for x,y in zip(samples['after'],samples['cpp'])]);aa=interval([x/y for x,y in zip(samples['rust-aa'],samples['after'])]);ca=interval([x/y for x,y in zip(samples['cpp-aa'],samples['cpp'])])
-    if (ci[1]<=1.5 or ci[0]>1.5) and aa[1]<=1.25 and ca[1]<=1.25:break
+    if (ci[1]<=1.5 or ci[0]>1.5) and aa[0]>=.8 and aa[1]<=1.25 and ca[0]>=.8 and ca[1]<=1.25:break
   ratios={k:[x/y for x,y in zip(samples[k],samples['cpp'])] for k in ['before','after']}
   cr={k:[x/y for x,y in zip(samples[k],samples['crate'])] for k in ['before','after']}
-  out={'case':row['name'],'api':'caller' if api else 'allocating','pairs':i,'iterations':it,'samples':samples,'before_cpp':statistics.median(ratios['before']),'after_cpp':statistics.median(ratios['after']),'before_crate':statistics.median(cr['before']),'after_crate':statistics.median(cr['after']),'after_cpp_ci':interval(ratios['after']),'rust_aa_ci':aa,'cpp_aa_ci':ca,'resolvable':aa[1]<=1.25 and ca[1]<=1.25,'crate_equal':outputs['crate']==outputs['cpp'],'output_sha256':hashlib.sha256(outputs['cpp'][1]).hexdigest(),'load':os.getloadavg()}
+  out={'case':row['name'],'api':'caller' if api else 'allocating','pairs':i,'iterations':it,'samples':samples,'before_cpp':statistics.median(ratios['before']),'after_cpp':statistics.median(ratios['after']),'before_crate':statistics.median(cr['before']),'after_crate':statistics.median(cr['after']),'after_cpp_ci':interval(ratios['after']),'rust_aa_ci':aa,'cpp_aa_ci':ca,'resolvable':aa[0]>=.8 and aa[1]<=1.25 and ca[0]>=.8 and ca[1]<=1.25,'crate_equal':outputs['crate']==outputs['cpp'],'output_sha256':hashlib.sha256(outputs['cpp'][1]).hexdigest(),'load':os.getloadavg()}
   result['rows'].append(out);lane.save('timing',result);print(j+1,total,row['name'],out['api'],'ratio',round(out['after_cpp'],3),'resolves',out['resolvable'],flush=True)
   if time.monotonic()-start>690:break
  for d in ds.values():d.close()
@@ -51,7 +59,7 @@ def main():
    for family in ['vertex','index','sequence','oct','quat','exp']:
     rows=[r for r in result['rows'] if r['api']==api and r['case'].startswith(family+'-') and r['case']!='vertex-v1-streaming-s4'];resolved=[r for r in rows if r['resolvable']]
     groups[api+'/'+family]={key:statistics.geometric_mean(r[key] for r in resolved) if resolved else None for key in ['before_cpp','after_cpp','before_crate','after_crate']}
-    groups[api+'/'+family].update(cases=len(rows),resolved=len(resolved),maximum=max([r['after_cpp'] for r in resolved],default=None),pass_bar=bool(resolved) and groups[api+'/'+family]['after_cpp']<=1.25 and max(r['after_cpp'] for r in resolved)<=1.5)
+    groups[api+'/'+family].update(cases=len(rows),resolved=len(resolved),maximum=max([r['after_cpp'] for r in resolved],default=None),max_upper95=max([r['after_cpp_ci'][1] for r in resolved],default=None),pass_bar=bool(resolved) and groups[api+'/'+family]['after_cpp']<=1.25 and all(r['after_cpp_ci'][1]<=1.5 for r in resolved))
   lane.save('timing-summary',groups)
  print('completed',result['completed'],flush=True)
 if __name__=='__main__':main()
