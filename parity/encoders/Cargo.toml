@@ -1,0 +1,10 @@
+[package]
+name = "encoder-crate-oracle"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[dependencies]
+meshopt = "=0.6.2"
+[profile.release]
+codegen-units = 1
+lto = "fat"

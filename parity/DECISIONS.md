@@ -7966,3 +7966,22 @@ phases, four native ISA replays of 30,660 cases each and 15 supported RFC113
 layouts pass. The final verifier checks 42 archive/binary retention entries.
 All interrupted prefixes and prior lint failures remain separate from passes.
 Delete only the specified owned build target after evidence retention.
+
+## V03-1 — Encoder diagnosis and immutable final timing
+
+Execute SPEC-p03-encoders in the owned perf/0.3-encoders worktree; never push.
+Retain eb5b1a2 sources and source-matched archived instruction probes before
+changing any production loop. Use disposable valid-input bounds/validation
+knockouts and existing caller-buffer APIs for the cost budget. All production
+fixes remain safe Rust; record rejected counter candidates as well as retained
+ones. Separate archived default-profile scout counters from freshly built
+release consumers. No elapsed-time experiment precedes the full diagnosis.
+
+Keep all vertex versions and levels in byte parity. Reuse the exact frozen
+vertex-v1-streaming-s4 request rather than generate a similarly named input.
+Final campaign includes before/after vs pinned C++1.3 and meshopt0.6.2, paired
+interleaving, 5-20 pairs, A/A upper<=1.25 resolution, and unchanged GM<=1.25 /
+max<=1.50 bars. Never retry completed streams to get a favorable verdict.
+Use only the named disposable target, incremental/debug disabled, byte-level
+25 GiB build floor, shared CPU admission and <=840s admitted commands. Initial
+resource-blocked build attempts are retained separately from executed checks.
