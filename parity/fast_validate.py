@@ -11,9 +11,9 @@ import struct
 import subprocess
 
 if __package__:
-    from .fast_qualify import ART, ROOT, sha, write, timing_admission
+    from .fast_qualify import ART, ROOT, sha, write, family_verdict, fs
 else:
-    from fast_qualify import ART, ROOT, sha, write, timing_admission
+    from fast_qualify import ART, ROOT, sha, write, family_verdict, fs
 
 REQUIRED = {('main', '0.1', 'moss'), ('main', '0.1', 'default'),
             ('main', '0.2', 'default'), ('main', '0.4', 'moss'),
@@ -201,11 +201,49 @@ def verify_codec_inputs(item, fast_rows):
     return digest
 
 
+def verify_fast_record(record):
+    """Recompute stored decisions; duplicate or partial rows never cover a matrix."""
+    rows = record['rows']
+    names = [row['case'] for row in rows]
+    maximum = record['sequential_error']['maximum_pairs']
+    if not rows or len(set(names)) != len(names) or not 20 <= maximum <= 90:
+        raise ValueError('empty, duplicate or invalid fast matrix')
+    if record.get('bar') != {'family_geometric_mean': 1.25, 'case_maximum': 1.5, 'memory': 1.25}:
+        raise ValueError('fast matrix changed the registered bars')
+    alpha = .05 / len(rows)
+    if record['sequential_error'].get('per_case_alpha') != alpha:
+        raise ValueError('fast matrix has a different error budget')
+    phase = record['phase']
+    for row in rows:
+        rust, scalar = (row['samples_seconds'][key] for key in ('rust', 'scalar'))
+        if not 12 <= len(rust) <= maximum:
+            raise ValueError('partial fast timing stream: ' + row['case'])
+        decision = fs.stop(rust, scalar, alpha / 2 if phase == '0.2' else alpha,
+                           paired=phase in ('0.1', '0.1.x', '0.3'), maximum=maximum)
+        if phase == '0.2':
+            decision = fs.codec_stop(decision, rust, alpha / 2,
+                                     row['registered_minimum'], row['decoded_bytes'],
+                                     row['raw_scalar'], maximum_pairs=maximum)
+            passed = ((not row['raw_scalar'] or decision['estimate'] <= 1.5) and
+                      (row['registered_minimum'] is None or
+                       row['decoded_bytes']/statistics.median(rust) >= row['registered_minimum']))
+        else:
+            passed = decision['estimate'] <= 1.5 and row['memory_ratio'] <= 1.25
+        if (not decision['stopped'] or row['sequential'] != decision or
+                row['ratio'] != decision['estimate'] or row['case_pass'] != passed):
+            raise ValueError('fast decision differs from raw timings: ' + row['case'])
+    families = {name: family_verdict([row for row in rows if row['family'] == name], phase)
+                for name in {row['family'] for row in rows}}
+    if record['families'] != families:
+        raise ValueError('fast family decisions differ from raw timings')
+
+
 def compare(item):
     fast_path = Path(item['fast'])
     fast, fast_digest = read_record(item['fast'])
     full, full_digest = read_record(item['full'])
     phase = item['phase']
+    verify_fast_record(fast)
     if (fast.get('phase') != phase or fast.get('profile') != item['profile'] or
             not fast.get('complete') or fast.get('smoke') or not fast.get('full') or
             not fast.get('source_unchanged') or not fast.get('binary_unchanged') or
@@ -227,10 +265,15 @@ def compare(item):
     if phase == '0.4' and full['effective_profile_overrides'] != fast['identity']['profile']:
         raise ValueError('fast and full 0.4 build profiles differ: ' + item['full'])
     old_rows, old_families, old_wall, old_identity = full_rows(full, phase)
+    if phase == '0.3' and (not old_identity.get('dependencies') or
+                           old_identity['dependencies'] != fast['identity'].get('dependencies')):
+        raise ValueError('0.3 full dependency bytes are missing or differ; use a fresh matched full run')
     if item.get('full_wall_seconds') is not None:
         old_wall = item['full_wall_seconds']
-    if old_wall is not None and old_wall <= 0:
+    if old_wall is not None and (not math.isfinite(old_wall) or old_wall <= 0):
         raise ValueError('invalid full-method wall duration')
+    if not math.isfinite(fast['wall_seconds']) or fast['wall_seconds'] <= 0:
+        raise ValueError('invalid fast-method wall duration')
     fast_rows = {row['case']: row for row in fast['rows']}
     fast_families = {name: value['pass'] for name, value in fast['families'].items()}
     if set(fast_rows) != set(old_rows) or set(fast_families) != set(old_families):
@@ -259,7 +302,12 @@ def compare(item):
         allowed = HISTORICAL_01X_WRAPPERS if item['revision'] == 'phase/0.1.x' else set()
         if (newer['upstream'] != older['upstream'] or
                 newer['dependencies'] != older['dependencies'] or
-                different - allowed):
+                different - allowed or
+                any(name not in older['rust_and_harness'] and
+                    Path(name).name not in {'fast_qualify.py', 'fast_stats.py', 'fast_validate.py',
+                                           'test_fast_stats.py', 'test_fast_validate.py', 'test_fast_qualify.py',
+                                           'prepare_fast_validation.py', 'run_fast_validation.py'}
+                    for name in newer['rust_and_harness'])):
             raise ValueError('0.1 full source, oracle or dependency snapshot differs')
     else:
         newer = canonical_snapshot(fast['identity']['sources'], fast.get('source_root'))
@@ -273,13 +321,15 @@ def compare(item):
         if differences - allowed:
             raise ValueError('full source, oracle or dependency snapshot differs: ' +
                              ', '.join(sorted(differences - allowed)))
-        if phase == '0.2' and (older.get('parity/codec/measure.py') != P02_MEASURE_BRIDGE['full'] or
+        if phase == '0.2' and 'parity/codec/measure.py' in differences and (older.get('parity/codec/measure.py') != P02_MEASURE_BRIDGE['full'] or
                                newer.get('parity/codec/measure.py') != P02_MEASURE_BRIDGE['fast']):
             raise ValueError('unreviewed 0.2 measure.py source bridge')
     disagreements = []
     noise = []
     for name, current in fast_rows.items():
         old = old_rows[name]
+        if phase == '0.2' and current['registered_minimum'] != old['minimum']:
+            raise ValueError('fast case changed the registered decoder floor: ' + name)
         if old.get('input_sha256') and current['input_sha256'] != old['input_sha256']:
             raise ValueError('case input differs from full record: ' + name)
         if bool(current['case_pass']) != full_case_pass(name, old, phase):
@@ -337,9 +387,19 @@ def main():
     total_families = sum(r['families'] for r in results)
     case_disagreements = [d for r in results for d in r['disagreements']]
     family_disagreements = [d for r in results for d in r['family_disagreements']]
+    pair_limits = {json.loads(Path(r['fast_record']).read_text())['sequential_error']['maximum_pairs']
+                   for r in results}
+    if len(pair_limits) != 1:
+        errors.append('all validation matrices must use the same maximum-pair limit')
     noise_pairs = []
     for item in manifest.get('smoke_noise', []):
-        a, b = (json.loads(Path(item[key]).read_text()) for key in ('single', 'parallel'))
+        try:
+            a, b = (json.loads(Path(item[key]).read_text()) for key in ('single', 'parallel'))
+            verify_fast_record(a)
+            verify_fast_record(b)
+        except (OSError, KeyError, ValueError) as error:
+            errors.append('invalid smoke record: ' + str(error))
+            continue
         if not a.get('smoke') or not b.get('smoke'):
             errors.append('noise comparison requires two labelled smoke records')
             continue
@@ -357,7 +417,10 @@ def main():
             continue
         left = {row['case']: row for row in a['rows']}
         right = {row['case']: row for row in b['rows']}
-        if left.keys() != right.keys() or a['identity'] != b['identity']:
+        if (not left or len(left) != len(a['rows']) or len(right) != len(b['rows']) or
+                left.keys() != right.keys() or a['identity'] != b['identity'] or
+                a.get('phase') != b.get('phase') or a.get('profile') != b.get('profile') or
+                any(left[name]['input_sha256'] != right[name]['input_sha256'] for name in left)):
             errors.append('smoke case/source identity differs')
             continue
         noise_pairs.append({'single': item['single'], 'parallel': item['parallel'],
@@ -412,6 +475,7 @@ def main():
               {'accepted': True, 'harness_sha256': sha(ROOT / 'parity/fast_qualify.py'),
                'statistics_sha256': sha(ROOT / 'parity/fast_stats.py'),
                'validator_sha256': sha(ROOT / 'parity/fast_validate.py'),
+               'maximum_pairs': next(iter(pair_limits)),
                'validated_records_sha256': [r['fast_sha256'] for r in results]})
     else:
         (ART / 'validation-receipt.json').unlink(missing_ok=True)

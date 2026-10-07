@@ -107,6 +107,21 @@ def module(name, path):
     return result
 
 
+def dependency_files():
+    """Hash the exact installed dependency bytes, not just lockfile versions."""
+    metadata = json.loads(subprocess.check_output(
+        ['cargo', 'metadata', '--offline', '--locked', '--format-version', '1'], cwd=ROOT))
+    result = {}
+    for package in metadata['packages']:
+        if package['source'] is None:
+            continue
+        directory = Path(package['manifest_path']).parent
+        for path in sorted(directory.rglob('*')):
+            if path.is_file():
+                result[f"{package['name']}-{package['version']}/{path.relative_to(directory)}"] = sha(path)
+    return result
+
+
 def setup(phase, profile, artifact_dir):
     for key in list(os.environ):
         if key.startswith('CARGO_PROFILE_'):
@@ -125,6 +140,7 @@ def setup(phase, profile, artifact_dir):
         for key in list(r.ENV):
             if key.startswith('CARGO_PROFILE_'):
                 del r.ENV[key]
+        r.ENV['CARGO_PROFILE_DEV_DEBUG'] = '0'
         if profile == 'moss':
             r.ENV.update(CARGO_PROFILE_RELEASE_OPT_LEVEL='3', CARGO_PROFILE_RELEASE_DEBUG='0',
                          CARGO_PROFILE_RELEASE_LTO='thin', CARGO_PROFILE_RELEASE_CODEGEN_UNITS='1')
@@ -144,14 +160,21 @@ def setup(phase, profile, artifact_dir):
     if phase == '0.3':
         os.environ['MESHOPT_RUST_PROFILE'] = profile
         r = module('fast_p03_runner', ROOT / 'parity/p03/runner.py')
+        dependencies = dependency_files()
         binaries, identity = r.build(False)
+        if dependencies != dependency_files():
+            raise ValueError('dependency changed during build')
+        identity['dependencies'] = dependencies
         return {k: str(v) for k, v in binaries.items()}, identity
     if phase == '0.4':
         m = module('fast_codec_measure', ROOT / 'parity/codec/measure.py')
         m04 = module('fast_codec_measure04', ROOT / 'parity/codec/measure04.py')
+        before = m04.runner04.sources()
         binaries = {'scalar': m.build_cpp(True), 'simd': m.build_cpp(),
                     'rust': m04.build_rust(profile)}
-        identity = {'sources': m04.runner04.sources(),
+        if before != m04.runner04.sources():
+            raise ValueError('source changed during build')
+        identity = {'sources': before,
                     'executables': {k: sha(v) for k, v in binaries.items()},
                     'profile': m04.PROFILES[profile]}
         return {k: str(v) for k, v in binaries.items()}, identity
@@ -339,7 +362,8 @@ def source_unchanged(phase, identity):
         return r.snapshot(REFERENCE) == identity['source_sha256']
     if phase == '0.3':
         r = module('fast_p03_runner', ROOT / 'parity/p03/runner.py')
-        return r.snapshot() == identity['sources']
+        return (r.snapshot() == identity['sources'] and
+                dependency_files() == identity['dependencies'])
     if phase == '0.4':
         r = module('fast_codec_runner04', ROOT / 'parity/codec/runner04.py')
     else:
@@ -349,7 +373,9 @@ def source_unchanged(phase, identity):
 
 def prior_is_qualified(previous, old, receipt):
     """A record's self-declared release_grade never substitutes for a receipt."""
-    if receipt is None or not old.get('complete') or old.get('smoke'):
+    if (receipt is None or not old.get('complete') or old.get('smoke') or
+            not old.get('source_unchanged') or not old.get('binary_unchanged') or
+            old.get('sequential_error', {}).get('maximum_pairs') != receipt.get('maximum_pairs')):
         return False
     return (sha(previous) in receipt.get('validated_records_sha256', []) or
             old.get('release_grade') is True and
@@ -361,7 +387,9 @@ def require_paths():
         if not os.environ.get(name):
             raise ValueError('set ' + name + ' explicitly before running validation')
     for path in (TARGET, ART):
-        if path == ROOT or ROOT in path.parents or path == REFERENCE or REFERENCE in path.parents:
+        if any(path == source or source in path.parents or
+                   path == TARGET and path in source.parents
+               for source in (ROOT, REFERENCE)):
             raise ValueError('target and artifacts must be outside both source trees')
     if TARGET == ART or TARGET in ART.parents or ART in TARGET.parents:
         raise ValueError('target and artifacts must be separate trees')
@@ -376,7 +404,8 @@ def validation_receipt():
             receipt.get('harness_sha256') == sha(ROOT / 'parity/fast_qualify.py') and
             receipt.get('statistics_sha256') == sha(ROOT / 'parity/fast_stats.py') and
             (ROOT / 'parity/fast_validate.py').is_file() and
-            receipt.get('validator_sha256') == sha(ROOT / 'parity/fast_validate.py')):
+            receipt.get('validator_sha256') == sha(ROOT / 'parity/fast_validate.py') and
+            20 <= receipt.get('maximum_pairs', 0) <= 90):
         return receipt
     return None
 
@@ -584,6 +613,8 @@ def main():
     families = sorted({c['family'] for c in cases})
     fingerprints = {f: fingerprint(args.phase, args.profile, identity, f) for f in families}
     receipt = validation_receipt()
+    if receipt and receipt['maximum_pairs'] != args.max_pairs:
+        receipt = None
     reused = []
     reused_families = set()
     pending = cases[:]

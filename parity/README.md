@@ -42,7 +42,8 @@ Phase 0.2 requires `MESHOPT_DECODER_BASELINE` to name the exact registered
 creates a read-only source export. `--source-tar PATH` or `--p02-source-zip PATH`
 can use retained sources. `run_fast_validation.py PLAN.json --wait --workers N`
 serializes full/fast runs and stores logs and exit receipts under the artifact
-directory. Plans supply source roots, archived records and codec input manifests;
+directory. The driver requires an empty or previously owned dedicated target
+and removes only that target after validation. Plans supply source roots, archived records and codec input manifests;
 phase 0.2 also needs `registered_baseline` and `full_input_manifest`.
 `fast_validate.py MANIFEST.json` compares complete matrices and smoke noise
 records, writes a report, and issues a receipt only on acceptance.

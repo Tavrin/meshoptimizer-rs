@@ -136,8 +136,16 @@ def physical_cores(seconds=1.0, requested=None):
         all_siblings[key] = sorted(set(members))
     cores = []
     for (package, core), siblings in groups.items():
-        busy = max(1-(after[cpu][1]-before[cpu][1])/(after[cpu][0]-before[cpu][0])
-                   for cpu in all_siblings[(package, core)])
+        loads = []
+        for cpu in all_siblings[(package, core)]:
+            if cpu not in before or cpu not in after:
+                raise ValueError('SMT sibling telemetry unavailable')
+            total = after[cpu][0] - before[cpu][0]
+            idle = after[cpu][1] - before[cpu][1]
+            if total <= 0 or not 0 <= idle <= total:
+                raise ValueError('invalid SMT sibling telemetry interval')
+            loads.append(1 - idle / total)
+        busy = max(loads)
         selected = min(siblings, key=lambda s: (s['busy_fraction'], s['cpu']))
         cores.append({'package': package, 'core': core, 'cpu': selected['cpu'],
                       'siblings': all_siblings[(package, core)],

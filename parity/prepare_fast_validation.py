@@ -10,8 +10,14 @@ import subprocess
 import tarfile
 import zipfile
 
-from fast_qualify import ART, ROOT
-from fast_validate import read_record, source_hashes
+if __package__:
+    from .fast_qualify import ART, ROOT
+else:
+    from fast_qualify import ART, ROOT
+if __package__:
+    from .fast_validate import read_record, source_hashes
+else:
+    from fast_validate import read_record, source_hashes
 
 
 def checked_path(root, relative):

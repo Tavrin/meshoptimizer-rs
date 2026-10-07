@@ -76,6 +76,8 @@ jobs:
           targets: wasm32-unknown-unknown
       - run: cargo fetch --locked
       - run: cargo fetch --locked --manifest-path parity/Cargo.toml
+      - name: Fast qualification harness self-tests (untimed)
+        run: python3 -m unittest discover -s parity -p 'test_fast*.py'
       - run: parity/check-reference.sh
       - run: parity/run.sh --phase 0.1
       - run: parity/sweep.sh --cases-per-family 2000 --seed 20261002

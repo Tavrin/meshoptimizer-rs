@@ -37,3 +37,10 @@ ratio <= 1.25 and the exact registered phase 0.2 decoder floors. Sequential
 intervals assume independent stationary samples; family-mean acceptance is
 an empirical comparison, not a confidence-sequence claim. There is no 0.5
 adapter, so this method does not qualify that matrix.
+
+Review verification on current main: cargo fmt --check, cargo clippy
+--all-targets -- -D warnings and cargo test --locked each exited 0. The
+27 untimed Python self-tests passed (exit 0), including synthetic worker
+sequencing, raw-record comparison, stale-receipt rejection and cache identity.
+These checks establish tooling behavior only. Timing agreement and speed
+remain unmeasured.

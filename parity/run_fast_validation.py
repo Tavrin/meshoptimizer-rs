@@ -11,7 +11,10 @@ import subprocess
 import sys
 import time
 
-from fast_qualify import ART, ROOT, TARGET, REFERENCE, sha, timing_status, write, require_paths
+if __package__:
+    from .fast_qualify import ART, ROOT, TARGET, REFERENCE, sha, timing_status, write, require_paths
+else:
+    from fast_qualify import ART, ROOT, TARGET, REFERENCE, sha, timing_status, write, require_paths
 
 
 def wait_admission(wait):
@@ -72,7 +75,22 @@ def run_attempt(label, command, root, artifacts, wait, journal, extra_env=None, 
             path = Path(argument) if Path(argument).is_absolute() else root / argument
             if path.is_file():
                 argument_files[str(path)] = sha(path)
+    record_inputs = {}
+    if label == 'compare':
+        if __package__:
+            from .fast_validate import read_record
+        else:
+            from fast_validate import read_record
+        manifest = json.loads(Path(key_command[-1]).read_text())
+        for item in manifest.get('comparisons', []):
+            for name in ('fast', 'full', 'full_input_manifest', 'registered_baseline', 'contemporary_full'):
+                if item.get(name):
+                    _, record_inputs[item[name]] = read_record(item[name])
+        for pair in manifest.get('smoke_noise', []):
+            for name in ('single', 'parallel'):
+                _, record_inputs[pair[name]] = read_record(pair[name])
     key = {'command': key_command, 'root': str(root), 'argument_files_sha256': argument_files,
+           'record_inputs_sha256': record_inputs,
            'source_digest': hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest(),
            'orchestrator_sha256': sha(ROOT / 'parity/run_fast_validation.py'),
            'harness_sha256': sha(ROOT / 'parity/fast_qualify.py'),
@@ -172,9 +190,18 @@ def full03(item, wait, journal):
     code = """
 import sys
 sys.path.insert(0, 'parity')
-from fast_qualify import timing_admission, admitted_cores
+from fast_qualify import timing_admission, admitted_cores, dependency_files
 sys.path.insert(0, 'parity/p03')
 import benchmark
+original_build = benchmark.r.build
+def build(*args, **kwargs):
+    dependencies = dependency_files()
+    binaries, identity = original_build(*args, **kwargs)
+    if dependencies != dependency_files():
+        raise ValueError('dependency changed during full build')
+    identity['dependencies'] = dependencies
+    return binaries, identity
+benchmark.r.build = build
 def select_cpu(folder):
     selection = admitted_cores(requested=1)
     timing_admission()
@@ -201,19 +228,26 @@ def full02(item, wait, journal):
     folder = ART / 'full-02-default'
     folder.mkdir(exist_ok=True)
     shutil.copyfile(item['registered_baseline'], folder / 'baseline.json')
-    # Reference existing content-keyed inputs instead of duplicating their bytes.
-    from fast_validate import read_record
-    old_inputs, _ = read_record(item['full_input_manifest'])
-    write(folder / 'benchmark-inputs.json', old_inputs)
     code = """
 import sys, os
 sys.path.insert(0, 'parity')
-from fast_qualify import timing_admission, admitted_cores
+from fast_qualify import timing_admission, admitted_cores, case_file, write
+from pathlib import Path
 sys.path.insert(0, 'parity/codec')
 import measure, runner
 original = runner.build
 def build():
     result = original()
+    driver = measure.Driver(result['scalar'])
+    try:
+        cases = measure.corpus(driver)
+    finally:
+        driver.close()
+    manifest = []
+    for name, data in cases:
+        item = case_file(Path(os.environ['MESHOPT_ARTIFACTS']) / 'baseline-inputs', name, data, 'inputs')
+        manifest.append({'case': name, 'path': item['input'], 'sha256': item['input_sha256']})
+    write(Path(os.environ['MESHOPT_ARTIFACTS']) / 'benchmark-inputs.json', manifest)
     selection = admitted_cores(requested=1)
     timing_admission()
     os.environ['MESHOPT_BENCH_CPU'] = str(selection['selected'][0]['cpu'])
@@ -263,6 +297,24 @@ p01x.benchmark(SimpleNamespace(consumer_profile=os.environ['FASTQ_FULL_PROFILE']
     item['contemporary_full'] = str(full)
 
 
+def claim_target():
+    marker = TARGET / '.fastq-owner.json'
+    owner = {'root': str(ROOT), 'artifacts': str(ART)}
+    if TARGET.exists() and any(TARGET.iterdir()) and (not marker.is_file() or
+                                                    json.loads(marker.read_text()) != owner):
+        raise ValueError('refusing to own or delete a non-fastq target; select an empty dedicated target')
+    write(marker, owner)
+
+
+def cleanup_target():
+    marker = TARGET / '.fastq-owner.json'
+    if TARGET.exists():
+        if not marker.is_file() or json.loads(marker.read_text()) != {'root': str(ROOT), 'artifacts': str(ART)}:
+            raise ValueError('refusing to delete an unowned target')
+        shutil.rmtree(TARGET)
+    write(ART / 'cleanup.json', {'removed': str(TARGET), 'finished_unix': time.time()})
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('plan', type=Path)
@@ -280,41 +332,42 @@ def main():
     driver_lock.truncate()
     driver_lock.write(json.dumps({'pid': os.getpid(), 'started_unix': time.time(), 'plan': str(args.plan.resolve())}) + '\n')
     driver_lock.flush()
-    plan = json.loads(args.plan.read_text())
-    journal_path = ART / 'validation-jobs.json'
-    journal = json.loads(journal_path.read_text()) if journal_path.exists() else {}
-    # Untimed checks need no timing admission; measurement jobs remain gated.
-    checks = [('python-tests', [sys.executable, '-m', 'unittest', 'parity.test_fast_stats', 'parity.test_fast_validate'])]
-    for label, manifest in [('root', 'Cargo.toml'), ('parity', 'parity/Cargo.toml'),
-                            ('codec', 'parity/codec/Cargo.toml'), ('p03', 'parity/p03/Cargo.toml')]:
-        checks += [(label + '-fmt', ['cargo', 'fmt', '--manifest-path', manifest, '--check']),
-                   (label + '-clippy', ['cargo', 'clippy', '--offline', '--locked', '--manifest-path', manifest,
-                                       '--all-targets', '--', '-D', 'warnings']),
-                   (label + '-tests', ['cargo', 'test', '--offline', '--locked', '--manifest-path', manifest])]
-    for label, command in checks:
-        run_job(label, command, ROOT, ART / 'checks', args.wait, journal)
-    for item in plan['comparisons']:
-        sync_harness(Path(item['source_root']))
-        if item['phase'] == '0.2':
-            full02(item, args.wait, journal)
-        if item['phase'] == '0.1.x':
-            full01x(item, args.wait, journal)
-        if item['phase'] == '0.3':
+    claim_target()
+    try:
+        plan = json.loads(args.plan.read_text())
+        journal_path = ART / 'validation-jobs.json'
+        journal = json.loads(journal_path.read_text()) if journal_path.exists() else {}
+        # Untimed checks need no timing admission; measurement jobs remain gated.
+        checks = [('python-tests', [sys.executable, '-m', 'unittest', 'discover', '-s', 'parity', '-p', 'test_fast*.py'])]
+        for label, manifest in [('root', 'Cargo.toml'), ('parity', 'parity/Cargo.toml'),
+                                ('codec', 'parity/codec/Cargo.toml'), ('p03', 'parity/p03/Cargo.toml')]:
+            checks += [(label + '-fmt', ['cargo', 'fmt', '--manifest-path', manifest, '--check']),
+                       (label + '-clippy', ['cargo', 'clippy', '--offline', '--locked', '--manifest-path', manifest,
+                                           '--all-targets', '--', '-D', 'warnings']),
+                       (label + '-tests', ['cargo', 'test', '--offline', '--locked', '--manifest-path', manifest])]
+        for label, command in checks:
+            run_job(label, command, ROOT, ART / 'checks', args.wait, journal)
+        for item in plan['comparisons']:
             sync_harness(Path(item['source_root']))
-            full03(item, args.wait, journal)
-        item['fast'] = run_fast(item, args.wait, journal, workers=args.workers)
+            if item['phase'] == '0.2':
+                full02(item, args.wait, journal)
+            if item['phase'] == '0.1.x':
+                full01x(item, args.wait, journal)
+            if item['phase'] == '0.3':
+                sync_harness(Path(item['source_root']))
+                full03(item, args.wait, journal)
+            item['fast'] = run_fast(item, args.wait, journal, workers=args.workers)
+            write(ART / 'validation-manifest.json', plan)
+        item = plan['comparisons'][0]
+        single = run_fast(item, args.wait, journal, smoke=True, workers=1)
+        parallel = run_fast(item, args.wait, journal, smoke=True, workers=args.workers)
+        plan['smoke_noise'] = [{'single': single, 'parallel': parallel}]
         write(ART / 'validation-manifest.json', plan)
-    item = plan['comparisons'][0]
-    single = run_fast(item, args.wait, journal, smoke=True, workers=1)
-    parallel = run_fast(item, args.wait, journal, smoke=True, workers=args.workers)
-    plan['smoke_noise'] = [{'single': single, 'parallel': parallel}]
-    write(ART / 'validation-manifest.json', plan)
-    run_job('compare', [sys.executable, ROOT / 'parity/fast_validate.py', ART / 'validation-manifest.json'],
-            ROOT, ART, args.wait, journal)
-    # This target belongs exclusively to fastq; retained evidence is outside it.
-    if TARGET.exists():
-        shutil.rmtree(TARGET)
-    write(ART / 'cleanup.json', {'removed': str(TARGET), 'finished_unix': time.time()})
+        run_job('compare', [sys.executable, ROOT / 'parity/fast_validate.py', ART / 'validation-manifest.json'],
+                ROOT, ART, args.wait, journal)
+        # This target belongs exclusively to fastq; retained evidence is outside it.
+    finally:
+        cleanup_target()
     print('Validation complete; temporary fastq build target removed.', flush=True)
 
 
