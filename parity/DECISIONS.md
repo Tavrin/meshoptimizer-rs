@@ -8207,3 +8207,15 @@ rows are not rerun and their prior verdicts are retained. No downstream,
 WASM-execution, GPU, original streaming-profile or release acceptance claim.
 Append performance/diagnosis reports; bind raw evidence by hash. Delete the
 owned 86,792,129-byte target after jobs end; commit as Tavrin, no push/trailers.
+
+## FQ-01 — Keep fast qualification provisional
+
+The fast runner adds parallel physical-core workers, alternating same-core
+pairs, an anytime median interval, smoke subsets and conservative family reuse.
+Keep the scalar C++ baseline and the existing 1.25 family geometric-mean, 1.50
+case-maximum, 1.25 memory and registered decoder-floor bars unchanged.
+No fast result is release-grade until every required same-source full/fast
+comparison and single-core/parallel noise comparison is accepted.
+Historical source gaps require fresh full records; do not guess missing identity.
+Local archives, admission settings and interrupted-run notes remain external.
+The review lands tooling only, not a performance qualification or a speed claim.

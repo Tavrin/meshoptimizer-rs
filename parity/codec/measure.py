@@ -156,13 +156,8 @@ def baseline():
     (ROOT/'parity/DECODER_BAR.md').write_text('\n'.join(lines)+'\n')
     print('BAR REGISTERED',sha(ROOT/'parity/DECODER_BAR.md'),flush=True)
 
-def candidate():
-    from runner import build,sources
-    bar=ROOT/'parity/DECODER_BAR.md'
-    if not bar.exists():raise ValueError('register the baseline before candidate measurement')
-    registered=sha(bar);baseline_record=json.loads((ART/'baseline.json').read_text())
-    assert baseline_record['registered_utc'] < time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
-    binaries=build();before=sources();identities={k:sha(v) for k,v in binaries.items()}
+def candidate_cases(binaries):
+    """The registered 0.2 candidate matrix, shared with fast qualification."""
     cases=[]
     for entry in json.loads((ART/'benchmark-inputs.json').read_text()):
         assert sha(entry['path'])==entry['sha256']
@@ -190,6 +185,16 @@ def candidate():
         _,encoded,_=cpp.call(request(12,n,4,indices,version=version))
         cases.append((f'index-2-v{version}-millions-s4',request(2,n,4,encoded)))
     cpp.close()
+    return cases
+
+def candidate():
+    from runner import build,sources
+    bar=ROOT/'parity/DECODER_BAR.md'
+    if not bar.exists():raise ValueError('register the baseline before candidate measurement')
+    registered=sha(bar);baseline_record=json.loads((ART/'baseline.json').read_text())
+    assert baseline_record['registered_utc'] < time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
+    binaries=build();before=sources();identities={k:sha(v) for k,v in binaries.items()}
+    cases=candidate_cases(binaries)
     allocating=measure(cases,{k:binaries[k] for k in ['rust','simd','scalar']},target_seconds=0.04,adaptive=True)
     into=[]
     for name,b in cases:

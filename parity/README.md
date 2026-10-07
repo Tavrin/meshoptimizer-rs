@@ -1,5 +1,57 @@
 # Differential harness
 
+## Fast performance qualification (provisional)
+
+`python3 parity/fast_qualify.py --phase 0.1 --profile moss --full` runs
+alternating C++/Rust pairs on separate physical cores, leaving four physical
+cores free and excluding busy SMT groups. Set `CARGO_TARGET_DIR`,
+`MESHOPT_ARTIFACTS` and `MESHOPT_REFERENCE` to external directories first.
+Set `MESHOPT_FAST_GPU_LEASE` to the site's lease-status script and
+`MESHOPT_FAST_SCOREBOARD_PATTERN` to its systemd unit pattern. Timing requires
+a free lease, no matching active unit, and one-minute load below 12. Unknown
+status fails closed. `MESHOPT_FAST_NOT_BEFORE` optionally sets a Unix deadline.
+On shared machines run timing through the site's resource-admission wrapper.
+
+Profiles are `moss`/`default` for 0.1, 0.1.x preprocessing and 0.4,
+`consumer`/`release-defaults` for 0.3, `default` for 0.2, and `crate` for
+historical 0.1 geometry. There is no 0.5 adapter. All results stay provisional
+until [FAST_QUALIFY_VALIDATION.md](FAST_QUALIFY_VALIDATION.md) accepts the method.
+Existing full qualification commands and bars are unchanged.
+
+`--full` disables family reuse and is required for release runs. `--prior PATH`
+can reuse complete, validated families only with identical source, build and
+case inputs. `--resume PATH` retains completed cases from an identical-source
+partial run; it is distinct from family reuse and works with `--full`.
+`--smoke` selects a small subset and is **not a qualification**.
+`--workers N` limits parallelism; default physical cores minus two is capped
+to reserve four. Records retain raw timings, core load/frequency, input and
+executable hashes, stopping intervals and reuse/resume origins.
+
+Each case spends `0.05/case_count` on an anytime median interval using
+look-n error `alpha/(n(n+1))`. Codec ratios split the budget between separate
+backend medians; phase 0.2 also splits it with the registered floor. After
+at least 12 pairs, stop when each applicable interval resolves its bar.
+Unresolved cases continue to `--max-pairs` (default 80, range 20–90), then
+retain a provisional point estimate. Coverage assumes independent stationary
+samples and does not cover nonstationary load or the family geometric mean.
+The family bar must be validated empirically against complete full matrices.
+Phase 0.2 requires `MESHOPT_DECODER_BASELINE` to name the exact registered
+`baseline.json`; rounded display tables cannot replace it.
+
+`prepare_fast_validation.py LABEL --git-revision REV --full-record PATH`
+creates a read-only source export. `--source-tar PATH` or `--p02-source-zip PATH`
+can use retained sources. `run_fast_validation.py PLAN.json --wait --workers N`
+serializes full/fast runs and stores logs and exit receipts under the artifact
+directory. Plans supply source roots, archived records and codec input manifests;
+phase 0.2 also needs `registered_baseline` and `full_input_manifest`.
+`fast_validate.py MANIFEST.json` compares complete matrices and smoke noise
+records, writes a report, and issues a receipt only on acceptance.
+Receipts bind the runner, statistics and validator. Rejected validation exits 1.
+
+Run the untimed self-tests with
+`python3 -m unittest discover -s parity -p 'test_fast*.py'`.
+
+
 This unpublished package compares the five geometry functions against the
 unmodified meshoptimizer 1.3 source checkout at
 `4c203430ca565cb59a468a91922c76c208169536`. No network is used by the scripts.
