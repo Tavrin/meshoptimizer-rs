@@ -7,18 +7,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-07
+
+Performance-only release. There are no API changes. Encoded output is
+byte-identical to 0.2.0 and to pinned meshoptimizer 1.3.
+
 ### Changed
 
-- Specialize common vertex, Oct and Exp encoder layouts; compact vertex group
-  measurements, batch exact quaternion swizzles, and use constant sequence
-  varint offsets and packed directed edge comparisons. Output bytes remain
-  identical to pinned meshoptimizer 1.3 across both versions and levels0–9.
-- Stage large owned stride-four vertex decodes in initialized blocks while
-  preserving resource limits and malformed-tail checks. The matched profile
-  passes the streaming maximum, but establishes no gain over its baseline.
-- Record one native encoder qualification stream and meshopt0.6.2 comparison.
-  Tiny Oct/Quat maxima remain failing; see
-  [round 1 evidence](parity/P03_ENCODER_PERFORMANCE.md).
+- Faster encoders. Common vertex, Oct and Exp encoder layouts are specialized.
+  Vertex group measurements are compacted, exact quaternion swizzles are
+  batched, and sequence encoding uses constant varint offsets and packed
+  directed edge comparisons. Calls on 32 or fewer Oct or Quat records use
+  specialized checked paths with less fixed setup cost.
+- Large owned stride-four vertex decodes are staged in initialized blocks.
+  Resource limits and malformed-tail checks are unchanged.
+
+### Performance
+
+Geometric mean of Rust time / C++ meshoptimizer 1.3 time per encoder family,
+allocating API. Lower is faster; 1.00 is equal.
+
+| Encoder | Before | After |
+|---|---:|---:|
+| vertex | 0.904 | 0.658 |
+| index | 1.027 | 0.920 |
+| sequence | 1.228 | 0.967 |
+| oct | 1.107 | 0.622¹ |
+| quat | 0.787 | 0.789¹ |
+| exp | 0.949 | 0.607 |
+
+- Hardware and profile: native AMD Ryzen 9 7945HX, pinned to CPU 26,
+  performance governor, boost enabled. Rust release build with fat LTO, one
+  codegen unit and a generic CPU target. C++ 1.3 built with GCC 13.3.0 at -O3,
+  with its normal runtime SIMD dispatch. Before and after use the same frozen
+  inputs and the same benchmark consumer on a shared host.
+- ¹ Oct and Quat show the released code, measured in a separate confirmation
+  stream after the change for tiny Oct and Quat calls (the first round measured
+  0.539 and 0.673 before that change).
+  In that stream the Quat mean moved from 0.747 to 0.789: a measured slowdown
+  of the family mean, still inside the 1.25 bar.
+- The tiny Oct and Quat maxima are now certified at or below 1.5× C++ time.
+  The largest 95% upper bound over the four tiny rows is 1.461.
+- Output is byte-identical: 17,264 exact parity comparisons against scalar and
+  SIMD meshoptimizer 1.3 cover vertex levels 0–9, both stream versions, both
+  APIs, varied layouts and filter precisions.
+- The 0.2.0 known exception `vertex-v1-streaming-s4` with the allocating API
+  now measures 0.958× C++ time (95% CI 0.797–1.140) in this profile. The
+  matched baseline without the staging change also passed in this measurement,
+  at 0.952×. This does not show that the historical 1.529–2.118× gap is fixed.
+  That gap was recorded in other consumer profiles, which were not rerun.
+- Cargo-default and thin-LTO consumer profiles were not rerun for 0.2.1, and
+  neither was the 0.2.0 comparison with the meshopt crate.
+
+Full rows, caller-buffer results and evidence:
+[parity/P03_ENCODER_PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.1/parity/P03_ENCODER_PERFORMANCE.md).
+
+### Known exceptions
+
+The 0.2.0 known exceptions still apply, apart from the new
+`vertex-v1-streaming-s4` measurement above:
+
+- Allocating index streaming maxima: `index-2-v0-streaming-s4` 1.508–3.625 and
+  `index-2-v1-streaming-s4` 2.189–2.465. Filtered view `view-1-streaming-s4`
+  1.343–1.636.
+- Allocating `varied-view-3-streaming-s32` is unresolved, interval 1.619–2.590.
+- Older allocating fetch failure, inconclusive overdraw and sloppy
+  simplification maxima, and Cargo-default `partition_clusters` mean / max of
+  1.450 / 1.778.
+- A malformed meshlet tail accepted by upstream scalar and rejected by upstream
+  SSE remains a strict-sweep discrepancy; Rust follows the scalar output.
 
 ## [0.2.0] - 2026-10-06
 
@@ -145,6 +202,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0
