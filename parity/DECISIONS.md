@@ -8207,3 +8207,38 @@ rows are not rerun and their prior verdicts are retained. No downstream,
 WASM-execution, GPU, original streaming-profile or release acceptance claim.
 Append performance/diagnosis reports; bind raw evidence by hash. Delete the
 owned 86,792,129-byte target after jobs end; commit as Tavrin, no push/trailers.
+
+## FQ-01 — Keep fast qualification provisional
+
+The fast runner adds parallel physical-core workers, alternating same-core
+pairs, an anytime median interval, smoke subsets and conservative family reuse.
+Keep the scalar C++ baseline and the existing 1.25 family geometric-mean, 1.50
+case-maximum, 1.25 memory and registered decoder-floor bars unchanged.
+No fast result is release-grade until every required same-source full/fast
+comparison and single-core/parallel noise comparison is accepted.
+Historical source gaps require fresh full records; do not guess missing identity.
+Local archives, admission settings and interrupted-run notes remain external.
+The review lands tooling only, not a performance qualification or a speed claim.
+
+Review fixes bind reuse to a current validation receipt and the tested maximum
+pair limit, re-read live source snapshots after sampling, hash nested build
+inputs and oracle files, and recompute case/family decisions from raw timings.
+Duplicate or partial rows cannot cover a matrix. Rejected reports revoke old
+receipts and exit 1. Untimed checks need no timing admission. Site admission
+commands and external archives are configured explicitly; target cleanup
+requires ownership. Full decoder inputs are regenerated instead of depending
+on an old machine's corpus paths. The existing candidate matrix construction
+is shared without changing its full-method measurement loop.
+
+Rebased the harness-only commit onto origin/main 6c035c18635c97ffb232da466e9f28a7f70dd5c3;
+retained main's library and decision history. On this revision cargo fmt --check,
+cargo clippy --all-targets -- -D warnings and cargo test --locked each exited 0.
+The 27 untimed Python self-tests also exit 0 and run in Linux parity CI.
+No timed validation, wall-time target, phase 0.5 adapter, cross-platform run,
+GPU acceptance or downstream integration is established by these checks.
+
+Cached report jobs bind the contents of their referenced evidence records.
+The phase 0.3 fast and fresh full adapters additionally hash installed
+dependency bytes before and after building/sampling; historical full records
+without that evidence require a fresh matched full run. These identity checks
+do not authorize any unrun timing campaign.
