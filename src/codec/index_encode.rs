@@ -316,10 +316,16 @@ pub(super) fn encode_index_sequence(
         let v = (d << 1) ^ ((d as i32) >> 31) as u32;
         // The low bit selects the baseline used for reconstruction. The check
         // above leaves at least five bytes: one bounded window per index.
-        let window: &mut [u8; 5] = (&mut out[pos..pos + 5])
-            .try_into()
-            .map_err(|_| Error::BufferTooSmall)?;
-        pos += sequence_vbyte5(window, (v << 1) | current as u32);
+        let value = (v << 1) | current as u32;
+        if value < 128 {
+            out[pos] = value as u8;
+            pos += 1;
+        } else {
+            let window: &mut [u8; 5] = (&mut out[pos..pos + 5])
+                .try_into()
+                .map_err(|_| Error::BufferTooSmall)?;
+            pos += sequence_vbyte5(window, value);
+        }
         last[current & 1] = index;
     }
     if pos > safe_end {

@@ -3,8 +3,8 @@
 from pathlib import Path
 import os, sys, json, hashlib, subprocess, shutil, struct, random, math, statistics, time
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-v03')
-TARGET=Path('/mnt/linux-extra/moss-cargo-targets/codex-meshopt-v03')
+ART=Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS','/mnt/linux-extra/moss-scratch/meshopt-v03'))
+TARGET=Path(os.environ.get('CARGO_TARGET_DIR','/mnt/linux-extra/moss-cargo-targets/codex-meshopt-v03'))
 REF=Path('/home/etienne/dev/refs/meshoptimizer')
 os.environ.update(MESHOPT_REFERENCE=str(REF),CARGO_TARGET_DIR=str(TARGET),MESHOPT_ARTIFACTS=str(ART),CARGO_INCREMENTAL='0',CARGO_PROFILE_DEV_DEBUG='0',MESHOPT_BENCH_CPU='26')
 sys.path.insert(0,str(ROOT/'parity/codec'))

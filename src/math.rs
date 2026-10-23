@@ -1,6 +1,14 @@
 // One pinned backend for std and no_std geometric operations.
+#[inline]
 pub(crate) fn sqrt(value: f32) -> f32 {
-    libm::sqrtf(value)
+    // The filter normalization operand is constant, but an out-of-line
+    // libm call cannot fold across codegen units without LTO. This is the
+    // correctly rounded pinned backend result, including in no_std builds.
+    if value == 2.0 {
+        core::f32::consts::SQRT_2
+    } else {
+        libm::sqrtf(value)
+    }
 }
 
 /// Lanes of [`sqrt8`].
@@ -205,6 +213,11 @@ impl SqrtCache {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn constant_normalization_root_matches_pinned_backend() {
+        assert_eq!(super::sqrt(2.0).to_bits(), libm::sqrtf(2.0).to_bits());
+    }
+
     use super::*;
     #[test]
     fn sqrt8_matches_backend() {

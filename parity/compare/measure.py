@@ -3,7 +3,7 @@
 from pathlib import Path
 import sys,os,json,subprocess,hashlib,time,struct,math,statistics,select,shutil,collections
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-cmp')
+ART=Path(os.environ.get('MESHOPT_COMPARE_ARTIFACTS','/mnt/linux-extra/moss-scratch/meshopt-cmp'))
 sys.path.insert(0,str(ROOT/'parity'))
 import runner,performance,quiet
 PERF=['vertex-decode','vertex-encode','vertex-encode-v0','vertex-encode-default','index-decode','index-encode','sequence-decode','sequence-encode','oct-decode','quat-decode','exp-decode','color-decode','oct-encode','quat-encode','exp-encode','color-encode','cache','cache-strip','cache-fifo','overdraw','fetch','fetch-remap','simplify','stripify','unstripify','meshlets','meshlets-scan','meshlets-flex','meshlets-spatial']
@@ -153,13 +153,17 @@ def source_check():
 def measure(profile,group):
  assert os.environ.get('MOSS_HEAVY_ACTIVE'),'CPU shared admission required'
  source_check()
+ allowed=PERF if group=='timing' else PERF+EXTRA
+ operations=os.environ['MESHOPT_COMPARE_OPERATIONS'].split(',') if 'MESHOPT_COMPARE_OPERATIONS' in os.environ else allowed
+ assert operations and len(set(operations))==len(operations) and all(op in allowed for op in operations),'invalid operation selection'
  disk();recordpath=ART/f'measure-{profile}-{group}.json';started=time.monotonic()
  identity={b:sha(ART/f'cmp-driver-{profile}-{b}') for b in ['ours','theirs']}
  if recordpath.exists():
   result=json.loads(recordpath.read_text());assert not result['completed'],'do not repeat completed streams'
   assert result['binary_sha256']==identity,'cannot resume a changed executable epoch'
+  assert result.get('operations',allowed)==operations,'cannot resume a changed operation selection'
  else:
-  result={'profile':profile,'group':group,'core':quiet.physical_core(),'started':time.time(),'binary_sha256':identity,'rows':[],'completed':False,'bursts':[]}
+  result={'profile':profile,'group':group,'operations':operations,'core':quiet.physical_core(),'started':time.time(),'binary_sha256':identity,'rows':[],'completed':False,'bursts':[]}
  rows=result['rows'];cpu=result['core']['cpu'];assert cpu in os.sched_getaffinity(0)
  burst={'pid':os.getpid(),'admission_pid':os.environ['MOSS_HEAVY_ACTIVE'],'started':time.time(),'cpu':cpu};result['bursts'].append(burst)
  def save():
@@ -170,7 +174,7 @@ def measure(profile,group):
    burst['finished']=time.time();burst['checkpoint_stop']=True;save();raise SystemExit(75)
  save()
  for name,nt,shape in CASES:
-  for op in (PERF if group=='timing' else PERF+EXTRA):
+  for op in operations:
    prior=next((r for r in rows if r['case']==name and r['operation']==op),None)
    if prior and prior.get('completed'):continue
    budget();path=ART/'inputs'/f'{name}{"-strip" if op=="unstripify" else ""}.bin';ds={}

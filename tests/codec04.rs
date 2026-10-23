@@ -387,3 +387,45 @@ fn quaternion_encoder_preserves_first_maximum_nan_and_signed_zero() {
         assert_eq!(&destination[72..], &[0xa5; 7]);
     }
 }
+
+#[test]
+fn allocating_filters_preserve_work_usage_at_each_budget_boundary() {
+    let data = [0.25; 68];
+    for family in 0..6 {
+        let output_words = match family {
+            0 | 4 => 17,
+            3 => 68,
+            _ => 34,
+        };
+        let total = 68 + output_words;
+        for limit in 0..=total + 1 {
+            let mut workspace = Workspace::new(Limits {
+                max_bytes: 1 << 20,
+                max_work: limit,
+            });
+            let result = match family {
+                0 => encode_filter_oct(17, 4, 8, &data, &mut workspace),
+                1 => encode_filter_oct(17, 8, 8, &data, &mut workspace),
+                2 => encode_filter_quat(17, 8, 8, &data, &mut workspace),
+                3 => encode_filter_exp(17, 16, 8, &data, ExpMode::Separate, &mut workspace),
+                4 => encode_filter_color(17, 4, 8, &data, &mut workspace),
+                _ => encode_filter_color(17, 8, 8, &data, &mut workspace),
+            };
+            if limit < total {
+                assert_eq!(result, Err(Error::LimitExceeded));
+            } else {
+                assert!(result.is_ok());
+            }
+            assert_eq!(
+                workspace.usage().work,
+                if limit < 68 {
+                    0
+                } else if limit < total {
+                    68
+                } else {
+                    total
+                }
+            );
+        }
+    }
+}

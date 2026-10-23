@@ -230,9 +230,48 @@ fn oct_records<const TINY: bool>(
 pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
     if data.len() <= 32 * 4 {
         quat_tiny(out, bits, data);
+    } else if let Some(selector) = coherent_quaternions(data) {
+        match selector {
+            0 => quat_coherent::<0>(out, bits, data),
+            1 => quat_coherent::<1>(out, bits, data),
+            2 => quat_coherent::<2>(out, bits, data),
+            _ => quat_coherent::<3>(out, bits, data),
+        }
     } else {
         quat_bulk(out, bits, data);
     }
+}
+
+// Check once per call so varied inputs keep the original bulk loop. Strict
+// dominance excludes ties and unordered comparisons, which use that loop too.
+fn coherent_quaternions(data: &[f32]) -> Option<usize> {
+    let q = &data[..4];
+    let mut selector = 0;
+    for i in 1..4 {
+        if q[i].abs() > q[selector].abs() {
+            selector = i;
+        }
+    }
+    data.as_chunks::<4>()
+        .0
+        .iter()
+        .all(|q| (0..4).all(|i| i == selector || q[selector].abs() > q[i].abs()))
+        .then_some(selector)
+}
+
+#[inline(never)]
+fn quat_coherent<const SELECTOR: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
+    let scale = sqrt(2.0);
+    let one = snorm(1.0, bits) & !3;
+    records(out, 8, data, |q| {
+        let sign = if q[SELECTOR] < 0.0 { -1.0 } else { 1.0 };
+        [
+            snorm(q[(SELECTOR + 1) % 4] * scale * sign, bits),
+            snorm(q[(SELECTOR + 2) % 4] * scale * sign, bits),
+            snorm(q[(SELECTOR + 3) % 4] * scale * sign, bits),
+            one | SELECTOR as i32,
+        ]
+    });
 }
 
 #[inline(never)]
@@ -419,6 +458,9 @@ fn exp_fixed<const MODE: u8, const FLOATS: usize>(
     bits: u32,
     data: &[f32],
 ) -> bool {
+    if MODE == SEPARATE && FLOATS == 4 && bits <= 22 && exp_separate4(out, bits, data) {
+        return true;
+    }
     const MIN_EXP: i32 = -100;
     const MASK: i32 = (1 << 24) - 1;
     const MAX: i32 = MASK >> 1;
@@ -477,6 +519,55 @@ fn exp_fixed<const MODE: u8, const FLOATS: usize>(
     valid
 }
 
+// For ordinary normal operands, scaling by a normal power of two changes
+// only the exponent. Quantization is an integer mantissa bias and shift.
+// bits <=22 ensures the final f32 half-add rounding cannot cross an integer
+// boundary. Zero retains its component's exponent. Other operands restart in
+// the general kernel, including subnormal scaling powers at e >=127.
+#[inline(never)]
+fn exp_separate4(out: &mut [u8], bits: u32, data: &[f32]) -> bool {
+    let mut exponents = [126i32; 4]; // biased form of the initial exponent zero
+    let shift = 25 - bits;
+    let half = 1 << (shift - 1);
+    for (record, v) in out
+        .as_chunks_mut::<16>()
+        .0
+        .iter_mut()
+        .zip(data.as_chunks::<4>().0)
+    {
+        let raw = v.map(f32::to_bits);
+        let absolute = raw.map(|x| x & 0x7fffffff);
+        let exponent = absolute.map(|x| x >> 23);
+        if !(0..4).all(|i| {
+            absolute[i] == 0 || ((26..=254).contains(&exponent[i]) && exponent[i] <= bits + 251)
+        }) {
+            return false;
+        }
+        exponents = core::array::from_fn(|i| {
+            if absolute[i] == 0 {
+                exponents[i]
+            } else {
+                exponent[i] as i32
+            }
+        });
+        let magnitude: [u32; 4] = core::array::from_fn(|i| {
+            let mantissa = if absolute[i] == 0 {
+                0
+            } else {
+                (raw[i] & 0x7fffff) | 0x800000
+            };
+            (mantissa + half) >> shift
+        });
+        for (i, word) in record.as_chunks_mut::<4>().0.iter_mut().enumerate() {
+            let sign = (raw[i] as i32) >> 31;
+            let m = (magnitude[i] as i32 ^ sign).wrapping_sub(sign);
+            let e = exponents[i] - 125 - bits as i32;
+            *word = ((m as u32 & 0xffffff) | (e as u32) << 24).to_le_bytes();
+        }
+    }
+    true
+}
+
 pub(super) fn color(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
     records(out, stride, data, |c| {
         let r = unorm(c[0], bits);
@@ -498,6 +589,31 @@ mod tiny_tests {
     use alloc::{vec, vec::Vec};
 
     use super::{oct, oct_fixed, quat, quat_bulk};
+
+    #[test]
+    fn bulk_quaternions_match_single_records_for_coherent_and_mixed_rotations() {
+        for pattern in 0..5 {
+            let data: Vec<f32> = (0..37)
+                .flat_map(|i| {
+                    let mut q = [0.125, -0.25, 0.375, -0.5];
+                    let selector = if pattern < 4 { pattern } else { i % 4 };
+                    q[selector] = if i % 2 == 0 { 1.0 } else { -1.0 };
+                    q
+                })
+                .collect();
+            for bits in 4..=16 {
+                let mut actual = vec![0; 37 * 8];
+                quat(&mut actual, bits, &data);
+                let mut expected = Vec::new();
+                for q in data.chunks_exact(4) {
+                    let mut record = [0; 8];
+                    quat(&mut record, bits, q);
+                    expected.extend_from_slice(&record);
+                }
+                assert_eq!(actual, expected, "pattern={pattern} bits={bits}");
+            }
+        }
+    }
 
     #[test]
     fn tiny_matches_bulk_at_precision_and_dispatch_boundaries() {
