@@ -1,441 +1,199 @@
 {
-  "status": "draft; final-source performance pending work-mode-off",
+  "status": "BLOCKED: repeated external delivery-gate holds; final performance unverified",
   "final_native_acceptance": null,
   "final_peer_acceptance": null,
+  "final_performance_samples": 0,
   "source_binding": {
-    "implementation_revision": "cc73d4050119ae208a8a7bb5cabae73adcbd0071",
-    "build_revision_label": "a6fc95fed7b0e4881c50127af20ca22aae00b58e",
-    "content_matches_git_commit": true,
-    "verified_files": {
-      "source": 50,
-      "consumer": 16
+    "implementation_revision": "8319f7d3624694f7f71f2fe1f45ff977c10e17d9",
+    "build_sha256": "78a4e8c15d4b433ecaa1b849e189cc8cc8a80cbc23aa9b014e0c9358c3aac0e8",
+    "registration_sha256": "bb2e15dce557a19b9ccd562cac3b22cb7f46bb92fb518f6bec368b8b7c303d02",
+    "source": {
+      "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
+      "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
+      "src/strip.rs": "92f5e49e3b9e8da606471d8c1f00bd515f03e9b0f865f8b58f2e47c2e5a3c792",
+      "src/input.rs": "04599aa36739daa5ff4c3047f95b4d066f15c11cc77094b29ec7ca2566cdc253",
+      "src/simplify.rs": "f96c04ea2e6f2096f7e9b3cd1182258936c43d2378773c0c726e86cbb351d44d",
+      "src/meshlet.rs": "5923a30f15fa9f4d355b3e4008a9f6815359f3c46fd7575a25f4dea0bda8e8e5",
+      "src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
+      "src/cache.rs": "c2724d97ec08e9c674ffc01dba9dc26265cd3e3858b82c0ca8f1c1f3c21e949d",
+      "src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
+      "src/parallel.rs": "a2f495210f0626f1f125763cc7d8fa856859dd8a3c4b9944e8b3b7dc16b8694f",
+      "src/tangent.rs": "e31665b1f146ea32ac258cb4eded8276de4b521b4b0449d8c8994b23f82dcf4e",
+      "src/overdraw.rs": "b2b1f65eed1f2c22402402086ba14a302b2188bfe7d63e39937a99ca3880f0a4",
+      "src/raster.rs": "042987f046b947ae1c48e6603ce4652c2442e904bc836dd53893eee41b5dea07",
+      "src/opacity.rs": "917aefa39df376d6ae22bf57f02d49f7e3d5cfab4f2e3eabf5bbb1d5fdb6892d",
+      "src/processing.rs": "a95e2eee270d988e7178b8054ccb0d891279883006db492d6e8ed58c3e27d9b5",
+      "src/remesh.rs": "1638a9aeb75bdd85b638be766a6f35126ce1ece8947a32a38ef66867ceee08ec",
+      "src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+      "src/remap.rs": "faaeeee5d47efe47de4c4141e8584a0d5e536aece8c0079a53ba4e939864d866",
+      "src/math.rs": "ebea3c227635d058aae15f132fe5bf96545296b7751c90c8652bccd9902b23c1",
+      "src/simplify_extra.rs": "479379cfef8e5fd0ab220fd930bf5db9ce10d285c6dce3938ac7cb62d5c2f0be",
+      "src/workspace.rs": "22c4e1e086999d16b2e9211e901c161b9058597e684516400a063e6c8282c18b",
+      "src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
+      "src/normal.rs": "0ea24cf42fcdab3f2f2593cfc223de055874e2c16290341503628fe5e65a3ec3",
+      "src/lib.rs": "ed7e54f5bbb6fcbc8914dd2a87ea122a09180f8a8faa95b55add24ae5fde581d",
+      "src/meshlet_util.rs": "6f95800d8f29ec4764b86ed0756e4816adc0337a6a4c280e16c391f187168820",
+      "src/budget.rs": "c339aa1d7e35cbe4fcacb8c94bae75ff63f755f8df2f17765294d82505a0873b",
+      "src/spatial.rs": "c1829a02b7821a5076a21be5a053154fa3e46e6439d3ce7dbda52c038128559c",
+      "src/codec/vertex.rs": "ca45d37f705b97e2e761e6600f4736d913818ec64c888f7846c087fd7ca603f7",
+      "src/codec/meshlet.rs": "72d74d24787bbaa62288435c677f8fee1f689144d0927b2fc78338c3f8f70f5f",
+      "src/codec/filter_encode.rs": "db610e73f275998218138ca9609a1ae73cb680939fb90ea0bc75771e7ebd6f29",
+      "src/codec/index.rs": "f22348f319afab7857c2620f3f1c99ff85e5cbae68890b0ee2880894e0c84877",
+      "src/codec/filter.rs": "873add008aad73fab4fd3812f9e416ff084320c960ebc5e4e96a21833a3ed3a8",
+      "src/codec/index_encode.rs": "d09cd8c00ddef25136f616124632e820e885da3be7320593f9209efd640dae1d",
+      "src/codec/encode.rs": "1fcae2a347c653fc675086a881e6b51eef0a17549f1c9b7338aa032845ba2f08",
+      "src/codec/mod.rs": "271abf3ee801bed6ef0a2ccdf03c5820d0be7b6082e809e97a68f8a11f4d88c1",
+      "src/codec/vertex_encode.rs": "660efbb48bb226329619de9d2ee75475c5ccb1dc5fa56c224d12d1b909c74dda",
+      "src/clusterlod/mod.rs": "a41370baec3e5bf07b17f5789725260322fbe6cf175c4ad54c04714364e5b2e5",
+      "src/codec/simd/dispatch.rs": "0db9cb454a0314fc111b278911f1e2bd9b5f788518fc56dd28defabf2915e9d5",
+      "src/codec/simd/aarch64.rs": "e9ed3d1830a29d5ed348ebe2cb6bc0a09b9faa352fa5ad4273658cd34db73509",
+      "src/codec/simd/wasm32.rs": "f5fa84787d4ee360239aa3c3fbdaf828e707e32e597827b24191432d0033283b",
+      "src/codec/simd/x86.rs": "98aa3f59d596ac7eef39bba74164bc78e9b226bd26f7dc8603bdbc6a8484008c",
+      "src/codec/simd/mod.rs": "f950e9a34a64e526bd065932bd0aa15f40da5e2523957ccae0d808e7673e3cf0",
+      "src/codec/simd/kernels.rs": "e08323103fc8dea3fc86dc0623bb768bcb7c2707de308c604c49b67efca9f101",
+      "src/clusterlod/support/input.rs": "b51cec4182809662d329b7e4efb81f06b114b41df407f700b984e2dbd1d22a8a",
+      "src/clusterlod/support/simplify.rs": "4e1baa97f9048439f8b8af5a2a53e83867e9a4b080873e52fa50947070b8f06d",
+      "src/clusterlod/support/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+      "src/clusterlod/support/simplify_extra.rs": "301db10220b7e7078f4f87b2dba0d672bd74a5877ff9d5675bd7eab554b0e15a",
+      "src/clusterlod/support/workspace.rs": "79859b9613aa305b4f7ba338fc91718aa04cd9d52b58d3cc38656ac136083fda",
+      "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
+      "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46"
     },
-    "registration_source_files": 109,
-    "build_sha256": "7e13eab33cd2210f88b2b41b2d8b2c08ab0069ab214226642d0a516030b3b10f",
-    "test_source_sha256": {
-      "tests/api.rs": "dfa34266d8dd786fda699c82f8ee6dd16471ce601ca186d4cf96245f2419dfab",
-      "tests/codec.rs": "eebdc6a1054cb2576a18f153dc9dcda6bc7468e331daa373d72410443de3243f",
-      "tests/codec04.rs": "6532fd0a672d621238cd7f4e7c20da77f3cb54117b2202918273582e68b05fce",
-      "tests/meshlets.rs": "e5ba1a483f4db617a600937c63d958811abef7af1aca88afaa03cc7a7a6ff296",
-      "tests/p05.rs": "33bee17cfd2d0ba6d0819819fc78550458a13ba894d1072255739c6cbe14c22c",
-      "tests/parallel.rs": "52cb056f9e39a0b8350b288f3fdd8fb0a2ae5a5db40f5867c24ce03c6f6ccdf3",
-      "tests/preprocessing.rs": "8959d2b7ea2571e3131210c8de8d639f27639b2980f734a5a5afcf1caf9b1d30",
-      "tests/simd.rs": "a7bdd46d1697fdeb807f5d155efe7f6021c7a9e87747f1006712e2c21b86cbc3"
+    "consumer": {
+      "parity/codec/Cargo.toml": "478addc44159008f2e3fa35cf8508555e6c4fe1f317e66ef445ebff7ee4fff8b",
+      "parity/codec/Cargo.lock": "e855af9672f36cb0c81360af524ef5850a2f4ffd55deaa6d3d4e6f60d9f0a4cd",
+      "parity/codec/main.rs": "2d53b6a6398370bc1d777a8d8af4d8a428d066e71ec7cb2f5fbf0f426aafb14d",
+      "parity/codec/reference.cpp": "0b1125d241616612020f9adbc51416b1495c8bd89fef626a5389a4e738766544",
+      "parity/codec/baseline.rs": "69b6c455cedc29c6103149e414828c6933519bd5ccecc67a034060956b99b4d4",
+      "parity/codec/src/lib.rs": "b0e464f8d5828ef13a57936bed7e7b5b65dff4b3062840b45081cc9b0c82e0a0",
+      "parity/encoders/Cargo.toml": "36796a1b2204f06844c0a6203e55e472de7e6683645eafedc5225e4d15761970",
+      "parity/encoders/Cargo.lock": "9887708234d535c796d811a17cad98782a842c4fe5635da02f0beffd9595ddb7",
+      "parity/encoders/reference.cpp": "88d5c71f35eeffc75c60bcba79f7507eb9d8ad2db55e8e39ed1e8bb195b39da8",
+      "parity/encoders/src/main.rs": "d454453e23fd4433bf93df20f12fa7cf724b00c5d0075559536f04ffab08ac08",
+      "parity/compare/Cargo.toml": "1c0fce2cba9e7d6922bcbebe180feb78226d1586621408fcf9a48d0865041f63",
+      "parity/compare/Cargo.lock": "41795376f3a9b0bd80ff58ca5c5786451418334247894859f17822918e071202",
+      "parity/compare/src/full.rs": "1b6da1ffb44a150398188ddb3bbdaf764a2a7743880ddd8b02f7e8b5caab7928",
+      "parity/compare/src/empty.rs": "ab2d334cf5830be69c256e242e6be4dc47ac8a714e3731eb044eab19508f7c22",
+      "parity/compare/src/main.rs": "91dd1a8a886321920d626bb6a83ca3579fe570c28448aab79157c9b4a67894b2",
+      "parity/compare/src/decode.rs": "a359b3b74b6d57cdbf61ceebbf22dfbdb128b62ad3549d28370a289b7ca30c4c"
     },
-    "tiny_functions_match_released_source": true
+    "binaries": {
+      "codec-driver-defaults": "e04a7b2ba685a1b0d5b387d4ea499ea3b922d404bf86e740d11f782badccea2e",
+      "encoder-crate-oracle-defaults": "5e4201b511bcdfe0ff1cbb78ed9500ebb17e67efc75cd45ae305d999b839203a",
+      "cmp-driver-defaults-ours": "354e92abd2c36875d64c092b713845a463f99d78f8807299ce5bde958da8c09b",
+      "cmp-driver-defaults-theirs": "32dd943f4a9eb4895d5a791892b47c19403f0a965e697a0558121777ab8ddaf4",
+      "codec-driver-moss": "fd6cbaf5af4e468ec95d4e33c9c47d85b822e6c8997cb44e2dbe1bce305b5375",
+      "encoder-crate-oracle-moss": "86f002a114feaf0f924101a2cee4a5d9a33dd5c67cce65f0874b350f4cbe12ec",
+      "cmp-driver-moss-ours": "4ccdbe37fddc3edf0240e2f7b16b294ddeca7755dc5c643361bda1433c691285",
+      "cmp-driver-moss-theirs": "c4eb3d7a84364590e3aeda410d36d7acc168e6960b79ed6a5de4db461d87354f",
+      "cpp-scalar": "5d959822128dacd35b3c9a9c83696323d9c144144639a0f6594fa63a61714ffc",
+      "cpp": "9dadcdb967ea22e5bc2f56d2ceed263fb8e9547ee325c800372e2b839bfd5bb5"
+    },
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+    "content_matches_commit": true
   },
-  "handoff": {
-    "status": "draft; final-source performance pending work-mode-off",
-    "implementation_revision": "cc73d4050119ae208a8a7bb5cabae73adcbd0071",
-    "work_mode": "ON; do not execute pending performance commands until explicitly off",
-    "pending_controller_command": "MOSS_HEAVY_USE_DECLARED=1 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/measure.sh",
-    "pending_phase_commands": [
-      "MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh reproduce defaults",
-      "MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh reproduce moss",
-      "MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh timing defaults",
-      "MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh timing moss",
-      "MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh peer defaults",
-      "MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh peer moss"
-    ],
-    "working_directory": "/home/etienne/dev/meshoptimizer-rs-wt/enc03",
-    "required_environment": {
-      "CARGO_TARGET_DIR": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03",
-      "CARGO_INCREMENTAL": "0",
-      "MOSS_HEAVY_GPU": "0",
-      "MOSS_LANE": "meshopt-enc03",
-      "MESHOPT_ENCODER_ARTIFACTS": "/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier",
-      "MESHOPT_ENCODER_BASELINE_BINARIES": "/mnt/linux-extra/moss-scratch/meshopt-enc03",
-      "MESHOPT_ENCODER_BASELINE": "/mnt/linux-extra/moss-scratch/meshopt-enc03/report.json"
-    },
-    "native_qualification": "pending 111 rows per profile plus exact historical request",
-    "peer_confirmation": "pending 40 rows per profile; final two-operation scouts are diagnostic only",
-    "correctness_checks": "PASS both profiles; checks.sh rc=0",
-    "four_lane_day_cap_exhausted": false,
-    "receipt_directory": "/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier",
-    "controller_sha256": "9d9e3d880408a927e3ae9686fd61ba15d18b5080f2b56cb0d0de71b3cdf0bff9",
-    "no_new_performance_runs_started_after_work_mode": true
-  },
-  "final_scout_diagnostic_only": {
-    "defaults": {
-      "index": {
-        "geometric_mean_case_medians": 0.8515020739963302,
-        "case_ci_envelope": [
-          0.5474419691069722,
-          1.1519668218744163
-        ]
-      },
-      "exp": {
-        "geometric_mean_case_medians": 0.5481766241707114,
-        "case_ci_envelope": [
-          0.218486798317975,
-          0.7300472128359103
-        ]
-      }
-    },
-    "moss": {
-      "index": {
-        "geometric_mean_case_medians": 0.8534295919110318,
-        "case_ci_envelope": [
-          0.6510982592321942,
-          0.9837848415377983
-        ]
-      },
-      "exp": {
-        "geometric_mean_case_medians": 0.5755167236959774,
-        "case_ci_envelope": [
-          0.5163666892946424,
-          0.7494417467424612
-        ]
-      }
-    }
-  },
-  "last_complete_earlier_source": {
-    "revision": "a6fc95fed7b0e4881c50127af20ca22aae00b58e",
-    "native_acceptance": true,
-    "peer_acceptance": false,
-    "native": {
-      "defaults": {
-        "vertex": {
-          "cases": 62,
-          "resolved": 62,
-          "geometric_mean_case_medians": 0.6668248696853645,
-          "case_ci_envelope": [
-            0.5076178011406632,
-            0.9627376642253784
-          ],
-          "maximum_case_median": 0.9580257205162459,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.5108673189422911,
-            0.9542696017941981
-          ],
-          "before_geometric_mean": 0.6634993203035203
-        },
-        "index": {
-          "cases": 14,
-          "resolved": 14,
-          "geometric_mean_case_medians": 1.039757911600262,
-          "case_ci_envelope": [
-            0.795526996772572,
-            1.2835758993114024
-          ],
-          "maximum_case_median": 1.2125337330317767,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.8170636831821375,
-            1.2325562464752875
-          ],
-          "before_geometric_mean": 1.0254816499599868
-        },
-        "sequence": {
-          "cases": 14,
-          "resolved": 14,
-          "geometric_mean_case_medians": 0.9482535615931453,
-          "case_ci_envelope": [
-            0.8873218794406605,
-            1.455582048701959
-          ],
-          "maximum_case_median": 1.0809306608898308,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.8902427830059708,
-            1.366732221690778
-          ],
-          "before_geometric_mean": 0.9527032684241364
-        },
-        "oct": {
-          "cases": 6,
-          "resolved": 6,
-          "geometric_mean_case_medians": 0.5829371460440359,
-          "case_ci_envelope": [
-            0.1705048734253615,
-            1.4971697184946662
-          ],
-          "maximum_case_median": 1.48998666591475,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.1720932590480756,
-            1.4824708364720594
-          ],
-          "before_geometric_mean": 0.5833947946370095
-        },
-        "quat": {
-          "cases": 3,
-          "resolved": 3,
-          "geometric_mean_case_medians": 0.7052653892877462,
-          "case_ci_envelope": [
-            0.21121316135193519,
-            1.4670472745440997
-          ],
-          "maximum_case_median": 1.4648337682644577,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.2098730958775097,
-            4.93124311754523
-          ],
-          "before_geometric_mean": 1.0571150059219045
-        },
-        "exp": {
-          "cases": 12,
-          "resolved": 12,
-          "geometric_mean_case_medians": 0.6170462973449814,
-          "case_ci_envelope": [
-            0.2780589941825742,
-            1.1516184904658322
-          ],
-          "maximum_case_median": 1.1233304604281458,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.27838304193262825,
-            1.093726359432466
-          ],
-          "before_geometric_mean": 0.6012727875223299
-        }
-      },
-      "moss": {
-        "vertex": {
-          "cases": 62,
-          "resolved": 62,
-          "geometric_mean_case_medians": 0.6636669611937264,
-          "case_ci_envelope": [
-            0.501837034801845,
-            0.9257904546111727
-          ],
-          "maximum_case_median": 0.9191659665448803,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.4489268860261695,
-            0.9038842379766004
-          ],
-          "before_geometric_mean": 0.6610413792501689
-        },
-        "index": {
-          "cases": 14,
-          "resolved": 14,
-          "geometric_mean_case_medians": 1.0393160253044462,
-          "case_ci_envelope": [
-            0.8332263368692059,
-            1.2534882348398109
-          ],
-          "maximum_case_median": 1.235240362133683,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.8546030624472964,
-            1.2069241674046867
-          ],
-          "before_geometric_mean": 1.020189767159808
-        },
-        "sequence": {
-          "cases": 14,
-          "resolved": 14,
-          "geometric_mean_case_medians": 0.9253981419450469,
-          "case_ci_envelope": [
-            0.8597175004673893,
-            1.0523096286786857
-          ],
-          "maximum_case_median": 1.0202789543600703,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.9111811006918906,
-            1.0935228583961059
-          ],
-          "before_geometric_mean": 0.9848351429785946
-        },
-        "oct": {
-          "cases": 6,
-          "resolved": 6,
-          "geometric_mean_case_medians": 0.5673424762529472,
-          "case_ci_envelope": [
-            0.15726149671781384,
-            1.428219084694273
-          ],
-          "maximum_case_median": 1.400506082069404,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.15484843263893414,
-            1.4545261406590702
-          ],
-          "before_geometric_mean": 0.5701607680257496
-        },
-        "quat": {
-          "cases": 3,
-          "resolved": 3,
-          "geometric_mean_case_medians": 0.6743502817275736,
-          "case_ci_envelope": [
-            0.18480229884066526,
-            1.4114370300749994
-          ],
-          "maximum_case_median": 1.3693597155002586,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.18287133492615754,
-            1.4975471884772806
-          ],
-          "before_geometric_mean": 0.6726541363424399
-        },
-        "exp": {
-          "cases": 12,
-          "resolved": 12,
-          "geometric_mean_case_medians": 0.5931002276443366,
-          "case_ci_envelope": [
-            0.2786395553228102,
-            1.0652681921047324
-          ],
-          "maximum_case_median": 1.0088690829377196,
-          "pass": true,
-          "before_case_ci_envelope": [
-            0.2779161479262425,
-            1.0328361410276021
-          ],
-          "before_geometric_mean": 0.5894021873492741
-        }
-      }
-    },
-    "peer": {
-      "defaults": {
-        "vertex": {
-          "geometric_mean_case_medians": 0.714905715281479,
-          "case_ci_envelope": [
-            0.5540847999695656,
-            0.9286290377384795
-          ],
-          "pass": true
-        },
-        "index": {
-          "geometric_mean_case_medians": 1.1277198687178107,
-          "case_ci_envelope": [
-            0.9320340047919351,
-            1.2751956832077875
-          ],
-          "pass": false
-        },
-        "sequence": {
-          "geometric_mean_case_medians": 0.982460136153406,
-          "case_ci_envelope": [
-            0.9192154491934977,
-            1.011006283685157
-          ],
-          "pass": true
-        },
-        "oct": {
-          "geometric_mean_case_medians": 0.8697092344369903,
-          "case_ci_envelope": [
-            0.7951514431295145,
-            1.1115022240007826
-          ],
-          "pass": true
-        },
-        "quat": {
-          "geometric_mean_case_medians": 0.8839124598016007,
-          "case_ci_envelope": [
-            0.801271217607038,
-            1.2762992516098188
-          ],
-          "pass": true
-        },
-        "exp": {
-          "geometric_mean_case_medians": 1.3035301726470976,
-          "case_ci_envelope": [
-            1.253347881705565,
-            1.3438585861984746
-          ],
-          "pass": false
-        },
-        "color": {
-          "geometric_mean_case_medians": 0.8288110870984913,
-          "case_ci_envelope": [
-            0.7911314220802435,
-            0.9358684577988011
-          ],
-          "pass": true
-        }
-      },
-      "moss": {
-        "vertex": {
-          "geometric_mean_case_medians": 0.7386253291187673,
-          "case_ci_envelope": [
-            0.5766676684977868,
-            0.9546272514967364
-          ],
-          "pass": true
-        },
-        "index": {
-          "geometric_mean_case_medians": 1.1252783025780961,
-          "case_ci_envelope": [
-            0.9409992057003091,
-            1.2669485833985874
-          ],
-          "pass": false
-        },
-        "sequence": {
-          "geometric_mean_case_medians": 0.9494916551698662,
-          "case_ci_envelope": [
-            0.9007631072972502,
-            0.99318967557149
-          ],
-          "pass": true
-        },
-        "oct": {
-          "geometric_mean_case_medians": 0.8737849568036765,
-          "case_ci_envelope": [
-            0.8120498270587588,
-            1.0956034590860142
-          ],
-          "pass": true
-        },
-        "quat": {
-          "geometric_mean_case_medians": 0.8833297772180223,
-          "case_ci_envelope": [
-            0.7967643959456437,
-            1.2653243226666695
-          ],
-          "pass": true
-        },
-        "exp": {
-          "geometric_mean_case_medians": 1.297159527283253,
-          "case_ci_envelope": [
-            1.2624262962211068,
-            1.3256447630249217
-          ],
-          "pass": false
-        },
-        "color": {
-          "geometric_mean_case_medians": 0.8281463198861044,
-          "case_ci_envelope": [
-            0.7819746768679738,
-            0.8741458428011802
-          ],
-          "pass": true
-        }
-      }
-    }
+  "local_ci_equivalent": "PASS 1.99.1 test job and 1.88 msrv job",
+  "source_ci": {
+    "result": "success",
+    "url": "https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40001341141"
   },
   "correctness": {
     "defaults": {
-      "parity_comparisons": 17264,
-      "parity_mismatches": 0,
-      "exp_exhaustive_components": 369098752,
-      "exp_exhaustive_mismatches": 0
+      "comparisons": 17264,
+      "mismatches": 0,
+      "exhaustive_exp_components": 369098752,
+      "capacity_requests": 7122,
+      "undefined_oracle_rows_skipped": 144
     },
     "moss": {
-      "parity_comparisons": 17264,
-      "parity_mismatches": 0,
-      "exp_exhaustive_components": 369098752,
-      "exp_exhaustive_mismatches": 0
+      "comparisons": 17264,
+      "mismatches": 0,
+      "exhaustive_exp_components": 369098752,
+      "capacity_requests": 7122,
+      "undefined_oracle_rows_skipped": 144
     }
   },
-  "checks_log_sha256": "de9207fccf3fab87c423f63ee30e42f6166da93c069a55d81fc2fb4ef0c79d52",
-  "cleanup": {
-    "path": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03",
-    "bytes_before": 465132013,
-    "less_than_10_GB": true,
-    "deleted": true,
-    "retained_binaries": "/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier",
-    "all_own_build_and_correctness_jobs_finished": true
+  "blocker": {
+    "status": "blocked by repeated external delivery-gate hold; qualification incomplete",
+    "utc": "2026-10-23T19:20:44.041783+00:00",
+    "last_admission_receipt": "heavy: waiting \u2014 held: lane meshopt-enc03 (train 97762443c8 gate first (delivery lead); released when the gate ends, until 2026-10-23 23:49:50 CEST) [capacity: available_kb=14966892 - unused_kb=15312772 - margin_kb=2097152 = free_kb=-2443032; need_kb=3145728; normal_slots=3/6; lane_slots=0/2]",
+    "decision": "stop unstarted queued attempt; do not alter holds or lane attribution; retain rebuild and correctness; no final performance claim",
+    "performance_samples_collected": 0,
+    "completed_streams_repeated": false,
+    "resume_command": "MOSS_HEAVY_USE_DECLARED=1 MOSS_HEAVY_NO_BORROW=1 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/measure.sh",
+    "source_epoch": "8319f7d3624694f7f71f2fe1f45ff977c10e17d9"
   },
+  "handoff": {
+    "status": "BLOCKED: repeated external delivery-gate holds; final performance unverified",
+    "implementation_revision": "8319f7d3624694f7f71f2fe1f45ff977c10e17d9",
+    "work_mode": "OFF per SPEC-03-finish",
+    "local_ci_equivalent": "PASS all six 1.99.1 test-job commands and both 1.88 MSRV test commands",
+    "source_ci": {
+      "result": "success",
+      "url": "https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40001341141"
+    },
+    "native_qualification": "NOT MEASURED; no verdict for GM or upper95 in either profile",
+    "peer_confirmation": "NOT MEASURED",
+    "parity": {
+      "defaults": {
+        "comparisons": 17264,
+        "mismatches": 0,
+        "exhaustive_exp_components": 369098752,
+        "capacity_requests": 7122,
+        "undefined_oracle_rows_skipped": 144
+      },
+      "moss": {
+        "comparisons": 17264,
+        "mismatches": 0,
+        "exhaustive_exp_components": 369098752,
+        "capacity_requests": 7122,
+        "undefined_oracle_rows_skipped": 144
+      }
+    },
+    "blocker": {
+      "status": "blocked by repeated external delivery-gate hold; qualification incomplete",
+      "utc": "2026-10-23T19:20:44.041783+00:00",
+      "last_admission_receipt": "heavy: waiting \u2014 held: lane meshopt-enc03 (train 97762443c8 gate first (delivery lead); released when the gate ends, until 2026-10-23 23:49:50 CEST) [capacity: available_kb=14966892 - unused_kb=15312772 - margin_kb=2097152 = free_kb=-2443032; need_kb=3145728; normal_slots=3/6; lane_slots=0/2]",
+      "decision": "stop unstarted queued attempt; do not alter holds or lane attribution; retain rebuild and correctness; no final performance claim",
+      "performance_samples_collected": 0,
+      "completed_streams_repeated": false,
+      "resume_command": "MOSS_HEAVY_USE_DECLARED=1 MOSS_HEAVY_NO_BORROW=1 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/measure.sh",
+      "source_epoch": "8319f7d3624694f7f71f2fe1f45ff977c10e17d9"
+    },
+    "receipt_directory": "/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier",
+    "required_environment": {
+      "MOSS_HEAVY_USE_DECLARED": "1",
+      "MOSS_HEAVY_NO_BORROW": "1"
+    },
+    "pending_controller_command": "MOSS_HEAVY_USE_DECLARED=1 MOSS_HEAVY_NO_BORROW=1 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/measure.sh",
+    "cleanup": {
+      "target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03",
+      "bytes_before_cleanup": 1548311264,
+      "below_10_GB": true,
+      "deleted": true,
+      "retained_binaries": "/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier"
+    },
+    "final_documentation_ci": "pending push",
+    "four_lane_day_cap_exhausted": false
+  },
+  "cleanup": {
+    "target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03",
+    "bytes_before_cleanup": 1548311264,
+    "below_10_GB": true,
+    "deleted": true,
+    "retained_binaries": "/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier"
+  },
+  "prior_numbers": "a6fc95f and scouts superseded for final acceptance; raw historical bundle retained",
   "portable_raw_evidence": {
     "path": "enc03-allocating-profiles.json.gz",
-    "sha256": "d595a92efc220d18c541f36ea7debcc835282807f5398c32708f2d51e2902053",
-    "uncompressed_sha256": "ca134dda99da9a97ff6e0f2996ec0593e67548ffda888069bf0454a1529b5a95"
-  }
+    "sha256": "7b87e616644404544d65db4a4cb8d04625bf250e5f39dab434d16d829edf1c51",
+    "uncompressed_bytes": 33128426
+  },
+  "not_verified": [
+    "final native/peer timings and intervals",
+    "downstream runtime/cook",
+    "GPU/browser execution",
+    "release fuzz budgets",
+    "universal performance"
+  ]
 }

@@ -1,52 +1,21 @@
-# SPEC-03 draft handoff — work mode ON
+# SPEC-03 finish handoff — external admission blocker
 
-Implementation commit: `cc73d4050119ae208a8a7bb5cabae73adcbd0071`. Final correctness checks pass. Final-source
-native and complete peer performance qualification is **pending**, so the spec’s
-performance done-when condition has not been established. The four-lane-day cap
-was not exhausted. No benchmark was started after work mode was enabled.
+**Incomplete: final performance qualification is blocked.** Measured-source candidate: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`; the final documentation commit preserves its source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) remains draft.
 
-The P03 report separates earlier source `a6fc95f` full native/peer results from
-the final `seen-frontier` diagnostic index/Exp scout. Do not use the earlier
-native pass or the scout as final acceptance. All failed, rejected and
-unresolved epochs remain under `/mnt/linux-extra/moss-scratch/meshopt-enc03`.
+The one-line regression-test loop now uses MSRV-stable `as_chunks::<4>()`. All exact CI test-job commands pass locally on pinned Rust 1.99.1, and both MSRV commands pass on 1.88. Global default toolchain is unchanged. [Source CI passed](https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40001341141).
 
-After Etienne explicitly turns work mode off, run headlessly from this worktree:
+The retained build controller rebuilt all binaries in fresh `seen-frontier`, regenerating source guards and binary hashes. Previous receipts are intact in `seen-frontier-pre-ci-0f04876`. Both profiles pass 17,264 parity comparisons, 369,098,752 exhaustive Exp component comparisons and capacity/edge checks with zero mismatches. Earlier `a6fc95f` numbers and diagnostic scouts are superseded for final acceptance; none qualifies this candidate.
+
+`measure.sh` was invoked headlessly without an outer heavy scope, with separate CPU-only burst admission and borrowing disabled. Its first historical-request phase never obtained admission. After an earlier delivery-gate hold released, a new hold for train `97762443c8` extended to **23:49:50 CEST on 2026-10-23**. The queued attempt was stopped with zero performance samples collected. No completed stream was repeated, and no partial measured case exists. This is an external scheduling block, not a performance pass/fail or an exhausted four-lane-day cap.
+
+Resume from this worktree only after normal admission is available:
 
 ```sh
-cd /home/etienne/dev/meshoptimizer-rs-wt/enc03
-MOSS_HEAVY_USE_DECLARED=1 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/measure.sh
+MOSS_HEAVY_USE_DECLARED=1 MOSS_HEAVY_NO_BORROW=1 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/measure.sh
 ```
 
-The retained controller exports all required environment variables, wraps every
-phase in CPU-only `moss-heavy.sh 3 timeout 840`, records distinct burst logs and
-runs these phases in order: exact historical request in defaults/Moss; all 111
-native encoder cases in defaults/Moss; all 40 shared peer cases in defaults/Moss.
-It checkpoints complete prefixes after 690 seconds. Run it without an outer
-heavy admission scope so each burst releases admission independently. The final
-report is produced only after every phase completes. No quiet-machine wait.
-The fixed target directory has been deleted; retained binaries and fixtures are
-outside it, and these timing commands do not rebuild Cargo artifacts.
+The controller runs exact historical requests, all 111 native encoder cases and all 40 shared peer cases in defaults/Moss order, with 690-second checkpoints and each burst under `moss-heavy.sh 3 timeout 840`. No quiet-machine wait. Source/binary guards must still match. Do not repeat completed streams or discard interrupted cases. After completion, apply unchanged GM ≤1.25 and every resolved upper95 ≤1.50 bars in both profiles, report unresolved A/A rows, refresh P03/CHANGELOG and portable evidence, then push and confirm final-head CI. No further optimization is authorized.
 
-The fully expanded individual phase commands are below. Export the environment
-from the controller first if invoking them individually. A completed stream must
-never be repeated; pending interrupted cases require explicit disposition.
+Durable receipts: `/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier`; blocker, CI-equivalent logs, extra-check cancellation disposition and cleanup: `/mnt/linux-extra/moss-scratch/meshopt-enc03/finish`. The fixed Cargo target was below 10 GB and deleted. Retained binaries require no Cargo rebuild to resume timing.
 
-```sh
-MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh reproduce defaults
-MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh reproduce moss
-MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh timing defaults
-MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh timing moss
-MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh peer defaults
-MOSS_HEAVY_USE_DECLARED=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 3 timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier/phase.sh peer moss
-python3 parity/encoders/report_profiles.py
-```
-
-A/A unresolved cases or breached bars block qualification; do not select the
-better of the scout and the confirmation. Source guards and binary hashes must
-still match. After measurement, refresh P03/CHANGELOG and portable evidence,
-then reassess the draft. No publish, tag, merge or downstream runtime is covered.
-
-Machine-readable handoff: `/mnt/linux-extra/moss-scratch/meshopt-enc03/handoff.json`.
-Raw final receipts: `/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier`.
-Portable evidence: [summary](../results/enc03-allocating-profiles.json) and
-[compressed receipts](../results/enc03-allocating-profiles.json.gz).
+[P03](../P03_ENCODER_PERFORMANCE.md), [portable summary](../results/enc03-allocating-profiles.json), [compressed receipts](../results/enc03-allocating-profiles.json.gz). Reversal cost: revert one test-loop line, restoring the CI lint failure; prior epochs remain inspectable but cannot qualify changed source. Not verified: final native/peer timings, downstream runtime/cook, GPU/browser execution, release fuzz budgets or universal performance. No merge, publication or tag.

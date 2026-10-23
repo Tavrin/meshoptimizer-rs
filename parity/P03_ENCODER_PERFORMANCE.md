@@ -1,5 +1,32 @@
 # Encoder performance
 
+## SPEC-03 finish: CI fixed; final performance blocked
+
+**Final-source performance acceptance: UNVERIFIED.** Source candidate `8319f7d3624694f7f71f2fe1f45ff977c10e17d9` passes the exact local CI test job on Rust 1.99.1 and both MSRV commands on 1.88. Its [pushed source CI is green](https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40001341141). The final documentation-only commit preserves measured source/consumer hashes. The PR remains draft.
+
+The retained `seen-frontier/build.sh` rebuilt every binary and regenerated source guards and hashes. Both profiles have 17,264 exact parity comparisons, 369,098,752 exhaustive Exp component comparisons, exponent/fallback/zero-carry and capacity checks with zero mismatches. The only new source edit is a regression-test loop using `as_chunks::<4>()`; no encoded path, API, threshold or CI workflow changed.
+
+Final measurement was invoked in the prescribed order through `measure.sh`, headlessly, without an outer heavy scope or quiet-machine wait. No borrowing was allowed. The first historical-request burst remained queued: an earlier delivery-gate hold released, but a renewed hold for train `97762443c8` blocks the lane until 23:49:50 CEST on 2026-10-23. The still-unstarted attempt was stopped; zero timing samples were collected, no completed stream was repeated and no interrupted measured case was discarded. This external admission blocker prevents completion of SPEC-03-finish. The four-lane-day cap is not declared exhausted.
+
+| Family | Cargo defaults final GM / case CI | Moss final GM / case CI | GM ≤1.25 | Every resolved upper95 ≤1.50 |
+|---|---|---|---|---|
+| vertex | Not measured | Not measured | Unverified | Unverified |
+| index | Not measured | Not measured | Unverified | Unverified |
+| sequence | Not measured | Not measured | Unverified | Unverified |
+| oct | Not measured | Not measured | Unverified | Unverified |
+| quat | Not measured | Not measured | Unverified | Unverified |
+| exp | Not measured | Not measured | Unverified | Unverified |
+
+The exact historical owned request and complete shared-peer refresh are also unmeasured on this candidate. No final intervals or pass/fail performance verdict can be reported. Earlier `a6fc95f` numbers and the pre-CI scout are **superseded for final acceptance**, preserved below as historical evidence only. All bars remain unchanged: family GM ≤1.25, every resolved case upper95 ≤1.50 in both profiles; unresolved A/A controls block qualification. The separate peer-family target remains ≤1.00.
+
+Fresh build, registration, parity and per-burst queue receipts: `/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier`. Previous guarded epoch: `seen-frontier-pre-ci-0f04876`. Blocker and exact local gates: `/mnt/linux-extra/moss-scratch/meshopt-enc03/finish`. A redundant extra MSRV compile check was canceled while queued after both required MSRV test commands had passed; native tests/lint and both capacity matrices had completed. Local wasm compilation was not repeated by that extra controller; pushed source CI's wasm job passed. The Cargo target was below 10 GB and deleted, leaving all retained binaries available.
+
+[Resume command and controls](encoders/ENC03_HANDOFF.md), [portable summary](results/enc03-allocating-profiles.json), [compressed raw receipts](results/enc03-allocating-profiles.json.gz). Not verified: final native/peer performance, downstream Moss runtime/cook, GPU/browser execution, release fuzz budgets or universal speed. Reversal cost: reverting one test-loop line restores the CI lint failure; historical receipts cannot qualify changed source.
+
+## Superseded pre-finish snapshot
+
+The following snapshot records the previous handoff and its earlier numbers. Its work-mode and pending-status statements describe that earlier handoff, not the current OFF-but-admission-blocked state.
+
 ## SPEC-03: allocating encoder candidate; final timings pending
 
 **Final-source performance acceptance: PENDING.** Work mode was enabled before this candidate’s full native and peer confirmation streams began. No further performance run was started. Correctness work is complete. The four-lane-day cap was not exhausted; the spec’s performance done-when condition has not been established. This branch is a draft handoff, not a qualified release.
@@ -93,6 +120,9 @@ Native allocating C++ index/sequence now derives the same range bound inside the
 Wasm execution, other architectures, downstream Moss cook/runtime, release fuzz budgets, general geometry performance, and final-source native/complete-peer performance are not verified. Rejected FIFO, version specialization, wrapper inlining/precharge and generalized-arithmetic experiments remain in the scratch milestone ledger. The target was below 10 GB and deleted after correctness work; copied binaries, fixtures and notes remain available.
 
 Exact pending commands and controls: [ENC03_HANDOFF.md](encoders/ENC03_HANDOFF.md). Run only after work mode is explicitly off. Portable [summary](results/enc03-allocating-profiles.json) and [raw receipts](results/enc03-allocating-profiles.json.gz) distinguish final correctness/scouts from earlier qualification. See [harness policy](encoders/README.md).
+
+---
+
 
 ---
 
