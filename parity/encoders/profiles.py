@@ -110,10 +110,10 @@ def prepare():
     save(ART / 'registration.json', {
         'source': inventory(), 'reference': '4c203430ca565cb59a468a91922c76c208169536',
         'profiles': {'defaults': {'lto': False, 'codegen_units': 16}, 'moss': {'lto': 'thin', 'codegen_units': 1}},
-        'cpu': 26, 'pairs': [5, 40], 'target_seconds': .025,
+        'cpu': 26, 'pairs': [5, 256], 'target_seconds': .025,
         'family_gm_limit': 1.25, 'case_upper95_limit': 1.5, 'peer_family_gm_limit': 1.0,
         'aa_interval_bounds': [.8, 1.25], 'historical_request': HISTORICAL,
-        'rule': 'At each complete pair from 5 through 40, stop if the case interval is wholly on one side of 1.5 and both A/A intervals resolve. Retain every sample and unresolved case.',
+        'rule': 'Check after 5 complete pairs. If the interval is not wholly on one side of 1.5 or either A/A interval fails resolution, collect exactly 256 pairs with no intermediate confidence decisions. Retain every sample and unresolved case.',
         'calibration': 'one identical timed probe per Rust/C++ and duplicate process before iteration selection',
         'burst_seconds': 690, 'input_sha256': lane.sha(ART / 'inputs.json'),
     })
@@ -169,7 +169,7 @@ def measure(profile, group):
                    'iterations': iterations, 'calibration_seconds': calibration, 'samples': [], 'completed': False}
             result['rows'].append(row)
             save(path, result)
-            for pair in range(40):
+            for pair in range(256):
                 keys = list(ds)
                 keys = keys[pair % len(keys):] + keys[:pair % len(keys)]
                 if pair % 2:
@@ -184,7 +184,7 @@ def measure(profile, group):
                     save(path, result)
                 row['samples'].append(sample)
                 del row['pending_pair']
-                if pair >= 4:
+                if pair in (4, 255):
                     values = [s['seconds'] for s in row['samples']]
                     ratios = [v['rust'] / v['cpp'] for v in values]
                     ci = interval(ratios)

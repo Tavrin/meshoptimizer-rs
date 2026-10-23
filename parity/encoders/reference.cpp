@@ -122,7 +122,16 @@ int main() {
                     usedResult=used; status=used?0:-2;
                 } else if (op==12 || op==13) {
                     meshopt_encodeIndexVersion(version);
-                    size_t bound=op==12?meshopt_encodeIndexBufferBound(count,0x100000000ull):meshopt_encodeIndexSequenceBound(count,0x100000000ull);
+                    // Match the allocating Rust API's bound and its required
+                    // range derivation. Caller-buffer requests retain the
+                    // original worst-case bound/capacity contract.
+                    uint64_t vertices=0x100000000ull;
+                    if (!(mode&128)) {
+                        unsigned int all=0;
+                        for (unsigned int index:indices) all|=index;
+                        vertices=indices.empty()?0:uint64_t(all)+1;
+                    }
+                    size_t bound=op==12?meshopt_encodeIndexBufferBound(count,size_t(vertices)):meshopt_encodeIndexSequenceBound(count,size_t(vertices));
                     output(filter?capacity:bound);
                     size_t used=op==12?meshopt_encodeIndexBuffer(result.data(),result.size(),indices.data(),count):meshopt_encodeIndexSequence(result.data(),result.size(),indices.data(),count);
                     usedResult=used; status=used?0:-2;

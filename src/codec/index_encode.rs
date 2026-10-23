@@ -69,26 +69,13 @@ fn sequence_vbyte5(out: &mut [u8; 5], mut v: u32) -> usize {
     5
 }
 
-#[inline(always)]
-fn vbyte5(out: &mut [u8; 5], mut v: u32) -> usize {
-    let mut n = 0;
-    loop {
-        out[n] = (v & 127) as u8 | if v > 127 { 128 } else { 0 };
-        n += 1;
-        v >>= 7;
-        if v == 0 || n == 5 {
-            return n;
-        }
-    }
-}
-
 /// Zigzag delta varint. Callers guarantee sixteen bytes per triangle after
 /// the reference's slack check, so the five-byte window is always in range.
 #[inline]
 fn encode_index(out: &mut [u8], pos: &mut usize, index: u32, last: u32) {
     let d = index.wrapping_sub(last);
     if let Ok(window) = <&mut [u8; 5]>::try_from(&mut out[*pos..*pos + 5]) {
-        *pos += vbyte5(window, (d << 1) ^ ((d as i32) >> 31) as u32);
+        *pos += sequence_vbyte5(window, (d << 1) ^ ((d as i32) >> 31) as u32);
     }
 }
 
@@ -146,12 +133,24 @@ pub(super) fn encode_index_buffer(
     indices: &[u32],
     version: u8,
 ) -> Result<usize, Error> {
+    match version {
+        0 => encode_index_buffer_version::<0>(out, indices),
+        1 => encode_index_buffer_version::<1>(out, indices),
+        _ => Err(Error::UnsupportedVersion),
+    }
+}
+
+// Keep the per-triangle version decisions constant in both consumer profiles.
+fn encode_index_buffer_version<const VERSION: u8>(
+    out: &mut [u8],
+    indices: &[u32],
+) -> Result<usize, Error> {
     let triangles = indices.len() / 3;
     // Header, one code byte per triangle and the sixteen-byte code table.
     if out.len() < 1 + triangles + 16 {
         return Err(Error::BufferTooSmall);
     }
-    out[0] = INDEX_HEADER | version;
+    out[0] = INDEX_HEADER | VERSION;
     let mut f = Fifos {
         edges: [u64::MAX; 16],
         vertices: [u32::MAX; 16],
@@ -166,7 +165,7 @@ pub(super) fn encode_index_buffer(
     let mut data = 0usize;
     // Offsets in data_region are relative to 1 + triangles.
     let safe = safe_end - (1 + triangles);
-    let fec_max = if version >= 1 { 13 } else { 15 };
+    let fec_max = if VERSION >= 1 { 13 } else { 15 };
     for (tri, code) in indices.as_chunks::<3>().0.iter().zip(codes.iter_mut()) {
         // Each triangle writes at most sixteen bytes after this check.
         if data > safe {
@@ -186,7 +185,7 @@ pub(super) fn encode_index_buffer(
                     }
                     _ => 15,
                 };
-                if fec == 15 && version >= 1 {
+                if fec == 15 && VERSION >= 1 {
                     // Encode last-1 and last+1 for strip-like sequences.
                     if c.wrapping_add(1) == last {
                         fec = 13;
@@ -218,7 +217,7 @@ pub(super) fn encode_index_buffer(
                 };
                 let (a, b, c) = rotate(tri, rotation);
                 let mut reset = false;
-                if a == 0 && b == 1 && c == 2 && next > 0 && version >= 1 {
+                if a == 0 && b == 1 && c == 2 && next > 0 && VERSION >= 1 {
                     reset = true;
                     next = 0;
                     // Never reference vertices from before the restart.

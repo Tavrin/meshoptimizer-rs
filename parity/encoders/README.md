@@ -10,7 +10,8 @@ Set `CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03`
 and `CARGO_INCREMENTAL=0`. Every command below must run through
 `MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-enc03
 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh <GB> timeout 840 <command>`.
-Declare 6 GB for builds and 3 GB for preparation, parity and measurements.
+Declare 3 GB for these builds, preparation, parity and measurements (measured
+controller peak RSS was below 1.2 GiB).
 The wrapper waits for RAM admission; no quiet-machine wait is used.
 
 1. `python3 parity/encoders/build_profiles.py`
@@ -33,11 +34,12 @@ the exact decoder request must hash to
 The upstream campaign uses CPU26, rotating/reversing interleaved pairs and
 independent Rust/C++ duplicate processes for A/A resolution. All timed
 processes receive the same calibration request before iteration selection. Batches calibrate
-to 25 ms. From 5 through 40 complete pairs, stop when the nominal paired-log
-Student-t interval lies on one side of 1.50 and both A/A intervals lie within
-[0.8, 1.25]. Bursts checkpoint after 690 seconds, below the 15-minute limit.
+to 25 ms. Check at five complete pairs. If the nominal paired-log Student-t interval
+is not wholly on one side of 1.50, or either A/A interval is outside [0.8, 1.25],
+collect exactly 256 pairs with no intermediate confidence decisions. This
+precision rule is registered for every case before a new campaign begins. Bursts checkpoint after 690 seconds, below the 15-minute limit.
 For more than 20 pairs, the 20-pair critical value is retained as a
-conservative bound. The original 8 ms/20-pair epochs remain separate receipts.
+conservative bound. The original 8 ms/20-pair and 25 ms/40-pair epochs remain separate receipts.
 All samples, failed rows and unresolved rows remain; unresolved rows prevent
 qualification. Completed streams cannot be rerun. Interrupted cases are retained
 and require an explicit disposition, rather than silent repetition.
@@ -74,3 +76,11 @@ both signs at precisions 1..22 with scalar C++ 1.3: 369,098,752 quantized
 components per profile. The normal exponent is representative of the exact
 power-of-two scaling domain; `exp_edges.py` covers the exponent guards,
 zero carry and the general fallback separately.
+
+The native allocating index/sequence oracle derives the same range-dependent
+bound as Rust, including its required OR scan inside the timed call. Earlier
+native receipts used a fixed worst-case 32-bit bound and therefore different
+allocation sizes; they remain legacy evidence. Caller-buffer capacity semantics
+are unchanged. The peer adapter continues to use its existing known vertex
+count and is reported separately; its original workload is not slowed to meet
+a target.

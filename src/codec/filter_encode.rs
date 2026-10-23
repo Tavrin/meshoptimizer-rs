@@ -230,48 +230,63 @@ fn oct_records<const TINY: bool>(
 pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
     if data.len() <= 32 * 4 {
         quat_tiny(out, bits, data);
-    } else if let Some(selector) = coherent_quaternions(data) {
-        match selector {
+    } else {
+        let q = &data[..4];
+        let mut selector = 0;
+        for i in 1..4 {
+            if q[i].abs() > q[selector].abs() {
+                selector = i;
+            }
+        }
+        let consumed = match selector {
             0 => quat_coherent::<0>(out, bits, data),
             1 => quat_coherent::<1>(out, bits, data),
             2 => quat_coherent::<2>(out, bits, data),
             _ => quat_coherent::<3>(out, bits, data),
+        };
+        if consumed * 4 < data.len() {
+            quat_bulk(&mut out[consumed * 8..], bits, &data[consumed * 4..]);
         }
-    } else {
-        quat_bulk(out, bits, data);
     }
 }
 
-// Check once per call so varied inputs keep the original bulk loop. Strict
-// dominance excludes ties and unordered comparisons, which use that loop too.
-fn coherent_quaternions(data: &[f32]) -> Option<usize> {
-    let q = &data[..4];
-    let mut selector = 0;
-    for i in 1..4 {
-        if q[i].abs() > q[selector].abs() {
-            selector = i;
-        }
-    }
-    data.as_chunks::<4>()
-        .0
-        .iter()
-        .all(|q| (0..4).all(|i| i == selector || q[selector].abs() > q[i].abs()))
-        .then_some(selector)
-}
-
+// Emit a coherent prefix once, then let the original bulk kernel handle the
+// remainder. Strict dominance preserves ties and unordered comparisons by
+// sending the first such block to that kernel without writing it here.
 #[inline(never)]
-fn quat_coherent<const SELECTOR: usize>(out: &mut [u8], bits: u32, data: &[f32]) {
+fn quat_coherent<const SELECTOR: usize>(out: &mut [u8], bits: u32, data: &[f32]) -> usize {
     let scale = sqrt(2.0);
     let one = snorm(1.0, bits) & !3;
-    records(out, 8, data, |q| {
-        let sign = if q[SELECTOR] < 0.0 { -1.0 } else { 1.0 };
-        [
-            snorm(q[(SELECTOR + 1) % 4] * scale * sign, bits),
-            snorm(q[(SELECTOR + 2) % 4] * scale * sign, bits),
-            snorm(q[(SELECTOR + 3) % 4] * scale * sign, bits),
-            one | SELECTOR as i32,
-        ]
-    });
+    let mut consumed = 0;
+    for (block, input) in out
+        .as_chunks_mut::<32>()
+        .0
+        .iter_mut()
+        .zip(data.as_chunks::<16>().0)
+    {
+        let valid: [bool; 4] = core::array::from_fn(|r| {
+            let q = &input[r * 4..r * 4 + 4];
+            let largest = q[SELECTOR].abs();
+            ((SELECTOR == 0) | (largest > q[0].abs()))
+                & ((SELECTOR == 1) | (largest > q[1].abs()))
+                & ((SELECTOR == 2) | (largest > q[2].abs()))
+                & ((SELECTOR == 3) | (largest > q[3].abs()))
+        });
+        if !valid.into_iter().all(core::convert::identity) {
+            break;
+        }
+        records(block, 8, input, |q| {
+            let sign = if q[SELECTOR] < 0.0 { -1.0 } else { 1.0 };
+            [
+                snorm(q[(SELECTOR + 1) % 4] * scale * sign, bits),
+                snorm(q[(SELECTOR + 2) % 4] * scale * sign, bits),
+                snorm(q[(SELECTOR + 3) % 4] * scale * sign, bits),
+                one | SELECTOR as i32,
+            ]
+        });
+        consumed += 4;
+    }
+    consumed
 }
 
 #[inline(never)]
@@ -529,6 +544,7 @@ fn exp_separate4(out: &mut [u8], bits: u32, data: &[f32]) -> bool {
     let mut exponents = [126i32; 4]; // biased form of the initial exponent zero
     let shift = 25 - bits;
     let half = 1 << (shift - 1);
+    let maximum_exponent = (bits + 251).min(254);
     for (record, v) in out
         .as_chunks_mut::<16>()
         .0
@@ -538,9 +554,10 @@ fn exp_separate4(out: &mut [u8], bits: u32, data: &[f32]) -> bool {
         let raw = v.map(f32::to_bits);
         let absolute = raw.map(|x| x & 0x7fffffff);
         let exponent = absolute.map(|x| x >> 23);
-        if !(0..4).all(|i| {
-            absolute[i] == 0 || ((26..=254).contains(&exponent[i]) && exponent[i] <= bits + 251)
-        }) {
+        let eligible: [bool; 4] = core::array::from_fn(|i| {
+            (absolute[i] == 0) | ((exponent[i] >= 26) & (exponent[i] <= maximum_exponent))
+        });
+        if !eligible.into_iter().all(core::convert::identity) {
             return false;
         }
         exponents = core::array::from_fn(|i| {
