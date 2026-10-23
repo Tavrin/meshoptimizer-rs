@@ -429,3 +429,44 @@ fn allocating_filters_preserve_work_usage_at_each_budget_boundary() {
         }
     }
 }
+
+#[test]
+fn exp_separate_zero_records_inherit_each_component_exponent() {
+    let data = [
+        0.125, -2.0, 32.0, -0.0, 0.0, -0.0, 0.0, 16.0, 0.5, 0.0, -0.25, 0.0, -0.0, 4.0, -0.0, -0.0,
+        0.0, 0.0, 0.0, 0.0,
+    ];
+    // Scalar meshoptimizer 1.3, Separate mode, 20 bits. Each zero must
+    // inherit its own component's last exponent, including negative zero.
+    let words: [u32; 20] = [
+        0xeb040000, 0xeffc0000, 0xf3040000, 0xed000000, 0xeb000000, 0xef000000, 0xf3000000,
+        0xf2040000, 0xed040000, 0xef000000, 0xecfc0000, 0xf2000000, 0xed000000, 0xf0040000,
+        0xec000000, 0xf2000000, 0xed000000, 0xf0000000, 0xec000000, 0xf2000000,
+    ];
+    let expected: Vec<_> = words.into_iter().flat_map(u32::to_le_bytes).collect();
+    assert_eq!(
+        encode_filter_exp(
+            5,
+            16,
+            20,
+            &data,
+            ExpMode::Separate,
+            &mut Workspace::default()
+        )
+        .unwrap(),
+        expected
+    );
+    let mut destination = [0xa5; 87];
+    encode_filter_exp_into(
+        &mut destination,
+        5,
+        16,
+        20,
+        &data,
+        ExpMode::Separate,
+        &mut Workspace::default(),
+    )
+    .unwrap();
+    assert_eq!(&destination[..80], expected);
+    assert_eq!(&destination[80..], &[0xa5; 7]);
+}

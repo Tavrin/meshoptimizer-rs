@@ -38,7 +38,7 @@ T95 = (0, 0, 0, 0, 0, 2.776445, 2.570582, 2.446912, 2.364624, 2.306004,
 
 def save(path, value):
     temp = path.with_suffix('.tmp')
-    temp.write_text(json.dumps(value, indent=2) + '\n')
+    temp.write_text(json.dumps(value, separators=(',', ':')) + '\n')
     temp.replace(path)
 
 

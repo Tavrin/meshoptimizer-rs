@@ -541,10 +541,11 @@ fn exp_fixed<const MODE: u8, const FLOATS: usize>(
 // the general kernel, including subnormal scaling powers at e >=127.
 #[inline(never)]
 fn exp_separate4(out: &mut [u8], bits: u32, data: &[f32]) -> bool {
-    let mut exponents = [126i32; 4]; // biased form of the initial exponent zero
+    let mut exponents = [126u32; 4]; // biased form of the initial exponent zero
     let shift = 25 - bits;
     let half = 1 << (shift - 1);
     let maximum_exponent = (bits + 251).min(254);
+    let maximum_offset = ((maximum_exponent - 26) << 23) | 0x7fffff;
     for (record, v) in out
         .as_chunks_mut::<16>()
         .0
@@ -553,33 +554,27 @@ fn exp_separate4(out: &mut [u8], bits: u32, data: &[f32]) -> bool {
     {
         let raw = v.map(f32::to_bits);
         let absolute = raw.map(|x| x & 0x7fffffff);
-        let exponent = absolute.map(|x| x >> 23);
-        let eligible: [bool; 4] = core::array::from_fn(|i| {
-            (absolute[i] == 0) | ((exponent[i] >= 26) & (exponent[i] <= maximum_exponent))
+        let nonzero = absolute.map(|x| u32::from(x != 0).wrapping_neg());
+        // Integer masks permit one reduction without short-circuit component
+        // branches. A zero is eligible regardless of the normal exponent range.
+        let invalid: [u32; 4] = core::array::from_fn(|i| {
+            u32::from(absolute[i].wrapping_sub(26 << 23) > maximum_offset) & nonzero[i]
         });
-        if !eligible.into_iter().all(core::convert::identity) {
+        if invalid.into_iter().fold(0, |a, b| a | b) != 0 {
             return false;
         }
         exponents = core::array::from_fn(|i| {
-            if absolute[i] == 0 {
-                exponents[i]
-            } else {
-                exponent[i] as i32
-            }
+            (exponents[i] & !nonzero[i]) | ((absolute[i] >> 23) & nonzero[i])
         });
         let magnitude: [u32; 4] = core::array::from_fn(|i| {
-            let mantissa = if absolute[i] == 0 {
-                0
-            } else {
-                (raw[i] & 0x7fffff) | 0x800000
-            };
+            let mantissa = ((raw[i] & 0x7fffff) | 0x800000) & nonzero[i];
             (mantissa + half) >> shift
         });
         for (i, word) in record.as_chunks_mut::<4>().0.iter_mut().enumerate() {
             let sign = (raw[i] as i32) >> 31;
             let m = (magnitude[i] as i32 ^ sign).wrapping_sub(sign);
-            let e = exponents[i] - 125 - bits as i32;
-            *word = ((m as u32 & 0xffffff) | (e as u32) << 24).to_le_bytes();
+            let e = exponents[i].wrapping_sub(125 + bits);
+            *word = ((m as u32 & 0xffffff) | e << 24).to_le_bytes();
         }
     }
     true

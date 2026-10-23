@@ -69,13 +69,26 @@ fn sequence_vbyte5(out: &mut [u8; 5], mut v: u32) -> usize {
     5
 }
 
+#[inline(always)]
+fn vbyte5(out: &mut [u8; 5], mut v: u32) -> usize {
+    let mut n = 0;
+    loop {
+        out[n] = (v & 127) as u8 | if v > 127 { 128 } else { 0 };
+        n += 1;
+        v >>= 7;
+        if v == 0 || n == 5 {
+            return n;
+        }
+    }
+}
+
 /// Zigzag delta varint. Callers guarantee sixteen bytes per triangle after
 /// the reference's slack check, so the five-byte window is always in range.
 #[inline]
 fn encode_index(out: &mut [u8], pos: &mut usize, index: u32, last: u32) {
     let d = index.wrapping_sub(last);
     if let Ok(window) = <&mut [u8; 5]>::try_from(&mut out[*pos..*pos + 5]) {
-        *pos += sequence_vbyte5(window, (d << 1) ^ ((d as i32) >> 31) as u32);
+        *pos += vbyte5(window, (d << 1) ^ ((d as i32) >> 31) as u32);
     }
 }
 
@@ -112,8 +125,26 @@ struct Fifos {
     vertices: [u32; 16],
     edge_offset: usize,
     vertex_offset: usize,
+    vertex_max: u32,
 }
 impl Fifos {
+    #[inline]
+    fn find_vertex(&self, v: u32) -> Option<usize> {
+        // Every real entry is <= vertex_max. The initial MAX sentinels
+        // remain observable to the reference lookup and must not be skipped.
+        if v > self.vertex_max && v != u32::MAX {
+            None
+        } else {
+            vertex_fifo(&self.vertices, v, self.vertex_offset)
+        }
+    }
+
+    #[inline]
+    fn reset_vertices(&mut self) {
+        self.vertices = [u32::MAX; 16];
+        self.vertex_max = 0;
+    }
+
     #[inline]
     fn push_edge(&mut self, a: u32, b: u32) {
         self.edges[self.edge_offset] = edge_pair(a, b);
@@ -121,6 +152,7 @@ impl Fifos {
     }
     #[inline]
     fn push_vertex(&mut self, v: u32) {
+        self.vertex_max = self.vertex_max.max(v);
         self.vertices[self.vertex_offset] = v;
         self.vertex_offset = (self.vertex_offset + 1) & 15;
     }
@@ -133,29 +165,18 @@ pub(super) fn encode_index_buffer(
     indices: &[u32],
     version: u8,
 ) -> Result<usize, Error> {
-    match version {
-        0 => encode_index_buffer_version::<0>(out, indices),
-        1 => encode_index_buffer_version::<1>(out, indices),
-        _ => Err(Error::UnsupportedVersion),
-    }
-}
-
-// Keep the per-triangle version decisions constant in both consumer profiles.
-fn encode_index_buffer_version<const VERSION: u8>(
-    out: &mut [u8],
-    indices: &[u32],
-) -> Result<usize, Error> {
     let triangles = indices.len() / 3;
     // Header, one code byte per triangle and the sixteen-byte code table.
     if out.len() < 1 + triangles + 16 {
         return Err(Error::BufferTooSmall);
     }
-    out[0] = INDEX_HEADER | VERSION;
+    out[0] = INDEX_HEADER | version;
     let mut f = Fifos {
         edges: [u64::MAX; 16],
         vertices: [u32::MAX; 16],
         edge_offset: 0,
         vertex_offset: 0,
+        vertex_max: 0,
     };
     let mut next = 0u32;
     let mut last = 0u32;
@@ -165,7 +186,7 @@ fn encode_index_buffer_version<const VERSION: u8>(
     let mut data = 0usize;
     // Offsets in data_region are relative to 1 + triangles.
     let safe = safe_end - (1 + triangles);
-    let fec_max = if VERSION >= 1 { 13 } else { 15 };
+    let fec_max = if version >= 1 { 13 } else { 15 };
     for (tri, code) in indices.as_chunks::<3>().0.iter().zip(codes.iter_mut()) {
         // Each triangle writes at most sixteen bytes after this check.
         if data > safe {
@@ -176,7 +197,7 @@ fn encode_index_buffer_version<const VERSION: u8>(
             Some(fer) if (fer >> 2) < 15 => {
                 let (a, b, c) = rotate(tri, fer & 3);
                 let fe = fer >> 2;
-                let fc = vertex_fifo(&f.vertices, c, f.vertex_offset);
+                let fc = f.find_vertex(c);
                 let mut fec = match fc {
                     Some(fc) if fc >= 1 && fc < fec_max => fc,
                     _ if c == next => {
@@ -185,7 +206,7 @@ fn encode_index_buffer_version<const VERSION: u8>(
                     }
                     _ => 15,
                 };
-                if fec == 15 && VERSION >= 1 {
+                if fec == 15 && version >= 1 {
                     // Encode last-1 and last+1 for strip-like sequences.
                     if c.wrapping_add(1) == last {
                         fec = 13;
@@ -217,14 +238,14 @@ fn encode_index_buffer_version<const VERSION: u8>(
                 };
                 let (a, b, c) = rotate(tri, rotation);
                 let mut reset = false;
-                if a == 0 && b == 1 && c == 2 && next > 0 && VERSION >= 1 {
+                if a == 0 && b == 1 && c == 2 && next > 0 && version >= 1 {
                     reset = true;
                     next = 0;
                     // Never reference vertices from before the restart.
-                    f.vertices = [u32::MAX; 16];
+                    f.reset_vertices();
                 }
-                let fb = vertex_fifo(&f.vertices, b, f.vertex_offset);
-                let fc = vertex_fifo(&f.vertices, c, f.vertex_offset);
+                let fb = f.find_vertex(b);
+                let fc = f.find_vertex(c);
                 // a is almost always next after rotation; it uses no FIFO slot.
                 let fea = if a == next {
                     next = next.wrapping_add(1);
@@ -332,4 +353,39 @@ pub(super) fn encode_index_sequence(
     }
     out[pos..pos + 4].fill(0);
     Ok(pos + 4)
+}
+
+#[cfg(test)]
+mod fifo_tests {
+    use super::{vertex_fifo, Fifos};
+
+    #[test]
+    fn fifo_frontier_bound_matches_full_search() {
+        let mut f = Fifos {
+            edges: [u64::MAX; 16],
+            vertices: [u32::MAX; 16],
+            edge_offset: 0,
+            vertex_offset: 0,
+            vertex_max: 0,
+        };
+        let special = [0, 1, 7, 65536, 0x80000000, u32::MAX - 1, u32::MAX];
+        for step in 0..97 {
+            if step % 17 == 0 {
+                f.reset_vertices();
+            }
+            for value in (0..32).chain(special) {
+                assert_eq!(
+                    f.find_vertex(value),
+                    vertex_fifo(&f.vertices, value, f.vertex_offset)
+                );
+            }
+            f.push_vertex(special[step % special.len()]);
+            for value in (0..32).chain(special) {
+                assert_eq!(
+                    f.find_vertex(value),
+                    vertex_fifo(&f.vertices, value, f.vertex_offset)
+                );
+            }
+        }
+    }
 }

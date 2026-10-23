@@ -13,6 +13,9 @@ and `CARGO_INCREMENTAL=0`. Every command below must run through
 Declare 3 GB for these builds, preparation, parity and measurements (measured
 controller peak RSS was below 1.2 GiB).
 The wrapper waits for RAM admission; no quiet-machine wait is used.
+For this measured lane, `MOSS_HEAVY_USE_DECLARED=1` uses the 3 GB declaration
+when generic interpreter history over-reserves. This is the explicit declaration
+mode documented by Moss HEAVY_JOBS; queue, RAM, disk and runtime guards remain.
 
 1. `python3 parity/encoders/build_profiles.py`
 2. `python3 parity/encoders/profiles.py prepare`
