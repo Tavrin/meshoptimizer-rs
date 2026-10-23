@@ -617,7 +617,7 @@ mod tiny_tests {
                 let mut actual = vec![0; 37 * 8];
                 quat(&mut actual, bits, &data);
                 let mut expected = Vec::new();
-                for q in data.chunks_exact(4) {
+                for q in data.as_chunks::<4>().0 {
                     let mut record = [0; 8];
                     quat(&mut record, bits, q);
                     expected.extend_from_slice(&record);
