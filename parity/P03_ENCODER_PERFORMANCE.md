@@ -1,4 +1,102 @@
-# Encoder performance: 0.3 round 1
+# Encoder performance
+
+## SPEC-03: allocating encoder candidate; final timings pending
+
+**Final-source performance acceptance: PENDING.** Work mode was enabled before this candidate’s full native and peer confirmation streams began. No further performance run was started. Correctness work is complete. The four-lane-day cap was not exhausted; the spec’s performance done-when condition has not been established. This branch is a draft handoff, not a qualified release.
+
+Ratios below are Rust elapsed time / comparator elapsed time; lower is faster. Cargo defaults means O3, no LTO, 16 codegen units; Moss means O3, thin LTO, one codegen unit. Native target: each allocating family GM ≤1.25 and every case upper95 ≤1.50 in both profiles, with all A/A controls resolved. Shared peer target is separately registered at each family GM ≤1.00.
+
+### Last completed full native qualification — earlier source only
+
+The following paired before/after stream belongs to `qualified2`, source `a6fc95fed7b0e4881c50127af20ca22aae00b58e`, before the final Exp mask and index frontier changes. Before is released source `d9395b92737ed012fef9a24e28ea42b4886b1db1`. All 111 allocating rows per profile resolved and met the native bars in that earlier stream. These numbers **do not qualify the final source**.
+
+| Profile | Family | Before → earlier candidate GM / C++ 1.3 | Before case CI envelope | Earlier candidate case CI envelope | Final source |
+|---|---|---:|---:|---:|---|
+| defaults | vertex | 0.663 → 0.667 | 0.511–0.954 | 0.508–0.963 | pending |
+| defaults | index | 1.025 → 1.040 | 0.817–1.233 | 0.796–1.284 | pending |
+| defaults | sequence | 0.953 → 0.948 | 0.890–1.367 | 0.887–1.456 | pending |
+| defaults | oct | 0.583 → 0.583 | 0.172–1.482 | 0.171–1.497 | pending |
+| defaults | quat | 1.057 → 0.705 | 0.210–4.931 | 0.211–1.467 | pending |
+| defaults | exp | 0.601 → 0.617 | 0.278–1.094 | 0.278–1.152 | pending |
+| moss | vertex | 0.661 → 0.664 | 0.449–0.904 | 0.502–0.926 | pending |
+| moss | index | 1.020 → 1.039 | 0.855–1.207 | 0.833–1.253 | pending |
+| moss | sequence | 0.985 → 0.925 | 0.911–1.094 | 0.860–1.052 | pending |
+| moss | oct | 0.570 → 0.567 | 0.155–1.455 | 0.157–1.428 | pending |
+| moss | quat | 0.673 → 0.674 | 0.183–1.498 | 0.185–1.411 | pending |
+| moss | exp | 0.589 → 0.593 | 0.278–1.033 | 0.279–1.065 | pending |
+
+Intervals in family tables are envelopes of individual nominal paired-log 95% intervals, **not family-GM confidence intervals**. Case points are medians; case intervals estimate mean log ratios. Every frozen case is included.
+
+### Final candidate diagnostic scout — not qualification
+
+The final `seen-frontier` candidate completed a preplanned two-operation scout before work mode. The independently registered full 40-row peer matrix in each profile is still pending. Its confirmation stream, rather than the better of scout/confirmation, must determine acceptance.
+
+| Profile | Family | Released GM / peer | Final scout GM / peer | Scout case CI envelope |
+|---|---|---:|---:|---:|
+| defaults | index | 1.107 | 0.852 | 0.547–1.152 |
+| defaults | exp | 2.711 | 0.548 | 0.218–0.730 |
+| moss | index | 1.072 | 0.853 | 0.651–0.984 |
+| moss | exp | 2.682 | 0.576 | 0.516–0.749 |
+
+Peer before and scout are separate refreshes, not paired intervention intervals. Each scout family has five frozen geometry cases; all output bytes match. Peer meshopt 0.6.2 bundles C++ 0.25, not the canonical C++ 1.3 oracle. The existing peer adapter, allocation and known-vertex-count workload are unchanged.
+
+For completeness, the last full peer refresh also belongs to earlier source `a6fc95f`; it missed the strict index and Exp targets and motivated the final candidate:
+
+| Profile | Shared family | Released → earlier candidate GM / peer | Earlier case CI envelope | Final full refresh |
+|---|---|---:|---:|---|
+| defaults | vertex | 0.715 → 0.715 | 0.554–0.929 | pending |
+| defaults | index | 1.107 → 1.128 | 0.932–1.275 | pending |
+| defaults | sequence | 0.983 → 0.982 | 0.919–1.011 | pending |
+| defaults | oct | 0.872 → 0.870 | 0.795–1.112 | pending |
+| defaults | quat | 1.904 → 0.884 | 0.801–1.276 | pending |
+| defaults | exp | 2.711 → 1.304 | 1.253–1.344 | pending |
+| defaults | color | 0.821 → 0.829 | 0.791–0.936 | pending |
+| moss | vertex | 0.741 → 0.739 | 0.577–0.955 | pending |
+| moss | index | 1.072 → 1.125 | 0.941–1.267 | pending |
+| moss | sequence | 1.012 → 0.949 | 0.901–0.993 | pending |
+| moss | oct | 0.872 → 0.874 | 0.812–1.096 | pending |
+| moss | quat | 1.523 → 0.883 | 0.797–1.265 | pending |
+| moss | exp | 2.682 → 1.297 | 1.262–1.326 | pending |
+| moss | color | 0.828 → 0.828 | 0.782–0.874 | pending |
+
+Vertex combines matched v0/v1 rows without double-weighting the family. Color is an additional shared encoder outside the six native families. Per-family misses cannot be hidden by a cross-family aggregate.
+
+### Original owned request: not reproducible
+
+Exact `vertex-v1-streaming-s4` request SHA-256 `13413c1e2c69f3de2f28a32005650fb46dfac1f92621cce393acefb3929040e9`, 2,097,153 records. The historical slowdown did not reproduce with symmetric calibration, including a separate pre-staging build (`eb5b1a2df97c6607123befc45bc830e2aeff2a76`):
+
+| Profile | Pre-staging median / C++ | Nominal 95% CI | Released median / C++ | Nominal 95% CI |
+|---|---:|---:|---:|---:|
+| defaults | 0.868 | 0.814–1.038 | 0.868 | 0.792–1.044 |
+| moss | 0.869 | 0.805–1.020 | 0.865 | 0.810–0.994 |
+
+This is non-reproduction on the current toolchain, not evidence that staging or these encoder changes caused a fix. The decoder implementation is unchanged. Initial asymmetric-calibration A/A failures remain inconclusive and retained. Final-source repeat of the request is pending with the final native matrix.
+
+### Implementation and correctness
+
+- Special-case exactly `sqrt(2)` in the shared helper using its pinned rounded constant; other inputs retain libm. Tiny Oct/Quat function definitions remain byte-identical. Other geometry throughput is unmeasured.
+- Encode a strictly dominant quaternion prefix in four-record blocks with constant rotation; ties, selector changes and unordered comparisons use the original bulk kernel for the remaining suffix. Tiny routing is unchanged.
+- Encode ordinary stride-16 Separate Exp values using exact integer mantissa rounding for precisions 1..22. Per-component zeros inherit the previous exponent. Unsupported exponent/precision domains restart the original general kernel. Integer masks remove component eligibility branches without changing the mathematical domain.
+- Skip a vertex FIFO search only when the queried index exceeds every real value inserted since reset. Preserve observable MAX sentinels and original cyclic lookup, storage and updates. A reset clears the bound; it can overestimate without rejecting a possible hit. Retain original triangle version dispatch/varints. Common one-byte sequences write directly.
+- Preserve allocation initialization, fallible reservation, limits, work accounting and error order. Add budget-boundary, zero-carry golden and FIFO equivalence tests. No public API, parallelism, unsafe code or manual SIMD expansion.
+
+Both final profiles pass 17,264 scalar/SIMD C++ parity comparisons with zero mismatches, 3,456 exponent-edge checks, 1,424 coherent-rotation/fallback checks, 386 zero-carry checks and exhaustive comparison of all 2^23 mantissas, both signs, all 22 precisions (369,098,752 components per profile). Full-u32/capacity checks cover 7,122 requests per profile, including 144 explicitly skipped upstream signed-negation undefined domains. Default crate tests, no-default codec/codec04 tests, strict library Clippy, formatting, Rust 1.88 no-std, wasm32 no-std compile and the unsafe-boundary check pass.
+
+### Measurement, evidence and pending work
+
+AMD Ryzen 9 7945HX, Linux x86-64, performance governor; Rust 1.98.1, generic CPU, GCC 13.3. Canonical C++ 1.3 pin `4c203430ca565cb59a468a91922c76c208169536`; scalar-strict canonical bytes and normal runtime SIMD for timing. No fast-math or FP contraction in the oracle. Source, consumer, binary and request hashes bind each epoch independently of a dirty build’s Git label.
+
+All Cargo and timing commands use CPU-only `moss-heavy.sh`, the fixed target and disabled incremental compilation. Native streams pin CPU26 and rotate/reverse interleaved candidate, C++, duplicate A/A and released-source arms, each calibrated symmetrically to 25 ms. Registered sampling uses five complete pairs or exactly 256; no intermediate CI decisions. A/A intervals must lie inside [0.8,1.25]. Beyond 20 pairs the conservative 20-pair t critical value is retained. Intervals are nominal, without simultaneous/sequential adjustment. Bursts checkpoint after 690 seconds with an 840-second timeout. Peer retains its pinned interleaved 5-or-20-pair protocol. No quiet-machine waiting. Completed qualification streams are immutable; prior failed/unresolved epochs remain separate.
+
+Native allocating C++ index/sequence now derives the same range bound inside the timed call, including the OR scan. Earlier mismatched worst-case allocation-bound epochs remain legacy evidence. Caller-buffer capacity semantics and published peer work are unchanged. C++ 0.25 and 1.3 differ on Exp zero-exponent carry; all selected frozen peer outputs still match. Broader cross-version identity is not claimed.
+
+Wasm execution, other architectures, downstream Moss cook/runtime, release fuzz budgets, general geometry performance, and final-source native/complete-peer performance are not verified. Rejected FIFO, version specialization, wrapper inlining/precharge and generalized-arithmetic experiments remain in the scratch milestone ledger. The target was below 10 GB and deleted after correctness work; copied binaries, fixtures and notes remain available.
+
+Exact pending commands and controls: [ENC03_HANDOFF.md](encoders/ENC03_HANDOFF.md). Run only after work mode is explicitly off. Portable [summary](results/enc03-allocating-profiles.json) and [raw receipts](results/enc03-allocating-profiles.json.gz) distinguish final correctness/scouts from earlier qualification. See [harness policy](encoders/README.md).
+
+---
+
+# Historical: 0.3 round 1
 
 **Performance acceptance: FAIL — tiny Oct/Quat maxima.** All 224 native rows
 resolve under the registered A/A rules. Every family mean is <=1.25, but four

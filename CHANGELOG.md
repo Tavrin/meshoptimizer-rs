@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Faster allocating Quat coherent prefixes, exact Separate Exp mantissa rounding,
+  unseen-index FIFO rejection and one-byte sequences. Preserve tiny Oct/Quat
+  kernels, byte output, limits, work accounting and public APIs.
+
+### Validation and pending performance
+
+- Final candidate: zero mismatches in 17,264 parity comparisons and 369,098,752
+  exhaustive Exp component comparisons per consumer profile; correctness, lint,
+  MSRV and wasm compile checks pass.
+- Full final-source native and peer qualification is pending while work mode is
+  on. The four-lane-day cap has not been exhausted. Earlier source `a6fc95f`
+  passed all native bars but missed peer index/Exp; it does not qualify HEAD.
+- Final diagnostic scout / meshopt 0.6.2: index 0.852 (defaults), 0.853 (Moss);
+  Exp 0.548 / 0.576. These are five-case family means, not full qualification.
+- The exact historical owned streaming request did not reproduce, including
+  pre-staging builds. No decoder fix is attributed to this lane.
+
+Per-family/profile before/after numbers, case interval envelopes, source identities
+and exact pending commands: [P03 report](parity/P03_ENCODER_PERFORMANCE.md).
+
 ## [0.2.1] - 2026-10-07
 
 Performance-only release. There are no API changes. Encoded output is
