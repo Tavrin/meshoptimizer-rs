@@ -846,6 +846,30 @@ impl State {
                 .ok_or(Error::SizeOverflow)
         })
     }
+    fn retain(mut self, ws: &mut Workspace) {
+        if let Some(mut unused) = ws.simplify.take() {
+            if self.a.capacity() == 0 {
+                self.a = core::mem::take(&mut unused.a);
+            }
+            if self.aq.capacity() == 0 {
+                self.aq = core::mem::take(&mut unused.aq);
+            }
+            if self.g.capacity() == 0 {
+                self.g = core::mem::take(&mut unused.g);
+            }
+            if self.vg.capacity() == 0 {
+                self.vg = core::mem::take(&mut unused.vg);
+            }
+            if self.sparse.capacity() == 0 {
+                self.sparse = core::mem::take(&mut unused.sparse);
+            }
+            if self.original.capacity() == 0 {
+                self.original = core::mem::take(&mut unused.original);
+            }
+        }
+        ws.has_retained = true;
+        ws.simplify = Some(self);
+    }
     fn empty() -> Self {
         Self {
             vertex_count: 0,
@@ -882,6 +906,7 @@ impl State {
         ac: usize,
         ws: &mut Workspace,
         output: usize,
+        solve: bool,
     ) -> Result<Self, Error> {
         let na = n.checked_mul(ac).ok_or(Error::SizeOverflow)?;
         let buckets = n
@@ -890,6 +915,25 @@ impl State {
             .checked_next_power_of_two()
             .ok_or(Error::SizeOverflow)?;
         let mut state = ws.simplify.take().unwrap_or_else(Self::empty);
+        // Keep dormant fields in the workspace, outside the live local state.
+        // Any later reservation can evict them, including prune/solve phases.
+        let mut unused = Self::empty();
+        if na == 0 {
+            unused.a = core::mem::take(&mut state.a);
+            unused.g = core::mem::take(&mut state.g);
+        }
+        if ac == 0 {
+            unused.aq = core::mem::take(&mut state.aq);
+        }
+        if !solve || ac == 0 {
+            unused.vg = core::mem::take(&mut state.vg);
+        }
+        unused.sparse = core::mem::take(&mut state.sparse);
+        unused.original = core::mem::take(&mut state.original);
+        if unused.capacity_bytes()? != 0 {
+            ws.has_retained = true;
+            ws.simplify = Some(unused);
+        }
         // Old capacity has no live contents yet. Before reserving, discard an
         // oversized previous problem (including attributes/collapse buffers).
         // Only the reservations made below enter this preflight.
@@ -1902,8 +1946,7 @@ fn run(
     let (result, state) = run_state(
         out, indices, positions, attributes, weights, flags, settings, ws, work, output, false,
     )?;
-    ws.has_retained = true;
-    ws.simplify = Some(state);
+    state.retain(ws);
     Ok(result)
 }
 #[inline(always)]
@@ -1965,7 +2008,7 @@ fn run_state(
     let n = positions.len();
     let m = indices.len();
     let ac = weights.iter().filter(|&&w| w > 0.0).count();
-    let mut s = State::new(n, m, ac, ws, output)?;
+    let mut s = State::new(n, m, ac, ws, output, solve)?;
     s.clamped = settings.options.bits() & 256 != 0;
     if solve && ac > 0 {
         let mut b = Budget::new(ws, s.bytes);
@@ -2015,6 +2058,26 @@ fn run_state(
         Ok(())
     })?;
     let capacity = m - dual / 2 + 3;
+    let order_growth = checked_bytes(capacity.saturating_sub(s.order.0.capacity()), 4)?;
+    let requested = s
+        .bytes
+        .checked_add(checked_bytes(
+            capacity.saturating_sub(s.collapses.capacity()),
+            core::mem::size_of::<Collapse>(),
+        )?)
+        .and_then(|n| n.checked_add(order_growth))
+        .ok_or(Error::SizeOverflow)?;
+    if requested > ws.limits().max_bytes {
+        let before = s.capacity_bytes()?;
+        // Collapse/order contents have not been produced for this call yet.
+        if s.collapses.capacity() > capacity {
+            s.collapses = Vec::new();
+        }
+        if s.order.0.capacity() > capacity {
+            s.order.0 = Vec::new();
+        }
+        s.bytes -= before - s.capacity_bytes()?;
+    }
     let mut budget = Budget::new(ws, s.bytes);
     budget.reuse_capacity(&mut s.collapses, capacity)?;
     budget.reuse(&mut s.order.0, capacity)?;
@@ -2133,6 +2196,40 @@ mod tests {
     use crate::Limits;
 
     #[test]
+    fn repeated_simplify_reuses_arrays_but_releases_the_remapping_hash() {
+        let p = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+        let settings = SimplifySettings {
+            target_index_count: 0,
+            target_error: 0.5,
+            options: SimplifyOptions::EMPTY,
+        };
+        let mut ws = Workspace::default();
+        let expected = simplify(&[0, 1, 2], Positions::from_packed(&p), settings, &mut ws).unwrap();
+        let state = ws.simplify.as_ref().unwrap();
+        assert_eq!(state.table.0.capacity(), 0);
+        let before = (
+            state.edges.as_ptr(),
+            state.q.as_ptr(),
+            state.collapses.as_ptr(),
+            state.order.0.as_ptr(),
+        );
+        let actual = simplify(&[0, 1, 2], Positions::from_packed(&p), settings, &mut ws).unwrap();
+        assert_eq!(expected.indices, actual.indices);
+        assert_eq!(expected.error.to_bits(), actual.error.to_bits());
+        let state = ws.simplify.as_ref().unwrap();
+        assert_eq!(state.table.0.capacity(), 0);
+        assert_eq!(
+            before,
+            (
+                state.edges.as_ptr(),
+                state.q.as_ptr(),
+                state.collapses.as_ptr(),
+                state.order.0.as_ptr()
+            )
+        );
+    }
+
+    #[test]
     fn prepaid_phases_match_checked_visits() {
         // Five visits of one record each, then a two-record scan; a numerical
         // failure may occur at any visit. Bounds: exact, loose, or absent.
@@ -2188,7 +2285,7 @@ mod tests {
                     max_bytes: 1 << 20,
                     max_work: limit,
                 });
-                let mut state = State::new(2, 0, 0, &mut ws, 0).unwrap();
+                let mut state = State::new(2, 0, 0, &mut ws, 0, false).unwrap();
                 state.p.extend([V::default(); 2]);
                 state.remap.0.extend([0, 1]);
                 state.q[0] = Q {

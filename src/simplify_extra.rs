@@ -740,8 +740,7 @@ pub fn simplify_with_update(
             }
         }
         s.original = original;
-        b.ws.has_retained = true;
-        b.ws.simplify = Some(s);
+        s.retain(b.ws);
         Ok(r)
     })();
     workspace.finish(&work);
@@ -1129,7 +1128,7 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
         let added_ids = checked_bytes(positions.len().saturating_sub(scratch.ids.capacity()), 4)?;
         let projected = scratch
             .capacity_bytes()?
-            .checked_add(checked_bytes(indices.len(), 4)?)
+            .checked_add(checked_bytes(if CALLER { 0 } else { indices.len() }, 4)?)
             .and_then(|n| n.checked_add(added_positions))
             .and_then(|n| n.checked_add(added_ids))
             .ok_or(Error::SizeOverflow)?;
@@ -1733,7 +1732,7 @@ mod solve_tests {
     fn accumulated_solve_preserves_numerical_failure_work_and_position_prefix() {
         fn run<const LIMITED: bool>(fail: usize) -> (Result<(), Error>, Vec<u32>, u64) {
             let mut ws = Workspace::new(Limits::default());
-            let mut s = State::new(3, 0, 0, &mut ws, 0).unwrap();
+            let mut s = State::new(3, 0, 0, &mut ws, 0, false).unwrap();
             s.p.extend([V::default(); 3]);
             s.kind.fill(MAN);
             s.locked.fill(true);

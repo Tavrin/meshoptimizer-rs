@@ -1299,3 +1299,79 @@ fn update_solving_matches_tight_work_limits_for_wedges_and_attributes() {
         }
     }
 }
+
+#[test]
+fn position_only_simplify_releases_unused_attribute_scratch_before_collapse() {
+    fn mesh(side: usize) -> (Vec<[f32; 3]>, Vec<u32>) {
+        let p = (0..=side)
+            .flat_map(|y| {
+                (0..=side).map(move |x| [x as f32, y as f32, (x * x + y * y) as f32 * 0.00001])
+            })
+            .collect();
+        let mut indices = Vec::new();
+        for y in 0..side {
+            for x in 0..side {
+                let a = (y * (side + 1) + x) as u32;
+                let b = a + (side + 1) as u32;
+                indices.extend_from_slice(&[a, a + 1, b, b, a + 1, b + 1]);
+            }
+        }
+        (p, indices)
+    }
+    let (small, small_indices) = mesh(4);
+    let attributes = vec![0.0; small.len() * 32];
+    let attributes = Attributes::from_interleaved(&attributes, small.len(), 32, 32, 0).unwrap();
+    let settings = |count| SimplifySettings {
+        target_index_count: count / 2,
+        target_error: 0.5,
+        options: SimplifyOptions::EMPTY,
+    };
+    let mut fresh = Workspace::default();
+    let small_settings = settings(small_indices.len());
+    let expected_small = simplify_with_attributes(
+        &small_indices,
+        Positions::from_packed(&small),
+        attributes,
+        &[1.0; 32],
+        None,
+        small_settings,
+        &mut fresh,
+    )
+    .unwrap();
+    let small_peak = fresh.usage().bytes;
+    fresh.clear();
+    let (large, large_indices) = mesh(32);
+    let large_settings = settings(large_indices.len());
+    let expected = simplify(
+        &large_indices,
+        Positions::from_packed(&large),
+        large_settings,
+        &mut fresh,
+    )
+    .unwrap();
+    let mut reused = Workspace::new(Limits {
+        max_bytes: small_peak.max(fresh.usage().bytes),
+        ..Limits::default()
+    });
+    let actual_small = simplify_with_attributes(
+        &small_indices,
+        Positions::from_packed(&small),
+        attributes,
+        &[1.0; 32],
+        None,
+        small_settings,
+        &mut reused,
+    )
+    .unwrap();
+    assert_eq!(actual_small.indices, expected_small.indices);
+    assert_eq!(actual_small.error.to_bits(), expected_small.error.to_bits());
+    let actual = simplify(
+        &large_indices,
+        Positions::from_packed(&large),
+        large_settings,
+        &mut reused,
+    )
+    .unwrap();
+    assert_eq!(actual.indices, expected.indices);
+    assert_eq!(actual.error.to_bits(), expected.error.to_bits());
+}
