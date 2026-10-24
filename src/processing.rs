@@ -8,7 +8,6 @@ pub(crate) struct Context<'a> {
     pub(crate) workspace: &'a mut Workspace,
     pub(crate) work: Work,
     bytes: usize,
-    retained: usize,
     pub(crate) moderate: bool,
     roots: Option<[(u32, f32); 64]>,
     large_roots: Option<[(u32, f32); 512]>,
@@ -17,13 +16,11 @@ impl<'a> Context<'a> {
     #[inline(always)]
     pub(crate) fn new(workspace: &'a mut Workspace) -> Result<Self, Error> {
         let work = workspace.begin();
-        let retained = workspace.retained_storage()?;
-        workspace.processing_storage(retained)?;
+        workspace.processing_storage(0)?;
         Ok(Self {
             workspace,
             work,
             bytes: 0,
-            retained,
             moderate: true,
             roots: None,
             large_roots: None,
@@ -56,11 +53,7 @@ impl<'a> Context<'a> {
             .bytes
             .checked_add(checked_bytes(n, size_of::<T>())?)
             .ok_or(Error::SizeOverflow)?;
-        self.workspace.processing_storage(
-            self.bytes
-                .checked_add(self.retained)
-                .ok_or(Error::SizeOverflow)?,
-        )?;
+        self.workspace.processing_storage(self.bytes)?;
         let mut result = Vec::new();
         result
             .try_reserve_exact(n)
@@ -68,11 +61,7 @@ impl<'a> Context<'a> {
         let extra = checked_bytes(result.capacity() - n, size_of::<T>())?;
         if extra != 0 {
             self.bytes = self.bytes.checked_add(extra).ok_or(Error::SizeOverflow)?;
-            self.workspace.processing_storage(
-                self.bytes
-                    .checked_add(self.retained)
-                    .ok_or(Error::SizeOverflow)?,
-            )?;
+            self.workspace.processing_storage(self.bytes)?;
         }
         Ok(result)
     }
@@ -162,15 +151,12 @@ impl<'a> Context<'a> {
         run: impl FnOnce(&mut Workspace) -> Result<T, Error>,
     ) -> Result<T, Error> {
         self.workspace.finish(&self.work);
+        self.workspace.release_unused();
         let limits = self.workspace.limits();
         let mut child = Workspace::new(crate::Limits {
             max_bytes: limits
                 .max_bytes
-                .checked_sub(
-                    self.bytes
-                        .checked_add(self.retained)
-                        .ok_or(Error::SizeOverflow)?,
-                )
+                .checked_sub(self.bytes)
                 .ok_or(Error::LimitExceeded)?,
             max_work: limits.max_work - self.workspace.usage().work,
         });
@@ -178,8 +164,7 @@ impl<'a> Context<'a> {
         self.work.add_processing(child.usage().work)?;
         self.workspace.processing_storage(
             self.bytes
-                .checked_add(self.retained)
-                .and_then(|n| n.checked_add(child.usage().bytes))
+                .checked_add(child.usage().bytes)
                 .ok_or(Error::SizeOverflow)?,
         )?;
         if let Ok(value) = &result {
@@ -193,15 +178,12 @@ impl<'a> Context<'a> {
     #[cfg(feature = "clusterlod")]
     pub(crate) fn remaining_limits(&mut self) -> Result<crate::Limits, Error> {
         self.workspace.finish(&self.work);
+        self.workspace.release_unused();
         let limits = self.workspace.limits();
         Ok(crate::Limits {
             max_bytes: limits
                 .max_bytes
-                .checked_sub(
-                    self.bytes
-                        .checked_add(self.retained)
-                        .ok_or(Error::SizeOverflow)?,
-                )
+                .checked_sub(self.bytes)
                 .ok_or(Error::LimitExceeded)?,
             max_work: limits.max_work - self.workspace.usage().work,
         })
@@ -209,12 +191,8 @@ impl<'a> Context<'a> {
     #[cfg(feature = "clusterlod")]
     pub(crate) fn absorb(&mut self, bytes: usize, work: u64, output: usize) -> Result<(), Error> {
         self.work.add_processing(work)?;
-        self.workspace.processing_storage(
-            self.bytes
-                .checked_add(self.retained)
-                .and_then(|n| n.checked_add(bytes))
-                .ok_or(Error::SizeOverflow)?,
-        )?;
+        self.workspace
+            .processing_storage(self.bytes.checked_add(bytes).ok_or(Error::SizeOverflow)?)?;
         self.bytes = self.bytes.checked_add(output).ok_or(Error::SizeOverflow)?;
         Ok(())
     }
@@ -224,23 +202,15 @@ impl<'a> Context<'a> {
         if needed > v.capacity() {
             let old = v.capacity();
             let added = checked_bytes(needed - old, size_of::<T>())?;
-            self.workspace.processing_storage(
-                self.bytes
-                    .checked_add(self.retained)
-                    .and_then(|n| n.checked_add(added))
-                    .ok_or(Error::SizeOverflow)?,
-            )?;
+            self.workspace
+                .processing_storage(self.bytes.checked_add(added).ok_or(Error::SizeOverflow)?)?;
             v.try_reserve_exact(extra)
                 .map_err(|_| Error::AllocationFailed)?;
             self.bytes = self
                 .bytes
                 .checked_add(checked_bytes(v.capacity() - old, size_of::<T>())?)
                 .ok_or(Error::SizeOverflow)?;
-            self.workspace.processing_storage(
-                self.bytes
-                    .checked_add(self.retained)
-                    .ok_or(Error::SizeOverflow)?,
-            )?;
+            self.workspace.processing_storage(self.bytes)?;
         }
         Ok(())
     }

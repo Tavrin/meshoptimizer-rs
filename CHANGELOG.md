@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+`Workspace` now releases unused retained scratch and reclaims excess capacity
+in active buffers under memory-limit pressure, so earlier calls do not consume
+the space needed by a later call's scratch. Scratch is reused when it fits, and live storage still
+obeys the same per-call limits. Simplification releases its position hash table
+as soon as position remapping finishes.
+
 ## [0.2.2] - 2026-10-24
 
 Performance-only release. There are no API changes. Encoded output is
