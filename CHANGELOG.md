@@ -7,22 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-24
+
+Performance-only release. There are no API changes. Encoded output is
+byte-identical to 0.2.1 and to pinned meshoptimizer 1.3. The minimum supported
+Rust version is still 1.88.
+
 ### Changed
 
-- Faster allocating Quat coherent prefixes, exact Separate Exp mantissa rounding,
-  unseen-index FIFO rejection and one-byte sequences. Preserve tiny Oct/Quat
-  kernels, byte output, limits, work accounting and public APIs.
+- Changes to the allocating encoders:
+  - Index encoding skips the vertex FIFO search when the index is larger than
+    every index seen since the last reset.
+  - Index sequence encoding writes one-byte values directly.
+  - Quaternion encoding handles runs where one component is clearly the
+    largest in blocks of four records.
+  - Separate Exp encoding rounds mantissas with exact integer arithmetic for
+    the common stride-16 layout and precisions 1 to 22.
+- Encoding of 32 or fewer Oct or Quat records is unchanged.
+  Limits, work accounting and error order are unchanged.
 
-### Validation and performance
+### Performance
 
-- Exact local CI test-job commands on Rust 1.99.1 and both MSRV test commands on 1.88 pass. The quaternion regression test uses MSRV-stable `as_chunks`; no encoded path or public API changed.
-- defaults: native allocating bars PASS (family GM ≤1.25 and every resolved case upper95 ≤1.50; all 111 cases resolved). Family means: vertex 0.667, index 0.773, sequence 0.924, oct 0.585, quat 0.700, exp 0.621× C++ 1.3.
-- moss: native allocating bars PASS (family GM ≤1.25 and every resolved case upper95 ≤1.50; all 111 cases resolved). Family means: vertex 0.657, index 0.764, sequence 0.940, oct 0.563, quat 0.669, exp 0.590× C++ 1.3.
-- Exact parity: 17,264 comparisons in defaults, zero mismatches, 17,264 comparisons in moss, zero mismatches.
-- defaults and Moss: all seven shared meshopt 0.6.2 peer families PASS their separate GM ≤1.00 target; the exact historical owned request also passes in both profiles. Non-reproduction does not establish a decoder fix.
-- Earlier `a6fc95f` numbers and scouts are superseded for final acceptance, with receipts retained. The interrupted defaults row was rerun from pair 0 under the unchanged rule; its original samples and disposition are retained. The PR remains draft.
+Geometric mean of Rust time / C++ meshoptimizer 1.3 time per encoder family,
+allocating API, 0.2.1 → 0.2.2. Lower is faster; 1.00 is equal.
 
-Final native, historical and shared-peer tables and case interval envelopes: [P03 report](parity/P03_ENCODER_PERFORMANCE.md).
+| Encoder | Cargo defaults | Moss profile |
+|---|---:|---:|
+| vertex | 0.666 → 0.667 | 0.660 → 0.657 |
+| index | 1.019 → 0.773 | 1.016 → 0.764 |
+| sequence | 0.931 → 0.924 | 0.986 → 0.940 |
+| oct | 0.591 → 0.585 | 0.565 → 0.563 |
+| quat | 1.055 → 0.700 | 0.681 → 0.669 |
+| exp | 0.609 → 0.621 | 0.588 → 0.590 |
+
+- Cargo defaults is a dependent's default release build: no LTO, 16 codegen
+  units. The Moss profile uses thin LTO and one codegen unit.
+- In both profiles every family mean is at or below 1.25 and every one of the
+  111 cases has a 95% upper bound at or below 1.50.
+- Against the meshopt 0.6.2 crate, meshoptimizer-rs is faster on all seven
+  shared encoder families (vertex, index, sequence, Oct, Quat, Exp, Color) in
+  both profiles.
+- Output is byte-identical: 17,264 exact comparisons against scalar and SIMD
+  meshoptimizer 1.3 in each profile, with zero mismatches.
+
+Intervals, per-case results and method:
+[parity/P03_ENCODER_PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.2/parity/P03_ENCODER_PERFORMANCE.md).
 
 ## [0.2.1] - 2026-10-07
 
@@ -219,7 +248,8 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0

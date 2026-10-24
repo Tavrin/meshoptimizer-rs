@@ -19,7 +19,7 @@ The port targets commit `4c203430ca565cb59a468a91922c76c208169536`, whose
 and executed WASM checks establish parity on finite recorded inputs.
 They do not prove it for every possible input. See [UPSTREAM.md](UPSTREAM.md).
 
-Crate **0.2.1** includes the following development phases. Phase numbers
+Crate **0.2.2** includes the following development phases. Phase numbers
 label stages of the port, not published crate versions.
 
 | Phase | Included APIs |
@@ -38,7 +38,7 @@ Requires Rust **1.88** or later. The library name is `meshoptimizer_rs`.
 
 ```toml
 [dependencies]
-meshoptimizer-rs = "0.2.1"
+meshoptimizer-rs = "0.2.2"
 ```
 
 Simplify a mesh, then optimize its triangle order:
@@ -79,7 +79,7 @@ fn main() -> Result<(), meshoptimizer_rs::Error> {
 For an unsafe-free `no_std` build:
 
 ```toml
-meshoptimizer-rs = { version = "0.2.1", default-features = false }
+meshoptimizer-rs = { version = "0.2.2", default-features = false }
 ```
 
 Add `features = ["std"]` for an unsafe-free standard-library build.
@@ -105,8 +105,8 @@ interleaved pairs on a shared host. Ratios are Rust time / C++ time: lower is
 faster, 1.00 is equal. Validation, required copies and allocation are timed.
 The scalar baseline is pinned meshoptimizer 1.3 with SIMD and FMA contraction
 disabled. The records below differ in source, corpus and API scope.
-For 0.2.1, only the encoders were timed again (see
-[Encoder performance in 0.2.1](#encoder-performance-in-021)); no new full-tree
+For 0.2.1 and 0.2.2, only the encoders were timed again (see
+[Encoder performance in 0.2.2](#encoder-performance-in-022)); no new full-tree
 timing was run.
 
 The Moss profile uses thin LTO and one codegen unit. The defaults profile uses
@@ -148,47 +148,34 @@ meshoptimizer-rs has the 1.3 meshlet codecs, opacity maps, tangents, experimenta
 It also has `no_std + alloc`, checked views, typed errors, per-call work/byte limits and reusable workspaces without a C++ toolchain.
 Default vertex encodings differ (ours v1, theirs v0), and some meshlet, partitioning and simplification outputs differ across upstream versions.
 These shared-host timings do not isolate language, compiler, wrapper or version costs; see the [full comparison, output checks and case intervals](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md).
-This comparison was not rerun for 0.2.1. The 0.2.1 encoder run below also
-measured meshopt 0.6.2, but in a different build profile, so it does not
-replace the encoder results above.
+The 0.2.2 encoder run below measured meshopt 0.6.2 again in the same two
+consumer profiles. For encoding, its results replace the encoder claims above.
 
-### Encoder performance in 0.2.1
+### Encoder performance in 0.2.2
 
-0.2.1 makes the encoders faster without changing their output. The matched
-before/after run used a native AMD Ryzen 9 7945HX pinned to CPU 26, a Rust
-release build with fat LTO, one codegen unit and a generic CPU target, the
-allocating APIs, and frozen synthetic and cook inputs. Unlike the scalar
-baseline above, C++ 1.3 here is built with GCC 13.3.0 at -O3 and uses its
-normal runtime SIMD dispatch. Ratios below are family geometric means of Rust
-time / comparator time; lower is faster. Before and after use the same
-benchmark consumer.
+0.2.2 makes the allocating index, sequence and Quat encoders faster without
+changing their output. Ratios are family geometric means of Rust time /
+comparator time with the allocating APIs, 0.2.1 → 0.2.2 for C++ 1.3 and 0.2.2
+for meshopt 0.6.2; lower is faster.
 
-| Encoder | C++ 1.3 before → after | meshopt 0.6.2 before → after |
-|---|---:|---:|
-| Vertex | 0.904 → 0.658 | 0.909 → 0.662 |
-| Index | 1.027 → 0.920 | 1.054 → 0.946 |
-| Sequence | 1.228 → 0.967 | 1.229 → 0.970 |
-| Oct | 1.107 → 0.622¹ | not rerun¹ |
-| Quat | 0.787 → 0.789¹ | not rerun¹ |
-| Exp | 0.949 → 0.607 | 1.002 → 0.640 |
+| Encoder | C++ 1.3, defaults | C++ 1.3, Moss | meshopt 0.6.2, defaults | meshopt 0.6.2, Moss |
+|---|---:|---:|---:|---:|
+| Vertex | 0.666 → 0.667 | 0.660 → 0.657 | 0.710 | 0.733 |
+| Index | 1.019 → 0.773 | 1.016 → 0.764 | 0.860 | 0.858 |
+| Sequence | 0.931 → 0.924 | 0.986 → 0.940 | 0.980 | 0.952 |
+| Oct | 0.591 → 0.585 | 0.565 → 0.563 | 0.845 | 0.868 |
+| Quat | 1.055 → 0.700 | 0.681 → 0.669 | 0.868 | 0.868 |
+| Exp | 0.609 → 0.621 | 0.588 → 0.590 | 0.575 | 0.579 |
+| Color | — | — | 0.825 | 0.825 |
 
-All 224 allocating/caller rows resolve under A/A rules. Vertex, index,
-sequence and Exp pass the registered mean/max bars in both APIs. ¹ Oct and
-Quat show the released code, measured in a separate confirmation run after a
-later change reduced the fixed cost of tiny Oct and Quat calls (the first round
-measured 0.539 and 0.673 before that change). In the confirmation run all Oct
-and Quat rows pass, with a largest 95% upper bound of 1.461× C++, and the allocating family
-means are 0.622 (Oct) and 0.789 (Quat). The Quat mean in that run moved from
-0.747 to 0.789, a measured slowdown that stays inside the 1.25 bar.
-Encoded bytes are unchanged: 17,264 exact comparisons against scalar and SIMD
-meshoptimizer 1.3 cover levels 0–9 and both stream versions.
-
-The allocating `vertex-v1-streaming-s4` decode case measures 0.958× C++ here
-(95% interval 0.797–1.140), but its matched baseline already passed at
-0.952×. This run does not show a gain from the 0.2.1 decode staging, and does
-not show that the 0.2.0 gap in other consumer profiles is fixed. The old peer
-has independently checked vertex/Exp-zero encoding differences. See the
-[complete rows, caller results, profile boundaries and retained evidence](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.1/parity/P03_ENCODER_PERFORMANCE.md).
+In both profiles every C++ family mean is at or below 1.25 and all 111 cases
+have a 95% upper bound at or below 1.50. Encoded bytes are unchanged: 17,264
+exact comparisons per profile against scalar and SIMD meshoptimizer 1.3, with
+zero mismatches. The run used an AMD Ryzen 9 7945HX on Linux, one pinned core,
+a generic CPU target and C++ built with GCC 13.3 using its normal runtime SIMD
+dispatch, with interleaved Rust/C++ pairs and A/A controls. meshopt 0.6.2
+bundles C++ 0.25, so those ratios include version and wrapper differences. See
+the [intervals, per-case results and method](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.2/parity/P03_ENCODER_PERFORMANCE.md).
 
 ## Safety and verification
 
@@ -210,14 +197,15 @@ See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/bl
 
 ## Known exceptions
 
-These 0.2.0 exceptions still apply to 0.2.1. The owner's 2026-10-06 roadmap
-permitted the allocating vertex exception and scheduled its fix for 0.2.1.
-0.2.1 stages large owned vertex decodes, and the 0.2.1 encoder run measures
-that case at 0.958× C++ in its own profile, but the matched baseline also
-passed there, so the original gap is not shown to be fixed. Use
-`decode_vertex_buffer_into` where possible: the owner records about 1.04× for
-the caller-buffer form of that case. The 0.2.0 complete qualification also
-records these results:
+These 0.2.0 exceptions still apply to 0.2.2; 0.2.2 changes only encoders.
+The owner's 2026-10-06 roadmap permitted the allocating vertex exception and
+scheduled its fix for 0.2.1, which stages large owned vertex decodes. The
+0.2.2 run repeated the exact `vertex-v1-streaming-s4` request in the defaults
+and Moss profiles and measured 1.000× C++ (95% interval 0.850–1.206) and
+1.058× (0.959–1.171). The historical gap did not reproduce, but that does not
+show the staging fixed it. Use `decode_vertex_buffer_into` where possible: the
+owner records about 1.04× for the caller-buffer form of that case. The 0.2.0
+complete qualification also records these results:
 
 | Native allocating case | Final Rust/C++ 95% interval | Status |
 |---|---:|---|

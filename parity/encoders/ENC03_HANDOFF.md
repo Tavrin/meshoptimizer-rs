@@ -1,6 +1,6 @@
 # SPEC-03 finish handoff
 
-Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) remains draft.
+Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) was merged as `f20a177` and released in 0.2.2.
 
 Local CI-equivalent test-job commands passed on pinned Rust 1.99.1; both MSRV test commands passed on 1.88. The lint fix changes one regression-test loop to `as_chunks::<4>()`, with no encoded-path or API change. Global default toolchain is unchanged.
 
