@@ -387,3 +387,86 @@ fn quaternion_encoder_preserves_first_maximum_nan_and_signed_zero() {
         assert_eq!(&destination[72..], &[0xa5; 7]);
     }
 }
+
+#[test]
+fn allocating_filters_preserve_work_usage_at_each_budget_boundary() {
+    let data = [0.25; 68];
+    for family in 0..6 {
+        let output_words = match family {
+            0 | 4 => 17,
+            3 => 68,
+            _ => 34,
+        };
+        let total = 68 + output_words;
+        for limit in 0..=total + 1 {
+            let mut workspace = Workspace::new(Limits {
+                max_bytes: 1 << 20,
+                max_work: limit,
+            });
+            let result = match family {
+                0 => encode_filter_oct(17, 4, 8, &data, &mut workspace),
+                1 => encode_filter_oct(17, 8, 8, &data, &mut workspace),
+                2 => encode_filter_quat(17, 8, 8, &data, &mut workspace),
+                3 => encode_filter_exp(17, 16, 8, &data, ExpMode::Separate, &mut workspace),
+                4 => encode_filter_color(17, 4, 8, &data, &mut workspace),
+                _ => encode_filter_color(17, 8, 8, &data, &mut workspace),
+            };
+            if limit < total {
+                assert_eq!(result, Err(Error::LimitExceeded));
+            } else {
+                assert!(result.is_ok());
+            }
+            assert_eq!(
+                workspace.usage().work,
+                if limit < 68 {
+                    0
+                } else if limit < total {
+                    68
+                } else {
+                    total
+                }
+            );
+        }
+    }
+}
+
+#[test]
+fn exp_separate_zero_records_inherit_each_component_exponent() {
+    let data = [
+        0.125, -2.0, 32.0, -0.0, 0.0, -0.0, 0.0, 16.0, 0.5, 0.0, -0.25, 0.0, -0.0, 4.0, -0.0, -0.0,
+        0.0, 0.0, 0.0, 0.0,
+    ];
+    // Scalar meshoptimizer 1.3, Separate mode, 20 bits. Each zero must
+    // inherit its own component's last exponent, including negative zero.
+    let words: [u32; 20] = [
+        0xeb040000, 0xeffc0000, 0xf3040000, 0xed000000, 0xeb000000, 0xef000000, 0xf3000000,
+        0xf2040000, 0xed040000, 0xef000000, 0xecfc0000, 0xf2000000, 0xed000000, 0xf0040000,
+        0xec000000, 0xf2000000, 0xed000000, 0xf0000000, 0xec000000, 0xf2000000,
+    ];
+    let expected: Vec<_> = words.into_iter().flat_map(u32::to_le_bytes).collect();
+    assert_eq!(
+        encode_filter_exp(
+            5,
+            16,
+            20,
+            &data,
+            ExpMode::Separate,
+            &mut Workspace::default()
+        )
+        .unwrap(),
+        expected
+    );
+    let mut destination = [0xa5; 87];
+    encode_filter_exp_into(
+        &mut destination,
+        5,
+        16,
+        20,
+        &data,
+        ExpMode::Separate,
+        &mut Workspace::default(),
+    )
+    .unwrap();
+    assert_eq!(&destination[..80], expected);
+    assert_eq!(&destination[80..], &[0xa5; 7]);
+}

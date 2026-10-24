@@ -125,8 +125,26 @@ struct Fifos {
     vertices: [u32; 16],
     edge_offset: usize,
     vertex_offset: usize,
+    vertex_max: u32,
 }
 impl Fifos {
+    #[inline]
+    fn find_vertex(&self, v: u32) -> Option<usize> {
+        // Every real entry is <= vertex_max. The initial MAX sentinels
+        // remain observable to the reference lookup and must not be skipped.
+        if v > self.vertex_max && v != u32::MAX {
+            None
+        } else {
+            vertex_fifo(&self.vertices, v, self.vertex_offset)
+        }
+    }
+
+    #[inline]
+    fn reset_vertices(&mut self) {
+        self.vertices = [u32::MAX; 16];
+        self.vertex_max = 0;
+    }
+
     #[inline]
     fn push_edge(&mut self, a: u32, b: u32) {
         self.edges[self.edge_offset] = edge_pair(a, b);
@@ -134,6 +152,7 @@ impl Fifos {
     }
     #[inline]
     fn push_vertex(&mut self, v: u32) {
+        self.vertex_max = self.vertex_max.max(v);
         self.vertices[self.vertex_offset] = v;
         self.vertex_offset = (self.vertex_offset + 1) & 15;
     }
@@ -157,6 +176,7 @@ pub(super) fn encode_index_buffer(
         vertices: [u32::MAX; 16],
         edge_offset: 0,
         vertex_offset: 0,
+        vertex_max: 0,
     };
     let mut next = 0u32;
     let mut last = 0u32;
@@ -177,7 +197,7 @@ pub(super) fn encode_index_buffer(
             Some(fer) if (fer >> 2) < 15 => {
                 let (a, b, c) = rotate(tri, fer & 3);
                 let fe = fer >> 2;
-                let fc = vertex_fifo(&f.vertices, c, f.vertex_offset);
+                let fc = f.find_vertex(c);
                 let mut fec = match fc {
                     Some(fc) if fc >= 1 && fc < fec_max => fc,
                     _ if c == next => {
@@ -222,10 +242,10 @@ pub(super) fn encode_index_buffer(
                     reset = true;
                     next = 0;
                     // Never reference vertices from before the restart.
-                    f.vertices = [u32::MAX; 16];
+                    f.reset_vertices();
                 }
-                let fb = vertex_fifo(&f.vertices, b, f.vertex_offset);
-                let fc = vertex_fifo(&f.vertices, c, f.vertex_offset);
+                let fb = f.find_vertex(b);
+                let fc = f.find_vertex(c);
                 // a is almost always next after rotation; it uses no FIFO slot.
                 let fea = if a == next {
                     next = next.wrapping_add(1);
@@ -316,10 +336,16 @@ pub(super) fn encode_index_sequence(
         let v = (d << 1) ^ ((d as i32) >> 31) as u32;
         // The low bit selects the baseline used for reconstruction. The check
         // above leaves at least five bytes: one bounded window per index.
-        let window: &mut [u8; 5] = (&mut out[pos..pos + 5])
-            .try_into()
-            .map_err(|_| Error::BufferTooSmall)?;
-        pos += sequence_vbyte5(window, (v << 1) | current as u32);
+        let value = (v << 1) | current as u32;
+        if value < 128 {
+            out[pos] = value as u8;
+            pos += 1;
+        } else {
+            let window: &mut [u8; 5] = (&mut out[pos..pos + 5])
+                .try_into()
+                .map_err(|_| Error::BufferTooSmall)?;
+            pos += sequence_vbyte5(window, value);
+        }
         last[current & 1] = index;
     }
     if pos > safe_end {
@@ -327,4 +353,39 @@ pub(super) fn encode_index_sequence(
     }
     out[pos..pos + 4].fill(0);
     Ok(pos + 4)
+}
+
+#[cfg(test)]
+mod fifo_tests {
+    use super::{vertex_fifo, Fifos};
+
+    #[test]
+    fn fifo_frontier_bound_matches_full_search() {
+        let mut f = Fifos {
+            edges: [u64::MAX; 16],
+            vertices: [u32::MAX; 16],
+            edge_offset: 0,
+            vertex_offset: 0,
+            vertex_max: 0,
+        };
+        let special = [0, 1, 7, 65536, 0x80000000, u32::MAX - 1, u32::MAX];
+        for step in 0..97 {
+            if step % 17 == 0 {
+                f.reset_vertices();
+            }
+            for value in (0..32).chain(special) {
+                assert_eq!(
+                    f.find_vertex(value),
+                    vertex_fifo(&f.vertices, value, f.vertex_offset)
+                );
+            }
+            f.push_vertex(special[step % special.len()]);
+            for value in (0..32).chain(special) {
+                assert_eq!(
+                    f.find_vertex(value),
+                    vertex_fifo(&f.vertices, value, f.vertex_offset)
+                );
+            }
+        }
+    }
 }

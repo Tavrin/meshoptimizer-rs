@@ -231,8 +231,62 @@ pub(super) fn quat(out: &mut [u8], bits: u32, data: &[f32]) {
     if data.len() <= 32 * 4 {
         quat_tiny(out, bits, data);
     } else {
-        quat_bulk(out, bits, data);
+        let q = &data[..4];
+        let mut selector = 0;
+        for i in 1..4 {
+            if q[i].abs() > q[selector].abs() {
+                selector = i;
+            }
+        }
+        let consumed = match selector {
+            0 => quat_coherent::<0>(out, bits, data),
+            1 => quat_coherent::<1>(out, bits, data),
+            2 => quat_coherent::<2>(out, bits, data),
+            _ => quat_coherent::<3>(out, bits, data),
+        };
+        if consumed * 4 < data.len() {
+            quat_bulk(&mut out[consumed * 8..], bits, &data[consumed * 4..]);
+        }
     }
+}
+
+// Emit a coherent prefix once, then let the original bulk kernel handle the
+// remainder. Strict dominance preserves ties and unordered comparisons by
+// sending the first such block to that kernel without writing it here.
+#[inline(never)]
+fn quat_coherent<const SELECTOR: usize>(out: &mut [u8], bits: u32, data: &[f32]) -> usize {
+    let scale = sqrt(2.0);
+    let one = snorm(1.0, bits) & !3;
+    let mut consumed = 0;
+    for (block, input) in out
+        .as_chunks_mut::<32>()
+        .0
+        .iter_mut()
+        .zip(data.as_chunks::<16>().0)
+    {
+        let valid: [bool; 4] = core::array::from_fn(|r| {
+            let q = &input[r * 4..r * 4 + 4];
+            let largest = q[SELECTOR].abs();
+            ((SELECTOR == 0) | (largest > q[0].abs()))
+                & ((SELECTOR == 1) | (largest > q[1].abs()))
+                & ((SELECTOR == 2) | (largest > q[2].abs()))
+                & ((SELECTOR == 3) | (largest > q[3].abs()))
+        });
+        if !valid.into_iter().all(core::convert::identity) {
+            break;
+        }
+        records(block, 8, input, |q| {
+            let sign = if q[SELECTOR] < 0.0 { -1.0 } else { 1.0 };
+            [
+                snorm(q[(SELECTOR + 1) % 4] * scale * sign, bits),
+                snorm(q[(SELECTOR + 2) % 4] * scale * sign, bits),
+                snorm(q[(SELECTOR + 3) % 4] * scale * sign, bits),
+                one | SELECTOR as i32,
+            ]
+        });
+        consumed += 4;
+    }
+    consumed
 }
 
 #[inline(never)]
@@ -419,6 +473,9 @@ fn exp_fixed<const MODE: u8, const FLOATS: usize>(
     bits: u32,
     data: &[f32],
 ) -> bool {
+    if MODE == SEPARATE && FLOATS == 4 && bits <= 22 && exp_separate4(out, bits, data) {
+        return true;
+    }
     const MIN_EXP: i32 = -100;
     const MASK: i32 = (1 << 24) - 1;
     const MAX: i32 = MASK >> 1;
@@ -477,6 +534,52 @@ fn exp_fixed<const MODE: u8, const FLOATS: usize>(
     valid
 }
 
+// For ordinary normal operands, scaling by a normal power of two changes
+// only the exponent. Quantization is an integer mantissa bias and shift.
+// bits <=22 ensures the final f32 half-add rounding cannot cross an integer
+// boundary. Zero retains its component's exponent. Other operands restart in
+// the general kernel, including subnormal scaling powers at e >=127.
+#[inline(never)]
+fn exp_separate4(out: &mut [u8], bits: u32, data: &[f32]) -> bool {
+    let mut exponents = [126u32; 4]; // biased form of the initial exponent zero
+    let shift = 25 - bits;
+    let half = 1 << (shift - 1);
+    let maximum_exponent = (bits + 251).min(254);
+    let maximum_offset = ((maximum_exponent - 26) << 23) | 0x7fffff;
+    for (record, v) in out
+        .as_chunks_mut::<16>()
+        .0
+        .iter_mut()
+        .zip(data.as_chunks::<4>().0)
+    {
+        let raw = v.map(f32::to_bits);
+        let absolute = raw.map(|x| x & 0x7fffffff);
+        let nonzero = absolute.map(|x| u32::from(x != 0).wrapping_neg());
+        // Integer masks permit one reduction without short-circuit component
+        // branches. A zero is eligible regardless of the normal exponent range.
+        let invalid: [u32; 4] = core::array::from_fn(|i| {
+            u32::from(absolute[i].wrapping_sub(26 << 23) > maximum_offset) & nonzero[i]
+        });
+        if invalid.into_iter().fold(0, |a, b| a | b) != 0 {
+            return false;
+        }
+        exponents = core::array::from_fn(|i| {
+            (exponents[i] & !nonzero[i]) | ((absolute[i] >> 23) & nonzero[i])
+        });
+        let magnitude: [u32; 4] = core::array::from_fn(|i| {
+            let mantissa = ((raw[i] & 0x7fffff) | 0x800000) & nonzero[i];
+            (mantissa + half) >> shift
+        });
+        for (i, word) in record.as_chunks_mut::<4>().0.iter_mut().enumerate() {
+            let sign = (raw[i] as i32) >> 31;
+            let m = (magnitude[i] as i32 ^ sign).wrapping_sub(sign);
+            let e = exponents[i].wrapping_sub(125 + bits);
+            *word = ((m as u32 & 0xffffff) | e << 24).to_le_bytes();
+        }
+    }
+    true
+}
+
 pub(super) fn color(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
     records(out, stride, data, |c| {
         let r = unorm(c[0], bits);
@@ -498,6 +601,31 @@ mod tiny_tests {
     use alloc::{vec, vec::Vec};
 
     use super::{oct, oct_fixed, quat, quat_bulk};
+
+    #[test]
+    fn bulk_quaternions_match_single_records_for_coherent_and_mixed_rotations() {
+        for pattern in 0..5 {
+            let data: Vec<f32> = (0..37)
+                .flat_map(|i| {
+                    let mut q = [0.125, -0.25, 0.375, -0.5];
+                    let selector = if pattern < 4 { pattern } else { i % 4 };
+                    q[selector] = if i % 2 == 0 { 1.0 } else { -1.0 };
+                    q
+                })
+                .collect();
+            for bits in 4..=16 {
+                let mut actual = vec![0; 37 * 8];
+                quat(&mut actual, bits, &data);
+                let mut expected = Vec::new();
+                for q in data.as_chunks::<4>().0 {
+                    let mut record = [0; 8];
+                    quat(&mut record, bits, q);
+                    expected.extend_from_slice(&record);
+                }
+                assert_eq!(actual, expected, "pattern={pattern} bits={bits}");
+            }
+        }
+    }
 
     #[test]
     fn tiny_matches_bulk_at_precision_and_dispatch_boundaries() {
