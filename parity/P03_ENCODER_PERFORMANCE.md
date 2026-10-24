@@ -2,7 +2,7 @@
 
 ## SPEC-03 final qualification
 
-Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) remains draft. Earlier `a6fc95f` numbers and diagnostic scouts are **superseded for final acceptance** and retained below and in the portable archive.
+Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) was merged as `f20a177` and released in 0.2.2. Earlier `a6fc95f` numbers and diagnostic scouts are **superseded for final acceptance** and retained below and in the portable archive.
 
 Native allocating acceptance: **PASS in defaults and Moss**. All 111 cases per profile resolve; every family GM ≤1.25 and every case upper95 ≤1.50. The separate shared-peer family GM ≤1.00 target and exact historical owned request both **PASS in both profiles**. Historical non-reproduction does not establish a causal decoder fix.
 
