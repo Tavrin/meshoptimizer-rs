@@ -7,11 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-`Workspace` now releases unused retained scratch and reclaims excess capacity
-in active buffers under memory-limit pressure, so earlier calls do not consume
-the space needed by a later call's scratch. Scratch is reused when it fits, and live storage still
-obeys the same per-call limits. Simplification releases its position hash table
-as soon as position remapping finishes.
+## [0.2.3] - 2026-10-24
+
+Memory-limit fix. There are no API changes. Output is byte-identical to 0.2.2
+and to pinned meshoptimizer 1.3. The minimum supported Rust version is still
+1.88.
+
+A reused `Workspace` could fail a call with `LimitExceeded` that a fresh
+`Workspace` would accept, because scratch kept from earlier calls counted
+against `max_bytes`. For example, after simplifying a 7.2-million-vertex mesh,
+`optimize_vertex_cache_in_place` on the same workspace failed under the
+default 1 GiB limit. Now, when a reservation would exceed `max_bytes`, the
+workspace first releases retained scratch the current call does not use, then
+shrinks the buffers the call reuses to the size it needs. Storage in use is
+still counted in full, and a call that does not fit on its own still fails.
+Scratch is still reused without reallocation when it fits.
+
+Simplification now frees its position hash table once position remapping is
+done, as upstream does.
 
 ## [0.2.2] - 2026-10-24
 
@@ -254,7 +267,8 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0

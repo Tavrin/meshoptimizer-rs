@@ -19,7 +19,7 @@ The port targets commit `4c203430ca565cb59a468a91922c76c208169536`, whose
 and executed WASM checks establish parity on finite recorded inputs.
 They do not prove it for every possible input. See [UPSTREAM.md](UPSTREAM.md).
 
-Crate **0.2.2** includes the following development phases. Phase numbers
+Crate **0.2.3** includes the following development phases. Phase numbers
 label stages of the port, not published crate versions.
 
 | Phase | Included APIs |
@@ -38,7 +38,7 @@ Requires Rust **1.88** or later. The library name is `meshoptimizer_rs`.
 
 ```toml
 [dependencies]
-meshoptimizer-rs = "0.2.2"
+meshoptimizer-rs = "0.2.3"
 ```
 
 Simplify a mesh, then optimize its triangle order:
@@ -79,7 +79,7 @@ fn main() -> Result<(), meshoptimizer_rs::Error> {
 For an unsafe-free `no_std` build:
 
 ```toml
-meshoptimizer-rs = { version = "0.2.2", default-features = false }
+meshoptimizer-rs = { version = "0.2.3", default-features = false }
 ```
 
 Add `features = ["std"]` for an unsafe-free standard-library build.
@@ -89,7 +89,10 @@ it for the shared crate too.
 Most operations offer allocating, caller-buffer (`_into`) and, where relevant,
 `_in_place` forms. Codec versions and levels are per-call settings.
 `Workspace` reuses scratch storage and enforces per-call byte and work limits;
-its defaults are 1 GiB and 2^34 work units. Late caller-buffer errors can leave
+its defaults are 1 GiB and 2^34 work units. Retained scratch is reused when it
+fits; when a call would exceed the byte limit, scratch it does not use is
+released first and the buffers it reuses are shrunk to the size it needs.
+Late caller-buffer errors can leave
 a written prefix; unused tails are preserved. In-place calls preserve their
 input on failure. See the [API documentation](https://docs.rs/meshoptimizer-rs).
 
@@ -107,7 +110,7 @@ The scalar baseline is pinned meshoptimizer 1.3 with SIMD and FMA contraction
 disabled. The records below differ in source, corpus and API scope.
 For 0.2.1 and 0.2.2, only the encoders were timed again (see
 [Encoder performance in 0.2.2](#encoder-performance-in-022)); no new full-tree
-timing was run.
+timing was run for those releases or for 0.2.3.
 
 The Moss profile uses thin LTO and one codegen unit. The defaults profile uses
 Cargo's consumer release settings: no LTO and sixteen codegen units. The
@@ -197,7 +200,8 @@ See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/bl
 
 ## Known exceptions
 
-These 0.2.0 exceptions still apply to 0.2.2; 0.2.2 changes only encoders.
+These 0.2.0 exceptions still apply to 0.2.3. 0.2.2 changed only encoders, and
+0.2.3 changed only how `Workspace` handles retained scratch.
 The owner's 2026-10-06 roadmap permitted the allocating vertex exception and
 scheduled its fix for 0.2.1, which stages large owned vertex decodes. The
 0.2.2 run repeated the exact `vertex-v1-streaming-s4` request in the defaults
