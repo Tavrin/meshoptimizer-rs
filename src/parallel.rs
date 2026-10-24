@@ -152,7 +152,7 @@ pub fn simplify_lod_chain(
     let mut work = workspace.begin();
     let result = (|| {
         let limits = workspace.limits();
-        let retained = workspace.retained_bytes()?;
+        workspace.release_unused();
         let mut levels =
             crate::budget::Budget::new(workspace).reserved::<SimplifiedMesh>(input.levels.len())?;
         let mut live = checked_bytes(levels.capacity(), size_of::<SimplifiedMesh>())?;
@@ -163,7 +163,7 @@ pub fn simplify_lod_chain(
             let mut child = Workspace::new(Limits {
                 max_bytes: limits
                     .max_bytes
-                    .checked_sub(retained.checked_add(live).ok_or(Error::SizeOverflow)?)
+                    .checked_sub(live)
                     .ok_or(Error::LimitExceeded)?,
                 max_work: limits
                     .max_work
@@ -188,7 +188,6 @@ pub fn simplify_lod_chain(
                 .checked_add(child.usage().work)
                 .ok_or(Error::SizeOverflow)?;
             workspace.charge_owned(
-                retained,
                 live.checked_add(child.usage().bytes)
                     .ok_or(Error::SizeOverflow)?,
             )?;

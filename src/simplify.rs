@@ -729,22 +729,19 @@ pub(crate) struct State {
 struct Budget<'a> {
     ws: &'a mut Workspace,
     bytes: usize,
-    retained: Result<usize, Error>,
     charged: bool,
 }
 impl<'a> Budget<'a> {
     fn new(ws: &'a mut Workspace, bytes: usize) -> Self {
-        let retained = ws.retained_bytes();
         Self {
             ws,
             bytes,
-            retained,
             charged: false,
         }
     }
     fn charge_current(&mut self) -> Result<(), Error> {
         if !self.charged {
-            self.ws.charge_owned(self.retained?, self.bytes)?;
+            self.ws.charge_owned(self.bytes)?;
             self.charged = true;
         }
         Ok(())
@@ -762,10 +759,8 @@ impl<'a> Budget<'a> {
         let minimum = n;
         let base = self.bytes.checked_sub(old).ok_or(Error::SizeOverflow)?;
         let requested = checked_bytes(minimum, size)?;
-        self.ws.charge_owned(
-            self.retained?,
-            base.checked_add(requested).ok_or(Error::SizeOverflow)?,
-        )?;
+        self.ws
+            .charge_owned(base.checked_add(requested).ok_or(Error::SizeOverflow)?)?;
         if n > v.capacity() {
             v.try_reserve_exact(n.saturating_sub(v.len()))
                 .map_err(|_| Error::AllocationFailed)?;
@@ -774,7 +769,7 @@ impl<'a> Budget<'a> {
             .checked_add(checked_bytes(v.capacity(), size)?)
             .ok_or(Error::SizeOverflow)?;
         if v.capacity() != minimum {
-            self.ws.charge_owned(self.retained?, self.bytes)?;
+            self.ws.charge_owned(self.bytes)?;
         }
         self.charged = true;
         Ok(())
@@ -798,10 +793,8 @@ impl<'a> Budget<'a> {
     }
     fn reserve<T>(&mut self, n: usize) -> Result<Vec<T>, Error> {
         let b = checked_bytes(n, core::mem::size_of::<T>())?;
-        self.ws.charge_owned(
-            self.retained?,
-            self.bytes.checked_add(b).ok_or(Error::SizeOverflow)?,
-        )?;
+        self.ws
+            .charge_owned(self.bytes.checked_add(b).ok_or(Error::SizeOverflow)?)?;
         let mut v = Vec::new();
         v.try_reserve_exact(n)
             .map_err(|_| Error::AllocationFailed)?;
@@ -810,7 +803,7 @@ impl<'a> Budget<'a> {
             .checked_add(checked_bytes(v.capacity(), core::mem::size_of::<T>())?)
             .ok_or(Error::SizeOverflow)?;
         if v.capacity() != n {
-            self.ws.charge_owned(self.retained?, self.bytes)?;
+            self.ws.charge_owned(self.bytes)?;
         }
         self.charged = true;
         Ok(v)
@@ -897,6 +890,41 @@ impl State {
             .checked_next_power_of_two()
             .ok_or(Error::SizeOverflow)?;
         let mut state = ws.simplify.take().unwrap_or_else(Self::empty);
+        // Old capacity has no live contents yet. Before reserving, discard an
+        // oversized previous problem (including attributes/collapse buffers).
+        // Only the reservations made below enter this preflight.
+        // Same-size calls keep their allocations whenever the peak fits.
+        let mut projected = output
+            .checked_add(state.capacity_bytes()?)
+            .ok_or(Error::SizeOverflow)?;
+        for (capacity, needed, size) in [
+            (state.offsets.0.capacity(), n + 1, 4),
+            (state.edges.capacity(), m, core::mem::size_of::<Edge>()),
+            (state.remap.0.capacity(), n, 4),
+            (state.wedge.0.capacity(), n, 4),
+            (state.kind.capacity(), n, 1),
+            (state.forward.0.capacity(), n, 4),
+            (state.back.0.capacity(), n, 4),
+            (state.p.capacity(), n, core::mem::size_of::<V>()),
+            (state.a.capacity(), na, 4),
+            (state.q.capacity(), n, core::mem::size_of::<Q>()),
+            (
+                state.aq.capacity(),
+                if ac > 0 { n } else { 0 },
+                core::mem::size_of::<Q>(),
+            ),
+            (state.g.capacity(), na, core::mem::size_of::<G>()),
+            (state.cr.0.capacity(), n, 4),
+            (state.locked.capacity(), n, 1),
+            (state.table.0.capacity(), buckets, 4),
+        ] {
+            projected = projected
+                .checked_add(checked_bytes(needed.saturating_sub(capacity), size)?)
+                .ok_or(Error::SizeOverflow)?;
+        }
+        if projected > ws.limits().max_bytes {
+            state = Self::empty();
+        }
         let bytes = output
             .checked_add(state.capacity_bytes()?)
             .ok_or(Error::SizeOverflow)?;
@@ -1060,6 +1088,8 @@ impl State {
             self.remap.0.push(self.table.get(bucket) as u32);
             self.wedge.0.push(i as u32);
         }
+        self.bytes -= self.table.0.capacity() * core::mem::size_of::<u32>();
+        self.table.0 = Vec::new();
         for i in 0..count {
             work.add(1)?;
             let r = self.remap.get(i);

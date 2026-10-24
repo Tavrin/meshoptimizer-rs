@@ -1121,7 +1121,21 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
         if !scale.is_finite() {
             return Err(Error::NumericalFailure);
         }
-        let scratch = workspace.sloppy.take().unwrap_or_default();
+        let mut scratch = workspace.sloppy.take().unwrap_or_default();
+        let added_positions = checked_bytes(
+            positions.len().saturating_sub(scratch.p.capacity()),
+            core::mem::size_of::<V>(),
+        )?;
+        let added_ids = checked_bytes(positions.len().saturating_sub(scratch.ids.capacity()), 4)?;
+        let projected = scratch
+            .capacity_bytes()?
+            .checked_add(checked_bytes(indices.len(), 4)?)
+            .and_then(|n| n.checked_add(added_positions))
+            .and_then(|n| n.checked_add(added_ids))
+            .ok_or(Error::SizeOverflow)?;
+        if projected > workspace.limits().max_bytes {
+            scratch = SloppyScratch::default();
+        }
         let mut budget = Heap::with_bytes(workspace, scratch.capacity_bytes()?);
         let SloppyScratch {
             mut p,

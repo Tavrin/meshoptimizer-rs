@@ -6,7 +6,8 @@ use core::mem::size_of;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Limits {
     /// Maximum output plus retained scratch capacity, excluding caller buffers
-    /// and allocator overhead. Defaults to 1 GiB.
+    /// and allocator overhead. Defaults to 1 GiB. Scratch is reused when it fits;
+    /// unused retained storage is released under limit pressure.
     pub max_bytes: usize,
     /// Maximum counted record visits. Defaults to 2^34.
     pub max_work: u64,
@@ -47,12 +48,15 @@ pub(crate) struct CacheVertex {
 /// adjacency visits, edge searches, classification, quadric and attribute
 /// accumulation, collapse ranking/sorting/flip checks, and remapping visits.
 /// Its typed scratch is allocated fallibly and retained after successful calls;
-/// usage reports peak storage including all retained workspace buffers. Scale
+/// retained scratch is reused when it fits and released under limit pressure
+/// when the current call does not need it.
+/// Usage reports peak storage including all retained workspace buffers. Scale
 /// computation is allocation-free and has no workspace argument.
 /// Limits never disable checked size arithmetic.
 #[derive(Debug, Default)]
 pub struct Workspace {
     limits: Limits,
+    active: [bool; 5],
     usage: Usage,
     pub(crate) has_retained: bool,
     pub(crate) simplify: Option<crate::simplify::State>,
@@ -100,6 +104,7 @@ impl Workspace {
     #[inline]
     pub(crate) fn begin(&mut self) -> Work {
         self.usage = Usage::default();
+        self.active = [false; 5];
         Work {
             remaining: self.limits.max_work,
             limit: self.limits.max_work,
@@ -109,7 +114,7 @@ impl Workspace {
     pub(crate) fn finish(&mut self, work: &Work) {
         self.usage.work = work.limit - work.remaining;
     }
-    // Scratch capacities are stable while a local Budget borrows the workspace.
+    // Local budgets re-read capacities after pressure can evict unused buffers.
     #[inline]
     pub(crate) fn retained_bytes(&self) -> Result<usize, Error> {
         if !self.has_retained {
@@ -143,17 +148,55 @@ impl Workspace {
         )
     }
     #[inline]
-    pub(crate) fn charge_owned(&mut self, retained: usize, owned: usize) -> Result<(), Error> {
-        let bytes = retained.checked_add(owned).ok_or(Error::SizeOverflow)?;
+    pub(crate) fn charge_owned(&mut self, owned: usize) -> Result<(), Error> {
+        let mut bytes = self
+            .retained_bytes()?
+            .checked_add(owned)
+            .ok_or(Error::SizeOverflow)?;
+        if bytes > self.limits.max_bytes {
+            // Local typed scratch has already been taken out of the workspace.
+            // Buffers prepared by this call remain live and must stay charged.
+            self.simplify = None;
+            self.sloppy = None;
+            if !self.active[0] {
+                self.integers = Vec::new();
+            }
+            if !self.active[1] {
+                self.floats = Vec::new();
+            }
+            if !self.active[2] {
+                self.flags = Vec::new();
+            }
+            if !self.active[3] {
+                self.keys = Vec::new();
+            }
+            if !self.active[4] {
+                self.vertices = Vec::new();
+            }
+            bytes = self
+                .retained_bytes()?
+                .checked_add(owned)
+                .ok_or(Error::SizeOverflow)?;
+        }
         if bytes > self.limits.max_bytes {
             return Err(Error::LimitExceeded);
         }
         self.usage.bytes = self.usage.bytes.max(bytes);
         Ok(())
     }
+    #[cfg(any(feature = "clusterlod", feature = "parallel"))]
+    pub(crate) fn release_unused(&mut self) {
+        self.simplify = None;
+        self.sloppy = None;
+        self.vertices = Vec::new();
+        self.integers = Vec::new();
+        self.floats = Vec::new();
+        self.flags = Vec::new();
+        self.keys = Vec::new();
+    }
     #[inline]
     pub(crate) fn charge_retained(&mut self) -> Result<(), Error> {
-        self.charge_owned(self.retained_bytes()?, 0)
+        self.charge_owned(0)
     }
     pub(crate) fn prepare(&mut self, lengths: [usize; 4], output: usize) -> Result<(), Error> {
         self.prepare_cache(lengths, 0, output)
@@ -185,7 +228,7 @@ impl Workspace {
         integer_value: u32,
     ) -> Result<(), Error> {
         let [i, f, b, k] = lengths;
-        let simplify_bytes = self
+        let mut simplify_bytes = self
             .simplify
             .as_ref()
             .map_or(Ok(0), |s| s.capacity_bytes())?
@@ -209,8 +252,43 @@ impl Workspace {
             owned,
         )?;
         if bytes > self.limits.max_bytes {
-            return Err(Error::LimitExceeded);
+            self.simplify = None;
+            self.sloppy = None;
+            if (!self.active[0] || i == 0) && self.integers.capacity() > i {
+                self.integers = Vec::new();
+            }
+            if (!self.active[1] || f == 0) && self.floats.capacity() > f {
+                self.floats = Vec::new();
+            }
+            if (!self.active[2] || b == 0) && self.flags.capacity() > b {
+                self.flags = Vec::new();
+            }
+            if (!self.active[3] || k == 0) && self.keys.capacity() > k {
+                self.keys = Vec::new();
+            }
+            if (!self.active[4] || vertices == 0) && self.vertices.capacity() > vertices {
+                self.vertices = Vec::new();
+            }
+            simplify_bytes = 0;
+            let minimum = total(
+                [
+                    i.max(self.integers.capacity()),
+                    f.max(self.floats.capacity()),
+                    b.max(self.flags.capacity()),
+                    k.max(self.keys.capacity()),
+                ],
+                output
+                    .checked_add(checked_bytes(
+                        vertices.max(self.vertices.capacity()),
+                        size_of::<CacheVertex>(),
+                    )?)
+                    .ok_or(Error::SizeOverflow)?,
+            )?;
+            if minimum > self.limits.max_bytes {
+                return Err(Error::LimitExceeded);
+            }
         }
+        self.active = [i != 0, f != 0, b != 0, k != 0, vertices != 0];
         self.has_retained |= i != 0 || f != 0 || b != 0 || k != 0 || vertices != 0;
         reserve(&mut self.vertices, vertices)?;
         reserve_value(&mut self.integers, i, integer_value)?;
@@ -256,38 +334,7 @@ fn total(lengths: [usize; 4], output: usize) -> Result<usize, Error> {
 impl Workspace {
     #[inline]
     pub(crate) fn account_codec(&mut self, output: usize) -> Result<(), Error> {
-        if self.vertices.capacity() == 0
-            && self.integers.capacity() == 0
-            && self.floats.capacity() == 0
-            && self.flags.capacity() == 0
-            && self.keys.capacity() == 0
-        {
-            if output > self.limits.max_bytes {
-                return Err(Error::LimitExceeded);
-            }
-            self.usage.bytes = output;
-            return Ok(());
-        }
-        let owned = output
-            .checked_add(checked_bytes(
-                self.vertices.capacity(),
-                size_of::<CacheVertex>(),
-            )?)
-            .ok_or(Error::SizeOverflow)?;
-        let bytes = total(
-            [
-                self.integers.capacity(),
-                self.floats.capacity(),
-                self.flags.capacity(),
-                self.keys.capacity(),
-            ],
-            owned,
-        )?;
-        if bytes > self.limits.max_bytes {
-            return Err(Error::LimitExceeded);
-        }
-        self.usage.bytes = bytes;
-        Ok(())
+        self.charge_owned(output)
     }
 }
 
@@ -508,28 +555,9 @@ pub(crate) fn topology(indices: &[u32], vertices: usize, work: &mut Work) -> Res
 // Additive 0.3 accounting: processing modules use local typed scratch and do not
 // resize the workspace's cache/overdraw buffers.
 impl Workspace {
-    pub(crate) fn retained_storage(&self) -> Result<usize, Error> {
-        let mut bytes = 0usize;
-        for (n, size) in [
-            (self.vertices.capacity(), size_of::<CacheVertex>()),
-            (self.integers.capacity(), 4),
-            (self.floats.capacity(), 4),
-            (self.flags.capacity(), 1),
-            (self.keys.capacity(), 2),
-        ] {
-            bytes = bytes
-                .checked_add(checked_bytes(n, size)?)
-                .ok_or(Error::SizeOverflow)?;
-        }
-        Ok(bytes)
-    }
     #[inline]
     pub(crate) fn processing_storage(&mut self, bytes: usize) -> Result<(), Error> {
-        if bytes > self.limits.max_bytes {
-            return Err(Error::LimitExceeded);
-        }
-        self.usage.bytes = self.usage.bytes.max(bytes);
-        Ok(())
+        self.charge_owned(bytes)
     }
 }
 
@@ -549,6 +577,59 @@ impl Work {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn simplify_then_cache_releases_retained_scratch_under_pressure() {
+        use crate::{
+            optimize_vertex_cache_in_place, simplify, Positions, SimplifyOptions, SimplifySettings,
+        };
+        // Unshared triangles keep the simplified stream large, as in a082.
+        let positions: Vec<_> = (0..4096)
+            .flat_map(|i| {
+                let x = i as f32 * 2.0;
+                [[x, 0.0, 0.0], [x + 1.0, 0.0, 0.0], [x, 1.0, 0.0]]
+            })
+            .collect();
+        let indices: Vec<_> = (0..positions.len() as u32).collect();
+        let settings = SimplifySettings {
+            target_index_count: indices.len() / 2,
+            target_error: 0.01,
+            options: SimplifyOptions::EMPTY,
+        };
+        let mut fresh = Workspace::default();
+        let expected = simplify(
+            &indices,
+            Positions::from_packed(&positions),
+            settings,
+            &mut fresh,
+        )
+        .unwrap();
+        let simplify_peak = fresh.usage().bytes;
+        fresh.clear();
+        let mut expected_cache = expected.indices.clone();
+        optimize_vertex_cache_in_place(&mut expected_cache, positions.len(), &mut fresh).unwrap();
+        let limits = Limits {
+            max_bytes: simplify_peak.max(fresh.usage().bytes),
+            ..Limits::default()
+        };
+        let mut reused = Workspace::new(limits);
+        let actual = simplify(
+            &indices,
+            Positions::from_packed(&positions),
+            settings,
+            &mut reused,
+        )
+        .unwrap();
+        assert_eq!(actual.indices, expected.indices);
+        assert_eq!(actual.error.to_bits(), expected.error.to_bits());
+        let retained = reused.retained_bytes().unwrap();
+        // Establish the regression's premise rather than just exercise reuse.
+        let cache_demand = fresh.usage().bytes;
+        assert!(retained + cache_demand > limits.max_bytes);
+        let mut actual_cache = actual.indices;
+        optimize_vertex_cache_in_place(&mut actual_cache, positions.len(), &mut reused).unwrap();
+        assert_eq!(actual_cache, expected_cache);
+    }
 
     #[test]
     fn precharged_scans_and_batches_fit_their_counter_width() {

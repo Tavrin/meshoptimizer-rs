@@ -885,12 +885,10 @@ fn sloppy_scratch_reuse_clears_cell_state_and_combines_typed_budgets() {
             &mut bounded,
         )
         .unwrap();
-        assert!(matches!(
-            simplify(&indices, Positions::from_packed(&p), settings, &mut bounded),
-            Err(Error::LimitExceeded)
-        ));
-        bounded.clear();
-        simplify(&indices, Positions::from_packed(&p), settings, &mut bounded).unwrap();
+        let actual =
+            simplify(&indices, Positions::from_packed(&p), settings, &mut bounded).unwrap();
+        assert_eq!(actual.indices, expected.indices);
+        assert_eq!(actual.error.to_bits(), expected.error.to_bits());
     }
 }
 

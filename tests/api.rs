@@ -738,7 +738,7 @@ fn overdraw_rejects_squared_area_overflow_with_finite_normal() {
 }
 
 #[test]
-fn other_algorithms_charge_retained_cache_vertex_storage() {
+fn other_algorithms_release_unused_cache_vertex_storage() {
     let indices = [0, 1, 1];
     let p = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]];
     let mut ws = Workspace::new(Limits {
@@ -746,10 +746,25 @@ fn other_algorithms_charge_retained_cache_vertex_storage() {
         max_work: u64::MAX,
     });
     assert!(optimize_vertex_cache(&indices, p.len(), &mut ws).is_ok());
+    let reused = optimize_overdraw(&indices, Positions::from_packed(&p), 1.05, &mut ws).unwrap();
+    ws.clear();
     assert_eq!(
-        optimize_overdraw(&indices, Positions::from_packed(&p), 1.05, &mut ws),
+        reused,
+        optimize_overdraw(&indices, Positions::from_packed(&p), 1.05, &mut ws).unwrap()
+    );
+}
+
+#[test]
+fn cache_still_refuses_live_storage_that_does_not_fit() {
+    let mut indices = [0, 1, 2];
+    // 53 scratch bytes plus the 12-byte transactional in-place output.
+    let mut ws = Workspace::new(Limits {
+        max_bytes: 64,
+        ..Limits::default()
+    });
+    assert_eq!(
+        optimize_vertex_cache_in_place(&mut indices, 3, &mut ws),
         Err(Error::LimitExceeded)
     );
-    ws.clear();
-    assert!(optimize_overdraw(&indices, Positions::from_packed(&p), 1.05, &mut ws).is_ok());
+    assert_eq!(indices, [0, 1, 2]);
 }
