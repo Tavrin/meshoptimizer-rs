@@ -86,7 +86,17 @@ pub(super) fn components(
     budget: &mut Heap<'_>,
     work: &mut Work,
 ) -> Result<(Vec<u32>, Vec<f32>), Error> {
-    let n = p.len();
+    let (c, nc) = component_ids(remap, indices, budget, work)?;
+    let errors = component_errors(p, &c, nc, budget, work)?;
+    Ok((c, errors))
+}
+pub(super) fn component_ids(
+    remap: &[u32],
+    indices: &[u32],
+    budget: &mut Heap<'_>,
+    work: &mut Work,
+) -> Result<(Vec<u32>, usize), Error> {
+    let n = remap.len();
     let mut c = budget.filled(n, 0u32)?;
     for (i, r) in c.iter_mut().enumerate() {
         work.add(1)?;
@@ -133,7 +143,16 @@ pub(super) fn components(
             c[i] = c[r as usize];
         }
     }
-    let mut errors = budget.filled(checked_bytes(nc as usize, 4)?, 0.0f32)?;
+    Ok((c, nc as usize))
+}
+pub(super) fn component_errors(
+    p: &[V],
+    c: &[u32],
+    nc: usize,
+    budget: &mut Heap<'_>,
+    work: &mut Work,
+) -> Result<Vec<f32>, Error> {
+    let mut errors = budget.filled(checked_bytes(nc, 4)?, 0.0f32)?;
     for (i, v) in p.iter().enumerate() {
         work.add(1)?;
         let j = c[i] as usize * 4;
@@ -165,12 +184,12 @@ pub(super) fn components(
             errors[j + 3] = r;
         }
     }
-    for i in 0..nc as usize {
+    for i in 0..nc {
         work.add(1)?;
         errors[i] = errors[i * 4 + 3];
     }
-    errors.truncate(nc as usize);
-    Ok((c, errors))
+    errors.truncate(nc);
+    Ok(errors)
 }
 pub(super) fn prune(
     out: &mut [u32],
@@ -283,7 +302,7 @@ fn hash_size(n: usize) -> Result<usize, Error> {
 #[allow(clippy::too_many_arguments)]
 pub(super) fn sparse_run(
     out: &mut [u32],
-    indices: &[u32],
+    mut input: Input<'_>,
     positions: Positions<'_>,
     attributes: Option<Attributes<'_>>,
     weights: &[f32],
@@ -295,9 +314,13 @@ pub(super) fn sparse_run(
     solve: bool,
 ) -> Result<(SimplifyResult, State), Error> {
     let mut b = Budget::new(ws, output);
+    b.reclaim_input(
+        &mut input.original,
+        checked_bytes(positions.len().div_ceil(8), 1),
+    )?;
     let mut filter = b.filled(positions.len().div_ceil(8), 0u8)?;
     let mut unique = 0;
-    for &i in indices {
+    for &i in input.as_slice() {
         work.add(1)?;
         let flag = 1u8 << (i % 8);
         if filter[i as usize / 8] & flag == 0 {
@@ -306,10 +329,17 @@ pub(super) fn sparse_run(
         }
     }
     b.release(filter);
+    b.reclaim_input(&mut input.original, checked_bytes(unique, 4))?;
     let mut sparse = b.reserve::<u32>(unique)?;
+    b.reclaim_input(
+        &mut input.original,
+        hash_size(unique).and_then(|n| checked_bytes(n, 4)),
+    )?;
     let mut reverse = b.filled(hash_size(unique)?, u32::MAX)?;
-    let mut topology = b.vec::<u32>(indices.len())?;
-    for (&i, r) in indices.iter().zip(&mut topology) {
+    let topology_bytes = checked_bytes(input.as_slice().len(), 4);
+    b.reclaim_input(&mut input.original, topology_bytes)?;
+    let mut topology = b.vec::<u32>(input.as_slice().len())?;
+    for (&i, r) in input.as_slice().iter().zip(&mut topology) {
         work.add(1)?;
         let mask = reverse.len() - 1;
         let mut slot = i.wrapping_mul(0x5bd1e995) as usize & mask;
@@ -330,6 +360,13 @@ pub(super) fn sparse_run(
         }
     }
     b.release(reverse);
+    b.reclaim_input(
+        &mut input.original,
+        checked_bytes(
+            if flags.is_some() { sparse.len() } else { 0 },
+            core::mem::size_of::<VertexFlags>(),
+        ),
+    )?;
     let mut f = b.filled(
         if flags.is_some() { sparse.len() } else { 0 },
         VertexFlags::EMPTY,
@@ -344,7 +381,11 @@ pub(super) fn sparse_run(
     settings.options = SimplifyOptions(settings.options.bits() & !2);
     let (r, mut state) = run_state(
         out,
-        &topology,
+        Input {
+            indices: &topology,
+            original: input.original,
+            update: false,
+        },
         positions.mapped(&sparse),
         attributes.map(|a| a.mapped(&sparse)),
         weights,
@@ -665,9 +706,13 @@ pub fn simplify_with_update(
         work.add(indices.len())?;
         original.copy_from_slice(indices);
         let bytes = b.bytes;
-        let (r, mut s) = run_state(
+        let (r, s) = run_state(
             indices,
-            &original,
+            Input {
+                indices: &[],
+                original,
+                update: true,
+            },
             positions.as_view(),
             attributes.as_ref().map(|a| a.as_view()),
             weights,
@@ -739,7 +784,6 @@ pub fn simplify_with_update(
                 }
             }
         }
-        s.original = original;
         s.retain(b.ws);
         Ok(r)
     })();
@@ -1151,8 +1195,49 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
             mut triangles,
             mut cache,
         } = scratch;
+        // No previous-call contents are live. Later pressure may reclaim
+        // either dormant allocations or excess capacity of initialized arrays.
+        p.clear();
+        ids.clear();
+        table.clear();
+        vertex_cells.clear();
+        q.clear();
+        remap.clear();
+        errors.clear();
+        triangles.clear();
+        macro_rules! reclaim {
+            ($added:expr) => {{
+                let requested = $added
+                    .and_then(|added| budget.bytes().checked_add(added).ok_or(Error::SizeOverflow));
+                if requested.is_ok_and(|bytes| bytes > budget.ws.limits().max_bytes) {
+                    let mut released = 0;
+                    macro_rules! shrink {
+                        ($v:ident, $size:expr) => {{
+                            let before = checked_bytes($v.capacity(), $size)?;
+                            crate::workspace::shrink(&mut $v, true)?;
+                            released += before - checked_bytes($v.capacity(), $size)?;
+                        }};
+                    }
+                    shrink!(p, core::mem::size_of::<V>());
+                    shrink!(ids, 4);
+                    shrink!(table, 4);
+                    shrink!(vertex_cells, 4);
+                    shrink!(q, core::mem::size_of::<GridQuadric>());
+                    shrink!(remap, 4);
+                    shrink!(errors, 4);
+                    shrink!(triangles, 4);
+                    let bytes = budget.bytes() - released;
+                    budget = Heap::with_bytes(budget.ws, bytes);
+                }
+            }};
+        }
+        reclaim!(checked_bytes(
+            positions.len().saturating_sub(p.capacity()),
+            core::mem::size_of::<V>()
+        ));
         budget.reuse(&mut p, positions.len(), V::default())?;
         scale_values(positions, &mut p, lo, scale, &mut work)?;
+        reclaim!(checked_bytes((p.len()).saturating_sub(ids.capacity()), 4));
         budget.reuse(&mut ids, p.len(), 0u32)?;
         let mut min_grid = (1.0 / target_error.clamp(1e-3, 1.0)) as i32;
         let mut max_grid = 1025;
@@ -1213,10 +1298,22 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
                 0,
             ));
         }
+        reclaim!(checked_bytes(
+            (hash_size(p.len())?).saturating_sub(table.capacity()),
+            4
+        ));
         budget.reuse(&mut table, hash_size(p.len())?, u32::MAX)?;
+        reclaim!(checked_bytes(
+            (p.len()).saturating_sub(vertex_cells.capacity()),
+            4
+        ));
         budget.reuse(&mut vertex_cells, p.len(), 0u32)?;
         vertex_ids(&mut ids, &p, locks, min_grid, &mut work)?;
         let nc = cells(&mut table, &ids, Some(&mut vertex_cells), &mut work)?;
+        reclaim!(checked_bytes(
+            (nc).saturating_sub(q.capacity()),
+            core::mem::size_of::<GridQuadric>()
+        ));
         budget.reuse(&mut q, nc, GridQuadric::default())?;
         q.fill(GridQuadric::default());
         let source_triangles = indices.as_chunks::<3>().0;
@@ -1252,8 +1349,10 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
             q.cache_inverse_weight();
             Ok(())
         })?;
+        reclaim!(checked_bytes((nc).saturating_sub(remap.capacity()), 4));
         budget.reuse(&mut remap, nc, u32::MAX)?;
         remap.fill(u32::MAX);
+        reclaim!(checked_bytes((nc).saturating_sub(errors.capacity()), 4));
         budget.reuse(&mut errors, nc, 0.0f32)?;
         let charged = work.precharge(p.len(), 1)?;
         for (i, &v) in p.iter().enumerate() {
@@ -1274,8 +1373,15 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
             }
             Ok(())
         })?;
+        reclaim!(checked_bytes(
+            (hash_size(min_triangles)?).saturating_sub(triangles.capacity()),
+            4
+        ));
         budget.reuse(&mut triangles, hash_size(min_triangles)?, u32::MAX)?;
         triangles.fill(u32::MAX);
+        if !CALLER {
+            reclaim!(checked_bytes(indices.len(), 4));
+        }
         let mut owned = if !CALLER {
             budget.filled(indices.len(), 0u32)?
         } else {
@@ -1736,7 +1842,7 @@ mod solve_tests {
     fn accumulated_solve_preserves_numerical_failure_work_and_position_prefix() {
         fn run<const LIMITED: bool>(fail: usize) -> (Result<(), Error>, Vec<u32>, u64) {
             let mut ws = Workspace::new(Limits::default());
-            let mut s = State::new(3, 0, 0, &mut ws, 0, false).unwrap();
+            let mut s = State::new(3, 0, 0, &mut ws, 0, false, &mut Vec::new()).unwrap();
             s.p.extend([V::default(); 3]);
             s.kind.fill(MAN);
             s.locked.fill(true);

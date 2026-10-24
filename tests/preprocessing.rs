@@ -1375,3 +1375,149 @@ fn position_only_simplify_releases_unused_attribute_scratch_before_collapse() {
     assert_eq!(actual.indices, expected.indices);
     assert_eq!(actual.error.to_bits(), expected.error.to_bits());
 }
+
+#[test]
+fn overdraw_reclaims_excess_capacity_of_active_integer_scratch() {
+    let p = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [2., 0., 0.]];
+    let limits = Limits {
+        max_bytes: 32,
+        ..Limits::default()
+    };
+    let mut reused = Workspace::new(limits);
+    generate_position_remap_into(&mut [0; 4], Positions::from_packed(&p), &mut reused).unwrap();
+    let mut expected = [99; 3];
+    optimize_overdraw_into(
+        &mut expected,
+        &[0, 1, 2],
+        Positions::from_packed(&p[..3]),
+        1.05,
+        &mut Workspace::new(limits),
+    )
+    .unwrap();
+    let mut actual = [99; 3];
+    optimize_overdraw_into(
+        &mut actual,
+        &[0, 1, 2],
+        Positions::from_packed(&p[..3]),
+        1.05,
+        &mut reused,
+    )
+    .unwrap();
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn update_reclaims_excess_capacity_of_active_original_scratch() {
+    let limits = Limits {
+        max_bytes: 85_000,
+        ..Limits::default()
+    };
+    let mut reused = Workspace::new(limits);
+    for (n, repetitions) in [(3, 1000), (819, 1)] {
+        let p: Vec<_> = (0..n).map(|i| [i as f32, (i % 2) as f32, 0.]).collect();
+        let indices = [0, 1, 2].repeat(repetitions);
+        let flags = vec![VertexFlags::LOCK; n];
+        let settings = SimplifySettings {
+            target_index_count: indices.len(),
+            target_error: 0.01,
+            options: SimplifyOptions::EMPTY,
+        };
+        let run = |ws: &mut Workspace| {
+            let mut p = p.clone();
+            let mut indices = indices.clone();
+            let result = simplify_with_update(
+                &mut indices,
+                &mut PositionsMut::from_packed(&mut p),
+                None,
+                &[],
+                Some(&flags),
+                settings,
+                ws,
+            )
+            .unwrap();
+            (
+                indices,
+                p.iter().map(|p| p.map(f32::to_bits)).collect::<Vec<_>>(),
+                result.index_count,
+                result.error.to_bits(),
+            )
+        };
+        let expected = run(&mut Workspace::new(limits));
+        assert_eq!(run(&mut reused), expected);
+    }
+}
+
+#[test]
+fn retained_different_size_processing_sequences_match_fresh() {
+    // Every ordered pair varies both the algorithm and its problem size.
+    // Cache/remap use integers; overdraw and points also reuse floats/keys.
+    let run = |kind, n, ws: &mut Workspace| {
+        let p: Vec<_> = (0..n)
+            .map(|i| [(i / 3) as f32, (i % 3) as f32, (i % 2) as f32])
+            .collect();
+        let indices: Vec<_> = (0..n as u32).collect();
+        let mut out = vec![99; n];
+        let mut bits = 0;
+        match kind {
+            0 => optimize_vertex_cache_into(&mut out, &indices, n, ws).unwrap(),
+            1 => optimize_vertex_cache_strip_into(&mut out, &indices, n, ws).unwrap(),
+            2 => optimize_vertex_cache_fifo_into(&mut out, &indices, n, 16, ws).unwrap(),
+            3 => optimize_overdraw_into(&mut out, &indices, Positions::from_packed(&p), 1.05, ws)
+                .unwrap(),
+            4 => generate_position_remap_into(&mut out, Positions::from_packed(&p), ws).unwrap(),
+            5 => {
+                let r = simplify_points(Positions::from_packed(&p), None, 0., n / 2, ws).unwrap();
+                out = r;
+            }
+            6 => {
+                let r = simplify_sloppy(&indices, Positions::from_packed(&p), None, n / 2, 0.5, ws)
+                    .unwrap();
+                out = r.indices;
+                bits = r.error.to_bits();
+            }
+            _ => {
+                let options = match kind {
+                    8 => SimplifyOptions::PRUNE,
+                    9 => SimplifyOptions::SPARSE,
+                    _ => SimplifyOptions::EMPTY,
+                };
+                let r = simplify(
+                    &indices,
+                    Positions::from_packed(&p),
+                    SimplifySettings {
+                        target_index_count: n / 2,
+                        target_error: 0.5,
+                        options,
+                    },
+                    ws,
+                )
+                .unwrap();
+                out = r.indices;
+                bits = r.error.to_bits();
+            }
+        }
+        (out, bits)
+    };
+    let cases: Vec<_> = (0..10)
+        .flat_map(|kind| [3, 12, 51].map(|n| (kind, n)))
+        .collect();
+    for &(a, n) in &cases {
+        for &(b, m) in &cases {
+            let mut first = Workspace::default();
+            let expected_first = run(a, n, &mut first);
+            let mut fresh = Workspace::default();
+            let expected = run(b, m, &mut fresh);
+            let limit = first.usage().bytes.max(fresh.usage().bytes);
+            let mut reused = Workspace::new(Limits {
+                max_bytes: limit,
+                ..Limits::default()
+            });
+            assert_eq!(run(a, n, &mut reused), expected_first);
+            assert_eq!(
+                run(b, m, &mut reused),
+                expected,
+                "{a}/{n} -> {b}/{m}, limit {limit}"
+            );
+        }
+    }
+}

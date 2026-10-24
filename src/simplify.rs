@@ -726,6 +726,29 @@ pub(crate) struct State {
     ac: usize,
     bytes: usize,
 }
+// Keep the update snapshot owned and reachable during every preparation phase,
+// including sparse remapping. Its capacity is included in the external budget.
+struct Input<'a> {
+    indices: &'a [u32],
+    original: Vec<u32>,
+    update: bool,
+}
+impl<'a> Input<'a> {
+    fn borrowed(indices: &'a [u32]) -> Self {
+        Self {
+            indices,
+            original: Vec::new(),
+            update: false,
+        }
+    }
+    fn as_slice(&self) -> &[u32] {
+        if self.update {
+            &self.original
+        } else {
+            self.indices
+        }
+    }
+}
 struct Budget<'a> {
     ws: &'a mut Workspace,
     bytes: usize,
@@ -738,6 +761,21 @@ impl<'a> Budget<'a> {
             bytes,
             charged: false,
         }
+    }
+    fn reclaim_input(
+        &mut self,
+        original: &mut Vec<u32>,
+        added: Result<usize, Error>,
+    ) -> Result<(), Error> {
+        let requested =
+            added.and_then(|added| self.bytes.checked_add(added).ok_or(Error::SizeOverflow));
+        if requested.is_ok_and(|bytes| bytes > self.ws.limits().max_bytes) {
+            let before = checked_bytes(original.capacity(), 4)?;
+            crate::workspace::shrink(original, true)?;
+            self.bytes -= before - checked_bytes(original.capacity(), 4)?;
+            self.charged = false;
+        }
+        Ok(())
     }
     fn charge_current(&mut self) -> Result<(), Error> {
         if !self.charged {
@@ -846,6 +884,48 @@ impl State {
                 .ok_or(Error::SizeOverflow)
         })
     }
+    fn reclaim_for(
+        &mut self,
+        ws: &Workspace,
+        requested: Result<usize, Error>,
+        original: &mut Vec<u32>,
+    ) -> Result<(), Error> {
+        if !requested.is_ok_and(|bytes| bytes > ws.limits().max_bytes) {
+            return Ok(());
+        }
+        let before = self.capacity_bytes()? + checked_bytes(original.capacity(), 4)?;
+        // remap, wedge and positions are filled by pushes after initial allocation.
+        // Their reserved prefixes are live even before their lengths reach n.
+        self.remap.0.shrink_to(self.vertex_count);
+        self.wedge.0.shrink_to(self.vertex_count);
+        self.p.shrink_to(self.vertex_count);
+        macro_rules! shrink {
+            ($($v:expr),* $(,)?) => { $(crate::workspace::shrink(&mut $v, true)?;)* };
+        }
+        shrink!(
+            self.offsets.0,
+            self.edges,
+            self.kind,
+            self.forward.0,
+            self.back.0,
+            self.a,
+            self.q,
+            self.aq,
+            self.g,
+            self.vg,
+            self.sparse,
+            self.original,
+            self.collapses,
+            self.order.0,
+            self.cr.0,
+            self.locked,
+            self.table.0,
+            *original
+        );
+        let after = self.capacity_bytes()? + checked_bytes(original.capacity(), 4)?;
+        self.bytes -= before - after;
+        Ok(())
+    }
     fn retain(mut self, ws: &mut Workspace) {
         if let Some(mut unused) = ws.simplify.take() {
             if self.a.capacity() == 0 {
@@ -905,8 +985,9 @@ impl State {
         m: usize,
         ac: usize,
         ws: &mut Workspace,
-        output: usize,
+        mut output: usize,
         solve: bool,
+        original: &mut Vec<u32>,
     ) -> Result<Self, Error> {
         let na = n.checked_mul(ac).ok_or(Error::SizeOverflow)?;
         let buckets = n
@@ -971,7 +1052,13 @@ impl State {
             Ok::<_, Error>(projected)
         })();
         if projected.is_ok_and(|bytes| bytes > ws.limits().max_bytes) {
-            state = Self::empty();
+            let old = checked_bytes(original.capacity(), 4)?;
+            crate::workspace::shrink(original, true)?;
+            let released = old - checked_bytes(original.capacity(), 4)?;
+            output -= released;
+            if projected.is_ok_and(|bytes| bytes - released > ws.limits().max_bytes) {
+                state = Self::empty();
+            }
         }
         let bytes = output
             .checked_add(state.capacity_bytes()?)
@@ -1002,6 +1089,7 @@ impl State {
         state.sparse.clear();
         state.original.clear();
         state.collapses.clear();
+        state.order.0.clear();
         b.reuse(&mut state.cr.0, n)?;
         b.reuse(&mut state.locked, n)?;
         state.locked.fill(false);
@@ -1948,7 +2036,17 @@ fn run(
     output: usize,
 ) -> Result<SimplifyResult, Error> {
     let (result, state) = run_state(
-        out, indices, positions, attributes, weights, flags, settings, ws, work, output, false,
+        out,
+        Input::borrowed(indices),
+        positions,
+        attributes,
+        weights,
+        flags,
+        settings,
+        ws,
+        work,
+        output,
+        false,
     )?;
     state.retain(ws);
     Ok(result)
@@ -1993,7 +2091,7 @@ fn normalize_attribute_row(
 #[allow(clippy::too_many_arguments)]
 fn run_state(
     out: &mut [u32],
-    indices: &[u32],
+    mut input: Input<'_>,
     positions: Positions<'_>,
     attributes: Option<Attributes<'_>>,
     weights: &[f32],
@@ -2006,21 +2104,24 @@ fn run_state(
 ) -> Result<(SimplifyResult, State), Error> {
     if settings.options.contains(SimplifyOptions::SPARSE) {
         return extra::sparse_run(
-            out, indices, positions, attributes, weights, flags, settings, ws, work, output, solve,
+            out, input, positions, attributes, weights, flags, settings, ws, work, output, solve,
         );
     }
     let n = positions.len();
-    let m = indices.len();
+    let m = input.as_slice().len();
     let ac = weights.iter().filter(|&&w| w > 0.0).count();
-    let mut s = State::new(n, m, ac, ws, output, solve)?;
+    let mut s = State::new(n, m, ac, ws, output, solve, &mut input.original)?;
     s.clamped = settings.options.bits() & 256 != 0;
     if solve && ac > 0 {
+        let requested = checked_bytes(n.saturating_sub(s.vg.capacity()), core::mem::size_of::<G>())
+            .and_then(|added| s.bytes.checked_add(added).ok_or(Error::SizeOverflow));
+        s.reclaim_for(ws, requested, &mut input.original)?;
         let mut b = Budget::new(ws, s.bytes);
         b.reuse(&mut s.vg, n)?;
         s.vg.fill(G::default());
         s.bytes = b.bytes;
     }
-    s.adjacency::<false>(indices, work)?;
+    s.adjacency::<false>(input.as_slice(), work)?;
     s.position_remap(positions, work)?;
     metered!(work, s.classify_work(m, settings.options), |w| s.classify(
         flags,
@@ -2046,14 +2147,23 @@ fn run_state(
         }
     }
     let (components, component_errors) = if settings.options.contains(SimplifyOptions::PRUNE) {
+        let requested = checked_bytes(n, 4)
+            .and_then(|added| s.bytes.checked_add(added).ok_or(Error::SizeOverflow));
+        s.reclaim_for(ws, requested, &mut input.original)?;
         let mut b = crate::budget::Budget::with_bytes(ws, s.bytes);
-        let value = extra::components(&s.p, &s.remap.0, indices, &mut b, work)?;
+        let (c, nc) = extra::component_ids(&s.remap.0, input.as_slice(), &mut b, work)?;
         s.bytes = b.bytes();
-        value
+        let requested = checked_bytes(nc, 16)
+            .and_then(|added| s.bytes.checked_add(added).ok_or(Error::SizeOverflow));
+        s.reclaim_for(ws, requested, &mut input.original)?;
+        let mut b = crate::budget::Budget::with_bytes(ws, s.bytes);
+        let errors = extra::component_errors(&s.p, &c, nc, &mut b, work)?;
+        s.bytes = b.bytes();
+        (c, errors)
     } else {
         (Vec::new(), Vec::new())
     };
-    s.quadrics(indices, flags, settings.options, work)?;
+    s.quadrics(input.as_slice(), flags, settings.options, work)?;
     let mut dual = 0;
     work.scan(s.kind.iter().zip(s.offsets.0.windows(2)), |(&k, o)| {
         if k == MAN || k == SEAM {
@@ -2074,17 +2184,7 @@ fn run_state(
             .ok_or(Error::SizeOverflow)?;
         Ok::<_, Error>(requested)
     })();
-    if requested.is_ok_and(|bytes| bytes > ws.limits().max_bytes) {
-        let before = s.capacity_bytes()?;
-        // Collapse/order contents have not been produced for this call yet.
-        if s.collapses.capacity() > capacity {
-            s.collapses = Vec::new();
-        }
-        if s.order.0.capacity() > capacity {
-            s.order.0 = Vec::new();
-        }
-        s.bytes -= before - s.capacity_bytes()?;
-    }
+    s.reclaim_for(ws, requested, &mut input.original)?;
     let mut budget = Budget::new(ws, s.bytes);
     budget.reuse_capacity(&mut s.collapses, capacity)?;
     budget.reuse(&mut s.order.0, capacity)?;
@@ -2099,7 +2199,7 @@ fn run_state(
     };
     let limit = (settings.target_error * settings.target_error) / (error_scale * error_scale);
     work.add(m)?;
-    out[..m].copy_from_slice(indices);
+    out[..m].copy_from_slice(input.as_slice());
     while count > settings.target_index_count {
         s.adjacency::<true>(&out[..count], work)?;
         let nc = s.pick(&out[..count], capacity, work)?;
@@ -2188,6 +2288,7 @@ fn run_state(
     if !error.is_finite() {
         return Err(Error::NumericalFailure);
     }
+    s.original = input.original;
     Ok((
         SimplifyResult {
             index_count: count,
@@ -2213,7 +2314,7 @@ mod tests {
             ..Limits::default()
         });
         assert!(matches!(
-            State::new(vertices, 0, 0, &mut ws, 0, false),
+            State::new(vertices, 0, 0, &mut ws, 0, false, &mut Vec::new()),
             Err(Error::LimitExceeded)
         ));
     }
@@ -2308,7 +2409,7 @@ mod tests {
                     max_bytes: 1 << 20,
                     max_work: limit,
                 });
-                let mut state = State::new(2, 0, 0, &mut ws, 0, false).unwrap();
+                let mut state = State::new(2, 0, 0, &mut ws, 0, false, &mut Vec::new()).unwrap();
                 state.p.extend([V::default(); 2]);
                 state.remap.0.extend([0, 1]);
                 state.q[0] = Q {

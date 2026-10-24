@@ -7,7 +7,8 @@ use core::mem::size_of;
 pub struct Limits {
     /// Maximum output plus retained scratch capacity, excluding caller buffers
     /// and allocator overhead. Defaults to 1 GiB. Scratch is reused when it fits;
-    /// unused retained storage is released under limit pressure.
+    /// unused retained storage and excess active capacity are reclaimed under
+    /// limit pressure.
     pub max_bytes: usize,
     /// Maximum counted record visits. Defaults to 2^34.
     pub max_work: u64,
@@ -49,7 +50,7 @@ pub(crate) struct CacheVertex {
 /// accumulation, collapse ranking/sorting/flip checks, and remapping visits.
 /// Its typed scratch is allocated fallibly and retained after successful calls;
 /// retained scratch is reused when it fits and released under limit pressure
-/// when the current call does not need it.
+/// including excess capacity in buffers the current call uses.
 /// Usage reports peak storage including all retained workspace buffers. Scale
 /// computation is allocation-free and has no workspace argument.
 /// Limits never disable checked size arithmetic.
@@ -177,12 +178,26 @@ impl Workspace {
                 .retained_bytes()?
                 .checked_add(owned)
                 .ok_or(Error::SizeOverflow)?;
+            if bytes > self.limits.max_bytes {
+                self.shrink_active()?;
+                bytes = self
+                    .retained_bytes()?
+                    .checked_add(owned)
+                    .ok_or(Error::SizeOverflow)?;
+            }
         }
         if bytes > self.limits.max_bytes {
             return Err(Error::LimitExceeded);
         }
         self.usage.bytes = self.usage.bytes.max(bytes);
         Ok(())
+    }
+    fn shrink_active(&mut self) -> Result<(), Error> {
+        shrink(&mut self.integers, self.active[0])?;
+        shrink(&mut self.floats, self.active[1])?;
+        shrink(&mut self.flags, self.active[2])?;
+        shrink(&mut self.keys, self.active[3])?;
+        shrink(&mut self.vertices, self.active[4])
     }
     #[cfg(any(feature = "clusterlod", feature = "parallel"))]
     pub(crate) fn release_unused(&mut self) {
@@ -285,7 +300,40 @@ impl Workspace {
                     .ok_or(Error::SizeOverflow)?,
             )?;
             if minimum > self.limits.max_bytes {
-                return Err(Error::LimitExceeded);
+                let needed = total(
+                    lengths,
+                    output
+                        .checked_add(checked_bytes(vertices, size_of::<CacheVertex>())?)
+                        .ok_or(Error::SizeOverflow)?,
+                )?;
+                if needed > self.limits.max_bytes {
+                    return Err(Error::LimitExceeded);
+                }
+                // These prefixes already contain this call's data. Shrink their
+                // allocations in place instead of discarding still-live values.
+                self.integers.truncate(i);
+                self.floats.truncate(f);
+                self.flags.truncate(b);
+                self.keys.truncate(k);
+                self.vertices.truncate(vertices);
+                self.shrink_active()?;
+                let minimum = total(
+                    [
+                        i.max(self.integers.capacity()),
+                        f.max(self.floats.capacity()),
+                        b.max(self.flags.capacity()),
+                        k.max(self.keys.capacity()),
+                    ],
+                    output
+                        .checked_add(checked_bytes(
+                            vertices.max(self.vertices.capacity()),
+                            size_of::<CacheVertex>(),
+                        )?)
+                        .ok_or(Error::SizeOverflow)?,
+                )?;
+                if minimum > self.limits.max_bytes {
+                    return Err(Error::LimitExceeded);
+                }
             }
         }
         self.active = [i != 0, f != 0, b != 0, k != 0, vertices != 0];
@@ -317,6 +365,18 @@ impl Workspace {
         self.usage.bytes = self.usage.bytes.max(actual);
         Ok(())
     }
+}
+
+// Vec shrinking preserves the live prefix and never grows the allocation.
+// An allocator may refuse to shrink; do not misreport that as a byte-limit error.
+pub(crate) fn shrink<T>(v: &mut Vec<T>, active: bool) -> Result<(), Error> {
+    if active && v.capacity() > v.len() {
+        v.shrink_to_fit();
+        if v.capacity() > v.len() {
+            return Err(Error::AllocationFailed);
+        }
+    }
+    Ok(())
 }
 
 #[inline(always)]
@@ -577,6 +637,64 @@ impl Work {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn active_capacity_reclamation_preserves_live_prefixes_and_fitting_reuse() {
+        let mut ws = Workspace::new(Limits {
+            max_bytes: 128,
+            ..Limits::default()
+        });
+        for (lengths, vertices) in [
+            ([16, 0, 0, 0], 0),
+            ([0, 16, 0, 0], 0),
+            ([0, 0, 64, 0], 0),
+            ([0, 0, 0, 32], 0),
+            ([0; 4], 5),
+        ] {
+            ws.clear();
+            ws.begin();
+            ws.prepare_cache(lengths, vertices, 0).unwrap();
+            ws.begin();
+            let needed = lengths.map(|n| usize::from(n != 0));
+            ws.prepare_cache(needed, usize::from(vertices != 0), 0)
+                .unwrap();
+            let capacities = (
+                ws.integers.capacity(),
+                ws.floats.capacity(),
+                ws.flags.capacity(),
+                ws.keys.capacity(),
+                ws.vertices.capacity(),
+            );
+            ws.integers.fill(17);
+            ws.floats.fill(2.5);
+            ws.flags.fill(19);
+            ws.keys.fill(23);
+            ws.vertices.fill(CacheVertex {
+                live: 29,
+                ..CacheVertex::default()
+            });
+            ws.prepare_cache(needed, usize::from(vertices != 0), 0)
+                .unwrap();
+            assert_eq!(
+                capacities,
+                (
+                    ws.integers.capacity(),
+                    ws.floats.capacity(),
+                    ws.flags.capacity(),
+                    ws.keys.capacity(),
+                    ws.vertices.capacity()
+                )
+            );
+            ws.charge_owned(116).unwrap();
+            assert!(ws.usage().bytes <= 128);
+            assert!(ws.integers.iter().all(|&v| v == 17));
+            assert!(ws.floats.iter().all(|&v| v.to_bits() == 2.5f32.to_bits()));
+            assert!(ws.flags.iter().all(|&v| v == 19));
+            assert!(ws.keys.iter().all(|&v| v == 23));
+            assert!(ws.vertices.iter().all(|v| v.live == 29));
+            assert_eq!(ws.charge_owned(128), Err(Error::LimitExceeded));
+        }
+    }
 
     #[test]
     fn simplify_then_cache_releases_retained_scratch_under_pressure() {
