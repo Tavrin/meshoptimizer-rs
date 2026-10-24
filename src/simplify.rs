@@ -938,35 +938,39 @@ impl State {
         // oversized previous problem (including attributes/collapse buffers).
         // Only the reservations made below enter this preflight.
         // Same-size calls keep their allocations whenever the peak fits.
-        let mut projected = output
-            .checked_add(state.capacity_bytes()?)
-            .ok_or(Error::SizeOverflow)?;
-        for (capacity, needed, size) in [
-            (state.offsets.0.capacity(), n + 1, 4),
-            (state.edges.capacity(), m, core::mem::size_of::<Edge>()),
-            (state.remap.0.capacity(), n, 4),
-            (state.wedge.0.capacity(), n, 4),
-            (state.kind.capacity(), n, 1),
-            (state.forward.0.capacity(), n, 4),
-            (state.back.0.capacity(), n, 4),
-            (state.p.capacity(), n, core::mem::size_of::<V>()),
-            (state.a.capacity(), na, 4),
-            (state.q.capacity(), n, core::mem::size_of::<Q>()),
-            (
-                state.aq.capacity(),
-                if ac > 0 { n } else { 0 },
-                core::mem::size_of::<Q>(),
-            ),
-            (state.g.capacity(), na, core::mem::size_of::<G>()),
-            (state.cr.0.capacity(), n, 4),
-            (state.locked.capacity(), n, 1),
-            (state.table.0.capacity(), buckets, 4),
-        ] {
-            projected = projected
-                .checked_add(checked_bytes(needed.saturating_sub(capacity), size)?)
+        // An estimate must not preempt the first real reservation's error.
+        let projected = (|| {
+            let mut projected = output
+                .checked_add(state.capacity_bytes()?)
                 .ok_or(Error::SizeOverflow)?;
-        }
-        if projected > ws.limits().max_bytes {
+            for (capacity, needed, size) in [
+                (state.offsets.0.capacity(), n + 1, 4),
+                (state.edges.capacity(), m, core::mem::size_of::<Edge>()),
+                (state.remap.0.capacity(), n, 4),
+                (state.wedge.0.capacity(), n, 4),
+                (state.kind.capacity(), n, 1),
+                (state.forward.0.capacity(), n, 4),
+                (state.back.0.capacity(), n, 4),
+                (state.p.capacity(), n, core::mem::size_of::<V>()),
+                (state.a.capacity(), na, 4),
+                (state.q.capacity(), n, core::mem::size_of::<Q>()),
+                (
+                    state.aq.capacity(),
+                    if ac > 0 { n } else { 0 },
+                    core::mem::size_of::<Q>(),
+                ),
+                (state.g.capacity(), na, core::mem::size_of::<G>()),
+                (state.cr.0.capacity(), n, 4),
+                (state.locked.capacity(), n, 1),
+                (state.table.0.capacity(), buckets, 4),
+            ] {
+                projected = projected
+                    .checked_add(checked_bytes(needed.saturating_sub(capacity), size)?)
+                    .ok_or(Error::SizeOverflow)?;
+            }
+            Ok::<_, Error>(projected)
+        })();
+        if projected.is_ok_and(|bytes| bytes > ws.limits().max_bytes) {
             state = Self::empty();
         }
         let bytes = output
@@ -2058,16 +2062,19 @@ fn run_state(
         Ok(())
     })?;
     let capacity = m - dual / 2 + 3;
-    let order_growth = checked_bytes(capacity.saturating_sub(s.order.0.capacity()), 4)?;
-    let requested = s
-        .bytes
-        .checked_add(checked_bytes(
-            capacity.saturating_sub(s.collapses.capacity()),
-            core::mem::size_of::<Collapse>(),
-        )?)
-        .and_then(|n| n.checked_add(order_growth))
-        .ok_or(Error::SizeOverflow)?;
-    if requested > ws.limits().max_bytes {
+    let requested = (|| {
+        let order_growth = checked_bytes(capacity.saturating_sub(s.order.0.capacity()), 4)?;
+        let requested = s
+            .bytes
+            .checked_add(checked_bytes(
+                capacity.saturating_sub(s.collapses.capacity()),
+                core::mem::size_of::<Collapse>(),
+            )?)
+            .and_then(|n| n.checked_add(order_growth))
+            .ok_or(Error::SizeOverflow)?;
+        Ok::<_, Error>(requested)
+    })();
+    if requested.is_ok_and(|bytes| bytes > ws.limits().max_bytes) {
         let before = s.capacity_bytes()?;
         // Collapse/order contents have not been produced for this call yet.
         if s.collapses.capacity() > capacity {
@@ -2194,6 +2201,22 @@ fn run_state(
 mod tests {
     use super::*;
     use crate::Limits;
+
+    #[test]
+    fn preflight_preserves_the_first_reservations_limit_error() {
+        // On 32-bit this vertex count fits the public index width. The quadric
+        // estimate overflows isize, but the first offset reservation exceeds
+        // this zero-byte limit before any allocation or later size check.
+        let vertices = isize::MAX as usize / core::mem::size_of::<Q>() + 1;
+        let mut ws = Workspace::new(Limits {
+            max_bytes: 0,
+            ..Limits::default()
+        });
+        assert!(matches!(
+            State::new(vertices, 0, 0, &mut ws, 0, false),
+            Err(Error::LimitExceeded)
+        ));
+    }
 
     #[test]
     fn repeated_simplify_reuses_arrays_but_releases_the_remapping_hash() {
