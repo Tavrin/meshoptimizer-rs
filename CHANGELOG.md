@@ -13,14 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unseen-index FIFO rejection and one-byte sequences. Preserve tiny Oct/Quat
   kernels, byte output, limits, work accounting and public APIs.
 
-### Validation and blocked performance
+### Validation and performance
 
-- Fix the Rust 1.99.1 Clippy finding with MSRV-stable `as_chunks` in a quaternion regression test. All exact CI test-job commands on 1.99.1 and both MSRV test commands on 1.88 pass locally; pushed source CI is green. No encoded path or public API change.
-- Fresh guarded binaries pass 17,264 exact parity comparisons and 369,098,752 exhaustive Exp component comparisons per consumer profile, plus capacity and edge checks, with zero mismatches.
-- Final defaults/Moss native and shared-peer qualification is blocked by repeated external delivery-gate holds. The first historical-request burst never obtained admission; zero performance samples were collected. Family GM and case upper95 bars are unverified in both profiles. Earlier `a6fc95f` numbers and scouts are superseded for final acceptance, with receipts retained.
-- The historical gap is not attributed to a decoder fix. The four-lane-day cap is not declared exhausted. The PR remains draft; final performance completion is still outstanding.
+- Exact local CI test-job commands on Rust 1.99.1 and both MSRV test commands on 1.88 pass. The quaternion regression test uses MSRV-stable `as_chunks`; no encoded path or public API changed.
+- defaults: native allocating bars PASS (family GM ≤1.25 and every resolved case upper95 ≤1.50; all 111 cases resolved). Family means: vertex 0.667, index 0.773, sequence 0.924, oct 0.585, quat 0.700, exp 0.621× C++ 1.3.
+- moss: native allocating bars PASS (family GM ≤1.25 and every resolved case upper95 ≤1.50; all 111 cases resolved). Family means: vertex 0.657, index 0.764, sequence 0.940, oct 0.563, quat 0.669, exp 0.590× C++ 1.3.
+- Exact parity: 17,264 comparisons in defaults, zero mismatches, 17,264 comparisons in moss, zero mismatches.
+- defaults and Moss: all seven shared meshopt 0.6.2 peer families PASS their separate GM ≤1.00 target; the exact historical owned request also passes in both profiles. Non-reproduction does not establish a decoder fix.
+- Earlier `a6fc95f` numbers and scouts are superseded for final acceptance, with receipts retained. The interrupted defaults row was rerun from pair 0 under the unchanged rule; its original samples and disposition are retained. The PR remains draft.
 
-Exact blocker, prior numbers, current per-family status and resume command: [P03 report](parity/P03_ENCODER_PERFORMANCE.md).
+Final native, historical and shared-peer tables and case interval envelopes: [P03 report](parity/P03_ENCODER_PERFORMANCE.md).
 
 ## [0.2.1] - 2026-10-07
 

@@ -1,31 +1,71 @@
 # Encoder performance
 
-## SPEC-03 finish: CI fixed; final performance blocked
+## SPEC-03 final qualification
 
-**Final-source performance acceptance: UNVERIFIED.** Source candidate `8319f7d3624694f7f71f2fe1f45ff977c10e17d9` passes the exact local CI test job on Rust 1.99.1 and both MSRV commands on 1.88. Its [pushed source CI is green](https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40001341141). The final documentation-only commit preserves measured source/consumer hashes. The PR remains draft.
+Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) remains draft. Earlier `a6fc95f` numbers and diagnostic scouts are **superseded for final acceptance** and retained below and in the portable archive.
 
-The retained `seen-frontier/build.sh` rebuilt every binary and regenerated source guards and hashes. Both profiles have 17,264 exact parity comparisons, 369,098,752 exhaustive Exp component comparisons, exponent/fallback/zero-carry and capacity checks with zero mismatches. The only new source edit is a regression-test loop using `as_chunks::<4>()`; no encoded path, API, threshold or CI workflow changed.
+Native allocating acceptance: **PASS in defaults and Moss**. All 111 cases per profile resolve; every family GM ≤1.25 and every case upper95 ≤1.50. The separate shared-peer family GM ≤1.00 target and exact historical owned request both **PASS in both profiles**. Historical non-reproduction does not establish a causal decoder fix.
 
-Final measurement was invoked in the prescribed order through `measure.sh`, headlessly, without an outer heavy scope or quiet-machine wait. No borrowing was allowed. The first historical-request burst remained queued: an earlier delivery-gate hold released, but a renewed hold for train `97762443c8` blocks the lane until 23:49:50 CEST on 2026-10-23. The still-unstarted attempt was stopped; zero timing samples were collected, no completed stream was repeated and no interrupted measured case was discarded. This external admission blocker prevents completion of SPEC-03-finish. The four-lane-day cap is not declared exhausted.
+## SPEC-03 consumer-profile qualification
 
-| Family | Cargo defaults final GM / case CI | Moss final GM / case CI | GM ≤1.25 | Every resolved upper95 ≤1.50 |
-|---|---|---|---|---|
-| vertex | Not measured | Not measured | Unverified | Unverified |
-| index | Not measured | Not measured | Unverified | Unverified |
-| sequence | Not measured | Not measured | Unverified | Unverified |
-| oct | Not measured | Not measured | Unverified | Unverified |
-| quat | Not measured | Not measured | Unverified | Unverified |
-| exp | Not measured | Not measured | Unverified | Unverified |
+Before is the retained initial source epoch; after is the candidate epoch.
+Ratios are Rust/comparator elapsed time. Policy epochs and every sample are retained.
 
-The exact historical owned request and complete shared-peer refresh are also unmeasured on this candidate. No final intervals or pass/fail performance verdict can be reported. Earlier `a6fc95f` numbers and the pre-CI scout are **superseded for final acceptance**, preserved below as historical evidence only. All bars remain unchanged: family GM ≤1.25, every resolved case upper95 ≤1.50 in both profiles; unresolved A/A controls block qualification. The separate peer-family target remains ≤1.00.
+| Profile | Family | Before → after GM / C++ 1.3 | Case CI envelope | Max upper95 | Verdict |
+|---|---|---:|---:|---:|---|
+| defaults | vertex | 0.666 → 0.667 | 0.470–0.945 | 0.945 | PASS |
+| defaults | index | 1.019 → 0.773 | 0.521–1.019 | 1.019 | PASS |
+| defaults | sequence | 0.931 → 0.924 | 0.812–1.080 | 1.080 | PASS |
+| defaults | oct | 0.591 → 0.585 | 0.189–1.371 | 1.371 | PASS |
+| defaults | quat | 1.055 → 0.700 | 0.221–1.467 | 1.467 | PASS |
+| defaults | exp | 0.609 → 0.621 | 0.299–1.227 | 1.227 | PASS |
+| moss | vertex | 0.660 → 0.657 | 0.498–0.906 | 0.906 | PASS |
+| moss | index | 1.016 → 0.764 | 0.520–0.965 | 0.965 | PASS |
+| moss | sequence | 0.986 → 0.940 | 0.807–1.055 | 1.055 | PASS |
+| moss | oct | 0.565 → 0.563 | 0.161–1.467 | 1.467 | PASS |
+| moss | quat | 0.681 → 0.669 | 0.187–1.393 | 1.393 | PASS |
+| moss | exp | 0.588 → 0.590 | 0.259–1.030 | 1.030 | PASS |
 
-Fresh build, registration, parity and per-burst queue receipts: `/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier`. Previous guarded epoch: `seen-frontier-pre-ci-0f04876`. Blocker and exact local gates: `/mnt/linux-extra/moss-scratch/meshopt-enc03/finish`. A redundant extra MSRV compile check was canceled while queued after both required MSRV test commands had passed; native tests/lint and both capacity matrices had completed. Local wasm compilation was not repeated by that extra controller; pushed source CI's wasm job passed. The Cargo target was below 10 GB and deleted, leaving all retained binaries available.
+The CI envelope is the minimum lower and maximum upper bound across cases;
+it is not a confidence interval for the family geometric mean.
 
-[Resume command and controls](encoders/ENC03_HANDOFF.md), [portable summary](results/enc03-allocating-profiles.json), [compressed raw receipts](results/enc03-allocating-profiles.json.gz). Not verified: final native/peer performance, downstream Moss runtime/cook, GPU/browser execution, release fuzz budgets or universal speed. Reversal cost: reverting one test-loop line restores the CI lint failure; historical receipts cannot qualify changed source.
+| Historical exact owned request | Ratio | Nominal 95% CI | A/A resolves |
+|---|---:|---:|---|
+| defaults | 1.000 | 0.850–1.206 | True |
+| moss | 1.058 | 0.959–1.171 | True |
+
+| Profile | Shared family | GM / meshopt 0.6.2 | Case CI envelope | Target <=1.0 |
+|---|---|---:|---:|---|
+| defaults | vertex | 0.710 | 0.557–0.924 | PASS |
+| defaults | index | 0.860 | 0.619–0.994 | PASS |
+| defaults | sequence | 0.980 | 0.899–1.021 | PASS |
+| defaults | oct | 0.845 | 0.702–1.089 | PASS |
+| defaults | quat | 0.868 | 0.737–1.298 | PASS |
+| defaults | exp | 0.575 | 0.509–0.753 | PASS |
+| defaults | color | 0.825 | 0.754–0.907 | PASS |
+| moss | vertex | 0.733 | 0.561–0.985 | PASS |
+| moss | index | 0.858 | 0.650–0.979 | PASS |
+| moss | sequence | 0.952 | 0.912–0.986 | PASS |
+| moss | oct | 0.868 | 0.744–1.086 | PASS |
+| moss | quat | 0.868 | 0.793–1.180 | PASS |
+| moss | exp | 0.579 | 0.526–0.763 | PASS |
+| moss | color | 0.825 | 0.758–0.877 | PASS |
+
+Parity: defaults: 17,264 comparisons, 0 mismatches, moss: 17,264 comparisons, 0 mismatches.
+
+The defaults `vertex-streaming-s32-v1-l0` row was interrupted by the outer timeout and rerun from pair 0 under the unchanged rule; the interrupted samples and pre-disposition receipt are retained. The rerun received a second pair-4 decisiveness check, which stops on a decisive pass or fail alike; see `INTERRUPT-DISPOSITION.md`.
+
+Local CI-equivalent test-job commands passed on Rust 1.99.1; both MSRV test commands passed on 1.88. The lint fix changes one regression-test loop to `as_chunks::<4>()`, with no encoded-path or API change. Global default toolchain is unchanged.
+
+Measurement used the retained build controller and registered interleaved pairs, symmetric calibration and A/A resolution rules. Each headless CPU-only burst obtained separate heavy admission, with no outer heavy scope, quiet-machine wait or borrowing. Completed streams were not repeated. The outer timeout increased from 840 to 1800 seconds after the interruption; the 690-second between-row checkpoint and measurement rules are unchanged. Intervals are nominal paired-log Student-t intervals without simultaneous or sequential correction. Compiler, source, consumer, binary, request and sample identities remain in the receipts.
+
+Canonical C++ 1.3 pin: `4c203430ca565cb59a468a91922c76c208169536`. Peer meshopt 0.6.2 bundles C++ 0.25; wrapper, version, allocation and compiler differences are included.
+
+Final receipts: `/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier`; prior guarded epoch: `seen-frontier-pre-ci-0f04876`. [Handoff](encoders/ENC03_HANDOFF.md), [portable summary](results/enc03-allocating-profiles.json), [compressed raw receipts](results/enc03-allocating-profiles.json.gz). Not verified: downstream Moss runtime/cook, GPU/browser execution, other architectures, release fuzz budgets or universal performance. Reversal: documentation can be reverted without changing measured code; reverting the one-line lint fix restores the CI lint failure.
 
 ## Superseded pre-finish snapshot
 
-The following snapshot records the previous handoff and its earlier numbers. Its work-mode and pending-status statements describe that earlier handoff, not the current OFF-but-admission-blocked state.
+The following snapshot records the previous handoff and its earlier numbers. Its work-mode and pending-status statements describe that earlier handoff, not the completed qualification above.
 
 ## SPEC-03: allocating encoder candidate; final timings pending
 
