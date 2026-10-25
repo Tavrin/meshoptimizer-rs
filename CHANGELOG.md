@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Overdraw reuses the centroid accumulated during finite-position validation
+  and dispatches indexed triangle reads by storage layout once per cluster.
+  Output bytes, arithmetic order, validation precedence, workspace accounting
+  and work-limit failure prefixes are unchanged.
+
 - Simplification reuses its existing position allocation for original strided
   coordinates during position remapping, then normalizes them in place.
 - Position views read checked XYZ records together and dispatch sequential

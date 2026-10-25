@@ -242,31 +242,32 @@ fn kernel(
         let mut area_sum = 0f32;
         let mut centroid = [0f32; 3];
         let mut normal = [0f32; 3];
-        for tri in indices[start..end].as_chunks::<3>().0.iter() {
-            work.add(1)?;
-            let p0 = positions.at(tri[0] as usize)?;
-            let p1 = positions.at(tri[1] as usize)?;
-            let p2 = positions.at(tri[2] as usize)?;
-            let mut p10 = [0f32; 3];
-            let mut p20 = [0f32; 3];
-            for j in 0..3 {
-                p10[j] = p1[j] - p0[j];
-                p20[j] = p2[j] - p0[j];
-            }
-            let n = [
-                p10[1] * p20[2] - p10[2] * p20[1],
-                p10[2] * p20[0] - p10[0] * p20[2],
-                p10[0] * p20[1] - p10[1] * p20[0],
-            ];
-            // A nonfinite squared norm produces a nonfinite area. Areas are
-            // nonnegative, so the checked cluster sum below cannot hide it.
-            let area = sqrt_cache.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-            for j in 0..3 {
-                centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
-                normal[j] += n[j];
-            }
-            area_sum += area;
-        }
+        positions.for_each_triangle_counted(
+            indices[start..end].as_chunks::<3>().0,
+            work,
+            |[p0, p1, p2]| {
+                let mut p10 = [0f32; 3];
+                let mut p20 = [0f32; 3];
+                for j in 0..3 {
+                    p10[j] = p1[j] - p0[j];
+                    p20[j] = p2[j] - p0[j];
+                }
+                let n = [
+                    p10[1] * p20[2] - p10[2] * p20[1],
+                    p10[2] * p20[0] - p10[0] * p20[2],
+                    p10[0] * p20[1] - p10[1] * p20[0],
+                ];
+                // A nonfinite squared norm produces a nonfinite area. Areas are
+                // nonnegative, so the checked cluster sum below cannot hide it.
+                let area = sqrt_cache.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+                for j in 0..3 {
+                    centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
+                    normal[j] += n[j];
+                }
+                area_sum += area;
+                Ok(())
+            },
+        )?;
         finite(area_sum)?;
         let inv_area = if area_sum == 0. {
             0.

@@ -8246,3 +8246,11 @@ do not authorize any unrun timing campaign.
 ## moss-qx5g3 r2: registered readiness timeout
 
 Before r2 sampling, raise the resident paired-driver read/readiness timeout from 180 to 600 seconds (one harness line). Apply this identical harness to both 0.2.3 and final arms. The fixed 600-second budget is about three times r1, independent of timing ratios. One full rerun per arm is allowed only after a timeout/crash; a second infrastructure failure is FAIL. The frozen corpus, sample policy and bars are unchanged. Registration: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/REGISTRATION.md`.
+
+## moss-qx5g3 r2: overdraw implementation freeze
+
+Diagnosis milestone: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/DIAGNOSIS.md`, written before library changes. The primary centroid scan was estimated at 0.074775 s and indexed reads at 0.066691 s of 0.319310 s. The highest predicted byte-exact saving exceeds 10%, so the kill condition does not apply.
+
+Land two ranked fixes: reuse the centroid accumulated during required finite-position validation, retaining checks/divisions and exact later scan work at the original point; specialize checked indexed triangle reads by layout once per cluster and use existing Work::scan for the same per-triangle failure prefix. Keep mapped-view fallback, endian/unaligned support, all float expressions, the pinned sqrt cache, allocation contract and r1's four fixes. The lower-gain third candidate is deferred. No hypothesis failed parity. A regression-test type annotation and one formatting failure were corrected before qualification; retained logs distinguish these setup failures from byte mismatches.
+
+The final-source gates run once: parity/gates.sh, native/WASM differential, 10,000-case sweep, JS coverage and four process CPU-hours per fuzz target. The real campaign uses CPU 8 with 1 warmup + 10 interleaved pairs per arm and case; raw samples and fixed-seed 10,000-resample intervals survive. Fuzz workers exclude CPU 8 and sibling 9. No time-value reruns, corpus/bar changes, sqrt substitution, simplifier/cache/encoder/SIMD/Moss changes or aggregate report repairs. Baseline is an isolated archive of afe803b with the identical committed one-line 600-second read timeout; each frozen arm may retry once only for a timeout/crash, in full, preserving the failed run. r1 FAIL stands independently.
