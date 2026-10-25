@@ -20,7 +20,7 @@ def sha(path):
 
 def snapshot():
     paths = [ROOT / "Cargo.toml", ROOT / "Cargo.lock", ROOT / "fuzz/Cargo.toml", ROOT / "fuzz/Cargo.lock",
-             *ROOT.glob("src/*.rs"), *ROOT.glob("fuzz/src/**/*.rs"), ROOT / "fuzz/smoke.py"]
+             *ROOT.glob("src/**/*.rs"), *ROOT.glob("fuzz/src/**/*.rs"), ROOT / "fuzz/smoke.py"]
     return {str(p.relative_to(ROOT)): sha(p) for p in sorted(paths)}
 
 

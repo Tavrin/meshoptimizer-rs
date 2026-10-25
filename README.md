@@ -241,6 +241,28 @@ invalid because their protect masks exceed the layout. AVX2, AVX-512 and
 32-bit ARM SIMD are not implemented; index/sequence decoding remains scalar.
 See the [comparison's exception ledger](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md#against-pinned-upstream-c-13).
 
+## Cluster DAGs into caller buffers
+
+Enable `clusterlod` and allocate per-mesh storage for `DagBuffers`. Pass a
+canonical `default_config(128)`, mutable source positions and a hierarchy width
+of 8 to `clusterlod::build_dag_into`. The returned `DagCounts` selects the
+initialized prefixes of the vertex-source, position, index, cluster, group and
+node arrays. Position snapshots retain their emission-time bits when dilation
+moves source positions later.
+
+```rust,ignore
+let counts = clusterlod::build_dag_into(config, mesh, 8, buffers, &mut workspace)?;
+// Serialize only successful prefixes, for example indices[..counts.indices].
+```
+
+Admit the full caller capacities separately from `Workspace` limits. On
+`BufferTooSmall` or any other error, discard output and restore original
+positions before retrying with newly admitted storage. Tails beyond successful
+prefixes are preserved. Under `parallel`, `build_dags_batch_into` accepts a
+bounded window of `DagBuildInput` values and returns counts or errors in input
+order; each worker has its own workspace and per-item limits. The library does
+not serialize a file format or promise an aggregate batch-memory bound.
+
 ## Cluster milestone priorities (additive 0.2.x)
 
 1. Deliver canonical caller-buffer cluster DAGs and ordered batches. The new

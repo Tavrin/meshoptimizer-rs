@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Added `clusterlod::build_dag_into`, caller-owned `DagBuffers` and ordered
+`parallel::build_dags_batch_into`. The S1 oracle reproduces 41/41 files byte
+for byte, including emission-time position snapshots and dilation; zero distinct
+vertex tuples collide under the S1 hash. Lane C performance qualification is
+pending; ratios will be recorded with its retained measurement report.
+
 ## [0.2.4] - 2026-10-25
 
 Faster simplification and overdraw optimization. Output, errors, limits,
