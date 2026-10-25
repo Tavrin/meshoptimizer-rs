@@ -1,0 +1,10 @@
+{
+  "case": "medium-sparse",
+  "operation": "cluster-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 199438.0621,
+    "B": 199308.0678
+  },
+  "ratio": 1.0006522279877323
+}

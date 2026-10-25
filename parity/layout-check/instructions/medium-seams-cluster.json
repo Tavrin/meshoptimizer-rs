@@ -1,0 +1,10 @@
+{
+  "case": "medium-seams",
+  "operation": "cluster-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 137487.0576,
+    "B": 137366.058
+  },
+  "ratio": 1.0008808551527337
+}

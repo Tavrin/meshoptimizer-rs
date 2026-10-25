@@ -1,0 +1,17 @@
+{
+  "case": "medium-sparse",
+  "operation": "meshlet-bounds",
+  "comparison": "default",
+  "cpu": 11,
+  "attempt": 0,
+  "samples": [],
+  "binary_sha256": {
+    "A": "29b5f746a1ea1ec09aa45220c75f77ff16c5a3a86e01c49618f6e3ceefd76de0",
+    "B": "1d45ad7d6fac67f30e73a7bb31f8271d8ec6ceb3a12773896bb913d2e24b57fe"
+  },
+  "iterations": 3143,
+  "calibration_ns": {
+    "A": 8616.0,
+    "B": 7955.0
+  }
+}

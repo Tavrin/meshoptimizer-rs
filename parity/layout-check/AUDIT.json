@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "wall_comparisons": 30,
+  "instruction_cases": 10,
+  "pair_counts": {
+    "20": 19,
+    "5": 11
+  },
+  "frozen_hashes": 234,
+  "train_pauses": 19,
+  "infrastructure_retry": false,
+  "load1_min": 7.7998046875,
+  "load1_max": 12.22900390625,
+  "elapsed_minutes": 24.213449649999998,
+  "source_unchanged": true,
+  "target_absent": true,
+  "registration_precedes_samples": true
+}

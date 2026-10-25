@@ -1,0 +1,10 @@
+{
+  "case": "medium-sparse",
+  "operation": "meshlet-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 149334.0577,
+    "B": 149338.0585
+  },
+  "ratio": 0.9999732097762607
+}

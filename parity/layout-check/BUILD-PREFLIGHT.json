@@ -1,0 +1,4 @@
+{
+  "utc": "2026-10-25T23:35:35.215115+00:00",
+  "issue": "Initial encoded rustflags empty overrode RUSTFLAGS; preflight B pinned kernel addresses not 64 aligned. No samples run. Retain preflight binaries/maps and rebuild both pinned arms after unsetting CARGO_ENCODED_RUSTFLAGS. Registered alignment flag unchanged; no infrastructure sampling retry used."
+}
