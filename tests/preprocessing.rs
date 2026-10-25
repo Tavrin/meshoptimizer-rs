@@ -1521,3 +1521,140 @@ fn retained_different_size_processing_sequences_match_fresh() {
         }
     }
 }
+
+#[test]
+fn fetch_remap_preserves_scalar_failure_prefix_and_work() {
+    for indices in [&[2, 0, 2, 1, 0][..], &[2, 3, 0][..], &[][..]] {
+        for max_work in 0..=14 {
+            for length in [2, 3, 5] {
+                let mut expected = vec![17; length];
+                let mut visits = 0;
+                let mut next = 0;
+                let mut tick = |n| {
+                    if visits + n > max_work {
+                        Err(Error::LimitExceeded)
+                    } else {
+                        visits += n;
+                        Ok(())
+                    }
+                };
+                let result = (|| {
+                    for &i in indices {
+                        tick(1)?;
+                        if i >= 3 {
+                            return Err(Error::IndexOutOfBounds);
+                        }
+                    }
+                    if length < 3 {
+                        return Err(Error::BufferTooSmall);
+                    }
+                    tick(3)?;
+                    expected[..3].fill(u32::MAX);
+                    for &i in indices {
+                        tick(1)?;
+                        if expected[i as usize] == u32::MAX {
+                            expected[i as usize] = next;
+                            next += 1;
+                        }
+                    }
+                    Ok(next as usize)
+                })();
+                let mut actual = vec![17; length];
+                let mut w = Workspace::new(Limits {
+                    max_bytes: usize::MAX,
+                    max_work,
+                });
+                assert_eq!(
+                    optimize_vertex_fetch_remap_into(&mut actual, indices, 3, &mut w),
+                    result
+                );
+                assert_eq!(actual, expected);
+                assert_eq!(w.usage().work, visits);
+            }
+        }
+    }
+}
+
+#[test]
+fn cached_fetch_remap_matches_allocating_errors_output_and_usage() {
+    for indices in [
+        &[2, 0, 2, 1, 0][..],
+        &[2, 3, 0][..],
+        &[u32::MAX][..],
+        &[][..],
+    ] {
+        for count in [0, 2, 3, 5, usize::MAX] {
+            let source = FetchIndices::new(indices, count);
+            for max_work in 0..=16 {
+                for max_bytes in [0, 8, 32, usize::MAX] {
+                    let limits = Limits {
+                        max_bytes,
+                        max_work,
+                    };
+                    let mut old = Workspace::new(limits);
+                    let mut new = Workspace::new(limits);
+                    assert_eq!(
+                        optimize_vertex_fetch_remap(indices, count, &mut old)
+                            .map(|r| (r.remap, r.vertex_count)),
+                        optimize_vertex_fetch_remap_with_indices(source, &mut new)
+                            .map(|r| (r.remap, r.vertex_count))
+                    );
+                    assert_eq!(old.usage(), new.usage());
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn cached_fetch_remap_into_matches_errors_prefixes_tails_and_usage() {
+    for indices in [
+        &[2, 0, 2, 1, 0][..],
+        &[2, 3, 0][..],
+        &[u32::MAX][..],
+        &[][..],
+    ] {
+        for count in [0, 2, 3, 5, usize::MAX] {
+            let source = FetchIndices::new(indices, count);
+            for max_work in 0..=16 {
+                for len in [0, 2, 3, 7] {
+                    for max_bytes in [0, usize::MAX] {
+                        let limits = Limits {
+                            max_bytes,
+                            max_work,
+                        };
+                        let mut old = Workspace::new(limits);
+                        let mut new = Workspace::new(limits);
+                        let mut a = vec![17; len];
+                        let mut b = a.clone();
+                        assert_eq!(
+                            optimize_vertex_fetch_remap_into(&mut a, indices, count, &mut old),
+                            optimize_vertex_fetch_remap_with_indices_into(&mut b, source, &mut new)
+                        );
+                        assert_eq!(a, b);
+                        assert_eq!(old.usage(), new.usage());
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn fetch_indices_constructor_retains_first_failing_visit() {
+    let source = FetchIndices::new(&[0, 1, 3, 0], 3);
+    for (max_work, error, charged) in [
+        (2, Error::LimitExceeded, 2),
+        (3, Error::IndexOutOfBounds, 3),
+    ] {
+        let mut w = Workspace::new(Limits {
+            max_bytes: 0,
+            max_work,
+        });
+        assert_eq!(
+            optimize_vertex_fetch_remap_with_indices(source, &mut w).map(|_| ()),
+            Err(error)
+        );
+        assert_eq!(w.usage().work, charged);
+    }
+}

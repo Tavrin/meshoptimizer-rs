@@ -1604,7 +1604,109 @@ fn provoking(
     result
 }
 
+/// Borrowed fetch-remap input with its index-validation result cached once.
+///
+/// Construction scans at most `indices.len()` entries, without allocating.
+/// Invalid input is retained so operations can preserve error precedence,
+/// logical work usage and caller-buffer writes, including on short budgets.
+#[derive(Clone, Copy, Debug)]
+pub struct FetchIndices<'a> {
+    indices: &'a [u32],
+    vertex_count: usize,
+    visits: usize,
+    error: Option<Error>,
+}
+impl<'a> FetchIndices<'a> {
+    /// Cache validation of an arbitrary index sequence and its vertex count.
+    ///
+    /// Errors are deferred to the fetch-remap operation, where the original
+    /// validation visits are charged to its [`Workspace`] in constant time
+    /// when they fit. Short budgets replay the original charged prefix.
+    pub fn new(indices: &'a [u32], vertex_count: usize) -> Self {
+        let (visits, error) = if vertex_count > u32::MAX as usize {
+            (0, Some(Error::SizeOverflow))
+        } else if let Some(at) = indices.iter().position(|&i| i as usize >= vertex_count) {
+            (at + 1, Some(Error::IndexOutOfBounds))
+        } else {
+            (indices.len(), None)
+        };
+        Self {
+            indices,
+            vertex_count,
+            visits,
+            error,
+        }
+    }
+    fn apply(self, work: &mut Work) -> Result<(), Error> {
+        if work.covers(self.visits)? {
+            work.add(self.visits)?;
+        } else {
+            work.scan(self.indices[..self.visits].iter(), |_| Ok(()))?;
+        }
+        self.error.map_or(Ok(()), Err)
+    }
+}
+
+/// Generate first-use fetch numbering using cached index validation.
+///
+/// Output, errors, error precedence and logical workspace usage match
+/// [`optimize_vertex_fetch_remap`]. Construct [`FetchIndices`] once to avoid
+/// rescanning the sequence for validity on repeated calls. Numbering and
+/// output initialization still take O(indices.len() + vertex_count) time.
+pub fn optimize_vertex_fetch_remap_with_indices(
+    source: FetchIndices<'_>,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        source.apply(&mut work)?;
+        let mut budget = Budget::new(workspace);
+        let mut remap = budget.filled(source.vertex_count, NONE)?;
+        let vertex_count = fetch_remap_kernel(&mut remap, source.indices, &mut work)?;
+        Ok(VertexRemap {
+            remap,
+            vertex_count,
+        })
+    })();
+    workspace.finish(&work);
+    result
+}
+
+/// Generate fetch numbering into caller storage using cached validation.
+///
+/// Matches [`optimize_vertex_fetch_remap_into`], including error precedence,
+/// unused-vertex sentinels, preserved tails and partially written prefixes on
+/// work exhaustion. Reuse [`FetchIndices`] to avoid repeated validity scans;
+/// output initialization and numbering remain O(vertex_count + indices.len()).
+pub fn optimize_vertex_fetch_remap_with_indices_into(
+    destination: &mut [u32],
+    source: FetchIndices<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        source.apply(&mut work)?;
+        if destination.len() < source.vertex_count {
+            return Err(Error::BufferTooSmall);
+        }
+        workspace.prepare([0; 4], 0)?;
+        work.add(source.vertex_count)?;
+        destination[..source.vertex_count].fill(NONE);
+        fetch_remap_kernel(
+            &mut destination[..source.vertex_count],
+            source.indices,
+            &mut work,
+        )
+    })();
+    workspace.finish(&work);
+    result
+}
+
 /// Generate first-use fetch numbering for an arbitrary index sequence.
+///
+/// Validates the full sequence on every call. Repeated queries can cache this
+/// O(indices.len()) validation with [`FetchIndices`] and
+/// [`optimize_vertex_fetch_remap_with_indices`].
 pub fn optimize_vertex_fetch_remap(
     indices: &[u32],
     vertex_count: usize,
@@ -1612,20 +1714,16 @@ pub fn optimize_vertex_fetch_remap(
 ) -> Result<VertexRemap, Error> {
     let mut work = workspace.begin();
     let result = (|| {
-        validate_indices(Some(indices), vertex_count, &mut work)?;
+        if vertex_count > u32::MAX as usize {
+            return Err(Error::SizeOverflow);
+        }
+        work.indices(indices, vertex_count)?;
         let mut budget = Budget::new(workspace);
         let mut remap = budget.filled(vertex_count, NONE)?;
-        let mut next = 0;
-        for &i in indices {
-            work.add(1)?;
-            if remap[i as usize] == NONE {
-                remap[i as usize] = next;
-                next += 1;
-            }
-        }
+        let next = fetch_remap_kernel(&mut remap, indices, &mut work)?;
         Ok(VertexRemap {
             remap,
-            vertex_count: next as usize,
+            vertex_count: next,
         })
     })();
     workspace.finish(&work);
@@ -1633,6 +1731,10 @@ pub fn optimize_vertex_fetch_remap(
 }
 /// Fetch numbering into caller storage. Unused vertices are `u32::MAX`;
 /// work exhaustion may partially modify the used prefix.
+///
+/// Validates the full sequence on every call. Repeated queries can cache this
+/// O(indices.len()) validation with [`FetchIndices`] and
+/// [`optimize_vertex_fetch_remap_with_indices_into`].
 pub fn optimize_vertex_fetch_remap_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -1641,25 +1743,43 @@ pub fn optimize_vertex_fetch_remap_into(
 ) -> Result<usize, Error> {
     let mut work = workspace.begin();
     let result = (|| {
-        validate_indices(Some(indices), vertex_count, &mut work)?;
+        if vertex_count > u32::MAX as usize {
+            return Err(Error::SizeOverflow);
+        }
+        work.indices(indices, vertex_count)?;
         if destination.len() < vertex_count {
             return Err(Error::BufferTooSmall);
         }
         workspace.prepare([0; 4], 0)?;
         work.add(vertex_count)?;
         destination[..vertex_count].fill(NONE);
-        let mut next = 0;
-        for &i in indices {
-            work.add(1)?;
-            if destination[i as usize] == NONE {
-                destination[i as usize] = next;
-                next += 1;
-            }
-        }
-        Ok(next as usize)
+        fetch_remap_kernel(&mut destination[..vertex_count], indices, &mut work)
     })();
     workspace.finish(&work);
     result
+}
+#[inline]
+fn fetch_remap_kernel(remap: &mut [u32], indices: &[u32], work: &mut Work) -> Result<usize, Error> {
+    let mut next = 0;
+    if work.precharge(indices.len(), 1)? {
+        for &i in indices {
+            let slot = &mut remap[i as usize];
+            if *slot == NONE {
+                *slot = next;
+                next += 1;
+            }
+        }
+    } else {
+        for &i in indices {
+            work.add(1)?;
+            let slot = &mut remap[i as usize];
+            if *slot == NONE {
+                *slot = next;
+                next += 1;
+            }
+        }
+    }
+    Ok(next as usize)
 }
 #[inline(always)]
 fn fetch_visit<const SIZE: usize>(
