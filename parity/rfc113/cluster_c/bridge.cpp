@@ -119,12 +119,12 @@ int moss_clod_build(const float* vertices, uint32_t vertex_count, uint32_t strid
     *handle = nullptr; *bytes = nullptr; *size = 0;
     try {
         std::vector<float> positions(vertices, vertices + size_t(vertex_count) * stride / 4);
-        float weights[61] = {0.5f, 0.5f, 0.5f};
+        float weights[3] = {0.5f, 0.5f, 0.5f};
         clodMesh mesh = {};
         mesh.indices = indices; mesh.index_count = index_count; mesh.vertex_count = vertex_count;
         mesh.vertex_positions = positions.data(); mesh.vertex_positions_stride = stride;
         mesh.vertex_attributes = vertices + 3; mesh.vertex_attributes_stride = stride;
-        mesh.vertex_lock = s1 ? nullptr : locks; mesh.attribute_weights = weights; mesh.attribute_count = s1 ? stride / 4 - 3 : 3;
+        mesh.vertex_lock = s1 ? nullptr : locks; mesh.attribute_weights = weights; mesh.attribute_count = 3;
         mesh.attribute_protect_mask = s1 ? ((1u<<3)|(1u<<4)|(1u<<8)) : (1u << 9) - 1;
         if (stride == 64) mesh.attribute_protect_mask |= (1u << 9) | (1u << 10) | (1u << 11) | (1u << 12);
         clodConfig config = clodDefaultConfig(128);

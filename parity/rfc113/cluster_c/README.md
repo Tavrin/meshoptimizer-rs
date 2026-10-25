@@ -6,8 +6,9 @@ all verdict samples. `campaign.py` imports the unmodified statistics, physical
 core selection and admission functions from `../timing.py`.
 
 `bridge.cpp` preserves the historical per-mesh flattening and hierarchy. Its
-additional arguments select S1's protect mask, padded attribute weights, vertex
-cap and dilation. S2 retains its original config and boundary locks. The Rust
+additional arguments select S1's protect mask, vertex cap and dilation. C++
+retains S1's original three weighted attributes; Rust pads weights with zeros
+through the highest protected component as required by its API contract. S2 retains its original config and boundary locks. The Rust
 arm calls `build_dag_into`, with ceiling-sized caller buffers allocated before
 requests and reused between requests; input parsing, input copies, a fresh
 Workspace, construction and MCLD serialization remain inside its timer. Both
