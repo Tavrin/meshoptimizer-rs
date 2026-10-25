@@ -1,0 +1,34 @@
+# Cluster lane C proof adapters
+
+The registration and receipts are retained under
+`/mnt/linux-extra/moss-scratch/meshopt-cluster-c/`. `REGISTRATION.md` precedes
+all verdict samples. `campaign.py` imports the unmodified statistics, physical
+core selection and admission functions from `../timing.py`.
+
+`bridge.cpp` preserves the historical per-mesh flattening and hierarchy. Its
+additional arguments select S1's protect mask, vertex cap and dilation. C++
+retains S1's original three weighted attributes; Rust pads weights with zeros
+through the highest protected component as required by its API contract. S2 retains its original config and boundary locks. The Rust
+arm calls `build_dag_into`, with ceiling-sized caller buffers allocated before
+requests and reused between requests; input parsing, input copies, a fresh
+Workspace, construction and MCLD serialization remain inside its timer. Both
+arms return the exact same byte stream and an internal elapsed-nanosecond
+suffix. No process, pipe or Python time contributes to ratios. The library
+remains format-agnostic.
+
+`prepare` freezes the original input/config identities. `preflight` checks both
+profiles against scalar C++ and all 41 S1 `.clod` files, without issuing timing
+requests. `instructions` runs untimed requests under `perf stat` and retains
+attempted instruction-sampled call graphs; postprocessing failures and raw captures are retained. `case PROFILE INDEX` runs one registered case:
+5–20 adaptive interleaved pairs on one pinned physical core, then 30 fresh pairs
+only if the 20-pair interval is unresolved. Aggregate ratios use stage-1 medians.
+There is no load threshold, favorable-pair selection or verdict-driven rerun.
+
+The original registration required bet 0 completion. The owner's speed amendment
+removes all other-meshopt waits and legacy GPU/scoreboard admission filters; ops
+and train admission alone may block jobs. The controller yields to train jobs
+between cases and stops after the first mesh in both profiles for the milestone
+disposition. Before its A/B pairs, each profile collects 20 alternating C++/C++
+pairs on that same anchor/core. Their paired-log interval floor reports noise;
+it changes no bar, sampling rule, exclusion or verdict. Load averages and sibling
+utilization accompany each timing burst.
