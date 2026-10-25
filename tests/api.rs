@@ -865,3 +865,49 @@ fn strided_overdraw_preserves_work_and_numerical_failure_precedence() {
         }
     }
 }
+
+#[test]
+fn overdraw_centroid_overflow_keeps_validation_and_reservation_precedence() {
+    let packed = [[f32::MAX, 0.0, 0.0]; 3];
+    let indices = [0, 1, 2];
+    let mut bytes = vec![0; 1 + packed.len() * 16];
+    for (i, point) in packed.iter().enumerate() {
+        for (j, value) in point.iter().enumerate() {
+            bytes[1 + i * 16 + j * 4..1 + i * 16 + j * 4 + 4].copy_from_slice(&value.to_le_bytes());
+        }
+    }
+    let views = [
+        Positions::from_packed(&packed),
+        Positions::from_bytes(&bytes, 3, 16, 1, ByteOrder::LittleEndian).unwrap(),
+    ];
+    let mut full = Workspace::default();
+    assert_eq!(
+        optimize_overdraw(&indices, views[0], 1.05, &mut full),
+        Err(Error::NumericalFailure)
+    );
+    for max_work in 0..=full.usage().work {
+        let mut expected = None;
+        for positions in views {
+            let mut ws = Workspace::new(Limits {
+                max_work,
+                ..Limits::default()
+            });
+            let mut dest = [99; 4];
+            let result = optimize_overdraw_into(&mut dest, &indices, positions, 1.05, &mut ws);
+            assert_eq!(dest, [99; 4]);
+            let observed = (result, ws.usage());
+            if let Some(expected) = expected {
+                assert_eq!(observed, expected, "work {max_work}");
+            }
+            expected = Some(observed);
+        }
+    }
+    let mut limited = Workspace::new(Limits {
+        max_bytes: 0,
+        ..Limits::default()
+    });
+    assert_eq!(
+        optimize_overdraw(&indices, views[0], 1.05, &mut limited),
+        Err(Error::LimitExceeded)
+    );
+}
