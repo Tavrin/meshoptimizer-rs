@@ -8242,3 +8242,7 @@ The phase 0.3 fast and fresh full adapters additionally hash installed
 dependency bytes before and after building/sampling; historical full records
 without that evidence require a fresh matched full run. These identity checks
 do not authorize any unrun timing campaign.
+
+## moss-qx5g3 r2: registered readiness timeout
+
+Before r2 sampling, raise the resident paired-driver read/readiness timeout from 180 to 600 seconds (one harness line). Apply this identical harness to both 0.2.3 and final arms. The fixed 600-second budget is about three times r1, independent of timing ratios. One full rerun per arm is allowed only after a timeout/crash; a second infrastructure failure is FAIL. The frozen corpus, sample policy and bars are unchanged. Registration: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/REGISTRATION.md`.
