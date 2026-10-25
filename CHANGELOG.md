@@ -7,29 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [0.2.4] - 2026-10-25
 
-- Overdraw reuses the centroid accumulated during finite-position validation
-  and dispatches indexed triangle reads by storage layout once per cluster.
-  Output bytes, arithmetic order, validation precedence, workspace accounting
-  and work-limit failure prefixes are unchanged.
+Faster simplification and overdraw optimization. Output, errors, limits,
+counted work and public APIs are unchanged. The minimum supported Rust
+version is still 1.88.
 
-- Simplification reuses its existing position allocation for original strided
-  coordinates during position remapping, then normalizes them in place.
-- Position views read checked XYZ records together and dispatch sequential
-  scans by storage layout and byte order once.
-- Positional-quadric validation and cached inverse-weight refresh share a pass.
-  Public APIs, default limits, counted work and scalar arithmetic are unchanged.
+Median simplify time as a ratio of Rust to C++ 1.3 (scalar) on the three real
+meshes measured, 0.2.3 → 0.2.4. Lower is faster; 1.00 is equal.
 
-### Performance
+| Mesh | 0.2.3 | 0.2.4 |
+|---|---:|---:|
+| 214e | 1.380 | 0.963 |
+| b6fd | 1.298 | 0.947 |
+| a082 | 1.052 | 0.941 |
 
-- On the three measured real meshes, simplify Rust/C++ 1.3 (scalar) medians
-  changed from 1.380, 1.298 and 1.052 in 0.2.3 to 0.963, 0.947 and 0.941,
-  respectively. See the [r2 measurements](parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md).
-- Overdraw optimisation is about 1.47–1.60× C++ 1.3 (scalar) on the largest
-  real meshes measured, a known exception. The
-  [v2 release check](parity/release-check-v2/REPORT.md) passes its registered
-  family and case rules against 0.2.3.
+See the [r2 measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md).
+
+Overdraw optimization remains a known exception: about 1.47–1.60× C++ 1.3
+(scalar) on the largest real meshes measured.
+
+0.2.4 shows no family regression against 0.2.3 on the frozen benchmark matrix.
+See the [v2 release-check report](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/release-check-v2/REPORT.md) for method and intervals.
 
 ## [0.2.3] - 2026-10-24
 
@@ -291,7 +290,8 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...v0.2.1

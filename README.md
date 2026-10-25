@@ -19,7 +19,7 @@ The port targets commit `4c203430ca565cb59a468a91922c76c208169536`, whose
 and executed WASM checks establish parity on finite recorded inputs.
 They do not prove it for every possible input. See [UPSTREAM.md](UPSTREAM.md).
 
-Crate **0.2.3** includes the following development phases. Phase numbers
+Crate **0.2.4** includes the following development phases. Phase numbers
 label stages of the port, not published crate versions.
 
 | Phase | Included APIs |
@@ -38,7 +38,7 @@ Requires Rust **1.88** or later. The library name is `meshoptimizer_rs`.
 
 ```toml
 [dependencies]
-meshoptimizer-rs = "0.2.3"
+meshoptimizer-rs = "0.2.4"
 ```
 
 Simplify a mesh, then optimize its triangle order:
@@ -79,7 +79,7 @@ fn main() -> Result<(), meshoptimizer_rs::Error> {
 For an unsafe-free `no_std` build:
 
 ```toml
-meshoptimizer-rs = { version = "0.2.3", default-features = false }
+meshoptimizer-rs = { version = "0.2.4", default-features = false }
 ```
 
 Add `features = ["std"]` for an unsafe-free standard-library build.
@@ -200,11 +200,12 @@ See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/bl
 
 ## Known exceptions
 
-overdraw optimisation is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
-See the [r2 measurements](parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md) and the [v2 release check](parity/release-check-v2/REPORT.md).
+Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
+See the [r2 measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md) and the [v2 release check](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/release-check-v2/REPORT.md).
 
-These 0.2.0 exceptions still apply to 0.2.3. 0.2.2 changed only encoders, and
-0.2.3 changed only how `Workspace` handles retained scratch.
+These 0.2.0 exceptions still apply to 0.2.4. 0.2.2 changed only encoders, and
+0.2.3 changed only how `Workspace` handles retained scratch. 0.2.4 changed only
+simplify and overdraw speed.
 The owner's 2026-10-06 roadmap permitted the allocating vertex exception and
 scheduled its fix for 0.2.1, which stages large owned vertex decodes. The
 0.2.2 run repeated the exact `vertex-v1-streaming-s4` request in the defaults
