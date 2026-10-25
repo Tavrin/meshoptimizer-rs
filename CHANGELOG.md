@@ -10,8 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Added `clusterlod::build_dag_into`, caller-owned `DagBuffers` and ordered
 `parallel::build_dags_batch_into`. The S1 oracle reproduces 41/41 files byte
 for byte, including emission-time position snapshots and dilation; zero distinct
-vertex tuples collide under the S1 hash. Lane C performance qualification is
-pending; ratios will be recorded with its retained measurement report.
+vertex tuples collide under the S1 hash.
+
+`build_dag_into` time ratios against scalar C++ 1.3 cluster construction and
+per-mesh flattening, with input conversion and serialization included:
+
+| Set | Profile | Aggregate | Maximum per mesh |
+|---|---|---:|---:|
+| S1 (41 meshes) | Moss consumer, thin LTO | 1.069355 | 1.161127 |
+| S1 (41 meshes) | Cargo defaults | 1.061858 | 1.182451 |
+| S2 (9 meshes) | Moss consumer, thin LTO | 1.050695 | 1.201104 |
+| S2 (9 meshes) | Cargo defaults | 1.073176 | 1.167705 |
+
+The bars are aggregate ≤1.20 and per mesh ≤1.50, separately for both sets and
+profiles. The run used pinned physical cores and interleaved pairs under
+1-minute load averages of 5.76–23.86. C++/C++ anchor diagnostic floors were
+2.10% (consumer) and 4.00% (defaults); no bar or sample exclusion changed.
 
 ## [0.2.4] - 2026-10-25
 
