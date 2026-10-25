@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Keep checked bounds validation on its existing path; specialize cached
+  meshlet preparation for packed positions and one-triangle queries,
+  without changing bounds bits, errors or logical work usage.
+
 - Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and
   `compute_meshlet_bounds_with_positions` to cache the full positions scan
   across bounds queries, preserving output bits, errors and logical work usage.

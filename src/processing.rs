@@ -219,10 +219,21 @@ impl<'a> Context<'a> {
             return Err(Error::SizeOverflow);
         }
         self.tick(positions.len())?;
-        self.moderate &= validate_positions(positions)?;
-        Ok(())
+        let mut largest = 0u32;
+        positions.for_each(|p| {
+            largest = largest
+                .max(p[0].to_bits() & 0x7fffffff)
+                .max(p[1].to_bits() & 0x7fffffff)
+                .max(p[2].to_bits() & 0x7fffffff);
+            Ok(())
+        })?;
+        self.moderate &= largest <= 1.0e8f32.to_bits();
+        if largest > f32::MAX.to_bits() {
+            Err(Error::NumericalFailure)
+        } else {
+            Ok(())
+        }
     }
-
     pub(crate) fn topology(&mut self, indices: &[u32], n: usize) -> Result<(), Error> {
         topology(indices, n, &mut self.work)
     }

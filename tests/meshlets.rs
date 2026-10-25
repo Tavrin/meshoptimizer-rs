@@ -788,3 +788,57 @@ fn bounds_positions_constructor_defers_failed_scans_for_error_precedence() {
         Err(Error::NumericalFailure)
     );
 }
+
+#[test]
+fn cached_meshlet_bounds_layouts_and_stack_buckets_match_checked_path() {
+    let points: Vec<[f32; 3]> = (0..65)
+        .map(|i| [(i % 7) as f32, (i / 7) as f32, (i % 3) as f32 * 0.25])
+        .collect();
+    let interleaved: Vec<_> = points
+        .iter()
+        .flat_map(|p| [99., p[0], p[1], p[2]])
+        .collect();
+    let bytes: Vec<_> = points
+        .iter()
+        .flatten()
+        .flat_map(|v| v.to_be_bytes())
+        .collect();
+    let views = [
+        Positions::from_packed(&points),
+        Positions::from_interleaved(&interleaved, points.len(), 4, 1).unwrap(),
+        Positions::from_bytes(&bytes, points.len(), 12, 0, ByteOrder::BigEndian).unwrap(),
+    ];
+    let mut vertices: Vec<u32> = (0..64).collect();
+    for invalid_unused_vertex in [false, true] {
+        vertices[63] = if invalid_unused_vertex { u32::MAX } else { 63 };
+        for count in [0, 3, 6, 96, 99, 384, 387, 1536] {
+            let triangles: Vec<u8> = (0..count).map(|i| (i % 63) as u8).collect();
+            for max_work in [0, 65, 65 + 64 + count as u64, u64::MAX] {
+                let limits = Limits {
+                    max_bytes: 0,
+                    max_work,
+                };
+                let mut reference = Workspace::new(limits);
+                let expected = bounds_bits(compute_meshlet_bounds(
+                    &vertices,
+                    &triangles,
+                    views[0],
+                    &mut reference,
+                ));
+                for p in views {
+                    let mut w = Workspace::new(limits);
+                    assert_eq!(
+                        bounds_bits(compute_meshlet_bounds_with_positions(
+                            &vertices,
+                            &triangles,
+                            BoundsPositions::new(p),
+                            &mut w,
+                        )),
+                        expected
+                    );
+                    assert_eq!(w.usage(), reference.usage());
+                }
+            }
+        }
+    }
+}
