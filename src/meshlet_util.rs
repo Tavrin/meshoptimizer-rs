@@ -4,6 +4,38 @@ use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, Positions, Workspace};
 use alloc::vec::Vec;
 
+/// A borrowed positions view whose bounds-validation scan is cached once.
+///
+/// Construction scans all positions in O(n) time without allocating. The scan
+/// result, including a failure, is retained: bounds calls report it at their
+/// original validation point, after topology checks and work-limit checks.
+/// This preserves error precedence even for malformed topology combined with
+/// non-finite positions. Repeated calls do no full-view scan, but charge the
+/// original logical position visits to preserve [`Workspace`] limits and usage.
+#[derive(Clone, Copy, Debug)]
+pub struct BoundsPositions<'a> {
+    positions: Positions<'a>,
+    validation: Result<bool, Error>,
+}
+impl<'a> BoundsPositions<'a> {
+    /// Scan and cache the size, finiteness and arithmetic-range checks for `positions`.
+    ///
+    /// Errors are deferred to the bounds operation to preserve its precedence.
+    pub fn new(positions: Positions<'a>) -> Self {
+        Self {
+            positions,
+            validation: crate::processing::validate_positions(positions),
+        }
+    }
+    fn apply(self, ctx: &mut Context<'_>) -> Result<bool, Error> {
+        if self.positions.len() > u32::MAX as usize {
+            return Err(Error::SizeOverflow);
+        }
+        ctx.tick(self.positions.len())?;
+        self.validation
+    }
+}
+
 /// Meaningful fields of `meshopt_Bounds`, without native padding.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Bounds {
@@ -272,6 +304,9 @@ fn bounds<const CHECK: bool, const N: usize>(
     Ok(b)
 }
 /// `meshopt_computeClusterBounds`: sphere and conservative normal cone.
+///
+/// Scans all positions in O(n) time per call. For repeated bounds queries use
+/// [`BoundsPositions`] with [`compute_cluster_bounds_with_positions`].
 pub fn compute_cluster_bounds(
     indices: &[u32],
     p: Positions<'_>,
@@ -288,6 +323,37 @@ pub fn compute_cluster_bounds(
     } else {
         cluster_bounds::<1536, 512>(indices, p, &mut ctx, None)
     }
+}
+/// Compute cluster bounds using a cached positions-validation scan.
+///
+/// Output bits, errors, error precedence and logical workspace usage match
+/// [`compute_cluster_bounds`]. Per-call work is O(indices.len()), without a
+/// full positions scan; constructing [`BoundsPositions`] costs O(n) once.
+pub fn compute_cluster_bounds_with_positions(
+    indices: &[u32],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    let mut ctx = Context::new(workspace)?;
+    if indices.len() > 1536 {
+        return Err(Error::InvalidParameter);
+    }
+    if indices.len() <= 96 {
+        cluster_bounds_cached::<96, 32>(indices, p, &mut ctx)
+    } else if indices.len() <= 384 {
+        cluster_bounds_cached::<384, 128>(indices, p, &mut ctx)
+    } else {
+        cluster_bounds_cached::<1536, 512>(indices, p, &mut ctx)
+    }
+}
+fn cluster_bounds_cached<const M: usize, const N: usize>(
+    indices: &[u32],
+    p: BoundsPositions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
+    ctx.topology(indices, p.positions.len())?;
+    ctx.moderate = p.apply(ctx)?;
+    cluster_bounds_body::<M, N>(indices, p.positions, ctx)
 }
 #[cfg(feature = "clusterlod")]
 pub(crate) fn compute_cluster_bounds_validated(
@@ -320,6 +386,13 @@ fn cluster_bounds<const M: usize, const N: usize>(
     } else {
         ctx.positions(p)?;
     }
+    cluster_bounds_body::<M, N>(indices, p, ctx)
+}
+fn cluster_bounds_body<const M: usize, const N: usize>(
+    indices: &[u32],
+    p: Positions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
     let mut cache = [u32::MAX; 512];
     let mut corners = [0u32; M];
     let mut n = 0;
@@ -339,6 +412,9 @@ fn cluster_bounds<const M: usize, const N: usize>(
     }
 }
 /// `meshopt_computeMeshletBounds`: bounds of byte-local triangles.
+///
+/// Scans all positions in O(n) time per call. For repeated bounds queries use
+/// [`BoundsPositions`] with [`compute_meshlet_bounds_with_positions`].
 pub fn compute_meshlet_bounds(
     vertices: &[u32],
     triangles: &[u8],
@@ -355,6 +431,28 @@ pub fn compute_meshlet_bounds(
         meshlet_bounds::<1536, 512>(vertices, triangles, p, &mut ctx)
     }
 }
+/// Compute meshlet bounds using a cached positions-validation scan.
+///
+/// Output bits, errors, error precedence and logical workspace usage match
+/// [`compute_meshlet_bounds`]. Per-call work is O(vertices.len() + triangles.len()),
+/// without a full positions scan; constructing [`BoundsPositions`] costs O(n) once.
+pub fn compute_meshlet_bounds_with_positions(
+    vertices: &[u32],
+    triangles: &[u8],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    let mut ctx = Context::new(workspace)?;
+    validate_local(vertices, triangles)?;
+    ctx.moderate = p.apply(&mut ctx)?;
+    if triangles.len() <= 96 {
+        meshlet_bounds_body::<96, 32>(vertices, triangles, p.positions, &mut ctx)
+    } else if triangles.len() <= 384 {
+        meshlet_bounds_body::<384, 128>(vertices, triangles, p.positions, &mut ctx)
+    } else {
+        meshlet_bounds_body::<1536, 512>(vertices, triangles, p.positions, &mut ctx)
+    }
+}
 fn meshlet_bounds<const M: usize, const N: usize>(
     vertices: &[u32],
     triangles: &[u8],
@@ -362,6 +460,14 @@ fn meshlet_bounds<const M: usize, const N: usize>(
     ctx: &mut Context<'_>,
 ) -> Result<Bounds, Error> {
     ctx.positions(p)?;
+    meshlet_bounds_body::<M, N>(vertices, triangles, p, ctx)
+}
+fn meshlet_bounds_body<const M: usize, const N: usize>(
+    vertices: &[u32],
+    triangles: &[u8],
+    p: Positions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
     ctx.tick(vertices.len() + triangles.len())?;
     if vertices.iter().any(|&v| v as usize >= p.len()) {
         return Err(Error::IndexOutOfBounds);

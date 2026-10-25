@@ -219,21 +219,10 @@ impl<'a> Context<'a> {
             return Err(Error::SizeOverflow);
         }
         self.tick(positions.len())?;
-        let mut largest = 0u32;
-        positions.for_each(|p| {
-            largest = largest
-                .max(p[0].to_bits() & 0x7fffffff)
-                .max(p[1].to_bits() & 0x7fffffff)
-                .max(p[2].to_bits() & 0x7fffffff);
-            Ok(())
-        })?;
-        self.moderate &= largest <= 1.0e8f32.to_bits();
-        if largest > f32::MAX.to_bits() {
-            Err(Error::NumericalFailure)
-        } else {
-            Ok(())
-        }
+        self.moderate &= validate_positions(positions)?;
+        Ok(())
     }
+
     pub(crate) fn topology(&mut self, indices: &[u32], n: usize) -> Result<(), Error> {
         topology(indices, n, &mut self.work)
     }
@@ -241,6 +230,27 @@ impl<'a> Context<'a> {
 impl Drop for Context<'_> {
     fn drop(&mut self) {
         self.workspace.finish(&self.work);
+    }
+}
+
+// The scan is independent of work accounting so bounds callers can cache its
+// result and replay failures at the same point in the checked operation.
+pub(crate) fn validate_positions(positions: Positions<'_>) -> Result<bool, Error> {
+    if positions.len() > u32::MAX as usize {
+        return Err(Error::SizeOverflow);
+    }
+    let mut largest = 0u32;
+    positions.for_each(|p| {
+        largest = largest
+            .max(p[0].to_bits() & 0x7fffffff)
+            .max(p[1].to_bits() & 0x7fffffff)
+            .max(p[2].to_bits() & 0x7fffffff);
+        Ok(())
+    })?;
+    if largest > f32::MAX.to_bits() {
+        Err(Error::NumericalFailure)
+    } else {
+        Ok(largest <= 1.0e8f32.to_bits())
     }
 }
 

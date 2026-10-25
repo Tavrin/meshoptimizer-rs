@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and
+  `compute_meshlet_bounds_with_positions` to cache the full positions scan
+  across bounds queries, preserving output bits, errors and logical work usage.
+- Add `FetchIndices`, `optimize_vertex_fetch_remap_with_indices` and
+  `optimize_vertex_fetch_remap_with_indices_into` to cache index validation
+  across fetch-remap calls, preserving failures, work usage and partial writes.
+- Use vectorizable validation and precharged numbering for fetch-remap,
+  preserving checked failures and caller-buffer partial writes.
+
 ## [0.2.4] - 2026-10-25
 
 Faster simplification and overdraw optimization. Output, errors, limits,

@@ -642,3 +642,149 @@ fn demo_attribute_layouts_preserve_output_and_workspace_peak() {
         }
     }
 }
+
+fn bounds_bits(result: Result<Bounds, Error>) -> Result<([u32; 11], [i8; 4]), Error> {
+    result.map(|b| {
+        let mut floats = [0.; 11];
+        floats[..3].copy_from_slice(&b.center);
+        floats[3] = b.radius;
+        floats[4..7].copy_from_slice(&b.cone_apex);
+        floats[7..10].copy_from_slice(&b.cone_axis);
+        floats[10] = b.cone_cutoff;
+        (
+            floats.map(f32::to_bits),
+            [
+                b.cone_axis_s8[0],
+                b.cone_axis_s8[1],
+                b.cone_axis_s8[2],
+                b.cone_cutoff_s8,
+            ],
+        )
+    })
+}
+
+#[test]
+fn cached_cluster_bounds_preserve_bits_errors_and_usage() {
+    let (base, indices) = mesh();
+    let large = indices.repeat(4);
+    for scale in [1., 1.0e9, f32::MAX, f32::NAN, f32::INFINITY] {
+        let mut points = base.clone();
+        // Include an unused invalid/extreme position in the cached scan.
+        points.push([scale, -0., 0.]);
+        let positions = Positions::from_packed(&points);
+        let cached = BoundsPositions::new(positions);
+        for topology in [
+            &indices[..3],
+            &indices[..96],
+            &indices[..384],
+            &large[..],
+            &[][..],
+            &[0][..],
+            &[u32::MAX, 0, 0][..],
+            &[0; 1539][..],
+        ] {
+            for max_work in (0..=32).chain([96, 384, 1000, u64::MAX]) {
+                let limits = Limits {
+                    max_bytes: 0,
+                    max_work,
+                };
+                let mut old = Workspace::new(limits);
+                let mut new = Workspace::new(limits);
+                assert_eq!(
+                    bounds_bits(compute_cluster_bounds(topology, positions, &mut old)),
+                    bounds_bits(compute_cluster_bounds_with_positions(
+                        topology, cached, &mut new
+                    ))
+                );
+                assert_eq!(old.usage(), new.usage());
+            }
+        }
+    }
+}
+
+#[test]
+fn cached_meshlet_bounds_preserve_bits_errors_and_usage() {
+    let (base, _) = mesh();
+    let triangles = [0, 1, 2].repeat(512);
+    for scale in [1., 1.0e9, f32::MAX, f32::NAN, f32::INFINITY] {
+        let points: Vec<_> = base.iter().map(|p| p.map(|v| v * scale)).collect();
+        let positions = Positions::from_packed(&points);
+        let cached = BoundsPositions::new(positions);
+        for vertices in [
+            &[0, 1, 9][..],
+            &[0, 1, u32::MAX][..],
+            &[][..],
+            &[0; 257][..],
+        ] {
+            for triangles in [
+                &[0, 1, 2][..],
+                &[0][..],
+                &[3, 0, 0][..],
+                &[][..],
+                &triangles[..96],
+                &triangles[..384],
+                &triangles[..],
+                &[0; 1539][..],
+            ] {
+                for max_work in (0..=32).chain([96, 384, 1000, u64::MAX]) {
+                    let limits = Limits {
+                        max_bytes: 0,
+                        max_work,
+                    };
+                    let mut old = Workspace::new(limits);
+                    let mut new = Workspace::new(limits);
+                    assert_eq!(
+                        bounds_bits(compute_meshlet_bounds(
+                            vertices, triangles, positions, &mut old
+                        )),
+                        bounds_bits(compute_meshlet_bounds_with_positions(
+                            vertices, triangles, cached, &mut new
+                        ))
+                    );
+                    assert_eq!(old.usage(), new.usage());
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn bounds_positions_constructor_defers_failed_scans_for_error_precedence() {
+    let data = [
+        17.,
+        0.,
+        0.,
+        0.,
+        17.,
+        1.,
+        0.,
+        0.,
+        17.,
+        0.,
+        1.,
+        0.,
+        17.,
+        f32::NAN,
+        0.,
+        0.,
+    ];
+    let p = Positions::from_interleaved(&data, 4, 4, 1).unwrap();
+    let cached = BoundsPositions::new(p);
+    let mut w = Workspace::default();
+    assert_eq!(
+        compute_cluster_bounds_with_positions(&[0], cached, &mut w),
+        Err(Error::InvalidTopology)
+    );
+    assert_eq!(
+        compute_cluster_bounds_with_positions(&[0, 1, 2], cached, &mut w),
+        Err(Error::NumericalFailure)
+    );
+    assert_eq!(
+        compute_meshlet_bounds_with_positions(&[0, 1, 2], &[3, 0, 0], cached, &mut w),
+        Err(Error::IndexOutOfBounds)
+    );
+    assert_eq!(
+        compute_meshlet_bounds_with_positions(&[0, 1, 2], &[0, 1, 2], cached, &mut w),
+        Err(Error::NumericalFailure)
+    );
+}
