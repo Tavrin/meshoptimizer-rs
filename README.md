@@ -241,17 +241,24 @@ invalid because their protect masks exceed the layout. AVX2, AVX-512 and
 32-bit ARM SIMD are not implemented; index/sequence decoding remains scalar.
 See the [comparison's exception ledger](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md#against-pinned-upstream-c-13).
 
-## Priorities for 0.3
+## Cluster milestone priorities (additive 0.2.x)
 
-1. Finish encoder qualification: validate the other consumer profiles.
-   Reproduce the historical allocating streaming gap in its original profile;
-   retain matched versions and precision settings.
-2. Close resolved allocating codec maxima and default partitioning gaps;
-   keep unresolved rows and the malformed-tail discrepancy listed.
-3. Meet the stricter SIMD amendment targets, requalify fetch/sloppy/overdraw
-   residuals, and refresh the full P05 matrix against the integrated source.
-4. Extend runtime and performance evidence to AArch64 and other native systems,
-   and broaden input, precision and application allocation coverage.
+1. Deliver canonical caller-buffer cluster DAGs and ordered batches. The new
+   `clusterlod::build_dag_into` returns emission-time position snapshots, flat
+   cluster/group records and the per-level forest in `DagBuffers`;
+   `parallel::build_dags_batch_into` returns ordered counts or item errors.
+   Caller capacities are excluded from Workspace limits. Publish successful
+   prefixes only; late failures may write prefixes and mutate dilated positions.
+2. Add bounded native codec cursors after exact legacy output/error and
+   checkpoint qualification. Existing whole-buffer decoders remain supported.
+3. Use qualified scratch control at mesh/phase boundaries; retain existing
+   `Workspace::clear` and limits semantics.
+4. Reproduce codec, partition/fetch/sloppy/overdraw and SIMD residuals, then
+   refresh integrated qualification. Existing unresolved rows remain unresolved.
+   Performance and platform/release evidence are separate from DAG byte identity.
+
+Reserve 0.3 for the first necessary breaking change. Moss owns MCLD serialization
+and adoption; the library remains format-agnostic.
 
 ## Licence and acknowledgements
 

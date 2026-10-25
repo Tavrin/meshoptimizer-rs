@@ -16,3 +16,7 @@ inherits = "release"
 opt-level = 3
 codegen-units = 1
 lto = "thin"
+
+[[bin]]
+name = "rfc113-dag-oracle"
+path = "dag_oracle.rs"
