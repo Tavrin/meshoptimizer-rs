@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Simplification reuses its existing position allocation for original strided
+  coordinates during position remapping, then normalizes them in place.
+- Position views read checked XYZ records together and dispatch sequential
+  scans by storage layout and byte order once.
+- Positional-quadric validation and cached inverse-weight refresh share a pass.
+  Public APIs, default limits, counted work and scalar arithmetic are unchanged.
+
 ## [0.2.3] - 2026-10-24
 
 Memory-limit fix. There are no API changes. Output is byte-identical to 0.2.2

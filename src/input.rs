@@ -279,6 +279,22 @@ struct View<'a> {
     offset: usize,
 }
 
+#[inline(always)]
+fn position_bytes<const BIG_ENDIAN: bool>(b: &[u8; 12]) -> [f32; 3] {
+    [
+        [b[0], b[1], b[2], b[3]],
+        [b[4], b[5], b[6], b[7]],
+        [b[8], b[9], b[10], b[11]],
+    ]
+    .map(|word| {
+        f32::from_bits(if BIG_ENDIAN {
+            u32::from_be_bytes(word)
+        } else {
+            u32::from_le_bytes(word)
+        })
+    })
+}
+
 fn layout(
     len: usize,
     count: usize,
@@ -356,6 +372,28 @@ impl<'a> View<'a> {
             stride,
             offset,
         })
+    }
+    #[inline(always)]
+    fn position(self, vertex: usize) -> Option<[f32; 3]> {
+        if vertex >= self.count {
+            return None;
+        }
+        // Position views always have width three. Check the whole XYZ record
+        // once, preserving support for unaligned byte offsets and either order.
+        match self.storage {
+            Storage::Floats(data) => {
+                let start = self.offset + vertex * self.stride;
+                Some(*data.get(start..)?.first_chunk::<3>()?)
+            }
+            Storage::Bytes(data, order) => {
+                let start = self.offset + vertex * self.stride;
+                let b = data.get(start..)?.first_chunk::<12>()?;
+                Some(match order {
+                    ByteOrder::LittleEndian => position_bytes::<false>(b),
+                    ByteOrder::BigEndian => position_bytes::<true>(b),
+                })
+            }
+        }
     }
     #[inline(always)]
     fn get(self, vertex: usize, component: usize) -> Option<f32> {
@@ -514,9 +552,7 @@ impl<'a> Positions<'a> {
         };
         match self.0 {
             PositionStorage::Packed(p) => p.get(index).copied(),
-            PositionStorage::View(v) => {
-                Some([v.get(index, 0)?, v.get(index, 1)?, v.get(index, 2)?])
-            }
+            PositionStorage::View(v) => v.position(index),
         }
     }
     pub(crate) fn packed_values(self) -> Option<&'a [[f32; 3]]> {
@@ -556,11 +592,31 @@ impl<'a> Positions<'a> {
                     visit(value)?;
                 }
             }
-            PositionStorage::View(_) => {
-                for i in 0..self.len() {
-                    visit(self.at(i)?)?;
+            PositionStorage::View(v) => match v.storage {
+                Storage::Floats(data) => {
+                    for record in data[v.offset..].chunks(v.stride).take(v.count) {
+                        visit(
+                            *record
+                                .first_chunk::<3>()
+                                .expect("validated position record"),
+                        )?;
+                    }
                 }
-            }
+                Storage::Bytes(data, ByteOrder::LittleEndian) => {
+                    for record in data[v.offset..].chunks(v.stride).take(v.count) {
+                        visit(position_bytes::<false>(
+                            record.first_chunk().expect("validated position record"),
+                        ))?;
+                    }
+                }
+                Storage::Bytes(data, ByteOrder::BigEndian) => {
+                    for record in data[v.offset..].chunks(v.stride).take(v.count) {
+                        visit(position_bytes::<true>(
+                            record.first_chunk().expect("validated position record"),
+                        ))?;
+                    }
+                }
+            },
         }
         Ok(())
     }
@@ -575,7 +631,34 @@ impl<'a> Positions<'a> {
         }
         match self.0 {
             PositionStorage::Packed(values) => work.scan(values.iter().copied(), visit),
-            PositionStorage::View(_) => work.scan(0..self.len(), |i| visit(self.at(i)?)),
+            // Constructors validate every record boundary. Dispatch layout and
+            // byte order once, while Work::scan retains exact failure-prefix
+            // accounting and the original callback/coordinate order.
+            PositionStorage::View(v) => match v.storage {
+                Storage::Floats(data) => {
+                    work.scan(data[v.offset..].chunks(v.stride).take(v.count), |record| {
+                        visit(
+                            *record
+                                .first_chunk::<3>()
+                                .expect("validated position record"),
+                        )
+                    })
+                }
+                Storage::Bytes(data, ByteOrder::LittleEndian) => {
+                    work.scan(data[v.offset..].chunks(v.stride).take(v.count), |record| {
+                        visit(position_bytes::<false>(
+                            record.first_chunk().expect("validated position record"),
+                        ))
+                    })
+                }
+                Storage::Bytes(data, ByteOrder::BigEndian) => {
+                    work.scan(data[v.offset..].chunks(v.stride).take(v.count), |record| {
+                        visit(position_bytes::<true>(
+                            record.first_chunk().expect("validated position record"),
+                        ))
+                    })
+                }
+            },
         }
     }
     #[inline(always)]

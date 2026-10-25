@@ -1183,15 +1183,19 @@ impl State {
     fn position_remap(&mut self, p: Positions<'_>, work: &mut Work) -> Result<(), Error> {
         if let Some((values, mapping)) = p.packed_source() {
             if let Some(mapping) = mapping {
-                self.position_remap_kernel(mapping.len(), |i| Ok(values[mapping[i] as usize]), work)
+                self.position_remap_kernel::<false>(
+                    mapping.len(),
+                    |i| Ok(values[mapping[i] as usize]),
+                    work,
+                )
             } else {
-                self.position_remap_kernel(values.len(), |i| Ok(values[i]), work)
+                self.position_remap_kernel::<false>(values.len(), |i| Ok(values[i]), work)
             }
         } else {
-            self.position_remap_kernel(p.len(), |i| p.at(i), work)
+            self.position_remap_kernel::<true>(p.len(), |i| p.at(i), work)
         }
     }
-    fn position_remap_kernel(
+    fn position_remap_kernel<const CACHE_POSITIONS: bool>(
         &mut self,
         count: usize,
         read: impl Fn(usize) -> Result<[f32; 3], Error>,
@@ -1201,6 +1205,14 @@ impl State {
         for i in 0..count {
             work.add(1)?;
             let v = read(i)?;
+            // The normalized-position allocation is already reserved. Until
+            // normalization, keep original coordinates here so hash probes do
+            // not repeatedly decode strided records. Every occupied entry was
+            // inserted by this or an earlier iteration; hash/probe order and
+            // counted visits are unchanged. Packed sources need no copy.
+            if CACHE_POSITIONS {
+                self.p.push(V::from(v));
+            }
             let mut bits = v.map(|v| if v == 0.0 { 0 } else { v.to_bits() });
             for x in &mut bits {
                 *x ^= *x >> 17;
@@ -1216,7 +1228,13 @@ impl State {
                     self.table.set(bucket, i);
                     break;
                 }
-                if read(j)? == v {
+                let candidate = if CACHE_POSITIONS {
+                    let p = self.p[j];
+                    [p.x, p.y, p.z]
+                } else {
+                    read(j)?
+                };
+                if candidate == v {
                     break;
                 }
                 bucket = (bucket + probe + 1) & mask;
@@ -1587,20 +1605,23 @@ impl State {
         if options.bits() & 128 != 0 {
             extra::fold_quadrics(self, work)?;
         }
-        if self.q.iter().chain(&self.aq).any(|q| !q.finite())
+        // Validate and refresh positional weights together, avoiding another
+        // full read of the large positional-quadric array. No quadric is used
+        // until all positional, attribute and gradient checks have succeeded.
+        // Reciprocal overflow is still checked only when its error is ranked.
+        for q in &mut self.q {
+            if !q.finite() {
+                return Err(Error::NumericalFailure);
+            }
+            q.cache_inverse_weight();
+        }
+        if self.aq.iter().any(|q| !q.finite())
             || self
                 .g
                 .iter()
                 .any(|g| ![g.x, g.y, g.z, g.w].iter().all(|x| x.is_finite()))
         {
             return Err(Error::NumericalFailure);
-        }
-        // Ranking reads each weight many times. Cache the identical division
-        // once, then refresh it whenever update merges positional quadrics.
-        // An overflowing reciprocal is checked when its error is ranked, as
-        // before; it is not an additional quadric validation condition.
-        for q in &mut self.q {
-            q.cache_inverse_weight();
         }
         Ok(())
     }
@@ -2131,14 +2152,25 @@ fn run_state(
     work.add(n)?;
     let (lo, extent) = bounds(positions)?;
     let scale = if extent == 0.0 { 0.0 } else { 1.0 / extent };
+    let cached_positions = s.p.len() == n;
     for i in 0..n {
         work.add(1)?;
-        let p = positions.at(i)?;
-        s.p.push(V {
+        let p = if cached_positions {
+            let p = s.p[i];
+            [p.x, p.y, p.z]
+        } else {
+            positions.at(i)?
+        };
+        let normalized = V {
             x: (p[0] - lo[0]) * scale,
             y: (p[1] - lo[1]) * scale,
             z: (p[2] - lo[2]) * scale,
-        });
+        };
+        if cached_positions {
+            s.p[i] = normalized;
+        } else {
+            s.p.push(normalized);
+        }
         if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
             return Err(Error::NumericalFailure);
         }

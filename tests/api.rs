@@ -768,3 +768,100 @@ fn cache_still_refuses_live_storage_that_does_not_fit() {
     );
     assert_eq!(indices, [0, 1, 2]);
 }
+
+#[test]
+fn strided_simplification_preserves_packed_results_and_work_limits() {
+    let packed = [
+        [-0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 0.125],
+        [0.0, 0.0, 0.0],
+        [0.5, 0.25, 0.1],
+        [9.0, 8.0, 7.0],
+    ];
+    let indices = [0, 1, 5, 1, 3, 5, 3, 2, 5, 2, 4, 5];
+    for options in [SimplifyOptions::EMPTY, SimplifyOptions::SPARSE] {
+        let settings = SimplifySettings {
+            target_index_count: 3,
+            target_error: 0.5,
+            options,
+        };
+        let mut full = Workspace::default();
+        simplify(
+            &indices,
+            Positions::from_packed(&packed),
+            settings,
+            &mut full,
+        )
+        .unwrap();
+        for order in [ByteOrder::LittleEndian, ByteOrder::BigEndian] {
+            let mut bytes = vec![0; packed.len() * 64];
+            for (i, p) in packed.iter().enumerate() {
+                for (j, value) in p.iter().enumerate() {
+                    let value = match order {
+                        ByteOrder::LittleEndian => value.to_le_bytes(),
+                        ByteOrder::BigEndian => value.to_be_bytes(),
+                    };
+                    bytes[1 + i * 64 + j * 4..1 + i * 64 + j * 4 + 4].copy_from_slice(&value);
+                }
+            }
+            let strided = Positions::from_bytes(&bytes, packed.len(), 64, 1, order).unwrap();
+            for max_work in 0..=full.usage().work {
+                let limits = Limits {
+                    max_work,
+                    ..Limits::default()
+                };
+                let mut a = Workspace::new(limits);
+                let mut b = Workspace::new(limits);
+                let result = |mesh: SimplifiedMesh| (mesh.indices, mesh.error.to_bits());
+                assert_eq!(
+                    simplify(&indices, Positions::from_packed(&packed), settings, &mut a)
+                        .map(result),
+                    simplify(&indices, strided, settings, &mut b).map(result),
+                    "work {max_work}, options {options:?}, order {order:?}"
+                );
+                assert_eq!(a.usage(), b.usage());
+            }
+        }
+    }
+}
+
+#[test]
+fn strided_overdraw_preserves_work_and_numerical_failure_precedence() {
+    for invalid in [false, true] {
+        let packed = [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.25],
+            [if invalid { f32::NAN } else { -0.0 }, 0.0, 0.0],
+        ];
+        let indices = [0, 1, 2, 2, 1, 3];
+        let mut bytes = vec![0; packed.len() * 64];
+        for (i, p) in packed.iter().enumerate() {
+            for (j, value) in p.iter().enumerate() {
+                bytes[1 + i * 64 + j * 4..1 + i * 64 + j * 4 + 4]
+                    .copy_from_slice(&value.to_be_bytes());
+            }
+        }
+        let strided =
+            Positions::from_bytes(&bytes, packed.len(), 64, 1, ByteOrder::BigEndian).unwrap();
+        let mut full = Workspace::default();
+        let _ = optimize_overdraw(&indices, Positions::from_packed(&packed), 1.05, &mut full);
+        for max_work in 0..=full.usage().work {
+            let limits = Limits {
+                max_work,
+                ..Limits::default()
+            };
+            let mut a = Workspace::new(limits);
+            let mut b = Workspace::new(limits);
+            assert_eq!(
+                optimize_overdraw(&indices, Positions::from_packed(&packed), 1.05, &mut a),
+                optimize_overdraw(&indices, strided, 1.05, &mut b),
+                "work {max_work}, invalid {invalid}"
+            );
+            assert_eq!(a.usage(), b.usage());
+        }
+    }
+}
