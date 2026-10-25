@@ -1,0 +1,15 @@
+{
+  "C": {
+    "completed": true,
+    "main_cases": 204,
+    "AA_cases": 204,
+    "replication_cases": 0,
+    "all_pairs_1_plus_12": true,
+    "all_replications_and_layouts_completed": true,
+    "registration_sha256": "34755de47c202ac4b1a182696b51a0943e54f2fe7b9836b11ac830884c98699f",
+    "registration_before_first_case": true,
+    "same_session_floor": true,
+    "no_value_retries": true,
+    "record": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/C-attempt-1/record.json"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "unique_raw_pairs": 4896,
+  "all_raw_pairs_match_checkpoints": true,
+  "case_medians_recomputed": true,
+  "family_gms_and_strict_1_02_rule_recomputed": true,
+  "protocol_scripts_unchanged_since_registration": true,
+  "all_binary_hashes_unchanged": true,
+  "no_flagged_cases": true,
+  "replication_and_layout_required": false,
+  "measurement_attempts": 1,
+  "train_pauses": 11,
+  "utc_unix": 1792932061.2516406
+}

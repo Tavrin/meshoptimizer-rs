@@ -1,0 +1,35 @@
+{
+  "214e85c568a64e8a": {
+    "passed": true,
+    "oracle": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/profiles-v2/cpp",
+    "candidate": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/real-Cp/214e85c568a64e8a",
+    "algorithm_call_counts": {
+      "scale_raw": 2,
+      "simplify": 6,
+      "cache": 4,
+      "overdraw": 4
+    }
+  },
+  "b6fdb93d8a1709e2": {
+    "passed": true,
+    "oracle": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/oracle-holdouts/b6fdb93d8a1709e2",
+    "candidate": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/real-Cp/b6fdb93d8a1709e2",
+    "algorithm_call_counts": {
+      "scale_raw": 2,
+      "simplify": 6,
+      "cache": 6,
+      "overdraw": 6
+    }
+  },
+  "a082ca1fd19bb86a": {
+    "passed": true,
+    "oracle": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/oracle-holdouts/a082ca1fd19bb86a",
+    "candidate": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/real-Cp/a082ca1fd19bb86a",
+    "algorithm_call_counts": {
+      "scale_raw": 2,
+      "simplify": 6,
+      "cache": 6,
+      "overdraw": 6
+    }
+  }
+}

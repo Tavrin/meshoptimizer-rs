@@ -1,0 +1,134 @@
+{
+  "C-layout.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "REGISTRATION.md": {
+    "sha256": "34755de47c202ac4b1a182696b51a0943e54f2fe7b9836b11ac830884c98699f",
+    "bytes": 10136
+  },
+  "REPORT.md": {
+    "sha256": "2c9389d60a79478f9e2b595be280119c8f07bffde157cb47b82946f5c73ec383",
+    "bytes": 11019
+  },
+  "SAMPLES.csv": {
+    "sha256": "afb91793b9dc7082811eede60bdc925f1b3d9c824a53e7beea85dc920ef7b9d3",
+    "bytes": 741539
+  },
+  "alignment-check.json": {
+    "sha256": "8edf6a176e73f6b216ebad895625b7e9a42d6a5fcfe197cda211630d42dfb639",
+    "bytes": 947
+  },
+  "alignment-parity-summary.json": {
+    "sha256": "ee47332aad3bd618fa8e6e9e6a30d510ba0b75bfa6dddc6a944deb43413e0f89",
+    "bytes": 70220
+  },
+  "alignment-qualified.txt": {
+    "sha256": "e854a66ac60e97955f1a7484c0c88fe6ac011aff5e0871d6835a3c85e4cf3b3c",
+    "bytes": 352
+  },
+  "alignment-real-hash-checks.json": {
+    "sha256": "293ac4b249c134807f8a4171f9cbce6542702acfca58487ce2f130d8f690ea40",
+    "bytes": 1117
+  },
+  "analysis.json": {
+    "sha256": "f1f7946bc5c625b990652f254a1a5dd31aef9e103227179b1052c20cbcd58449",
+    "bytes": 115399
+  },
+  "attempts.jsonl": {
+    "sha256": "32f60f2e7477d9f03e1268ca5cfd504d4ebfd17982fc9dbbf3919824f72596b3",
+    "bytes": 971
+  },
+  "build-preflight-incident.json": {
+    "sha256": "66def2e2e89ce1bdeb998f3350ec5183a5176f29e894dc0d9a2fbde563a07e87",
+    "bytes": 1091
+  },
+  "cleanup.json": {
+    "sha256": "f52fd997407b0cdbfdbeb035b37dbd8d5bbb6bf2d51b615e6c52add29d66e4b3",
+    "bytes": 82485
+  },
+  "environment.json": {
+    "sha256": "cea7c2f1d6880fa3957ec3b28ee2d8b8d9a1bbc473150fdf7bd4bf9735ab5bcd",
+    "bytes": 4849
+  },
+  "heavy-receipts.tsv": {
+    "sha256": "b117d4ffe981b5536760c80ab76d4b85574f73d882d36b7ce81b4099a908f56e",
+    "bytes": 4049
+  },
+  "identities.json": {
+    "sha256": "22320be0d2cef160c76493cc32dfcd5a6b0b41f84d1b6f2404b6a792a7799430",
+    "bytes": 29299
+  },
+  "independent-audit.json": {
+    "sha256": "117b1d6e447da0fb218ca1cfe092ef7eb097b7739f18c0507c9afc0233058efa",
+    "bytes": 434
+  },
+  "pauses.jsonl": {
+    "sha256": "f0750c1c2a93089c2b06140f226b40298b384064611b6fbf1e8be23f8c2a2e49",
+    "bytes": 3113
+  },
+  "protocol/build-qualified.sh": {
+    "sha256": "36a4485d616e7d0287b801e1c77a4023fc1e1a3d3307a6a5daf1e15090de65cb",
+    "bytes": 702
+  },
+  "protocol/campaign.py": {
+    "sha256": "f2063a6ead9dce33c34f9956e797d89f2882ab0e45799265943436ee5720879c",
+    "bytes": 4797
+  },
+  "protocol/freeze.py": {
+    "sha256": "f0a9adbce09246d9d1041954ec89dc9d1833c6aa1e5cc00e5a6f61e83d126f90",
+    "bytes": 5222
+  },
+  "protocol/layout.py": {
+    "sha256": "d9360864f63e900e6e8575d3c7084843fe083a8fe93987ac0ca7a93817946365",
+    "bytes": 4656
+  },
+  "protocol/qualify-real-resume.sh": {
+    "sha256": "5c9a9462fa7e94bf8c2920c1bcfed6af88cda9250b5dcf5c7fc04bd52505e8e6",
+    "bytes": 831
+  },
+  "protocol/qualify.sh": {
+    "sha256": "db5a1cb28c57d2beccfa0be9a0685e0ec782d53eec04a4a859ca0e2173ee815a",
+    "bytes": 988
+  },
+  "protocol/run.sh": {
+    "sha256": "7a941058d5db57d1b60c7fe182a7985e91ada27ddbae194cc76796b42360b924",
+    "bytes": 139
+  },
+  "protocol/stats.py": {
+    "sha256": "2de9519382578965e36263d5c4156885f87e6b8b1d52b4e2b3c41b6b95f2786e",
+    "bytes": 970
+  },
+  "protocol/supervise.py": {
+    "sha256": "28c427936d7d5db420a0a6dd3f60951e6424546b77d8bd6e609e6afa00289289",
+    "bytes": 1496
+  },
+  "protocol-code-manifest.json": {
+    "sha256": "840d826c270d679cf41ebc795f508977f2aa144fa2d146d7a638551371712630",
+    "bytes": 1394
+  },
+  "registration-commit.txt": {
+    "sha256": "4fc9437336abc6960bec4a0e2fec3cb097d25dff9e39dbfd908007727ee47639",
+    "bytes": 41
+  },
+  "registration-frozen.json": {
+    "sha256": "562deb2ade09ed8d3578acc6dfb265180a118dc2e8a9dd4edd667c7281d62c77",
+    "bytes": 128
+  },
+  "registration-push.log": {
+    "sha256": "bd0cba5f55f4bfcecea993dd0397e78b40937f6ae125d385c3cc4247f26ca53b",
+    "bytes": 96
+  },
+  "shared-protocol-bindings.json": {
+    "sha256": "31530596d7fcccdbbc0bfcd17357e57fbee2a9c27cb5de28323ed4d8e1a4d306",
+    "bytes": 306
+  },
+  "target-retention.json": {
+    "sha256": "4a1f7e09d58021806a073534e28eb0d476f087535c3c118a3869a8acc5470c90",
+    "bytes": 80176
+  },
+  "verification.json": {
+    "sha256": "5fd1e8761ee95456ce2e3df81df64a17415e24e73604f59e48fd02e953008a47",
+    "bytes": 501
+  }
+}

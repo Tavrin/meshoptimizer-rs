@@ -1,0 +1,19 @@
+{
+  "unix": 1792926579.7396784,
+  "sampling_started": false,
+  "cause": "CARGO_ENCODED_RUSTFLAGS empty overrides RUSTFLAGS. Corrected script was edited during execution causing terminal syntax error. All five binaries retained; Bp/Cp initial unqualified copies preserved. Rebuild only perturbation arms with immutable corrected script. Qualification queue canceled before execution.",
+  "measurement_failure": false,
+  "qualification_build_oom": {
+    "stage": "real-case migration checker dependency moss_runtime",
+    "cap_GiB": 7,
+    "cgroup_peak_GiB": 7,
+    "retry": "moss-heavy built-in single cap-OOM retry, 11 GiB",
+    "before_measurement": true,
+    "receipts": [
+      "qualification-oom-build-real.log",
+      "qualification-oom-parity-qualification.log",
+      "qualification-qualified-wrapper.log"
+    ],
+    "wrapper_retry_result": "Refused by immutable completed parity receipt before rebuilding real checker. Original successful parity receipt and log retained. Resume unfinished real checker build and three checks only via qualify-real-resume.sh, declared 11 GiB."
+  }
+}
