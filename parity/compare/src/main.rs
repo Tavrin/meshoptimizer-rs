@@ -1,5 +1,13 @@
 #[cfg(feature = "theirs")]
 use meshopt::ffi as f;
+#[cfg(feature = "peer7")]
+use meshopt7::ffi as f;
+#[cfg(feature = "peer7")]
+use meshopt7 as meshopt;
+#[cfg(feature = "optimesh")]
+mod peer_x;
+#[cfg(feature = "optimesh")]
+use peer_x::run;
 #[cfg(feature = "ours")]
 use meshoptimizer_rs as m;
 use std::{
@@ -8,7 +16,22 @@ use std::{
     time::Instant,
 };
 
+struct Replay {
+    data: Vec<f32>,
+    stride: usize,
+    target: usize,
+    error: f32,
+    options: u32,
+    threshold: f32,
+}
+impl Replay {
+    fn bytes(&self) -> &[u8] {
+        // Initialized f32 storage, viewed as bytes; replay loader requires little endian.
+        unsafe { std::slice::from_raw_parts(self.data.as_ptr().cast(), self.data.len()*4) }
+    }
+}
 struct Input {
+    replay: Option<Replay>,
     p: Vec<[f32; 3]>,
     raw: Vec<u8>,
     i: Vec<u32>,
@@ -20,9 +43,11 @@ struct Input {
     quat: Vec<f32>,
 }
 enum Output {
+    #[cfg(feature="optimesh")]
+    MeshX(Vec<optimesh::clusterizer::Meshlet>, Vec<u32>, Vec<u8>),
     #[cfg(feature = "ours")]
     MeshOurs(m::Meshlets),
-    #[cfg(feature = "theirs")]
+    #[cfg(any(feature = "theirs", feature = "peer7"))]
     MeshTheirs(Vec<f::meshopt_Meshlet>, Vec<u32>, Vec<u8>),
     Bytes(Vec<u8>),
     Indices(Vec<u32>),
@@ -32,7 +57,7 @@ enum Output {
 }
 impl Output {
     fn raw_bytes(&self) -> Vec<u8> {
-        #[cfg(feature = "theirs")]
+        #[cfg(any(feature = "theirs", feature = "peer7"))]
         if let Self::MeshTheirs(ms, v, t) = self {
             let nv = ms
                 .iter()
@@ -85,8 +110,24 @@ impl Output {
                 r.triangles.clone(),
             )
             .bytes(),
-            #[cfg(feature = "theirs")]
+            #[cfg(any(feature = "theirs", feature = "peer7"))]
             Self::MeshTheirs(ms, v, t) => {
+                let mut packed = Vec::new();
+                let mut desc = Vec::new();
+                let mut nv = 0;
+                for m in ms {
+                    let off = packed.len() as u32;
+                    packed.extend_from_slice(
+                        &t[m.triangle_offset as usize
+                            ..m.triangle_offset as usize + m.triangle_count as usize * 3],
+                    );
+                    nv = nv.max(m.vertex_offset as usize + m.vertex_count as usize);
+                    desc.push([m.vertex_offset, off, m.vertex_count, m.triangle_count]);
+                }
+                Output::Mesh(desc, v[..nv].to_vec(), packed).bytes()
+            }
+            #[cfg(feature="optimesh")]
+            Self::MeshX(ms, v, t) => {
                 let mut packed = Vec::new();
                 let mut desc = Vec::new();
                 let mut nv = 0;
@@ -148,6 +189,17 @@ impl Input {
             buffers.push(b[c..c + len].to_vec());
             c += len;
         }
+        let replay = if c < b.len() {
+            assert!(cfg!(target_endian="little"));
+            assert_eq!(u(&b,&mut c),0x52504c59);
+            let stride=u(&b,&mut c) as usize;
+            let len=u(&b,&mut c) as usize;
+            assert_eq!(len,n*stride);
+            let data=b[c..c+len].chunks_exact(4).map(|v|f32::from_bits(u32::from_le_bytes(v.try_into().unwrap()))).collect();c+=len;
+            let target=u(&b,&mut c)as usize;let error=f32::from_bits(u(&b,&mut c));
+            let options=u(&b,&mut c);let threshold=f32::from_bits(u(&b,&mut c));
+            Some(Replay{data,stride,target,error,options,threshold})
+        } else {None};
         let floats: Vec<f32> = (0..n)
             .flat_map(|j| {
                 let a = j as f32 * 0.01;
@@ -164,6 +216,7 @@ impl Input {
             .map(|v| v * std::f32::consts::FRAC_1_SQRT_2)
             .collect();
         Self {
+            replay,
             p,
             raw,
             i,
@@ -180,11 +233,11 @@ impl Input {
 fn run(op: &str, x: &Input, w: &mut m::Workspace) -> Output {
     use m::codec as c;
     let n = x.p.len();
-    let p = m::Positions::from_packed(&x.p);
+    let p = if let Some(r)=&x.replay {m::Positions::from_bytes(r.bytes(),n,r.stride,0,m::ByteOrder::LittleEndian).unwrap()}else{m::Positions::from_packed(&x.p)};
     let settings = m::SimplifySettings {
-        target_index_count: x.i.len() / 2 / 3 * 3,
-        target_error: 0.5,
-        options: m::SimplifyOptions::default(),
+        target_index_count: x.replay.as_ref().map_or(x.i.len()/2/3*3,|r|r.target),
+        target_error: x.replay.as_ref().map_or(0.5,|r|r.error),
+        options: m::SimplifyOptions::from_bits(x.replay.as_ref().map_or(0,|r|r.options)).unwrap(),
     };
     let vs = m::MeshletSettings {
         max_vertices: 64,
@@ -241,7 +294,7 @@ fn run(op: &str, x: &Input, w: &mut m::Workspace) -> Output {
         "cache" => Output::Indices(m::optimize_vertex_cache(&x.i, n, w).unwrap()),
         "cache-strip" => Output::Indices(m::optimize_vertex_cache_strip(&x.i, n, w).unwrap()),
         "cache-fifo" => Output::Indices(m::optimize_vertex_cache_fifo(&x.i, n, 16, w).unwrap()),
-        "overdraw" => Output::Indices(m::optimize_overdraw(&x.i, p, 1.05, w).unwrap()),
+        "overdraw" => Output::Indices(m::optimize_overdraw(&x.i, p, x.replay.as_ref().map_or(1.05,|r|r.threshold), w).unwrap()),
         "fetch-remap" => Output::Indices(m::optimize_vertex_fetch_remap(&x.i, n, w).unwrap().remap),
         "fetch" => {
             let r = m::optimize_vertex_fetch(
@@ -474,10 +527,11 @@ fn run(op: &str, x: &Input, w: &mut m::Workspace) -> Output {
         _ => panic!("unknown operation {op}"),
     }
 }
-#[cfg(feature = "theirs")]
+#[cfg(any(feature = "theirs", feature = "peer7"))]
 fn run(op: &str, x: &Input, _: &mut ()) -> Output {
     let n = x.p.len();
-    let p = x.p.as_ptr().cast::<f32>();
+    let p = x.replay.as_ref().map_or(x.p.as_ptr().cast::<f32>(),|r|r.data.as_ptr());
+    let stride=x.replay.as_ref().map_or(12,|r|r.stride);
     let i = x.i.as_ptr();
     let ni = x.i.len();
     // Inputs are frozen, initialized, bounded and index-valid before FFI. No hostile-input FFI calls.
@@ -613,7 +667,7 @@ fn run(op: &str, x: &Input, _: &mut ()) -> Output {
                     "cache-fifo" => {
                         f::meshopt_optimizeVertexCacheFifo(b.as_mut_ptr(), i, ni, n, 16)
                     }
-                    _ => f::meshopt_optimizeOverdraw(b.as_mut_ptr(), i, ni, p, n, 12, 1.05),
+                    _ => f::meshopt_optimizeOverdraw(b.as_mut_ptr(), i, ni, p, n, stride, x.replay.as_ref().map_or(1.05,|r|r.threshold)),
                 };
                 Output::Indices(b)
             }
@@ -645,10 +699,10 @@ fn run(op: &str, x: &Input, _: &mut ()) -> Output {
                     ni,
                     p,
                     n,
-                    12,
-                    ni / 2 / 3 * 3,
-                    0.5,
-                    0,
+                    stride,
+                    x.replay.as_ref().map_or(ni/2/3*3,|r|r.target),
+                    x.replay.as_ref().map_or(0.5,|r|r.error),
+                    x.replay.as_ref().map_or(0,|r|r.options),
                     &mut error,
                 );
                 b.truncate(used);
@@ -1105,15 +1159,18 @@ fn decode_words(b: &[u8]) -> Vec<u32> {
 fn main() {
     let a: Vec<String> = std::env::args().collect();
     let op = &a[1];
-    #[cfg(feature = "theirs")]
+    #[cfg(any(feature = "theirs", feature = "peer7"))]
     unsafe {
+        #[cfg(feature="theirs")]
         f::meshopt_encodeVertexVersion(0);
         f::meshopt_encodeIndexVersion(1);
     }
     let x = Input::read(&a[2]);
     #[cfg(feature = "ours")]
     let mut w = m::Workspace::default();
-    #[cfg(feature = "theirs")]
+    #[cfg(any(feature = "theirs", feature = "peer7"))]
+    let mut w = ();
+    #[cfg(feature = "optimesh")]
     let mut w = ();
     let out = run(op, &x, &mut w);
     std::fs::write(&a[3], out.bytes()).unwrap();

@@ -6,7 +6,7 @@ assert os.environ.get('MOSS_HEAVY_ACTIVE') and Path(os.environ['CARGO_TARGET_DIR
 profile,backend=sys.argv[1:]
 if shutil.disk_usage(ART).free<25*1024**3:raise SystemExit('PAUSED: disk below 25 GiB')
 env=dict(os.environ,RUSTC_WRAPPER='',RUSTC_WORKSPACE_WRAPPER='',RUSTFLAGS='',CARGO_ENCODED_RUSTFLAGS='',CARGO_BUILD_JOBS='4',CARGO_INCREMENTAL='0')
-cmd=['cargo','build','--manifest-path',str(ROOT/'parity/compare/Cargo.toml'),'--offline','--locked','--profile',profile,'--features',backend+',full','--bin','cmp-driver']
+cmd=['cargo','build','--manifest-path',str(ROOT/'parity/compare/Cargo.toml'),'--offline','--locked','--profile',profile,'--features',backend+',full'+(',peer-simd' if backend=='ours' else ''),'--bin','cmp-driver']
 log=ART/f'driver-final-{profile}-{backend}.log';start=time.time()
 with log.open('w') as f:r=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT)
 if r.returncode:print(log.read_text());raise SystemExit(r.returncode)

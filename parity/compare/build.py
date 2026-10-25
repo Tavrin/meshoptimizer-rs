@@ -22,7 +22,7 @@ records=json.loads(prior.read_text()) if prior.exists() else []
 if not records:
  if TARGET.exists():shutil.rmtree(TARGET)
  TARGET.mkdir(parents=True)
-base=['cargo','build','--manifest-path',str(ROOT/'parity/compare/Cargo.toml'),'--offline','--locked','--profile',profile,'--features',backend]
+base=['cargo','build','--manifest-path',str(ROOT/'parity/compare/Cargo.toml'),'--offline','--locked','--profile',profile,'--features',backend+(',peer-simd' if backend=='ours' else '')]
 for kind,bins in [('clean',['cmp-decode']),('incremental',['cmp-decode']),('decode-footprint',['cmp-decode']),('footprint-and-driver',['cmp-full','cmp-driver','cmp-empty'])]:
  if any(r['kind']==kind and r['exit']==0 for r in records) and not (refresh and kind in ['decode-footprint','footprint-and-driver']):continue
  free=disk()

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "failures": [],
+  "native_measured_arm_samples": 36790,
+  "registration_sha256": "8f15067ba8a0fae7334fe207fd20e1f24b26b98ebad9ddef6b68b3fa458fdbbc",
+  "safety_sha256": "b9674f8aa3f58a87156a11b4686cd6a3ca9e218268e7b04d8736ac7fce43afa6",
+  "safety_birth_and_modified": "2026-10-25 16:06:48.380130602 +0100 2026-10-25 16:13:39.553018167 +0100",
+  "unmeasured_families": 150
+}

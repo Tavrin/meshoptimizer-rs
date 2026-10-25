@@ -8,11 +8,16 @@ publish = false
 default = []
 ours = ["dep:meshoptimizer-rs"]
 theirs = ["dep:meshopt"]
+peer7 = ["dep:meshopt7"]
+optimesh = ["dep:optimesh"]
+peer-simd = ["meshoptimizer-rs?/simd", "optimesh?/simd"]
 full = ["meshoptimizer-rs?/experimental", "meshoptimizer-rs?/clusterlod", "meshoptimizer-rs?/parallel"]
 
 [dependencies]
-meshoptimizer-rs = { path = "../..", optional = true }
+meshoptimizer-rs = { path = "../..", optional = true, default-features = false, features = ["std"] }
 meshopt = { version = "=0.6.2", optional = true }
+meshopt7 = { package = "meshopt", version = "=0.7.0", optional = true }
+optimesh = { version = "=1.1.0", optional = true }
 
 [[bin]]
 name = "cmp-driver"
@@ -40,3 +45,13 @@ opt-level = 3
 lto = false
 codegen-units = 16
 strip = "symbols"
+
+[lib]
+name = "peer_decode"
+path = "src/peer_wasm.rs"
+crate-type = ["cdylib"]
+
+[[bin]]
+name = "peer-stream-ref"
+path = "src/peer_stream_ref.rs"
+required-features = ["peer7"]
