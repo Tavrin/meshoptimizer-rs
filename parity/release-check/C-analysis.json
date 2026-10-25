@@ -1,0 +1,1920 @@
+{
+  "arm": "C",
+  "record": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release/C-attempt-1/record.json",
+  "bootstrap": "numpy PCG64 default_rng seed 20261025, 10000 draws, percentile 95%; resample paired ratios within case",
+  "families": {
+    "overdraw": {
+      "cases": 24,
+      "gm": 0.988818171233007,
+      "interval": [
+        0.9827629235203071,
+        0.9938295659095577
+      ],
+      "regresses": false
+    },
+    "simplify": {
+      "cases": 72,
+      "gm": 0.9937690677829909,
+      "interval": [
+        0.991001067517027,
+        0.9951943899588203
+      ],
+      "regresses": false
+    },
+    "simplify_scale": {
+      "cases": 12,
+      "gm": 0.8418778935443703,
+      "interval": [
+        0.8391269367403983,
+        0.8483439117085263
+      ],
+      "regresses": false
+    },
+    "simplify_with_attributes": {
+      "cases": 72,
+      "gm": 1.0009165265570348,
+      "interval": [
+        0.9995781553590737,
+        1.0026619232089
+      ],
+      "regresses": false
+    },
+    "vertex_cache": {
+      "cases": 24,
+      "gm": 1.0072669383395052,
+      "interval": [
+        1.0010247461233792,
+        1.0116387469485726
+      ],
+      "regresses": false
+    }
+  },
+  "cases": {
+    "vertex_cache/tiny/smooth/allocating/a0/rNone": {
+      "median": 1.0209636631185792,
+      "interval": [
+        0.9503704894243306,
+        1.0890613377522498
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/tiny/smooth/caller-buffer/a0/rNone": {
+      "median": 0.9982921887975591,
+      "interval": [
+        0.9960465184775094,
+        1.0010305750434898
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/tiny/smooth/allocating/a0/rNone": {
+      "median": 0.9986891212485736,
+      "interval": [
+        0.9882567890945926,
+        1.003025787506382
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/tiny/smooth/caller-buffer/a0/rNone": {
+      "median": 0.9947748848303762,
+      "interval": [
+        0.9818214391590698,
+        1.0063610080278869
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/tiny/smooth/allocation-free/a0/rNone": {
+      "median": 0.8727397156415526,
+      "interval": [
+        0.8606534202466034,
+        0.8859068572175364
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/tiny/smooth/allocating/a0/r0.5": {
+      "median": 1.0127526014018602,
+      "interval": [
+        0.9899911388232403,
+        1.0229391540317372
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/smooth/caller-buffer/a0/r0.5": {
+      "median": 0.9841375064185112,
+      "interval": [
+        0.9604081740839839,
+        0.9932365841633874
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/smooth/allocating/a0/r0.25": {
+      "median": 0.9993127891213566,
+      "interval": [
+        0.9856213354520136,
+        1.0095898570619415
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/smooth/caller-buffer/a0/r0.25": {
+      "median": 0.9800855495077865,
+      "interval": [
+        0.971775030914588,
+        0.9861687697129096
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/smooth/allocating/a0/r0.125": {
+      "median": 0.9922261020126681,
+      "interval": [
+        0.9870407292044074,
+        1.0153081196189637
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/smooth/caller-buffer/a0/r0.125": {
+      "median": 0.9951598245317632,
+      "interval": [
+        0.9890950287374374,
+        1.0031956874767025
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/tiny/smooth/allocating/a1/r0.5": {
+      "median": 0.9871713340664374,
+      "interval": [
+        0.9741039423280806,
+        0.997952309213765
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/smooth/caller-buffer/a1/r0.5": {
+      "median": 0.9994254778551672,
+      "interval": [
+        0.9877762327982028,
+        1.0085216597532494
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/smooth/allocating/a8/r0.25": {
+      "median": 0.9998722089682353,
+      "interval": [
+        0.9861836430784119,
+        1.0216534362633332
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/smooth/caller-buffer/a8/r0.25": {
+      "median": 0.9898362558226399,
+      "interval": [
+        0.9842132786122118,
+        1.0190440515325774
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/smooth/allocating/a12/r0.125": {
+      "median": 0.997588736765866,
+      "interval": [
+        0.9866652358066217,
+        1.0110304985235026
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/smooth/caller-buffer/a12/r0.125": {
+      "median": 1.0002018912898232,
+      "interval": [
+        0.9888195520782355,
+        1.0063336928773525
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/tiny/seam-heavy/allocating/a0/rNone": {
+      "median": 0.994781231756963,
+      "interval": [
+        0.9914298213673596,
+        1.018691397776516
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/tiny/seam-heavy/caller-buffer/a0/rNone": {
+      "median": 0.999545297222646,
+      "interval": [
+        0.9939056190009836,
+        1.0051581090932358
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/tiny/seam-heavy/allocating/a0/rNone": {
+      "median": 1.026491808415712,
+      "interval": [
+        1.0200725540280011,
+        1.0279124734220355
+      ],
+      "regresses": true,
+      "family": "overdraw"
+    },
+    "overdraw/tiny/seam-heavy/caller-buffer/a0/rNone": {
+      "median": 1.0118471202193817,
+      "interval": [
+        0.9239105351623031,
+        1.0948390251745885
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/tiny/seam-heavy/allocation-free/a0/rNone": {
+      "median": 0.8530285286883792,
+      "interval": [
+        0.831607155189233,
+        0.9046752492633242
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/tiny/seam-heavy/allocating/a0/r0.5": {
+      "median": 1.002111507215486,
+      "interval": [
+        0.951029587312211,
+        1.0218966607891407
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/seam-heavy/caller-buffer/a0/r0.5": {
+      "median": 0.9961124786751065,
+      "interval": [
+        0.9769005071063617,
+        1.0601910344752277
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/seam-heavy/allocating/a0/r0.25": {
+      "median": 1.0030574191363826,
+      "interval": [
+        0.9883079593780484,
+        1.0215161956752992
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/seam-heavy/caller-buffer/a0/r0.25": {
+      "median": 0.9955161129434988,
+      "interval": [
+        0.9709891703363824,
+        1.0099910421307763
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/seam-heavy/allocating/a0/r0.125": {
+      "median": 1.005810143883265,
+      "interval": [
+        0.9964475814419047,
+        1.0256754085755295
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/seam-heavy/caller-buffer/a0/r0.125": {
+      "median": 0.9946761033860756,
+      "interval": [
+        0.982383708419436,
+        1.0090259464828153
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/tiny/seam-heavy/allocating/a1/r0.5": {
+      "median": 0.9940673246776255,
+      "interval": [
+        0.9864495522277748,
+        1.0034477499328907
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/seam-heavy/caller-buffer/a1/r0.5": {
+      "median": 0.97507296074816,
+      "interval": [
+        0.9607412884679365,
+        0.9870400560531627
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/seam-heavy/allocating/a8/r0.25": {
+      "median": 0.995536539315071,
+      "interval": [
+        0.9889513365703274,
+        1.0037379207524237
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/seam-heavy/caller-buffer/a8/r0.25": {
+      "median": 1.0095610843255032,
+      "interval": [
+        0.9971415932942055,
+        1.01408655447023
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/seam-heavy/allocating/a12/r0.125": {
+      "median": 0.9989880641720194,
+      "interval": [
+        0.9919997844988391,
+        1.0048395858820252
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/seam-heavy/caller-buffer/a12/r0.125": {
+      "median": 1.0058975889320256,
+      "interval": [
+        0.9954831602877398,
+        1.0095062741312892
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/tiny/disconnected/allocating/a0/rNone": {
+      "median": 0.9962884126134751,
+      "interval": [
+        0.9887619244488661,
+        1.0091041093430508
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/tiny/disconnected/caller-buffer/a0/rNone": {
+      "median": 1.0055605734698314,
+      "interval": [
+        0.9942618094636138,
+        1.0094599538711946
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/tiny/disconnected/allocating/a0/rNone": {
+      "median": 1.030558655584525,
+      "interval": [
+        1.019254078701385,
+        1.0382876979744662
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/tiny/disconnected/caller-buffer/a0/rNone": {
+      "median": 0.9923284692791481,
+      "interval": [
+        0.9884923630328518,
+        0.9997797512399713
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/tiny/disconnected/allocation-free/a0/rNone": {
+      "median": 0.8487290793015758,
+      "interval": [
+        0.834117117443015,
+        0.8738980357098513
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/tiny/disconnected/allocating/a0/r0.5": {
+      "median": 0.9846583720833884,
+      "interval": [
+        0.9778993924382591,
+        0.9912885244187728
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/disconnected/caller-buffer/a0/r0.5": {
+      "median": 0.9942975535885344,
+      "interval": [
+        0.9852601111124983,
+        1.0012852154902623
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/disconnected/allocating/a0/r0.25": {
+      "median": 0.9978508802655139,
+      "interval": [
+        0.9687308423669049,
+        1.0039771317339317
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/disconnected/caller-buffer/a0/r0.25": {
+      "median": 0.9922978047396882,
+      "interval": [
+        0.9876068422653654,
+        1.0039129028050473
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/disconnected/allocating/a0/r0.125": {
+      "median": 1.0083604097622616,
+      "interval": [
+        0.9979976962922399,
+        1.0159875010912152
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/disconnected/caller-buffer/a0/r0.125": {
+      "median": 0.9970417666054558,
+      "interval": [
+        0.9855459768436683,
+        1.0041198225285382
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/tiny/disconnected/allocating/a1/r0.5": {
+      "median": 0.9932581981426251,
+      "interval": [
+        0.9911333254653987,
+        1.0077460841799235
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/disconnected/caller-buffer/a1/r0.5": {
+      "median": 1.0020325179727179,
+      "interval": [
+        0.9914532910802858,
+        1.0090364775682015
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/disconnected/allocating/a8/r0.25": {
+      "median": 1.0110239730300403,
+      "interval": [
+        1.0060265842852436,
+        1.0233953357735903
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/disconnected/caller-buffer/a8/r0.25": {
+      "median": 1.0008531659785662,
+      "interval": [
+        0.9875001648030122,
+        1.0119241398715977
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/disconnected/allocating/a12/r0.125": {
+      "median": 1.0003538939386825,
+      "interval": [
+        0.9953055242300081,
+        1.0055043334029814
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/disconnected/caller-buffer/a12/r0.125": {
+      "median": 0.9926421740169162,
+      "interval": [
+        0.9872491026137298,
+        0.999205114552429
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/tiny/sparse/allocating/a0/rNone": {
+      "median": 1.0168164028216982,
+      "interval": [
+        0.9676144661442473,
+        1.0435870806855432
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/tiny/sparse/caller-buffer/a0/rNone": {
+      "median": 0.9999335223781112,
+      "interval": [
+        0.9943103944994774,
+        1.0102010994710109
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/tiny/sparse/allocating/a0/rNone": {
+      "median": 1.0003578109334632,
+      "interval": [
+        0.9978639755444583,
+        1.006108415277962
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/tiny/sparse/caller-buffer/a0/rNone": {
+      "median": 0.9905680956162112,
+      "interval": [
+        0.9846339283814185,
+        0.9915762312059209
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/tiny/sparse/allocation-free/a0/rNone": {
+      "median": 0.8450516302615672,
+      "interval": [
+        0.8373382594417078,
+        0.8533924410510426
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/tiny/sparse/allocating/a0/r0.5": {
+      "median": 0.9963387044671781,
+      "interval": [
+        0.9814776353020812,
+        1.0141443341110066
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/sparse/caller-buffer/a0/r0.5": {
+      "median": 0.9920971850357296,
+      "interval": [
+        0.9875633680201328,
+        1.0029724036307197
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/sparse/allocating/a0/r0.25": {
+      "median": 1.00532531000012,
+      "interval": [
+        0.9917328470015083,
+        1.019260146799627
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/sparse/caller-buffer/a0/r0.25": {
+      "median": 1.012405597394065,
+      "interval": [
+        1.003664465138355,
+        1.02326171779718
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/sparse/allocating/a0/r0.125": {
+      "median": 0.9821191036165399,
+      "interval": [
+        0.9762538859739738,
+        0.9952948051157517
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/tiny/sparse/caller-buffer/a0/r0.125": {
+      "median": 1.0080584639873233,
+      "interval": [
+        1.0034751957391976,
+        1.0114676075311302
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/tiny/sparse/allocating/a1/r0.5": {
+      "median": 1.0089423533147954,
+      "interval": [
+        0.9962088533186528,
+        1.0189062094033483
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/sparse/caller-buffer/a1/r0.5": {
+      "median": 1.0011598310780419,
+      "interval": [
+        0.9972907470553337,
+        1.0052536203440114
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/sparse/allocating/a8/r0.25": {
+      "median": 0.9939356330321427,
+      "interval": [
+        0.980366986924224,
+        1.00223655988309
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/sparse/caller-buffer/a8/r0.25": {
+      "median": 1.0021381707725578,
+      "interval": [
+        0.9900704792065715,
+        1.0110783135929633
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/sparse/allocating/a12/r0.125": {
+      "median": 1.0164365772507566,
+      "interval": [
+        1.003527828805491,
+        1.0394627890520038
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/tiny/sparse/caller-buffer/a12/r0.125": {
+      "median": 1.0041855550173477,
+      "interval": [
+        0.9938865445950819,
+        1.0141267184285523
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/medium/smooth/allocating/a0/rNone": {
+      "median": 0.9713879006647722,
+      "interval": [
+        0.9434700292556881,
+        1.0154871597573853
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/medium/smooth/caller-buffer/a0/rNone": {
+      "median": 0.9909701631131359,
+      "interval": [
+        0.9398670098152349,
+        1.0355383475053421
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/medium/smooth/allocating/a0/rNone": {
+      "median": 0.964342085636732,
+      "interval": [
+        0.9519276678693935,
+        0.9847026344857694
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/medium/smooth/caller-buffer/a0/rNone": {
+      "median": 0.971125908107672,
+      "interval": [
+        0.9615467814051026,
+        1.009508160588809
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/medium/smooth/allocation-free/a0/rNone": {
+      "median": 0.8314702769913831,
+      "interval": [
+        0.8244578027635845,
+        0.8468751095526612
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/medium/smooth/allocating/a0/r0.5": {
+      "median": 0.9889984353052268,
+      "interval": [
+        0.9423570349957919,
+        1.0078908744947224
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/smooth/caller-buffer/a0/r0.5": {
+      "median": 0.9657590802445521,
+      "interval": [
+        0.9338646663682003,
+        0.9992007704861534
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/smooth/allocating/a0/r0.25": {
+      "median": 0.9792127101959782,
+      "interval": [
+        0.9657455367104792,
+        0.9864945027399439
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/smooth/caller-buffer/a0/r0.25": {
+      "median": 0.9853093317778339,
+      "interval": [
+        0.9689076256302471,
+        0.9911883922550082
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/smooth/allocating/a0/r0.125": {
+      "median": 0.9945821488459914,
+      "interval": [
+        0.9842963567619548,
+        1.0035605646870223
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/smooth/caller-buffer/a0/r0.125": {
+      "median": 0.9880488195160301,
+      "interval": [
+        0.9777392436839775,
+        0.9918351050308463
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/medium/smooth/allocating/a1/r0.5": {
+      "median": 1.007062516521818,
+      "interval": [
+        0.981853858024674,
+        1.017211411329098
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/smooth/caller-buffer/a1/r0.5": {
+      "median": 0.9939282048656815,
+      "interval": [
+        0.989755630384584,
+        1.0023083135492166
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/smooth/allocating/a8/r0.25": {
+      "median": 1.0017690856685237,
+      "interval": [
+        0.985619184199909,
+        1.0297984651511307
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/smooth/caller-buffer/a8/r0.25": {
+      "median": 0.9888840197968014,
+      "interval": [
+        0.9854409164474449,
+        0.9943396748329372
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/smooth/allocating/a12/r0.125": {
+      "median": 1.0160805721476511,
+      "interval": [
+        0.9867547427426704,
+        1.027039700039177
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/smooth/caller-buffer/a12/r0.125": {
+      "median": 0.999489867180934,
+      "interval": [
+        0.994976860213534,
+        1.0085408577426294
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/medium/seam-heavy/allocating/a0/rNone": {
+      "median": 1.0113479460456767,
+      "interval": [
+        0.9976562344997435,
+        1.0197576569445537
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/medium/seam-heavy/caller-buffer/a0/rNone": {
+      "median": 1.0136040488838087,
+      "interval": [
+        0.9858022392206225,
+        1.0350568821887287
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/medium/seam-heavy/allocating/a0/rNone": {
+      "median": 0.9579137373715005,
+      "interval": [
+        0.9502688078458573,
+        0.9771158344993334
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/medium/seam-heavy/caller-buffer/a0/rNone": {
+      "median": 0.9452213389069288,
+      "interval": [
+        0.9401940946840917,
+        0.9596349757638315
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/medium/seam-heavy/allocation-free/a0/rNone": {
+      "median": 0.8417961026218459,
+      "interval": [
+        0.8376576541254999,
+        0.8487695466848929
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/medium/seam-heavy/allocating/a0/r0.5": {
+      "median": 0.9891807129508413,
+      "interval": [
+        0.9707509235042608,
+        1.005643137152278
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/seam-heavy/caller-buffer/a0/r0.5": {
+      "median": 0.9775885056912268,
+      "interval": [
+        0.9665745882404762,
+        0.9929274863060494
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/seam-heavy/allocating/a0/r0.25": {
+      "median": 0.982568918466674,
+      "interval": [
+        0.9727475927909675,
+        0.9916752116621238
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/seam-heavy/caller-buffer/a0/r0.25": {
+      "median": 0.9883268810676968,
+      "interval": [
+        0.9846381698231527,
+        0.9996539837533813
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/seam-heavy/allocating/a0/r0.125": {
+      "median": 0.9919633888217994,
+      "interval": [
+        0.9853930343087933,
+        1.0036287231557064
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/seam-heavy/caller-buffer/a0/r0.125": {
+      "median": 0.9931319092906814,
+      "interval": [
+        0.9885531620594392,
+        0.9952647195826001
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/medium/seam-heavy/allocating/a1/r0.5": {
+      "median": 0.9967840065767721,
+      "interval": [
+        0.9818087794135555,
+        1.0030874011982682
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/seam-heavy/caller-buffer/a1/r0.5": {
+      "median": 1.003776612484491,
+      "interval": [
+        0.9951171480718689,
+        1.0228817507168486
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/seam-heavy/allocating/a8/r0.25": {
+      "median": 0.9992757574721052,
+      "interval": [
+        0.9746633534386661,
+        1.0206575586736055
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/seam-heavy/caller-buffer/a8/r0.25": {
+      "median": 1.000912846631561,
+      "interval": [
+        0.997516151439637,
+        1.0022002898025648
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/seam-heavy/allocating/a12/r0.125": {
+      "median": 0.9929078577183668,
+      "interval": [
+        0.9766038298517561,
+        1.002788373047303
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/seam-heavy/caller-buffer/a12/r0.125": {
+      "median": 0.9928482409094268,
+      "interval": [
+        0.9892032768529644,
+        1.0000045794254162
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/medium/disconnected/allocating/a0/rNone": {
+      "median": 1.0046956921776535,
+      "interval": [
+        0.988456652330938,
+        1.0163541973690124
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/medium/disconnected/caller-buffer/a0/rNone": {
+      "median": 1.0174190200224735,
+      "interval": [
+        0.9732809237785904,
+        1.0360443998305673
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/medium/disconnected/allocating/a0/rNone": {
+      "median": 0.9616874520033898,
+      "interval": [
+        0.9548199673821268,
+        0.980580850259609
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/medium/disconnected/caller-buffer/a0/rNone": {
+      "median": 0.9969624723492096,
+      "interval": [
+        0.9018047539054688,
+        1.0245883361850772
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/medium/disconnected/allocation-free/a0/rNone": {
+      "median": 0.8330688915818825,
+      "interval": [
+        0.8274146715589832,
+        0.8693403682472431
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/medium/disconnected/allocating/a0/r0.5": {
+      "median": 0.9930159859009541,
+      "interval": [
+        0.9651261146696408,
+        1.0089133734089022
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/disconnected/caller-buffer/a0/r0.5": {
+      "median": 0.9963325585321137,
+      "interval": [
+        0.972716134305126,
+        0.9993733327366596
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/disconnected/allocating/a0/r0.25": {
+      "median": 0.9821674202921042,
+      "interval": [
+        0.9757407423380811,
+        0.9922749038748033
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/disconnected/caller-buffer/a0/r0.25": {
+      "median": 0.9811103940840249,
+      "interval": [
+        0.976771188410029,
+        0.9870442855531971
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/disconnected/allocating/a0/r0.125": {
+      "median": 1.0010474938854388,
+      "interval": [
+        0.9975312511107913,
+        1.0039691240728015
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/disconnected/caller-buffer/a0/r0.125": {
+      "median": 0.993587073611033,
+      "interval": [
+        0.9810893756763047,
+        0.9949183432896571
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/medium/disconnected/allocating/a1/r0.5": {
+      "median": 0.9787954332305289,
+      "interval": [
+        0.9681057768743088,
+        0.9925638122335376
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/disconnected/caller-buffer/a1/r0.5": {
+      "median": 1.0022983443455924,
+      "interval": [
+        0.9935666297856256,
+        1.005906195429095
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/disconnected/allocating/a8/r0.25": {
+      "median": 0.9978056036051584,
+      "interval": [
+        0.9888307974143716,
+        1.004366749933909
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/disconnected/caller-buffer/a8/r0.25": {
+      "median": 1.0005029440518833,
+      "interval": [
+        0.9959741217441911,
+        1.0023798215440574
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/disconnected/allocating/a12/r0.125": {
+      "median": 1.0045873630623399,
+      "interval": [
+        0.9792328895374312,
+        1.025638745647592
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/disconnected/caller-buffer/a12/r0.125": {
+      "median": 1.003660607556582,
+      "interval": [
+        0.9986320289329382,
+        1.0079879332080024
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/medium/sparse/allocating/a0/rNone": {
+      "median": 1.0028668055566252,
+      "interval": [
+        0.9715914484109839,
+        1.025960823049555
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/medium/sparse/caller-buffer/a0/rNone": {
+      "median": 0.9977620807578369,
+      "interval": [
+        0.9737665313607597,
+        1.0126088758196083
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/medium/sparse/allocating/a0/rNone": {
+      "median": 0.9501473361174987,
+      "interval": [
+        0.9439494814949775,
+        0.9624948734747896
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/medium/sparse/caller-buffer/a0/rNone": {
+      "median": 0.94851075721136,
+      "interval": [
+        0.9143530062202975,
+        0.9548079110797785
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/medium/sparse/allocation-free/a0/rNone": {
+      "median": 0.8389876712549782,
+      "interval": [
+        0.833347773349506,
+        0.84453300328842
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/medium/sparse/allocating/a0/r0.5": {
+      "median": 0.9939262974546406,
+      "interval": [
+        0.9483716076216597,
+        1.022314320256744
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/sparse/caller-buffer/a0/r0.5": {
+      "median": 0.9891274176240548,
+      "interval": [
+        0.958058726451166,
+        1.0136821413452188
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/sparse/allocating/a0/r0.25": {
+      "median": 0.9930458287810305,
+      "interval": [
+        0.9681251840007998,
+        0.9974451513548679
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/sparse/caller-buffer/a0/r0.25": {
+      "median": 0.9920165969168585,
+      "interval": [
+        0.9691483255366917,
+        1.0000672673158966
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/sparse/allocating/a0/r0.125": {
+      "median": 0.9800477305467155,
+      "interval": [
+        0.9652344744127803,
+        0.9968716823418717
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/medium/sparse/caller-buffer/a0/r0.125": {
+      "median": 0.9868695698743937,
+      "interval": [
+        0.9746379076124301,
+        0.9907437685349882
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/medium/sparse/allocating/a1/r0.5": {
+      "median": 0.9861487669321111,
+      "interval": [
+        0.9679099726652618,
+        1.0114003239332776
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/sparse/caller-buffer/a1/r0.5": {
+      "median": 0.9944687867305048,
+      "interval": [
+        0.9903190115176574,
+        0.9993330887981915
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/sparse/allocating/a8/r0.25": {
+      "median": 1.0152659501047876,
+      "interval": [
+        1.0011259839709603,
+        1.0258502162667358
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/sparse/caller-buffer/a8/r0.25": {
+      "median": 0.997066872768724,
+      "interval": [
+        0.9935149791227162,
+        1.0003341236294503
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/sparse/allocating/a12/r0.125": {
+      "median": 1.0060573355918359,
+      "interval": [
+        0.9776637319357813,
+        1.0475838378792202
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/medium/sparse/caller-buffer/a12/r0.125": {
+      "median": 0.9980053695478401,
+      "interval": [
+        0.9939481535505119,
+        1.0019246221807172
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/million/smooth/allocating/a0/rNone": {
+      "median": 1.1314861174872264,
+      "interval": [
+        1.121118624343346,
+        1.1349700553158852
+      ],
+      "regresses": true,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/million/smooth/caller-buffer/a0/rNone": {
+      "median": 1.0012622295169389,
+      "interval": [
+        0.9707490212803636,
+        1.0202661987032107
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/million/smooth/allocating/a0/rNone": {
+      "median": 1.0549851650587825,
+      "interval": [
+        1.030062895643149,
+        1.084385977482531
+      ],
+      "regresses": true,
+      "family": "overdraw"
+    },
+    "overdraw/million/smooth/caller-buffer/a0/rNone": {
+      "median": 1.0460353245293814,
+      "interval": [
+        1.0328171328472866,
+        1.0516393687366001
+      ],
+      "regresses": true,
+      "family": "overdraw"
+    },
+    "simplify_scale/million/smooth/allocation-free/a0/rNone": {
+      "median": 0.8378577405358933,
+      "interval": [
+        0.8316407338341959,
+        0.8429334850934171
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/million/smooth/allocating/a0/r0.5": {
+      "median": 0.9896025032001199,
+      "interval": [
+        0.9705444380460242,
+        1.0001789087569974
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/smooth/caller-buffer/a0/r0.5": {
+      "median": 0.9924748511160078,
+      "interval": [
+        0.9868386995029983,
+        0.9982309999178491
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/smooth/allocating/a0/r0.25": {
+      "median": 0.9957067315482724,
+      "interval": [
+        0.9643096886890221,
+        1.0187560852108628
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/smooth/caller-buffer/a0/r0.25": {
+      "median": 1.0089640547386072,
+      "interval": [
+        0.9872577917184931,
+        1.018108403640683
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/smooth/allocating/a0/r0.125": {
+      "median": 1.0040186753713223,
+      "interval": [
+        0.992933449119337,
+        1.0195075273402936
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/smooth/caller-buffer/a0/r0.125": {
+      "median": 0.9991017915234148,
+      "interval": [
+        0.971885272175993,
+        1.0150996101386833
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/million/smooth/allocating/a1/r0.5": {
+      "median": 0.9993957759066995,
+      "interval": [
+        0.979050745915854,
+        1.0174095281390358
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/smooth/caller-buffer/a1/r0.5": {
+      "median": 1.0005943590211945,
+      "interval": [
+        0.9969583638435703,
+        1.0148333491417245
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/smooth/allocating/a8/r0.25": {
+      "median": 1.0167245514774539,
+      "interval": [
+        0.9983726894209686,
+        1.0250992091811646
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/smooth/caller-buffer/a8/r0.25": {
+      "median": 0.9949308923456497,
+      "interval": [
+        0.9836946925921597,
+        1.0100924200785837
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/smooth/allocating/a12/r0.125": {
+      "median": 1.0299972062356444,
+      "interval": [
+        1.0211479872567026,
+        1.0438755358638383
+      ],
+      "regresses": true,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/smooth/caller-buffer/a12/r0.125": {
+      "median": 1.0021917746002373,
+      "interval": [
+        0.9852248965596057,
+        1.014917121284537
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/million/seam-heavy/allocating/a0/rNone": {
+      "median": 1.0039702286597545,
+      "interval": [
+        0.9986340218391498,
+        1.0259159571604102
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/million/seam-heavy/caller-buffer/a0/rNone": {
+      "median": 0.9942719035227315,
+      "interval": [
+        0.9621262832856381,
+        1.017257782962282
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/million/seam-heavy/allocating/a0/rNone": {
+      "median": 0.953956521219604,
+      "interval": [
+        0.9464535238047582,
+        0.9642862433868039
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/million/seam-heavy/caller-buffer/a0/rNone": {
+      "median": 0.9567411554173397,
+      "interval": [
+        0.9551854134509978,
+        0.9616964692899058
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/million/seam-heavy/allocation-free/a0/rNone": {
+      "median": 0.8344398244084862,
+      "interval": [
+        0.8291884434564887,
+        0.838044679077542
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/million/seam-heavy/allocating/a0/r0.5": {
+      "median": 0.9884534962776665,
+      "interval": [
+        0.9781087686180439,
+        1.004791829117858
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/seam-heavy/caller-buffer/a0/r0.5": {
+      "median": 0.9849687331719936,
+      "interval": [
+        0.9775761234681886,
+        0.9912560829494785
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/seam-heavy/allocating/a0/r0.25": {
+      "median": 0.9896624244088057,
+      "interval": [
+        0.9776357946247269,
+        1.0078263671505117
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/seam-heavy/caller-buffer/a0/r0.25": {
+      "median": 0.9982587477034917,
+      "interval": [
+        0.9791936096196421,
+        1.0089443091670458
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/seam-heavy/allocating/a0/r0.125": {
+      "median": 0.9862743204941493,
+      "interval": [
+        0.9686495396975809,
+        1.019835451406407
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/seam-heavy/caller-buffer/a0/r0.125": {
+      "median": 1.001221584191107,
+      "interval": [
+        0.9842525651202677,
+        1.0117347404515322
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/million/seam-heavy/allocating/a1/r0.5": {
+      "median": 0.9985261308245643,
+      "interval": [
+        0.9919318559329491,
+        1.0053046012543003
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/seam-heavy/caller-buffer/a1/r0.5": {
+      "median": 0.9971330925314761,
+      "interval": [
+        0.9938957349218474,
+        0.9997947871025098
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/seam-heavy/allocating/a8/r0.25": {
+      "median": 0.9940541710783497,
+      "interval": [
+        0.9874993973663029,
+        1.0001443459477237
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/seam-heavy/caller-buffer/a8/r0.25": {
+      "median": 0.9979279927702548,
+      "interval": [
+        0.9893094575195804,
+        1.0159638713545314
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/seam-heavy/allocating/a12/r0.125": {
+      "median": 1.0052932605746636,
+      "interval": [
+        1.0001687014710932,
+        1.0157765497658824
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/seam-heavy/caller-buffer/a12/r0.125": {
+      "median": 1.004063410410644,
+      "interval": [
+        0.9974379000230577,
+        1.011279325114185
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/million/disconnected/allocating/a0/rNone": {
+      "median": 1.0090540942868071,
+      "interval": [
+        0.9989068212315425,
+        1.0149178574408484
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/million/disconnected/caller-buffer/a0/rNone": {
+      "median": 0.9999464785082925,
+      "interval": [
+        0.9954965060200822,
+        1.0029620681526379
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/million/disconnected/allocating/a0/rNone": {
+      "median": 0.956098739076797,
+      "interval": [
+        0.9549197854155327,
+        0.9619778988291547
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/million/disconnected/caller-buffer/a0/rNone": {
+      "median": 0.9607191988054795,
+      "interval": [
+        0.9559611238811041,
+        0.966945422812588
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/million/disconnected/allocation-free/a0/rNone": {
+      "median": 0.8337197451447478,
+      "interval": [
+        0.8318121188544124,
+        0.8371875344591932
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/million/disconnected/allocating/a0/r0.5": {
+      "median": 0.9951166943230083,
+      "interval": [
+        0.9880676284604681,
+        1.008729102100207
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/disconnected/caller-buffer/a0/r0.5": {
+      "median": 0.9909851488804086,
+      "interval": [
+        0.9862944898035473,
+        0.9930810872696998
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/disconnected/allocating/a0/r0.25": {
+      "median": 0.9989463104769885,
+      "interval": [
+        0.9883035829125528,
+        1.0060967973663932
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/disconnected/caller-buffer/a0/r0.25": {
+      "median": 0.9959709932897212,
+      "interval": [
+        0.982751155599164,
+        1.003412426024863
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/disconnected/allocating/a0/r0.125": {
+      "median": 0.997563698508999,
+      "interval": [
+        0.9865730555082297,
+        1.002666987223607
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/disconnected/caller-buffer/a0/r0.125": {
+      "median": 0.9916294568905786,
+      "interval": [
+        0.9734964066551421,
+        1.0038934108636037
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/million/disconnected/allocating/a1/r0.5": {
+      "median": 0.9989511993703404,
+      "interval": [
+        0.9935235135002951,
+        1.008784203587807
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/disconnected/caller-buffer/a1/r0.5": {
+      "median": 0.9997409073355163,
+      "interval": [
+        0.9900637663717391,
+        1.0046241270786487
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/disconnected/allocating/a8/r0.25": {
+      "median": 1.0300379939876976,
+      "interval": [
+        1.0248721728775227,
+        1.0363930079555477
+      ],
+      "regresses": true,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/disconnected/caller-buffer/a8/r0.25": {
+      "median": 1.0043363535672265,
+      "interval": [
+        0.9909227978750468,
+        1.0125731556438196
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/disconnected/allocating/a12/r0.125": {
+      "median": 1.0214959976879177,
+      "interval": [
+        1.008658995601415,
+        1.03822905003492
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/disconnected/caller-buffer/a12/r0.125": {
+      "median": 1.0150800176093762,
+      "interval": [
+        1.004560024254313,
+        1.0334613981210852
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "vertex_cache/million/sparse/allocating/a0/rNone": {
+      "median": 1.0002736142908073,
+      "interval": [
+        0.9960180447653826,
+        1.015060133926835
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "vertex_cache/million/sparse/caller-buffer/a0/rNone": {
+      "median": 1.0004720611961035,
+      "interval": [
+        0.9944345527283948,
+        1.0078836720003592
+      ],
+      "regresses": false,
+      "family": "vertex_cache"
+    },
+    "overdraw/million/sparse/allocating/a0/rNone": {
+      "median": 1.0374839093702592,
+      "interval": [
+        0.9900387818485088,
+        1.0777103639781556
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "overdraw/million/sparse/caller-buffer/a0/rNone": {
+      "median": 1.0382268550121418,
+      "interval": [
+        1.0080959472979767,
+        1.0540893000646414
+      ],
+      "regresses": false,
+      "family": "overdraw"
+    },
+    "simplify_scale/million/sparse/allocation-free/a0/rNone": {
+      "median": 0.8325553475360215,
+      "interval": [
+        0.8308505716601596,
+        0.8352913572291618
+      ],
+      "regresses": false,
+      "family": "simplify_scale"
+    },
+    "simplify/million/sparse/allocating/a0/r0.5": {
+      "median": 1.0104937681177764,
+      "interval": [
+        0.9950866264332218,
+        1.024393062089553
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/sparse/caller-buffer/a0/r0.5": {
+      "median": 1.0072752291944087,
+      "interval": [
+        0.9780395832043378,
+        1.0165994851497326
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/sparse/allocating/a0/r0.25": {
+      "median": 0.9976915784380578,
+      "interval": [
+        0.9749647170292277,
+        1.0050969874321871
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/sparse/caller-buffer/a0/r0.25": {
+      "median": 1.0022459106193247,
+      "interval": [
+        0.9890370683047729,
+        1.0131265232030333
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/sparse/allocating/a0/r0.125": {
+      "median": 0.9978771581929977,
+      "interval": [
+        0.9834954876530279,
+        1.0167655882803306
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify/million/sparse/caller-buffer/a0/r0.125": {
+      "median": 0.9909148099530994,
+      "interval": [
+        0.9782017638693927,
+        0.9974688695709071
+      ],
+      "regresses": false,
+      "family": "simplify"
+    },
+    "simplify_with_attributes/million/sparse/allocating/a1/r0.5": {
+      "median": 0.9786428582488713,
+      "interval": [
+        0.9676703612705698,
+        0.9901892651709998
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/sparse/caller-buffer/a1/r0.5": {
+      "median": 1.0061008629902495,
+      "interval": [
+        1.0026189780262778,
+        1.0175466460669562
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/sparse/allocating/a8/r0.25": {
+      "median": 0.9925738566607163,
+      "interval": [
+        0.9754553187605337,
+        1.0032081682611884
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/sparse/caller-buffer/a8/r0.25": {
+      "median": 1.01198085502727,
+      "interval": [
+        0.9781901831046613,
+        1.0233871878010135
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/sparse/allocating/a12/r0.125": {
+      "median": 1.009460764900422,
+      "interval": [
+        0.9915881511129943,
+        1.0313236875111058
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    },
+    "simplify_with_attributes/million/sparse/caller-buffer/a12/r0.125": {
+      "median": 1.0016535184391864,
+      "interval": [
+        0.988704265936954,
+        1.0103240339502557
+      ],
+      "regresses": false,
+      "family": "simplify_with_attributes"
+    }
+  },
+  "absolute": {
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json",
+    "sha256": "c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd",
+    "families": {
+      "vertex_cache": {
+        "gm": 1.1247911179200607,
+        "maximum": 1.1954071607075059
+      },
+      "overdraw": {
+        "gm": 1.0861874799661504,
+        "maximum": 1.4446459730231807
+      },
+      "simplify": {
+        "gm": 1.0435785773518944,
+        "maximum": 1.197683377879243
+      },
+      "simplify_with_attributes": {
+        "gm": 1.07110284260403,
+        "maximum": 1.2255581445311123
+      },
+      "simplify_scale": {
+        "gm": 0.7847578006590024,
+        "maximum": 0.915833383249225
+      }
+    },
+    "case_failures": [],
+    "passed": true
+  },
+  "regression": true,
+  "verdict": "FALLBACK"
+}

@@ -1,0 +1,71 @@
+{
+  "C": {
+    "revision": "f40f5af32e7283d1a2b59ea7358a81fe2ecaa982",
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release/driver-C",
+    "sha256": "608cef66c49ce6a450df1f0aeb4b73f1b4a6745817298bb3fe6d0be990976fd9",
+    "build_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json",
+    "profile": {
+      "Cargo.toml": {
+        "codegen-units": 1,
+        "lto": "fat"
+      },
+      "parity/Cargo.toml": {
+        "debug": 1,
+        "codegen-units": 1,
+        "lto": "fat"
+      },
+      "fuzz/Cargo.toml": {
+        "codegen-units": 1,
+        "lto": "fat"
+      }
+    },
+    "rust_profile": "release; default generic target; no fast math or contraction; Rust flags and compiler wrappers empty",
+    "source_binding_verified": true
+  },
+  "B": {
+    "revision": "afe803bbf60796a7af6b5001594a979af009cfac",
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release/driver-B",
+    "sha256": "f9c4f850e132d221fcea1483b92daa948b185993eddd2194bf608d3ff812ae5f",
+    "build_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-baseline-1/benchmark.json",
+    "profile": {
+      "Cargo.toml": {
+        "codegen-units": 1,
+        "lto": "fat"
+      },
+      "parity/Cargo.toml": {
+        "debug": 1,
+        "codegen-units": 1,
+        "lto": "fat"
+      },
+      "fuzz/Cargo.toml": {
+        "codegen-units": 1,
+        "lto": "fat"
+      }
+    },
+    "rust_profile": "release; default generic target; no fast math or contraction; Rust flags and compiler wrappers empty",
+    "source_binding_verified": true
+  },
+  "F": {
+    "revision": "a7688ef0c8d13b8dfeb57c2cb1ce325a76d3dfab",
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release/driver-F",
+    "sha256": "9378f4713cc3ec821b570fc32d60d9d70013098ad4543cface950a7c1833d8c4",
+    "build_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/frozen-final/benchmark.json",
+    "profile": {
+      "Cargo.toml": {
+        "codegen-units": 1,
+        "lto": "fat"
+      },
+      "parity/Cargo.toml": {
+        "debug": 1,
+        "codegen-units": 1,
+        "lto": "fat"
+      },
+      "fuzz/Cargo.toml": {
+        "codegen-units": 1,
+        "lto": "fat"
+      }
+    },
+    "rust_profile": "release; default generic target; no fast math or contraction; Rust flags and compiler wrappers empty",
+    "source_binding_verified": true
+  }
+}
