@@ -12,8 +12,8 @@
     "bytes": 11019
   },
   "SAMPLES.csv": {
-    "sha256": "afb91793b9dc7082811eede60bdc925f1b3d9c824a53e7beea85dc920ef7b9d3",
-    "bytes": 741539
+    "sha256": "b968d902bbf3faa9aaa9284f327ab3edebe5bceb1f81402b7600deced8b4b13d",
+    "bytes": 736642
   },
   "alignment-check.json": {
     "sha256": "8edf6a176e73f6b216ebad895625b7e9a42d6a5fcfe197cda211630d42dfb639",
@@ -130,5 +130,9 @@
   "verification.json": {
     "sha256": "5fd1e8761ee95456ce2e3df81df64a17415e24e73604f59e48fd02e953008a47",
     "bytes": 501
+  },
+  "csv-normalization.json": {
+    "sha256": "2d2271425bfd1942819a0cd43d33415de4faab7a61685f993022fb7b4dda1b6a",
+    "bytes": 373
   }
 }

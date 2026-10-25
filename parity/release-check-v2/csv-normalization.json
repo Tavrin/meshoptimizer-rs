@@ -1,0 +1,7 @@
+{
+  "numerical_and_text_cells_identical": true,
+  "rows_including_header": 4897,
+  "scratch_raw_csv_sha256": "afb91793b9dc7082811eede60bdc925f1b3d9c824a53e7beea85dc920ef7b9d3",
+  "tracked_lf_csv_sha256": "b968d902bbf3faa9aaa9284f327ab3edebe5bceb1f81402b7600deced8b4b13d",
+  "reason": "Git normalizes CRLF CSV line endings to LF. Original scratch CSV retained unchanged."
+}
