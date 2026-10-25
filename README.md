@@ -200,6 +200,9 @@ See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/bl
 
 ## Known exceptions
 
+overdraw optimisation is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
+See the [r2 measurements](parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md) and the [v2 release check](parity/release-check-v2/REPORT.md).
+
 These 0.2.0 exceptions still apply to 0.2.3. 0.2.2 changed only encoders, and
 0.2.3 changed only how `Workspace` handles retained scratch.
 The owner's 2026-10-06 roadmap permitted the allocating vertex exception and

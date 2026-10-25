@@ -8242,3 +8242,27 @@ The phase 0.3 fast and fresh full adapters additionally hash installed
 dependency bytes before and after building/sampling; historical full records
 without that evidence require a fresh matched full run. These identity checks
 do not authorize any unrun timing campaign.
+
+## moss-qx5g3 r2: registered readiness timeout
+
+Before r2 sampling, raise the resident paired-driver read/readiness timeout from 180 to 600 seconds (one harness line). Apply this identical harness to both 0.2.3 and final arms. The fixed 600-second budget is about three times r1, independent of timing ratios. One full rerun per arm is allowed only after a timeout/crash; a second infrastructure failure is FAIL. The frozen corpus, sample policy and bars are unchanged. Registration: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/REGISTRATION.md`.
+
+## moss-qx5g3 r2: overdraw implementation freeze
+
+Diagnosis milestone: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/DIAGNOSIS.md`, written before library changes. The primary centroid scan was estimated at 0.074775 s and indexed reads at 0.066691 s of 0.319310 s. The highest predicted byte-exact saving exceeds 10%, so the kill condition does not apply.
+
+Land two ranked fixes: reuse the centroid accumulated during required finite-position validation, retaining checks/divisions and exact later scan work at the original point; specialize checked indexed triangle reads by layout once per cluster and use existing Work::scan for the same per-triangle failure prefix. Keep mapped-view fallback, endian/unaligned support, all float expressions, the pinned sqrt cache, allocation contract and r1's four fixes. The lower-gain third candidate is deferred. No hypothesis failed parity. A regression-test type annotation and one formatting failure were corrected before qualification; retained logs distinguish these setup failures from byte mismatches.
+
+The final-source gates run once: parity/gates.sh, native/WASM differential, 10,000-case sweep, JS coverage and four process CPU-hours per fuzz target. The real campaign uses CPU 8 with 1 warmup + 10 interleaved pairs per arm and case; raw samples and fixed-seed 10,000-resample intervals survive. Fuzz workers exclude CPU 8 and sibling 9. No time-value reruns, corpus/bar changes, sqrt substitution, simplifier/cache/encoder/SIMD/Moss changes or aggregate report repairs. Baseline is an isolated archive of afe803b with the identical committed one-line 600-second read timeout; each frozen arm may retry once only for a timeout/crash, in full, preserving the failed run. r1 FAIL stands independently.
+
+## moss-qx5g3 r2: final decision
+
+**FAIL / not a release candidate.** Final real-case simplify medians are 0.963033 (214e), 0.946573 (b6fd), 0.941030 (a082), all below 1.25. Overdraw medians are 1.534538, 1.595715, 1.466592: 214e and b6fd exceed 1.50. The fixed-seed 10,000-resample intervals and all raw samples remain in the r2 report. No retuning, post-campaign fix, exclusion or timing-value rerun followed this decision. Two byte-exact fixes landed; the low-gain third candidate was deferred before samples. The hypothesis of target closure is disproved; individual per-fix gains remain unisolated.
+
+Both frozen arms completed 204/204 on their first attempts, including r1's failed readiness case. All final family GM/max bars pass; overdraw GM/max changes 1.104734/1.495309 to 1.086187/1.444646. The three constrained family GMs improve versus baseline. No frozen infrastructure rerun occurred. r1 FAIL remains unchanged.
+
+All required spec correctness proof completed: foundation gates, native/WASM differential, 10,000-case sweep, JS coverage, all three real-case hashes/records, and four process CPU-hours for each of five fuzz targets (zero crashes). The coordinator held new heavy submissions for train11 RAM, then explicitly interrupted the running fuzz scope. Original checkpoint and interrupted files were retained; its wrapper exit2/accounting exception is an external interruption, not a fuzz finding. After HOLD removal, exactly one authorized parity/fuzz.sh --resume job used identical artifacts, source/dependencies/executable hashes, seed and eight cores; it exited0 with every target above four CPU-hours. This continuation is part of the plan, not an infrastructure rerun.
+
+The extra independent retained-buffer rehash was not a named spec gate. It remained queued behind the critical RAM request; only its waiting wrapper was cancelled before its audit payload started. It is explicitly NOT RUN, separate from the completed required proof and without changing any bar or verdict. Rerunning this optional audit later is cheap and needs no remeasurement. Original source/executable manifests, replay buffers and timed records remain retained. No running fuzz/frozen job was killed by the agent.
+
+Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LARGE_MESH_R2_RESULTS.json. Evidence: /mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/. Reversal cost for the unmerged fixes is cheap; the registered decision and retained samples must not be rewritten. Owner performs the one review and any release decision. No merge/tag/publish.

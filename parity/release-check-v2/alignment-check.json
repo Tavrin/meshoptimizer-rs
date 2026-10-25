@@ -1,0 +1,42 @@
+{
+  "option": "-C llvm-args=-align-all-functions=6",
+  "passed": true,
+  "symbols": [
+    {
+      "arm": "Bp",
+      "kernel": "meshoptimizer_rs::cache::kernel::<false>",
+      "address": "0x36180",
+      "address_mod64": 0
+    },
+    {
+      "arm": "Bp",
+      "kernel": "meshoptimizer_rs::cache::kernel::<true>",
+      "address": "0x38580",
+      "address_mod64": 0
+    },
+    {
+      "arm": "Bp",
+      "kernel": "meshoptimizer_rs::overdraw::kernel",
+      "address": "0x50a40",
+      "address_mod64": 0
+    },
+    {
+      "arm": "Cp",
+      "kernel": "meshoptimizer_rs::cache::kernel::<false>",
+      "address": "0x36ac0",
+      "address_mod64": 0
+    },
+    {
+      "arm": "Cp",
+      "kernel": "meshoptimizer_rs::cache::kernel::<true>",
+      "address": "0x38ec0",
+      "address_mod64": 0
+    },
+    {
+      "arm": "Cp",
+      "kernel": "meshoptimizer_rs::overdraw::kernel",
+      "address": "0x52980",
+      "address_mod64": 0
+    }
+  ]
+}

@@ -1,0 +1,1112 @@
+[
+  {
+    "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-B",
+    "binaries": [
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-B/release/build/libm-e53000d0a186e2a2/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-B/release/build/libm-e53000d0a186e2a2/build_script_build-e53000d0a186e2a2",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-B/release/deps/libmeshoptimizer_parity.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b58e69bbc34b056c44b910d7b908f77cb3c68d2501f8b7d0684dd364a250186b",
+        "sha256": "b58e69bbc34b056c44b910d7b908f77cb3c68d2501f8b7d0684dd364a250186b",
+        "bytes": 8804720
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-B/release/deps/meshopt_driver-91e49f2f11087fa8",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/dec652261c13a1eba35433bfe9ee3ea968785b90152008bb346734f4a3d04cc2",
+        "sha256": "dec652261c13a1eba35433bfe9ee3ea968785b90152008bb346734f4a3d04cc2",
+        "bytes": 4652040
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-B/release/meshopt-driver",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/dec652261c13a1eba35433bfe9ee3ea968785b90152008bb346734f4a3d04cc2",
+        "sha256": "dec652261c13a1eba35433bfe9ee3ea968785b90152008bb346734f4a3d04cc2",
+        "bytes": 4652040
+      }
+    ],
+    "deleted": false
+  },
+  {
+    "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bprime",
+    "binaries": [
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bprime/release/build/libm-e53000d0a186e2a2/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bprime/release/build/libm-e53000d0a186e2a2/build_script_build-e53000d0a186e2a2",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bprime/release/deps/libmeshoptimizer_parity.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/8e1d96d5ef1feab5ac3c81f8784237d44ed5f9072080aec23d6951bc6929bbf6",
+        "sha256": "8e1d96d5ef1feab5ac3c81f8784237d44ed5f9072080aec23d6951bc6929bbf6",
+        "bytes": 8803992
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bprime/release/deps/meshopt_driver-c9164201e1ce70a0",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/d6fe02e8ad1d88987b839a54a8090f53b8d9376eeb6bf0f013154401691cfef8",
+        "sha256": "d6fe02e8ad1d88987b839a54a8090f53b8d9376eeb6bf0f013154401691cfef8",
+        "bytes": 4651480
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bprime/release/meshopt-driver",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/d6fe02e8ad1d88987b839a54a8090f53b8d9376eeb6bf0f013154401691cfef8",
+        "sha256": "d6fe02e8ad1d88987b839a54a8090f53b8d9376eeb6bf0f013154401691cfef8",
+        "bytes": 4651480
+      }
+    ],
+    "deleted": false
+  },
+  {
+    "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-C",
+    "binaries": [
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-C/release/build/libm-e53000d0a186e2a2/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-C/release/build/libm-e53000d0a186e2a2/build_script_build-e53000d0a186e2a2",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-C/release/deps/libmeshoptimizer_parity.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/f5fcd03df94dab06dfabe7a61d6c89aa4d0e6277a8abf92fa08e1bf7e16fea15",
+        "sha256": "f5fcd03df94dab06dfabe7a61d6c89aa4d0e6277a8abf92fa08e1bf7e16fea15",
+        "bytes": 8862432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-C/release/deps/meshopt_driver-1b4d4b6cb15c00dd",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/140491a8d8c635cdcf095e39b0e40e4dff5a6e1cae9f7329631aea516c390a77",
+        "sha256": "140491a8d8c635cdcf095e39b0e40e4dff5a6e1cae9f7329631aea516c390a77",
+        "bytes": 4823160
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-C/release/meshopt-driver",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/140491a8d8c635cdcf095e39b0e40e4dff5a6e1cae9f7329631aea516c390a77",
+        "sha256": "140491a8d8c635cdcf095e39b0e40e4dff5a6e1cae9f7329631aea516c390a77",
+        "bytes": 4823160
+      }
+    ],
+    "deleted": false
+  },
+  {
+    "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp",
+    "binaries": [
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/build/libm-4b110adaf40b14c6/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "sha256": "be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "bytes": 4601208
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/build/libm-4b110adaf40b14c6/build_script_build-4b110adaf40b14c6",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "sha256": "be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "bytes": 4601208
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/build/libm-e53000d0a186e2a2/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/build/libm-e53000d0a186e2a2/build_script_build-e53000d0a186e2a2",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/deps/libmeshoptimizer_parity.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/d643a2ad91d3f0b21b59ccd409ca897b69c034c780686495bf43bce58417608c",
+        "sha256": "d643a2ad91d3f0b21b59ccd409ca897b69c034c780686495bf43bce58417608c",
+        "bytes": 8810968
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/deps/meshopt_driver-035b639211542860",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/eb481a94cddd5375df406a725057ebec2831d0a75fac487d80762be4a0ad4c70",
+        "sha256": "eb481a94cddd5375df406a725057ebec2831d0a75fac487d80762be4a0ad4c70",
+        "bytes": 4669384
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/deps/meshopt_driver-450d72fffaaf3f8a",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/2711c2cf95eadb86a2e21a271d55ee1127a622523682c32c30a440c849ea31ce",
+        "sha256": "2711c2cf95eadb86a2e21a271d55ee1127a622523682c32c30a440c849ea31ce",
+        "bytes": 4652216
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Bp/release/meshopt-driver",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/eb481a94cddd5375df406a725057ebec2831d0a75fac487d80762be4a0ad4c70",
+        "sha256": "eb481a94cddd5375df406a725057ebec2831d0a75fac487d80762be4a0ad4c70",
+        "bytes": 4669384
+      }
+    ],
+    "deleted": false
+  },
+  {
+    "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp",
+    "binaries": [
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-build/native-fixtures",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/16418c2b9c8f1a475c75eea93e178e396662a2112fae626703a74781334ab1a3",
+        "sha256": "16418c2b9c8f1a475c75eea93e178e396662a2112fae626703a74781334ab1a3",
+        "bytes": 99360
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-build/p01x-native-fixtures",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/0cf82c0bf89c2b07d2a5faa41355867246c729cc85813036c72e53cff94d1dd2",
+        "sha256": "0cf82c0bf89c2b07d2a5faa41355867246c729cc85813036c72e53cff94d1dd2",
+        "bytes": 178608
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-build/reference",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+        "sha256": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+        "bytes": 148584
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-executables/0cf82c0bf89c2b07d2a5faa41355867246c729cc85813036c72e53cff94d1dd2/p01x-native-fixtures",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/0cf82c0bf89c2b07d2a5faa41355867246c729cc85813036c72e53cff94d1dd2",
+        "sha256": "0cf82c0bf89c2b07d2a5faa41355867246c729cc85813036c72e53cff94d1dd2",
+        "bytes": 178608
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-executables/16418c2b9c8f1a475c75eea93e178e396662a2112fae626703a74781334ab1a3/native-fixtures",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/16418c2b9c8f1a475c75eea93e178e396662a2112fae626703a74781334ab1a3",
+        "sha256": "16418c2b9c8f1a475c75eea93e178e396662a2112fae626703a74781334ab1a3",
+        "bytes": 99360
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-executables/213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626/meshoptimizer_parity.wasm",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626",
+        "sha256": "213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626",
+        "bytes": 5624165
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-executables/348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a/reference",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+        "sha256": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+        "bytes": 148584
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/qualification-executables/b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5/meshopt-driver",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
+        "sha256": "b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
+        "bytes": 4840776
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/build/libm-4b110adaf40b14c6/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "sha256": "be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "bytes": 4601208
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/build/libm-4b110adaf40b14c6/build_script_build-4b110adaf40b14c6",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "sha256": "be1277ad3887efb08e77b6873e7a43a9d126d99e1a40606383a3ebc9ec0d24df",
+        "bytes": 4601208
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/build/libm-4b24e54557fef90c/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ea52f1b9ed8ecd3a38c4f5a7ef02ed3e5beae253ad40a5b667726478c0052fad",
+        "sha256": "ea52f1b9ed8ecd3a38c4f5a7ef02ed3e5beae253ad40a5b667726478c0052fad",
+        "bytes": 4704600
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/build/libm-4b24e54557fef90c/build_script_build-4b24e54557fef90c",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ea52f1b9ed8ecd3a38c4f5a7ef02ed3e5beae253ad40a5b667726478c0052fad",
+        "sha256": "ea52f1b9ed8ecd3a38c4f5a7ef02ed3e5beae253ad40a5b667726478c0052fad",
+        "bytes": 4704600
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/build/libm-e53000d0a186e2a2/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/build/libm-e53000d0a186e2a2/build_script_build-e53000d0a186e2a2",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "sha256": "3990037ba56f9f1b1f7a932512ed00536afedf698af8b45e62f8f363438ff271",
+        "bytes": 4595432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/deps/libmeshoptimizer_parity.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/cf2db2668f7d69349c69d4d1e06c413c3c5d8067dcb701b52656a4a6f4ce77dd",
+        "sha256": "cf2db2668f7d69349c69d4d1e06c413c3c5d8067dcb701b52656a4a6f4ce77dd",
+        "bytes": 8868792
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/deps/meshopt_driver-8aae986253816759",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3de98d21e83f4d4b21bbd49acb878375cacbbc8bf153fa86bc17fdc7f8a54b54",
+        "sha256": "3de98d21e83f4d4b21bbd49acb878375cacbbc8bf153fa86bc17fdc7f8a54b54",
+        "bytes": 4823352
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/deps/meshopt_driver-b28746f5c0311802",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
+        "sha256": "b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
+        "bytes": 4840776
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/libmeshoptimizer_parity.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/cf2db2668f7d69349c69d4d1e06c413c3c5d8067dcb701b52656a4a6f4ce77dd",
+        "sha256": "cf2db2668f7d69349c69d4d1e06c413c3c5d8067dcb701b52656a4a6f4ce77dd",
+        "bytes": 8868792
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/release/meshopt-driver",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
+        "sha256": "b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
+        "bytes": 4840776
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/wasm32-unknown-unknown/release/deps/meshoptimizer_parity.wasm",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626",
+        "sha256": "213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626",
+        "bytes": 5624165
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-Cp/wasm32-unknown-unknown/release/meshoptimizer_parity.wasm",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626",
+        "sha256": "213f07af20e422b960eb65b4f2a922fbdecb83dde19b22487dafbf6a073fc626",
+        "bytes": 5624165
+      }
+    ],
+    "deleted": false
+  },
+  {
+    "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real",
+    "binaries": [
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ahash-11e77bff319d24b9/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/60727987326ba59ff03205f7660abc0201a758999beec8b45ddb67839c74bf15",
+        "sha256": "60727987326ba59ff03205f7660abc0201a758999beec8b45ddb67839c74bf15",
+        "bytes": 4703384
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ahash-11e77bff319d24b9/build_script_build-11e77bff319d24b9",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/60727987326ba59ff03205f7660abc0201a758999beec8b45ddb67839c74bf15",
+        "sha256": "60727987326ba59ff03205f7660abc0201a758999beec8b45ddb67839c74bf15",
+        "bytes": 4703384
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/alsa-sys-5c263550078de535/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/990aa15ab8adec79b433ecb305d3ebb43a4902301a8d734a30c4bc35a9385ff1",
+        "sha256": "990aa15ab8adec79b433ecb305d3ebb43a4902301a8d734a30c4bc35a9385ff1",
+        "bytes": 4968096
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/alsa-sys-5c263550078de535/build_script_build-5c263550078de535",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/990aa15ab8adec79b433ecb305d3ebb43a4902301a8d734a30c4bc35a9385ff1",
+        "sha256": "990aa15ab8adec79b433ecb305d3ebb43a4902301a8d734a30c4bc35a9385ff1",
+        "bytes": 4968096
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/anyhow-ee9832ccbe0cc098/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/1702d03b447f95bfd4487b22e45e0aee4217a9e306758c31ed1a073826b87fd2",
+        "sha256": "1702d03b447f95bfd4487b22e45e0aee4217a9e306758c31ed1a073826b87fd2",
+        "bytes": 4667728
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/anyhow-ee9832ccbe0cc098/build_script_build-ee9832ccbe0cc098",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/1702d03b447f95bfd4487b22e45e0aee4217a9e306758c31ed1a073826b87fd2",
+        "sha256": "1702d03b447f95bfd4487b22e45e0aee4217a9e306758c31ed1a073826b87fd2",
+        "bytes": 4667728
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ash-e85031b6944981a5/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/c606a24b7c7f4ae56bb6d5873a841681632c1c3ae10f6451e3138c98f3ff0a88",
+        "sha256": "c606a24b7c7f4ae56bb6d5873a841681632c1c3ae10f6451e3138c98f3ff0a88",
+        "bytes": 4499568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ash-e85031b6944981a5/build_script_build-e85031b6944981a5",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/c606a24b7c7f4ae56bb6d5873a841681632c1c3ae10f6451e3138c98f3ff0a88",
+        "sha256": "c606a24b7c7f4ae56bb6d5873a841681632c1c3ae10f6451e3138c98f3ff0a88",
+        "bytes": 4499568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-ae2bac4a317b63e8/out/0af7afa8371890fd-blake3_avx2_x86-64_unix.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/db381bb9b1af4d5f6aad5a7679e74891f883830e115f4554eeafd0aba4c9ae3b",
+        "sha256": "db381bb9b1af4d5f6aad5a7679e74891f883830e115f4554eeafd0aba4c9ae3b",
+        "bytes": 15608
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-ae2bac4a317b63e8/out/0af7afa8371890fd-blake3_avx512_x86-64_unix.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/74151d93901571b637dcc63e54b83b56004d951dc425d9081089ccb42e7c616b",
+        "sha256": "74151d93901571b637dcc63e54b83b56004d951dc425d9081089ccb42e7c616b",
+        "bytes": 37336
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-ae2bac4a317b63e8/out/0af7afa8371890fd-blake3_sse2_x86-64_unix.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/59c3d49cd26b060966b08cdc7af29eddb9657c7247935d4f4436961e2059ccf6",
+        "sha256": "59c3d49cd26b060966b08cdc7af29eddb9657c7247935d4f4436961e2059ccf6",
+        "bytes": 18024
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-ae2bac4a317b63e8/out/0af7afa8371890fd-blake3_sse41_x86-64_unix.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7ca685d0019e475329eaf2969faf94c6496b5d1acf04f2a022084dea01bf8409",
+        "sha256": "7ca685d0019e475329eaf2969faf94c6496b5d1acf04f2a022084dea01bf8409",
+        "bytes": 16816
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-ae2bac4a317b63e8/out/flag_check",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/99eacfae97fc769a93c048bda18f674a06e56f1acea359edec3f3dc5381a0253",
+        "sha256": "99eacfae97fc769a93c048bda18f674a06e56f1acea359edec3f3dc5381a0253",
+        "bytes": 1312
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-b8c47c4a352aa486/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/203653cc91fe536635dfda908a253a6144cb3c7803e42177cfe54cfd3b15431b",
+        "sha256": "203653cc91fe536635dfda908a253a6144cb3c7803e42177cfe54cfd3b15431b",
+        "bytes": 6108736
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/blake3-b8c47c4a352aa486/build_script_build-b8c47c4a352aa486",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/203653cc91fe536635dfda908a253a6144cb3c7803e42177cfe54cfd3b15431b",
+        "sha256": "203653cc91fe536635dfda908a253a6144cb3c7803e42177cfe54cfd3b15431b",
+        "bytes": 6108736
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/cpal-a113378dcebc6685/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b7bdd02cdcbb2e2b279c3310e9759a3132c01cf27f5694a5c686c6b3bd615bb4",
+        "sha256": "b7bdd02cdcbb2e2b279c3310e9759a3132c01cf27f5694a5c686c6b3bd615bb4",
+        "bytes": 4512016
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/cpal-a113378dcebc6685/build_script_build-a113378dcebc6685",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b7bdd02cdcbb2e2b279c3310e9759a3132c01cf27f5694a5c686c6b3bd615bb4",
+        "sha256": "b7bdd02cdcbb2e2b279c3310e9759a3132c01cf27f5694a5c686c6b3bd615bb4",
+        "bytes": 4512016
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crc32fast-84d2a0f471eddaea/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7bc7bd4a2ed3c067fa87db7ee6639b651ad2cea588eb816c465b711e422a2fa6",
+        "sha256": "7bc7bd4a2ed3c067fa87db7ee6639b651ad2cea588eb816c465b711e422a2fa6",
+        "bytes": 4611984
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crc32fast-84d2a0f471eddaea/build_script_build-84d2a0f471eddaea",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7bc7bd4a2ed3c067fa87db7ee6639b651ad2cea588eb816c465b711e422a2fa6",
+        "sha256": "7bc7bd4a2ed3c067fa87db7ee6639b651ad2cea588eb816c465b711e422a2fa6",
+        "bytes": 4611984
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crossbeam-deque-9d897769a0e1595a/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/952cb205b5207c46c9c5c2f2cfbf48448b1be3a76b469b2bedd110c03733a635",
+        "sha256": "952cb205b5207c46c9c5c2f2cfbf48448b1be3a76b469b2bedd110c03733a635",
+        "bytes": 4538840
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crossbeam-deque-9d897769a0e1595a/build_script_build-9d897769a0e1595a",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/952cb205b5207c46c9c5c2f2cfbf48448b1be3a76b469b2bedd110c03733a635",
+        "sha256": "952cb205b5207c46c9c5c2f2cfbf48448b1be3a76b469b2bedd110c03733a635",
+        "bytes": 4538840
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crossbeam-epoch-38bc72af7e6fe9f8/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/893cbe2bad89b872eacdbfe1a4af7292c6f57d0385d737095d14ece884fb74f9",
+        "sha256": "893cbe2bad89b872eacdbfe1a4af7292c6f57d0385d737095d14ece884fb74f9",
+        "bytes": 4538840
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crossbeam-epoch-38bc72af7e6fe9f8/build_script_build-38bc72af7e6fe9f8",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/893cbe2bad89b872eacdbfe1a4af7292c6f57d0385d737095d14ece884fb74f9",
+        "sha256": "893cbe2bad89b872eacdbfe1a4af7292c6f57d0385d737095d14ece884fb74f9",
+        "bytes": 4538840
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crossbeam-utils-eeeee3d976168669/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/48272955ecdcfff972f1f5cd74713f87ce3018f89d845a558a9901db5525ce45",
+        "sha256": "48272955ecdcfff972f1f5cd74713f87ce3018f89d845a558a9901db5525ce45",
+        "bytes": 4566472
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/crossbeam-utils-eeeee3d976168669/build_script_build-eeeee3d976168669",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/48272955ecdcfff972f1f5cd74713f87ce3018f89d845a558a9901db5525ce45",
+        "sha256": "48272955ecdcfff972f1f5cd74713f87ce3018f89d845a558a9901db5525ce45",
+        "bytes": 4566472
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/generic-array-53a21eeade087e7a/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bbf0cbda40bff82a976c05356ad4de25c4eef4783e583fb05eda2788abd66ee2",
+        "sha256": "bbf0cbda40bff82a976c05356ad4de25c4eef4783e583fb05eda2788abd66ee2",
+        "bytes": 4673880
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/generic-array-53a21eeade087e7a/build_script_build-53a21eeade087e7a",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bbf0cbda40bff82a976c05356ad4de25c4eef4783e583fb05eda2788abd66ee2",
+        "sha256": "bbf0cbda40bff82a976c05356ad4de25c4eef4783e583fb05eda2788abd66ee2",
+        "bytes": 4673880
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/getrandom-225f01af3ab03565/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/40c23f9cbc7d2ab122a37785cfe8f3055dc78013e0b47900f22ff0980e2ebdee",
+        "sha256": "40c23f9cbc7d2ab122a37785cfe8f3055dc78013e0b47900f22ff0980e2ebdee",
+        "bytes": 4648728
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/getrandom-225f01af3ab03565/build_script_build-225f01af3ab03565",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/40c23f9cbc7d2ab122a37785cfe8f3055dc78013e0b47900f22ff0980e2ebdee",
+        "sha256": "40c23f9cbc7d2ab122a37785cfe8f3055dc78013e0b47900f22ff0980e2ebdee",
+        "bytes": 4648728
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/heapless-d2fc37c8120794b3/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fdc5f26bd82409f6360933c5ba9529c1a344e2dbd1d12d99949dc36de2a4316c",
+        "sha256": "fdc5f26bd82409f6360933c5ba9529c1a344e2dbd1d12d99949dc36de2a4316c",
+        "bytes": 4625032
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/heapless-d2fc37c8120794b3/build_script_build-d2fc37c8120794b3",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fdc5f26bd82409f6360933c5ba9529c1a344e2dbd1d12d99949dc36de2a4316c",
+        "sha256": "fdc5f26bd82409f6360933c5ba9529c1a344e2dbd1d12d99949dc36de2a4316c",
+        "bytes": 4625032
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/intel_tex_2-aec2e0e35a543772/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/20e642cf1641666c9a4f7c62ae8e1a488dff33e81b432512fca664e5fa174485",
+        "sha256": "20e642cf1641666c9a4f7c62ae8e1a488dff33e81b432512fca664e5fa174485",
+        "bytes": 4596392
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/intel_tex_2-aec2e0e35a543772/build_script_build-aec2e0e35a543772",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/20e642cf1641666c9a4f7c62ae8e1a488dff33e81b432512fca664e5fa174485",
+        "sha256": "20e642cf1641666c9a4f7c62ae8e1a488dff33e81b432512fca664e5fa174485",
+        "bytes": 4596392
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/khronos-egl-9e62426b4f772e80/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/8a11f8d2a2b71ffba01259efb7029f950547671ca30fb20dce5ab6643248f1db",
+        "sha256": "8a11f8d2a2b71ffba01259efb7029f950547671ca30fb20dce5ab6643248f1db",
+        "bytes": 4499568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/khronos-egl-9e62426b4f772e80/build_script_build-9e62426b4f772e80",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/8a11f8d2a2b71ffba01259efb7029f950547671ca30fb20dce5ab6643248f1db",
+        "sha256": "8a11f8d2a2b71ffba01259efb7029f950547671ca30fb20dce5ab6643248f1db",
+        "bytes": 4499568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/libc-29150004c849cdfc/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4cc6f7ba23b5da044b1a97fbe45dea368e23cfc65bc932b216ad98f463f98873",
+        "sha256": "4cc6f7ba23b5da044b1a97fbe45dea368e23cfc65bc932b216ad98f463f98873",
+        "bytes": 4732576
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/libc-29150004c849cdfc/build_script_build-29150004c849cdfc",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4cc6f7ba23b5da044b1a97fbe45dea368e23cfc65bc932b216ad98f463f98873",
+        "sha256": "4cc6f7ba23b5da044b1a97fbe45dea368e23cfc65bc932b216ad98f463f98873",
+        "bytes": 4732576
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/libm-7573aea338615296/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b15eb62ad17abe9dbc8678470ce33a7af92042aafb0f6efbe83ddf04576ddcbb",
+        "sha256": "b15eb62ad17abe9dbc8678470ce33a7af92042aafb0f6efbe83ddf04576ddcbb",
+        "bytes": 4601272
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/libm-7573aea338615296/build_script_build-7573aea338615296",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b15eb62ad17abe9dbc8678470ce33a7af92042aafb0f6efbe83ddf04576ddcbb",
+        "sha256": "b15eb62ad17abe9dbc8678470ce33a7af92042aafb0f6efbe83ddf04576ddcbb",
+        "bytes": 4601272
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/matrixmultiply-06dc4235c516084c/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ee95c5e8a60e8d75f0b04e14cb991374f57c1a229a41d731089d5efb9499d82f",
+        "sha256": "ee95c5e8a60e8d75f0b04e14cb991374f57c1a229a41d731089d5efb9499d82f",
+        "bytes": 4822936
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/matrixmultiply-06dc4235c516084c/build_script_build-06dc4235c516084c",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ee95c5e8a60e8d75f0b04e14cb991374f57c1a229a41d731089d5efb9499d82f",
+        "sha256": "ee95c5e8a60e8d75f0b04e14cb991374f57c1a229a41d731089d5efb9499d82f",
+        "bytes": 4822936
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-allocator.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/457fe89f5c299897c67e25a59a02c6a0bd2767030b1679f5a53c04ec96adf237",
+        "sha256": "457fe89f5c299897c67e25a59a02c6a0bd2767030b1679f5a53c04ec96adf237",
+        "bytes": 5560
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-clusterizer.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4d30984cc34f3180b2a992905ebd601637c2cfef3a4ce4834e84a812437ef6e5",
+        "sha256": "4d30984cc34f3180b2a992905ebd601637c2cfef3a4ce4834e84a812437ef6e5",
+        "bytes": 735208
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-indexanalyzer.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/f266d24f534a54e6144b878473c76c8f5bce00feddebf4e5e04d4fad48cceed8",
+        "sha256": "f266d24f534a54e6144b878473c76c8f5bce00feddebf4e5e04d4fad48cceed8",
+        "bytes": 53376
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-indexcodec.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/d27e956bb55d4619085a39459a66ec5d4e4b731394202fb7ba06574ad7bef613",
+        "sha256": "d27e956bb55d4619085a39459a66ec5d4e4b731394202fb7ba06574ad7bef613",
+        "bytes": 268488
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-indexgenerator.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/74eb8ebdfabdfcd4ed6af0ab2a9d3ddbe1d58b89d637e6eca36bc3c93390f7ec",
+        "sha256": "74eb8ebdfabdfcd4ed6af0ab2a9d3ddbe1d58b89d637e6eca36bc3c93390f7ec",
+        "bytes": 341880
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-overdrawoptimizer.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/76d0ec7f383b81e13b19a18c1c5d5043d342f761ed808e547d95aaa6f4a6f2a0",
+        "sha256": "76d0ec7f383b81e13b19a18c1c5d5043d342f761ed808e547d95aaa6f4a6f2a0",
+        "bytes": 116360
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-partition.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/18c07042140e69c4932e0e7c5a8b02dcfcd20b6115b99ca6a0e357181f1ad575",
+        "sha256": "18c07042140e69c4932e0e7c5a8b02dcfcd20b6115b99ca6a0e357181f1ad575",
+        "bytes": 139440
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-quantization.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7c65d9208b9549922866c80ac8f51d6780df01cbbd9397a043388590f974347a",
+        "sha256": "7c65d9208b9549922866c80ac8f51d6780df01cbbd9397a043388590f974347a",
+        "bytes": 11096
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-rasterizer.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/e098d080c372eecdc55f0543af149f15aa710df2a9c6e4a8c618b92d4c47a99f",
+        "sha256": "e098d080c372eecdc55f0543af149f15aa710df2a9c6e4a8c618b92d4c47a99f",
+        "bytes": 87904
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-simplifier.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/76c1b8877fb19ee52abf5ea294d505d00f5964ec7767652e8a6f3c48b12dc335",
+        "sha256": "76c1b8877fb19ee52abf5ea294d505d00f5964ec7767652e8a6f3c48b12dc335",
+        "bytes": 845848
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-spatialorder.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/f71201c4e91ff6d598e9a7caab85ddc4eab1c27b6fae5d7b72749d6dca3b7c13",
+        "sha256": "f71201c4e91ff6d598e9a7caab85ddc4eab1c27b6fae5d7b72749d6dca3b7c13",
+        "bytes": 119184
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-stripifier.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/dfb4e27bd79640d320cb312b83f485b7cae25ceddf59702a1e021af7e3420632",
+        "sha256": "dfb4e27bd79640d320cb312b83f485b7cae25ceddf59702a1e021af7e3420632",
+        "bytes": 73608
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-vcacheoptimizer.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/08da6ae978ae5d24e753cf38b05b464eadd9455a4b9deb69c193f7a71b087542",
+        "sha256": "08da6ae978ae5d24e753cf38b05b464eadd9455a4b9deb69c193f7a71b087542",
+        "bytes": 109024
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-vertexcodec.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ca2843f2328898e77b9e6d24e18ff2e8f750d33c8b005505cc35a7a2a7c16324",
+        "sha256": "ca2843f2328898e77b9e6d24e18ff2e8f750d33c8b005505cc35a7a2a7c16324",
+        "bytes": 696104
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-vertexfilter.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/6c56efdeec2f4858bfcf0a4b44c8d9a314e4efc20c80a1ce3c0ac2ec221065db",
+        "sha256": "6c56efdeec2f4858bfcf0a4b44c8d9a314e4efc20c80a1ce3c0ac2ec221065db",
+        "bytes": 333896
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/b9d70b28feb0c9f8-vfetchoptimizer.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bdb0b741014f10a34b5e3be3b162ebb29b89d47099523e71e32aea34fd9f95db",
+        "sha256": "bdb0b741014f10a34b5e3be3b162ebb29b89d47099523e71e32aea34fd9f95db",
+        "bytes": 37984
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-47f01b5194cf7453/out/flag_check",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/dbc0be7f6ef85dfba498d6de01f51c05c3313e1d95cb00a3208e11d791bb1bb0",
+        "sha256": "dbc0be7f6ef85dfba498d6de01f51c05c3313e1d95cb00a3208e11d791bb1bb0",
+        "bytes": 1312
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-80d6f4c45006d2b4/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fa741be8cedb462f100f643328b983b60dc4b7b55420a9c7b959a2b88d45ed1d",
+        "sha256": "fa741be8cedb462f100f643328b983b60dc4b7b55420a9c7b959a2b88d45ed1d",
+        "bytes": 6061680
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-80d6f4c45006d2b4/build_script_build-80d6f4c45006d2b4",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fa741be8cedb462f100f643328b983b60dc4b7b55420a9c7b959a2b88d45ed1d",
+        "sha256": "fa741be8cedb462f100f643328b983b60dc4b7b55420a9c7b959a2b88d45ed1d",
+        "bytes": 6061680
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-migration-2ac8bc18362c62a6/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/a1f3d36b2b0162f68eb5e20f11fd309848d8d3f50d26927b4114f1bcb4cb6624",
+        "sha256": "a1f3d36b2b0162f68eb5e20f11fd309848d8d3f50d26927b4114f1bcb4cb6624",
+        "bytes": 6191680
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/meshopt-migration-2ac8bc18362c62a6/build_script_build-2ac8bc18362c62a6",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/a1f3d36b2b0162f68eb5e20f11fd309848d8d3f50d26927b4114f1bcb4cb6624",
+        "sha256": "a1f3d36b2b0162f68eb5e20f11fd309848d8d3f50d26927b4114f1bcb4cb6624",
+        "bytes": 6191680
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/moss_cooker-c64fc38af283cbbb/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b38b166aadbc60b116daf422c31ba679c1fbd5fc2695f13229e664e5d6e9325e",
+        "sha256": "b38b166aadbc60b116daf422c31ba679c1fbd5fc2695f13229e664e5d6e9325e",
+        "bytes": 4744568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/moss_cooker-c64fc38af283cbbb/build_script_build-c64fc38af283cbbb",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b38b166aadbc60b116daf422c31ba679c1fbd5fc2695f13229e664e5d6e9325e",
+        "sha256": "b38b166aadbc60b116daf422c31ba679c1fbd5fc2695f13229e664e5d6e9325e",
+        "bytes": 4744568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/naga-f7beae3376d9b375/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/a9bc0ce63fdd27315ac7dbf8d4589c9df51d7babe916edf6aece24321688a2bb",
+        "sha256": "a9bc0ce63fdd27315ac7dbf8d4589c9df51d7babe916edf6aece24321688a2bb",
+        "bytes": 4583232
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/naga-f7beae3376d9b375/build_script_build-f7beae3376d9b375",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/a9bc0ce63fdd27315ac7dbf8d4589c9df51d7babe916edf6aece24321688a2bb",
+        "sha256": "a9bc0ce63fdd27315ac7dbf8d4589c9df51d7babe916edf6aece24321688a2bb",
+        "bytes": 4583232
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/num-traits-301d0fbf2b19e32c/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4da471b6f3612274950b755535beb6299d87c088ba7365bf75f71ae51f74e023",
+        "sha256": "4da471b6f3612274950b755535beb6299d87c088ba7365bf75f71ae51f74e023",
+        "bytes": 4823976
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/num-traits-301d0fbf2b19e32c/build_script_build-301d0fbf2b19e32c",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4da471b6f3612274950b755535beb6299d87c088ba7365bf75f71ae51f74e023",
+        "sha256": "4da471b6f3612274950b755535beb6299d87c088ba7365bf75f71ae51f74e023",
+        "bytes": 4823976
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/num-traits-3c707dc0ce0f224b/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/1365168926c703e6cc821595affe4b623683be47c92e37b02347879f485bd1fc",
+        "sha256": "1365168926c703e6cc821595affe4b623683be47c92e37b02347879f485bd1fc",
+        "bytes": 4823976
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/num-traits-3c707dc0ce0f224b/build_script_build-3c707dc0ce0f224b",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/1365168926c703e6cc821595affe4b623683be47c92e37b02347879f485bd1fc",
+        "sha256": "1365168926c703e6cc821595affe4b623683be47c92e37b02347879f485bd1fc",
+        "bytes": 4823976
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/parking_lot_core-53ca8faf4e49ae2d/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/6047f8de6b54544d64fe141dddc4e89242f4980ba6320457d603e098adaec8ca",
+        "sha256": "6047f8de6b54544d64fe141dddc4e89242f4980ba6320457d603e098adaec8ca",
+        "bytes": 4536112
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/parking_lot_core-53ca8faf4e49ae2d/build_script_build-53ca8faf4e49ae2d",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/6047f8de6b54544d64fe141dddc4e89242f4980ba6320457d603e098adaec8ca",
+        "sha256": "6047f8de6b54544d64fe141dddc4e89242f4980ba6320457d603e098adaec8ca",
+        "bytes": 4536112
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/paste-408bb1f075f959b8/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/5efb6fa8b40c66a1644ba331e540c09376d4b33af1e2447abf3e22948eedd70f",
+        "sha256": "5efb6fa8b40c66a1644ba331e540c09376d4b33af1e2447abf3e22948eedd70f",
+        "bytes": 4610608
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/paste-408bb1f075f959b8/build_script_build-408bb1f075f959b8",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/5efb6fa8b40c66a1644ba331e540c09376d4b33af1e2447abf3e22948eedd70f",
+        "sha256": "5efb6fa8b40c66a1644ba331e540c09376d4b33af1e2447abf3e22948eedd70f",
+        "bytes": 4610608
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/proc-macro2-118694863b4f57c4/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bbf8df2eae6de78c8ae5c6e62fa8c73210f6c687b0bf3eb8a6a08ceed56b365d",
+        "sha256": "bbf8df2eae6de78c8ae5c6e62fa8c73210f6c687b0bf3eb8a6a08ceed56b365d",
+        "bytes": 4671408
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/proc-macro2-118694863b4f57c4/build_script_build-118694863b4f57c4",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bbf8df2eae6de78c8ae5c6e62fa8c73210f6c687b0bf3eb8a6a08ceed56b365d",
+        "sha256": "bbf8df2eae6de78c8ae5c6e62fa8c73210f6c687b0bf3eb8a6a08ceed56b365d",
+        "bytes": 4671408
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/pulp-793a249098c8878f/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/762e45d6c9c1624ee236181db3e974ddc5ab0df9d0c16d3797def15cee9973b5",
+        "sha256": "762e45d6c9c1624ee236181db3e974ddc5ab0df9d0c16d3797def15cee9973b5",
+        "bytes": 4722496
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/pulp-793a249098c8878f/build_script_build-793a249098c8878f",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/762e45d6c9c1624ee236181db3e974ddc5ab0df9d0c16d3797def15cee9973b5",
+        "sha256": "762e45d6c9c1624ee236181db3e974ddc5ab0df9d0c16d3797def15cee9973b5",
+        "bytes": 4722496
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/quote-534a3f6234830db8/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/51490cab8f8ebdc8d4ad7006568b68ad01a640d9dea3f36eb9aa3c1c122318db",
+        "sha256": "51490cab8f8ebdc8d4ad7006568b68ad01a640d9dea3f36eb9aa3c1c122318db",
+        "bytes": 4610136
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/quote-534a3f6234830db8/build_script_build-534a3f6234830db8",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/51490cab8f8ebdc8d4ad7006568b68ad01a640d9dea3f36eb9aa3c1c122318db",
+        "sha256": "51490cab8f8ebdc8d4ad7006568b68ad01a640d9dea3f36eb9aa3c1c122318db",
+        "bytes": 4610136
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/radium-c0bcb078cda87adb/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/86b9be9da2534a29cd79b66f13dba7a26416d414cc39155e2ae9dafdbef7cdd1",
+        "sha256": "86b9be9da2534a29cd79b66f13dba7a26416d414cc39155e2ae9dafdbef7cdd1",
+        "bytes": 4534952
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/radium-c0bcb078cda87adb/build_script_build-c0bcb078cda87adb",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/86b9be9da2534a29cd79b66f13dba7a26416d414cc39155e2ae9dafdbef7cdd1",
+        "sha256": "86b9be9da2534a29cd79b66f13dba7a26416d414cc39155e2ae9dafdbef7cdd1",
+        "bytes": 4534952
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/rayon-core-12dd50cbb9957bf3/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b1a24a0d6e6958c436661e15d90653115fdd7aeb3357d51de834f78f2f1ffbb8",
+        "sha256": "b1a24a0d6e6958c436661e15d90653115fdd7aeb3357d51de834f78f2f1ffbb8",
+        "bytes": 4506960
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/rayon-core-12dd50cbb9957bf3/build_script_build-12dd50cbb9957bf3",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b1a24a0d6e6958c436661e15d90653115fdd7aeb3357d51de834f78f2f1ffbb8",
+        "sha256": "b1a24a0d6e6958c436661e15d90653115fdd7aeb3357d51de834f78f2f1ffbb8",
+        "bytes": 4506960
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ref-cast-6e39d42a47886033/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/efd470f0933d6d9e2679d2ee10a51ae39d81d97592c4df95a3af8dcc48103602",
+        "sha256": "efd470f0933d6d9e2679d2ee10a51ae39d81d97592c4df95a3af8dcc48103602",
+        "bytes": 4638200
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ref-cast-6e39d42a47886033/build_script_build-6e39d42a47886033",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/efd470f0933d6d9e2679d2ee10a51ae39d81d97592c4df95a3af8dcc48103602",
+        "sha256": "efd470f0933d6d9e2679d2ee10a51ae39d81d97592c4df95a3af8dcc48103602",
+        "bytes": 4638200
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/serde-c65b1aeac34b8e4a/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7cded85a0bceb34526674c03b7121ed05063e245266cd3f5779808991f9acc49",
+        "sha256": "7cded85a0bceb34526674c03b7121ed05063e245266cd3f5779808991f9acc49",
+        "bytes": 4639112
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/serde-c65b1aeac34b8e4a/build_script_build-c65b1aeac34b8e4a",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7cded85a0bceb34526674c03b7121ed05063e245266cd3f5779808991f9acc49",
+        "sha256": "7cded85a0bceb34526674c03b7121ed05063e245266cd3f5779808991f9acc49",
+        "bytes": 4639112
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/serde_core-5b4ffc9c21978608/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fbbfc7eb0485be782cf1f24dd02f7580f9635b9b37a0f8c69eb44976dee23cea",
+        "sha256": "fbbfc7eb0485be782cf1f24dd02f7580f9635b9b37a0f8c69eb44976dee23cea",
+        "bytes": 4642176
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/serde_core-5b4ffc9c21978608/build_script_build-5b4ffc9c21978608",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fbbfc7eb0485be782cf1f24dd02f7580f9635b9b37a0f8c69eb44976dee23cea",
+        "sha256": "fbbfc7eb0485be782cf1f24dd02f7580f9635b9b37a0f8c69eb44976dee23cea",
+        "bytes": 4642176
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/serde_json-4f0ad48072395fae/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/96833454242c2e2ee909e378309abe738ad0441c3e4bed10717bd951c24ddee6",
+        "sha256": "96833454242c2e2ee909e378309abe738ad0441c3e4bed10717bd951c24ddee6",
+        "bytes": 4511688
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/serde_json-4f0ad48072395fae/build_script_build-4f0ad48072395fae",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/96833454242c2e2ee909e378309abe738ad0441c3e4bed10717bd951c24ddee6",
+        "sha256": "96833454242c2e2ee909e378309abe738ad0441c3e4bed10717bd951c24ddee6",
+        "bytes": 4511688
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/slotmap-1877ea50fbde2fee/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bd29218b96e075b5c9eee8b979db3601b9ac9a73dacddac65b9e0eb1cc7a086d",
+        "sha256": "bd29218b96e075b5c9eee8b979db3601b9ac9a73dacddac65b9e0eb1cc7a086d",
+        "bytes": 4692544
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/slotmap-1877ea50fbde2fee/build_script_build-1877ea50fbde2fee",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/bd29218b96e075b5c9eee8b979db3601b9ac9a73dacddac65b9e0eb1cc7a086d",
+        "sha256": "bd29218b96e075b5c9eee8b979db3601b9ac9a73dacddac65b9e0eb1cc7a086d",
+        "bytes": 4692544
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/thiserror-1ce1a1b53393d11b/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ccc28a1d0ae2f04a6a5d7583a92f2c997a63d3cdcae6ac46402799b0f11d880e",
+        "sha256": "ccc28a1d0ae2f04a6a5d7583a92f2c997a63d3cdcae6ac46402799b0f11d880e",
+        "bytes": 4654632
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/thiserror-1ce1a1b53393d11b/build_script_build-1ce1a1b53393d11b",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/ccc28a1d0ae2f04a6a5d7583a92f2c997a63d3cdcae6ac46402799b0f11d880e",
+        "sha256": "ccc28a1d0ae2f04a6a5d7583a92f2c997a63d3cdcae6ac46402799b0f11d880e",
+        "bytes": 4654632
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/thiserror-9728e761b8b1ce8b/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4b9ba60462b63ba0a52f8339ec66a23f2f9e40b4c40e14bf2250869bc0ec624a",
+        "sha256": "4b9ba60462b63ba0a52f8339ec66a23f2f9e40b4c40e14bf2250869bc0ec624a",
+        "bytes": 4691712
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/thiserror-9728e761b8b1ce8b/build_script_build-9728e761b8b1ce8b",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4b9ba60462b63ba0a52f8339ec66a23f2f9e40b4c40e14bf2250869bc0ec624a",
+        "sha256": "4b9ba60462b63ba0a52f8339ec66a23f2f9e40b4c40e14bf2250869bc0ec624a",
+        "bytes": 4691712
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ufbx-a8f24f050cfc5722/out/16da2a47e0325a12-ufbx.o",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/26db38883e51bceff354741969b526975d674cea1de3dfbafcd251a94853a207",
+        "sha256": "26db38883e51bceff354741969b526975d674cea1de3dfbafcd251a94853a207",
+        "bytes": 6744568
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ufbx-a8f24f050cfc5722/out/flag_check",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/99eacfae97fc769a93c048bda18f674a06e56f1acea359edec3f3dc5381a0253",
+        "sha256": "99eacfae97fc769a93c048bda18f674a06e56f1acea359edec3f3dc5381a0253",
+        "bytes": 1312
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ufbx-cb11e11194ddda2c/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/cd7ea4830d66c56736d1b380c0040eb8c65b917306eb60ce4b867498309812e0",
+        "sha256": "cd7ea4830d66c56736d1b380c0040eb8c65b917306eb60ce4b867498309812e0",
+        "bytes": 6049072
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/ufbx-cb11e11194ddda2c/build_script_build-cb11e11194ddda2c",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/cd7ea4830d66c56736d1b380c0040eb8c65b917306eb60ce4b867498309812e0",
+        "sha256": "cd7ea4830d66c56736d1b380c0040eb8c65b917306eb60ce4b867498309812e0",
+        "bytes": 6049072
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wayland-sys-6cca064e9e567781/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/dc431290c13c2c90599411a075697cec9402ee953db99118a9e57e6850b913a9",
+        "sha256": "dc431290c13c2c90599411a075697cec9402ee953db99118a9e57e6850b913a9",
+        "bytes": 4969256
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wayland-sys-6cca064e9e567781/build_script_build-6cca064e9e567781",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/dc431290c13c2c90599411a075697cec9402ee953db99118a9e57e6850b913a9",
+        "sha256": "dc431290c13c2c90599411a075697cec9402ee953db99118a9e57e6850b913a9",
+        "bytes": 4969256
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wgpu-7d0b3a6618d65937/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/353bf4a703ca3e2c1f5cd4dd5da95848ff42bbadddb95aeea2310f6e07bca9d6",
+        "sha256": "353bf4a703ca3e2c1f5cd4dd5da95848ff42bbadddb95aeea2310f6e07bca9d6",
+        "bytes": 4753304
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wgpu-7d0b3a6618d65937/build_script_build-7d0b3a6618d65937",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/353bf4a703ca3e2c1f5cd4dd5da95848ff42bbadddb95aeea2310f6e07bca9d6",
+        "sha256": "353bf4a703ca3e2c1f5cd4dd5da95848ff42bbadddb95aeea2310f6e07bca9d6",
+        "bytes": 4753304
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wgpu-core-656f3cb852bbbadc/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/e513f5aba0df7f620cec485afec1f3199bf249de4f9b8a185ab9163210ac8628",
+        "sha256": "e513f5aba0df7f620cec485afec1f3199bf249de4f9b8a185ab9163210ac8628",
+        "bytes": 4644816
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wgpu-core-656f3cb852bbbadc/build_script_build-656f3cb852bbbadc",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/e513f5aba0df7f620cec485afec1f3199bf249de4f9b8a185ab9163210ac8628",
+        "sha256": "e513f5aba0df7f620cec485afec1f3199bf249de4f9b8a185ab9163210ac8628",
+        "bytes": 4644816
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wgpu-hal-95686a720afd71d8/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/5b095b9c6d5bcd0146da8b88c6fcabe4d69c0fbb493b1ebe1341790a1b16b3f2",
+        "sha256": "5b095b9c6d5bcd0146da8b88c6fcabe4d69c0fbb493b1ebe1341790a1b16b3f2",
+        "bytes": 4642648
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/wgpu-hal-95686a720afd71d8/build_script_build-95686a720afd71d8",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/5b095b9c6d5bcd0146da8b88c6fcabe4d69c0fbb493b1ebe1341790a1b16b3f2",
+        "sha256": "5b095b9c6d5bcd0146da8b88c6fcabe4d69c0fbb493b1ebe1341790a1b16b3f2",
+        "bytes": 4642648
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/zerocopy-e30d4f7a7c8d6f49/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/1c9e63346446ca04f0436c6f006df4c6b68fa09b8180139319b0e67c8bd12921",
+        "sha256": "1c9e63346446ca04f0436c6f006df4c6b68fa09b8180139319b0e67c8bd12921",
+        "bytes": 4710160
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/zerocopy-e30d4f7a7c8d6f49/build_script_build-e30d4f7a7c8d6f49",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/1c9e63346446ca04f0436c6f006df4c6b68fa09b8180139319b0e67c8bd12921",
+        "sha256": "1c9e63346446ca04f0436c6f006df4c6b68fa09b8180139319b0e67c8bd12921",
+        "bytes": 4710160
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/zmij-892f4c0b8f122fb3/build-script-build",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/33ef1622c7edf83a8acdeb2f803a51162d0adc34a16b4f366e36ffa1b054a4a2",
+        "sha256": "33ef1622c7edf83a8acdeb2f803a51162d0adc34a16b4f366e36ffa1b054a4a2",
+        "bytes": 4615480
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/build/zmij-892f4c0b8f122fb3/build_script_build-892f4c0b8f122fb3",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/33ef1622c7edf83a8acdeb2f803a51162d0adc34a16b4f366e36ffa1b054a4a2",
+        "sha256": "33ef1622c7edf83a8acdeb2f803a51162d0adc34a16b4f366e36ffa1b054a4a2",
+        "bytes": 4615480
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libbytemuck_derive-00ec01da246ec7cf.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/c19a28f0744033102814a7372e90a4033b165fba09ba742c0401eecf2a8130be",
+        "sha256": "c19a28f0744033102814a7372e90a4033b165fba09ba742c0401eecf2a8130be",
+        "bytes": 8314672
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libderive_more_impl-903046ecf0886df2.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/0c59d2303a0d0a20234885cdd8d7a8be07f4afb4e296361af660c6ad7cc5eb86",
+        "sha256": "0c59d2303a0d0a20234885cdd8d7a8be07f4afb4e296361af660c6ad7cc5eb86",
+        "bytes": 10949304
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libdocument_features-dcbc6e6d47b37415.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/b80ec55d355ebedf801d4caf13f02be4780432562216549f21f25e707ccd2a4e",
+        "sha256": "b80ec55d355ebedf801d4caf13f02be4780432562216549f21f25e707ccd2a4e",
+        "bytes": 6215584
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libenum_primitive_derive-cd4193671d703c04.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/185b72f7364f602dfd53c049946d8f30c380d12d0b5f5c88f3869f1ea5ce31dd",
+        "sha256": "185b72f7364f602dfd53c049946d8f30c380d12d0b5f5c88f3869f1ea5ce31dd",
+        "bytes": 8526360
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libgltf_derive-058b6b0e101df314.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/c8400d6df97b578791f3d4f1478eb6db0ddb19051a9653adce706f0d26b052f1",
+        "sha256": "c8400d6df97b578791f3d4f1478eb6db0ddb19051a9653adce706f0d26b052f1",
+        "bytes": 8280480
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/liblogos_derive-f15a47fcd7398c7a.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/57c021307fd90347e93da4daed77343725084c06b4af5a575f214f18a2f2d260",
+        "sha256": "57c021307fd90347e93da4daed77343725084c06b4af5a575f214f18a2f2d260",
+        "bytes": 13185680
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libmoss_ecs_derive-6fef22f865935b98.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/28550f7b818451986abff5a1dc8c18f51d8f397d47a8dd3c3049955adf31aafe",
+        "sha256": "28550f7b818451986abff5a1dc8c18f51d8f397d47a8dd3c3049955adf31aafe",
+        "bytes": 8223792
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libnalgebra_macros-6e60dbe6b48a971a.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/02bca0ab4bb7b59b2d60d704f5854645e2337dff22c2ea2de5495b2d9a00b0ca",
+        "sha256": "02bca0ab4bb7b59b2d60d704f5854645e2337dff22c2ea2de5495b2d9a00b0ca",
+        "bytes": 8331432
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libnum_derive-2a314e4b53b51952.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fdcf9d595d51afc5cc2c3e1a7ee826667b4ed31a294f24573976fc7f754b97a6",
+        "sha256": "fdcf9d595d51afc5cc2c3e1a7ee826667b4ed31a294f24573976fc7f754b97a6",
+        "bytes": 8715776
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libpaste-d353bb6c6e6bed11.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/d5c9601e0e52992fa40cff26393109a026179d5cd674ea4be1191f14f43e7bf4",
+        "sha256": "d5c9601e0e52992fa40cff26393109a026179d5cd674ea4be1191f14f43e7bf4",
+        "bytes": 5961264
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libpastey-ea3f9b4cd44c00f1.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/7f02ee1a4126334ca793993c9656b4e2c575e86e2f3c288225d75128cc05ffec",
+        "sha256": "7f02ee1a4126334ca793993c9656b4e2c575e86e2f3c288225d75128cc05ffec",
+        "bytes": 5990744
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libref_cast_impl-04e3c6104183285d.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/8d39d6acbfa8b9ddc4d13b6d64137d14910d297c44c95830705bed79bda352c8",
+        "sha256": "8d39d6acbfa8b9ddc4d13b6d64137d14910d297c44c95830705bed79bda352c8",
+        "bytes": 7487160
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libschemars_derive-b1fdaeab818c409a.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/8733b83406da3909cb923ac34ba898ba9f61a8bd46cefafdfed6a08f345298b8",
+        "sha256": "8733b83406da3909cb923ac34ba898ba9f61a8bd46cefafdfed6a08f345298b8",
+        "bytes": 9431088
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libserde_derive-cb50176c97387c82.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/0e56062accbbd458d5396b625aaa95927596e8e7ecfd73ea204ff4ac5150a6eb",
+        "sha256": "0e56062accbbd458d5396b625aaa95927596e8e7ecfd73ea204ff4ac5150a6eb",
+        "bytes": 9432632
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libstrum_macros-ba961bf4a6121f63.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/4c48b4630a874b021eddaf7d19e38f8bf5f290a7ac21d1c4e8af2ff8027fd744",
+        "sha256": "4c48b4630a874b021eddaf7d19e38f8bf5f290a7ac21d1c4e8af2ff8027fd744",
+        "bytes": 10032952
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libthiserror_impl-036bbff58594a315.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/3d6c6a37732fd8078cca17717d71d8354140da3029fcbd5a40e38b11a688b0d0",
+        "sha256": "3d6c6a37732fd8078cca17717d71d8354140da3029fcbd5a40e38b11a688b0d0",
+        "bytes": 9260792
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libthiserror_impl-8afa7caf8155c143.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/fec6f40bf4d005d9de7096145dd35afb4f2c148288f94fdcc7dcae6830dff567",
+        "sha256": "fec6f40bf4d005d9de7096145dd35afb4f2c148288f94fdcc7dcae6830dff567",
+        "bytes": 8371072
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libtracing_attributes-269057c01cd36132.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/2b2110be944b0fe2d76a0680bd0ba7ba12a5b15a4393ef9fa7783f59d2caffab",
+        "sha256": "2b2110be944b0fe2d76a0680bd0ba7ba12a5b15a4393ef9fa7783f59d2caffab",
+        "bytes": 9761832
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/libzerocopy_derive-c9f13e518eb108d7.so",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/f83f94e90365764c862e2b8ee1b1f8734839cc093f02a451132c351ae8cccf4c",
+        "sha256": "f83f94e90365764c862e2b8ee1b1f8734839cc093f02a451132c351ae8cccf4c",
+        "bytes": 9911520
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/deps/migration_c-d014dfffb4cd23b0",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/9a17bf5024bd2caa8e3e68a5d7b678c9e2a3b9296a181dff0da32ff209ed19d4",
+        "sha256": "9a17bf5024bd2caa8e3e68a5d7b678c9e2a3b9296a181dff0da32ff209ed19d4",
+        "bytes": 11231512
+      },
+      {
+        "original": "/mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-real/release/migration-c",
+        "retained": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/retained-target-binaries/9a17bf5024bd2caa8e3e68a5d7b678c9e2a3b9296a181dff0da32ff209ed19d4",
+        "sha256": "9a17bf5024bd2caa8e3e68a5d7b678c9e2a3b9296a181dff0da32ff209ed19d4",
+        "bytes": 11231512
+      }
+    ],
+    "deleted": false
+  }
+]

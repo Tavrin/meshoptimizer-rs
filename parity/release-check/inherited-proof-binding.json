@@ -1,0 +1,28 @@
+{
+  "C": {
+    "revision": "f40f5af",
+    "fuzz_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/fuzz-final/fuzz.json",
+    "src_hashes_verified": 27,
+    "passed": true,
+    "cpu_hours_by_target": {
+      "vertex_cache": 4.150713888888889,
+      "overdraw": 4.237997222222223,
+      "simplify": 4.152630555555556,
+      "simplify_with_attributes": 4.152119444444443,
+      "simplify_scale": 4.2314083333333325
+    }
+  },
+  "F": {
+    "revision": "a7688ef",
+    "fuzz_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/fuzz-final/fuzz.json",
+    "src_hashes_verified": 27,
+    "passed": true,
+    "cpu_hours_by_target": {
+      "vertex_cache": 4.122197222222224,
+      "overdraw": 4.144844444444445,
+      "simplify": 4.312708333333332,
+      "simplify_with_attributes": 4.216372222222223,
+      "simplify_scale": 4.117580555555556
+    }
+  }
+}

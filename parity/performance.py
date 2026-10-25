@@ -25,7 +25,7 @@ class Paired:
             raise
 
     def read(self, count):
-        if not select.select([self.process.stdout], [], [], 180)[0]:
+        if not select.select([self.process.stdout], [], [], 600)[0]:
             raise ValueError('paired driver timeout')
         data = self.process.stdout.read(count)
         if len(data) != count:

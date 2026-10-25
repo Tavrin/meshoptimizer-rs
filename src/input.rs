@@ -279,6 +279,22 @@ struct View<'a> {
     offset: usize,
 }
 
+#[inline(always)]
+fn position_bytes<const BIG_ENDIAN: bool>(b: &[u8; 12]) -> [f32; 3] {
+    [
+        [b[0], b[1], b[2], b[3]],
+        [b[4], b[5], b[6], b[7]],
+        [b[8], b[9], b[10], b[11]],
+    ]
+    .map(|word| {
+        f32::from_bits(if BIG_ENDIAN {
+            u32::from_be_bytes(word)
+        } else {
+            u32::from_le_bytes(word)
+        })
+    })
+}
+
 fn layout(
     len: usize,
     count: usize,
@@ -356,6 +372,28 @@ impl<'a> View<'a> {
             stride,
             offset,
         })
+    }
+    #[inline(always)]
+    fn position(self, vertex: usize) -> Option<[f32; 3]> {
+        if vertex >= self.count {
+            return None;
+        }
+        // Position views always have width three. Check the whole XYZ record
+        // once, preserving support for unaligned byte offsets and either order.
+        match self.storage {
+            Storage::Floats(data) => {
+                let start = self.offset + vertex * self.stride;
+                Some(*data.get(start..)?.first_chunk::<3>()?)
+            }
+            Storage::Bytes(data, order) => {
+                let start = self.offset + vertex * self.stride;
+                let b = data.get(start..)?.first_chunk::<12>()?;
+                Some(match order {
+                    ByteOrder::LittleEndian => position_bytes::<false>(b),
+                    ByteOrder::BigEndian => position_bytes::<true>(b),
+                })
+            }
+        }
     }
     #[inline(always)]
     fn get(self, vertex: usize, component: usize) -> Option<f32> {
@@ -514,9 +552,7 @@ impl<'a> Positions<'a> {
         };
         match self.0 {
             PositionStorage::Packed(p) => p.get(index).copied(),
-            PositionStorage::View(v) => {
-                Some([v.get(index, 0)?, v.get(index, 1)?, v.get(index, 2)?])
-            }
+            PositionStorage::View(v) => v.position(index),
         }
     }
     pub(crate) fn packed_values(self) -> Option<&'a [[f32; 3]]> {
@@ -556,11 +592,31 @@ impl<'a> Positions<'a> {
                     visit(value)?;
                 }
             }
-            PositionStorage::View(_) => {
-                for i in 0..self.len() {
-                    visit(self.at(i)?)?;
+            PositionStorage::View(v) => match v.storage {
+                Storage::Floats(data) => {
+                    for record in data[v.offset..].chunks(v.stride).take(v.count) {
+                        visit(
+                            *record
+                                .first_chunk::<3>()
+                                .expect("validated position record"),
+                        )?;
+                    }
                 }
-            }
+                Storage::Bytes(data, ByteOrder::LittleEndian) => {
+                    for record in data[v.offset..].chunks(v.stride).take(v.count) {
+                        visit(position_bytes::<false>(
+                            record.first_chunk().expect("validated position record"),
+                        ))?;
+                    }
+                }
+                Storage::Bytes(data, ByteOrder::BigEndian) => {
+                    for record in data[v.offset..].chunks(v.stride).take(v.count) {
+                        visit(position_bytes::<true>(
+                            record.first_chunk().expect("validated position record"),
+                        ))?;
+                    }
+                }
+            },
         }
         Ok(())
     }
@@ -575,7 +631,122 @@ impl<'a> Positions<'a> {
         }
         match self.0 {
             PositionStorage::Packed(values) => work.scan(values.iter().copied(), visit),
-            PositionStorage::View(_) => work.scan(0..self.len(), |i| visit(self.at(i)?)),
+            // Constructors validate every record boundary. Dispatch layout and
+            // byte order once, while Work::scan retains exact failure-prefix
+            // accounting and the original callback/coordinate order.
+            PositionStorage::View(v) => match v.storage {
+                Storage::Floats(data) => {
+                    work.scan(data[v.offset..].chunks(v.stride).take(v.count), |record| {
+                        visit(
+                            *record
+                                .first_chunk::<3>()
+                                .expect("validated position record"),
+                        )
+                    })
+                }
+                Storage::Bytes(data, ByteOrder::LittleEndian) => {
+                    work.scan(data[v.offset..].chunks(v.stride).take(v.count), |record| {
+                        visit(position_bytes::<false>(
+                            record.first_chunk().expect("validated position record"),
+                        ))
+                    })
+                }
+                Storage::Bytes(data, ByteOrder::BigEndian) => {
+                    work.scan(data[v.offset..].chunks(v.stride).take(v.count), |record| {
+                        visit(position_bytes::<true>(
+                            record.first_chunk().expect("validated position record"),
+                        ))
+                    })
+                }
+            },
+        }
+    }
+    /// Dispatch indexed triangle reads once, preserving checked reads and the
+    /// exact per-triangle work/failure prefix through Work::scan.
+    #[inline(always)]
+    pub(crate) fn for_each_triangle_counted(
+        self,
+        triangles: &[[u32; 3]],
+        work: &mut crate::workspace::Work,
+        visit: impl FnMut([[f32; 3]; 3]) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        #[inline(always)]
+        fn scan(
+            triangles: &[[u32; 3]],
+            work: &mut crate::workspace::Work,
+            read: impl Fn(usize) -> Result<[f32; 3], Error>,
+            mut visit: impl FnMut([[f32; 3]; 3]) -> Result<(), Error>,
+        ) -> Result<(), Error> {
+            work.scan(triangles.iter(), |tri| {
+                visit([
+                    read(tri[0] as usize)?,
+                    read(tri[1] as usize)?,
+                    read(tri[2] as usize)?,
+                ])
+            })
+        }
+        if self.1.is_some() {
+            return scan(triangles, work, |i| self.at(i), visit);
+        }
+        match self.0 {
+            PositionStorage::Packed(values) => scan(
+                triangles,
+                work,
+                |i| values.get(i).copied().ok_or(Error::IndexOutOfBounds),
+                visit,
+            ),
+            PositionStorage::View(v) => {
+                // Layout constructors have checked every XYZ record boundary.
+                // Keep the view count check even if the backing slice is longer.
+                match v.storage {
+                    Storage::Floats(data) => scan(
+                        triangles,
+                        work,
+                        |i| {
+                            if i >= v.count {
+                                return Err(Error::IndexOutOfBounds);
+                            }
+                            let start = v.offset + i * v.stride;
+                            Ok(*data[start..]
+                                .first_chunk::<3>()
+                                .expect("validated position record"))
+                        },
+                        visit,
+                    ),
+                    Storage::Bytes(data, ByteOrder::LittleEndian) => scan(
+                        triangles,
+                        work,
+                        |i| {
+                            if i >= v.count {
+                                return Err(Error::IndexOutOfBounds);
+                            }
+                            let start = v.offset + i * v.stride;
+                            Ok(position_bytes::<false>(
+                                data[start..]
+                                    .first_chunk()
+                                    .expect("validated position record"),
+                            ))
+                        },
+                        visit,
+                    ),
+                    Storage::Bytes(data, ByteOrder::BigEndian) => scan(
+                        triangles,
+                        work,
+                        |i| {
+                            if i >= v.count {
+                                return Err(Error::IndexOutOfBounds);
+                            }
+                            let start = v.offset + i * v.stride;
+                            Ok(position_bytes::<true>(
+                                data[start..]
+                                    .first_chunk()
+                                    .expect("validated position record"),
+                            ))
+                        },
+                        visit,
+                    ),
+                }
+            }
         }
     }
     #[inline(always)]
@@ -669,5 +840,70 @@ impl<'a> Attributes<'a> {
     pub(crate) fn mapped(self, remap: &'a [u32]) -> Self {
         debug_assert!(self.1.is_none());
         Self(self.0, Some(remap))
+    }
+}
+
+#[cfg(test)]
+mod triangle_tests {
+    use super::*;
+    use crate::{Limits, Workspace};
+    use alloc::{vec, vec::Vec};
+
+    #[test]
+    fn specialized_triangle_reads_keep_bits_errors_and_work_prefixes() {
+        let points = [[-0.0f32, 1.0, 2.0], [3.0, 4.0, 5.0], [6.0, 7.0, 8.0]];
+        let mut floats = vec![99.0; 12];
+        let mut little = vec![99; 49];
+        let mut big = little.clone();
+        for (i, point) in points.iter().enumerate() {
+            floats[i * 4 + 1..i * 4 + 4].copy_from_slice(point);
+            for (j, value) in point.iter().enumerate() {
+                let start = 1 + i * 16 + j * 4;
+                little[start..start + 4].copy_from_slice(&value.to_le_bytes());
+                big[start..start + 4].copy_from_slice(&value.to_be_bytes());
+            }
+        }
+        let views = [
+            Positions::from_packed(&points),
+            Positions::from_interleaved(&floats, 3, 4, 1).unwrap(),
+            Positions::from_bytes(&little, 3, 16, 1, ByteOrder::LittleEndian).unwrap(),
+            Positions::from_bytes(&big, 3, 16, 1, ByteOrder::BigEndian).unwrap(),
+        ];
+        let remap = [2, 0, 1];
+        let triangles = [[0, 1, 2], [2, 1, 0], [0, 3, 1]];
+        for view in views.into_iter().flat_map(|v| [v, v.mapped(&remap)]) {
+            for max_work in 0..=4 {
+                let mut a = Workspace::new(Limits {
+                    max_work,
+                    ..Limits::default()
+                });
+                let mut b = Workspace::new(Limits {
+                    max_work,
+                    ..Limits::default()
+                });
+                let mut old = Vec::new();
+                let mut new = Vec::new();
+                let mut aw = a.begin();
+                let expected = aw.scan(triangles.iter(), |t| {
+                    old.push(
+                        [
+                            view.at(t[0] as usize)?,
+                            view.at(t[1] as usize)?,
+                            view.at(t[2] as usize)?,
+                        ]
+                        .map(|p| p.map(f32::to_bits)),
+                    );
+                    Ok(())
+                });
+                a.finish(&aw);
+                let mut bw = b.begin();
+                let observed = view.for_each_triangle_counted(&triangles, &mut bw, |p| {
+                    new.push(p.map(|p| p.map(f32::to_bits)));
+                    Ok(())
+                });
+                b.finish(&bw);
+                assert_eq!((observed, new, b.usage()), (expected, old, a.usage()));
+            }
+        }
     }
 }

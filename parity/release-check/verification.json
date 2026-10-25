@@ -1,0 +1,35 @@
+{
+  "C": {
+    "registration_before_start": true,
+    "cases": 204,
+    "warmup_pairs_per_case": 1,
+    "measured_pairs_per_case": 12,
+    "measured_pairs": 2448,
+    "case_regressions": [
+      "overdraw/tiny/seam-heavy/allocating/a0/rNone",
+      "vertex_cache/million/smooth/allocating/a0/rNone",
+      "overdraw/million/smooth/allocating/a0/rNone",
+      "overdraw/million/smooth/caller-buffer/a0/rNone",
+      "simplify_with_attributes/million/smooth/allocating/a12/r0.125",
+      "simplify_with_attributes/million/disconnected/allocating/a8/r0.25"
+    ],
+    "family_regressions": [],
+    "record_sha256": "981c116eb67857e3d8d950b024e5cece916f86014aeb4c3839d489ff5ccd4bc2"
+  },
+  "F": {
+    "registration_before_start": true,
+    "cases": 204,
+    "warmup_pairs_per_case": 1,
+    "measured_pairs_per_case": 12,
+    "measured_pairs": 2448,
+    "case_regressions": [
+      "simplify_with_attributes/tiny/disconnected/caller-buffer/a8/r0.25",
+      "simplify_with_attributes/tiny/sparse/allocating/a1/r0.5",
+      "simplify_with_attributes/tiny/sparse/caller-buffer/a12/r0.125",
+      "overdraw/medium/smooth/caller-buffer/a0/rNone"
+    ],
+    "family_regressions": [],
+    "record_sha256": "7589728b046144efee79950b53c6a462df6b1d01249feb438a773f83947651cd"
+  },
+  "src_diff_d74b914_to_candidate": ""
+}

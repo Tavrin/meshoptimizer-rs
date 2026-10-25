@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Overdraw reuses the centroid accumulated during finite-position validation
+  and dispatches indexed triangle reads by storage layout once per cluster.
+  Output bytes, arithmetic order, validation precedence, workspace accounting
+  and work-limit failure prefixes are unchanged.
+
+- Simplification reuses its existing position allocation for original strided
+  coordinates during position remapping, then normalizes them in place.
+- Position views read checked XYZ records together and dispatch sequential
+  scans by storage layout and byte order once.
+- Positional-quadric validation and cached inverse-weight refresh share a pass.
+  Public APIs, default limits, counted work and scalar arithmetic are unchanged.
+
+### Performance
+
+- On the three measured real meshes, simplify Rust/C++ 1.3 (scalar) medians
+  changed from 1.380, 1.298 and 1.052 in 0.2.3 to 0.963, 0.947 and 0.941,
+  respectively. See the [r2 measurements](parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md).
+- Overdraw optimisation is about 1.47–1.60× C++ 1.3 (scalar) on the largest
+  real meshes measured, a known exception. The
+  [v2 release check](parity/release-check-v2/REPORT.md) passes its registered
+  family and case rules against 0.2.3.
+
 ## [0.2.3] - 2026-10-24
 
 Memory-limit fix. There are no API changes. Output is byte-identical to 0.2.2

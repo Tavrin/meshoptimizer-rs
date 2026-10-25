@@ -18,7 +18,7 @@ pub fn optimize_overdraw(
 ) -> Result<Vec<u32>, Error> {
     let mut work = workspace.begin();
     let result = (|| {
-        validate(indices, positions, threshold, &mut work)?;
+        let mesh_centroid = validate(indices, positions, threshold, &mut work)?;
         prepare(
             indices.len(),
             positions.len(),
@@ -29,7 +29,7 @@ pub fn optimize_overdraw(
         kernel(
             &mut destination,
             indices,
-            positions,
+            (positions, mesh_centroid),
             threshold,
             workspace,
             &mut work,
@@ -55,7 +55,7 @@ pub fn optimize_overdraw_into(
 ) -> Result<(), Error> {
     let mut work = workspace.begin();
     let result = (|| {
-        validate(indices, positions, threshold, &mut work)?;
+        let mesh_centroid = validate(indices, positions, threshold, &mut work)?;
         if destination.len() < indices.len() {
             return Err(Error::BufferTooSmall);
         }
@@ -63,7 +63,7 @@ pub fn optimize_overdraw_into(
         kernel(
             destination,
             indices,
-            positions,
+            (positions, mesh_centroid),
             threshold,
             workspace,
             &mut work,
@@ -92,17 +92,22 @@ fn validate(
     positions: Positions<'_>,
     threshold: f32,
     work: &mut Work,
-) -> Result<(), Error> {
+) -> Result<[f32; 3], Error> {
     topology(indices, positions.len(), work)?;
     if !threshold.is_finite() {
         return Err(Error::InvalidParameter);
     }
+    let mut centroid = [0f32; 3];
     positions.for_each_counted(work, |p| {
         if !p.iter().all(|x| x.is_finite()) {
             return Err(Error::NumericalFailure);
         }
+        for j in 0..3 {
+            centroid[j] += p[j];
+        }
         Ok(())
-    })
+    })?;
+    Ok(centroid)
 }
 
 fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Error> {
@@ -143,7 +148,7 @@ fn finite(x: f32) -> Result<f32, Error> {
 fn kernel(
     dest: &mut [u32],
     indices: &[u32],
-    positions: Positions<'_>,
+    geometry: (Positions<'_>, [f32; 3]),
     threshold: f32,
     ws: &mut Workspace,
     work: &mut Work,
@@ -152,6 +157,7 @@ fn kernel(
     if indices.is_empty() {
         return Ok(());
     }
+    let (positions, mut mesh_centroid) = geometry;
     let faces = indices.len() / 3;
     let triangles = indices.as_chunks::<3>().0;
     let v = positions.len();
@@ -216,13 +222,10 @@ fn kernel(
     ws.prepare([ints, soft_count, 0, soft_count], output_bytes)?;
     let (_, rest) = ws.integers.split_at_mut(v);
     let (order, soft) = rest.split_at_mut(faces);
-    let mut mesh_centroid = [0f32; 3];
-    positions.for_each_counted(work, |p| {
-        for j in 0..3 {
-            mesh_centroid[j] += p[j];
-        }
-        Ok(())
-    })?;
+    // Validation already accumulated these coordinates in the same order.
+    // Retain the original centroid scan's charge here, including its exact
+    // exhaustion prefix, and defer numerical checks until this original point.
+    work.scan(0..v, |_| Ok(()))?;
     for x in &mut mesh_centroid {
         *x = finite(*x)? / v as f32;
     }
@@ -239,31 +242,32 @@ fn kernel(
         let mut area_sum = 0f32;
         let mut centroid = [0f32; 3];
         let mut normal = [0f32; 3];
-        for tri in indices[start..end].as_chunks::<3>().0.iter() {
-            work.add(1)?;
-            let p0 = positions.at(tri[0] as usize)?;
-            let p1 = positions.at(tri[1] as usize)?;
-            let p2 = positions.at(tri[2] as usize)?;
-            let mut p10 = [0f32; 3];
-            let mut p20 = [0f32; 3];
-            for j in 0..3 {
-                p10[j] = p1[j] - p0[j];
-                p20[j] = p2[j] - p0[j];
-            }
-            let n = [
-                p10[1] * p20[2] - p10[2] * p20[1],
-                p10[2] * p20[0] - p10[0] * p20[2],
-                p10[0] * p20[1] - p10[1] * p20[0],
-            ];
-            // A nonfinite squared norm produces a nonfinite area. Areas are
-            // nonnegative, so the checked cluster sum below cannot hide it.
-            let area = sqrt_cache.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-            for j in 0..3 {
-                centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
-                normal[j] += n[j];
-            }
-            area_sum += area;
-        }
+        positions.for_each_triangle_counted(
+            indices[start..end].as_chunks::<3>().0,
+            work,
+            |[p0, p1, p2]| {
+                let mut p10 = [0f32; 3];
+                let mut p20 = [0f32; 3];
+                for j in 0..3 {
+                    p10[j] = p1[j] - p0[j];
+                    p20[j] = p2[j] - p0[j];
+                }
+                let n = [
+                    p10[1] * p20[2] - p10[2] * p20[1],
+                    p10[2] * p20[0] - p10[0] * p20[2],
+                    p10[0] * p20[1] - p10[1] * p20[0],
+                ];
+                // A nonfinite squared norm produces a nonfinite area. Areas are
+                // nonnegative, so the checked cluster sum below cannot hide it.
+                let area = sqrt_cache.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+                for j in 0..3 {
+                    centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
+                    normal[j] += n[j];
+                }
+                area_sum += area;
+                Ok(())
+            },
+        )?;
         finite(area_sum)?;
         let inv_area = if area_sum == 0. {
             0.

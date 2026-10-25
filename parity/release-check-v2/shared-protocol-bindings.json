@@ -1,0 +1,8 @@
+{
+  "git_revision": "8976c2b09da47de15efeebb766ad98f78c6ba84c",
+  "diff_from_f40f5af_empty": true,
+  "files": {
+    "parity/performance.py": "3a3fe3d7df156f62b1a73e248a17aac5ac548839e315d5194a58514ed5fb3d27",
+    "parity/runner.py": "9e6a666057c54f5747ae6a7f7bef4dc0cd09cd63bf2353a2e4e38df1fe26afbf"
+  }
+}
