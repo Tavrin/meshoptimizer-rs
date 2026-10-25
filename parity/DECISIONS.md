@@ -8266,3 +8266,8 @@ All required spec correctness proof completed: foundation gates, native/WASM dif
 The extra independent retained-buffer rehash was not a named spec gate. It remained queued behind the critical RAM request; only its waiting wrapper was cancelled before its audit payload started. It is explicitly NOT RUN, separate from the completed required proof and without changing any bar or verdict. Rerunning this optional audit later is cheap and needs no remeasurement. Original source/executable manifests, replay buffers and timed records remain retained. No running fuzz/frozen job was killed by the agent.
 
 Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LARGE_MESH_R2_RESULTS.json. Evidence: /mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/. Reversal cost for the unmerged fixes is cheap; the registered decision and retained samples must not be rewritten. Owner performs the one review and any release decision. No merge/tag/publish.
+
+
+## Bounds layout check — post-fix1 methodology disclosure
+
+2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the Moss coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through SPEC-bounds-layout-check.md. This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.
