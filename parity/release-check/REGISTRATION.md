@@ -36,4 +36,3 @@ UTC: 2026-10-25T10:07:33.182526+00:00
     campaign under these exact rules. It releases if it passes. Otherwise the verdict is NO RELEASE.
   - NO RELEASE: anything else.
   - No retuning, and no reruns to change a verdict.
-
