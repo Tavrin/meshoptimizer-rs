@@ -24,6 +24,11 @@ attempted instruction-sampled call graphs; postprocessing failures and raw captu
 only if the 20-pair interval is unresolved. Aggregate ratios use stage-1 medians.
 There is no load threshold, favorable-pair selection or verdict-driven rerun.
 
-The scratch controller waits for bet 0's completion receipt before any case,
-yields to train jobs between cases, releases heavy admission between cases, and
-stops after the first mesh in both profiles for the milestone disposition.
+The original registration required bet 0 completion. The owner's speed amendment
+removes all other-meshopt waits and legacy GPU/scoreboard admission filters; ops
+and train admission alone may block jobs. The controller yields to train jobs
+between cases and stops after the first mesh in both profiles for the milestone
+disposition. Before its A/B pairs, each profile collects 20 alternating C++/C++
+pairs on that same anchor/core. Their paired-log interval floor reports noise;
+it changes no bar, sampling rule, exclusion or verdict. Load averages and sibling
+utilization accompany each timing burst.

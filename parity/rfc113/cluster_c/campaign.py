@@ -149,7 +149,7 @@ def train_wait():
 
 
 def timed_case(profile, index):
-    assert (ART/'BET0_FINISHED.json').is_file(), 'bet 0 must finish before timing'
+    assert (ART/'OWNER-ADMISSION-AMENDMENT.json').is_file(), 'owner admission amendment must be recorded'
     frozen=json.loads((ART/'READY.json').read_text())
     assert all(clod.sha(ROOT/p)==h for p,h in frozen['sources'].items()), 'source identity drift'
     assert clod.sha(ART/'REGISTRATION.md')==frozen['registration_sha256']
@@ -175,8 +175,8 @@ def timed_case(profile, index):
         nonlocal pool,burst,selection,fixed
         if burst and time.monotonic()-burst['_start']>=840:
             close();event('PAUSE',reason='840-second burst cooldown');protocol.idle_wait(60)
-        while not protocol.gate():
-            close();event('PAUSE',reason='existing timing.py admission');protocol.idle_wait()
+        # Owner amendment: only ops/train admission may block this campaign.
+        # Heavy admission governs ops; the controller yields to trains between cases.
         if pool is None:
             selection=fixed if stage2 and fixed else protocol.choose_core()
             if stage2:fixed=selection
@@ -200,6 +200,25 @@ def timed_case(profile, index):
         outputs={s:d.run(data)[0] for s,d in pool.items()}
         assert outputs['cpp']==outputs['rust']
         if case['set']=='S1':assert clod.sha(case['oracle'])==hashlib.sha256(outputs['rust']).hexdigest()
+        if index == 0:
+            aa=[];second=None;aa_core=None;aa_load=os.getloadavg()
+            try:
+                for i in range(20):
+                    ready()
+                    if second is None or aa_core != selection['core']:
+                        if second is not None:second.close()
+                        aa_core=selection['core'];second=clod.Driver(binaries['cpp'],aa_core)
+                        assert second.run(data)[0]==outputs['cpp']
+                    drivers={'cpp':pool['cpp'],'rust':second};row={}
+                    for side in (('cpp','rust') if i%2==0 else ('rust','cpp')):
+                        out,row[side]=drivers[side].run(payload)
+                        assert out==outputs['cpp']
+                    aa.append(row)
+                    event('AA_PAIR',profile=profile,case=case['name'],pair=i+1,core=aa_core,times_s=row,load_average=os.getloadavg())
+            finally:
+                if second is not None:second.close()
+            ci=protocol.interval(aa)
+            write(ART/('AA-'+profile+'.json'),dict(profile=profile,case=case['name'],samples=aa,interval=ci,median_ratio=statistics.median(r['rust'] for r in aa)/statistics.median(r['cpp'] for r in aa),floor=max(abs(ci['lower']-1),abs(ci['upper']-1)),load_before=aa_load,load_after=os.getloadavg(),diagnostic_only=True,binary_sha256=identities['cpp']))
         samples=[];extension=[]
         for i in range(20):
             samples.append(pair(i,1))
