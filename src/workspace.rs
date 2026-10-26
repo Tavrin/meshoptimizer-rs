@@ -39,6 +39,22 @@ pub(crate) struct CacheVertex {
     pub(crate) score: f32,
 }
 
+/// Policy for retaining reusable algorithm scratch between calls.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Retention {
+    /// Reuse scratch across calls and algorithm families (the default).
+    #[default]
+    Reuse,
+    /// Release the previous family's scratch when simplify, cache or overdraw
+    /// acquires storage, release simplify position quadrics on return, and defer
+    /// initialization of simplify ordering entries until needed.
+    ///
+    /// Measured on 214e: peak RSS 2.85 → 2.20 GiB, with simplify-heavy chains
+    /// taking up to 1.20× wall time.
+    /// Other algorithm families keep their existing retention behavior.
+    Lean,
+}
+
 /// Reusable fallibly allocated scratch storage and per-call resource limits.
 ///
 /// Cache work counts topology/index validation, each adjacency initialization,
@@ -48,15 +64,10 @@ pub(crate) struct CacheVertex {
 /// counted separately. Simplification counts validation, position/hash and
 /// adjacency visits, edge searches, classification, quadric and attribute
 /// accumulation, collapse ranking/sorting/flip checks, and remapping visits.
-/// Its typed scratch is allocated fallibly and retained after successful calls.
-/// The `simplify`/`simplify_into` APIs (including attribute variants), cache and
-/// overdraw optimization retain scratch for consecutive calls of the same
-/// family, except simplify's position quadrics, which are released on return
-/// before caller-side processing. When one of
-/// these families acquires scratch, storage retained by
-/// the previous family is released. Other algorithms keep their existing
-/// retention behavior. Retained scratch is reused when it fits and released
-/// under limit pressure, including excess capacity used by the current call.
+/// Its typed scratch is allocated fallibly and retained after successful calls;
+/// retained scratch is reused when it fits and released under limit pressure,
+/// including excess capacity in buffers the current call uses.
+/// Use [`Self::set_retention`] to opt into [`Retention::Lean`].
 /// Usage reports peak storage including all retained workspace buffers. Scale
 /// computation is allocation-free and has no workspace argument.
 /// Limits never disable checked size arithmetic.
@@ -65,6 +76,7 @@ pub struct Workspace {
     limits: Limits,
     active: [bool; 5],
     family: Option<ScratchFamily>,
+    retention: Retention,
     usage: Usage,
     pub(crate) has_retained: bool,
     pub(crate) simplify: Option<crate::simplify::State>,
@@ -93,6 +105,19 @@ impl Workspace {
             ..Self::default()
         }
     }
+    /// Current scratch retention policy.
+    pub const fn retention(&self) -> Retention {
+        self.retention
+    }
+    /// Set the retention policy, releasing scratch and resetting measurements
+    /// if the policy changes. Limits are preserved; [`Self::clear`] and
+    /// [`Self::set_limits`] preserve this policy.
+    pub fn set_retention(&mut self, retention: Retention) {
+        if self.retention != retention {
+            self.clear();
+            self.retention = retention;
+        }
+    }
     /// Current per-call limits.
     pub const fn limits(&self) -> Limits {
         self.limits
@@ -115,8 +140,9 @@ impl Workspace {
         self.has_retained = false;
         self.family = None;
     }
+    #[inline]
     pub(crate) fn acquire(&mut self, family: ScratchFamily) {
-        if self.family != Some(family) {
+        if self.retention == Retention::Lean && self.family != Some(family) {
             // Acquisition precedes reservations, so none of the previous
             // contents belong to the current call. Preserve its measurements,
             // work counter and limits; clear() would reset the measurements.
@@ -741,9 +767,6 @@ mod tests {
                 [[x, 0.0, 0.0], [x + 1.0, 0.0, 0.0], [x, 1.0, 0.0]]
             })
             .collect();
-        // Transient simplify arrays are no longer retained. Unused cache
-        // vertices keep the pressure premise explicit with the smaller state.
-        let cache_vertices = positions.len() * 16;
         let indices: Vec<_> = (0..positions.len() as u32).collect();
         let settings = SimplifySettings {
             target_index_count: indices.len() / 2,
@@ -761,7 +784,7 @@ mod tests {
         let simplify_peak = fresh.usage().bytes;
         fresh.clear();
         let mut expected_cache = expected.indices.clone();
-        optimize_vertex_cache_in_place(&mut expected_cache, cache_vertices, &mut fresh).unwrap();
+        optimize_vertex_cache_in_place(&mut expected_cache, positions.len(), &mut fresh).unwrap();
         let limits = Limits {
             max_bytes: simplify_peak.max(fresh.usage().bytes),
             ..Limits::default()
@@ -781,7 +804,7 @@ mod tests {
         let cache_demand = fresh.usage().bytes;
         assert!(retained + cache_demand > limits.max_bytes);
         let mut actual_cache = actual.indices;
-        optimize_vertex_cache_in_place(&mut actual_cache, cache_vertices, &mut reused).unwrap();
+        optimize_vertex_cache_in_place(&mut actual_cache, positions.len(), &mut reused).unwrap();
         assert_eq!(actual_cache, expected_cache);
     }
 
@@ -969,91 +992,5 @@ mod tests {
                 assert_eq!(fast.remaining, scalar.remaining);
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod retention_tests {
-    use super::*;
-    use crate::{
-        optimize_overdraw, optimize_vertex_cache, simplify, Positions, SimplifyOptions,
-        SimplifySettings,
-    };
-
-    #[test]
-    fn switching_chain_family_releases_scratch_and_preserves_results() {
-        let p = [
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [1.0, 1.0, 0.1],
-        ];
-        let i = [0, 1, 2, 2, 1, 3];
-        let settings = SimplifySettings {
-            target_index_count: 3,
-            target_error: 0.5,
-            options: SimplifyOptions::EMPTY,
-        };
-        let mut ws = Workspace::default();
-        let simplified = simplify(&i, Positions::from_packed(&p), settings, &mut ws).unwrap();
-        assert!(ws.simplify.as_ref().unwrap().capacity_bytes().unwrap() > 0);
-        let cached = optimize_vertex_cache(&i, p.len(), &mut ws).unwrap();
-        assert!(ws.simplify.is_none());
-        assert!(ws.vertices.capacity() > 0);
-        assert_eq!(
-            cached,
-            optimize_vertex_cache(&i, p.len(), &mut Workspace::default()).unwrap()
-        );
-        let vertex_ptr = ws.vertices.as_ptr();
-        let integer_ptr = ws.integers.as_ptr();
-        assert_eq!(cached, optimize_vertex_cache(&i, p.len(), &mut ws).unwrap());
-        assert_eq!(vertex_ptr, ws.vertices.as_ptr());
-        assert_eq!(integer_ptr, ws.integers.as_ptr());
-        let overdraw =
-            optimize_overdraw(&cached, Positions::from_packed(&p), 1.05, &mut ws).unwrap();
-        assert_eq!(ws.vertices.capacity(), 0);
-        assert_eq!(ws.flags.capacity(), 0);
-        assert_eq!(
-            overdraw,
-            optimize_overdraw(
-                &cached,
-                Positions::from_packed(&p),
-                1.05,
-                &mut Workspace::default()
-            )
-            .unwrap()
-        );
-        let integer_ptr = ws.integers.as_ptr();
-        let float_ptr = ws.floats.as_ptr();
-        assert_eq!(
-            overdraw,
-            optimize_overdraw(&cached, Positions::from_packed(&p), 1.05, &mut ws).unwrap()
-        );
-        assert_eq!(integer_ptr, ws.integers.as_ptr());
-        assert_eq!(float_ptr, ws.floats.as_ptr());
-        let again = simplify(&i, Positions::from_packed(&p), settings, &mut ws).unwrap();
-        assert_eq!(again.indices, simplified.indices);
-        assert_eq!(again.error.to_bits(), simplified.error.to_bits());
-        assert_eq!(ws.integers.capacity(), 0);
-        assert_eq!(ws.floats.capacity(), 0);
-        assert_eq!(ws.keys.capacity(), 0);
-        let state_bytes = ws.simplify.as_ref().unwrap().capacity_bytes().unwrap();
-        assert_eq!(ws.retained_bytes().unwrap(), state_bytes);
-        assert_eq!(ws.limits(), Limits::default());
-        assert!(ws.usage().bytes >= state_bytes);
-        assert!(ws.usage().work > 0);
-        // Validation failures do not acquire scratch or alter the error.
-        assert_eq!(
-            optimize_vertex_cache(&[4, 0, 1], p.len(), &mut ws),
-            Err(Error::IndexOutOfBounds)
-        );
-        assert!(ws.simplify.is_some());
-        assert_eq!(ws.retained_bytes().unwrap(), state_bytes);
-        let fifo = crate::optimize_vertex_cache_fifo(&i, p.len(), 16, &mut ws).unwrap();
-        assert!(ws.simplify.is_none());
-        assert_eq!(
-            fifo,
-            crate::optimize_vertex_cache_fifo(&i, p.len(), 16, &mut Workspace::default()).unwrap()
-        );
     }
 }

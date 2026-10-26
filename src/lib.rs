@@ -200,7 +200,7 @@ pub use strip::{
 pub use tangent::{
     generate_tangents, generate_tangents_into, TANGENT_COMPATIBLE, TANGENT_ZERO_FALLBACK,
 };
-pub use workspace::{Limits, Usage, Workspace};
+pub use workspace::{Limits, Retention, Usage, Workspace};
 
 mod meshlet;
 mod meshlet_spatial;
