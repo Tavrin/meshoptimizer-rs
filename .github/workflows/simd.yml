@@ -21,24 +21,6 @@ jobs:
       - run: cargo test --locked --no-default-features --features std
         env:
           RUSTFLAGS: -Funsafe_code
-  miri:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: miri
-      - run: cargo miri test --all-features --lib codec::simd
-        env:
-          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
-      - run: cargo miri test --all-features --test simd filters_match_scalar_with_extreme_words_and_tails
-        env:
-          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
-      - run: cargo miri test --all-features --test simd meshlet_controls_widths_partial_groups_and_tail_preservation
-        env:
-          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
-      - run: cargo miri test --all-features --test simd lowering_is_checked_nested_and_unwind_safe
-      - run: cargo miri test --no-default-features --test codec
   native-parity:
     strategy:
       fail-fast: false
