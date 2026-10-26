@@ -753,6 +753,36 @@ fn optimize_body<const ADVANCED: bool>(
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
     let n = t.len() / 3;
+    // A single triangle cannot change order or rotation at any level. Keep the
+    // exact work-charge sequence, including short-budget failure points.
+    if n <= 1 {
+        ctx.tick(t.len())?;
+        if n == 1 {
+            ctx.tick(1)?;
+            ctx.tick(1)?;
+            if ADVANCED {
+                ctx.tick(1)?;
+            }
+        }
+        ctx.tick(t.len())?;
+        let mut source = [0u8; 3];
+        let mut order = [0u32; 3];
+        let mut count = 0;
+        for x in t {
+            let local = match source[..count].iter().position(|&i| i == *x) {
+                Some(local) => local,
+                None => {
+                    source[count] = *x;
+                    order[count] = v[*x as usize];
+                    count += 1;
+                    count - 1
+                }
+            };
+            *x = local as u8;
+        }
+        v[..count].copy_from_slice(&order[..count]);
+        return Ok(());
+    }
     let mut cache = [0u8; 256];
     let mut last = 128u8;
     let mut valence = [0u8; 256];

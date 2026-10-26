@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Moss scalar frozen-corpus candidate/v0.2.6 time GMs: adjacency 0.7572,
+  optimize-meshlet 0.8918, fetch 0.7542, remap-indices 0.8257. Candidate/optimesh
+  1.1.0 GMs: 1.0119, 1.0804, 0.9567, 1.0419 respectively; same-session A/A
+  floor 0.2799. Fetch PASS; the other three families PARTIAL under SPEC-027.
 - Native scalar overdraw takes 0.85× the time of 0.2.6 on five frozen synthetic
   cases and 0.83× on three captured meshes. The same cases take 1.12× and
   1.22× the time of optimesh 1.1.0, respectively; the captured meshes take
