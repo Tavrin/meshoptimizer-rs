@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "--offline",
+    "--manifest-path",
+    "/mnt/linux-extra/moss-scratch/meshopt-peer-a/O/parity/compare/Cargo.toml",
+    "--profile",
+    "moss",
+    "--features",
+    "ours",
+    "--bin",
+    "cmp-driver"
+  ],
+  "binary_sha256": "e8472c1071bef5e956bd9acc252158b3334a46f6c7cd2a26afd2c7e069b55d1d",
+  "quantize_sha256": "fa87eed5c3836d8d02e93ff6d69822434f41db5f9dec80ff046efbac86e54124",
+  "admission_pid": "1093646"
+}

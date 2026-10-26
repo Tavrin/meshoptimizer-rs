@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- SPEC-027 lane A candidate: half takes 0.952× v0.2.6 time and 1.439×
+  optimesh 1.1.0 time (PARTIAL); float takes 1.019× v0.2.6 time and 1.342×
+  optimesh time (FAIL). Registered draft results; overall acceptance FAIL.
+
 ## [0.2.6] - 2026-10-26
 
 - Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and

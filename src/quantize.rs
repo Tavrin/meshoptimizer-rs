@@ -44,16 +44,12 @@ pub fn quantize_half(value: f32) -> u16 {
     let ui = value.to_bits();
     let sign = (ui >> 16) & 0x8000;
     let em = ui & 0x7fffffff;
-    let mut half = em.wrapping_sub(112 << 23).wrapping_add(1 << 12) >> 13;
-    if em < 113 << 23 {
-        half = 0;
-    }
-    if em >= 143 << 23 {
-        half = 0x7c00;
-    }
-    if em > 255 << 23 {
-        half = 0x7e00;
-    }
+    // Clamp before rebiasing so large finite values and infinities share
+    // the same arithmetic path; NaNs add the quiet bit below.
+    let capped = em.min(143 << 23);
+    let half = capped.wrapping_sub(112 << 23).wrapping_add(1 << 12) >> 13;
+    let normal = 0u32.wrapping_sub(u32::from(em >= 113 << 23));
+    let half = (half & normal) | (u32::from(em > 255 << 23) << 9);
     (sign | half) as u16
 }
 
@@ -64,16 +60,16 @@ pub fn quantize_float(value: f32, bits: u32) -> Result<f32, Error> {
     if bits > 23 {
         return Err(Error::InvalidParameter);
     }
-    let mut ui = value.to_bits();
-    let mask = (1u32 << (23 - bits)) - 1;
-    let round = (1u32 << (23 - bits)) >> 1;
+    let ui = value.to_bits();
+    let shift = 23 - bits;
     let exponent = ui & 0x7f800000;
-    if exponent != 0x7f800000 {
-        ui = ui.wrapping_add(round) & !mask;
-    }
-    if exponent == 0 {
-        ui = 0;
-    }
+    // Disable both rounding and truncation for infinities/NaNs, keeping
+    // their original payload bits without a second value selection.
+    let finite = u32::from(exponent != 0x7f800000);
+    let mask = ((1u32 << shift) - 1) * finite;
+    let round = ((1u32 << shift) >> 1) * finite;
+    let nonzero = 0u32.wrapping_sub(u32::from(exponent != 0));
+    let ui = ui.wrapping_add(round) & !mask & nonzero;
     Ok(f32::from_bits(ui))
 }
 
