@@ -32,5 +32,5 @@ published crate versions.
 
 ## 0.3
 
-Reserve 0.3 for the first necessary breaking change. Moss owns MCLD serialization and adoption; the
+Reserve 0.3 for the first necessary breaking change. Serialization formats stay with applications; the
 library remains format-agnostic. The stricter SIMD amendment targets are also left for 0.3.

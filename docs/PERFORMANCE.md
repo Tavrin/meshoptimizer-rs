@@ -12,17 +12,17 @@ contraction disabled. The records below differ in source, corpus and API scope. 
 0.2.2, only the encoders were timed again (see [Encoders in 0.2.2](#encoders-in-022)); no new
 full-tree timing was run for those releases or for 0.2.3.
 
-The Moss profile uses thin LTO and one codegen unit. The defaults profile uses Cargo's consumer
+The thin-LTO profile uses thin LTO and one codegen unit. The defaults profile uses Cargo's consumer
 release settings: no LTO and sixteen codegen units. The crate-local fat-LTO profile does not apply
 to dependents.
 
-| Recorded scope | Moss ratio | Defaults ratio | Evidence |
+| Recorded scope | Thin-LTO ratio | Defaults ratio | Evidence |
 |---|---:|---:|---|
 | Core `simplify`, family geometric mean | 1.049 | 1.060 | [core records](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_PERFORMANCE.md) |
 | Standard meshlet builder, mean / max | 1.126 / 1.324 | 1.148 / 1.405 | [P03](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_P03.json) |
-| Scalar codecs and filters, historical family mean range | 0.61–1.24 | 0.59–1.24 | [P04 Moss](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-moss.json), [defaults](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-default.json) |
+| Scalar codecs and filters, historical family mean range | 0.61–1.24 | 0.59–1.24 | [P04 thin LTO](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-moss.json), [defaults](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-default.json) |
 | Opacity-map compact, selected final scope mean | 0.557 | 0.578 | [P05 state](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P05_CURRENT_STATE.md) |
-| Cluster LOD, sum of per-mesh medians | 1.196 | 1.090 | [RFC 113 recovery](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/rfc113-clod-recover.md) |
+| Cluster LOD, sum of per-mesh medians | 1.196 | 1.090 | [cluster-LOD recovery](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/rfc113-clod-recover.md) |
 
 ### Simplify in 0.2.4
 
@@ -74,7 +74,7 @@ encoding, its results replace the encoder claims above.
 Ratios are family geometric means of Rust time / comparator time with the allocating APIs,
 0.2.1 → 0.2.2 for C++ 1.3 and 0.2.2 for meshopt 0.6.2; lower is faster.
 
-| Encoder | C++ 1.3, defaults | C++ 1.3, Moss | meshopt 0.6.2, defaults | meshopt 0.6.2, Moss |
+| Encoder | C++ 1.3, defaults | C++ 1.3, thin LTO | meshopt 0.6.2, defaults | meshopt 0.6.2, thin LTO |
 |---|---:|---:|---:|---:|
 | Vertex | 0.666 → 0.667 | 0.660 → 0.657 | 0.710 | 0.733 |
 | Index | 1.019 → 0.773 | 1.016 → 0.764 | 0.860 | 0.858 |
@@ -103,7 +103,7 @@ how `Workspace` handles retained scratch, and 0.2.4 changed only simplify and ov
 
 The owner's 2026-10-06 roadmap permitted the allocating vertex exception and scheduled its fix for
 0.2.1, which stages large owned vertex decodes. The 0.2.2 run repeated the exact
-`vertex-v1-streaming-s4` request in the defaults and Moss profiles and measured 1.000× C++ (95%
+`vertex-v1-streaming-s4` request in the defaults and thin-LTO profiles and measured 1.000× C++ (95%
 interval 0.850–1.206) and 1.058× (0.959–1.171). The historical gap did not reproduce, but that does
 not show the staging fixed it. Use `decode_vertex_buffer_into` where possible: the owner records
 about 1.04× for the caller-buffer form of that case. The 0.2.0 complete qualification also records
