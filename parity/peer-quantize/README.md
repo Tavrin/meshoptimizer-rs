@@ -1,6 +1,6 @@
 # SPEC-027 lane A receipts
 
-See root REPORT.md and REGISTRATION.md. Raw evidence lives under
+See REPORT.md and REGISTRATION.md in this directory. Raw evidence lives under
 `/mnt/linux-extra/moss-scratch/meshopt-peer-a/`. The comparator was exported from
 `bench/peer-screen`; that branch and other lane worktrees are untouched.
 
