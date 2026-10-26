@@ -15,7 +15,7 @@ campaign = json.loads((ART / 'campaign.json').read_text())
 proof = json.loads((ART / 'proof.json').read_text())
 build = json.loads((ART / 'build-candidate-4.json').read_text())
 assert campaign['completed'] and proof['passed'] and proof['mismatches'] == 0
-assert campaign['registration_sha256'] == sha(ROOT / 'REGISTRATION.md')
+assert campaign['registration_sha256'] == sha(ROOT / 'parity/peer-small/REGISTRATION.md')
 source = {str(p.relative_to(ROOT)): sha(p) for p in (ROOT / 'src').rglob('*.rs')}
 assert source == proof['build']['source'] == build['source']
 for binary, expected in campaign['binaries'].items():
@@ -45,6 +45,6 @@ out = dict(passed=True, source=source, floor=floor, families=campaign['families'
            gate_exits=dict(fmt=0, test=0, clippy=0, differential=0, exact=0, campaign=0),
            proof_cases=len(proof['cases']),
            receipt_sha256={p.name: sha(p) for p in [ART / 'campaign.json', ART / 'proof.json',
-                                                   ART / 'proof-build.json', ROOT / 'REGISTRATION.md']})
+                                                   ART / 'proof-build.json', ROOT / 'parity/peer-small/REGISTRATION.md']})
 (ART / 'audit.json').write_text(json.dumps(out, indent=2) + '\n')
 print('PASS: final source, proof, registration, 600 samples and first verdicts match')

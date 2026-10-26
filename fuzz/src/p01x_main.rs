@@ -64,9 +64,12 @@ pub fn run(target: &str) -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = Rng(seed);
     let start = Instant::now();
     let mut executions = 0u64;
+    let count: u64 = args.get(3).map_or(Ok(u64::MAX), |s| s.parse())?;
     let mut successes = 0u64;
-    while start.elapsed() < Duration::from_secs(seconds) {
-        let vc = if (28..=32).contains(&op) {
+    while start.elapsed() < Duration::from_secs(seconds) && executions < count {
+        let vc = if matches!(op, 22 | 23) {
+            [3, 33, 1023, 1024, 1025, 2048][rng.next() as usize % 6]
+        } else if (28..=32).contains(&op) {
             0
         } else if op == 33 {
             2
@@ -80,7 +83,7 @@ pub fn run(target: &str) -> Result<(), Box<dyn std::error::Error>> {
         };
         let size = 1 + rng.next() % 32;
         let stride = size
-            + if matches!(op, 9 | 12 | 22) {
+            + if matches!(op, 9 | 12) {
                 0
             } else {
                 rng.next() % 17
@@ -200,6 +203,36 @@ pub fn run(target: &str) -> Result<(), Box<dyn std::error::Error>> {
         if executions.is_multiple_of(3) {
             let position = 8 + rng.next() as usize % (input.len() - 8);
             input[position] ^= 1 << (rng.next() % 8);
+        }
+        if matches!(op, 22 | 23) {
+            // The protocol has offset zero; exercise nonzero offsets directly too.
+            use meshoptimizer_rs::*;
+            let offset = 1 + rng.next() as usize % 17;
+            let mut bytes = vec![0; offset + vc as usize * stride as usize];
+            for b in &mut bytes {
+                *b = rng.next() as u8;
+            }
+            let stream =
+                VertexStream::new(&bytes, vc as usize, size as usize, stride as usize, offset)?;
+            let indices: Vec<_> = (0..ic).map(|_| rng.next() % vc).collect();
+            let mut ws = Workspace::default();
+            let a = optimize_vertex_fetch(&indices, stream, &mut ws)?;
+            let packed: Vec<_> = (0..vc as usize)
+                .flat_map(|i| {
+                    let at = offset + i * stride as usize;
+                    bytes[at..at + size as usize].iter().copied()
+                })
+                .collect();
+            let b = optimize_vertex_fetch(
+                &indices,
+                VertexStream::packed(&packed, size as usize)?,
+                &mut Workspace::default(),
+            )?;
+            assert_eq!(
+                (a.indices, a.vertices, a.vertex_count),
+                (b.indices, b.vertices, b.vertex_count),
+                "fetch seed={seed} execution={executions}"
+            );
         }
         let result = meshoptimizer_parity::execute(&input);
         let replay = meshoptimizer_parity::execute(&input);

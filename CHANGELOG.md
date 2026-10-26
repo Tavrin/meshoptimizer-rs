@@ -5,20 +5,27 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.7] - 2026-10-26
 
-- Moss scalar frozen-corpus candidate/v0.2.6 time GMs: adjacency 0.7572,
-  optimize-meshlet 0.8918, fetch 0.7542, remap-indices 0.8257. Candidate/optimesh
-  1.1.0 GMs: 1.0119, 1.0804, 0.9567, 1.0419 respectively; same-session A/A
-  floor 0.2799. Fetch PASS; the other three families PARTIAL under SPEC-027.
-- `quantize_half` takes 0.95× the time of v0.2.6, GM 95% interval
-  [0.925, 0.984], with byte-identical output.
-- Native scalar overdraw takes 0.85× the time of 0.2.6 on five frozen synthetic
-  cases and 0.83× on three captured meshes. The same cases take 1.12× and
-  1.22× the time of optimesh 1.1.0, respectively; the captured meshes take
-  1.27× the time of C++ 1.3.
-- Opt-in lean scratch retention: 214e peak RSS 2.851 → 2.196 GiB;
-  simplify-heavy chains up to 1.20× wall time. See [measurements](parity/memory/REPORT.md).
+- Vertex fetch, adjacency, index remapping and one-triangle meshlet optimization
+  take 0.75×, 0.76×, 0.83× and 0.89× the time of 0.2.6, respectively.
+  Against optimesh 1.1.0, they take 0.96×, 1.01×, 1.04× and 1.08× the time.
+- `quantize_half` takes 0.95× the time of 0.2.6 (95% geometric-mean interval
+  [0.925, 0.984]); all 2^32 inputs produce the same output as 0.2.6.
+- `optimize_overdraw` takes 0.85× the time of 0.2.6 on synthetic meshes and
+  0.83× on three real meshes; against optimesh 1.1.0, it takes 1.12× and
+  1.22× the time, respectively. Against C++ 1.3, the real meshes 214e, b6fd
+  and a082 take 1.24×, 1.42× and 1.16× the time, down from 1.54×, 1.60×
+  and 1.47×.
+- Add opt-in `Workspace::set_retention(Retention::Lean)`. It releases scratch
+  between algorithm families and after simplify. On the largest real-mesh LOD
+  chain in the benchmark set (214e), peak RSS is 2.20 GiB instead of 2.85 GiB,
+  and simplify chains take up to 1.20× the time. The default `Reuse` policy is unchanged;
+  instruction counts are 1.000× those of 0.2.6.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/docs/PERFORMANCE.md) for method.
 
 ## [0.2.6] - 2026-10-26
 
@@ -344,3 +351,5 @@ wasm32 run.
 [0.2.1]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0
+
+[0.2.7]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.6...v0.2.7
