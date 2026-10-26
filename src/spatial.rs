@@ -78,6 +78,10 @@ fn remap_into(out: &mut [u32], p: Positions<'_>, ctx: &mut Context<'_>) -> Resul
     Ok(())
 }
 /// `meshopt_spatialSortRemap`: old-to-new Morton remap.
+///
+/// # Errors
+/// `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn spatial_sort_remap(p: Positions<'_>, workspace: &mut Workspace) -> Result<Vec<u32>, Error> {
     let mut ctx = Context::new(workspace)?;
     ctx.positions(p)?;
@@ -86,6 +90,9 @@ pub fn spatial_sort_remap(p: Positions<'_>, workspace: &mut Workspace) -> Result
     Ok(out)
 }
 /// Caller-buffer Morton remap; the unused tail is preserved.
+///
+/// # Errors
+/// Same errors as [`spatial_sort_remap`]. `BufferTooSmall` if the destination cannot hold the result.
 pub fn spatial_sort_remap_into(
     out: &mut [u32],
     p: Positions<'_>,
@@ -144,6 +151,11 @@ fn triangles_into(
     Ok(())
 }
 /// `meshopt_spatialSortTriangles`: reorder complete triangles by centroid Morton order.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn spatial_sort_triangles(
     indices: &[u32],
     p: Positions<'_>,
@@ -157,6 +169,9 @@ pub fn spatial_sort_triangles(
     Ok(out)
 }
 /// Caller-buffer spatial triangle sorting; the unused tail is preserved.
+///
+/// # Errors
+/// Same errors as [`spatial_sort_triangles`]. `BufferTooSmall` if the destination cannot hold the result.
 pub fn spatial_sort_triangles_into(
     out: &mut [u32],
     indices: &[u32],
@@ -172,6 +187,9 @@ pub fn spatial_sort_triangles_into(
     triangles_into(&mut out[..indices.len()], indices, p, &mut ctx)
 }
 /// Atomic in-place spatial triangle sorting.
+///
+/// # Errors
+/// Same errors as [`spatial_sort_triangles`].
 pub fn spatial_sort_triangles_in_place(
     indices: &mut [u32],
     p: Positions<'_>,
@@ -274,6 +292,9 @@ fn cluster_into(
     )
 }
 /// `meshopt_spatialClusterPoints`: new-to-old permutation in fixed-size clusters.
+///
+/// # Errors
+/// Same errors as [`spatial_sort_remap`]. `InvalidParameter` if the cluster size is zero.
 pub fn spatial_cluster_points(
     p: Positions<'_>,
     size: usize,
@@ -289,6 +310,9 @@ pub fn spatial_cluster_points(
     Ok(out)
 }
 /// Caller-buffer point clustering; the unused tail is preserved.
+///
+/// # Errors
+/// Same errors as [`spatial_cluster_points`]. `BufferTooSmall` if the destination cannot hold the result.
 pub fn spatial_cluster_points_into(
     out: &mut [u32],
     p: Positions<'_>,

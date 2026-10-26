@@ -268,6 +268,11 @@ fn analyze(
 }
 
 /// Analyze raster overdraw with upstream's 256-pixel viewport model.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn analyze_overdraw(
     indices: &[u32],
     positions: Positions<'_>,
@@ -277,6 +282,11 @@ pub fn analyze_overdraw(
 }
 
 /// Analyze projected coverage on three axes with the upstream rasterizer.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn analyze_coverage(
     indices: &[u32],
     positions: Positions<'_>,

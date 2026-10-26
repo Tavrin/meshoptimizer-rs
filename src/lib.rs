@@ -16,11 +16,21 @@
 //! its author. Coverage, measured performance and the parity records are in the
 //! [README](https://github.com/Tavrin/meshoptimizer-rs#readme).
 //!
-//! Coverage includes vertex processing, simplification, meshlets and codecs
-//! (phases 0.1–0.4), analyzers, opacity maps, tangents, normals and remeshing
-//! (phase 0.5), optional parallel batches (phase 0.6), and SIMD codecs (phase 0.7).
+//! Coverage includes vertex processing, simplification, meshlets, codecs,
+//! analyzers, opacity maps, tangents, normals, remeshing, parallel batches
+//! and SIMD decoding.
 //! Cluster-LOD requires `clusterlod`; batches require `parallel` and `std`.
 //! Normal generation and remeshing require `experimental`.
+//!
+//! # Recipes
+//!
+//! - [Simplify one mesh](guide#simplify-one-mesh).
+//! - [Per-mesh LOD chain](guide#per-mesh-lod-chain).
+//! - [Meshlets with bounds](guide#meshlets-with-bounds).
+//! - [Vertex and index encode and decode](guide#vertex-and-index-encode-and-decode).
+//! - [Untrusted input with Limits](guide#untrusted-input-with-limits).
+//! - [Parallel workers](guide#parallel-workers).
+//! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
 //!
 //! # Simplify a mesh
 //!
@@ -139,6 +149,11 @@ pub struct ReadmeDoctests;
 #[cfg(doctest)]
 #[doc = include_str!("../docs/MIGRATING_FROM_MESHOPT.md")]
 pub struct MigrationDoctests;
+
+/// Task recipes with complete, checked examples.
+pub mod guide {
+    #![doc = include_str!("../docs/USING.md")]
+}
 
 mod budget;
 

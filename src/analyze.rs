@@ -95,6 +95,10 @@ fn cache_simple(
 }
 
 /// Analyze a triangle list using upstream's simplified FIFO transform cache.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported analyzer settings; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline(always)]
 pub fn analyze_vertex_cache(
     indices: &[u32],
@@ -309,6 +313,10 @@ fn fetch_run<const CHARGE: bool, const CHECK: bool>(
 }
 
 /// Analyze index order with upstream's direct-mapped 128 KiB fetch-cache model.
+///
+/// # Errors
+/// `IndexOutOfBounds` for invalid vertex references;
+/// `InvalidParameter` for unsupported analyzer settings; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn analyze_vertex_fetch(
     indices: &[u32],
     vertex_count: usize,

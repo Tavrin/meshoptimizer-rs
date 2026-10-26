@@ -20,9 +20,9 @@ to dependents.
 |---|---:|---:|---|
 | Core `simplify`, family geometric mean | 1.049 | 1.060 | [core records](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_PERFORMANCE.md) |
 | Standard meshlet builder, mean / max | 1.126 / 1.324 | 1.148 / 1.405 | [P03](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_P03.json) |
-| Scalar codecs and filters, historical family mean range | 0.61–1.24 | 0.59–1.24 | [P04 thin LTO](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-moss.json), [defaults](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-default.json) |
+| Scalar codecs and filters, historical family mean range | 0.61–1.24 | 0.59–1.24 | [P04 thin LTO](https://github.com/Tavrin/meshoptimizer-rs/tree/release/0.2.0/parity/results/), [defaults](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-default.json) |
 | Opacity-map compact, selected final scope mean | 0.557 | 0.578 | [P05 state](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P05_CURRENT_STATE.md) |
-| Cluster LOD, sum of per-mesh medians | 1.196 | 1.090 | [cluster-LOD recovery](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/rfc113-clod-recover.md) |
+| Cluster LOD, sum of per-mesh medians | 1.196 | 1.090 | [cluster-LOD recovery](https://github.com/Tavrin/meshoptimizer-rs/tree/release/0.2.0/parity/results/) |
 
 ### Simplify in 0.2.4
 

@@ -17,7 +17,7 @@ pub(crate) const LANES: usize = 8;
 /// The pinned, correctly rounded roots of eight independent operands, equal to
 /// `sqrt` element by element (D78).
 ///
-/// When every operand is a positive normal finite value, each lane uses only
+/// When every operand is a positive normal finite value, each component uses only
 /// exact IEEE f64 operations, which the compiler can evaluate in vector
 /// registers: a halved-exponent estimate within [s, 1.0614 s], three Newton
 /// steps from above (relative error below 1e-11), rounding to f32, then a

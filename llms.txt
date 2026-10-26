@@ -1,0 +1,15 @@
+# meshoptimizer-rs
+
+A Rust port of C++ meshoptimizer 1.3 for simplification, vertex processing, meshlets, cluster LOD and codecs, with byte-identical scalar output and no_std support with alloc.
+
+- Recipes and exact calls: [docs/USING.md](docs/USING.md)
+- API: [docs.rs](https://docs.rs/meshoptimizer-rs)
+- Migration: [docs/MIGRATING_FROM_MESHOPT.md](docs/MIGRATING_FROM_MESHOPT.md)
+
+Gotchas:
+- Packed [f32; 3] positions use fast readers; simplify_scale also specializes unmapped little-endian 64-byte strides with validated XYZ offsets; repack other layouts to packed XYZ for packed paths.
+- Reuse Workspace scratch across calls; each call needs &mut Workspace, so give each worker its own workspace.
+- Retention::Lean trades lower peak scratch memory for time rebuilding storage; Reuse is the default.
+- Default Limits: 1 GiB crate-owned storage and 2^34 counted visits per call; set smaller max_bytes/max_work for untrusted input and bound caller allocations separately.
+- Output matches C++ meshoptimizer 1.3 (scalar build); the README describes recorded verification and exceptions.
+- Semver: 0.2.x patch releases are drop-in, with no API break and the same output.

@@ -27,6 +27,10 @@ fn score<const STRIP: bool>(position: usize, live: u32) -> f32 {
 /// Returns exactly as many indices as supplied, preserving triangle corner
 /// order and vertex references. Empty input is valid. No geometry is welded
 /// or compacted. Output and scratch count toward the workspace byte limit.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn optimize_vertex_cache(
     indices: &[u32],
     vertex_count: usize,
@@ -60,6 +64,9 @@ pub fn optimize_vertex_cache(
 /// The unused tail is untouched. Validation and reservation precede writes.
 /// Counted-work exhaustion during optimization can leave the used prefix
 /// partially modified. Caller-owned destination storage is excluded from limits.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache`]. `BufferTooSmall` if the destination is shorter than the input.
 pub fn optimize_vertex_cache_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -81,6 +88,9 @@ pub fn optimize_vertex_cache_into(
 
 /// Destructively apply upstream standard cache ordering, leaving input unchanged on error.
 /// A fallibly allocated temporary output counts toward the byte limit.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache`].
 pub fn optimize_vertex_cache_in_place(
     indices: &mut [u32],
     vertex_count: usize,
@@ -298,6 +308,9 @@ fn cache_loop<const STRIP: bool, const FAST: bool>(
 }
 
 /// Optimize cache ordering using upstream's strip-oriented score table.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache`].
 pub fn optimize_vertex_cache_strip(
     indices: &[u32],
     vertex_count: usize,
@@ -327,6 +340,9 @@ pub fn optimize_vertex_cache_strip(
 }
 /// Write strip-oriented cache ordering; work exhaustion may partially modify
 /// the used prefix. The unused destination tail is untouched.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache_strip`]. `BufferTooSmall` if the destination is shorter than the input.
 pub fn optimize_vertex_cache_strip_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -346,6 +362,9 @@ pub fn optimize_vertex_cache_strip_into(
     result
 }
 /// Destructively apply strip-oriented ordering, preserving indices on error.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache_strip`].
 pub fn optimize_vertex_cache_strip_in_place(
     indices: &mut [u32],
     vertex_count: usize,
@@ -356,6 +375,9 @@ pub fn optimize_vertex_cache_strip_in_place(
     Ok(())
 }
 /// Optimize using upstream's FIFO cache heuristic. Cache size is at least three.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache`]. `InvalidParameter` if the cache size is below three.
 pub fn optimize_vertex_cache_fifo(
     indices: &[u32],
     vertex_count: usize,
@@ -385,6 +407,9 @@ pub fn optimize_vertex_cache_fifo(
     result
 }
 /// Write FIFO cache ordering; work exhaustion may partially modify the prefix.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache_fifo`]. `BufferTooSmall` if the destination is shorter than the input.
 pub fn optimize_vertex_cache_fifo_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -415,6 +440,9 @@ pub fn optimize_vertex_cache_fifo_into(
     result
 }
 /// Destructively apply FIFO ordering, preserving indices on error.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache_fifo`].
 pub fn optimize_vertex_cache_fifo_in_place(
     indices: &mut [u32],
     vertex_count: usize,

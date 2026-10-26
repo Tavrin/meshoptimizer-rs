@@ -20,6 +20,9 @@ pub struct VertexStream<'a> {
 impl<'a> VertexStream<'a> {
     /// Validate a stream with a key size of 1 through 256 bytes. Stride may
     /// exceed 256; only the key bytes participate in equality.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for invalid record size, stride, offset or length; `SizeOverflow` for overflowing view sizes.
     pub fn new(
         data: &'a [u8],
         count: usize,
@@ -54,6 +57,9 @@ impl<'a> VertexStream<'a> {
         })
     }
     /// Validate tightly packed initialized records.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for invalid record size, stride, offset or length; `SizeOverflow` for overflowing view sizes.
     pub fn packed(data: &'a [u8], size: usize) -> Result<Self, Error> {
         if size == 0 || !data.len().is_multiple_of(size) {
             return Err(Error::InvalidLayout);
@@ -562,6 +568,10 @@ fn shadow_single<const SIZE: usize>(
 
 /// Generate compact numbering from tightly packed binary keys. `None` visits
 /// every vertex in original order; indexed input need not be a triangle list.
+///
+/// # Errors
+/// `IndexOutOfBounds` for invalid references;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_vertex_remap(
     indices: Option<&[u32]>,
     vertices: VertexStream<'_>,
@@ -570,6 +580,10 @@ pub fn generate_vertex_remap(
     generate_vertex_remap_multi(indices, &[vertices], workspace)
 }
 /// Generate compact numbering from one through sixteen initialized key streams.
+///
+/// # Errors
+/// `InvalidLayout` for absent or mismatched streams; `IndexOutOfBounds` for invalid references;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_vertex_remap_multi(
     indices: Option<&[u32]>,
     streams: &[VertexStream<'_>],
@@ -672,6 +686,13 @@ fn custom_equal(equal: &mut impl FnMut(u32, u32) -> bool, a: u32, b: u32) -> boo
 }
 /// Generate compact numbering with a callback invoked only for numerically
 /// equal positions, in exactly upstream's hash-probe order. Signed zeros weld.
+///
+/// # Errors
+/// `IndexOutOfBounds` for invalid references; `NumericalFailure` if bounded hash probing finds no slot.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
+///
+/// # Panics
+/// Panics if the supplied callback panics.
 pub fn generate_vertex_remap_custom(
     indices: Option<&[u32]>,
     positions: Positions<'_>,
@@ -701,6 +722,10 @@ pub fn generate_vertex_remap_custom(
 }
 /// Map each position to its first numerically equal vertex. Signed zeros weld;
 /// NaNs do not compare equal. The output refers to original indices.
+///
+/// # Errors
+/// `NumericalFailure` if bounded hash probing finds no slot.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_position_remap(
     positions: Positions<'_>,
     workspace: &mut Workspace,
@@ -728,6 +753,9 @@ pub fn generate_position_remap(
 }
 /// Generate compact numbering into caller storage. The tail is untouched;
 /// work exhaustion may leave the used prefix partially modified.
+///
+/// # Errors
+/// Same errors as [`generate_vertex_remap_multi`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_vertex_remap_multi_into(
     destination: &mut [u32],
     indices: Option<&[u32]>,
@@ -756,6 +784,9 @@ pub fn generate_vertex_remap_multi_into(
     result
 }
 /// Single-stream caller-buffer compact numbering.
+///
+/// # Errors
+/// Same errors as [`generate_vertex_remap`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_vertex_remap_into(
     destination: &mut [u32],
     indices: Option<&[u32]>,
@@ -817,6 +848,9 @@ fn remap_vertex_dispatch(
 /// Remap initialized vertex bytes into caller storage. Repeated destinations
 /// use the last source record, matching upstream; unmapped records are untouched.
 /// Validation precedes writes; work exhaustion may leave partial output.
+///
+/// # Errors
+/// Same errors as [`remap_vertex_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn remap_vertex_buffer_into(
     destination: &mut [u8],
     vertices: VertexStream<'_>,
@@ -849,6 +883,10 @@ pub fn remap_vertex_buffer_into(
     result
 }
 /// Allocate remapped tightly packed bytes, zero-initializing unmapped records.
+///
+/// # Errors
+/// `InvalidLayout` for a mismatched remap length; `IndexOutOfBounds` for invalid remap values;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn remap_vertex_buffer(
     vertices: VertexStream<'_>,
     remap: &[u32],
@@ -880,6 +918,9 @@ pub fn remap_vertex_buffer(
 }
 /// Remap arbitrary index sequences. `None` remaps all vertices in order;
 /// references to the unused sentinel are rejected before writes.
+///
+/// # Errors
+/// Same errors as [`remap_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn remap_index_buffer_into(
     destination: &mut [u32],
     indices: Option<&[u32]>,
@@ -978,6 +1019,10 @@ fn remap_index_copy(
 }
 
 /// Allocate remapped indices.
+///
+/// # Errors
+/// `InvalidParameter` if unindexed remapping exceeds the remap length; `IndexOutOfBounds` for invalid references;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn remap_index_buffer(
     indices: Option<&[u32]>,
     remap: &[u32],
@@ -1166,6 +1211,10 @@ fn shadow_filter<const FILTER: bool>(
     result
 }
 /// Replace triangle references with first referenced binary-equal vertices.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_shadow_index_buffer(
     indices: &[u32],
     vertices: VertexStream<'_>,
@@ -1174,6 +1223,11 @@ pub fn generate_shadow_index_buffer(
     generate_shadow_index_buffer_multi(indices, &[vertices], workspace)
 }
 /// Multi-stream shadow indices, preserving original vertex numbering.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidLayout` for absent or mismatched streams;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_shadow_index_buffer_multi(
     indices: &[u32],
     streams: &[VertexStream<'_>],
@@ -1183,6 +1237,11 @@ pub fn generate_shadow_index_buffer_multi(
 }
 /// Remove binary-degenerate and duplicate triangles; preserve surviving source
 /// corners and winding. Rotated duplicates are removed; reversed winding stays.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `NumericalFailure` if bounded hash probing finds no slot.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn filter_index_buffer(
     indices: &[u32],
     vertices: VertexStream<'_>,
@@ -1191,6 +1250,11 @@ pub fn filter_index_buffer(
     filter_index_buffer_multi(indices, &[vertices], workspace)
 }
 /// Multi-stream triangle filtering.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidLayout` for absent or mismatched streams; `NumericalFailure` if bounded hash probing finds no slot.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn filter_index_buffer_multi(
     indices: &[u32],
     streams: &[VertexStream<'_>],
@@ -1473,6 +1537,11 @@ fn edge_lookup_kernel<const LIMITED: bool>(
     Err(Error::NumericalFailure)
 }
 /// Generate six adjacency indices per triangle using binary position welding.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `NumericalFailure` if bounded hash probing finds no slot.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_adjacency_index_buffer(
     indices: &[u32],
     positions: Positions<'_>,
@@ -1481,6 +1550,11 @@ pub fn generate_adjacency_index_buffer(
     patches::<false>(indices, positions, None, workspace)
 }
 /// Generate twelve tessellation indices per triangle using binary position welding.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `NumericalFailure` if bounded hash probing finds no slot.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_tessellation_index_buffer(
     indices: &[u32],
     positions: Positions<'_>,
@@ -1490,6 +1564,10 @@ pub fn generate_tessellation_index_buffer(
 }
 /// Generate a unique first-corner vertex for each triangle, with the same
 /// wrapping eight-bit valence heuristic and cyclic rotations as upstream.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn generate_provoking_index_buffer(
     indices: &[u32],
     vertex_count: usize,
@@ -1684,6 +1762,10 @@ impl<'a> FetchIndices<'a> {
 /// [`optimize_vertex_fetch_remap`]. Construct [`FetchIndices`] once to avoid
 /// rescanning the sequence for validity on repeated calls. Numbering and
 /// output initialization still take O(indices.len() + vertex_count) time.
+///
+/// # Errors
+/// `IndexOutOfBounds` for invalid references;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn optimize_vertex_fetch_remap_with_indices(
     source: FetchIndices<'_>,
     workspace: &mut Workspace,
@@ -1709,6 +1791,9 @@ pub fn optimize_vertex_fetch_remap_with_indices(
 /// unused-vertex sentinels, preserved tails and partially written prefixes on
 /// work exhaustion. Reuse [`FetchIndices`] to avoid repeated validity scans;
 /// output initialization and numbering remain O(vertex_count + indices.len()).
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_fetch_remap_with_indices`]. `BufferTooSmall` if an output buffer is too short.
 pub fn optimize_vertex_fetch_remap_with_indices_into(
     destination: &mut [u32],
     source: FetchIndices<'_>,
@@ -1738,6 +1823,10 @@ pub fn optimize_vertex_fetch_remap_with_indices_into(
 /// Validates the full sequence on every call. Repeated queries can cache this
 /// O(indices.len()) validation with [`FetchIndices`] and
 /// [`optimize_vertex_fetch_remap_with_indices`].
+///
+/// # Errors
+/// `IndexOutOfBounds` for invalid references;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn optimize_vertex_fetch_remap(
     indices: &[u32],
     vertex_count: usize,
@@ -1766,6 +1855,9 @@ pub fn optimize_vertex_fetch_remap(
 /// Validates the full sequence on every call. Repeated queries can cache this
 /// O(indices.len()) validation with [`FetchIndices`] and
 /// [`optimize_vertex_fetch_remap_with_indices_into`].
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_fetch_remap`]. `BufferTooSmall` if an output buffer is too short.
 pub fn optimize_vertex_fetch_remap_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -1949,6 +2041,10 @@ fn fetch_owned_kernel<const SIZE: usize, const PACKED: bool>(
 }
 
 /// Allocate first-use vertex bytes and rewritten arbitrary indices.
+///
+/// # Errors
+/// `IndexOutOfBounds` for invalid references;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn optimize_vertex_fetch(
     indices: &[u32],
     vertices: VertexStream<'_>,
@@ -1994,6 +2090,9 @@ pub fn optimize_vertex_fetch(
 }
 /// Write fetch-ordered bytes while rewriting indices in place. Validation and
 /// allocation precede writes; counted-work exhaustion may modify both buffers.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_fetch`]. `BufferTooSmall` if destination storage is insufficient.
 pub fn optimize_vertex_fetch_into(
     destination: &mut [u8],
     indices: &mut [u32],
@@ -2022,6 +2121,9 @@ pub fn optimize_vertex_fetch_into(
 }
 
 /// Caller-buffer filtering. The tail is preserved; work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`filter_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn filter_index_buffer_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -2031,6 +2133,9 @@ pub fn filter_index_buffer_into(
     filter_index_buffer_multi_into(destination, indices, &[vertices], workspace)
 }
 /// Caller-buffer multi-stream filtering; late work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`filter_index_buffer_multi`]. `BufferTooSmall` if an output buffer is too short.
 pub fn filter_index_buffer_multi_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -2040,6 +2145,9 @@ pub fn filter_index_buffer_multi_into(
     Ok(shadow_filter::<true>(indices, streams, Some(destination), workspace)?.1)
 }
 /// Caller-buffer shadow indices; late work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`generate_shadow_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_shadow_index_buffer_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -2049,6 +2157,9 @@ pub fn generate_shadow_index_buffer_into(
     generate_shadow_index_buffer_multi_into(destination, indices, &[vertices], workspace)
 }
 /// Caller-buffer multi-stream shadow indices; late work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`generate_shadow_index_buffer_multi`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_shadow_index_buffer_multi_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -2058,6 +2169,9 @@ pub fn generate_shadow_index_buffer_multi_into(
     Ok(shadow_filter::<false>(indices, streams, Some(destination), workspace)?.1)
 }
 /// Caller-buffer adjacency; requires twice input-length capacity. Late work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`generate_adjacency_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_adjacency_index_buffer_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -2068,6 +2182,9 @@ pub fn generate_adjacency_index_buffer_into(
     Ok(())
 }
 /// Caller-buffer tessellation; requires four times input-length capacity. Late work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`generate_tessellation_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_tessellation_index_buffer_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -2108,6 +2225,9 @@ fn remap_into<const OUTLINE: bool>(
     result
 }
 /// Caller-buffer numerical position remap. The tail is preserved; work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`generate_position_remap`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_position_remap_into(
     destination: &mut [u32],
     positions: Positions<'_>,
@@ -2137,6 +2257,12 @@ pub fn generate_position_remap_into(
     Ok(())
 }
 /// Caller-buffer custom numbering with exact callback traversal. Work exhaustion can leave partial output.
+///
+/// # Errors
+/// Same errors as [`generate_vertex_remap_custom`]. `BufferTooSmall` if an output buffer is too short.
+///
+/// # Panics
+/// Panics if the supplied callback panics.
 pub fn generate_vertex_remap_custom_into(
     destination: &mut [u32],
     indices: Option<&[u32]>,
@@ -2168,6 +2294,9 @@ pub fn generate_vertex_remap_custom_into(
     )
 }
 /// Write provoking topology and used reorder prefix. Requires vertex-count plus triangle-count reorder capacity; work exhaustion can partially modify both outputs.
+///
+/// # Errors
+/// Same errors as [`generate_provoking_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
 pub fn generate_provoking_index_buffer_into(
     destination: &mut [u32],
     reorder: &mut [u32],

@@ -400,6 +400,11 @@ fn smooth(result: &mut [[f32; 3]], scratch: &mut [[f32; 4]], groups: &[u32], alp
 
 /// Experimental upstream `meshopt_generateNormals`, exposed only with `experimental`.
 /// `None` indices denote an unindexed triangle list.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidLayout` for incompatible streams; `InvalidParameter` for unsupported options; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[allow(clippy::too_many_arguments)]
 pub fn generate_normals(
     indices: Option<&[u32]>,
@@ -606,6 +611,9 @@ fn generate_normals_core(
 
 /// Caller-buffer form of the experimental normal generator.
 /// The destination is unchanged if validation or allocation fails.
+///
+/// # Errors
+/// Same errors as [`generate_normals`]. `BufferTooSmall` if the destination is too short.
 pub fn generate_normals_into(
     destination: &mut [[f32; 3]],
     indices: Option<&[u32]>,

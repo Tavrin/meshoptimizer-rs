@@ -134,6 +134,9 @@ fn depth(nodes: &[Node], i: usize, d: u32, ctx: &mut Context<'_>) -> Result<u32,
 /// one workspace budget; caller buffers are excluded. Levels above 64 and
 /// forest depth above 32 return `LimitExceeded`; u32 identifier overflow returns
 /// `SizeOverflow`. Empty input returns empty prefixes and zero dimensions.
+///
+/// # Errors
+/// Same errors as [`super::build`]. `InvalidParameter` for node width below two; `BufferTooSmall` if a caller buffer is too short.
 pub fn build_dag_into(
     config: Config,
     mesh: Mesh<'_>,

@@ -15,6 +15,9 @@ pub struct OpacityMapMeasure {
 }
 
 /// Packed byte count for one micromap, corresponding to `meshopt_opacityMapEntrySize`.
+///
+/// # Errors
+/// `InvalidParameter` if the subdivision level or number of states is unsupported.
 #[inline(always)]
 pub fn opacity_map_entry_size(level: u8, states: u8) -> Result<usize, Error> {
     if level > 12 || (states != 2 && states != 4) {
@@ -336,6 +339,11 @@ fn measure_triangles<const CHARGE: bool>(
 ///
 /// `uvs` is an interleaved float view with `uv_stride` floats per vertex.
 /// It reproduces upstream `meshopt_opacityMapMeasure` for finite inputs.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for invalid texture/UV settings; `InvalidLayout` for a short UV view; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[allow(clippy::too_many_arguments)]
 pub fn opacity_map_measure(
     indices: &[u32],
@@ -435,6 +443,9 @@ pub fn opacity_map_measure(
 
 /// Caller-buffer form of `meshopt_opacityMapMeasure`; returns unique entry count.
 /// The three destinations are unchanged when validation fails.
+///
+/// # Errors
+/// Same errors as [`opacity_map_measure`]. `BufferTooSmall` if an output buffer is too short.
 #[allow(clippy::too_many_arguments)]
 pub fn opacity_map_measure_into(
     levels: &mut [u8],
@@ -497,6 +508,10 @@ fn special_index(data: &[u8], level: u8, states: u8) -> i32 {
 ///
 /// Returns the remaining entry count and used byte count. Callers may trim the
 /// arrays to those lengths. Existing negative triangle references are retained.
+///
+/// # Errors
+/// `InvalidParameter` for unsupported states/levels; `InvalidLayout` for mismatched or out-of-range entries;
+/// `IndexOutOfBounds` for invalid opacity references; `BufferTooSmall` if compacted data exceeds capacity; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn opacity_map_compact(
     data: &mut [u8],
     levels: &mut [u8],
@@ -800,6 +815,10 @@ fn raster_visits(level: u8) -> usize {
 }
 
 /// Rasterize one upstream opacity entry using an alpha-channel byte view.
+///
+/// # Errors
+/// `InvalidParameter` for unsupported settings; `InvalidLayout` for an invalid texture view;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[allow(clippy::too_many_arguments)]
 #[inline(always)]
 pub fn opacity_map_rasterize(
@@ -873,6 +892,9 @@ fn rasterize_impl(
 
 /// Caller-buffer form of `meshopt_opacityMapRasterize`.
 /// Returns the number of bytes written and preserves the destination on error.
+///
+/// # Errors
+/// Same errors as [`opacity_map_rasterize`]. `BufferTooSmall` if an output buffer is too short.
 #[allow(clippy::too_many_arguments)]
 #[inline(always)]
 pub fn opacity_map_rasterize_into(

@@ -124,6 +124,9 @@ impl SimplifyOptions {
     #[cfg(feature = "experimental")]
     pub const ERROR_CLAMPED: Self = Self(256);
     /// Validate a raw option mask; unsupported options are rejected.
+    ///
+    /// # Errors
+    /// `UnknownFlags` if any option bit is unknown or unavailable with the enabled features.
     pub const fn from_bits(bits: u32) -> Result<Self, Error> {
         let mask = if cfg!(feature = "experimental") {
             511
@@ -185,6 +188,9 @@ pub struct SimplifyResult {
 /// Return meshopt_simplifyScale's maximum axis extent, without an epsilon clamp.
 /// Empty and coincident positions return zero; non-finite inputs and overflowing
 /// extents return an error. This operation allocates no memory.
+///
+/// # Errors
+/// `InvalidParameter` for non-finite positions; `NumericalFailure` for an overflowing extent.
 pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {
     let Some(values) = positions.packed_values() else {
         return scale_view(positions);
@@ -310,6 +316,11 @@ fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
 }
 /// Allocate meshopt_simplify's result, preserving upstream ordering and error bits.
 /// No welding, fetch compaction or cache optimization is applied to the result.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for invalid settings or non-finite inputs; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn simplify(
     indices: &[u32],
     positions: Positions<'_>,
@@ -322,6 +333,9 @@ pub fn simplify(
 /// supported; weights must be finite and nonnegative, with one per component.
 /// Zero-weight components do not contribute to error. All supplied values must
 /// be finite, including unused vertices and zero-weight components.
+///
+/// # Errors
+/// Same errors as [`simplify`]. `InvalidLayout` for mismatched attributes, weights or flags.
 pub fn simplify_with_attributes(
     indices: &[u32],
     positions: Positions<'_>,
@@ -383,6 +397,9 @@ fn allocating(
 /// Write meshopt_simplify's result into a caller buffer of at least input length.
 /// The tail after the input length is preserved. A late resource or numerical
 /// error may modify the input-length prefix; use the allocating API for atomicity.
+///
+/// # Errors
+/// Same errors as [`simplify`]. `BufferTooSmall` if the destination cannot hold the required prefix.
 pub fn simplify_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -403,6 +420,9 @@ pub fn simplify_into(
 }
 /// Caller-buffer attribute simplification, with the same contracts as
 /// [`simplify_with_attributes`] and the mutation guarantee of [`simplify_into`].
+///
+/// # Errors
+/// Same errors as [`simplify_with_attributes`]. `BufferTooSmall` if the destination cannot hold the required prefix.
 #[allow(clippy::too_many_arguments)]
 pub fn simplify_with_attributes_into(
     destination: &mut [u32],

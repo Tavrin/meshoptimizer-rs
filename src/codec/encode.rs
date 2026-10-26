@@ -20,6 +20,9 @@ impl VertexEncoding {
     /// Check a version (0 or 1) and level (0 through 9, the range the pinned
     /// reference accepts; 1.3 behaves identically for levels 3 through 9).
     /// Version 0 ignores the level, as upstream does.
+    ///
+    /// # Errors
+    /// `UnsupportedVersion` if the version is not 0 or 1; `InvalidParameter` if the vertex encoding level exceeds 9.
     pub const fn new(version: u8, level: u8) -> Result<Self, Error> {
         if version > 1 {
             return Err(Error::UnsupportedVersion);
@@ -54,6 +57,9 @@ impl IndexEncoding {
     /// Upstream default: version 1.
     pub const DEFAULT: Self = Self { version: 1 };
     /// Check a version: 0 (decodable by all versions) or 1.
+    ///
+    /// # Errors
+    /// `UnsupportedVersion` if the version is not 0 or 1;
     pub const fn new(version: u8) -> Result<Self, Error> {
         if version > 1 {
             return Err(Error::UnsupportedVersion);
@@ -93,6 +99,10 @@ fn vertex_layout(count: usize, stride: usize) -> Result<usize, Error> {
 }
 
 /// meshopt_encodeVertexBufferBound: worst-case encoded size for either version.
+///
+/// # Errors
+/// `InvalidLayout` for an unsupported stride;
+/// `SizeOverflow` if the worst-case encoded size cannot be represented.
 #[inline]
 pub fn encode_vertex_buffer_bound(count: usize, stride: usize) -> Result<usize, Error> {
     if stride == 0 || stride > 256 || !stride.is_multiple_of(4) {
@@ -102,6 +112,10 @@ pub fn encode_vertex_buffer_bound(count: usize, stride: usize) -> Result<usize, 
 }
 
 /// meshopt_encodeIndexBufferBound. `index_count` must be a multiple of three.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles;
+/// `SizeOverflow` if the worst-case encoded size cannot be represented.
 #[inline]
 pub fn encode_index_buffer_bound(index_count: usize, vertex_count: usize) -> Result<usize, Error> {
     if !index_count.is_multiple_of(3) {
@@ -111,6 +125,9 @@ pub fn encode_index_buffer_bound(index_count: usize, vertex_count: usize) -> Res
 }
 
 /// meshopt_encodeIndexSequenceBound.
+///
+/// # Errors
+/// `SizeOverflow` if the worst-case encoded size cannot be represented.
 #[inline]
 pub fn encode_index_sequence_bound(
     index_count: usize,
@@ -171,6 +188,10 @@ fn into(
 /// version and level into a vector. `vertices` holds exactly count * stride
 /// bytes; all bytes, including padding, are encoded verbatim. stride is a
 /// multiple of four from 4 to 256.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride or input byte length;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_vertex_buffer(
     vertices: &[u8],
     count: usize,
@@ -199,6 +220,11 @@ pub fn encode_vertex_buffer(
 /// Fails with BufferTooSmall exactly where the reference returns 0; the
 /// encoder needs slack beyond the final size, so use
 /// [`encode_vertex_buffer_bound`]. On failure the buffer prefix may change.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride or input byte length;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination cannot hold the encoded stream.
 pub fn encode_vertex_buffer_into(
     destination: &mut [u8],
     vertices: &[u8],
@@ -238,6 +264,10 @@ fn max_vertices(indices: &[u32]) -> u64 {
 /// Encode a triangle list (meshopt_encodeIndexBuffer) with an explicit version.
 /// The length is a multiple of three. Corners may be rotated within each
 /// triangle, as upstream does; decoding returns the rotated list.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_index_buffer(
     indices: &[u32],
     encoding: IndexEncoding,
@@ -257,6 +287,11 @@ pub fn encode_index_buffer(
 /// Encode a triangle list into a caller buffer and return the encoded length.
 /// Fails with BufferTooSmall exactly where the reference returns 0; on
 /// failure the buffer prefix may change.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination cannot hold the encoded stream.
 pub fn encode_index_buffer_into(
     destination: &mut [u8],
     indices: &[u32],
@@ -277,6 +312,10 @@ pub fn encode_index_buffer_into(
 
 /// Encode an arbitrary index sequence (meshopt_encodeIndexSequence) with an
 /// explicit version.
+///
+/// # Errors
+/// `SizeOverflow` for overflowing input/output sizes;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_index_sequence(
     indices: &[u32],
     encoding: IndexEncoding,
@@ -293,6 +332,11 @@ pub fn encode_index_sequence(
 /// Encode an index sequence into a caller buffer and return the encoded
 /// length. Fails with BufferTooSmall exactly where the reference returns 0;
 /// on failure the buffer prefix may change.
+///
+/// # Errors
+/// `SizeOverflow` for overflowing input/output sizes;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination cannot hold the encoded stream.
 pub fn encode_index_sequence_into(
     destination: &mut [u8],
     indices: &[u32],
@@ -458,6 +502,10 @@ fn filter_vec_with(
 /// Octahedral filter encoder (meshopt_encodeFilterOct): `data` holds four
 /// floats per vector; stride 4 takes 2..=8 bits, stride 8 takes 2..=16.
 /// Z stores 1.0 and W is quantized to the full byte width.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_filter_oct(
     count: usize,
     stride: usize,
@@ -471,6 +519,11 @@ pub fn encode_filter_oct(
     })
 }
 /// Caller-buffer form of [`encode_filter_oct`]; the destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination is too short.
 pub fn encode_filter_oct_into(
     destination: &mut [u8],
     count: usize,
@@ -495,6 +548,10 @@ pub fn encode_filter_oct_into(
 }
 /// Quaternion filter encoder (meshopt_encodeFilterQuat): four floats per
 /// quaternion, stride 8, 4..=16 bits.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_filter_quat(
     count: usize,
     stride: usize,
@@ -508,6 +565,11 @@ pub fn encode_filter_quat(
     })
 }
 /// Caller-buffer form of [`encode_filter_quat`]; the destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination is too short.
 pub fn encode_filter_quat_into(
     destination: &mut [u8],
     count: usize,
@@ -535,6 +597,10 @@ pub fn encode_filter_quat_into(
 /// Returns NumericalFailure where the reference conversion is undefined
 /// (non-finite input; one-bit mantissas with exponent 128); the output may
 /// then be partially written.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `NumericalFailure` for non-finite exponential intermediates; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_filter_exp(
     count: usize,
     stride: usize,
@@ -546,6 +612,11 @@ pub fn encode_filter_exp(
     filter_vec(Kind::Exp(mode), count, stride, bits, data, workspace)
 }
 /// Caller-buffer form of [`encode_filter_exp`]; the destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `NumericalFailure` for non-finite exponential intermediates; `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination is too short.
 pub fn encode_filter_exp_into(
     destination: &mut [u8],
     count: usize,
@@ -567,6 +638,10 @@ pub fn encode_filter_exp_into(
 }
 /// Color filter encoder (meshopt_encodeFilterColor): four floats per RGBA
 /// color into YCoCg-R plus alpha; stride 4 takes 2..=8 bits, stride 8 2..=16.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_filter_color(
     count: usize,
     stride: usize,
@@ -577,6 +652,11 @@ pub fn encode_filter_color(
     filter_vec(Kind::Color, count, stride, bits, data, workspace)
 }
 /// Caller-buffer form of [`encode_filter_color`]; the destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for invalid stride/input length; `InvalidParameter` for unsupported precision;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination is too short.
 pub fn encode_filter_color_into(
     destination: &mut [u8],
     count: usize,
