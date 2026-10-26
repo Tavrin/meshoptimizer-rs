@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-26T07:23:39.399235+00:00",
+  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-memory",
+  "bytes_deleted": 2747417393,
+  "target_exists": false,
+  "binaries_retained": {
+    "bin/A": "14244f8486e9eee9e6ea514f71da1c4142e5403ef659e6419f2992af985ef1c9",
+    "bin/probe-B": "a95b7319efbc9ebb157bf01d41ddba9487b0abbb2756ad5b1f342e49abe0cf3c",
+    "bin/B": "5e5e998adf1488acfd671307ff672acea0b2e55ac374e362bc200f2b8a698762",
+    "bin/probe-A": "cbed7e641cc42ee4453ae6ffe8c333ef660fc3c7923e412d7a9f9ce29e36c1ee",
+    "bin-initial-probes/probe-B": "c4ca04353d39bc689ca32c33d7c425cadd75a15964eb622c7e1f8b072ae82636",
+    "bin-initial-probes/probe-A": "3f8d40d4bf5a56268d1972c2df8b391a87bdf4d70112c9c302a352badc0518d2"
+  },
+  "source_unchanged": true,
+  "external_41_files_unchanged": true,
+  "gates_rc": 0,
+  "targeted_proof_rc": 0,
+  "fields_proof_rc": 0,
+  "initial_unadmitted_submission_rc": 143
+}

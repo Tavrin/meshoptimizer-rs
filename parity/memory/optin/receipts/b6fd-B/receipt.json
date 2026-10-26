@@ -1,0 +1,10 @@
+{
+  "event": "finish",
+  "name": "b6fd-B",
+  "rc": 0,
+  "exact": true,
+  "stable_sha256": "9ab72846f7feb3edce40e7bacc0d50df337a298a4cc711d533db32e011fbc0ce",
+  "utc": 1792998941.0976348,
+  "instructions": 55160901451,
+  "counter_line": "55160901451;;instructions:u;9049372281;100.00;;"
+}

@@ -1,0 +1,6 @@
+{
+  "verdict": "PASS",
+  "points": 50,
+  "capacity_exact": true,
+  "simplify_buffers": 20
+}

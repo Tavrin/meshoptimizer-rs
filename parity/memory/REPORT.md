@@ -1,4 +1,78 @@
-# SPEC-027 memory chain
+# SPEC-027 opt-in lean scratch retention
+
+Targeted opt-in verdict: **PASS**. The historical default candidate's registered
+**FAIL** below is preserved. `Retention::Reuse` is the default; opt in per
+workspace with `workspace.set_retention(Retention::Lean)` and inspect with
+`workspace.retention()`. No global state. A policy change clears scratch and
+resets measurements; `clear` and `set_limits` preserve the selected policy.
+Limits and Usage retain their documented accounting semantics.
+
+The merge baseline is v0.2.6, `33556c48efc13f3f36a9293aa5fbf451c0884fe3`.
+Implementation `41d224c` follows merge `839c31c`. The default restores v0.2.6's
+cross-family reuse, retained quadrics and eager initialization; only Lean
+selects family eviction, quadric release on return and deferred initialization.
+Other families, algorithm output, validation and checked resource gates are
+unchanged. Resource usage values reflect the selected retained capacity.
+
+## Targeted default-path proof
+
+One fixed invocation of the retained full chain driver per arm/case, plus the
+original six-simplify microbench; `perf stat -e instructions:u`, CPU 8, 100%
+counter running in every row. A is v0.2.6; B is default Reuse. No wall campaign.
+Both arms use the same driver, thin LTO, one codegen unit and ordinary release
+flags; source/input/binary/host identities and raw counters are in [optin/](optin/).
+
+| Workload | A instructions | B instructions | B/A | Bar |
+|---|---:|---:|---:|---:|
+| 214e | 140,323,731,139 | 140,323,723,744 | 0.999999947 | ≤1.01 |
+| b6fd | 55,160,906,531 | 55,160,901,451 | 0.999999908 | ≤1.01 |
+| a082 | 227,502,034,599 | 227,502,977,225 | 1.000004143 | ≤1.01 |
+| Six simplify | 30,726,388,530 | 30,726,396,152 | 1.000000248 | ≤1.01 |
+
+All four pass; the conditional v2 LAYOUT wall/alignment check is not triggered.
+The separate step-1 214e probes match retained capacities, Usage bytes and work
+at all 50 observe points. The supplemental probe also matches all 20 simplify
+buffers individually, alongside the shared vectors, at the same 50 points.
+No probe accessor or instrumentation enters the crate.
+
+## Lean RSS and exactness
+
+Exactly one uninstrumented Lean 214e RSS run: **2,302,528 KiB = 2.195861816 GiB**,
+passing ≤2.318 GiB. The full stage/legacy/packaging result, indices and error
+bits match baseline; every output sidecar is SHA256-verified before hardlink
+deduplication outside the measured process. All instruction and capacity runs
+also have exact stable results (only instrumented_processing_ns is excluded).
+
+No Lean timing campaign was repeated. The previously registered cost remains
+214e peak RSS 2.851 → 2.196 GiB (1.042× C++), with simplify-heavy chain upper95
+ratios up to 1.197656; the six-simplify microbench upper95 was 1.344914. These
+are historical default-candidate measurements, disclosed as Lean's cost rather
+than new timing claims. New API rustdoc states the specified rounded tradeoff.
+
+## Validation and disposition
+
+All-feature tests: 212 passed, exit 0. All-target/all-feature clippy with
+`-D warnings`, fmt, and the focused both-mode family/quadric retention test:
+exit 0. The test also covers same-family reuse, FIFO switching, validation
+error equality, preserving limits, and clear/set_limits/policy transitions.
+Builds and the instruction/capacity/RSS proof exit 0.
+
+CPU-only moss-heavy, MOSS_HEAVY_GPU=0, 4 GB declaration; measurements also set
+MOSS_HEAVY_MEASUREMENT=1. The first Python submission inherited the shared
+Python executable's 9 GB reservation and was canceled before admission (143,
+no samples). Resubmission used the normal named shell script class and 4 GB
+reservation; queue/admission logs are retained. No policy overrides.
+
+Full source snapshots, binaries, raw results, byte sidecars and logs:
+`/mnt/linux-extra/moss-scratch/meshopt-memory/optin/`. Compact committed
+[receipts](optin/VERDICT.json), [registration](optin/REGISTRATION.md) and
+[gate exits](optin/GATES.tsv) bind the new proof. The designated Cargo target
+was deleted after retaining all binaries;
+[cleanup](optin/CLEANUP.json) confirms source identity and removal. Historical
+evidence below remains unchanged. No Moss change, PR merge, tag or publish
+is part of this work.
+
+## Historical default-candidate campaign (unchanged)
 
 Registered verdict: **FAIL**. RSS passed; the default candidate fails the
 wall-time bars and is not qualified for release. No timing reruns.

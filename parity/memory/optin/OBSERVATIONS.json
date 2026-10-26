@@ -1,0 +1,1406 @@
+{
+  "A": [
+    {
+      "stage": "observe:validation_input",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:input",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:chain_start",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:scale_raw",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:scale",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_skipped",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        883636078,
+        789938002,
+        81581292,
+        8553024,
+        2851008,
+        712752,
+        0
+      ],
+      "usage_bytes": 892189102,
+      "usage_work": 57238974
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 38817078
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:retry_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:input",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:chain_start",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:scale_raw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:scale",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_skipped",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 57238974
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 38817078
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    }
+  ],
+  "B": [
+    {
+      "stage": "observe:validation_input",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:input",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:chain_start",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:scale_raw",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:scale",
+      "retained": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 0,
+      "usage_work": 0
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_skipped",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 824150014,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        789938002,
+        789938002,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "usage_bytes": 891258878,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        883636078,
+        789938002,
+        81581292,
+        8553024,
+        2851008,
+        712752,
+        0
+      ],
+      "usage_bytes": 892189102,
+      "usage_work": 57238974
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 38817078
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:retry_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:input",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:chain_start",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:scale_raw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:scale",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_skipped",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 57238974
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 917518732,
+      "usage_work": 37283942
+    },
+    {
+      "stage": "observe:simplify",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:level_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:aggregate_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:prune_decision",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 1010286584,
+      "usage_work": 185645006
+    },
+    {
+      "stage": "observe:cache",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 38817078
+    },
+    {
+      "stage": "observe:overdraw",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:packaged",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    },
+    {
+      "stage": "observe:level_emitted",
+      "retained": [
+        908965708,
+        789938002,
+        81581292,
+        32895784,
+        2851008,
+        712752,
+        986870
+      ],
+      "usage_bytes": 913242220,
+      "usage_work": 32239862
+    }
+  ]
+}
