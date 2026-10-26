@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>meshopt decode speed</title>
+</head>
+<body>
+<pre id="status">running</pre>
+<script type="module">
+import { loadArms, measure } from "./harness.mjs";
+
+const root = ".";
+const streams = await (await fetch(root + "/data/streams.json")).json();
+const bin = new Uint8Array(await (await fetch(root + "/data/streams.bin")).arrayBuffer());
+const manifest = await (await fetch(root + "/data/arms.json")).json();
+const specs = [];
+for (const spec of manifest) {
+    specs.push({
+        name: spec.name,
+        kind: spec.kind,
+        bytes: await (await fetch(root + "/" + spec.file)).arrayBuffer(),
+    });
+}
+const arms = await loadArms(specs);
+const mode = await (await fetch(root + "/data/mode.json")).json();
+const bytesOnly = !!mode.bytes_only;
+window.__done = measure(arms, streams, bin, { warmup: 1, repeats: 15, bytesOnly }).then((result) => {
+    result.host = "chromium";
+    result.user_agent = navigator.userAgent;
+    document.getElementById("status").textContent = "done " + result.rows.length;
+    return result;
+});
+</script>
+</body>
+</html>

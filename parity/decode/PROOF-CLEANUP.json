@@ -1,0 +1,8 @@
+{
+  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-decode-proof",
+  "deleted": true,
+  "exists_after": false,
+  "bytes_removed": 166773663,
+  "utc": "2026-10-26T04:39:21.073879+00:00",
+  "retained_evidence": "/mnt/linux-extra/moss-scratch/meshopt-decode-proof"
+}

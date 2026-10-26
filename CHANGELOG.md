@@ -7,15 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Record the workspace retention candidate for simplify, cache and overdraw
-  optimization. Simplify releases position quadrics on
-  return, initializes them once and initializes ordering entries only for picked
-  candidates.
-  On the 214e LOD chain, peak RSS is 2.196 GiB versus
-  2.851 GiB for 0.2.5 and 2.107 GiB for C++ 1.3
-  (0.655 GiB saved). Wall-time B/A upper95 values for
-  214e/b6fd/a082/six-call simplify are 1.197656/1.120309/1.034114/1.344914;
-  registered verdict: FAIL; wall-time bars are unmet. See [method and results](parity/memory/REPORT.md).
+- Opt-in lean scratch retention: 214e peak RSS 2.851 → 2.196 GiB;
+  simplify-heavy chains up to 1.20× wall time. See [measurements](parity/memory/REPORT.md).
+
+## [0.2.6] - 2026-10-26
+
+- Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and
+  `compute_meshlet_bounds_with_positions` for repeated bounds queries over the
+  same positions. The new API takes 1.24× (meshlet) and 0.99× (cluster) the time
+  of C++ 1.3. Existing bounds API instruction counts are 1.00× those of 0.2.4.
+- Native scalar vertex decode takes 0.91× the time of 0.2.5. Scalar Oct/Quat
+  filters do less work. Output and errors are byte-identical to 0.2.5 across
+  6,249,496 native cases and 3,740 wasm32 cases in each of debug and release.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/PERFORMANCE.md) for method.
 
 ## [0.2.5] - 2026-10-26
 

@@ -1,0 +1,21 @@
+{
+  "verdict": "PASS",
+  "checks": {
+    "measurement_identity_exact": true,
+    "original_binaries_recovered": true,
+    "proof_gates_zero": true,
+    "targeted_differential_zero_mismatches": true,
+    "native_complete_no_rerun": true,
+    "aa_precedes_comparisons": true,
+    "native_partial_verdicts_retained": true,
+    "browser_42_seven_arm_identity": true,
+    "browser_exact_15_calls_one_warmup": true,
+    "browser_partial_not_excluding_zeros": true,
+    "single_browser_infrastructure_retry": true,
+    "scalar_library_no_unsafe_added": true,
+    "simd_and_encoders_unchanged": true,
+    "target_deleted": true
+  },
+  "performance_verdict": "PARTIAL",
+  "note": "Audit PASS verifies evidence integrity/protocol; performance acceptance remains PARTIAL."
+}

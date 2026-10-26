@@ -115,3 +115,10 @@ path = "fuzz_targets/spatial_cluster_points.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "bounds_with_positions"
+path = "fuzz_targets/bounds_with_positions.rs"
+test = false
+doc = false
+bench = false

@@ -1,0 +1,13 @@
+{
+  "status": "EXTERNAL_STOP_REDUNDANT_REPLAY",
+  "signal": "SIGTERM",
+  "runner_exit_expected": 143,
+  "fixture_at_last_observation": "vertex-v0-s256-n513-k1",
+  "reason": "Required native original-source exhaustive check passed. Corrected native counter suite independently reaches every native function, with every API bulk entry asserted. Both wasm profiles also pass all 11 counters. Stop duplicate full native counter replay; do not reinterpret it as PASS or a technical failure.",
+  "required_check_exit_codes": [
+    0,
+    0
+  ],
+  "filter_completion_exit": 0,
+  "runner_exit_observed": 143
+}

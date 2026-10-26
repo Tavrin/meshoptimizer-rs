@@ -1,0 +1,5 @@
+heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, p95 0.6 GB over 18 runs x 1.15): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh medium-sparse meshlet-bounds pinned
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=4161629 - margin_kb=2097152 = free_kb=-6258781; need_kb=2097152; normal_slots=1/6; lane_slots=0/2]
+heavy: running (2G reserved, cap 7G, 18G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh medium-sparse meshlet-bounds pinned
+medium-sparse-meshlet-bounds-pinned 1.096434626672453

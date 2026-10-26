@@ -244,6 +244,27 @@ impl Drop for Context<'_> {
     }
 }
 
+// The scan is independent of work accounting so bounds callers can cache its
+// result and replay failures at the same point in the checked operation.
+pub(crate) fn validate_positions(positions: Positions<'_>) -> Result<bool, Error> {
+    if positions.len() > u32::MAX as usize {
+        return Err(Error::SizeOverflow);
+    }
+    let mut largest = 0u32;
+    positions.for_each(|p| {
+        largest = largest
+            .max(p[0].to_bits() & 0x7fffffff)
+            .max(p[1].to_bits() & 0x7fffffff)
+            .max(p[2].to_bits() & 0x7fffffff);
+        Ok(())
+    })?;
+    if largest > f32::MAX.to_bits() {
+        Err(Error::NumericalFailure)
+    } else {
+        Ok(largest <= 1.0e8f32.to_bits())
+    }
+}
+
 #[inline(always)]
 pub(crate) fn finite(x: f32) -> Result<f32, Error> {
     if x.is_finite() {

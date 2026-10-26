@@ -6,6 +6,7 @@ rust-version = "1.88"
 publish = false
 
 [features]
+std = ["meshoptimizer-rs/std"]
 simd = ["meshoptimizer-rs/std", "meshoptimizer-rs/simd", "meshoptimizer-rs/parity-internals"]
 
 [dependencies]

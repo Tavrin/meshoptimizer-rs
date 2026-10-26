@@ -1,0 +1,19 @@
+{
+  "verdict": "PASS",
+  "library_source_unchanged": true,
+  "required_comparisons_exit": 0,
+  "nonzero_dispositions": [
+    {
+      "label": "filter-completion-attempt1-guard",
+      "exit": 1
+    },
+    {
+      "label": "redundant-native-counter-replay-external-stop",
+      "exit": 143
+    }
+  ],
+  "target_absent": true,
+  "python_syntax_exit": 0,
+  "bash_syntax_exit": 0,
+  "diff_check_exit": 0
+}

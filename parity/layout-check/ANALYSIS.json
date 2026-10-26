@@ -1,0 +1,25 @@
+{
+  "F": 0.08383959615864334,
+  "T": 1.104,
+  "aa_family_gms": {
+    "meshlet-bounds": 1.0838395961586433,
+    "cluster-bounds": 1.0646445398503799
+  },
+  "families": [
+    {
+      "family": "meshlet-bounds",
+      "instructions": 0.9999398944082657,
+      "default_wall": 0.9135792142706408,
+      "pinned_wall": 0.9905117393388125,
+      "verdict": "PASS"
+    },
+    {
+      "family": "cluster-bounds",
+      "instructions": 1.001166227229815,
+      "default_wall": 0.913267704254553,
+      "pinned_wall": 1.0178698786943656,
+      "verdict": "PASS"
+    }
+  ],
+  "outcome": "RELEASABLE in next 0.2.x together with the retained new-API result"
+}

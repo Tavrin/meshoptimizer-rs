@@ -1,0 +1,10 @@
+{
+  "case": "medium-seams",
+  "operation": "meshlet-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 94010.0539,
+    "B": 94011.0536
+  },
+  "ratio": 0.999989366144068
+}

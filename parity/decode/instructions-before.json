@@ -1,0 +1,170 @@
+[
+  {
+    "arm": "before",
+    "case": "medium-smooth",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 3545582,
+      "100": 99098452
+    },
+    "instructions_per_call": 955528.7
+  },
+  {
+    "arm": "before",
+    "case": "medium-smooth",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 3545828,
+      "100": 98884693
+    },
+    "instructions_per_call": 953388.65
+  },
+  {
+    "arm": "before",
+    "case": "medium-seams",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 4105752,
+      "100": 121345232
+    },
+    "instructions_per_call": 1172394.8
+  },
+  {
+    "arm": "before",
+    "case": "medium-seams",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 4105442,
+      "100": 121054941
+    },
+    "instructions_per_call": 1169494.99
+  },
+  {
+    "arm": "before",
+    "case": "medium-sparse",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 6012398,
+      "100": 197065043
+    },
+    "instructions_per_call": 1910526.45
+  },
+  {
+    "arm": "before",
+    "case": "medium-sparse",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 6012786,
+      "100": 196617600
+    },
+    "instructions_per_call": 1906048.14
+  },
+  {
+    "arm": "m7",
+    "case": "medium-smooth",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 5327543,
+      "100": 20859129
+    },
+    "instructions_per_call": 155315.86
+  },
+  {
+    "arm": "m7",
+    "case": "medium-smooth",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 5326794,
+      "100": 38756773
+    },
+    "instructions_per_call": 334299.79
+  },
+  {
+    "arm": "m7",
+    "case": "medium-seams",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 5919426,
+      "100": 24984514
+    },
+    "instructions_per_call": 190650.88
+  },
+  {
+    "arm": "m7",
+    "case": "medium-seams",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 5919631,
+      "100": 46939811
+    },
+    "instructions_per_call": 410201.8
+  },
+  {
+    "arm": "m7",
+    "case": "medium-sparse",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 7937254,
+      "100": 38947723
+    },
+    "instructions_per_call": 310104.69
+  },
+  {
+    "arm": "m7",
+    "case": "medium-sparse",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 7937668,
+      "100": 74759747
+    },
+    "instructions_per_call": 668220.79
+  }
+]
