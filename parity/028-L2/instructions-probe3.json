@@ -1,0 +1,232 @@
+[
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache",
+    "case": "tiny-smooth",
+    "iterations": 10000,
+    "instructions": 342711284,
+    "per_iteration": 34271.1284,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache",
+    "case": "medium-smooth",
+    "iterations": 100,
+    "instructions": 1225796877,
+    "per_iteration": 12257968.77,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache",
+    "case": "medium-seams",
+    "iterations": 100,
+    "instructions": 1087295114,
+    "per_iteration": 10872951.14,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache",
+    "case": "medium-sparse",
+    "iterations": 100,
+    "instructions": 1230972878,
+    "per_iteration": 12309728.78,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache",
+    "case": "million-smooth",
+    "iterations": 4,
+    "instructions": 6079383800,
+    "per_iteration": 1519845950.0,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache-fifo",
+    "case": "tiny-smooth",
+    "iterations": 10000,
+    "instructions": 101111169,
+    "per_iteration": 10111.1169,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache-fifo",
+    "case": "medium-smooth",
+    "iterations": 100,
+    "instructions": 223858287,
+    "per_iteration": 2238582.87,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache-fifo",
+    "case": "medium-seams",
+    "iterations": 100,
+    "instructions": 226727089,
+    "per_iteration": 2267270.89,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache-fifo",
+    "case": "medium-sparse",
+    "iterations": 100,
+    "instructions": 230302786,
+    "per_iteration": 2303027.86,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "cache-fifo",
+    "case": "million-smooth",
+    "iterations": 4,
+    "instructions": 1091655623,
+    "per_iteration": 272913905.75,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "simplify-scale",
+    "case": "tiny-smooth",
+    "iterations": 10000,
+    "instructions": 8630996,
+    "per_iteration": 863.0996,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "simplify-scale",
+    "case": "medium-smooth",
+    "iterations": 100,
+    "instructions": 9064755,
+    "per_iteration": 90647.55,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "simplify-scale",
+    "case": "medium-seams",
+    "iterations": 100,
+    "instructions": 11112654,
+    "per_iteration": 111126.54,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "simplify-scale",
+    "case": "medium-sparse",
+    "iterations": 100,
+    "instructions": 18097455,
+    "per_iteration": 180974.55,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "simplify-scale",
+    "case": "million-smooth",
+    "iterations": 4,
+    "instructions": 42981468,
+    "per_iteration": 10745367.0,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "tiny-smooth",
+    "iterations": 10000,
+    "instructions": 165661340,
+    "per_iteration": 16566.134,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "medium-smooth",
+    "iterations": 100,
+    "instructions": 179095040,
+    "per_iteration": 1790950.4,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "medium-seams",
+    "iterations": 100,
+    "instructions": 181918662,
+    "per_iteration": 1819186.62,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "medium-sparse",
+    "iterations": 100,
+    "instructions": 190502539,
+    "per_iteration": 1905025.39,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "million-smooth",
+    "iterations": 4,
+    "instructions": 856284885,
+    "per_iteration": 214071221.25,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "real-214e-overdraw",
+    "iterations": 4,
+    "instructions": 2474293286,
+    "per_iteration": 618573321.5,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "real-b6fd-overdraw",
+    "iterations": 4,
+    "instructions": 1755852524,
+    "per_iteration": 438963131.0,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  },
+  {
+    "binary": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-2",
+    "operation": "overdraw",
+    "case": "real-a082-overdraw",
+    "iterations": 4,
+    "instructions": 7023283125,
+    "per_iteration": 1755820781.25,
+    "sha256": "cea012ba52e1b54bddecb418728f46f3994bd4e92a1fe5a27d0c2b906db370a9",
+    "cpu": 9
+  }
+]

@@ -186,7 +186,45 @@ pub struct SimplifyResult {
 /// Empty and coincident positions return zero; non-finite inputs and overflowing
 /// extents return an error. This operation allocates no memory.
 pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {
-    Ok(bounds(positions)?.1)
+    let Some(values) = positions.packed_values() else {
+        return Ok(bounds(positions)?.1);
+    };
+    // Separating the finite reduction from the bounds loop lets each scan
+    // run without a per-coordinate early exit. No output/work is observable
+    // before this API returns, and validation still precedes extent overflow.
+    let finite = values
+        .as_flattened()
+        .iter()
+        .fold(true, |finite, v| finite & v.is_finite());
+    if !finite {
+        return Err(Error::InvalidParameter);
+    }
+    let mut lo = [f32::MAX; 3];
+    let mut hi = [-f32::MAX; 3];
+    for v in values {
+        for j in 0..3 {
+            if lo[j] > v[j] {
+                lo[j] = v[j];
+            }
+            if hi[j] < v[j] {
+                hi[j] = v[j];
+            }
+        }
+    }
+    if values.is_empty() {
+        return Ok(0.0);
+    }
+    let mut extent = 0.0;
+    for j in 0..3 {
+        let d = hi[j] - lo[j];
+        if d >= extent {
+            extent = d;
+        }
+    }
+    if !extent.is_finite() {
+        return Err(Error::NumericalFailure);
+    }
+    Ok(extent)
 }
 fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
     let mut lo = [f32::MAX; 3];

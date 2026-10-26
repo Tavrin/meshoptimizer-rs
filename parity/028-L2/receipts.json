@@ -1,0 +1,12 @@
+{
+  "initial-generic-build": 143,
+  "initial-named-build-and-counts": 0,
+  "probe1-build-and-counts": 0,
+  "probe2-build-counts-proof": 1,
+  "probe3-build-counts-proof": 1,
+  "final-build-counts-adapter-protocol": 2,
+  "stage-rebuild-backfill": 124,
+  "verify-gates-and-fuzz": 0,
+  "standalone-strict-raw-oracle": 0,
+  "corrected-stage-proof-and-single-wall-campaign": 0
+}

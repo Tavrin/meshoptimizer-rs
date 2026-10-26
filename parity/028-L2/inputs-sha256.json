@@ -1,0 +1,18 @@
+{
+  "million-smooth.bin": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
+  "medium-seams.bin": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
+  "real-a082-simplify.bin": "8989ac19a20a654d7d1fd57810b58a228f97969e3efc1347d36b1cb0f15245b5",
+  "medium-smooth-strip.bin": "c12d11774fe8eda585822863446401ad1c5112729e27915e8042bc2d1106af55",
+  "medium-seams-strip.bin": "891ec84eda32e33164064c60fc5d11927c0b3fc172fb945fd928d241652a3248",
+  "million-smooth-strip.bin": "f9de2639a8607f6c3c54515ec7eff031bc82a19eab885ac119dd91c2409db487",
+  "real-a082-overdraw.bin": "07fd53aa1e5c00657c5a0f694bf9794da82bbeb158ac447937c7751bfc0e1992",
+  "real-b6fd-simplify.bin": "294b78ee5f9d0a20f72707ebba29f4ea621d4bbe7ab87976c9c0f23d19e68661",
+  "medium-smooth.bin": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
+  "real-214e-overdraw.bin": "93ed009184795d34d224145943076fad3b566ea27feb20b3317b05208ec5d809",
+  "real-b6fd-overdraw.bin": "e0a743ebbd958b4b8a645eb511673aa16e3f134f81f5c5bfb7f531c5304a3f67",
+  "real-214e-simplify.bin": "50d76608648568ef2f595270cf48f2461c5d0b2ef623310259c4ecf29dd79171",
+  "tiny-smooth-strip.bin": "fbe95dded2a74f245d261f078ab3f9963cf5aac767221c6a80ca793b7cba4f5b",
+  "tiny-smooth.bin": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
+  "medium-sparse.bin": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
+  "medium-sparse-strip.bin": "3a9abb12b61021170be39d753c3d054808eed5070f3dde296174edf3e320aff0"
+}

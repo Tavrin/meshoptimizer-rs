@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `optimize_vertex_cache` takes 0.958× the time of 0.2.7 and 1.176× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `optimize_vertex_cache_fifo` takes 0.966× the time of 0.2.7 and 1.284× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `simplify_scale` takes 0.698× the time of 0.2.7 and 0.940× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `optimize_overdraw` takes 0.983× the time of 0.2.7 and 1.108× the time of C++ 1.3 in the registered scalar microbenchmarks.
+
 ## [0.2.7] - 2026-10-26
 
 - Vertex fetch, adjacency, index remapping and one-triangle meshlet optimization

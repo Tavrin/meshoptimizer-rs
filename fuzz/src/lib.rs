@@ -85,13 +85,17 @@ pub fn run(overdraw: bool) -> Result<(), Box<dyn std::error::Error>> {
         };
         // Keep all backing stores alive for each API form. The same geometry
         // reaches packed, padded-float, little-endian and big-endian paths.
-        let stride = 4 + rng.next() as usize % 9;
+        let stride = 4 + rng.next() as usize % if overdraw { 17 } else { 9 };
         let offset = 1 + rng.next() as usize % 3;
         let mut floats = vec![0.; offset + v * stride];
         let byte_stride = stride * 4;
         let byte_offset = offset * 4 + 1;
         let mut bytes = vec![0; byte_offset + v * byte_stride];
-        let layout = executions % 4;
+        let layout = if overdraw {
+            executions / 4 % 4
+        } else {
+            executions % 4
+        };
         for (i, point) in p.iter().enumerate() {
             floats[offset + i * stride..offset + i * stride + 3].copy_from_slice(point);
             for (k, x) in point.iter().enumerate() {
@@ -103,6 +107,10 @@ pub fn run(overdraw: bool) -> Result<(), Box<dyn std::error::Error>> {
                 let at = byte_offset + i * byte_stride + k * 4;
                 bytes[at..at + 4].copy_from_slice(&raw);
             }
+        }
+        // Reach both full 64-byte records and legal final XYZ-only records.
+        if overdraw && v > 0 && (executions / 64) % 2 != 0 {
+            bytes.truncate(byte_offset + (v - 1) * byte_stride + 12);
         }
         let view = match layout {
             0 => Positions::from_packed(&p),
@@ -324,7 +332,43 @@ pub fn run_simplifier(kind: u32) -> Result<(), Box<dyn std::error::Error>> {
             },
         };
         let mut ws = Workspace::new(limits);
-        let p = Positions::from_packed(&p);
+        // Scale has its own bounds reduction. Reach its packed, padded-float,
+        // and both byte-order paths with the same seeded position mutations.
+        let mut scale_floats = Vec::new();
+        let mut scale_bytes = Vec::new();
+        let scale_layout = if kind == 6 { executions / 4 % 4 } else { 0 };
+        if scale_layout != 0 {
+            scale_floats.push(0.0);
+            scale_bytes.push(0);
+            for point in &p {
+                scale_floats.extend_from_slice(point);
+                scale_floats.push(13.0);
+                for value in point {
+                    scale_bytes.extend(if scale_layout == 3 {
+                        value.to_be_bytes()
+                    } else {
+                        value.to_le_bytes()
+                    });
+                }
+                scale_bytes.extend([0; 4]);
+            }
+        }
+        let p = match scale_layout {
+            0 => Positions::from_packed(&p),
+            1 => Positions::from_interleaved(&scale_floats, n, 4, 1)?,
+            2 | 3 => Positions::from_bytes(
+                &scale_bytes,
+                n,
+                16,
+                1,
+                if scale_layout == 3 {
+                    ByteOrder::BigEndian
+                } else {
+                    ByteOrder::LittleEndian
+                },
+            )?,
+            _ => unreachable!(),
+        };
         if kind == 6 {
             if let Ok(scale) = simplify_scale(p) {
                 successes += 1;

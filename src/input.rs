@@ -685,6 +685,54 @@ impl<'a> Positions<'a> {
                 ])
             })
         }
+        // Full 64-byte records let a single checked record lookup prove all
+        // twelve XYZ byte reads. Keep the general reader for mapped views or
+        // a legal final record whose trailing padding is absent.
+        if self.1.is_none() {
+            if let PositionStorage::View(View {
+                storage: Storage::Bytes(data, order),
+                count,
+                stride: 64,
+                offset,
+                ..
+            }) = self.0
+            {
+                if let Some(records) = count
+                    .checked_mul(64)
+                    .and_then(|size| data[offset..].get(..size))
+                    .map(|data| data.as_chunks::<64>().0)
+                {
+                    return match order {
+                        ByteOrder::LittleEndian => scan(
+                            triangles,
+                            work,
+                            |i| {
+                                records
+                                    .get(i)
+                                    .map(|record| {
+                                        position_bytes::<false>(record.first_chunk().unwrap())
+                                    })
+                                    .ok_or(Error::IndexOutOfBounds)
+                            },
+                            visit,
+                        ),
+                        ByteOrder::BigEndian => scan(
+                            triangles,
+                            work,
+                            |i| {
+                                records
+                                    .get(i)
+                                    .map(|record| {
+                                        position_bytes::<true>(record.first_chunk().unwrap())
+                                    })
+                                    .ok_or(Error::IndexOutOfBounds)
+                            },
+                            visit,
+                        ),
+                    };
+                }
+            }
+        }
         if self.1.is_some() {
             return scan(triangles, work, |i| self.at(i), visit);
         }
@@ -863,11 +911,26 @@ mod triangle_tests {
                 big[start..start + 4].copy_from_slice(&value.to_be_bytes());
             }
         }
+        // Include backing storage beyond count and a last record without
+        // padding: neither may change the checked view's index domain.
+        let mut little64 = vec![99; 1 + 4 * 64];
+        let mut big64 = little64.clone();
+        for (i, point) in points.iter().enumerate() {
+            for (j, value) in point.iter().enumerate() {
+                let start = 1 + i * 64 + j * 4;
+                little64[start..start + 4].copy_from_slice(&value.to_le_bytes());
+                big64[start..start + 4].copy_from_slice(&value.to_be_bytes());
+            }
+        }
         let views = [
             Positions::from_packed(&points),
             Positions::from_interleaved(&floats, 3, 4, 1).unwrap(),
             Positions::from_bytes(&little, 3, 16, 1, ByteOrder::LittleEndian).unwrap(),
             Positions::from_bytes(&big, 3, 16, 1, ByteOrder::BigEndian).unwrap(),
+            Positions::from_bytes(&little64, 3, 64, 1, ByteOrder::LittleEndian).unwrap(),
+            Positions::from_bytes(&big64, 3, 64, 1, ByteOrder::BigEndian).unwrap(),
+            Positions::from_bytes(&little64[..141], 3, 64, 1, ByteOrder::LittleEndian).unwrap(),
+            Positions::from_bytes(&big64[..141], 3, 64, 1, ByteOrder::BigEndian).unwrap(),
         ];
         let remap = [2, 0, 1];
         let triangles = [[0, 1, 2], [2, 1, 0], [0, 3, 1]];
