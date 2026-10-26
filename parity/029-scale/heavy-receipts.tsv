@@ -1,0 +1,4 @@
+2893334	4	882	27	0	0.5	bash parity/029-scale/job.sh build	script:/home/etienne/dev/meshoptimizer-rs-wt/scale-strided/parity/029-scale/job.sh	4	1793022184	meshopt-029-scale		0.6247	-	-	-	0
+3422706	2	2	1	1	0.0	bash parity/029-scale/job.sh qualify	script:/home/etienne/dev/meshoptimizer-rs-wt/scale-strided/parity/029-scale/job.sh	2	1793022714	meshopt-029-scale		0.0437	-	-	-	0
+3499137	2	2	17	0	0.5	bash parity/029-scale/job.sh build	script:/home/etienne/dev/meshoptimizer-rs-wt/scale-strided/parity/029-scale/job.sh	2	1793022964	meshopt-029-scale		0.4233	-	-	-	0
+3504579	2	10	688	0	0.7	bash parity/029-scale/job.sh qualify	script:/home/etienne/dev/meshoptimizer-rs-wt/scale-strided/parity/029-scale/job.sh	2	1793023671	meshopt-029-scale		2.2402	-	-	-	0

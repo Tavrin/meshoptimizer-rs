@@ -1,0 +1,12 @@
+instructions	0
+fmt	0
+all-features	0
+no-default-features	0
+clippy	0
+boundary	0
+exact-build-std	0
+exact-std	0
+exact-build-no-std	0
+exact-no-std	0
+cpp-differential	0
+fuzz	0

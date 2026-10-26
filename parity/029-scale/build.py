@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Isolated baseline export and identical-profile scale drivers; admission required."""
+import hashlib, json, os, shutil, subprocess
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+ART = Path('/mnt/linux-extra/moss-scratch/meshopt-029-scale')
+TARGET = Path(os.environ['CARGO_TARGET_DIR'])
+REF = Path('/home/etienne/dev/refs/meshoptimizer')
+assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert TARGET == Path('/mnt/linux-extra/moss-cargo-targets/meshopt-scale-strided')
+assert subprocess.check_output(['git', '-C', str(REF), 'rev-parse', 'HEAD'], text=True).strip() == '4c203430ca565cb59a468a91922c76c208169536'
+base = ART/'baseline'
+if not base.exists():
+    base.mkdir()
+    subprocess.run(['tar','-x','-C',str(base)], input=subprocess.check_output(['git','archive','v0.2.8']),check=True)
+    p=base/'Cargo.toml';p.write_text(p.read_text().replace('name = "meshoptimizer-rs"','name = "meshoptimizer-baseline"',1))
+h = ART/'harness';h.mkdir(exist_ok=True)
+(h/'Cargo.toml').write_text(f'''[package]
+name = "scale-proof"
+version = "0.0.0"
+edition = "2021"
+[features]
+default = ["std"]
+std = ["candidate/std", "baseline/std"]
+base-arm = []
+[dependencies]
+candidate = {{ package = "meshoptimizer-rs", path = "{ROOT}", default-features = false }}
+baseline = {{ package = "meshoptimizer-baseline", path = "{base}", default-features = false }}
+[[bin]]
+name = "scale-driver"
+path = "{ROOT}/parity/029-scale/driver.rs"
+[[bin]]
+name = "scale-exact"
+path = "{ROOT}/parity/029-scale/exact.rs"
+[profile.moss]
+inherits = "release"
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+''')
+subprocess.run(['cargo','generate-lockfile','--offline','--manifest-path',str(h/'Cargo.toml')],check=True)
+for arm in ['base','candidate']:
+    cmd=['cargo','build','--offline','--locked','--manifest-path',str(h/'Cargo.toml'),'--profile','moss','--bin','scale-driver']
+    if arm=='base':cmd += ['--features','base-arm']
+    subprocess.run(cmd,check=True)
+    shutil.copy2(TARGET/'moss/scale-driver',ART/f'driver-{arm}')
+subprocess.run(['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off','-I',str(REF/'src'),str(ROOT/'parity/029-scale/driver.cpp'),str(REF/'src/simplifier.cpp'),str(REF/'src/allocator.cpp'),'-o',str(ART/'driver-M7')],check=True)
+(ART/'build.json').write_text(json.dumps(dict(baseline=subprocess.check_output(['git','rev-parse','v0.2.8'],text=True).strip(), oracle='4c203430ca565cb59a468a91922c76c208169536', admission=os.environ['MOSS_HEAVY_ACTIVE'],sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'src').rglob('*.rs')}, binaries={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in ART.glob('driver-*')}),indent=2)+'\n')

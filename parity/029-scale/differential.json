@@ -1,0 +1,892 @@
+[
+  {
+    "case": "upstream-emptyMesh",
+    "input_sha256": "e523fd113bfb1cff1066a095083da2d2aaeb9fa598eef0bdb9cba8db4dfe4bb3",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "empty-with-unused-vertices",
+    "input_sha256": "d3e799bd4f299a5a44d302ee72bf75467f28c864539e7a5a623cbf6472084094",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "single",
+    "input_sha256": "074c20681e7ae6273c24e470c35eecca65d365e35f4c28f2ab42ef9e2a203e83",
+    "output_sha256": "3fab4ff4218a4bbb4505949b85b98448d2dd21a40e9a662e93ea4ebeee6e6b9a"
+  },
+  {
+    "case": "degenerate",
+    "input_sha256": "b58a1fc146e1247c52e0d459d467c8a4b171ae6954fb5833e8de19e2a5514bef",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "js-encoder-reorderMesh-topology",
+    "input_sha256": "8a838d86733a24e2d40c0136cb9b2747ab634e1fad103d11d4c9611166f79555",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "grid-threshold--1.0",
+    "input_sha256": "253daad24b4f46e8a267baae4a5fd0d876b39c11b7329b64142dd146595dcde1",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-0.0",
+    "input_sha256": "b7b9dc2ebb907b8d3828fe10b874def055d5ce7f75284e936af3f47dfa445b1e",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-0.5",
+    "input_sha256": "a5ea50a4921781b39cb924b21562ce55479a60ea46d54e797626e351d31a9e24",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-1.0",
+    "input_sha256": "bb15195869642eeb1502462d9ce9c6f67805883531b1bde18149a8fb9d7050dd",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-1.01",
+    "input_sha256": "a3c7d72caf7626cbc411a8cb163018ecdbeb44ff4221f0310f473be9994c5061",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-1.05",
+    "input_sha256": "8a5541093da8d2cf03b4c9e312f7bdc91d334211820d2a6d8b260ce3e70bc2bb",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-1.1",
+    "input_sha256": "f767cb696c14e33bbdd62210609f8dc7812a6c7508189dced95188fb086eafcd",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "grid-threshold-2.0",
+    "input_sha256": "ac8819f40a863ebae9dbc65a8f04141be0c92a6f718a6514473d0ed4fd832266",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "disconnected-with-unused-vertex",
+    "input_sha256": "1df504f78d723e6f2e3d3791b586d16423aa9f8277ef4b166ab6eee796e83c68",
+    "output_sha256": "300e71fbee771e9ff547b2c04bdcf17575c3b0e484311808911e315d391e7ecc"
+  },
+  {
+    "case": "duplicate-triangles",
+    "input_sha256": "4f2fb3762f78db1a118ee439dd05a21f40d83fc4613dfe397d92be55d5940470",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "signed-zero-and-subnormal",
+    "input_sha256": "0b885e89b392ffc233ba266c468b4f2ab2daf592efe56c4e56fc02941a3eb1ff",
+    "output_sha256": "810ee723286e7105284aa0f469c8c4e2e0724297d7de6bb8e929852afb81dcc0"
+  },
+  {
+    "case": "million-indices-grid",
+    "input_sha256": "037d28128f03e5c101262fc750b25a852de347bc8197a49968ad19319351c94d",
+    "output_sha256": "d613629562ba356b6213f2c61d3016e1b1f52a7ba568918fdebbdc3eaf3cffc9"
+  },
+  {
+    "case": "sphere-shared-0",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-0",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-1",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-1",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-2",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-2",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-3",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-3",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-4",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-4",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-5",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-5",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-6",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-6",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-7",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-7",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-8",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-8",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-9",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-9",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-10",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-10",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-11",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-11",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-12",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-12",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-13",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-13",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-14",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-14",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-shared-15",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "sphere-split-normal-uv-color-tangent-15",
+    "input_sha256": "9a7cd0ef55f9544e691407ba08c5adcbd86f95a1ee67747b06345af9d98d4fdd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "nonmanifold-shared-edge",
+    "input_sha256": "e336d44a49afcb86d69f09f431ddb5427a6945ddbba0dde7ac58b5b4fa571dd0",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "existing-seed-20261002-0-million-indices-grid",
+    "input_sha256": "037d28128f03e5c101262fc750b25a852de347bc8197a49968ad19319351c94d",
+    "output_sha256": "d613629562ba356b6213f2c61d3016e1b1f52a7ba568918fdebbdc3eaf3cffc9"
+  },
+  {
+    "case": "existing-seed-20261002-1-small-grid",
+    "input_sha256": "5f43a85879d50efebdcbc6664898d8de86a812f1ce3bef49aad5d4b8b76bcac2",
+    "output_sha256": "86c94093b385ef838580cdfe179755c7fb8eed4b48701176429276e091de3335"
+  },
+  {
+    "case": "existing-seed-20261002-2-random-kind-2",
+    "input_sha256": "68a0e2ccdb66cbce915066bbb338831f6997e254bcdacbabb81b25582c849775",
+    "output_sha256": "7c021773af815cd00dac30fc4f4c2f7e68ebf12eec3d8858c03e0f638aeb8487"
+  },
+  {
+    "case": "existing-seed-20261002-3-random-kind-3",
+    "input_sha256": "0f4bd3127c61c273235af283d6e6c7a0f043beb9d6705fd2697f68e5fb23fe81",
+    "output_sha256": "ec0a9f8a7dabfa9b8fafab43f5a921c42094e6f189e404120672af1d7732193e"
+  },
+  {
+    "case": "existing-seed-20261002-4-random-kind-4",
+    "input_sha256": "efaac03172de967f4bd8bdab27051ffad1e94975e9581c8f3f2c06cc3dffad91",
+    "output_sha256": "685900eec87cb2c13768f82e4952645d6ce97c7c57461c6692b9225a42916769"
+  },
+  {
+    "case": "existing-seed-20261002-5-sphere-seams",
+    "input_sha256": "c964cd3e7641ee91518317bba9f579ac47508cf98f18688ac574fd32a99af95c",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-6-small-grid",
+    "input_sha256": "dda575ec38b5b0bacc1adf57aaae25878fc138a3044c86010c41b22a626a1815",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-7-random-kind-1",
+    "input_sha256": "abb316f74949547173fcb11e6cc3976d1a2570a6438624f78890334d4f8a5550",
+    "output_sha256": "b897d8820100ac22f04347a36cf1ae0e4c6b7f9955293f69a46901987fd7ae9a"
+  },
+  {
+    "case": "existing-seed-20261002-8-random-kind-2",
+    "input_sha256": "f507c674632cf678e6a854547a170cf21da9190342cffeaacec5be622cbdf037",
+    "output_sha256": "35ec903e16a94597f283463c48cebaa070b6823b29f8e14ff7c11e49b5411fe8"
+  },
+  {
+    "case": "existing-seed-20261002-9-random-kind-3",
+    "input_sha256": "6c7d4a4d246621ae9b032e3328a2f8f243a5782a1ec96a37eabfbd5060a8fea2",
+    "output_sha256": "a569a54ab80e42f07aff53fe365630d25d177423621bea54c8d2d6f8977f0921"
+  },
+  {
+    "case": "existing-seed-20261002-10-sphere-seams",
+    "input_sha256": "5a2c0f1d86edaec458cf8047d49e944c818281dd3c6a086ea7901c86ca4aae84",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-11-small-grid",
+    "input_sha256": "b959b3d38bc7272ff08241864fe16020cdf07cf7aacce5ca5263cc209f4cecfc",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "existing-seed-20261002-12-random-kind-0",
+    "input_sha256": "a6dc36815d6d3b7019f9f4dd916ea62bd0b413e3e702bc873e8ca8bbbc3adfe7",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-13-random-kind-1",
+    "input_sha256": "e0efce7747760da45c98f6944aade77890279187474b0913a9ad3326711f2282",
+    "output_sha256": "e9fd5d24ff8dac7db16df96902f8def0e41c0a3673a9788c0a58c99e977b346b"
+  },
+  {
+    "case": "existing-seed-20261002-14-random-kind-2",
+    "input_sha256": "25d96deaca505f979fc1de62ec9a6dab078ac2bf57a02fadbcd3fba836ad0912",
+    "output_sha256": "d4c9a6f996a827ea73e21ab1550c1539345b65bf11bea73f8cbdf9ac9d4160d7"
+  },
+  {
+    "case": "existing-seed-20261002-15-sphere-seams",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-16-small-grid",
+    "input_sha256": "4be78000d121c28984202de2811b48f7c85a8e22d087b25771da21de5e1a1f07",
+    "output_sha256": "c16a2d870d977094d098a9d67ccf7ed55c76dd56cca5a97b18ad58c5e6741147"
+  },
+  {
+    "case": "existing-seed-20261002-17-random-kind-5",
+    "input_sha256": "21219ae44c39cc85ff0b45dbc1d3ff5b71c47bb9f4442d6426ebc5c4fcfbae34",
+    "output_sha256": "6b9a69ca3e1047de3b60543ecdc5d26b23de5baaa8a013d5dd04ba8adcf9ee1c"
+  },
+  {
+    "case": "existing-seed-20261002-18-random-kind-0",
+    "input_sha256": "c9dcbf573a77bceb7d9fefc0c6868e5f55f0e9377bc6985ac130f90f63e9eba0",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-19-random-kind-1",
+    "input_sha256": "0ef024d985a9c8495dce52fba11892c657e94edfb04cd0f0b84b499cf96def3a",
+    "output_sha256": "af1b53dbec020bee217baf292e3efedfd8e8d78a79048b3c6e92c2d06aa04cf7"
+  },
+  {
+    "case": "existing-seed-20261002-20-sphere-seams",
+    "input_sha256": "98de4b4a67000efc4e0795fafc9d1f864e8d3b0b87302261448b1a326cfc3540",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-21-small-grid",
+    "input_sha256": "b959b3d38bc7272ff08241864fe16020cdf07cf7aacce5ca5263cc209f4cecfc",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "existing-seed-20261002-22-random-kind-4",
+    "input_sha256": "8a4af569ff41fb7b14fe03e21b57a8b18093a28ff8bbecb4b71562a86040aa1c",
+    "output_sha256": "75865fcc7e35951700b757aeb486c141868f7f08d91153ce424cf1304ca8c48e"
+  },
+  {
+    "case": "existing-seed-20261002-23-random-kind-5",
+    "input_sha256": "153ac5a529279d5cb7f81b6b30d9048fa5d0e6675a0d4a619d1ff5c3c417e345",
+    "output_sha256": "d0d7f2b31921fca91264b2695b7543de6f0594209060e729a6d5a914658a0563"
+  },
+  {
+    "case": "existing-seed-20261002-24-random-kind-0",
+    "input_sha256": "bb074e83190f9be3e9ecb5526ccc133bcb0dff780a468c16a8ff86825fe321fe",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-25-sphere-seams",
+    "input_sha256": "0691bd6d448ce80228ea34557e4c434ba8c77926259592fe22071a6f93f29af6",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-26-small-grid",
+    "input_sha256": "121ff6c6020d90450119d53908dee8c480efc8c943abce5d55eb48cc8e9707e2",
+    "output_sha256": "7ea1c6d402253d08215e563e60c47f287fbef1ba673a753738da0f22a2b0b496"
+  },
+  {
+    "case": "existing-seed-20261002-27-random-kind-3",
+    "input_sha256": "9cd4891199e54c4eec488b85f0baff8fe7c6a02e2fcdf7905813b66df89028fe",
+    "output_sha256": "2b7a335b437e24dcd877c0d8fb374fd520901491c56f8c7a8c596d07e3b274e0"
+  },
+  {
+    "case": "existing-seed-20261002-28-random-kind-4",
+    "input_sha256": "4d8050a9ebdb9e0308d97c05405ab9346a9822f8f30c38b05f7655d99baf4281",
+    "output_sha256": "ef06c6f2e82e14333c2a731999f18f860bc1fee5ee0cf784cec919513cee5ab9"
+  },
+  {
+    "case": "existing-seed-20261002-29-random-kind-5",
+    "input_sha256": "e085b8d2e8bdfac28d5e38ecf22684b996189e9eb43ec350ed7cb4beb996d6b3",
+    "output_sha256": "7b9fb6cfb670e781a10ef11390b86b9303745f4382dd849b5ace43e00e64e455"
+  },
+  {
+    "case": "existing-seed-20261002-30-sphere-seams",
+    "input_sha256": "3fa66f9d72f9feb96745ffd4dea16b3bde6ee746a062ad4e95989fd21143a90e",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-31-small-grid",
+    "input_sha256": "ec79f2ada08d8f7afd42ba730f12e77bbdf113936760731fb42495b156f88140",
+    "output_sha256": "300e71fbee771e9ff547b2c04bdcf17575c3b0e484311808911e315d391e7ecc"
+  },
+  {
+    "case": "existing-seed-20261002-32-random-kind-2",
+    "input_sha256": "2357142be64d152c321394804010e3381648934f42b73f89fdb5786a234bd2bd",
+    "output_sha256": "42d8c673121cc63a6263ae03454c9a15452e06ede4afd74dc07d98040e5060de"
+  },
+  {
+    "case": "existing-seed-20261002-33-random-kind-3",
+    "input_sha256": "0e8899c36f908548b7d2d38809c63a32ae7e3c744f598082cae3d0d5f9474adf",
+    "output_sha256": "90a57a26bcdb69bd1e9208fcaa85efe6a741343f3578449082ab8ecfb1f4599f"
+  },
+  {
+    "case": "existing-seed-20261002-34-random-kind-4",
+    "input_sha256": "f72160f06ae9be3485ed9437f144f634c5bc9bcd068d043e511b1b4af1dae30e",
+    "output_sha256": "20a5ea67ca49cdb8318eaa04c4782860fd626806e18d269bbf4ea710a65b5510"
+  },
+  {
+    "case": "existing-seed-20261002-35-sphere-seams",
+    "input_sha256": "b934a5b9cc3d0a9e47f9ed21ae515236c3db9e3a7a36ad88db126219fbc7f049",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-36-small-grid",
+    "input_sha256": "ad1170c685a1cfb79e6a5fcb3530c67693c8d6dc0148f941352c980d43f60750",
+    "output_sha256": "300e71fbee771e9ff547b2c04bdcf17575c3b0e484311808911e315d391e7ecc"
+  },
+  {
+    "case": "existing-seed-20261002-37-random-kind-1",
+    "input_sha256": "c2fae674a9a07102c4a8278107ed730b9339538d3dde84ebca30d298f9bccc55",
+    "output_sha256": "b87cdaf172eb65fecd61d769347b1815036bcc9abe4f5b9ada770c8d9e36efcf"
+  },
+  {
+    "case": "existing-seed-20261002-38-random-kind-2",
+    "input_sha256": "43e9a3aac6bc3b095f6e613d5b9ecb0fd981688f663c010d5bbb2831e0565644",
+    "output_sha256": "00ff22e3628f98e98c10e9888a9bf3fe1eb30b3376431d8e36ee854319476775"
+  },
+  {
+    "case": "existing-seed-20261002-39-random-kind-3",
+    "input_sha256": "f54267e5aaf67ec3ea3ff665cb79d054dc1eff383d89c9f15e561e2cc6b318e4",
+    "output_sha256": "74c9066e2338026ad9ab73500ce32c128a77d77785d4ef4e064943d7a9516a82"
+  },
+  {
+    "case": "existing-seed-20261002-40-sphere-seams",
+    "input_sha256": "e362c514a06b6813cbbc7e5dadb9d07bc2c1a6ca8e717cceb3b5e3a54eeceebc",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-41-small-grid",
+    "input_sha256": "2ce62770503c2ae595f04859293989a64c1132372b5c491fc8f7b6ad62d55adb",
+    "output_sha256": "5b1bb950a952d5db7e939836880660dce796eaf5d978d5a665ae571b715d5f4d"
+  },
+  {
+    "case": "existing-seed-20261002-42-random-kind-0",
+    "input_sha256": "270ffd599252634aab34e754e2f785d0a139db68a80f668b7f2ccf66916c6ea1",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-43-random-kind-1",
+    "input_sha256": "a8827ce61fa1d995217322453b3d5c5b59d77e59a70181995f7f9e087a6bb14e",
+    "output_sha256": "5f74aaa30fe64157bb04c314febe0a6c1f2ed626c9fe8780ffccbcbf8d963602"
+  },
+  {
+    "case": "existing-seed-20261002-44-random-kind-2",
+    "input_sha256": "43e5c4841ad13e077fb5a4538acffe3379db0b59c35b0a5b374bbc38760ecda2",
+    "output_sha256": "41eb62aa464b6f53ac2cc940c65ee063b2c3b4c08c6135a3ab45e3a406bcfb40"
+  },
+  {
+    "case": "existing-seed-20261002-45-sphere-seams",
+    "input_sha256": "751d6cfbd2993a4eef9d839fe323396cc3e32d755e148719aa9eed3c1f2bafd4",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-46-small-grid",
+    "input_sha256": "9b3829b17b5f994acc9bcaf5e67104f52351921f92e56a9c47b9703ed28aafed",
+    "output_sha256": "635e454fd82cb69e9f338299ffc8e5e234225fe139fc75e19b0a966277577446"
+  },
+  {
+    "case": "existing-seed-20261002-47-random-kind-5",
+    "input_sha256": "1c3356d04f5ad6206919821904bb6afc2a2e62b887dac783f8639cf82407080b",
+    "output_sha256": "6f3318e35e68424eeca1daea13c10b6d2c5332c186627533e7dc443e91c411f8"
+  },
+  {
+    "case": "existing-seed-20261002-48-random-kind-0",
+    "input_sha256": "e6d69071b80dac7307bf5e20acc023ba5ad751f124911848a2254e5ebcc72885",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-49-random-kind-1",
+    "input_sha256": "bb555ffaee40e7b8c5c6e6d4c6d9cbf25fd0b11ec50026a0028613ade49d8663",
+    "output_sha256": "280657068ad9f0f8a20a7abe3bb7e1fd54177672e637cf1ba78d2295ae36fd35"
+  },
+  {
+    "case": "existing-seed-20261002-50-sphere-seams",
+    "input_sha256": "e362c514a06b6813cbbc7e5dadb9d07bc2c1a6ca8e717cceb3b5e3a54eeceebc",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-51-small-grid",
+    "input_sha256": "2f564fec8f4afec8c6f3fbc2531ef5ca28fd6e6b9dede583f54f0a744f4ee3e4",
+    "output_sha256": "5b1bb950a952d5db7e939836880660dce796eaf5d978d5a665ae571b715d5f4d"
+  },
+  {
+    "case": "existing-seed-20261002-52-random-kind-4",
+    "input_sha256": "6f7e25387513dcacd40e5fb54342fe005567bdc8be0b981ac97e4b7412e6a579",
+    "output_sha256": "79be9644496eecdba0ca4be71db6fe360c6dd3aa6f29504e70330ea52afbc1f1"
+  },
+  {
+    "case": "existing-seed-20261002-53-random-kind-5",
+    "input_sha256": "8feec02ad1d8c6c1c16c61e3a78e3659f4b54fdc9bcf96bf9b8d1d96b794b962",
+    "output_sha256": "731e8eea3e24630e371f0df3dc01deb02d33450d056ba0dfe7310bd95df67a45"
+  },
+  {
+    "case": "existing-seed-20261002-54-random-kind-0",
+    "input_sha256": "c998d57da8ac76de1b609c1bbaaeee183b5196b5f364265f86d284e69f2b4309",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-55-sphere-seams",
+    "input_sha256": "751d6cfbd2993a4eef9d839fe323396cc3e32d755e148719aa9eed3c1f2bafd4",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-56-small-grid",
+    "input_sha256": "d5e90879e06ac6a271f0f0e05e02425a3a8c82fc5e405235787dbdc0a10da0f4",
+    "output_sha256": "2064b7b38f8f22114c3074e2e3d3adf52db17d6f5758bedd1a3f2a5c178e872d"
+  },
+  {
+    "case": "existing-seed-20261002-57-random-kind-3",
+    "input_sha256": "f98f506bb14c8ddd55bd176d50b066844a7a9cdc5a72311d49a12376595e983b",
+    "output_sha256": "109252593eb12249d46d5419371bd51cd9cd6a19e917a1e5affd9f0a29d86702"
+  },
+  {
+    "case": "existing-seed-20261002-58-random-kind-4",
+    "input_sha256": "8ac226105441e6a5e04c1f3a259e7a6a2eb4233e04d816862b33ed432edd29b9",
+    "output_sha256": "e4f99f5d239422406ffef1fff01d8b0b050e7cf660e6135d830dc84ded6748e4"
+  },
+  {
+    "case": "existing-seed-20261002-59-random-kind-5",
+    "input_sha256": "3b1fc3d79f677aa733a413e3c39a7cd8fff9e43aab6b58865d60bfd48236a792",
+    "output_sha256": "fc46f114b538f5a2809ff826321c301576e551c913a2aa9f982d1c7da0391f8b"
+  },
+  {
+    "case": "existing-seed-20261002-60-sphere-seams",
+    "input_sha256": "0962fda33156b5d150c0f6363749a73147df3af89a5f942c300341fd9a187739",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-61-small-grid",
+    "input_sha256": "8a5541093da8d2cf03b4c9e312f7bdc91d334211820d2a6d8b260ce3e70bc2bb",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "existing-seed-20261002-62-random-kind-2",
+    "input_sha256": "faca28a57c0c22f7d272c5301ae6c94019a582ba233de476191d52a7719a6820",
+    "output_sha256": "42d8c673121cc63a6263ae03454c9a15452e06ede4afd74dc07d98040e5060de"
+  },
+  {
+    "case": "existing-seed-20261002-63-random-kind-3",
+    "input_sha256": "39a2872bf26604e021b9032e4477dd55928a0871d5777b9fc6b575ff1d7388f7",
+    "output_sha256": "b08259858f7ab79477867ab39ccfecfa6d6670dafd97d1dba9d8e7b259f1619f"
+  },
+  {
+    "case": "existing-seed-20261002-64-random-kind-4",
+    "input_sha256": "64e71a4a7e9365572bdd5a8d814b7a697e434a835c468d8e35385af1baacd2e2",
+    "output_sha256": "91a2c0fd8e02e304e7cf4a58a47c0d8f6971f1f8b512eaac29df8fb49810ca2b"
+  },
+  {
+    "case": "existing-seed-20261002-65-sphere-seams",
+    "input_sha256": "0691bd6d448ce80228ea34557e4c434ba8c77926259592fe22071a6f93f29af6",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-66-small-grid",
+    "input_sha256": "63f23552c963fca4a7cc7b6f83e4ff6a94702444fa275890525ce6831a3bdd59",
+    "output_sha256": "300e71fbee771e9ff547b2c04bdcf17575c3b0e484311808911e315d391e7ecc"
+  },
+  {
+    "case": "existing-seed-20261002-67-random-kind-1",
+    "input_sha256": "8ddf1bae8117afacea73f165dfbcc028cbb463b23027c218b692d49db7efc87a",
+    "output_sha256": "46cb34785fd9baa268f5c9aafc03462b55391b25c6726c4d25826d2d8cbb08fa"
+  },
+  {
+    "case": "existing-seed-20261002-68-random-kind-2",
+    "input_sha256": "8acff6619ffb86e980257f00781584c9dc6abec00c3c6d160e2e933b047f7a79",
+    "output_sha256": "b3298c21ac859701e37301a29b093077926b4f1d7cdf89ad24ba7954464c4f1d"
+  },
+  {
+    "case": "existing-seed-20261002-69-random-kind-3",
+    "input_sha256": "bffc7689d9823ed4fc8f8d564ca3bca03819f28318ec1428a8c0c47df4a8bb9e",
+    "output_sha256": "178732b0d641544e23049b07de593f60d28a340b6d01c59fd1aa355453f35d4f"
+  },
+  {
+    "case": "existing-seed-20261002-70-sphere-seams",
+    "input_sha256": "c6594304c16b77e33a471fbb2e05ec73122bc71d9610f3feec2e821a4be925d9",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-71-small-grid",
+    "input_sha256": "431d4d044a2aa6a897bc6d96724661ffe9f3d6c9f996728c48f388de78421720",
+    "output_sha256": "87075db283af3940d1a1d5d369625cd46c7a279160a800a0b88aaf63d47cf87a"
+  },
+  {
+    "case": "existing-seed-20261002-72-random-kind-0",
+    "input_sha256": "be8347e2f4a47d20a4fbea14338502aee3a42398390c9d22de78008a5e7055a9",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-73-random-kind-1",
+    "input_sha256": "d0401241d2eea13a39e0a2ec20648ff53d7fae617c9b04f078e9e8d06a586f3c",
+    "output_sha256": "02023e995e951c4013d465ba41da264a754a7878a090364bcb9d6e8f1f79df55"
+  },
+  {
+    "case": "existing-seed-20261002-74-random-kind-2",
+    "input_sha256": "d285b62d9663a388f71094a0bca80662bbbdce61d487e73940e019cb5880642c",
+    "output_sha256": "0be2897dc7e574d0bce9aff1aa4c266ad1349b046ca895e46900f053f02e5d36"
+  },
+  {
+    "case": "existing-seed-20261002-75-sphere-seams",
+    "input_sha256": "445caa9025c43c276b71de9f9d4552424f9198cdcbf7030297ccb4f851998ea5",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-76-small-grid",
+    "input_sha256": "40d99877320a11a0acbd3ce633c66ca9556feccbf3d46c502b8ef7cc934b452c",
+    "output_sha256": "87075db283af3940d1a1d5d369625cd46c7a279160a800a0b88aaf63d47cf87a"
+  },
+  {
+    "case": "existing-seed-20261002-77-random-kind-5",
+    "input_sha256": "84476bdaf461a94b3098174816045cdd3e21ee768250358a129034b44467bbec",
+    "output_sha256": "08185bb404a3f7f1e3039dc423202227bffec1b87432f863875ff43402df8a5c"
+  },
+  {
+    "case": "existing-seed-20261002-78-random-kind-0",
+    "input_sha256": "b995fc04d7673cc58106e5d1e8d0bfa33511ae41243dd176703a24de1379dd7d",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-79-random-kind-1",
+    "input_sha256": "b2418a51de33271050a4bf40122a49964fffc1176d40c4cbcad6c53809871ddb",
+    "output_sha256": "3fbca20540aa55f68d602e243019e37002b0fee992c23a8116019a907b8e3939"
+  },
+  {
+    "case": "existing-seed-20261002-80-sphere-seams",
+    "input_sha256": "0962fda33156b5d150c0f6363749a73147df3af89a5f942c300341fd9a187739",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-81-small-grid",
+    "input_sha256": "37315f8691134705ff696a277563d794523f07fa81319a7a3d0951cd1f2d5209",
+    "output_sha256": "7ea1c6d402253d08215e563e60c47f287fbef1ba673a753738da0f22a2b0b496"
+  },
+  {
+    "case": "existing-seed-20261002-82-random-kind-4",
+    "input_sha256": "a8129a86e1320fec3c3856299d19e48c14608e0985227d4d454069a348b1f9a6",
+    "output_sha256": "3a75c02418ad810fb2d7ada2cc23e00dde40438b4eab27fc05ece63f0f1f5acf"
+  },
+  {
+    "case": "existing-seed-20261002-83-random-kind-5",
+    "input_sha256": "d374fa132d3d5ad559fc8f18b02a534b964f0470453ba83562c51fc423ac96b8",
+    "output_sha256": "9f7ecec52b8c9b353b161207d152e2f1fae4a382a1e71082cfcfd3fd45fa8c05"
+  },
+  {
+    "case": "existing-seed-20261002-84-random-kind-0",
+    "input_sha256": "8fcb02e477ff7b9e25a0d16372e624f75a6cd21ca8e09538a8892b0328cf0ad0",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-85-sphere-seams",
+    "input_sha256": "fce7b72ac487da119e5865a73e6650cbf02ddcff8849e7e8fe50fec77debac22",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-86-small-grid",
+    "input_sha256": "4f0f54c5a1edae9077439db4df43b54a6e2b76ac5a94d2992c10598eeb2af6bb",
+    "output_sha256": "87075db283af3940d1a1d5d369625cd46c7a279160a800a0b88aaf63d47cf87a"
+  },
+  {
+    "case": "existing-seed-20261002-87-random-kind-3",
+    "input_sha256": "d907524bdccc4594b209fc6dce296031ce03a125d7906a8a70dc7360af59e5a5",
+    "output_sha256": "9ebfd50915029884de114f5ed0e6a490881586ae9f91055b2403b885e813afea"
+  },
+  {
+    "case": "existing-seed-20261002-88-random-kind-4",
+    "input_sha256": "250fffae97f47a657aac86a2c3e30869e98674606d3ba00e52625b3cae6add18",
+    "output_sha256": "06284340343940bac06d46c8edfab60aff0bbc062d2032b1a6274117423b4eb2"
+  },
+  {
+    "case": "existing-seed-20261002-89-random-kind-5",
+    "input_sha256": "499bbe87a97ad1068691cd521d814dcbfb2a9a711e29d0df1e7a4aeab1a069d6",
+    "output_sha256": "4e140c9b6393782e6ea382147e275d802b3afb1070d16f57427f41c725a3824f"
+  },
+  {
+    "case": "existing-seed-20261002-90-sphere-seams",
+    "input_sha256": "e362c514a06b6813cbbc7e5dadb9d07bc2c1a6ca8e717cceb3b5e3a54eeceebc",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-91-small-grid",
+    "input_sha256": "e661c827a54edd3fd88e58f8a688bc777132fafb60f6be61ddea4cf8cbd094de",
+    "output_sha256": "5b1bb950a952d5db7e939836880660dce796eaf5d978d5a665ae571b715d5f4d"
+  },
+  {
+    "case": "existing-seed-20261002-92-random-kind-2",
+    "input_sha256": "cf1d5bc8e33f3dc61a20b33c47eff743ed60b6d5f1b156ba20161b8373009df1",
+    "output_sha256": "7a13a569de80d263d5c08f59ee266b9652dbabd540ddfa39eab3760a071bd6e3"
+  },
+  {
+    "case": "existing-seed-20261002-93-random-kind-3",
+    "input_sha256": "2d011bb912b8bb0a12421d11d3d1dc8071b34275ec0855c4bfadbaeb38f30e17",
+    "output_sha256": "26fd7fd0a0dc0325f89227f4dcfb0f59f9f89c3b8398f744f0e32e1f35454995"
+  },
+  {
+    "case": "existing-seed-20261002-94-random-kind-4",
+    "input_sha256": "55ed6bccc74cf894b8b8775d95ff34e8d0e3e33e781a902a52b432a85789ef2b",
+    "output_sha256": "ae469bb9cc3d18797c99f0b4b78ce8d1c6d699f1771abe13395415bba7349c0d"
+  },
+  {
+    "case": "existing-seed-20261002-95-sphere-seams",
+    "input_sha256": "ac249d65e703742aee44d1a3fed2fd18ca94dd69ef9da5dd2fafe6ab9b56b35a",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-96-small-grid",
+    "input_sha256": "ace2f39e5b3a502d879fe3af2e916a0bfcde310746da8f14b61933760eb70f75",
+    "output_sha256": "87075db283af3940d1a1d5d369625cd46c7a279160a800a0b88aaf63d47cf87a"
+  },
+  {
+    "case": "existing-seed-20261002-97-random-kind-1",
+    "input_sha256": "b06c5678c7ec2b7fcc21d97f7174b53aaa21c37433e698154921875bd64b297c",
+    "output_sha256": "82ae087b77e34cf0796e132ce933bd2783f2c2795b2deccdb85ae93161ddfa3e"
+  },
+  {
+    "case": "existing-seed-20261002-98-random-kind-2",
+    "input_sha256": "de7e09dd7c1ccaf90052beffc8526b4b20ef329e1fae7b87def077e354b4e8f2",
+    "output_sha256": "e234d59e47222f0f861c6648f345497d07892da56c8eca02cb15055ed23331ca"
+  },
+  {
+    "case": "existing-seed-20261002-99-random-kind-3",
+    "input_sha256": "ddbe199f89ce62a24767c48a18f427fe645e303923830249f3041b0ef80287d2",
+    "output_sha256": "fef1356e2e74e9b39014f09d4d67d7ba225f5f9fc94f4fc634d5225631e2d20d"
+  },
+  {
+    "case": "existing-seed-20261002-100-medium-grid",
+    "input_sha256": "4421e39375e087e3da5546101271dcdb07e263b90a94fbd36b091817b6408402",
+    "output_sha256": "18ec9709796ec7cd3d6097d0f380ba3117217da01d78820804dc78e1730ee771"
+  },
+  {
+    "case": "existing-seed-20261002-101-small-grid",
+    "input_sha256": "06780d71998cebc56fc9eebe69dfb5726516af3675866580145697760b887b54",
+    "output_sha256": "d6636a9ac48e3875f6ea17a63fbfc5fc55df94dafde273992b69e7f94332340d"
+  },
+  {
+    "case": "existing-seed-20261002-102-random-kind-0",
+    "input_sha256": "15f00d13feb6095f4bb8c688020662058867021e9fda7027f65d185c7dc56467",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-103-random-kind-1",
+    "input_sha256": "92e43c99d85a85079b6970f0a3238e73d855f59e3da312a8bce21f1b32c4c84e",
+    "output_sha256": "cbe00bddeda33401b9cc3108ad6421314c5ce73ee58dc5cba035ad86f9082465"
+  },
+  {
+    "case": "existing-seed-20261002-104-random-kind-2",
+    "input_sha256": "7841318403eb2aec86fee0ec3b23e3d4348a6e27af6e434ec9f3459af4c6f08d",
+    "output_sha256": "6cdbbcc322121a757baaa353af776b1e06c879fd56ded30c1425d67a2ccbf403"
+  },
+  {
+    "case": "existing-seed-20261002-105-sphere-seams",
+    "input_sha256": "c964cd3e7641ee91518317bba9f579ac47508cf98f18688ac574fd32a99af95c",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-106-small-grid",
+    "input_sha256": "0207631d71889a6e4bd57d530f6ebf8c575b53e2cb9752567e4382bf765e243c",
+    "output_sha256": "87075db283af3940d1a1d5d369625cd46c7a279160a800a0b88aaf63d47cf87a"
+  },
+  {
+    "case": "existing-seed-20261002-107-random-kind-5",
+    "input_sha256": "725c0ef8b1dc668853e35d4515bce868d003b651815ba5550551776243d3aca6",
+    "output_sha256": "b0eca2c5c77b6c620c6886366a627bf61bca8962e7b3a00298964589fa18e3b1"
+  },
+  {
+    "case": "existing-seed-20261002-108-random-kind-0",
+    "input_sha256": "7edf2bc72ea0f2674402802627439cff0f16065e169805e0901598f17a873ad9",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-109-random-kind-1",
+    "input_sha256": "014efad33655a6cbbc55539887870664140c61e1fa729bf8f93602f6c0c33de2",
+    "output_sha256": "3ccb9641f16cfa74c2d0e736062d28f1f1f374ee4d5c7d0325472b94bfaf2719"
+  },
+  {
+    "case": "existing-seed-20261002-110-sphere-seams",
+    "input_sha256": "f1b47c91c92c4cf447f7cb69d9773c03ebb5f9ee2bde04785bfadfe07b2df496",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-111-small-grid",
+    "input_sha256": "00f59665f5997816a8b19aa885342bded23a7251e85004359341557482d1baf5",
+    "output_sha256": "5b1bb950a952d5db7e939836880660dce796eaf5d978d5a665ae571b715d5f4d"
+  },
+  {
+    "case": "existing-seed-20261002-112-random-kind-4",
+    "input_sha256": "53db35080409a095a813ca726eb1e1af545e2d849de6edb3d46bd648ad126843",
+    "output_sha256": "5633904d214fa083e1fd2984740781bb24f1c86851d1eea725bfe6ee6a869413"
+  },
+  {
+    "case": "existing-seed-20261002-113-random-kind-5",
+    "input_sha256": "f1d985aa22dfb5e561be2f83bf3a0ea7b2c6d06fc119edba1c32b710d6087b90",
+    "output_sha256": "b6c47e6f668cb22963f7d8c79e7eddd031908a6daa460bc96aaf6527e868bbd1"
+  },
+  {
+    "case": "existing-seed-20261002-114-random-kind-0",
+    "input_sha256": "17eaa2d9d9cb7a3a6fbaef7bd7c9caa36bf58277c283321c3d53f2ee77220484",
+    "output_sha256": "229d3cad8091a43182d70066a394e2e1a580d0a54ed94d0570de079603895bc2"
+  },
+  {
+    "case": "existing-seed-20261002-115-sphere-seams",
+    "input_sha256": "751d6cfbd2993a4eef9d839fe323396cc3e32d755e148719aa9eed3c1f2bafd4",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-116-small-grid",
+    "input_sha256": "ac615eebb34e97c00e94ffe79845ecf3235006318e63c35beee2fdd6c2c24164",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-117-random-kind-3",
+    "input_sha256": "897163422b669a1414bd5dce4a75c30231f395ef84c7cbb0ad278f1ae261abd5",
+    "output_sha256": "8ab9bd30e0f7d50e4f123178029c310ea0234c54909fc9872e0043b7b969ae91"
+  },
+  {
+    "case": "existing-seed-20261002-118-random-kind-4",
+    "input_sha256": "58c178dc6f1c0e9621a250f9a98b1b656aebc7befa2067209239e8a5f7344613",
+    "output_sha256": "b33879e2479ce0fab966986a9c4eff403c0f432d13bb3a2f6dff815401cd3478"
+  },
+  {
+    "case": "existing-seed-20261002-119-random-kind-5",
+    "input_sha256": "91f0bc60a78d5b4050effddb39bffc4c5ddb92aa5525529d22d0d8c929245bda",
+    "output_sha256": "2d5a0e9d49cd15b2cfb4ec9cadb5433baeb9b385a31e35787e320fd0e2891a17"
+  },
+  {
+    "case": "existing-seed-20261002-120-sphere-seams",
+    "input_sha256": "c6594304c16b77e33a471fbb2e05ec73122bc71d9610f3feec2e821a4be925d9",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-121-small-grid",
+    "input_sha256": "7e4a59be1d761c0b352d999183b50884614c21bfb17bb3fb699d6deedce7bebd",
+    "output_sha256": "65a75d1830f4ac5671bc467a7def1ee3e95139ad83d22bc46f563eba19942e48"
+  },
+  {
+    "case": "existing-seed-20261002-122-random-kind-2",
+    "input_sha256": "70476e76405d715c8777b3214f5496d8165d1de6508f49f9e1f77daef31354d6",
+    "output_sha256": "fd6b8c83fc45fbf674e588bc325ef834ba1b32d586eb2ed74a307c5a3212c086"
+  },
+  {
+    "case": "existing-seed-20261002-123-random-kind-3",
+    "input_sha256": "c00399ce110809fed94a0b7256b200d44d02187aecddf254a9f66a04a6f1e5fa",
+    "output_sha256": "9f7ecec52b8c9b353b161207d152e2f1fae4a382a1e71082cfcfd3fd45fa8c05"
+  },
+  {
+    "case": "existing-seed-20261002-124-random-kind-4",
+    "input_sha256": "51af824a56881f2f2c69a205300bff9009713b87e3fd824c7cf20eb526566b86",
+    "output_sha256": "5bbb5b57ba17384e47665d022cd37c7eb7f4646f0f62cad1cfec6bee74547e88"
+  },
+  {
+    "case": "existing-seed-20261002-125-sphere-seams",
+    "input_sha256": "4ee8ffa10d3df7e9c4a0855d69f7ccbec52230a8b7594f03af648c2d264320fd",
+    "output_sha256": "0345b8ae43b27ee8be2d746a526ada20ea69178abd71ccea8d502e368903a3c1"
+  },
+  {
+    "case": "existing-seed-20261002-126-small-grid",
+    "input_sha256": "532cb7bdf6badd77c62a9336804861cdc29f3a2a9eaa347d810f04583f74d351",
+    "output_sha256": "635e454fd82cb69e9f338299ffc8e5e234225fe139fc75e19b0a966277577446"
+  },
+  {
+    "case": "existing-seed-20261002-127-random-kind-1",
+    "input_sha256": "52ffb2ff78ca17517494db06393d121ac2badefce99711abe519be135b713c45",
+    "output_sha256": "0c382db360a4c205ab4344bc66529c57b79ede4e357a2ec783532d152061483d"
+  }
+]

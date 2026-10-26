@@ -563,6 +563,26 @@ impl<'a> Positions<'a> {
         }
         None
     }
+    /// Fixed-stride cooker records for scale's independent validation/reduction.
+    /// Keep every other layout on its existing reader, including mapped views.
+    pub(crate) fn scale_records(self) -> Option<impl Iterator<Item = [f32; 3]> + Clone + 'a> {
+        if self.1.is_some() {
+            return None;
+        }
+        let PositionStorage::View(View {
+            storage: Storage::Bytes(data, ByteOrder::LittleEndian),
+            count,
+            stride: 64,
+            offset,
+            ..
+        }) = self.0
+        else {
+            return None;
+        };
+        Some(data[offset..].chunks(64).take(count).map(|record| {
+            position_bytes::<false>(record.first_chunk().expect("validated position record"))
+        }))
+    }
     /// Original packed coordinates and an optional sparse source mapping.
     pub(crate) fn packed_source(self) -> Option<PackedPositionSource<'a>> {
         match self.0 {
