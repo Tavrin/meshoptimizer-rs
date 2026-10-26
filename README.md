@@ -79,6 +79,7 @@ fn meshlet_bounds(positions: &[[f32; 3]], indices: &[u32]) -> Result<Vec<Bounds>
 
 `build_meshlets_scan`, `build_meshlets_flex` and `build_meshlets_spatial` cover the other upstream
 builders. `compute_cluster_bounds` computes bounds for index-list clusters.
+Reuse `BoundsPositions` for repeated bounds queries over the same positions.
 
 ### Cluster LOD DAG
 
@@ -172,16 +173,16 @@ Default output is byte-identical to meshoptimizer 1.3 at commit
 `4c203430ca565cb59a468a91922c76c208169536`, whose `src` tree equals tag v1.3. Fixtures,
 differential sweeps, fuzzing and WASM runs check this on recorded inputs; they don't prove it for
 every input. SIMD decoding matches the scalar bytes. See
-[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/VERIFICATION.md)
-and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/UPSTREAM.md). Timings against C++ 1.3 and the meshopt crate are in
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/PERFORMANCE.md),
+[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/VERIFICATION.md)
+and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/UPSTREAM.md). Timings against C++ 1.3 and the meshopt crate are in
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/PERFORMANCE.md),
 with links to the parity records. Development phases and planned work are in
-[docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/ROADMAP.md).
+[docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/ROADMAP.md).
 
 ## Known exceptions
 
 Intervals and method are in
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/PERFORMANCE.md#known-exceptions-in-detail).
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/PERFORMANCE.md#known-exceptions-in-detail).
 
 - Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
 - Allocating vertex decode, `vertex-v1-streaming-s4`: 1.529–2.118× in 0.2.0; 1.000× and 1.058× when
@@ -199,7 +200,7 @@ Intervals and method are in
 
 ## Licence and acknowledgements
 
-MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/LICENSE). meshoptimizer
+MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/LICENSE). meshoptimizer
 is written by Arseny Kapoulkine. This independent port keeps upstream's licence notice and credits
 its algorithms; it is not affiliated with or endorsed by the upstream project. UPSTREAM.md records
 provenance and intentional API differences.
