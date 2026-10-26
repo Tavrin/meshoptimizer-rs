@@ -27,6 +27,12 @@ profiles. The run used pinned physical cores and interleaved pairs under
 1-minute load averages of 5.76–23.86. C++/C++ anchor diagnostic floors were
 2.10% (consumer) and 4.00% (defaults); no bar or sample exclusion changed.
 
+- Add `FetchIndices`, `optimize_vertex_fetch_remap_with_indices` and
+  `optimize_vertex_fetch_remap_with_indices_into` to cache index validation
+  across fetch-remap calls, preserving failures, work usage and partial writes.
+- Use vectorizable validation and precharged numbering for fetch-remap,
+  preserving checked failures and caller-buffer partial writes.
+
 ## [0.2.4] - 2026-10-25
 
 Faster simplification and overdraw optimization. Output, errors, limits,
