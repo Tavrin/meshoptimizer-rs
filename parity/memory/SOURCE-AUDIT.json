@@ -1,0 +1,9 @@
+{
+  "changed_since_initial_binding": [
+    "/mnt/linux-extra/moss-scratch/meshopt-memory/harness/src/backend.rs"
+  ],
+  "expected_changes": [
+    "scratch harness backend MeshPositions adapter"
+  ],
+  "old_current_algorithm_records_exact": true
+}

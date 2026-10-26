@@ -1,0 +1,141 @@
+--- /mnt/linux-extra/moss-scratch/meshopt-a082-diag/harness/src/backend.rs
++++ /mnt/linux-extra/moss-scratch/meshopt-memory/harness/src/backend.rs
+@@ -1,4 +1,4 @@
+-use meshopt::{simplify::SimplifyOptions, utilities::VertexDataAdapter};
++use moss_cooker::{SimplifyOptions, MeshPositions};
+ use moss_cooker::MeshLodBackend;
+ use serde_json::{json, Value};
+ use sha2::{Digest, Sha256};
+@@ -137,15 +137,18 @@
+     /// Begin another record stream without resetting the library workspace.
+     pub fn next_stream(&mut self, file: File) -> Result<(), String> {
+         self.finish()?;
++        #[cfg(feature="path-c")]
++        if std::env::var_os("MESHOPT_DIAG_RELEASE_MESH").is_some() {self.workspace.clear();}
++        self.diag_emit("mesh_boundary",std::time::Instant::now());
+         self.writer = BufWriter::new(BudgetFile(file));
+         self.writer.write_all(b"[").map_err(|e| e.to_string())?;
+         self.first = true;
+         Ok(())
+     }
+     #[cfg(feature = "path-c")]
+-    fn positions<'a>(v: &VertexDataAdapter<'a>) -> Result<meshoptimizer_rs::Positions<'a>, String> {
++    fn positions<'a>(v: &MeshPositions<'a>) -> Result<meshoptimizer_rs::Positions<'a>, String> {
+         meshoptimizer_rs::Positions::from_bytes(
+-            v.reader.get_ref(),
++            v.bytes,
+             v.vertex_count,
+             v.vertex_stride,
+             v.position_offset,
+@@ -197,27 +200,27 @@
+     fn observe(&mut self, stage: &str, record: impl FnOnce() -> Value) {
+         self.record(stage, record());
+     }
+-    fn scale(&mut self, v: &VertexDataAdapter<'_>) -> Result<f32, String> {
++    fn scale(&mut self, v: &MeshPositions<'_>) -> Result<f32, String> {
+         let diag_start=self.diag_begin();
+         #[cfg(feature = "path-a")]
+         let result = self.inner.scale(v)?;
+         // SAFETY: the shared checked boundary verifies storage, stride and finite
+         // positions before the cooker is entered. v borrows that live storage.
+         #[cfg(feature = "path-b")]
+-        let result = unsafe { migration_scale(v.pos_ptr(), v.vertex_count, v.vertex_stride) };
++        let result = unsafe { migration_scale(v.bytes.as_ptr().add(v.position_offset).cast::<f32>(), v.vertex_count, v.vertex_stride) };
+         #[cfg(feature = "path-c")]
+         let result =
+             meshoptimizer_rs::simplify_scale(Self::positions(v)?).map_err(|e| format!("{e:?}"))?;
+         self.diag_emit("scale_raw",diag_start);
+         #[cfg(feature="path-c")]
+-        if std::env::var_os("MESHOPT_DIAG_RELEASE").is_some() {self.workspace.clear();}
++        if std::env::var_os("MESHOPT_DIAG_RELEASE_CALL").is_some() {self.workspace.clear();}
+         self.record("scale_raw", json!({"scale_bits": result.to_bits()}));
+         Ok(result)
+     }
+     fn simplify(
+         &mut self,
+         i: &[u32],
+-        v: &VertexDataAdapter<'_>,
++        v: &MeshPositions<'_>,
+         target: usize,
+         error: f32,
+         options: SimplifyOptions,
+@@ -242,7 +245,7 @@
+                     out.as_mut_ptr(),
+                     i.as_ptr(),
+                     i.len(),
+-                    v.pos_ptr(),
++                    v.bytes.as_ptr().add(v.position_offset).cast::<f32>(),
+                     v.vertex_count,
+                     v.vertex_stride,
+                     target,
+@@ -273,14 +276,14 @@
+         }
+         self.diag_emit("simplify",diag_start);
+         #[cfg(feature="path-c")]
+-        if std::env::var_os("MESHOPT_DIAG_RELEASE").is_some() {self.workspace.clear();}
++        if std::env::var_os("MESHOPT_DIAG_RELEASE_CALL").is_some() {self.workspace.clear();}
+         self.record("simplify", json!({"input_indices": words(i, &self.directory)?, "target_indices": target, "target_error_bits": error.to_bits(), "options": options.bits(), "output_indices": words(&output, &self.directory)?, "error_bits": measured.to_bits()}));
+         Ok(output)
+     }
+     fn simplify_attributes(
+         &mut self,
+         i: &[u32],
+-        v: &VertexDataAdapter<'_>,
++        v: &MeshPositions<'_>,
+         a: &[f32],
+         w: &[f32],
+         stride: usize,
+@@ -319,7 +322,7 @@
+                     out.as_mut_ptr(),
+                     i.as_ptr(),
+                     i.len(),
+-                    v.pos_ptr(),
++                    v.bytes.as_ptr().add(v.position_offset).cast::<f32>(),
+                     v.vertex_count,
+                     v.vertex_stride,
+                     a.as_ptr(),
+@@ -380,7 +383,7 @@
+         }
+         self.diag_emit("simplify_attributes",diag_start);
+         #[cfg(feature="path-c")]
+-        if std::env::var_os("MESHOPT_DIAG_RELEASE").is_some() {self.workspace.clear();}
++        if std::env::var_os("MESHOPT_DIAG_RELEASE_CALL").is_some() {self.workspace.clear();}
+         self.record("simplify_attributes", json!({"input_indices": words(i, &self.directory)?, "attribute_bits": words(&a.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), &self.directory)?, "weight_bits": w.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), "attribute_stride": stride, "locks": blob(&locks.iter().map(|&l| u8::from(l)).collect::<Vec<_>>(), &self.directory)?, "flags": blob(&locks.iter().map(|&l| u8::from(l)).collect::<Vec<_>>(), &self.directory)?, "target_indices": target, "target_error_bits": error.to_bits(), "options": options.bits(), "output_indices": words(&output, &self.directory)?, "error_bits": measured.to_bits()}));
+         Ok(output)
+     }
+@@ -403,7 +406,7 @@
+             .map_err(|e| format!("{e:?}"))?;
+         self.diag_emit("cache",diag_start);
+         #[cfg(feature="path-c")]
+-        if std::env::var_os("MESHOPT_DIAG_RELEASE").is_some() {self.workspace.clear();}
++        if std::env::var_os("MESHOPT_DIAG_RELEASE_CALL").is_some() {self.workspace.clear();}
+         self.record(
+             "cache",
+             json!({"input_indices": words(&before, &self.directory)?, "vertex_count": n, "output_indices": words(i, &self.directory)?}),
+@@ -413,7 +416,7 @@
+     fn overdraw(
+         &mut self,
+         i: &mut Vec<u32>,
+-        v: &VertexDataAdapter<'_>,
++        v: &MeshPositions<'_>,
+         threshold: f32,
+     ) -> Result<(), String> {
+         let diag_start = self.diag_begin();
+@@ -429,7 +432,7 @@
+                     out.as_mut_ptr(),
+                     i.as_ptr(),
+                     i.len(),
+-                    v.pos_ptr(),
++                    v.bytes.as_ptr().add(v.position_offset).cast::<f32>(),
+                     v.vertex_count,
+                     v.vertex_stride,
+                     threshold,
+@@ -447,7 +450,7 @@
+         .map_err(|e| format!("{e:?}"))?;
+         self.diag_emit("overdraw",diag_start);
+         #[cfg(feature="path-c")]
+-        if std::env::var_os("MESHOPT_DIAG_RELEASE").is_some() {self.workspace.clear();}
++        if std::env::var_os("MESHOPT_DIAG_RELEASE_CALL").is_some() {self.workspace.clear();}
+         self.record("overdraw", json!({"input_indices": words(&before, &self.directory)?, "threshold_bits": threshold.to_bits(), "output_indices": words(i, &self.directory)?}));
+         Ok(())
+     }

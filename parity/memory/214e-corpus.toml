@@ -1,0 +1,15 @@
+schema = "moss-meshopt-corpus.v1"
+phase = "0.1-geometry"
+
+[[fixture]]
+id = "jungle-scoreboard-214e85c568a64e8a-entity"
+kind = "real"
+path = "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/214e85c568a64e8a.mesh"
+sha256 = "70cf8451981167c50cd1b8d296a062ca99517f679aad492e2e19f4e8711bcbf8"
+format = "cooked-mesh"
+drop_clump_area_loss = false
+max_vertices = 6798441
+max_indices = 8553003
+max_input_bytes = 469312236
+input_vertices = 6798441
+input_indices = 8553003
