@@ -1,0 +1,51 @@
+[package]
+name = "meshopt-crate-comparison"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[features]
+default = []
+ours = ["dep:meshoptimizer-rs"]
+theirs = ["dep:meshopt"]
+peer7 = ["dep:meshopt7"]
+optimesh = ["dep:optimesh"]
+peer-simd = ["meshoptimizer-rs?/simd", "optimesh?/simd"]
+full = ["meshoptimizer-rs?/experimental", "meshoptimizer-rs?/clusterlod", "meshoptimizer-rs?/parallel"]
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", optional = true, default-features = false, features = ["std"] }
+meshopt = { version = "=0.6.2", optional = true }
+meshopt7 = { package = "meshopt", version = "=0.7.0", optional = true }
+optimesh = { version = "=1.1.0", optional = true }
+
+[[bin]]
+name = "cmp-driver"
+path = "src/main.rs"
+[profile.moss]
+inherits = "release"
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+
+[profile.defaults]
+inherits = "release"
+opt-level = 3
+lto = false
+codegen-units = 16
+strip = "symbols"
+
+[[bin]]
+name = "l1-proof"
+path = "proof.rs"
+required-features = ["ours"]
+
+[[bin]]
+name = "l1-rfc113"
+path = "rfc113.rs"
+required-features = ["ours"]
+
+[[bin]]
+name = "l1-division-fuzz"
+path = "division_fuzz.rs"
