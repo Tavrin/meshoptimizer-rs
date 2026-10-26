@@ -1,0 +1,82 @@
+[
+  {
+    "operation": "quantize-half",
+    "arm": "O",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n987310,,instructions:u,1806095,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "O",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n14111021,,instructions:u,2538319,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "O",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n17041720,,instructions:u,2400441,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "O",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n27044570,,instructions:u,3331602,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "O",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n1585088677,,instructions:u,147479105,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "O",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n988269,,instructions:u,1730677,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "O",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n11911326,,instructions:u,3129310,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "O",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n14334203,,instructions:u,3612219,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "O",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n22604224,,instructions:u,4712841,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "O",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:54:30 2026\n\n1347479503,,instructions:u,620184461,100.00,,\n",
+    "stderr": ""
+  }
+]

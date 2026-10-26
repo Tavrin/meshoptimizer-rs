@@ -1,0 +1,242 @@
+[
+  {
+    "operation": "quantize-half",
+    "arm": "B",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n994557,,instructions:u,1340599,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "B",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n15390549,,instructions:u,2117021,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "B",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n18612170,,instructions:u,2326188,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "B",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n29603422,,instructions:u,3210147,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "B",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n1737399414,,instructions:u,140802661,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "X",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n964814,,instructions:u,1623889,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "X",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n12290205,,instructions:u,2289737,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "X",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n14815143,,instructions:u,2276990,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "X",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n23434616,,instructions:u,2818595,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "X",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n1369694024,,instructions:u,126734756,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "M7",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n2673731,,instructions:u,1993921,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "M7",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n31200274,,instructions:u,4344394,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "M7",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n37483889,,instructions:u,5685564,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "M7",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n54575620,,instructions:u,7630048,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-half",
+    "arm": "M7",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n3435118191,,instructions:u,251265963,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "B",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:57 2026\n\n986972,,instructions:u,2013238,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "B",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n11590333,,instructions:u,2250320,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "B",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n13942419,,instructions:u,2472692,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "B",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n21963135,,instructions:u,3321243,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "B",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n1309399801,,instructions:u,579674907,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "X",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n957634,,instructions:u,2092552,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "X",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n8648010,,instructions:u,2002487,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "X",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n10339924,,instructions:u,2213939,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "X",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n16118365,,instructions:u,2872121,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "X",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:58 2026\n\n960728979,,instructions:u,579189582,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "M7",
+    "case": "tiny-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:59 2026\n\n2725117,,instructions:u,2281782,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "M7",
+    "case": "medium-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:59 2026\n\n37567385,,instructions:u,4074009,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "M7",
+    "case": "medium-seams",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:59 2026\n\n45028297,,instructions:u,4533903,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "M7",
+    "case": "medium-sparse",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:59 2026\n\n59663553,,instructions:u,7231954,100.00,,\n",
+    "stderr": ""
+  },
+  {
+    "operation": "quantize-float",
+    "arm": "M7",
+    "case": "million-smooth",
+    "exit": 0,
+    "perf": "# started on Mon Oct 26 07:49:59 2026\n\n4224761913,,instructions:u,717214458,100.00,,\n",
+    "stderr": ""
+  }
+]

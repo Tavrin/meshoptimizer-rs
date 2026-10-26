@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "cases": 717,
+  "cpp_cases": 660,
+  "binaries": {
+    "protocol-candidate-driver": "f2b8502819f42f9484a04b07d895aa3ccc6acaf72fb39253cb2db3530c9c1b9a",
+    "protocol-cpp-driver": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+    "protocol-baseline-driver": "6ca0f1c1269d637921bf560660b4c5b20b46702769c3e5a7bb59ef87a2d362c5"
+  }
+}

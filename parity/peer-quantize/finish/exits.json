@@ -1,0 +1,9 @@
+{
+  "test": 0,
+  "clippy": 0,
+  "fmt": 0,
+  "build-diagnostic": 0,
+  "build-proof": 0,
+  "exact": 0,
+  "direct": 0
+}
