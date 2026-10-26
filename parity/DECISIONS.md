@@ -8288,3 +8288,14 @@ Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LA
   Lane C owns performance/release proof, and lane B owns the Moss writer.
 - Reversal cost before publication: revert additive exports/callers and harness;
   no payload version, dependency, algorithm pin or existing API migration changes.
+
+## 2026-10-26 — 0.2.x release policy
+
+The owner approved this policy on 2026-10-25. A 0.2.x release requires
+passing PR CI, targeted differential checks and an oracle for the changed
+functions, one independent review, a publish dry-run, a prose pass and a tag.
+
+The full 10,000-case sweeps for phases 0.1 and 0.1.x and long fuzz runs
+run nightly on main through the meshopt-robustness timer instead of blocking
+each patch release. New public APIs require one approximately 15-minute
+fuzz run before their first release.

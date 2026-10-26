@@ -130,6 +130,11 @@
 
 extern crate alloc;
 
+/// Compiles and runs every `rust` block in the README as a doctest.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+pub struct ReadmeDoctests;
+
 mod budget;
 
 mod analyze;

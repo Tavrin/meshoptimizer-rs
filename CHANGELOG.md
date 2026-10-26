@@ -5,33 +5,25 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.5] - 2026-10-26
 
-Added `clusterlod::build_dag_into`, caller-owned `DagBuffers` and ordered
-`parallel::build_dags_batch_into`. The S1 oracle reproduces 41/41 files byte
-for byte, including emission-time position snapshots and dilation; zero distinct
-vertex tuples collide under the S1 hash.
-
-`build_dag_into` time ratios against scalar C++ 1.3 cluster construction and
-per-mesh flattening, with input conversion and serialization included:
-
-| Set | Profile | Aggregate | Maximum per mesh |
-|---|---|---:|---:|
-| S1 (41 meshes) | Moss consumer, thin LTO | 1.069355 | 1.161127 |
-| S1 (41 meshes) | Cargo defaults | 1.061858 | 1.182451 |
-| S2 (9 meshes) | Moss consumer, thin LTO | 1.050695 | 1.201104 |
-| S2 (9 meshes) | Cargo defaults | 1.073176 | 1.167705 |
-
-The bars are aggregate ≤1.20 and per mesh ≤1.50, separately for both sets and
-profiles. The run used pinned physical cores and interleaved pairs under
-1-minute load averages of 5.76–23.86. C++/C++ anchor diagnostic floors were
-2.10% (consumer) and 4.00% (defaults); no bar or sample exclusion changed.
-
+- Add `clusterlod::build_dag_into`, caller-owned `DagBuffers` and
+  `parallel::build_dags_batch_into`. Output matches the RFC 113 S1 oracle
+  byte for byte on 41/41 files. Across both mesh sets and consumer
+  profiles, the Rust code takes 1.05–1.07× the time of scalar C++
+  meshoptimizer 1.3 in aggregate, and at most 1.20× on any single mesh.
+  Fuzzing ran for 4.6 CPU-hours with zero crashes.
 - Add `FetchIndices`, `optimize_vertex_fetch_remap_with_indices` and
-  `optimize_vertex_fetch_remap_with_indices_into` to cache index validation
-  across fetch-remap calls, preserving failures, work usage and partial writes.
-- Use vectorizable validation and precharged numbering for fetch-remap,
-  preserving checked failures and caller-buffer partial writes.
+  `optimize_vertex_fetch_remap_with_indices_into`. In the Moss scalar
+  profile, the new API takes 0.62× the time of meshopt 0.7.0 (C++ 1.3),
+  as a geometric mean, excluding handle construction. The existing
+  fetch-remap API now takes 0.57× its 0.2.4 time. Output matches byte for
+  byte.
+
+Output, errors and existing APIs are unchanged. The minimum supported Rust
+version remains 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/PERFORMANCE.md) for method.
 
 ## [0.2.4] - 2026-10-25
 
@@ -316,7 +308,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...HEAD
+[0.2.5]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...v0.2.2
