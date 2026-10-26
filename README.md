@@ -3,259 +3,203 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Tavrin/meshoptimizer-rs/ci.yml?branch=main&label=CI)](https://github.com/Tavrin/meshoptimizer-rs/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/meshoptimizer-rs.svg)](https://crates.io/crates/meshoptimizer-rs)
 [![docs.rs](https://img.shields.io/docsrs/meshoptimizer-rs)](https://docs.rs/meshoptimizer-rs)
-[![Licence](https://img.shields.io/crates/l/meshoptimizer-rs.svg)](LICENSE)
-[![MSRV](https://img.shields.io/badge/MSRV-1.88-blue)](Cargo.toml)
-[![no_std](https://img.shields.io/badge/no__std-alloc-green)](https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/)
 
-A pure-Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3
-with exact output parity against its scalar implementation on the recorded
-inputs: index order, floating-point error bits and encoded bytes match.
-It needs no C++ toolchain and supports `no_std` with `alloc`.
-Default builds include SIMD in one audited `unsafe` module; disabling default
-features gives an unsafe-free build.
-
-The port targets commit `4c203430ca565cb59a468a91922c76c208169536`, whose
-`src` tree equals upstream tag v1.3. Fixtures, differential sweeps, fuzzing
-and executed WASM checks establish parity on finite recorded inputs.
-They do not prove it for every possible input. See [UPSTREAM.md](UPSTREAM.md).
-
-Crate **0.2.4** includes the following development phases. Phase numbers
-label stages of the port, not published crate versions.
-
-| Phase | Included APIs |
-|---|---|
-| 0.1 / 0.1.x core | Checked views, errors, workspaces and limits; remapping, vertex cache/fetch and overdraw optimization, simplification and quantization. |
-| 0.2 glTF decoding | Vertex/index decoding and checked `EXT_meshopt_compression` buffer views, including filters. |
-| 0.3 meshlets | Scan, standard, flex and spatial builders; bounds, meshlet optimization, partitioning, spatial ordering and optional cluster LOD. |
-| 0.4 codecs | Vertex/index/sequence encoders and decoders, versions and compression levels, Oct/Quat/Exp/Color filters and meshlet codecs. |
-| 0.5 scalar algorithms | Stripification, cache/fetch/overdraw/coverage analysis, opacity micromaps, tangents, experimental normals and remeshing. |
-| 0.6 parallel batches | Ordered batches for LOD chains, encoding, EXT views, meshlets, cluster-LOD DAGs and hierarchy forests. |
-| 0.7 SIMD decoding | Vertex, filter and meshlet kernels for x86 SSE2/SSSE3/SSE4.1, AArch64 NEON and wasm simd128; scalar reference and fallback. |
-
-## Install and quick start
-
-Requires Rust **1.88** or later. The library name is `meshoptimizer_rs`.
+A pure-Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3. Its output is
+byte-identical to the C++ library: index order, error values and encoded bytes match. It needs no
+C++ toolchain and supports `no_std` with `alloc`.
 
 ```toml
 [dependencies]
-meshoptimizer-rs = "0.2.4"
+meshoptimizer-rs = "0.2.5"
 ```
 
-Simplify a mesh, then optimize its triangle order:
+The minimum Rust version is 1.88. The library name is `meshoptimizer_rs`.
+
+## Usage
+
+Every operation takes a `&mut Workspace` and returns `Result<_, meshoptimizer_rs::Error>`. Most
+have an allocating form, a caller-buffer `_into` form and, where it applies, an `_in_place` form.
+
+### Simplify and optimize a mesh
+
+Simplify to a quarter of the triangles, reorder triangles for the vertex cache and overdraw, then
+reorder vertices for fetch.
 
 ```rust
 use meshoptimizer_rs::{
-    optimize_vertex_cache, simplify, Positions, SimplifyOptions, SimplifySettings, Workspace,
+    optimize_overdraw, optimize_vertex_cache, optimize_vertex_fetch, simplify, Error, FetchedMesh,
+    Positions, SimplifyOptions, SimplifySettings, VertexStream, Workspace,
 };
 
-fn main() -> Result<(), meshoptimizer_rs::Error> {
-    let positions = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]];
-    let indices = [0, 1, 2, 2, 1, 3];
+fn make_lod(positions: &[[f32; 3]], indices: &[u32]) -> Result<FetchedMesh, Error> {
     let mut workspace = Workspace::default();
-    let lod = simplify(
-        &indices,
-        Positions::from_packed(&positions),
-        SimplifySettings {
-            target_index_count: 3,
-            target_error: 0.01,
-            options: SimplifyOptions::EMPTY,
-        },
-        &mut workspace,
-    )?;
-    let cached = optimize_vertex_cache(&lod.indices, positions.len(), &mut workspace)?;
-    println!("{} indices, relative error {}", cached.len(), lod.error);
-    Ok(())
+    let view = Positions::from_packed(positions);
+    let target_index_count = indices.len() / 4;
+    let settings = SimplifySettings { target_index_count, target_error: 0.01, options: SimplifyOptions::EMPTY };
+    let lod = simplify(indices, view, settings, &mut workspace)?;
+    let lod = optimize_vertex_cache(&lod.indices, positions.len(), &mut workspace)?;
+    let lod = optimize_overdraw(&lod, view, 1.05, &mut workspace)?;
+
+    let bytes: Vec<u8> = positions.iter().flatten().flat_map(|v| v.to_le_bytes()).collect();
+    optimize_vertex_fetch(&lod, VertexStream::packed(&bytes, 12)?, &mut workspace)
 }
 ```
 
-| Feature | Default | Effect |
-|---|---|---|
-| `std` | yes | Standard error integration. Disable defaults for `no_std`; an allocator is required. |
-| `simd` | yes | Audited SIMD decoding. Runtime x86 dispatch with `std`, compile-time features without it. |
-| `clusterlod` | no | Port of upstream `demo/clusterlod.h`; the demo is not a stable upstream API. |
-| `experimental` | no | Experimental upstream functions and options, including normals and remeshing. |
-| `parallel` | no | Rayon batches; enables `std` and requires native threads. |
+To account for attributes such as normals, call `simplify_with_attributes` with an `Attributes`
+view and one weight per component, for example
+`Attributes::from_interleaved(&normals, vertex_count, 3, 3, 0)?` and `&[0.5; 3]`. Interleaved
+positions use `Positions::from_interleaved`; stride and offset are in `f32` elements.
 
-For an unsafe-free `no_std` build:
+For repeated fetch-remap calls, reuse `FetchIndices::new(indices, positions.len())` with
+`optimize_vertex_fetch_remap_with_indices` or its `_into` form to avoid repeated index validation.
 
-```toml
-meshoptimizer-rs = { version = "0.2.4", default-features = false }
+### Meshlets and bounds
+
+```rust
+use meshoptimizer_rs::{
+    build_meshlets, compute_meshlet_bounds, Bounds, Error,
+    MeshletSettings, Positions, Workspace,
+};
+
+fn meshlet_bounds(positions: &[[f32; 3]], indices: &[u32]) -> Result<Vec<Bounds>, Error> {
+    let mut workspace = Workspace::default();
+    let view = Positions::from_packed(positions);
+    let meshlets = build_meshlets(indices, view, MeshletSettings::default(), 0.25, &mut workspace)?;
+
+    let mut bounds = Vec::new();
+    for m in &meshlets.meshlets {
+        let (v, t) = (m.vertex_offset as usize, m.triangle_offset as usize);
+        let vertices = &meshlets.vertices[v..v + m.vertex_count as usize];
+        let triangles = &meshlets.triangles[t..t + m.triangle_count as usize * 3];
+        bounds.push(compute_meshlet_bounds(vertices, triangles, view, &mut workspace)?);
+    }
+    Ok(bounds)
+}
 ```
 
-Add `features = ["std"]` for an unsafe-free standard-library build.
-Cargo feature unification applies: another dependency enabling `simd` enables
-it for the shared crate too.
+`build_meshlets_scan`, `build_meshlets_flex` and `build_meshlets_spatial` cover the other upstream
+builders. `compute_cluster_bounds` computes bounds for index-list clusters.
 
-Most operations offer allocating, caller-buffer (`_into`) and, where relevant,
-`_in_place` forms. Codec versions and levels are per-call settings.
-`Workspace` reuses scratch storage and enforces per-call byte and work limits;
-its defaults are 1 GiB and 2^34 work units. Retained scratch is reused when it
-fits; when a call would exceed the byte limit, scratch it does not use is
-released first and the buffers it reuses are shrunk to the size it needs.
-Late caller-buffer errors can leave
-a written prefix; unused tails are preserved. In-place calls preserve their
-input on failure. See the [API documentation](https://docs.rs/meshoptimizer-rs).
+### Cluster LOD DAG
 
-Parallel batches return results in input order, matching sequential bytes at
-any thread count. Limits apply per item, outside batch result slots and Rayon
-infrastructure; callers should bound batch size. Rayon pool initialization
-can panic. Small hierarchy batches run sequentially to avoid dispatch overhead.
+With the `clusterlod` feature, `build_dag_into` builds the cluster DAG and its per-level node
+forest into buffers you own. Allocate each `DagBuffers` slice, for example with
+`vec![Default::default(); capacity]`. The returned `DagCounts` gives the length of each filled
+prefix, such as `indices[..counts.indices]`.
 
-## Performance against C++
+```rust
+#[cfg(feature = "clusterlod")]
+use meshoptimizer_rs::{clusterlod::{self, DagBuffers, DagCounts, Mesh}, Workspace};
 
-Recorded on an **AMD Ryzen 9 7945HX, Linux x86-64**, using a pinned core and
-interleaved pairs on a shared host. Ratios are Rust time / C++ time: lower is
-faster, 1.00 is equal. Validation, required copies and allocation are timed.
-The scalar baseline is pinned meshoptimizer 1.3 with SIMD and FMA contraction
-disabled. The records below differ in source, corpus and API scope.
-For 0.2.1 and 0.2.2, only the encoders were timed again (see
-[Encoder performance in 0.2.2](#encoder-performance-in-022)); no new full-tree
-timing was run for those releases or for 0.2.3.
+#[cfg(feature = "clusterlod")]
+fn build_dag(
+    indices: &[u32],
+    positions: &mut [[f32; 3]],
+    buffers: DagBuffers<'_>,
+) -> Result<DagCounts, meshoptimizer_rs::Error> {
+    let mesh = Mesh { indices, positions, attributes: None, vertex_lock: None,
+                      attribute_weights: &[], attribute_protect_mask: 0 };
+    let config = clusterlod::default_config(128)?;
+    clusterlod::build_dag_into(config, mesh, 8, buffers, &mut Workspace::default())
+}
+```
 
-The Moss profile uses thin LTO and one codegen unit. The defaults profile uses
-Cargo's consumer release settings: no LTO and sixteen codegen units. The
-crate-local fat-LTO profile does not apply to dependents.
+Only the returned prefixes are output. If a call fails, including with `BufferTooSmall`, discard
+the output, restore the original positions (border dilation may have moved them) and retry with
+larger buffers. Caller buffers don't count toward `Workspace` limits.
 
-| Recorded scope | Moss ratio | Defaults ratio | Evidence |
-|---|---:|---:|---|
-| Core `simplify`, family geometric mean | 1.049 | 1.060 | [core records](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_PERFORMANCE.md) |
-| Standard meshlet builder, mean / max | 1.126 / 1.324 | 1.148 / 1.405 | [P03](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_P03.json) |
-| Scalar codecs and filters, historical family mean range | 0.61–1.24 | 0.59–1.24 | [P04 Moss](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-moss.json), [defaults](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-default.json) |
-| Opacity-map compact, selected final scope mean | 0.557 | 0.578 | [P05 state](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P05_CURRENT_STATE.md) |
-| Cluster LOD, sum of per-mesh medians | 1.196 | 1.090 | [RFC 113 recovery](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/rfc113-clod-recover.md) |
+With `parallel` as well, `parallel::build_dags_batch_into(&mut inputs, Limits::default())` builds
+several meshes at once. Each `DagBuildInput` holds the `config`, `mesh`, `node_width` and
+`destination` arguments above. It returns one `Result<DagCounts, Error>` per input, in input
+order, and each item has its own limits.
 
-Current SIMD timings use a separate registered driver and SIMD/JS comparators.
-Native vertex decode has allocating / caller-buffer means of 1.116 / 1.051;
-the resolved allocating maximum still fails. Every current family mean and
-native caller-buffer family passes the registered 0.2 rule; the allocating
-index, vertex and filtered-view maxima fail. The symmetric WASM JavaScript
-adapters pass that rule, but that does not qualify the Vec-returning Rust WASM
-API.
-See the [full qualification and A/A widths](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P07_RELEASE_QUALIFICATION.md).
+### Vertex and index compression
 
-The general family mean / case maximum bars are 1.25 / 1.50. For 0.2 SIMD,
-maxima apply only when both independent A/A upper bounds are at most 1.25;
-all rows still contribute to means. Unresolved rows remain listed.
-Passing a family mean does not clear a failed or inconclusive maximum.
+The `codec` module implements the codecs used by `EXT_meshopt_compression`, plus index sequence
+and meshlet codecs and the Oct, Quat, Exp and Color filters. `VertexEncoding` and `IndexEncoding`
+set the format version and level per call. `decode_buffer_view` decodes a glTF bufferView using the
+mode and filter names from its JSON.
 
-Parallel speed curves compare batches with sequential Rust, not C++.
-Small hierarchy batches can be slower, including caller-side pool overhead.
-See the [P06 record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/p06/README.md).
+```rust
+use meshoptimizer_rs::codec::{
+    decode_buffer_view, decode_vertex_buffer, encode_index_buffer, encode_vertex_buffer, Filter,
+    IndexEncoding, Mode, VertexEncoding,
+};
+use meshoptimizer_rs::{Error, Workspace};
 
-## Comparison with the meshopt crate
+fn compress(vertices: &[u8], stride: usize, indices: &[u32]) -> Result<(Vec<u8>, Vec<u8>), Error> {
+    let mut workspace = Workspace::default();
+    let count = vertices.len() / stride;
+    let encoding = VertexEncoding::DEFAULT;
+    let packed_vertices = encode_vertex_buffer(vertices, count, stride, encoding, &mut workspace)?;
+    assert_eq!(decode_vertex_buffer(count, stride, &packed_vertices, &mut workspace)?, vertices);
 
-The **0.2.0** comparison from 2026-10-06 uses meshopt **0.6.2** (bundled C++ **0.25**) and five frozen inputs on the Ryzen 9 7945HX in two consumer profiles.
-**meshopt is faster at allocating vertex decode and Oct/Quat/Exp encoding** by five-case geometric mean in both profiles; **Exp encoding is about 3.4× faster**.
-meshoptimizer-rs is faster by the same measure at matched-v1 vertex encoding, Color encoding, Exp/Color decoding and scan meshlet construction; individual cases vary.
-meshoptimizer-rs has the 1.3 meshlet codecs, opacity maps, tangents, experimental normals/remeshing, cluster LOD and built-in parallel batches, which meshopt 0.6.2 lacks.
-It also has `no_std + alloc`, checked views, typed errors, per-call work/byte limits and reusable workspaces without a C++ toolchain.
-Default vertex encodings differ (ours v1, theirs v0), and some meshlet, partitioning and simplification outputs differ across upstream versions.
-These shared-host timings do not isolate language, compiler, wrapper or version costs; see the [full comparison, output checks and case intervals](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md).
-The 0.2.2 encoder run below measured meshopt 0.6.2 again in the same two
-consumer profiles. For encoding, its results replace the encoder claims above.
+    let packed_indices = encode_index_buffer(indices, IndexEncoding::DEFAULT, &mut workspace)?;
+    Ok((packed_vertices, packed_indices))
+}
 
-### Encoder performance in 0.2.2
+fn decode_view(mode: &str, filter: &str, n: usize, stride: usize, data: &[u8]) -> Result<Vec<u8>, Error> {
+    let (mode, filter) = (Mode::parse(mode)?, Filter::parse(filter)?);
+    decode_buffer_view(mode, filter, n, stride, data, &mut Workspace::default())
+}
+```
 
-0.2.2 makes the allocating index, sequence and Quat encoders faster without
-changing their output. Ratios are family geometric means of Rust time /
-comparator time with the allocating APIs, 0.2.1 → 0.2.2 for C++ 1.3 and 0.2.2
-for meshopt 0.6.2; lower is faster.
+### Workspace and limits
 
-| Encoder | C++ 1.3, defaults | C++ 1.3, Moss | meshopt 0.6.2, defaults | meshopt 0.6.2, Moss |
-|---|---:|---:|---:|---:|
-| Vertex | 0.666 → 0.667 | 0.660 → 0.657 | 0.710 | 0.733 |
-| Index | 1.019 → 0.773 | 1.016 → 0.764 | 0.860 | 0.858 |
-| Sequence | 0.931 → 0.924 | 0.986 → 0.940 | 0.980 | 0.952 |
-| Oct | 0.591 → 0.585 | 0.565 → 0.563 | 0.845 | 0.868 |
-| Quat | 1.055 → 0.700 | 0.681 → 0.669 | 0.868 | 0.868 |
-| Exp | 0.609 → 0.621 | 0.588 → 0.590 | 0.575 | 0.579 |
-| Color | — | — | 0.825 | 0.825 |
+Keep one `Workspace` per thread and reuse it: it keeps scratch memory between calls. Its `Limits`
+cap the bytes the crate allocates and the work units a call may spend; the defaults are 1 GiB and
+2^34. Set them with `Workspace::new(Limits { max_bytes: 64 << 20, max_work: 1 << 30 })`. A call
+over a limit returns `Error::LimitExceeded`, and `Workspace::usage` reports the last call's bytes
+and work.
 
-In both profiles every C++ family mean is at or below 1.25 and all 111 cases
-have a 95% upper bound at or below 1.50. Encoded bytes are unchanged: 17,264
-exact comparisons per profile against scalar and SIMD meshoptimizer 1.3, with
-zero mismatches. The run used an AMD Ryzen 9 7945HX on Linux, one pinned core,
-a generic CPU target and C++ built with GCC 13.3 using its normal runtime SIMD
-dispatch, with interleaved Rust/C++ pairs and A/A controls. meshopt 0.6.2
-bundles C++ 0.25, so those ratios include version and wrapper differences. See
-the [intervals, per-case results and method](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.2/parity/P03_ENCODER_PERFORMANCE.md).
+## Features
 
-## Safety and verification
+| Feature | Default | Enables |
+|---|---|---|
+| `std` | yes | `std::error::Error` for `Error`. |
+| `simd` | yes | SIMD vertex, filter and meshlet decoding for SSE2/SSSE3/SSE4.1, NEON and wasm simd128. |
+| `parallel` | no | Rayon batch APIs in the `parallel` module; enables `std`. |
+| `clusterlod` | no | The `clusterlod` module, a port of upstream `demo/clusterlod.h`. |
+| `experimental` | no | Upstream experimental functions, including normal generation and remeshing. |
 
-Public APIs check slices, layouts, indices, finite geometry, overflow and limits,
-returning typed `Error` values. Crate-controlled allocations use fallible
-reservations. The only unsafe allowance is the private `codec::simd` module;
-each block has a safety argument in [SAFETY.md](src/codec/simd/SAFETY.md).
-Simplification, optimization, encoders and index/sequence decoding are safe Rust.
-Scalar builds forbid unsafe code. SIMD must match the canonical scalar bytes;
-filters keep scalar arithmetic instead of upstream's SIMD approximations.
+For `no_std`, set `default-features = false`; an allocator is required. Without `simd` the crate
+contains no `unsafe` code. Cargo feature unification applies: if another dependency enables
+`simd`, it is on for your build too.
 
-Recorded Miri runs cover scalar codecs, dispatch and unwind handling, x86
-integer kernels, filters and meshlets. NEON is not Miri-covered. Differential
-fixtures, seeded sweeps and fuzz targets compare outputs and malformed-input
-handling; CI defines cross-target replay and SIMD safety checks. These checks
-are bounded: a compile check or short smoke run does not establish full
-per-target release fuzz budgets or execution on every supported platform.
-See the [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/SIMD_RESULTS.md).
+## Correctness and performance
+
+Default output is byte-identical to meshoptimizer 1.3 at commit
+`4c203430ca565cb59a468a91922c76c208169536`, whose `src` tree equals tag v1.3. Fixtures,
+differential sweeps, fuzzing and WASM runs check this on recorded inputs; they don't prove it for
+every input. SIMD decoding matches the scalar bytes. See
+[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/VERIFICATION.md)
+and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/UPSTREAM.md). Timings against C++ 1.3 and the meshopt crate are in
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/PERFORMANCE.md),
+with links to the parity records. Development phases and planned work are in
+[docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/ROADMAP.md).
 
 ## Known exceptions
 
-Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
-See the [r2 measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md) and the [v2 release check](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/release-check-v2/REPORT.md).
+Intervals and method are in
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/PERFORMANCE.md#known-exceptions-in-detail).
 
-These 0.2.0 exceptions still apply to 0.2.4. 0.2.2 changed only encoders, and
-0.2.3 changed only how `Workspace` handles retained scratch. 0.2.4 changed only
-simplify and overdraw speed.
-The owner's 2026-10-06 roadmap permitted the allocating vertex exception and
-scheduled its fix for 0.2.1, which stages large owned vertex decodes. The
-0.2.2 run repeated the exact `vertex-v1-streaming-s4` request in the defaults
-and Moss profiles and measured 1.000× C++ (95% interval 0.850–1.206) and
-1.058× (0.959–1.171). The historical gap did not reproduce, but that does not
-show the staging fixed it. Use `decode_vertex_buffer_into` where possible: the
-owner records about 1.04× for the caller-buffer form of that case. The 0.2.0
-complete qualification also records these results:
-
-| Native allocating case | Final Rust/C++ 95% interval | Status |
-|---|---:|---|
-| `vertex-v1-streaming-s4` | 1.529–2.118 | Resolved performance failure; caller-buffer is the workaround. |
-| `index-2-v0-streaming-s4` | 1.508–3.625 | Resolved maximum failure. |
-| `index-2-v1-streaming-s4` | 2.189–2.465 | Resolved maximum failure. |
-| `view-1-streaming-s4` | 1.343–1.636 | Resolved maximum fails the upper-bound rule. |
-| `varied-view-3-streaming-s32` | 1.619–2.590 | Unresolved: Rust/C++ A/A upper bounds 1.284 / 1.026. |
-
-The roadmap also names the filtered-view maximum near 1.64 and a small S3
-case. The latest independent S3 report records caller-buffer
-`varied-filter-3-resident-s32` at 1.026–1.124× scalar Rust. The full report lists
-all excluded A/A rows and their interval widths; an excluded row has not passed.
-
-Older records retain a sparse allocating vertex-fetch maximum failure,
-inconclusive overdraw/sloppy-simplification maxima, and Cargo-default
-`partition_clusters` mean / max of 1.450 / 1.778. P05's final selected
-compact/coverage/raster-overdraw scope passes; the full matrix was not refreshed
-after those edits. The stricter SIMD amendment targets are left for 0.3.
-
-A malformed meshlet tail is accepted by scalar upstream and Rust but rejected
-by upstream SSE. Rust follows the scalar oracle; the expanded strict sweep
-still fails on that upstream discrepancy. Two RFC 113 stride-32 setups are
-invalid because their protect masks exceed the layout. AVX2, AVX-512 and
-32-bit ARM SIMD are not implemented; index/sequence decoding remains scalar.
-See the [comparison's exception ledger](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md#against-pinned-upstream-c-13).
-
-## Priorities for 0.3
-
-1. Finish encoder qualification: validate the other consumer profiles.
-   Reproduce the historical allocating streaming gap in its original profile;
-   retain matched versions and precision settings.
-2. Close resolved allocating codec maxima and default partitioning gaps;
-   keep unresolved rows and the malformed-tail discrepancy listed.
-3. Meet the stricter SIMD amendment targets, requalify fetch/sloppy/overdraw
-   residuals, and refresh the full P05 matrix against the integrated source.
-4. Extend runtime and performance evidence to AArch64 and other native systems,
-   and broaden input, precision and application allocation coverage.
+- Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
+- Allocating vertex decode, `vertex-v1-streaming-s4`: 1.529–2.118× in 0.2.0; 1.000× and 1.058× when
+  re-run for 0.2.2. The caller-buffer form, `decode_vertex_buffer_into`, is about 1.04×.
+- Allocating index decode maxima: `index-2-v0-streaming-s4` 1.508–3.625×,
+  `index-2-v1-streaming-s4` 2.189–2.465×.
+- Allocating EXT view maxima: `view-1-streaming-s4` 1.343–1.636×; `varied-view-3-streaming-s32`
+  1.619–2.590× (unresolved); the filtered-view maximum is near 1.64×.
+- `partition_clusters` with Cargo defaults: mean 1.450×, maximum 1.778×.
+- Older records keep a sparse allocating vertex-fetch maximum failure and inconclusive overdraw and
+  sloppy-simplification maxima.
+- A malformed meshlet tail is accepted by scalar upstream and by this crate, but rejected by
+  upstream SSE.
+- AVX2, AVX-512 and 32-bit ARM SIMD are not implemented; index and sequence decoding is scalar.
 
 ## Licence and acknowledgements
 
-MIT; see [LICENSE](LICENSE). meshoptimizer is written by **Arseny Kapoulkine**.
-This independent port preserves upstream's licence notice and credits its
-algorithms. It is not affiliated with or endorsed by the upstream project.
-[UPSTREAM.md](UPSTREAM.md) records provenance and intentional API differences.
+MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/LICENSE). meshoptimizer
+is written by Arseny Kapoulkine. This independent port keeps upstream's licence notice and credits
+its algorithms; it is not affiliated with or endorsed by the upstream project. UPSTREAM.md records
+provenance and intentional API differences.

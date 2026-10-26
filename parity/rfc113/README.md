@@ -69,3 +69,37 @@ The spec also requests 32-byte pos/nrm/uv coverage. S2's bit-8 protect mask
 violates `clodBuild`'s `mask < 1 << (stride / 4)` assertion at stride 32 and
 reads beyond the last vertex if assertions are disabled. The runner records
 this setup as invalid and does not claim 32-byte parity or timing.
+
+## Caller-buffer S1 oracle (cluster lane A)
+
+`dag_oracle.rs` is an unpublished, format-specific harness for the additive
+`clusterlod::build_dag_into` API. The library owns no MCLD flags or serialization.
+The driver reads S1's final cooked MMSH v2–v4 vertex/index order, uses
+`default_config(128)`, vertex cap 128, hierarchy width 8, protects components
+3/4/8 and colour 9–12, and pads normal weights `[0.5; 3]` with zeros through
+the highest protected component. It retains original positions to derive the
+source-position flag and serializes explicit little-endian words.
+
+The caller allocates the S1 ceiling capacities: 4<<20 vertices, 16<<20 indices,
+1<<20 clusters/groups/nodes, then rejects levels>64, depth>32 or payloads>256 MiB.
+Processing is one mesh at a time. Every distinct emitted source/position tuple
+is checked for collision under S1's u64 hash; collisions block acceptance.
+
+Freeze `MANIFEST.json` under `/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/`
+from S1's `selection.txt`, `build_dags.sh`, builder, candidates, stats, headers,
+all source inputs and all retained `.clod` files before replay. The manifest
+records their SHA-256 hashes and configuration. Through `moss-heavy.sh`, build:
+
+```sh
+export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-cluster-dag
+cargo build --release --manifest-path parity/rfc113/Cargo.toml --bin rfc113-dag-oracle
+python3 parity/rfc113/dag_oracle.py --milestone
+python3 parity/rfc113/dag_oracle.py
+```
+
+The runner checks the 695-file cooker corpus and frozen input hashes before
+execution. It refuses to overwrite emitted files. The fail-fast milestone uses
+the smallest opaque side file and smallest alpha/dilated side file. A mismatch
+records the first differing offset and record/field in `DIVERGENCE.md`; diagnose
+its cause before continuing. Full replay writes per-file `ORACLE.md` and JSON.
+These receipts establish byte identity only, with no performance or GPU claim.

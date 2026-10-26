@@ -4,10 +4,12 @@
 //! contract. Positions are explicit mutable packed XYZ because border dilation
 //! changes them. Callback identifiers retain the demo's refinement semantics.
 #![allow(clippy::too_many_arguments)]
+mod dag;
 mod support;
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, MeshletSettings, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
+pub use dag::{build_dag_into, DagBuffers, DagCounts, FlatDagCluster, FlatDagGroup};
 
 /// Complete configuration of the upstream cluster-LOD demo.
 #[derive(Clone, Copy, Debug)]
@@ -747,7 +749,7 @@ fn output(
     c: Config,
     bounds: LodBounds,
     depth: i32,
-    callback: &mut impl FnMut(Group, Vec<Cluster>, &mut Context<'_>) -> Result<i32, Error>,
+    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
 ) -> Result<i32, Error> {
     let mut out = ctx.alloc::<Cluster>(group.len())?;
@@ -779,6 +781,7 @@ fn output(
             simplified: bounds,
         },
         out,
+        mesh.positions,
         ctx,
     )
 }
@@ -842,15 +845,23 @@ fn validate(mesh: &Mesh<'_>, c: Config, ctx: &mut Context<'_>) -> Result<(), Err
 }
 fn build_internal(
     c: Config,
-    mut mesh: Mesh<'_>,
-    callback: &mut impl FnMut(Group, Vec<Cluster>, &mut Context<'_>) -> Result<i32, Error>,
+    mesh: Mesh<'_>,
+    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
-    validate(&mesh, c, &mut ctx)?;
+    build_in_context(c, mesh, callback, &mut ctx)
+}
+fn build_in_context(
+    c: Config,
+    mut mesh: Mesh<'_>,
+    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
+    ctx: &mut Context<'_>,
+) -> Result<(), Error> {
+    validate(&mesh, c, ctx)?;
     let mut moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
-    let remap = position_remap(p, &mut ctx)?;
+    let remap = position_remap(p, ctx)?;
     let mut locks = ctx.alloc::<support::VertexFlags>(p.len())?;
     if let Some(a) = mesh.attributes {
         for (i, l) in locks.iter_mut().enumerate() {
@@ -870,7 +881,7 @@ fn build_internal(
     } else {
         0
     })?;
-    let (mut clusters, mut idx) = clusterize(mesh.indices, p, c, -1, moderate, &mut ctx)?;
+    let (mut clusters, mut idx) = clusterize(mesh.indices, p, c, -1, moderate, ctx)?;
     for cl in &mut clusters {
         let b = ctx.child(|ws| {
             crate::meshlet_util::compute_cluster_bounds_validated(
@@ -894,7 +905,7 @@ fn build_internal(
             &remap,
             Positions::from_packed(mesh.positions),
             c,
-            &mut ctx,
+            ctx,
         )?;
         lock_boundary(
             &mut locks,
@@ -903,7 +914,7 @@ fn build_internal(
             &idx,
             &remap,
             mesh.vertex_lock,
-            &mut ctx,
+            ctx,
         )?;
         let mut pending = ctx.alloc::<Pending>(idx.len() / 3)?;
         let mut pi = ctx.alloc::<u32>(idx.len())?;
@@ -921,11 +932,11 @@ fn build_internal(
                 gb[i] = cl.bounds;
             }
             let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
-            let mut bounds = merged(&gb, &mut ctx)?;
-            let (simplified, error) = simplify(&merged_idx, &mesh, &locks, c, target, &mut ctx)?;
+            let mut bounds = merged(&gb, ctx)?;
+            let (simplified, error) = simplify(&merged_idx, &mesh, &locks, c, target, ctx)?;
             if simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold {
                 bounds.error = f32::MAX;
-                output(group, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
+                output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
                 ctx.free(merged_idx)?;
                 ctx.free(gb)?;
                 ctx.free(simplified)?;
@@ -935,7 +946,7 @@ fn build_internal(
                 (bounds.error * c.simplify_error_merge_previous).max(error)
                     + error * c.simplify_error_merge_additive,
             )?;
-            let refined = output(group, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
+            let refined = output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
             if c.simplify_dilate_borders {
                 dilate(
                     &mut mesh,
@@ -945,7 +956,7 @@ fn build_internal(
                     &remap,
                     &mut bounds,
                     &mut offsets,
-                    &mut ctx,
+                    ctx,
                 )?;
                 // Dilation can move a coordinate beyond the validated range.
                 // Use the checked flex/bounds path for this and later levels.
@@ -957,7 +968,7 @@ fn build_internal(
                 c,
                 refined,
                 moderate,
-                &mut ctx,
+                ctx,
             )?;
             for &original in &new {
                 let mut cl = original;
@@ -986,8 +997,13 @@ fn build_internal(
     if !clusters.is_empty() {
         let mut bounds = clusters[0].bounds;
         bounds.error = f32::MAX;
-        output(&clusters, &idx, &mesh, c, bounds, depth, callback, &mut ctx)?;
+        output(&clusters, &idx, &mesh, c, bounds, depth, callback, ctx)?;
     }
+    ctx.free(remap)?;
+    ctx.free(locks)?;
+    ctx.free(offsets)?;
+    ctx.free(clusters)?;
+    ctx.free(idx)?;
     Ok(())
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave
@@ -1001,7 +1017,7 @@ pub fn build_with_output(
     build_internal(
         c,
         mesh,
-        &mut |g, clusters, ctx| {
+        &mut |g, clusters, _positions, ctx| {
             let result = output(g, &clusters);
             for cl in &clusters {
                 ctx.release(&cl.indices)?;
@@ -1023,7 +1039,7 @@ pub fn build(
     build_internal(
         c,
         mesh,
-        &mut |g, clusters, ctx| {
+        &mut |g, clusters, _positions, ctx| {
             if result.len() >= i32::MAX as usize {
                 return Err(Error::SizeOverflow);
             }
@@ -1075,6 +1091,14 @@ pub fn build_hierarchy(
     workspace: &mut Workspace,
 ) -> Result<Vec<Node>, Error> {
     let mut ctx = Context::new(workspace)?;
+    hierarchy_in_context(groups, node_width, level_count, &mut ctx)
+}
+fn hierarchy_in_context(
+    groups: &[Group],
+    node_width: usize,
+    level_count: usize,
+    ctx: &mut Context<'_>,
+) -> Result<Vec<Node>, Error> {
     let bound = build_hierarchy_bound(groups.len(), node_width, level_count)?;
     if groups.len() > i32::MAX as usize || bound > u32::MAX as usize {
         return Err(Error::SizeOverflow);
@@ -1132,7 +1156,7 @@ pub fn build_hierarchy(
                     bs[j] = nodes[offset + i + j].bounds;
                 }
                 row[next] = Node {
-                    bounds: merged(&bs, &mut ctx)?,
+                    bounds: merged(&bs, ctx)?,
                     group: -1,
                     child_offset: (offset + i) as u32,
                     child_count: count as u32,
@@ -1147,6 +1171,7 @@ pub fn build_hierarchy(
         }
         nodes[level] = row[0];
     }
+    ctx.free(row)?;
     nodes.truncate(offset);
     Ok(nodes)
 }

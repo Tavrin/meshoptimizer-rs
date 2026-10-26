@@ -7,18 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Keep checked bounds validation on its existing path; specialize cached
-  meshlet preparation for packed positions and one-triangle queries,
-  without changing bounds bits, errors or logical work usage.
-
 - Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and
-  `compute_meshlet_bounds_with_positions` to cache the full positions scan
-  across bounds queries, preserving output bits, errors and logical work usage.
+  `compute_meshlet_bounds_with_positions` to cache position validation across
+  bounds queries. The new API takes 1.24× (meshlet) and 0.99× (cluster) the
+  time of C++ 1.3. The old API is unchanged, with instruction counts at 1.00×
+  of 0.2.4. See [the layout-check report](parity/layout-check/REPORT.md).
+
+## [0.2.5] - 2026-10-26
+
+- Add `clusterlod::build_dag_into`, caller-owned `DagBuffers` and
+  `parallel::build_dags_batch_into`. Output matches the RFC 113 S1 oracle
+  byte for byte on 41/41 files. Across both mesh sets and consumer
+  profiles, the Rust code takes 1.05–1.07× the time of scalar C++
+  meshoptimizer 1.3 in aggregate, and at most 1.20× on any single mesh.
+  Fuzzing ran for 4.6 CPU-hours with zero crashes.
 - Add `FetchIndices`, `optimize_vertex_fetch_remap_with_indices` and
-  `optimize_vertex_fetch_remap_with_indices_into` to cache index validation
-  across fetch-remap calls, preserving failures, work usage and partial writes.
-- Use vectorizable validation and precharged numbering for fetch-remap,
-  preserving checked failures and caller-buffer partial writes.
+  `optimize_vertex_fetch_remap_with_indices_into`. In the Moss scalar
+  profile, the new API takes 0.62× the time of meshopt 0.7.0 (C++ 1.3),
+  as a geometric mean, excluding handle construction. The existing
+  fetch-remap API now takes 0.57× its 0.2.4 time. Output matches byte for
+  byte.
+
+Output, errors and existing APIs are unchanged. The minimum supported Rust
+version remains 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.5/docs/PERFORMANCE.md) for method.
 
 ## [0.2.4] - 2026-10-25
 
@@ -303,7 +316,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
-[Unreleased]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...HEAD
+[0.2.5]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.1...v0.2.2
