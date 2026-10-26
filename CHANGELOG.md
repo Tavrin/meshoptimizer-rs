@@ -5,13 +5,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.8] - 2026-10-26
 
-- L1 cluster paths, Moss scalar five-case GM times versus 0.2.7 / C++ 1.3: partition 0.989x / 1.451x, meshlets-scan 0.801x / 1.067x, meshlets 0.930x / 1.022x, meshlets-spatial 0.992x / 1.122x, meshlets-flex 0.934x / 1.007x, spatial-triangles 0.928x / 1.026x. RFC113 aggregate 1.040x C++, S1 1.038x and S2 1.053x.
-- `optimize_vertex_cache` takes 0.958× the time of 0.2.7 and 1.176× the time of C++ 1.3 in the registered scalar microbenchmarks.
-- `optimize_vertex_cache_fifo` takes 0.966× the time of 0.2.7 and 1.284× the time of C++ 1.3 in the registered scalar microbenchmarks.
-- `simplify_scale` takes 0.698× the time of 0.2.7 and 0.940× the time of C++ 1.3 in the registered scalar microbenchmarks.
-- `optimize_overdraw` takes 0.983× the time of 0.2.7 and 1.108× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `build_meshlets_scan`, `build_meshlets`, `build_meshlets_flex`,
+  `spatial_sort_triangles`, `partition_clusters` and `build_meshlets_spatial`
+  take 0.80×, 0.93×, 0.93×, 0.93×, 0.99× and 0.99× the time of 0.2.7,
+  respectively. Against C++ 1.3, they take 1.07×, 1.02×, 1.01×, 1.03×,
+  1.45× and 1.12× the time. A full cluster-LOD build over the 41-mesh RFC 113
+  benchmark set takes 1.040× the time of C++ 1.3, compared with 1.05–1.07× in
+  0.2.7.
+- `simplify_scale` (packed positions), `optimize_vertex_cache`,
+  `optimize_vertex_cache_fifo` and `optimize_overdraw` take 0.70×, 0.96×,
+  0.97× and 0.98× the time of 0.2.7, respectively. Against C++ 1.3, they
+  take 0.94×, 1.18×, 1.28× and 1.11× the time. On three real-mesh chains,
+  instruction counts for `optimize_vertex_cache` and `optimize_overdraw`
+  are 0.92–0.93× and 0.96–0.97× those of 0.2.7, respectively.
+- Add [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.8/docs/MIGRATING_FROM_MESHOPT.md), a migration guide for users of the `meshopt` crate.
+- CI now runs `cargo-semver-checks` on every pull request, so a change that
+  breaks compatibility with the latest release fails before it ships.
+
+Timings were measured on a shared host; regression checks used instruction counts.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.8/docs/PERFORMANCE.md) for method.
 
 ## [0.2.7] - 2026-10-26
 
@@ -352,6 +369,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.8]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...v0.2.5
