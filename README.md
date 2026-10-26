@@ -152,6 +152,7 @@ cap the bytes the crate allocates and the work units a call may spend; the defau
 2^34. Set them with `Workspace::new(Limits { max_bytes: 64 << 20, max_work: 1 << 30 })`. A call
 over a limit returns `Error::LimitExceeded`, and `Workspace::usage` reports the last call's bytes
 and work.
+Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long simplify chains at some time cost.
 
 ## Features
 
@@ -173,16 +174,16 @@ Default output is byte-identical to meshoptimizer 1.3 at commit
 `4c203430ca565cb59a468a91922c76c208169536`, whose `src` tree equals tag v1.3. Fixtures,
 differential sweeps, fuzzing and WASM runs check this on recorded inputs; they don't prove it for
 every input. SIMD decoding matches the scalar bytes. See
-[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/VERIFICATION.md)
-and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/UPSTREAM.md). Timings against C++ 1.3 and the meshopt crate are in
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/PERFORMANCE.md),
+[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/docs/VERIFICATION.md)
+and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/UPSTREAM.md). Timings against C++ 1.3 and the meshopt crate are in
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/docs/PERFORMANCE.md),
 with links to the parity records. Development phases and planned work are in
-[docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/ROADMAP.md).
+[docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/docs/ROADMAP.md).
 
 ## Known exceptions
 
 Intervals and method are in
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/docs/PERFORMANCE.md#known-exceptions-in-detail).
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/docs/PERFORMANCE.md#known-exceptions-in-detail).
 
 - Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
 - Allocating vertex decode, `vertex-v1-streaming-s4`: 1.529–2.118× in 0.2.0; 1.000× and 1.058× when
@@ -200,7 +201,7 @@ Intervals and method are in
 
 ## Licence and acknowledgements
 
-MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6/LICENSE). meshoptimizer
+MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.7/LICENSE). meshoptimizer
 is written by Arseny Kapoulkine. This independent port keeps upstream's licence notice and credits
 its algorithms; it is not affiliated with or endorsed by the upstream project. UPSTREAM.md records
 provenance and intentional API differences.

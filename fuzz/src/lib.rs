@@ -83,8 +83,44 @@ pub fn run(overdraw: bool) -> Result<(), Box<dyn std::error::Error>> {
         } else {
             [0., 0.5, 1., 1.05, 1.1, 2.][(rng.next() % 6) as usize]
         };
+        // Keep all backing stores alive for each API form. The same geometry
+        // reaches packed, padded-float, little-endian and big-endian paths.
+        let stride = 4 + rng.next() as usize % 9;
+        let offset = 1 + rng.next() as usize % 3;
+        let mut floats = vec![0.; offset + v * stride];
+        let byte_stride = stride * 4;
+        let byte_offset = offset * 4 + 1;
+        let mut bytes = vec![0; byte_offset + v * byte_stride];
+        let layout = executions % 4;
+        for (i, point) in p.iter().enumerate() {
+            floats[offset + i * stride..offset + i * stride + 3].copy_from_slice(point);
+            for (k, x) in point.iter().enumerate() {
+                let raw = if layout == 3 {
+                    x.to_be_bytes()
+                } else {
+                    x.to_le_bytes()
+                };
+                let at = byte_offset + i * byte_stride + k * 4;
+                bytes[at..at + 4].copy_from_slice(&raw);
+            }
+        }
+        let view = match layout {
+            0 => Positions::from_packed(&p),
+            1 => Positions::from_interleaved(&floats, v, stride, offset)?,
+            _ => Positions::from_bytes(
+                &bytes,
+                v,
+                byte_stride,
+                byte_offset,
+                if layout == 3 {
+                    ByteOrder::BigEndian
+                } else {
+                    ByteOrder::LittleEndian
+                },
+            )?,
+        };
         let result = if overdraw {
-            optimize_overdraw(&indices, Positions::from_packed(&p), threshold, &mut ws)
+            optimize_overdraw(&indices, view, threshold, &mut ws)
         } else {
             optimize_vertex_cache(&indices, v, &mut ws)
         };
@@ -107,12 +143,7 @@ pub fn run(overdraw: bool) -> Result<(), Box<dyn std::error::Error>> {
         }
         let original = indices.clone();
         let atomic = if overdraw {
-            optimize_overdraw_in_place(
-                &mut indices,
-                Positions::from_packed(&p),
-                threshold,
-                &mut Workspace::new(limits),
-            )
+            optimize_overdraw_in_place(&mut indices, view, threshold, &mut Workspace::new(limits))
         } else {
             optimize_vertex_cache_in_place(&mut indices, v, &mut Workspace::new(limits))
         };
@@ -129,7 +160,7 @@ pub fn run(overdraw: bool) -> Result<(), Box<dyn std::error::Error>> {
             optimize_overdraw_into(
                 &mut destination,
                 &original,
-                Positions::from_packed(&p),
+                view,
                 threshold,
                 &mut Workspace::new(limits),
             )

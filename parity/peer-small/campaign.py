@@ -18,7 +18,7 @@ assert os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
 OUT = ART / 'campaign.json'
 OUT.open('x').close()
 candidate, base, peer = sys.argv[1:]
-record = dict(registration_sha256=hashlib.sha256(Path('REGISTRATION.md').read_bytes()).hexdigest(),
+record = dict(registration_sha256=hashlib.sha256(Path(__file__).resolve().with_name('REGISTRATION.md').read_bytes()).hexdigest(),
               cpu=7, pairs=10, seed=20261029, bootstrap=10000, rows=[],
               binaries={p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in sys.argv[1:]})
 

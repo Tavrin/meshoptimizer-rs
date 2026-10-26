@@ -51,7 +51,7 @@ fn check_bounds(b: Bounds) {
 pub fn exercise(op: u8, data: &[u8]) {
     let byte = |i: usize| data.get(i).copied().unwrap_or(0);
     let n = byte(0) as usize;
-    let nt = byte(1) as usize * 2;
+    let nt = byte(1) as usize;
     let mut p = Vec::with_capacity(n);
     for i in 0..n {
         let xyz = if byte(2) & 1 == 0 {
