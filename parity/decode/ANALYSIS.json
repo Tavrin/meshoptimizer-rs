@@ -1,0 +1,1968 @@
+{
+  "native": {
+    "AA/oct-decode": {
+      "gm": 1.026963777101996,
+      "cases": 5,
+      "worst": 1.164921148104265
+    },
+    "AA/quat-decode": {
+      "gm": 1.0074571486631936,
+      "cases": 5,
+      "worst": 1.0634109075863907
+    },
+    "AA/vertex-decode": {
+      "gm": 1.014663756662727,
+      "cases": 5,
+      "worst": 1.041627106407433
+    },
+    "M7/oct-decode": {
+      "gm": 1.437751099802767,
+      "cases": 5,
+      "worst": 1.612102608120732,
+      "verdict": "PARTIAL"
+    },
+    "M7/quat-decode": {
+      "gm": 1.6541490995255579,
+      "cases": 5,
+      "worst": 2.148872212124148,
+      "verdict": "PARTIAL"
+    },
+    "old/vertex-decode": {
+      "gm": 0.9108597269715417,
+      "cases": 5,
+      "worst": 0.9901780315801202
+    },
+    "floor": 0.026963777101995934,
+    "vertex_bar": 1.046963777101996,
+    "vertex_verdict": "PASS"
+  },
+  "browser": {
+    "after-scalar/upstream-scalar": {
+      "gm": null,
+      "positive_case_gm": 1.229573189595207,
+      "positive_cases": 26,
+      "worst_upper95": 1.894425704600863,
+      "unqualified": 16,
+      "bar": 1.0,
+      "verdict": "PARTIAL",
+      "modes": {},
+      "cases": [
+        {
+          "id": "scoreboard/00273016e0114a86.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.353694013717059,
+          "upper95": 1.3835944394299378
+        },
+        {
+          "id": "scoreboard/00273016e0114a86.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1926275026981725,
+          "upper95": 1.2981346329783814
+        },
+        {
+          "id": "scoreboard/10dda05a251d3b18.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.3643817889871193,
+          "upper95": 1.4027263034174378
+        },
+        {
+          "id": "scoreboard/10dda05a251d3b18.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1537929033514178,
+          "upper95": 1.2282814251013836
+        },
+        {
+          "id": "scoreboard/30a2dd1fdcd59557.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.3325579782901602,
+          "upper95": 1.3843442811769455
+        },
+        {
+          "id": "scoreboard/30a2dd1fdcd59557.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/3eee66fa79734a3f.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.354023121229989,
+          "upper95": 1.3720136985222269
+        },
+        {
+          "id": "scoreboard/3eee66fa79734a3f.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1132635775820892,
+          "upper95": 1.2905037451675425
+        },
+        {
+          "id": "scoreboard/4bae0b3199e3cd3d.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.2989534740069266,
+          "upper95": 1.390491946615445
+        },
+        {
+          "id": "scoreboard/4bae0b3199e3cd3d.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/51dce639920a72b7.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.3526342553159272,
+          "upper95": 1.4347820947661634
+        },
+        {
+          "id": "scoreboard/51dce639920a72b7.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9548415754539215,
+          "upper95": 1.2974678402569946
+        },
+        {
+          "id": "scoreboard/565dffbc1f85b85e.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1765525605379683,
+          "upper95": 1.1959891668880953
+        },
+        {
+          "id": "scoreboard/565dffbc1f85b85e.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0558635632450502,
+          "upper95": 1.146205906652467
+        },
+        {
+          "id": "scoreboard/61c688d6f523443c.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1921134650238576,
+          "upper95": 1.2122841806823623
+        },
+        {
+          "id": "scoreboard/61c688d6f523443c.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0925058586970546,
+          "upper95": 1.1619003976921651
+        },
+        {
+          "id": "scoreboard/68350ac71f24513a.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1450716730182402,
+          "upper95": 1.2712213883546124
+        },
+        {
+          "id": "scoreboard/68350ac71f24513a.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/74262cdfa14899ca.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.4817667806054204,
+          "upper95": 1.894425704600863
+        },
+        {
+          "id": "scoreboard/74262cdfa14899ca.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/7ede3456dca9c9a7.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/7ede3456dca9c9a7.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/8306da2926fd4594.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/8306da2926fd4594.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/9767168686ac434a.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.2528396320637036,
+          "upper95": 1.2753804963927453
+        },
+        {
+          "id": "scoreboard/9767168686ac434a.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1798536156224009,
+          "upper95": 1.2346106583998966
+        },
+        {
+          "id": "scoreboard/9d418f4ee2facd6f.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.3708933588205796,
+          "upper95": 1.6414335540861484
+        },
+        {
+          "id": "scoreboard/9d418f4ee2facd6f.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.247997848907427,
+          "upper95": 1.4013655596444976
+        },
+        {
+          "id": "scoreboard/a1a60300f4bb0efd.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.29998226296351,
+          "upper95": 1.4390377593684713
+        },
+        {
+          "id": "scoreboard/a1a60300f4bb0efd.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/a8ce76e1cbc8c588.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/a8ce76e1cbc8c588.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ae85863c85b8ea39.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.317381098272713,
+          "upper95": 1.4019523354743813
+        },
+        {
+          "id": "scoreboard/ae85863c85b8ea39.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/c8485ac48521b56b.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/c8485ac48521b56b.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ce1539c4906c8adc.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ce1539c4906c8adc.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/db4705e325e239f6.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.3426943865117045,
+          "upper95": 1.3917091146234848
+        },
+        {
+          "id": "scoreboard/db4705e325e239f6.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1141859501296263,
+          "upper95": 1.4575861439818394
+        },
+        {
+          "id": "scoreboard/eca570e6cbc18970.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.3666646193119327,
+          "upper95": 1.4020384760254163
+        },
+        {
+          "id": "scoreboard/eca570e6cbc18970.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0354988065530035,
+          "upper95": 1.3457898725174295
+        }
+      ]
+    },
+    "after-scalar/before-scalar": {
+      "gm": null,
+      "positive_case_gm": 0.8675709869972136,
+      "positive_cases": 27,
+      "worst_upper95": 1.70909406453059,
+      "unqualified": 15,
+      "bar": 1.0,
+      "verdict": "PARTIAL",
+      "modes": {},
+      "cases": [
+        {
+          "id": "scoreboard/00273016e0114a86.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7855616307810698,
+          "upper95": 0.7963596938435048
+        },
+        {
+          "id": "scoreboard/00273016e0114a86.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0193638809469376,
+          "upper95": 1.16381737811554
+        },
+        {
+          "id": "scoreboard/10dda05a251d3b18.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.805619192968156,
+          "upper95": 0.822919327773063
+        },
+        {
+          "id": "scoreboard/10dda05a251d3b18.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9729465587198562,
+          "upper95": 1.0316383084766383
+        },
+        {
+          "id": "scoreboard/30a2dd1fdcd59557.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.8051904571925941,
+          "upper95": 0.8331179212503443
+        },
+        {
+          "id": "scoreboard/30a2dd1fdcd59557.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1801723530028123,
+          "upper95": 1.675141003180593
+        },
+        {
+          "id": "scoreboard/3eee66fa79734a3f.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7841975745612741,
+          "upper95": 0.7951364967843386
+        },
+        {
+          "id": "scoreboard/3eee66fa79734a3f.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9221772903033958,
+          "upper95": 1.0548293371106308
+        },
+        {
+          "id": "scoreboard/4bae0b3199e3cd3d.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7789902952603517,
+          "upper95": 0.8207841096511439
+        },
+        {
+          "id": "scoreboard/4bae0b3199e3cd3d.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/51dce639920a72b7.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7879405881932761,
+          "upper95": 0.817451326288172
+        },
+        {
+          "id": "scoreboard/51dce639920a72b7.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.8874077934157458,
+          "upper95": 1.3214843264600937
+        },
+        {
+          "id": "scoreboard/565dffbc1f85b85e.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7774098448405871,
+          "upper95": 0.7878456206345836
+        },
+        {
+          "id": "scoreboard/565dffbc1f85b85e.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9400042214993742,
+          "upper95": 1.070678198897093
+        },
+        {
+          "id": "scoreboard/61c688d6f523443c.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7824420331676558,
+          "upper95": 0.7942352696415285
+        },
+        {
+          "id": "scoreboard/61c688d6f523443c.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0156031560289855,
+          "upper95": 1.0933002152875937
+        },
+        {
+          "id": "scoreboard/68350ac71f24513a.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7088846834675792,
+          "upper95": 0.8015999938424916
+        },
+        {
+          "id": "scoreboard/68350ac71f24513a.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/74262cdfa14899ca.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.6994061262832697,
+          "upper95": 0.8460695993395395
+        },
+        {
+          "id": "scoreboard/74262cdfa14899ca.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/7ede3456dca9c9a7.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/7ede3456dca9c9a7.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/8306da2926fd4594.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/8306da2926fd4594.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/9767168686ac434a.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7881473571449628,
+          "upper95": 0.7965948143248882
+        },
+        {
+          "id": "scoreboard/9767168686ac434a.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9799282129133936,
+          "upper95": 1.0344953977949882
+        },
+        {
+          "id": "scoreboard/9d418f4ee2facd6f.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.8242794691015972,
+          "upper95": 0.9473639335468313
+        },
+        {
+          "id": "scoreboard/9d418f4ee2facd6f.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.05467625971952,
+          "upper95": 1.2218821634705306
+        },
+        {
+          "id": "scoreboard/a1a60300f4bb0efd.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7796592900041293,
+          "upper95": 0.8198134736676703
+        },
+        {
+          "id": "scoreboard/a1a60300f4bb0efd.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/a8ce76e1cbc8c588.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/a8ce76e1cbc8c588.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ae85863c85b8ea39.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7739922545232379,
+          "upper95": 0.8014552898624429
+        },
+        {
+          "id": "scoreboard/ae85863c85b8ea39.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/c8485ac48521b56b.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/c8485ac48521b56b.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ce1539c4906c8adc.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ce1539c4906c8adc.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/db4705e325e239f6.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7866658482623133,
+          "upper95": 0.8126627467332558
+        },
+        {
+          "id": "scoreboard/db4705e325e239f6.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.12687759153329,
+          "upper95": 1.6384952527865126
+        },
+        {
+          "id": "scoreboard/eca570e6cbc18970.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.7885565511810148,
+          "upper95": 0.812344730854968
+        },
+        {
+          "id": "scoreboard/eca570e6cbc18970.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.126877587801782,
+          "upper95": 1.70909406453059
+        }
+      ]
+    },
+    "after-simd/before-simd": {
+      "gm": null,
+      "positive_case_gm": 0.9992626099485529,
+      "positive_cases": 26,
+      "worst_upper95": 1.6942252919381338,
+      "unqualified": 16,
+      "bar": 1.046963777101996,
+      "verdict": "PARTIAL",
+      "modes": {},
+      "cases": [
+        {
+          "id": "scoreboard/00273016e0114a86.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0127733836243482,
+          "upper95": 1.0408941611471043
+        },
+        {
+          "id": "scoreboard/00273016e0114a86.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9447985927542937,
+          "upper95": 1.127051956274009
+        },
+        {
+          "id": "scoreboard/10dda05a251d3b18.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0219392217738252,
+          "upper95": 1.0657191566318476
+        },
+        {
+          "id": "scoreboard/10dda05a251d3b18.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0,
+          "upper95": 1.0632543891302437
+        },
+        {
+          "id": "scoreboard/30a2dd1fdcd59557.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9746428920030719,
+          "upper95": 1.0647700276161105
+        },
+        {
+          "id": "scoreboard/30a2dd1fdcd59557.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.067573697245003,
+          "upper95": 1.508993877555012
+        },
+        {
+          "id": "scoreboard/3eee66fa79734a3f.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.010498313508985,
+          "upper95": 1.0448331253995002
+        },
+        {
+          "id": "scoreboard/3eee66fa79734a3f.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9775279054123783,
+          "upper95": 1.1483860111895718
+        },
+        {
+          "id": "scoreboard/4bae0b3199e3cd3d.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9548415881012512,
+          "upper95": 1.116008297263924
+        },
+        {
+          "id": "scoreboard/4bae0b3199e3cd3d.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/51dce639920a72b7.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1555813950648464,
+          "upper95": 1.2948523948224506
+        },
+        {
+          "id": "scoreboard/51dce639920a72b7.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/565dffbc1f85b85e.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0125826198306256,
+          "upper95": 1.0737889169598551
+        },
+        {
+          "id": "scoreboard/565dffbc1f85b85e.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0327622235960527,
+          "upper95": 1.0926782296179576
+        },
+        {
+          "id": "scoreboard/61c688d6f523443c.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0096360313220576,
+          "upper95": 1.048185052203354
+        },
+        {
+          "id": "scoreboard/61c688d6f523443c.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.1042273208374709,
+          "upper95": 1.1797782893262152
+        },
+        {
+          "id": "scoreboard/68350ac71f24513a.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.698827128027875,
+          "upper95": 1.0721315029821528
+        },
+        {
+          "id": "scoreboard/68350ac71f24513a.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/74262cdfa14899ca.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/74262cdfa14899ca.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/7ede3456dca9c9a7.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/7ede3456dca9c9a7.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/8306da2926fd4594.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/8306da2926fd4594.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/9767168686ac434a.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9984931067998084,
+          "upper95": 1.0244464681938743
+        },
+        {
+          "id": "scoreboard/9767168686ac434a.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0565717739516873,
+          "upper95": 1.115686346003509
+        },
+        {
+          "id": "scoreboard/9d418f4ee2facd6f.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9605777208142212,
+          "upper95": 1.0076620509418777
+        },
+        {
+          "id": "scoreboard/9d418f4ee2facd6f.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9623687333677932,
+          "upper95": 1.0833385975779641
+        },
+        {
+          "id": "scoreboard/a1a60300f4bb0efd.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.8712718335570911,
+          "upper95": 1.0129179664701746
+        },
+        {
+          "id": "scoreboard/a1a60300f4bb0efd.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/a8ce76e1cbc8c588.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/a8ce76e1cbc8c588.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ae85863c85b8ea39.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9691522393749771,
+          "upper95": 1.1641312547825942
+        },
+        {
+          "id": "scoreboard/ae85863c85b8ea39.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0968249470066969,
+          "upper95": 1.4022275961760533
+        },
+        {
+          "id": "scoreboard/c8485ac48521b56b.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/c8485ac48521b56b.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ce1539c4906c8adc.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/ce1539c4906c8adc.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": null,
+          "upper95": null
+        },
+        {
+          "id": "scoreboard/db4705e325e239f6.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.0982559717189972,
+          "upper95": 1.1796905960140676
+        },
+        {
+          "id": "scoreboard/db4705e325e239f6.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9810039448143452,
+          "upper95": 1.3081407936395446
+        },
+        {
+          "id": "scoreboard/eca570e6cbc18970.mesh#lod0#vertex",
+          "mode": "ATTRIBUTES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 0.9900973795867954,
+          "upper95": 1.058946864748516
+        },
+        {
+          "id": "scoreboard/eca570e6cbc18970.mesh#lod0#index",
+          "mode": "TRIANGLES",
+          "bytes": {
+            "arm-m": "match",
+            "before-scalar": "match",
+            "after-scalar": "match",
+            "before-simd": "match",
+            "after-simd": "match",
+            "upstream-scalar": "match",
+            "upstream-simd": "match"
+          },
+          "gm": 1.126877625116857,
+          "upper95": 1.6942252919381338
+        }
+      ]
+    }
+  },
+  "timer_resolution_ms": 0.09999999403953552
+}

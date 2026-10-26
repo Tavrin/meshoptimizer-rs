@@ -8303,3 +8303,27 @@ fuzz run before their first release.
 ## Bounds layout check — post-fix1 methodology disclosure
 
 2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the Moss coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through SPEC-bounds-layout-check.md. This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.
+
+## 2026-10-26 — SPEC-026 decode (0.2.6 bet 2): PARTIAL
+
+Cause named before decoder edits: software libm roots and non-vectorizing checked
+filter loops; scalar WASM instruction sampling then isolated four reconstruction
+walks and per-escape bounds checks. Keep safe scalar, byte-exact improvements:
+std filter roots, fixed records/ordinary arrays, bounded exact truncation with
+canonical fallbacks, one checked byte-plane walk, and the bounded literal window.
+No explicit SIMD, unsafe scalar code, encoder or codec-contract expansion.
+
+The one registered native campaign gives ours/M7 GM 1.437751 Oct and 1.654149
+Quat: both PARTIAL despite approximately 76%/50% fewer instructions. Vertex vs
+v0.2.5 is 0.910860, passing 1.02+F=1.046964. Chromium matches all 42 frozen streams
+across seven arms, but scalar/upstream and SIMD no-regression remain PARTIAL:
+16 cases cannot form paired log intervals at 0.1 ms resolution; positive scalar
+case GM is 1.229573 (26/42), worst measured upper95 1.894426. Do not drop zero
+samples or call the aggregate SIMD result a passed per-case gate.
+
+All requested targeted gates pass, including 853 C++ 1.3 differential cases /
+90,661 records and unchanged native SIMD bytes. The one browser infrastructure
+retry fixes only the initial CDP navigation race; native results were not rerun.
+Stop with a draft PR and retained receipts; no verdict-driven tuning/rerun,
+release acceptance, merge/tag/publish or Moss adoption. See
+`parity/decode/REPORT.md` and `/mnt/linux-extra/moss-scratch/meshopt-decode/`.

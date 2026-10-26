@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bounds queries. The new API takes 1.24× (meshlet) and 0.99× (cluster) the
   time of C++ 1.3. The old API is unchanged, with instruction counts at 1.00×
   of 0.2.4. See [the layout-check report](parity/layout-check/REPORT.md).
+- Scalar vertex decode takes 0.91× of 0.2.5 time in registered native
+  measurements. Scalar Oct/Quat filters do less work, with output byte-identical
+  to 0.2.5.
 
 ## [0.2.5] - 2026-10-26
 

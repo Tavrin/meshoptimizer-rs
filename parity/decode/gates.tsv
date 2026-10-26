@@ -1,0 +1,11 @@
+fmt	0
+test	0
+clippy	0
+scalar-nostd	0
+scalar-std	0
+scalar-tests	0
+simd-protocol	0
+simd-baseline	0
+oracle-check	0
+oracle	0
+differential	0

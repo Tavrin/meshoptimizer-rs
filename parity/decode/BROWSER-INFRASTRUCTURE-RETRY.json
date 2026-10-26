@@ -1,0 +1,10 @@
+{
+  "attempt": 1,
+  "allowed_retries": 1,
+  "reason": "CDP -32000 Execution context was destroyed during initial page navigation; no result file returned",
+  "native_completed": true,
+  "native_repeated": false,
+  "original_driver_sha256": "64bd7a4ce94358dbeda3bf780a1287d8e3f386affeb50e4cc243d5452e9cba00",
+  "retry_driver_sha256": "f71cc35c1ef66ec308aebcebdac11a5d7fd7aaa12293b5aea547adb15b6cb6ad",
+  "change": "wait for stable loaded document before reading window.__done; decoding, sampling, timers, modules and inputs unchanged"
+}

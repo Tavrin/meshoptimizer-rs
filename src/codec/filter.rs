@@ -1,6 +1,21 @@
 // meshoptimizer 1.3 canonical scalar filters, MIT, Arseny Kapoulkine.
 use crate::{math::sqrt, Error};
 
+// Filter operands are nonnegative finite integer-derived values. The scalar
+// IEEE square root has the same correctly rounded bits as the pinned backend;
+// keep the software backend for no_std and the rest of the library.
+#[inline(always)]
+fn filter_root(value: f32) -> f32 {
+    #[cfg(feature = "std")]
+    {
+        value.sqrt()
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        sqrt(value)
+    }
+}
+
 // Integer-backed Oct components normalize into +/-32767; Quat's nonzero
 // scale word bounds its scaled components below 2^30. Thus every conversion
 // below is in i32 range; the zero Oct vector is checked before normalization.
@@ -9,8 +24,71 @@ fn rounded(v: f32, sign: f32) -> i32 {
 }
 #[inline(always)]
 pub(super) fn scalar_oct(data: &mut [u8], stride: usize) -> Result<(), Error> {
-    scalar_oct_with_root(data, stride, sqrt)
+    #[cfg(feature = "std")]
+    if data.len() >= stride * 4 {
+        return if stride == 4 {
+            oct_records::<4>(data)
+        } else {
+            oct_records::<8>(data)
+        };
+    }
+    scalar_oct_with_root(data, stride, filter_root)
 }
+
+// Separate the rare undefined zero record from the arithmetic loop. Fixed-size
+// records and bounded bit-based truncation allow ordinary LLVM vectorization;
+// there is no architecture-specific code or approximate root/reciprocal here.
+#[cfg(feature = "std")]
+fn oct_records<const W: usize>(data: &mut [u8]) -> Result<(), Error> {
+    for chunk in data.chunks_mut(W * 64) {
+        let read = |e: &[u8; W]| -> [i16; 3] {
+            if W == 4 {
+                [e[0] as i8 as i16, e[1] as i8 as i16, e[2] as i8 as i16]
+            } else {
+                [
+                    i16::from_le_bytes([e[0], e[1]]),
+                    i16::from_le_bytes([e[2], e[3]]),
+                    i16::from_le_bytes([e[4], e[5]]),
+                ]
+            }
+        };
+        let records = chunk.as_chunks_mut::<W>().0;
+        let first = read(&records[0]);
+        let mut nonzero = true;
+        for e in records.iter() {
+            nonzero &= read(e) != [0; 3];
+        }
+        if !nonzero || records.iter().all(|e| read(e) == first) {
+            scalar_oct_with_root(chunk, W, filter_root)?;
+            continue;
+        }
+        for e in records {
+            let [a, b, c] = read(e);
+            let mut x = f32::from(a);
+            let mut y = f32::from(b);
+            let z = f32::from(c) - x.abs() - y.abs();
+            let t = if z >= 0.0 { 0.0 } else { z };
+            x += if x >= 0.0 { t } else { -t };
+            y += if y >= 0.0 { t } else { -t };
+            let scale = if W == 4 { 127.0 } else { 32767.0 } / filter_root(x * x + y * y + z * z);
+            let values = [x, y, z].map(|v| {
+                // Normalized components, including the bias, are below 2^16.
+                trunc_normal(v * scale + if v >= 0.0 { 0.5 } else { -0.5 })
+            });
+            if W == 4 {
+                for i in 0..3 {
+                    e[i] = values[i] as u8;
+                }
+            } else {
+                e[..2].copy_from_slice(&(values[0] as i16).to_le_bytes());
+                e[2..4].copy_from_slice(&(values[1] as i16).to_le_bytes());
+                e[4..6].copy_from_slice(&(values[2] as i16).to_le_bytes());
+            }
+        }
+    }
+    Ok(())
+}
+
 // The arithmetic stays canonical; the native ISA tail supplies the same
 // correctly rounded root operation as its complete four-record groups.
 #[inline(always)]
@@ -82,6 +160,14 @@ pub(super) fn scalar_oct_with_root(
 }
 #[inline(always)]
 pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
+    #[cfg(feature = "std")]
+    if data.len() >= 32 {
+        return quat_records(data);
+    }
+    quat_cached(data)
+}
+
+fn quat_cached(data: &mut [u8]) -> Result<(), Error> {
     let scale = 32767.0 / sqrt(2.0);
     let mut previous = ([0i16; 4], [0u8; 8]);
     let mut valid = false;
@@ -98,7 +184,7 @@ pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
         let z = f32::from(c);
         let s = f32::from(d | 3);
         let ww = (s * s) * 2.0 - x * x - y * y - z * z;
-        let w = sqrt(if ww >= 0.0 { ww } else { 0.0 });
+        let w = filter_root(if ww >= 0.0 { ww } else { 0.0 });
         let ss = scale / s;
         let values = [
             rounded(x * ss, x),
@@ -107,14 +193,73 @@ pub(super) fn scalar_quat(data: &mut [u8]) -> Result<(), Error> {
             (w * ss + 0.5) as i32,
         ];
         let largest = (d & 3) as usize;
-        for (i, v) in values.into_iter().enumerate() {
-            let slot = (largest + i + 1) & 3;
-            element[slot * 2..slot * 2 + 2].copy_from_slice(&(v as i16).to_le_bytes());
-        }
+        let [a, b, c, d] = values.map(|v| (v as i16).to_le_bytes());
+        let word = u64::from_le_bytes([a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]]);
+        *element = word.rotate_left(((largest + 1) * 16) as u32).to_le_bytes();
         previous = (key, *element);
         valid = true;
     }
     Ok(())
+}
+
+// Like trunc_small, but keep the original biased bits instead of rebuilding
+// them after the toward-zero correction. This is exact for |f| < 2^22.
+#[cfg(feature = "std")]
+#[inline(always)]
+fn trunc_normal(f: f32) -> i32 {
+    const MAGIC: f32 = 12582912.0;
+    let biased = f + MAGIC;
+    let nearest = biased - MAGIC;
+    let integer = (biased.to_bits() as i32).wrapping_sub(MAGIC.to_bits() as i32);
+    integer
+        - if nearest.abs() > f.abs() {
+            if f >= 0.0 {
+                1
+            } else {
+                -1
+            }
+        } else {
+            0
+        }
+}
+
+#[cfg(feature = "std")]
+fn quat_records(data: &mut [u8]) -> Result<(), Error> {
+    let scale = 32767.0 / sqrt(2.0);
+    let (blocks, tail) = data.as_chunks_mut::<32>();
+    for block in blocks {
+        let words: [i16; 16] =
+            core::array::from_fn(|i| i16::from_le_bytes([block[i * 2], block[i * 2 + 1]]));
+        if (0..4).any(|l| i32::from(words[l * 4 + 3] | 3).abs() < 256)
+            || (1..4).all(|l| words[l * 4..l * 4 + 4] == words[..4])
+        {
+            quat_cached(block)?;
+            continue;
+        }
+        let mut floats = [[0f32; 4]; 4];
+        for l in 0..4 {
+            let x = f32::from(words[l * 4]);
+            let y = f32::from(words[l * 4 + 1]);
+            let z = f32::from(words[l * 4 + 2]);
+            let s = f32::from(words[l * 4 + 3] | 3);
+            let ww = (s * s) * 2.0 - x * x - y * y - z * z;
+            let w = filter_root(if ww >= 0.0 { ww } else { 0.0 });
+            let ss = scale / s;
+            floats[0][l] = x * ss + if x >= 0.0 { 0.5 } else { -0.5 };
+            floats[1][l] = y * ss + if y >= 0.0 { 0.5 } else { -0.5 };
+            floats[2][l] = z * ss + if z >= 0.0 { 0.5 } else { -0.5 };
+            floats[3][l] = w * ss + 0.5;
+        }
+        let v = floats.map(|c| c.map(trunc_normal));
+        for (l, e) in block.as_chunks_mut::<8>().0.iter_mut().enumerate() {
+            let [a, b, c, d] = core::array::from_fn(|c| (v[c][l] as i16).to_le_bytes());
+            let word = u64::from_le_bytes([a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]]);
+            *e = word
+                .rotate_left(((words[l * 4 + 3] as u32 & 3) + 1) * 16)
+                .to_le_bytes();
+        }
+    }
+    quat_cached(tail)
 }
 
 // The SIMD dispatcher has already found four identical keys. Decode the
@@ -444,7 +589,41 @@ mod tests {
             for v in [v, -v] {
                 if v.abs() < 4194304.0 {
                     assert_eq!(trunc_small(v), v as i32, "{v}");
+                    #[cfg(feature = "std")]
+                    assert_eq!(super::trunc_normal(v), v as i32, "{v}");
                 }
+            }
+        }
+    }
+    #[test]
+    fn oct_zero_record_preserves_the_failure_suffix_and_alpha() {
+        // Exercise scalar bulk boundaries and the SIMD scalar fallback with a
+        // failure at every relevant position. Build the prefix oracle one record
+        // at a time so the optimized bulk loop cannot supply its own expected bytes.
+        for stride in [4, 8] {
+            for zero in [0, 1, 3, 4, 63, 64, 65, 127, 128] {
+                let mut input = alloc::vec::Vec::new();
+                for i in 0..129 {
+                    let fields = if i == zero {
+                        [0, 0, 0, i as i16]
+                    } else {
+                        [13, -27, 63, i as i16]
+                    };
+                    if stride == 4 {
+                        input.extend(fields.map(|v| v as u8));
+                    } else {
+                        input.extend(fields.into_iter().flat_map(i16::to_le_bytes));
+                    }
+                }
+                let mut expected = input.clone();
+                for record in expected[..zero * stride].chunks_exact_mut(stride) {
+                    super::scalar_oct(record, stride).unwrap();
+                }
+                assert_eq!(
+                    super::scalar_oct(&mut input, stride),
+                    Err(super::Error::NumericalFailure)
+                );
+                assert_eq!(input, expected, "stride={stride} zero={zero}");
             }
         }
     }

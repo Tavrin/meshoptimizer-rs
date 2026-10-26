@@ -59,7 +59,9 @@ impl Destination for StreamingDestination<'_> {
 
 #[inline]
 fn packed<const BITS: u32>(data: &[u8; 24], out: &mut [u8; 16]) -> usize {
-    let mut literal = (BITS * 2) as usize;
+    let header = (BITS * 2) as usize;
+    let literals: &[u8; 16] = data[header..header + 16].try_into().unwrap();
+    let mut literal = 0;
     let escape = (1u8 << BITS) - 1;
     for (i, slot) in out.iter_mut().enumerate() {
         let byte = data[i / (8 / BITS as usize)];
@@ -70,14 +72,17 @@ fn packed<const BITS: u32>(data: &[u8; 24], out: &mut [u8; 16]) -> usize {
         };
         let value = (byte >> shift) & escape;
         *slot = if value == escape {
-            let v = data[literal];
+            // Sixteen output slots consume at most sixteen literals. Before
+            // an escape read the cursor is therefore <= 15; the mask exposes
+            // that bound to codegen without a per-escape bounds check.
+            let v = literals[literal & 15];
             literal += 1;
             v
         } else {
             value
         };
     }
-    literal
+    header + literal
 }
 #[inline]
 fn group(data: &[u8], pos: usize, out: &mut [u8; 16], bits: u32) -> Result<usize, Error> {
@@ -133,6 +138,50 @@ pub(super) fn scalar_deltas<const WIDTH: usize, const XOR: bool>(
     rot: u32,
     start: usize,
 ) {
+    if WIDTH == 1 && !XOR {
+        // Four byte planes share the same records. Zip their checked slices
+        // once, instead of repeating the strided destination walk and source
+        // indexing for each component. Narrow wrapping addition preserves the
+        // original u32 reconstruction modulo the stored byte.
+        let (a, rest) = buffer.split_at(count);
+        let (b, rest) = rest.split_at(count);
+        let (c, d) = rest.split_at(count);
+        #[cfg(all(target_arch = "wasm32", not(feature = "simd")))]
+        match stride {
+            48 => {
+                strided_bytes::<48>(
+                    target,
+                    [&a[start..], &b[start..], &c[start..], &d[start..]],
+                    last,
+                );
+                return;
+            }
+            64 => {
+                strided_bytes::<64>(
+                    target,
+                    [&a[start..], &b[start..], &c[start..], &d[start..]],
+                    last,
+                );
+                return;
+            }
+            _ => {}
+        }
+        let mut previous: [u8; 4] = last[..4].try_into().unwrap();
+        for ((((record, &a), &b), &c), &d) in target
+            .chunks_mut(stride)
+            .zip(&a[start..])
+            .zip(&b[start..])
+            .zip(&c[start..])
+            .zip(&d[start..])
+        {
+            for (p, v) in previous.iter_mut().zip([a, b, c, d]) {
+                let delta = (v >> 1) ^ 0u8.wrapping_sub(v & 1);
+                *p = p.wrapping_add(delta);
+            }
+            record[..4].copy_from_slice(&previous);
+        }
+        return;
+    }
     for component in (0..4).step_by(WIDTH) {
         let mut previous = 0u32;
         for j in 0..WIDTH {
@@ -175,6 +224,33 @@ pub(super) fn scalar_deltas<const WIDTH: usize, const XOR: bool>(
         }
     }
 }
+// Common scalar WASM attribute layouts. Full records carry a static bound,
+// leaving only one checked short final record instead of one check per record.
+#[cfg(all(target_arch = "wasm32", not(feature = "simd")))]
+fn strided_bytes<const STRIDE: usize>(target: &mut [u8], planes: [&[u8]; 4], last: &[u8]) {
+    #[inline(always)]
+    fn add(previous: &mut [u8; 4], values: [u8; 4]) {
+        for (p, v) in previous.iter_mut().zip(values) {
+            *p = p.wrapping_add((v >> 1) ^ 0u8.wrapping_sub(v & 1));
+        }
+    }
+    let mut previous: [u8; 4] = last[..4].try_into().unwrap();
+    let (records, tail) = target.as_chunks_mut::<STRIDE>();
+    let mut source = planes[0]
+        .iter()
+        .zip(planes[1])
+        .zip(planes[2])
+        .zip(planes[3]);
+    for (record, (((&a, &b), &c), &d)) in records.iter_mut().zip(source.by_ref()) {
+        add(&mut previous, [a, b, c, d]);
+        record[..4].copy_from_slice(&previous);
+    }
+    if let Some((((&a, &b), &c), &d)) = source.next() {
+        add(&mut previous, [a, b, c, d]);
+        tail[..4].copy_from_slice(&previous);
+    }
+}
+
 fn bytes(data: &[u8], mut pos: usize, out: &mut [u8], bits: &[u32]) -> Result<usize, Error> {
     #[cfg(feature = "simd")]
     if let Some(result) = super::simd::bytes(data, pos, out, bits) {
