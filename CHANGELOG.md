@@ -10,14 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `simplify_scale` on 64-byte little-endian byte views uses 0.52× the
   instructions of 0.2.9 and 1.07× those of C++ 1.3.
 - `optimize_overdraw` uses 0.93× the instructions of 0.2.9 and 1.58× those
-  of C++ 1.3 across the frozen corpus and real meshes.
+  of C++ 1.3 across the benchmark corpus and real meshes.
 - `optimize_vertex_cache` uses 0.91× the instructions of 0.2.9 and 1.26×
-  those of C++ 1.3 across the frozen corpus and three real-mesh LOD chains.
+  those of C++ 1.3 across the benchmark corpus and three real-mesh LOD chains.
   `optimize_vertex_cache_fifo` is unchanged.
 
 No wall timing was taken because the host was loaded.
-
-Timings were measured on a shared host; regression checks used instruction counts.
 
 Output, errors and existing APIs are unchanged; MSRV 1.88.
 
