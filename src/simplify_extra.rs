@@ -697,6 +697,7 @@ pub fn simplify_with_update(
             settings,
             &mut work,
         )?;
+        workspace.acquire(crate::workspace::ScratchFamily::Simplify);
         let mut original = workspace
             .simplify
             .as_mut()

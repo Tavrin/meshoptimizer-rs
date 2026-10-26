@@ -14,6 +14,8 @@ selects family eviction, quadric release on return and deferred initialization.
 Other families, algorithm output, validation and checked resource gates are
 unchanged. Resource usage values reflect the selected retained capacity.
 
+SPEC-027-memory-optin-fix1: accepted review finding fixed by acquiring Simplify immediately after update validation, before scratch/reservations; focused cache → update → cache Lean/Reuse equality test and entry-point audit pass (no other omission); tests (213), clippy, fmt, focused test, build and instruction rerun exit 0; six-simplify/v0.2.6 **1.000000071×**, 214e/v0.2.6 **1.000000148×**, both ≤1.01 with exact outputs; [fix1 receipts and audit](optin-fix1/), target deleted.
+
 ## Targeted default-path proof
 
 One fixed invocation of the retained full chain driver per arm/case, plus the

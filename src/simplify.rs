@@ -2517,6 +2517,64 @@ mod retention_tests {
     use crate::{Error, Limits, Retention, Workspace};
 
     #[test]
+    fn cache_update_cache_releases_scratch_and_preserves_results() {
+        let positions = [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.1],
+        ];
+        let indices = [0, 1, 2, 2, 1, 3];
+        let mut outcomes = Vec::new();
+        for retention in [Retention::Lean, Retention::Reuse] {
+            let mut ws = Workspace::default();
+            ws.set_retention(retention);
+            let cached = optimize_vertex_cache(&indices, positions.len(), &mut ws).unwrap();
+            let cache_work = ws.usage().work;
+            let mut updated_indices = indices;
+            let mut updated_positions = positions;
+            let result = crate::simplify_with_update(
+                &mut updated_indices,
+                &mut crate::PositionsMut::from_packed(&mut updated_positions),
+                None,
+                &[],
+                None,
+                SimplifySettings {
+                    target_index_count: indices.len(),
+                    target_error: 0.5,
+                    options: SimplifyOptions::EMPTY,
+                },
+                &mut ws,
+            )
+            .unwrap();
+            let update_work = ws.usage().work;
+            if retention == Retention::Lean {
+                assert_eq!(ws.integers.capacity(), 0);
+                assert_eq!(ws.floats.capacity(), 0);
+                assert_eq!(ws.flags.capacity(), 0);
+                assert_eq!(ws.keys.capacity(), 0);
+                assert_eq!(ws.vertices.capacity(), 0);
+            }
+            assert!(ws.simplify.is_some());
+            let cached_again =
+                optimize_vertex_cache(&updated_indices, positions.len(), &mut ws).unwrap();
+            if retention == Retention::Lean {
+                assert!(ws.simplify.is_none());
+            }
+            outcomes.push((
+                cached,
+                result.index_count,
+                result.error.to_bits(),
+                updated_indices,
+                updated_positions.map(|p| p.map(f32::to_bits)),
+                cached_again,
+                [cache_work, update_work, ws.usage().work],
+            ));
+        }
+        assert_eq!(outcomes[0], outcomes[1]);
+    }
+
+    #[test]
     fn switching_chain_family_releases_scratch_and_preserves_results() {
         let p = [
             [0.0, 0.0, 0.0],
