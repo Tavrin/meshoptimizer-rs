@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `partition_clusters` and `build_meshlets_spatial`: 1.00× the instructions of
+  0.2.9, and 1.41× / 1.16× the instructions of C++ 1.3, respectively
+  (five-mesh geometric means).
+
 ## [0.2.9] - 2026-10-26
 
 - `simplify_scale` on little-endian byte views with 64-byte records uses

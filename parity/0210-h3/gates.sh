@@ -4,6 +4,8 @@ export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-h3
 export CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
 R=/home/etienne/dev/meshoptimizer-rs-wt/hot-partition
 S=/mnt/linux-extra/moss-scratch/meshopt-0210-h3
+mkdir -p "$S/tmp"
+export TMPDIR="$S/tmp"
 cd "$R"
 run() { name="$1"; shift; "$@" > "$S/gate-$name.log" 2>&1; rc=$?; echo "$name $rc" >> "$S/gate-exits.txt"; return "$rc"; }
 failed=0

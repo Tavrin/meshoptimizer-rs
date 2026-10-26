@@ -501,6 +501,7 @@ fn random(out: &mut impl Write, mut seed: u64, count: usize) {
     }
 }
 fn main() {
+    eprintln!("harness_sha256={}", env!("H3_PROOF_SHA256"));
     let args: Vec<String> = std::env::args().collect();
     let mut out = io::BufWriter::new(io::stdout().lock());
     match args[1].as_str() {

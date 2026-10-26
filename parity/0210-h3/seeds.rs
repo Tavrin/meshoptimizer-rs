@@ -25,6 +25,7 @@ fn partition_clusters(
     r
 }
 fn main() {
+    eprintln!("harness_sha256={}", env!("H3_PROOF_SHA256"));
     let seed: Vec<u8> = [
         vec![20, 20, 0, 0, 0, 63, 63, 16, 64, 32],
         (0..=255u8).cycle().take(1024).collect(),

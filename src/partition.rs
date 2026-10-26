@@ -25,8 +25,7 @@ struct Order {
     order: i32,
 }
 fn push(heap: &mut [Order], n: &mut usize, item: Order) {
-    let heap = &mut heap[..*n + 1];
-    let mut i = heap.len() - 1;
+    let mut i = *n;
     heap[i] = item;
     *n += 1;
     while i > 0 && heap[i].order < heap[(i - 1) / 2].order {
@@ -36,15 +35,13 @@ fn push(heap: &mut [Order], n: &mut usize, item: Order) {
     }
 }
 fn pop(heap: &mut [Order], n: &mut usize) -> Order {
-    let heap = &mut heap[..*n];
     let top = heap[0];
     *n -= 1;
     heap[0] = heap[*n];
-    let heap = &mut heap[..*n];
     let mut i = 0;
-    while i * 2 + 1 < heap.len() {
+    while i * 2 + 1 < *n {
         let mut j = i * 2 + 1;
-        if j + 1 < heap.len() && heap[j + 1].order < heap[j].order {
+        if j + 1 < *n && heap[j + 1].order < heap[j].order {
             j += 1;
         }
         if heap[j].order >= heap[i].order {
@@ -55,29 +52,9 @@ fn pop(heap: &mut [Order], n: &mut usize) -> Order {
     }
     top
 }
-// Partition roots are scalar and correctly rounded. Keep the pinned software
-// memo for no_std; std can compute a root directly without hashing its operand.
-#[inline(always)]
-fn sqrt(_ctx: &mut Context<'_>, value: f32) -> f32 {
-    #[cfg(feature = "std")]
-    {
-        // libm canonicalizes negative operands and every NaN payload. IEEE
-        // sqrt agrees on all other inputs, including signed zero and +inf.
-        let bits = value.to_bits();
-        if bits > 0x7f80_0000 && bits != 0x8000_0000 {
-            f32::NAN
-        } else {
-            value.sqrt()
-        }
-    }
-    #[cfg(not(feature = "std"))]
-    {
-        _ctx.sqrt(value)
-    }
-}
 fn score(a: Group, b: Group, ctx: &mut Context<'_>) -> Result<f32, Error> {
     let dp = sub(b.center, a.center);
-    let d = sqrt(ctx, finite(dot(dp, dp))?);
+    let d = ctx.sqrt(finite(dot(dp, dp))?);
     let mr = if d + a.radius < b.radius {
         b.radius
     } else if d + b.radius < a.radius {
@@ -89,7 +66,7 @@ fn score(a: Group, b: Group, ctx: &mut Context<'_>) -> Result<f32, Error> {
 }
 fn merge(a: &mut Group, b: Group, ctx: &mut Context<'_>) -> Result<(), Error> {
     let dp = sub(b.center, a.center);
-    let d = sqrt(ctx, finite(dot(dp, dp))?);
+    let d = ctx.sqrt(finite(dot(dp, dp))?);
     if d + a.radius < b.radius {
         a.center = b.center;
         a.radius = b.radius;
@@ -207,37 +184,6 @@ struct Adj {
     clusters: Vec<u32>,
     shared: Vec<u32>,
 }
-// The covered arm charges once before a loop with no fallible visits.
-// Short budgets retain the original per-item charge and mutation order.
-#[inline(always)]
-fn adjacent_list<const CHARGE: bool>(
-    others: &[u32],
-    slots: &mut [u32],
-    clusters: &mut [u32],
-    shared: &mut [u32],
-    own: usize,
-    count: &mut usize,
-    ctx: &mut Context<'_>,
-) -> Result<(), Error> {
-    for &c in others {
-        if CHARGE {
-            ctx.tick(1)?;
-        }
-        if c as usize == own {
-            continue;
-        }
-        let slot = slots[c as usize] as usize;
-        if slot < *count && clusters[slot] == c {
-            shared[slot] += 1;
-        } else {
-            slots[c as usize] = *count as u32;
-            clusters[*count] = c;
-            shared[*count] = 1;
-            *count += 1;
-        }
-    }
-    Ok(())
-}
 fn adjacent(
     indices: &[u32],
     offsets: &[u32],
@@ -302,26 +248,28 @@ fn adjacent(
         let mut count = 0;
         for &v in &indices[offsets[i] as usize..offsets[i + 1] as usize] {
             let others = &data[refs[v as usize] as usize..refs[v as usize + 1] as usize];
-            if ctx.work.precharge(others.len(), 1)? {
-                adjacent_list::<false>(
-                    others,
-                    &mut slots,
-                    &mut adj.clusters[start..],
-                    &mut adj.shared[start..],
-                    i,
-                    &mut count,
-                    ctx,
-                )?;
-            } else {
-                adjacent_list::<true>(
-                    others,
-                    &mut slots,
-                    &mut adj.clusters[start..],
-                    &mut adj.shared[start..],
-                    i,
-                    &mut count,
-                    ctx,
-                )?;
+            // These visits cannot fail: charge a covered list once, otherwise
+            // keep the per-visit exhaustion point.
+            let batched = ctx.work.covers(others.len())?;
+            for &c in others {
+                if !batched {
+                    ctx.tick(1)?;
+                }
+                if c as usize == i {
+                    continue;
+                }
+                let slot = slots[c as usize] as usize;
+                if slot < count && adj.clusters[start + slot] == c {
+                    adj.shared[start + slot] += 1;
+                } else {
+                    slots[c as usize] = count as u32;
+                    adj.clusters[start + count] = c;
+                    adj.shared[start + count] = 1;
+                    count += 1;
+                }
+            }
+            if batched {
+                ctx.tick(others.len())?;
             }
         }
         adj.offsets[i + 1] = (start + count) as u32;
@@ -340,17 +288,16 @@ fn pick(
     acc: &mut [u32],
     ctx: &mut Context<'_>,
 ) -> Result<Option<(usize, u32)>, Error> {
-    let r = 1. / sqrt(ctx, groups[id].vertices as i32 as f32);
+    let r = 1. / ctx.sqrt(groups[id].vertices as i32 as f32);
     let mut ci = id as i32;
     while ci >= 0 {
         let c = ci as usize;
         ctx.tick((adj.offsets[c + 1] - adj.offsets[c]) as usize)?;
-        let range = adj.offsets[c] as usize..adj.offsets[c + 1] as usize;
-        for (&cluster, &shared) in adj.clusters[range.clone()].iter().zip(&adj.shared[range]) {
-            let other = groups[cluster as usize].group;
+        for i in adj.offsets[c] as usize..adj.offsets[c + 1] as usize {
+            let other = groups[adj.clusters[i] as usize].group;
             if other >= 0 {
                 acc[other as usize] = acc[other as usize]
-                    .checked_add(shared)
+                    .checked_add(adj.shared[i])
                     .ok_or(Error::SizeOverflow)?;
             }
         }
@@ -362,8 +309,8 @@ fn pick(
     while ci >= 0 {
         let c = ci as usize;
         ctx.tick((adj.offsets[c + 1] - adj.offsets[c]) as usize)?;
-        for &cluster in &adj.clusters[adj.offsets[c] as usize..adj.offsets[c + 1] as usize] {
-            let other = groups[cluster as usize].group;
+        for i in adj.offsets[c] as usize..adj.offsets[c + 1] as usize {
+            let other = groups[adj.clusters[i] as usize].group;
             if other < 0 || acc[other as usize] == 0 {
                 continue;
             }
@@ -374,7 +321,7 @@ fn pick(
                 continue;
             }
             let mut sc =
-                shared as i32 as f32 * (r + 1. / sqrt(ctx, groups[other].vertices as i32 as f32));
+                shared as i32 as f32 * (r + 1. / ctx.sqrt(groups[other].vertices as i32 as f32));
             if bounds {
                 sc *= 1. + 0.4 * score(groups[id], groups[other], ctx)?;
             }
@@ -436,7 +383,6 @@ fn partition(
     }
     let max = target.checked_add(target / 3).ok_or(Error::SizeOverflow)?;
     let n = counts.len();
-    #[cfg(not(feature = "std"))]
     ctx.large_memo();
     if n > i32::MAX as usize || vertices > u32::MAX as usize || indices.len() > u32::MAX as usize {
         return Err(Error::SizeOverflow);
@@ -530,7 +476,7 @@ fn partition(
                 group_sphere::<true>(p, verts)?
             };
             g.center = center;
-            g.radius = sqrt(ctx, r);
+            g.radius = ctx.sqrt(r);
         }
         groups[i] = g;
         push(
@@ -665,39 +611,4 @@ pub fn partition_clusters_into(
         target,
         &mut ctx,
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn roots_preserve_software_bits_including_exceptional_operands() {
-        let mut workspace = Workspace::default();
-        let mut ctx = Context::new(&mut workspace).unwrap();
-        for bits in [
-            0,
-            0x8000_0000,
-            1,
-            0x007f_ffff,
-            0x0080_0000,
-            0x3f80_0000,
-            0x4000_0000,
-            0x7f7f_ffff,
-            0x7f80_0000,
-            0xff80_0000,
-            0x7f80_0001,
-            0x7fc0_0123,
-            0xff80_0001,
-            0xffc0_0123,
-            0xbf80_0000,
-        ] {
-            let value = f32::from_bits(bits);
-            assert_eq!(
-                sqrt(&mut ctx, value).to_bits(),
-                crate::math::sqrt(value).to_bits(),
-                "{bits:08x}"
-            );
-        }
-    }
 }

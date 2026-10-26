@@ -43,31 +43,27 @@ impl Box3 {
         x * y + y * z + z * x
     }
 }
-fn count<const WRITE: bool>(
+fn count(
     order: &[u32],
     used: &mut [i16],
     indices: &[u32],
-    out: &mut [u32],
+    mut out: Option<&mut [u32]>,
     ctx: &mut Context<'_>,
 ) -> Result<usize, Error> {
     ctx.tick(order.len() * 2)?;
-    if WRITE {
-        assert!(out.len() >= order.len());
-    }
-    let triangles = indices.as_chunks::<3>().0;
     let mut n = 0;
     for (i, &v) in order.iter().enumerate() {
-        let [a, b, c] = triangles[v as usize].map(|v| v as usize);
-        n += usize::from(used[a] < 0) + usize::from(used[b] < 0) + usize::from(used[c] < 0);
-        used[a] = 1;
-        used[b] = 1;
-        used[c] = 1;
-        if WRITE {
-            out[i] = n as u32;
+        let t = &indices[v as usize * 3..][..3];
+        n += t.iter().filter(|&&v| used[v as usize] < 0).count();
+        for &v in t {
+            used[v as usize] = 1;
+        }
+        if let Some(o) = out.as_deref_mut() {
+            o[i] = n as u32;
         }
     }
     for &v in order {
-        for &v in &triangles[v as usize] {
+        for &v in &indices[v as usize * 3..][..3] {
             used[v as usize] = -1;
         }
     }
@@ -191,11 +187,11 @@ impl Bvh<'_> {
         let mut i = 0;
         while i < n {
             let chunk = self.settings.max_triangles.min(n - i);
-            let cnt = count::<false>(
+            let cnt = count(
                 &self.axes[0][start + i..start + i + chunk],
                 &mut self.used,
                 self.indices,
-                &mut [],
+                None,
                 ctx,
             )?;
             let size = if cnt <= self.settings.max_vertices {
@@ -217,11 +213,11 @@ impl Bvh<'_> {
     ) -> Result<(), Error> {
         let s = self.settings;
         if n <= s.max_triangles
-            && count::<false>(
+            && count(
                 &self.axes[0][start..start + n],
                 &mut self.used,
                 self.indices,
-                &mut [],
+                None,
                 ctx,
             )? <= s.max_vertices
         {
@@ -262,11 +258,11 @@ impl Bvh<'_> {
                 *ra = right.merge(boxes[r as usize]);
             }
             if n <= s.max_triangles {
-                count::<true>(
+                count(
                     &self.axes[k][start..start + n],
                     &mut self.used,
                     self.indices,
-                    &mut self.counts[..n],
+                    Some(&mut self.counts[..n]),
                     ctx,
                 )?;
             }
@@ -304,8 +300,8 @@ impl Bvh<'_> {
             return self.tail(start, n, ctx);
         }
         ctx.tick(n * 3)?;
-        for (i, &id) in self.axes[axis][start..start + n].iter().enumerate() {
-            self.sides[id as usize] = u8::from(i >= split);
+        for i in 0..n {
+            self.sides[self.axes[axis][start + i] as usize] = u8::from(i >= split);
         }
         for k in 0..3 {
             if k == axis {
@@ -328,7 +324,7 @@ impl Bvh<'_> {
     }
 }
 fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> [f32; 3]) {
-    for (bounds, t) in boxes.iter_mut().zip(triangles) {
+    for (i, t) in triangles.iter().enumerate() {
         let a = read(t[0]);
         let b = read(t[1]);
         let c = read(t[2]);
@@ -341,8 +337,8 @@ fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> 
             if c[k] > hi {
                 hi = c[k];
             }
-            bounds.lo[k] = lo;
-            bounds.hi[k] = hi;
+            boxes[i].lo[k] = lo;
+            boxes[i].hi[k] = hi;
         }
     }
 }
@@ -372,10 +368,10 @@ pub(crate) fn spatial(
     // Upstream radixFloat keys without the two low bits fit in u32.
     let mut keys = ctx.alloc::<u32>(n)?;
     for (k, axis) in axes.iter_mut().enumerate() {
-        for (i, ((id, key), bounds)) in axis.iter_mut().zip(&mut keys).zip(&boxes).enumerate() {
-            *id = i as u32;
-            let c = finite((bounds.lo[k] + bounds.hi[k]) / 2.)?.to_bits();
-            *key = (c ^ if c & 0x80000000 != 0 {
+        for i in 0..n {
+            axis[i] = i as u32;
+            let c = finite((boxes[i].lo[k] + boxes[i].hi[k]) / 2.)?.to_bits();
+            keys[i] = (c ^ if c & 0x80000000 != 0 {
                 u32::MAX
             } else {
                 0x80000000

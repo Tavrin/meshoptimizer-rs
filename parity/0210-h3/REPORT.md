@@ -48,3 +48,23 @@ retain each original per-item charge. Fallible leaf scoring keeps its original
 charge sequence. Spatial counting uses fixed triangle records and compile-time
 output selection. The revised campaign remains queued; its script applies the
 registered family reversions automatically before final qualification.
+
+## Revised campaign disposition
+
+| Family | candidate/base GM | candidate/C++ GM | worst candidate/base | Verdict |
+|---|---:|---:|---:|---|
+| partition | 0.976752 | 1.378996 | 0.990753 | NO-GAIN — reverted |
+| spatial meshlets | 0.972127 | 1.131264 | 0.984802 | NO-GAIN — reverted |
+
+Both changes are reverted. The final library source is byte-identical to v0.2.9.
+A fresh 90-sample restored-source control gives candidate/base GM 1.000000 for
+both families and candidate/C++ GM 1.411817 / 1.163700. All instruction process
+exits are 0. These ratios establish no shippable gain.
+
+Locked all-feature/no-default-feature tests, clippy, fmt, boundary, 8,000 targeted
+C++ comparisons and the final exhaustive sqrt check passed. The complete proof
+is being rerun because its first no_std producer was stale: preserving copied
+source mtimes allowed Cargo to reuse an older harness binary. The original
+failed receipt is retained in proof-attempt1/. The revised proof build freezes
+source bytes once, uses unique package/binary names per arm and feature mode,
+and embeds the frozen producer hash. No failed proof is counted as a pass.
