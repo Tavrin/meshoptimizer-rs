@@ -2510,6 +2510,8 @@ mod tests {
 
 #[cfg(test)]
 mod retention_tests {
+    use alloc::vec::Vec;
+
     use crate::{
         optimize_overdraw, optimize_vertex_cache, simplify, Positions, SimplifyOptions,
         SimplifySettings,
