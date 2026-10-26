@@ -5,6 +5,62 @@ These recipes use triangle lists of `u32` indices and borrowed vertex views.
 floats, strides and offsets count `f32` components; for byte views they count
 bytes and the byte order is explicit. Indices refer to the full position array.
 
+## Non-packed positions
+
+```text
+pub fn from_interleaved(
+    data: &[f32],
+    count: usize,
+    stride: usize,
+    offset: usize,
+) -> Result<Positions<'_>, Error>
+
+pub fn from_bytes(
+    data: &[u8],
+    count: usize,
+    stride: usize,
+    offset: usize,
+    order: ByteOrder,
+) -> Result<Positions<'_>, Error>
+```
+
+Both are `Positions` constructors. For `from_interleaved`, `stride` (3 to 64) and
+`offset` count `f32` components. For `from_bytes`, they count bytes: `stride` is a
+multiple of four from 12 to 256, and `order` is `ByteOrder::LittleEndian` or
+`ByteOrder::BigEndian`. `count` is the number of vertices. Both return
+`InvalidLayout` if the layout or buffer length is invalid. The views borrow
+`data` and copy nothing.
+
+```rust
+use meshoptimizer_rs::{
+    simplify, ByteOrder, Positions, SimplifyOptions, SimplifySettings, Workspace,
+};
+
+let indices = [0, 1, 2, 2, 1, 3];
+let settings = SimplifySettings {
+    target_index_count: 3,
+    target_error: 0.01,
+    options: SimplifyOptions::EMPTY,
+};
+let mut workspace = Workspace::default();
+
+// x, y, z, u, v per vertex: stride 5 floats, XYZ at offset 0.
+let floats = [
+    0., 0., 0., 0., 0.,
+    1., 0., 0., 1., 0.,
+    0., 1., 0., 0., 1.,
+    1., 1., 0., 1., 1.,
+];
+let view = Positions::from_interleaved(&floats, 4, 5, 0)?;
+simplify(&indices, view, settings, &mut workspace)?;
+
+// The same vertices as big-endian bytes: stride 20 bytes, XYZ at byte offset 0.
+let bytes: Vec<u8> = floats.iter().flat_map(|v| v.to_be_bytes()).collect();
+let view = Positions::from_bytes(&bytes, 4, 20, 0, ByteOrder::BigEndian)?;
+simplify(&indices, view, settings, &mut workspace)?;
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
 ## Simplify one mesh
 
 ```text
@@ -39,7 +95,8 @@ assert!(lod.indices.len() <= indices.len());
 ```
 
 Errors: `InvalidTopology` for incomplete triangles, `IndexOutOfBounds` for invalid
-references, `InvalidParameter` for invalid settings or non-finite positions,
+references, `InvalidParameter` for invalid settings (including
+`target_index_count > indices.len()`) or non-finite positions,
 `NumericalFailure` for non-finite calculations, and the resource errors below.
 Use `SimplifyOptions::from_bits` to validate raw options (`UnknownFlags` on rejection).
 
@@ -74,7 +131,8 @@ previous level's topology, then orders it for the vertex cache and overdraw.
 `scale` is the largest axis extent; multiply a relative error by it to get
 position units. Each level's error is relative to that level's input, not an
 accumulated bound against the original mesh. The optimizers return reordered
-`Vec<u32>` triangle lists. One workspace retains scratch throughout the chain.
+`Vec<u32>` triangle lists. Reuse one workspace for the whole chain: it keeps
+scratch capacity between calls, so later calls skip reallocating.
 
 ```rust
 use meshoptimizer_rs::{
@@ -140,6 +198,12 @@ three local `u8` indices per triangle. Descriptor triangle offsets are byte
 offsets, with no padding between meshlets. Bounds return a sphere and normal cone
 in `Bounds`. Cache the full position validation once with `BoundsPositions` when
 querying many meshlets; failures are stored and reported by the bounds operation.
+
+`MeshletSettings::default()` is `max_vertices: 64`, `max_triangles: 124`. Valid
+ranges are 3 to 256 vertices and 1 to 512 triangles; anything else returns
+`InvalidParameter`. `cone_weight` (finite, 0.0 to 1.0) makes the builder prefer
+triangles that face the same way, which helps cone culling; 0.0 ignores facing.
+The example uses 0.25.
 
 ```rust
 use meshoptimizer_rs::{
@@ -209,7 +273,9 @@ pub fn decode_index_buffer(
 Vertex input is `count * stride` initialized bytes; stride is a positive multiple
 of four, at most 256. This recipe serializes packed XYZ as little-endian floats.
 Index encoding takes a `u32` triangle list. Decoding returns little-endian bytes:
-index stride 2 gives `u16` bytes and stride 4 gives `u32` bytes. Counts and strides
+index stride 2 gives `u16` bytes and stride 4 gives `u32` bytes. At stride 2,
+indices above 65535 wrap (upstream's truncating `u16` conversion); use stride 4
+for such meshes. Counts and strides
 come from your container format; encoded streams do not supply them for you.
 Each allocating codec returns a `Vec<u8>`. Triangle encoding may rotate corners
 within each triangle, preserving winding; decoded index order reflects those rotations.
@@ -238,7 +304,7 @@ Errors: `InvalidLayout` for invalid vertex/index strides or vertex byte lengths,
 `InvalidTopology` for incomplete triangles, `InvalidStream` for malformed data,
 `UnsupportedVersion` for unsupported codec versions, and the resource errors below.
 Encoding constructors validate versions and levels (`InvalidParameter` for an
-unsupported vertex level); valid configuration values cannot be constructed otherwise.
+unsupported vertex level), so an invalid encoding configuration cannot be built.
 
 ## Untrusted input with Limits
 
@@ -283,27 +349,16 @@ fn main() -> Result<(), Error> {
 }
 ```
 
-Returns decoded bytes or an error; this example handles `InvalidStream` as an
-expected rejection. Decoding can also return `InvalidLayout`, `UnsupportedVersion`,
+Returns decoded bytes or an error; this example treats `InvalidStream` as a
+malformed client stream to reject, not a failure. Decoding can also return `InvalidLayout`, `UnsupportedVersion`,
 `SizeOverflow`, `LimitExceeded` or `AllocationFailed`. `Workspace::new` is infallible.
 `BoundsPositions::new` and `simplify_scale` have no workspace budget: bound input
 sizes before calling them on untrusted data.
 
 ## Parallel workers
 
-Each worker calls `simplify` and receives a shared
-immutable XYZ array and triangle list, and owns its workspace and returned mesh.
-
-```text
-pub fn simplify(
-    indices: &[u32],
-    positions: Positions<'_>,
-    settings: SimplifySettings,
-    workspace: &mut Workspace,
-) -> Result<SimplifiedMesh, Error>
-```
-
-The following uses standard threads and needs no `parallel` feature.
+Each worker calls `simplify` (signature above) on a shared immutable XYZ array
+and triangle list, and owns its workspace and returned mesh. The following uses standard threads and needs no `parallel` feature.
 
 ```rust
 use meshoptimizer_rs::{simplify, Error, Positions, SimplifyOptions, SimplifySettings, Workspace};
@@ -330,10 +385,10 @@ assert_eq!(results.len(), 2);
 # Ok::<(), Error>(())
 ```
 
-Returns one `SimplifiedMesh` per worker; errors are the same as sequential
-simplification. Thread spawning/joining has the standard library's panic behavior.
-With the `parallel` feature, [`simplify_lod_chains_batch`](https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/parallel/fn.simplify_lod_chains_batch.html)
-provides ordered per-mesh chains using Rayon. Its outer error is result-slot
+Returns one `SimplifiedMesh` per worker. With the `parallel` feature,
+[`simplify_lod_chains_batch`](https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/parallel/fn.simplify_lod_chains_batch.html)
+provides ordered per-mesh chains using Rayon. It panics if Rayon cannot start or
+a worker panics. Its outer error is result-slot
 `SizeOverflow` or `AllocationFailed`; item errors stay in input order and do not
 cancel other items. Limits apply separately to each item, with no aggregate cap.
 
@@ -344,10 +399,10 @@ pub fn set_retention(&mut self, retention: Retention) // Workspace
 ```
 
 Use the same position and index layouts as simplification. `set_retention` returns
-`()`, cannot fail, and changes how subsequent operations retain scratch.
-It releases the previous family's scratch when simplify, cache or overdraw acquires
-storage, releases simplify position quadrics on return, and delays initialization
-of simplify ordering entries. Other families keep their retention behavior.
+`()` and cannot fail. With `Retention::Lean`, the workspace keeps less scratch
+between calls, so peak memory is lower. Later calls have to reallocate that
+scratch, so they are slower. It applies to simplify, vertex-cache and overdraw
+calls; other operations keep their scratch.
 
 ```rust
 use meshoptimizer_rs::{simplify, Positions, Retention, SimplifyOptions, SimplifySettings, Workspace};
@@ -363,9 +418,9 @@ assert!(lod.indices.len() <= indices.len());
 # Ok::<(), meshoptimizer_rs::Error>(())
 ```
 
-Returns the same simplification result and errors as the first recipe. Lean trades
-peak memory for time spent rebuilding scratch; it is opt-in. See the measured
-[memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/PERFORMANCE.md).
+Returns the same simplification result and errors as the first recipe. Lean is
+opt-in: it lowers peak memory, but later calls reallocate scratch and run slower.
+See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/PERFORMANCE.md).
 
 ## Resource errors
 
@@ -373,13 +428,18 @@ Workspace operations can return `SizeOverflow` when size arithmetic or platform
 allocation bounds overflow, `LimitExceeded` when the per-call bytes or counted work
 exceed `Limits`, and `AllocationFailed` when fallible reservation fails.
 Caller-buffer `_into` forms also return `BufferTooSmall` for insufficient capacity;
-a late error may leave a used prefix modified, so check the individual function's docs.
+a late error may leave a used prefix modified. The `_into` functions are
+`simplify_into`, `optimize_vertex_cache_into`, `optimize_overdraw_into` and
+`build_meshlets_into`, among others.
 
 ## Gotchas
 
-- **Fast paths by position layout:** packed `[f32; 3]` views speed up position reads; `simplify_scale` also specializes unmapped little-endian byte views with 64-byte strides and any validated XYZ offset (full trailing padding selects its fixed-record reader); other float strides, byte strides, big-endian and mapped views use general readers, so repack XYZ with `Positions::from_packed` to use packed paths.
-- **Workspace reuse:** reuse scratch across calls instead of constructing a fresh workspace each time; operations require `&mut Workspace`, so use one workspace per worker thread.
-- **Retention::Lean's cost:** lower peak scratch memory can cost time rebuilding storage; the default is `Retention::Reuse`.
+- **Indices:** `u32` only. Pass the full position count as `vertex_count`, not the number of vertices a LOD uses. An index at or beyond that count returns `IndexOutOfBounds`.
+- **Simplify target:** `target_index_count` larger than `indices.len()` returns `InvalidParameter`.
+- **Index decode at stride 2:** indices above 65535 wrap (upstream's truncating `u16` conversion). Use stride 4 for meshes with more than 65536 vertices.
+- **Position layout:** use `Positions::from_packed(&[[f32; 3]])` when you can; it is the fastest layout. Other layouts work but read more slowly.
+- **Workspace reuse:** use one `Workspace` per worker thread and reuse it across calls; see [Per-mesh LOD chain](#per-mesh-lod-chain).
+- **Retention::Lean:** lowers peak memory at the cost of time; the default is `Retention::Reuse`.
 - **Default Limits:** 1 GiB of crate-owned storage and 2^34 counted visits per call; set smaller `max_bytes` and `max_work` for untrusted input and check caller allocations separately.
 - **Byte-identical output:** results match C++ meshoptimizer 1.3 (scalar build); recorded differential inputs and exceptions are described in the README.
 - **Semver policy:** 0.2.x patch releases are drop-in, with no API break and the same output.

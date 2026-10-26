@@ -189,6 +189,9 @@ pub struct SimplifyResult {
 /// Empty and coincident positions return zero; non-finite inputs and overflowing
 /// extents return an error. This operation allocates no memory.
 ///
+/// Packed `[f32; 3]` positions are fastest. Little-endian byte views with a
+/// 64-byte stride also take a fast path; other layouts use a slower general reader.
+///
 /// # Errors
 /// `InvalidParameter` for non-finite positions; `NumericalFailure` for an overflowing extent.
 pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {

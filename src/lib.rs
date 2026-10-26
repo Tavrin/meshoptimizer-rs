@@ -24,6 +24,7 @@
 //!
 //! # Recipes
 //!
+//! - [Non-packed positions](guide#non-packed-positions).
 //! - [Simplify one mesh](guide#simplify-one-mesh).
 //! - [Per-mesh LOD chain](guide#per-mesh-lod-chain).
 //! - [Meshlets with bounds](guide#meshlets-with-bounds).
