@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+s=/mnt/linux-extra/moss-scratch/meshopt-decode
+node "$s/browser/drive.mjs" --bytes-only
+python3 - <<'PY'
+import json
+from pathlib import Path
+s=Path('/mnt/linux-extra/moss-scratch/meshopt-decode')
+x=json.loads((s/'browser/data/chromium-bytes.json').read_text())
+assert len(x['rows'])==42 and not x['stop_timing']
+assert all(not r['excluded'] and len(r['bytes'])==7 and all(v=='match' for v in r['bytes'].values()) for r in x['rows'])
+assert 'v128' in (s/'after-simd.wat').read_text()
+print('42/42 Chromium byte checks, seven arms; SIMD instructions verified')
+PY

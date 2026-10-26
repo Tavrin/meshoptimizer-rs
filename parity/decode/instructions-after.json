@@ -1,0 +1,86 @@
+[
+  {
+    "arm": "after",
+    "case": "medium-smooth",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 3554388,
+      "100": 26917291
+    },
+    "instructions_per_call": 233629.03
+  },
+  {
+    "arm": "after",
+    "case": "medium-smooth",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 3554221,
+      "100": 51465469
+    },
+    "instructions_per_call": 479112.48
+  },
+  {
+    "arm": "after",
+    "case": "medium-seams",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 4113546,
+      "100": 32747008
+    },
+    "instructions_per_call": 286334.62
+  },
+  {
+    "arm": "after",
+    "case": "medium-seams",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 4113417,
+      "100": 62882676
+    },
+    "instructions_per_call": 587692.59
+  },
+  {
+    "arm": "after",
+    "case": "medium-sparse",
+    "operation": "oct-decode",
+    "calls": 100,
+    "binary_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 6020139,
+      "100": 52669360
+    },
+    "instructions_per_call": 466492.21
+  },
+  {
+    "arm": "after",
+    "case": "medium-sparse",
+    "operation": "quat-decode",
+    "calls": 100,
+    "binary_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exit_0": 0,
+    "exit_100": 0,
+    "raw": {
+      "0": 6020451,
+      "100": 101781135
+    },
+    "instructions_per_call": 957606.84
+  }
+]

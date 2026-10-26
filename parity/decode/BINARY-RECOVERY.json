@@ -1,0 +1,20 @@
+[
+  {
+    "arm": "before",
+    "original_measured_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "rebuilt_sha256": "37a1f32094bad33fa47bfddf33bec20865bc7b69ce78e3cff8b34aa1fc80dc87",
+    "exact_match": true
+  },
+  {
+    "arm": "after",
+    "original_measured_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "rebuilt_sha256": "9ec002a970c7cab74a134dbedc3ae24605f31d178241441994ac75c1a3f59662",
+    "exact_match": true
+  },
+  {
+    "arm": "m7",
+    "original_measured_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "rebuilt_sha256": "da6d0c89fa112be40c043e5a969eb5c37967fd8f4161cf624953aebfa603c03b",
+    "exact_match": true
+  }
+]
