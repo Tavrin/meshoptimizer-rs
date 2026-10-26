@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `optimize_vertex_cache` uses 0.91× the instructions of 0.2.9 on the
+  benchmark corpus and on three real-mesh LOD chains, and 1.32× (corpus) and
+  1.26× (chains) the instructions of C++ 1.3. `optimize_vertex_cache_strip`
+  shares the changed loop but was not measured separately. Output, errors,
+  reported work and partial writes on work exhaustion are unchanged. No wall
+  timing was taken because the host was loaded.
+
 ## [0.2.9] - 2026-10-26
 
 - `simplify_scale` on little-endian byte views with 64-byte records uses

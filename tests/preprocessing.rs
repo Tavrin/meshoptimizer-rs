@@ -1163,6 +1163,40 @@ fn fixed_width_fetch_copies_only_used_records_and_charges_full_capacity() {
     }
 }
 
+// Isolated degenerate faces force every later selection through the fallback
+// cursor, the worst case for the whole-loop work bounds. Usage stays exact at
+// the tightest limit, and one less fails.
+#[test]
+fn cache_cursor_heavy_meshes_report_exact_work_at_tight_limits() {
+    let isolated: Vec<u32> = (0..8).flat_map(|i| [i, i, i]).collect();
+    let pairs: Vec<u32> = (0..6).flat_map(|i| [2 * i, 2 * i + 1, 2 * i]).collect();
+    for (indices, count) in [(isolated, 8), (pairs, 12)] {
+        for family in 0..3 {
+            let run = |ws: &mut Workspace| match family {
+                0 => optimize_vertex_cache(&indices, count, ws),
+                1 => optimize_vertex_cache_strip(&indices, count, ws),
+                _ => optimize_vertex_cache_fifo(&indices, count, 16, ws),
+            };
+            let mut ample = Workspace::default();
+            let expected = run(&mut ample).unwrap();
+            let work = ample.usage().work;
+            for max_work in work..work + 64 {
+                let mut ws = Workspace::new(Limits {
+                    max_work,
+                    max_bytes: usize::MAX,
+                });
+                assert_eq!(run(&mut ws).unwrap(), expected);
+                assert_eq!(ws.usage().work, work, "family {family} limit {max_work}");
+            }
+            let mut tight = Workspace::new(Limits {
+                max_work: work - 1,
+                max_bytes: usize::MAX,
+            });
+            assert!(matches!(run(&mut tight), Err(Error::LimitExceeded)));
+        }
+    }
+}
+
 #[test]
 fn sentinel_shadow_scratch_resets_after_fifo_and_across_stream_widths() {
     let mut reused = Workspace::default();

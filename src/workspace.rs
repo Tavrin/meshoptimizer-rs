@@ -647,6 +647,13 @@ impl Work {
         self.remaining -= count;
         Ok(())
     }
+    // Settle an already-covered cache-kernel reservation to its actual visits.
+    // Only cache.rs calls this, after proving and prepaying its complete bound.
+    #[inline]
+    pub(crate) fn refund_cache(&mut self, count: usize) {
+        debug_assert!(count as u64 <= self.limit - self.remaining);
+        self.remaining += count as u64;
+    }
     #[cold]
     #[inline(never)]
     fn exhausted(&self, count: u64) -> Result<(), Error> {
