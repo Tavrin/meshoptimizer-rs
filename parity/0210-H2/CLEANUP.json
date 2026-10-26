@@ -1,0 +1,12 @@
+{
+  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-H2",
+  "target_absent": true,
+  "exit": 0,
+  "retained_scratch": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2",
+  "binaries_retained": [
+    "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/driver-candidate",
+    "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/driver-base",
+    "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/driver-M7"
+  ],
+  "round1_retained": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/round1"
+}

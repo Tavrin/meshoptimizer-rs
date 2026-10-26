@@ -126,6 +126,9 @@ fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Err
 
 #[inline(always)]
 fn update(triangle: &[u32; 3], stamps: &mut [u32], time: &mut u32) -> u32 {
+    // One proof covers all three stamp accesses in the unrolled triangle.
+    let max = triangle[0].max(triangle[1]).max(triangle[2]) as usize;
+    assert!(max < stamps.len());
     let mut misses = 0;
     for &index in triangle {
         let stamp = &mut stamps[index as usize];
@@ -216,6 +219,97 @@ impl ClusterGeometry {
     }
 }
 
+// Prepaid is used only when every visit fits and the target multiplication
+// cannot overflow. All other inputs retain Work's original per-visit path.
+trait ClusterMeter {
+    fn add(&mut self, n: usize) -> Result<(), Error>;
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error>;
+}
+impl ClusterMeter for Work {
+    #[inline(always)]
+    fn add(&mut self, n: usize) -> Result<(), Error> {
+        Work::add(self, n)
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        Work::scan(self, values, visit)
+    }
+}
+struct ClusterPrepaid;
+impl ClusterMeter for ClusterPrepaid {
+    #[inline(always)]
+    fn add(&mut self, _n: usize) -> Result<(), Error> {
+        Ok(())
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        mut visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        for value in values {
+            visit(value)?;
+        }
+        Ok(())
+    }
+}
+
+fn soft_clusters(
+    triangles: &[[u32; 3]],
+    hard: &[u32],
+    soft: &mut [u32],
+    stamps: &mut [u32],
+    threshold: f32,
+    work: &mut impl ClusterMeter,
+) -> Result<usize, Error> {
+    let faces = triangles.len();
+    let mut time = 0u32;
+    let mut soft_count = 0;
+    for (&start, end) in hard
+        .iter()
+        .zip(hard[1..].iter().copied().map(|x| x as usize).chain([faces]))
+    {
+        work.add(1)?;
+        let start = start as usize;
+        time = time.wrapping_add(17);
+        let mut misses = 0u32;
+        work.scan(triangles[start..end].iter(), |tri| {
+            misses += update(tri, stamps, &mut time);
+            Ok(())
+        })?;
+        let target = finite(threshold * (misses as f32 / (end - start) as f32))?;
+        soft[soft_count] = start as u32;
+        soft_count += 1;
+        time = time.wrapping_add(17);
+        let mut running_misses = 0;
+        let mut running_faces = 0;
+        work.scan(triangles[start..end].iter().enumerate(), |(offset, tri)| {
+            running_misses += update(tri, stamps, &mut time);
+            running_faces += 1;
+            if running_misses as f32 / running_faces as f32 <= target {
+                soft[soft_count] = (start + offset + 1) as u32;
+                soft_count += 1;
+                time = time.wrapping_add(17);
+                running_misses = 0;
+                running_faces = 0;
+            }
+            Ok(())
+        })?;
+        if soft[soft_count - 1] != start as u32 {
+            soft_count -= 1;
+        }
+    }
+    Ok(soft_count)
+}
+
 fn kernel(
     dest: &mut [u32],
     indices: &[u32],
@@ -249,44 +343,33 @@ fn kernel(
     })?;
     work.add(v)?;
     stamps.fill(0);
-    time = 0;
-    let mut soft_count = 0;
-    for h in 0..hard_count {
-        work.add(1)?;
-        let start = hard[h] as usize;
-        let end = if h + 1 < hard_count {
-            hard[h + 1] as usize
-        } else {
-            faces
-        };
-        time = time.wrapping_add(17);
-        let mut misses = 0u32;
-        work.scan(triangles[start..end].iter(), |tri| {
-            misses += update(tri, stamps, &mut time);
-            Ok(())
-        })?;
-        let target = finite(threshold * (misses as f32 / (end - start) as f32))?;
-        soft[soft_count] = start as u32;
-        soft_count += 1;
-        time = time.wrapping_add(17);
-        let mut running_misses = 0;
-        let mut running_faces = 0;
-        work.scan(triangles[start..end].iter().enumerate(), |(offset, tri)| {
-            running_misses += update(tri, stamps, &mut time);
-            running_faces += 1;
-            if running_misses as f32 / running_faces as f32 <= target {
-                soft[soft_count] = (start + offset + 1) as u32;
-                soft_count += 1;
-                time = time.wrapping_add(17);
-                running_misses = 0;
-                running_faces = 0;
-            }
-            Ok(())
-        })?;
-        if soft[soft_count - 1] != start as u32 {
-            soft_count -= 1;
-        }
-    }
+    let bound = faces.checked_mul(2).and_then(|n| n.checked_add(hard_count));
+    // Every nonempty hard cluster has at most three misses per triangle.
+    // At this threshold magnitude its target is finite, so the whole phase
+    // is infallible after precharging its exact hard_count + 2*faces visits.
+    let prepaid = match bound {
+        Some(n) if threshold.abs() <= f32::MAX / 4.0 => work.precharge(n, 1)?,
+        _ => false,
+    };
+    let soft_count = if prepaid {
+        soft_clusters(
+            triangles,
+            &hard[..hard_count],
+            soft,
+            stamps,
+            threshold,
+            &mut ClusterPrepaid,
+        )?
+    } else {
+        soft_clusters(
+            triangles,
+            &hard[..hard_count],
+            soft,
+            stamps,
+            threshold,
+            work,
+        )?
+    };
     // Hard boundaries are dead after soft clustering; reuse their storage for
     // sort order. Only live clusters need keys and floating-point sort data.
     let ints = ws.integers.len();

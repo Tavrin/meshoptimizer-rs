@@ -229,6 +229,9 @@ pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {
 // Keep the byte reader and its scan state out of the packed fast path.
 #[inline(never)]
 fn scale_view(positions: Positions<'_>) -> Result<f32, Error> {
+    if let Some(records) = positions.scale_full_records() {
+        return scale_records(records, positions.is_empty());
+    }
     if let Some(records) = positions.scale_records() {
         return scale_records(records, positions.is_empty());
     }

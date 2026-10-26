@@ -583,6 +583,35 @@ impl<'a> Positions<'a> {
             position_bytes::<false>(record.first_chunk().expect("validated position record"))
         }))
     }
+    /// Fully padded cooker records for a bounds-check-free inner iterator.
+    /// Keep the original reader for short records to preserve validation order.
+    pub(crate) fn scale_full_records(self) -> Option<impl Iterator<Item = [f32; 3]> + Clone + 'a> {
+        if self.1.is_some() {
+            return None;
+        }
+        let PositionStorage::View(View {
+            storage: Storage::Bytes(data, ByteOrder::LittleEndian),
+            count,
+            stride: 64,
+            offset,
+            ..
+        }) = self.0
+        else {
+            return None;
+        };
+        // Full records prove all XYZ reads once. A legal final record without
+        // trailing padding keeps the general reader, avoiding an iterator state
+        // transition in the hot bounds-reduction loop.
+        let records = data[offset..]
+            .get(..count.checked_mul(64)?)?
+            .as_chunks::<64>()
+            .0;
+        Some(
+            records
+                .iter()
+                .map(|record| position_bytes::<false>(record.first_chunk().unwrap())),
+        )
+    }
     /// Original packed coordinates and an optional sparse source mapping.
     pub(crate) fn packed_source(self) -> Option<PackedPositionSource<'a>> {
         match self.0 {
