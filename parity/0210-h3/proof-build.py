@@ -1,8 +1,16 @@
 from pathlib import Path
 import subprocess, re, shutil, json, hashlib
 R=Path(__file__).resolve().parents[2];S=Path('/mnt/linux-extra/moss-scratch/meshopt-0210-h3')
-t=(R/'src/partition.rs').read_text();a=t.index('fn sqrt(');b=t.index('\nfn score(',a)
-(S/'partition-sqrt.rs').write_text('#[inline(always)]\n'+t[a:b])
+t=(R/'src/partition.rs').read_text()
+if 'fn sqrt(_ctx:' in t:
+ a=t.index('fn sqrt(');b=t.index('\nfn score(',a)
+ helper='#[inline(always)]\n'+t[a:b]
+else:
+ # A registered reversion restores the software backend. Extract that actual
+ # backend too, so the final exhaustive check remains bound to final source.
+ t=(R/'src/math.rs').read_text();a=t.index('fn sqrt(');b=t.index('\n/// Lanes',a)
+ helper=t[a:b].replace('fn sqrt(', 'fn backend(')+"\nfn sqrt(_ctx: &mut Context<'_>, x:f32)->f32 { backend(x) }\n"
+(S/'partition-sqrt.rs').write_text(helper)
 for arm, lib in [('base',S/'base'),('candidate',R)]:
  h=S/f'proof-{arm}';h.mkdir(exist_ok=True)
  for f in ['exact.rs','sqrt.rs','seeds.rs']:shutil.copy2(R/'parity/0210-h3'/f,h/f)

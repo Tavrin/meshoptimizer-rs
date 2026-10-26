@@ -25,7 +25,8 @@ struct Order {
     order: i32,
 }
 fn push(heap: &mut [Order], n: &mut usize, item: Order) {
-    let mut i = *n;
+    let heap = &mut heap[..*n + 1];
+    let mut i = heap.len() - 1;
     heap[i] = item;
     *n += 1;
     while i > 0 && heap[i].order < heap[(i - 1) / 2].order {
@@ -35,13 +36,15 @@ fn push(heap: &mut [Order], n: &mut usize, item: Order) {
     }
 }
 fn pop(heap: &mut [Order], n: &mut usize) -> Order {
+    let heap = &mut heap[..*n];
     let top = heap[0];
     *n -= 1;
     heap[0] = heap[*n];
+    let heap = &mut heap[..*n];
     let mut i = 0;
-    while i * 2 + 1 < *n {
+    while i * 2 + 1 < heap.len() {
         let mut j = i * 2 + 1;
-        if j + 1 < *n && heap[j + 1].order < heap[j].order {
+        if j + 1 < heap.len() && heap[j + 1].order < heap[j].order {
             j += 1;
         }
         if heap[j].order >= heap[i].order {
@@ -204,6 +207,37 @@ struct Adj {
     clusters: Vec<u32>,
     shared: Vec<u32>,
 }
+// The covered arm charges once before a loop with no fallible visits.
+// Short budgets retain the original per-item charge and mutation order.
+#[inline(always)]
+fn adjacent_list<const CHARGE: bool>(
+    others: &[u32],
+    slots: &mut [u32],
+    clusters: &mut [u32],
+    shared: &mut [u32],
+    own: usize,
+    count: &mut usize,
+    ctx: &mut Context<'_>,
+) -> Result<(), Error> {
+    for &c in others {
+        if CHARGE {
+            ctx.tick(1)?;
+        }
+        if c as usize == own {
+            continue;
+        }
+        let slot = slots[c as usize] as usize;
+        if slot < *count && clusters[slot] == c {
+            shared[slot] += 1;
+        } else {
+            slots[c as usize] = *count as u32;
+            clusters[*count] = c;
+            shared[*count] = 1;
+            *count += 1;
+        }
+    }
+    Ok(())
+}
 fn adjacent(
     indices: &[u32],
     offsets: &[u32],
@@ -268,28 +302,26 @@ fn adjacent(
         let mut count = 0;
         for &v in &indices[offsets[i] as usize..offsets[i + 1] as usize] {
             let others = &data[refs[v as usize] as usize..refs[v as usize + 1] as usize];
-            // These visits cannot fail: charge a covered list once, otherwise
-            // keep the per-visit exhaustion point.
-            let batched = ctx.work.covers(others.len())?;
-            for &c in others {
-                if !batched {
-                    ctx.tick(1)?;
-                }
-                if c as usize == i {
-                    continue;
-                }
-                let slot = slots[c as usize] as usize;
-                if slot < count && adj.clusters[start + slot] == c {
-                    adj.shared[start + slot] += 1;
-                } else {
-                    slots[c as usize] = count as u32;
-                    adj.clusters[start + count] = c;
-                    adj.shared[start + count] = 1;
-                    count += 1;
-                }
-            }
-            if batched {
-                ctx.tick(others.len())?;
+            if ctx.work.precharge(others.len(), 1)? {
+                adjacent_list::<false>(
+                    others,
+                    &mut slots,
+                    &mut adj.clusters[start..],
+                    &mut adj.shared[start..],
+                    i,
+                    &mut count,
+                    ctx,
+                )?;
+            } else {
+                adjacent_list::<true>(
+                    others,
+                    &mut slots,
+                    &mut adj.clusters[start..],
+                    &mut adj.shared[start..],
+                    i,
+                    &mut count,
+                    ctx,
+                )?;
             }
         }
         adj.offsets[i + 1] = (start + count) as u32;
@@ -313,11 +345,12 @@ fn pick(
     while ci >= 0 {
         let c = ci as usize;
         ctx.tick((adj.offsets[c + 1] - adj.offsets[c]) as usize)?;
-        for i in adj.offsets[c] as usize..adj.offsets[c + 1] as usize {
-            let other = groups[adj.clusters[i] as usize].group;
+        let range = adj.offsets[c] as usize..adj.offsets[c + 1] as usize;
+        for (&cluster, &shared) in adj.clusters[range.clone()].iter().zip(&adj.shared[range]) {
+            let other = groups[cluster as usize].group;
             if other >= 0 {
                 acc[other as usize] = acc[other as usize]
-                    .checked_add(adj.shared[i])
+                    .checked_add(shared)
                     .ok_or(Error::SizeOverflow)?;
             }
         }
@@ -329,8 +362,8 @@ fn pick(
     while ci >= 0 {
         let c = ci as usize;
         ctx.tick((adj.offsets[c + 1] - adj.offsets[c]) as usize)?;
-        for i in adj.offsets[c] as usize..adj.offsets[c + 1] as usize {
-            let other = groups[adj.clusters[i] as usize].group;
+        for &cluster in &adj.clusters[adj.offsets[c] as usize..adj.offsets[c + 1] as usize] {
+            let other = groups[cluster as usize].group;
             if other < 0 || acc[other as usize] == 0 {
                 continue;
             }

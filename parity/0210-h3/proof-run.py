@@ -12,11 +12,15 @@ def run(exe,args,label):
  dest=D/f'{label}.zst';cpu=D/f'{label}.cpu'
  assert not dest.exists(),dest
  with dest.open('wb') as out, (D/f'{label}.stderr').open('w') as err:
-  p=subprocess.Popen(['/usr/bin/time','-f','%U %S','-o',str(cpu),str(S/exe),*args],stdout=subprocess.PIPE,stderr=err)
+  p=subprocess.Popen([str(S/exe),*args],stdout=subprocess.PIPE,stderr=err)
   z=subprocess.Popen(['zstd','-q','-T1','-3','-c'],stdin=p.stdout,stdout=out)
-  p.stdout.close();rc=p.wait();zc=z.wait()
+  p.stdout.close()
+  _,status,usage=os.wait4(p.pid,0)
+  p.returncode=os.waitstatus_to_exitcode(status)
+  rc=p.returncode;zc=z.wait()
  assert rc==zc==0,(exe,rc,zc)
- seconds=sum(map(float,cpu.read_text().split()))
+ seconds=usage.ru_utime+usage.ru_stime
+ cpu.write_text(json.dumps(dict(user_seconds=usage.ru_utime,system_seconds=usage.ru_stime))+'\n')
  observations=(D/f'{label}.stderr').read_text().strip()
  return dest,dict(exe=exe,args=args,label=label,exit=rc,compression_exit=zc,cpu_seconds=seconds,observations=observations,output_sha256=sha(dest),bytes=dest.stat().st_size)
 def pair(args,label,mode='std',seeds=False):
@@ -32,6 +36,7 @@ def pair(args,label,mode='std',seeds=False):
  return br['cpu_seconds']
 for mode in ['std','nostd']:
  pair(['small'],'small',mode)
+ pair(['layouts'],'layouts',mode)
  pair([],'existing-fuzz-seeds',mode,seeds=True)
  files=[str(S/'meshopt-028-L2/inputs'/f'{n}.bin') for n in ['tiny-smooth','medium-smooth','medium-seams','medium-sparse','million-smooth']]
  pair(['frozen',*files],'frozen',mode)

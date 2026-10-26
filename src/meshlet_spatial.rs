@@ -3,6 +3,9 @@ use crate::meshlet::{MeshletSettings, Output};
 use crate::processing::{finite, point, radix, Context};
 use crate::{Error, Positions};
 use alloc::vec::Vec;
+#[path = "meshlet_division.rs"]
+mod division;
+use division::Divisor;
 // Boxes padded to four lanes (lane 3 is ignored), so each merge loads
 // whole aligned records. Lanes 0-2 use upstream's ordered selects and area
 // expression, so results are identical.
@@ -40,27 +43,31 @@ impl Box3 {
         x * y + y * z + z * x
     }
 }
-fn count(
+fn count<const WRITE: bool>(
     order: &[u32],
     used: &mut [i16],
     indices: &[u32],
-    mut out: Option<&mut [u32]>,
+    out: &mut [u32],
     ctx: &mut Context<'_>,
 ) -> Result<usize, Error> {
     ctx.tick(order.len() * 2)?;
+    if WRITE {
+        assert!(out.len() >= order.len());
+    }
+    let triangles = indices.as_chunks::<3>().0;
     let mut n = 0;
     for (i, &v) in order.iter().enumerate() {
-        let t = &indices[v as usize * 3..][..3];
-        n += t.iter().filter(|&&v| used[v as usize] < 0).count();
-        for &v in t {
-            used[v as usize] = 1;
-        }
-        if let Some(o) = out.as_deref_mut() {
-            o[i] = n as u32;
+        let [a, b, c] = triangles[v as usize].map(|v| v as usize);
+        n += usize::from(used[a] < 0) + usize::from(used[b] < 0) + usize::from(used[c] < 0);
+        used[a] = 1;
+        used[b] = 1;
+        used[c] = 1;
+        if WRITE {
+            out[i] = n as u32;
         }
     }
     for &v in order {
-        for &v in &indices[v as usize * 3..][..3] {
+        for &v in &triangles[v as usize] {
             used[v as usize] = -1;
         }
     }
@@ -96,8 +103,11 @@ impl Pivot<'_> {
         let n = self.n;
         let mut best = (f32::MAX, 0);
         let mut i = self.mint - 1;
+        // Reuse one exact reciprocal instead of two dependent integer
+        // divisions per candidate split. EASY loops do not need it.
+        let divisor = Divisor::new(if EASY { 1 } else { self.mint });
         let possible = |count| {
-            let q = count / self.mint;
+            let q = divisor.quotient(count);
             count - q * self.mint <= q * (self.max - self.mint)
         };
         if EASY && self.step == 1 {
@@ -113,49 +123,37 @@ impl Pivot<'_> {
                 }
                 for (j, &cost) in costs.iter().enumerate() {
                     if cost <= best.0 {
-                        self.fill_cost::<COUNTS>(i + j, left[j], right[7 - j], cost, &mut best);
+                        self.fill_cost::<COUNTS>(i + j, cost, &mut best);
                     }
                 }
                 i += 8;
             }
         }
-        // Split and reverse once so both area streams have proven lengths.
-        let left = &self.areas[i..self.end];
-        let right = &self.areas[2 * n - 1 - self.end..2 * n - 1 - i];
-        for (offset, (&la, &ra)) in left
-            .iter()
-            .zip(right.iter().rev())
-            .step_by(self.step)
-            .enumerate()
-        {
-            let i = i + offset * self.step;
+        while i < self.end {
             let l = i + 1;
             let r = n - l;
             if !EASY && (!possible(l) || (self.aligned && !possible(r))) {
+                i += self.step;
                 continue;
             }
-            let cost = la * l as f32 + ra * r as f32;
+            let cost = self.areas[i] * l as f32 + self.areas[n - 1 - l + n] * r as f32;
             if cost <= best.0 {
-                self.fill_cost::<COUNTS>(i, la, ra, cost, &mut best);
+                self.fill_cost::<COUNTS>(i, cost, &mut best);
             }
+            i += self.step;
         }
         best
     }
     // Add the vertex or triangle fill cost to a split's base SAH cost.
     #[inline(always)]
-    fn fill_cost<const COUNTS: bool>(
-        &self,
-        i: usize,
-        la: f32,
-        ra: f32,
-        cost: f32,
-        best: &mut (f32, usize),
-    ) {
+    fn fill_cost<const COUNTS: bool>(&self, i: usize, cost: f32, best: &mut (f32, usize)) {
         let n = self.n;
         let maxfill = self.maxfill;
         let rmaxfill = 1. / maxfill as f32;
         let l = i + 1;
         let r = n - l;
+        let la = self.areas[i];
+        let ra = self.areas[n - 1 - l + n];
         let (lf, rf) = if COUNTS {
             let c = self.counts[i] as usize;
             (c, c)
@@ -193,11 +191,11 @@ impl Bvh<'_> {
         let mut i = 0;
         while i < n {
             let chunk = self.settings.max_triangles.min(n - i);
-            let cnt = count(
+            let cnt = count::<false>(
                 &self.axes[0][start + i..start + i + chunk],
                 &mut self.used,
                 self.indices,
-                None,
+                &mut [],
                 ctx,
             )?;
             let size = if cnt <= self.settings.max_vertices {
@@ -219,11 +217,11 @@ impl Bvh<'_> {
     ) -> Result<(), Error> {
         let s = self.settings;
         if n <= s.max_triangles
-            && count(
+            && count::<false>(
                 &self.axes[0][start..start + n],
                 &mut self.used,
                 self.indices,
-                None,
+                &mut [],
                 ctx,
             )? <= s.max_vertices
         {
@@ -264,11 +262,11 @@ impl Bvh<'_> {
                 *ra = right.merge(boxes[r as usize]);
             }
             if n <= s.max_triangles {
-                count(
+                count::<true>(
                     &self.axes[k][start..start + n],
                     &mut self.used,
                     self.indices,
-                    Some(&mut self.counts[..n]),
+                    &mut self.counts[..n],
                     ctx,
                 )?;
             }

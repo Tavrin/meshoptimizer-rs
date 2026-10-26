@@ -29,3 +29,22 @@ Method and immutable thresholds: REGISTRATION.md. Scratch and complete logs:
 /mnt/linux-extra/moss-cargo-targets/meshopt-h3, to be deleted after qualification.
 The final report will replace this pending status with instruction tables,
 per-family verdicts, proof results, source bindings and gate exit codes.
+
+## First campaign (rejected)
+
+| Family | candidate/base GM | candidate/C++ GM | worst candidate/base | Verdict |
+|---|---:|---:|---:|---|
+| partition | 0.976434 | 1.378546 | 0.985749 | NO-GAIN |
+| spatial meshlets | 1.004852 | 1.169347 | 1.019618 | FAIL |
+
+All 90 instruction measurements exited 0. Retained in scratch/rejected-r1/.
+The root-only partition change did not meet the 5% threshold. The spatial pivot
+iterator/native-division rewrite regressed the million-triangle case and was
+removed from the revised candidate. No acceptance is claimed for either family.
+
+The revised candidate adds partition heap/adjacency slices and a monomorphized
+adjacency loop: precharge only a completely covered, infallible loop; otherwise
+retain each original per-item charge. Fallible leaf scoring keeps its original
+charge sequence. Spatial counting uses fixed triangle records and compile-time
+output selection. The revised campaign remains queued; its script applies the
+registered family reversions automatically before final qualification.

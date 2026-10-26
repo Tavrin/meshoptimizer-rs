@@ -104,10 +104,23 @@ fn calls(
     }
     high
 }
-fn layouts(p: &[[f32; 3]], mut visit: impl FnMut(Positions<'_>)) {
+fn layouts(p: &[[f32; 3]], visit: impl FnMut(Positions<'_>)) {
+    layout_matrix(p, false, visit);
+}
+fn layout_matrix(p: &[[f32; 3]], all: bool, mut visit: impl FnMut(Positions<'_>)) {
     visit(Positions::from_packed(p));
-    for stride in [3, 4, 16, 64] {
-        for offset in [0, 1] {
+    let strides: Vec<usize> = if all {
+        (3..=64).collect()
+    } else {
+        vec![3, 4, 16, 64]
+    };
+    for stride in strides {
+        let offsets: Vec<usize> = if all {
+            (0..stride).collect()
+        } else {
+            vec![0, 1]
+        };
+        for offset in offsets {
             let mut data = vec![0.; p.len() * stride + offset];
             for (i, xyz) in p.iter().enumerate() {
                 data[i * stride + offset..i * stride + offset + 3].copy_from_slice(xyz);
@@ -118,8 +131,18 @@ fn layouts(p: &[[f32; 3]], mut visit: impl FnMut(Positions<'_>)) {
             visit(Positions::from_interleaved(&data, p.len(), stride, offset).unwrap());
         }
     }
-    for stride in [12, 16, 64, 256] {
-        for offset in [0, 1, 4] {
+    let strides: Vec<usize> = if all {
+        (12..=256).step_by(4).collect()
+    } else {
+        vec![12, 16, 64, 256]
+    };
+    for stride in strides {
+        let offsets: Vec<usize> = if all {
+            (0..stride).collect()
+        } else {
+            vec![0, 1, 4]
+        };
+        for offset in offsets {
             for order in [ByteOrder::LittleEndian, ByteOrder::BigEndian] {
                 let mut data = vec![0; p.len() * stride + offset];
                 for (i, xyz) in p.iter().enumerate() {
@@ -167,6 +190,44 @@ fn grid(n: usize) -> (Vec<[f32; 3]>, Vec<u32>) {
     (p, idx)
 }
 fn small(out: &mut impl Write) {
+    // Vertex-limited, hard-divisibility SAH with COUNTS=true: disjoint
+    // triangles reach this path, unlike a connected 3x3 grid.
+    let (p, _) = grid(9);
+    let idx: Vec<u32> = (0..81).collect();
+    let counts = vec![3; 27];
+    let positions = Positions::from_packed(&p);
+    let s = MeshletSettings {
+        max_vertices: 64,
+        max_triangles: 32,
+    };
+    let high = calls(
+        out,
+        &idx,
+        &counts,
+        positions,
+        s,
+        20,
+        0.5,
+        4,
+        u64::MAX,
+        1 << 30,
+        0,
+    );
+    for limit in 0..=high + 1 {
+        calls(
+            out,
+            &idx,
+            &counts,
+            positions,
+            s,
+            20,
+            0.5,
+            4,
+            limit,
+            1 << 30,
+            0,
+        );
+    }
     for kind in 0..18 {
         let (mut p, mut idx) = grid(if kind < 2 { kind } else { 3 });
         match kind {
@@ -363,14 +424,18 @@ fn random(out: &mut impl Write, mut seed: u64, count: usize) {
             2 + (next() % 8) as usize
         };
         let (mut p, mut idx) = grid(n);
+        if case % 7 == 0 {
+            idx = (0..(p.len() / 3 * 3) as u32).collect();
+        }
         let settings = [
+            (64, 32, 20),
             (3, 1, 1),
             (16, 16, 9),
             (64, 64, 16),
             (32, 32, 32),
             (255, 511, 257),
             (16, 12, 4),
-        ][next() as usize % 6];
+        ][next() as usize % 7];
         for xyz in &mut p {
             for x in xyz {
                 *x = (*x + (next() % 8) as f32) * [0., 0.001, 1., 1000.][(next() % 4) as usize];
@@ -440,6 +505,31 @@ fn main() {
     let mut out = io::BufWriter::new(io::stdout().lock());
     match args[1].as_str() {
         "small" => small(&mut out),
+        "layouts" => {
+            let (p, idx) = grid(2);
+            layout_matrix(&p, true, |p| {
+                let s = MeshletSettings {
+                    max_vertices: 3,
+                    max_triangles: 3,
+                };
+                let high = calls(
+                    &mut out,
+                    &idx,
+                    &[3, 3],
+                    p,
+                    s,
+                    2,
+                    0.5,
+                    2,
+                    u64::MAX,
+                    1 << 30,
+                    0,
+                );
+                for limit in [0, 1, high.saturating_sub(1), high, high + 1] {
+                    calls(&mut out, &idx, &[3, 3], p, s, 2, 0.5, 2, limit, 1 << 30, 0);
+                }
+            });
+        }
         "frozen" => {
             for p in &args[2..] {
                 frozen(&mut out, p);
