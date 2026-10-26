@@ -1,0 +1,18 @@
+# meshoptimizer-rs
+
+A Rust port of C++ meshoptimizer 1.3 for simplification, vertex processing, meshlets, cluster LOD and codecs, with byte-identical scalar output and no_std support with alloc.
+
+- Recipes and exact calls: https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/guide/index.html (source: https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/USING.md)
+- API: https://docs.rs/meshoptimizer-rs
+- Migration: https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/MIGRATING_FROM_MESHOPT.md
+
+Gotchas:
+- Use Positions::from_packed(&[[f32; 3]]) when you can; it is the fastest layout. Other layouts work but read more slowly.
+- Indices are u32 only. Pass the full position count as vertex_count; an index at or beyond it returns IndexOutOfBounds.
+- simplify returns InvalidParameter if target_index_count > indices.len().
+- decode_index_buffer at stride 2 wraps indices above 65535 (upstream's truncating u16 conversion).
+- Reuse one Workspace per worker thread across calls; it keeps scratch capacity, so later calls skip reallocating.
+- Retention::Lean lowers peak memory at the cost of time; Reuse is the default.
+- Default Limits: 1 GiB crate-owned storage and 2^34 counted visits per call; set smaller max_bytes/max_work for untrusted input and bound caller allocations separately.
+- Output matches C++ meshoptimizer 1.3 (scalar build); the README describes recorded verification and exceptions.
+- Semver: 0.2.x patch releases are drop-in, with no API break and the same output.

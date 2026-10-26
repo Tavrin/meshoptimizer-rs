@@ -18,6 +18,9 @@ fn layout(vertex_count: usize, triangle_count: usize) -> (usize, usize, usize) {
 }
 
 /// meshopt_encodeMeshletBound: worst-case encoded size, with checked arithmetic.
+///
+/// # Errors
+/// `SizeOverflow` if the worst-case encoded size cannot be represented.
 #[inline]
 pub fn encode_meshlet_bound(max_vertices: usize, max_triangles: usize) -> Result<usize, Error> {
     // Below 2^26 each, the result is below 2^31: plain arithmetic suffices.
@@ -181,6 +184,11 @@ fn check_counts(vertex_count: usize, triangle_count: usize) -> Result<(), Error>
 /// the encoded length. `triangles` holds three local u8 indices per triangle,
 /// as in the 0.3 meshlet layout; both counts are at most 256. When the buffer
 /// is too small, BufferTooSmall is returned and the buffer is unchanged.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported counts;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if the destination is too short.
 pub fn encode_meshlet_into(
     destination: &mut [u8],
     vertices: &[u32],
@@ -209,6 +217,10 @@ pub fn encode_meshlet_into(
 
 /// Encode one meshlet (meshopt_encodeMeshlet) into a vector of the encoded
 /// length (capacity: [`encode_meshlet_bound`], accounted before reserving).
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported counts;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn encode_meshlet(
     vertices: &[u32],
     triangles: &[u8],
@@ -594,6 +606,11 @@ fn decode_triangles(
 /// upstream); triangle_size is 3 (three u8 indices) or 4 (packed
 /// a | b << 8 | c << 16, little-endian). Exactly count * size bytes are written.
 /// A malformed stream can leave the used prefix modified; tails are preserved.
+///
+/// # Errors
+/// `InvalidParameter` for unsupported counts; `InvalidLayout` for unsupported output widths; `InvalidStream` for malformed data;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if either destination is too short.
 #[allow(clippy::too_many_arguments)]
 #[inline]
 pub fn decode_meshlet_into(
@@ -633,6 +650,11 @@ pub fn decode_meshlet_into(
 /// Decode one meshlet (meshopt_decodeMeshletRaw) into u32 vertex references
 /// and packed triangles (a | b << 8 | c << 16), without heap allocation.
 /// Exactly the counted elements are written; no SIMD padding is required.
+///
+/// # Errors
+/// `InvalidParameter` for unsupported counts;  `InvalidStream` for malformed data;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `BufferTooSmall` if either destination is too short.
 pub fn decode_meshlet_raw_into(
     vertices: &mut [u32],
     vertex_count: usize,
@@ -687,6 +709,10 @@ fn allocate<T: Clone + Default>(len: usize) -> Result<Vec<T>, Error> {
 }
 
 /// Allocating form of [`decode_meshlet_into`].
+///
+/// # Errors
+/// `InvalidParameter` for unsupported counts; `InvalidLayout` for unsupported output widths; `InvalidStream` for malformed data;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline]
 pub fn decode_meshlet(
     vertex_count: usize,
@@ -723,6 +749,10 @@ pub fn decode_meshlet(
 }
 
 /// Allocating form of [`decode_meshlet_raw_into`].
+///
+/// # Errors
+/// `InvalidParameter` for unsupported counts;  `InvalidStream` for malformed data;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn decode_meshlet_raw(
     vertex_count: usize,
     triangle_count: usize,

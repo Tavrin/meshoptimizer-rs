@@ -353,6 +353,11 @@ fn bounds<const CHECK: bool, const N: usize>(
 ///
 /// Scans all positions in O(n) time per call. For repeated bounds queries use
 /// [`BoundsPositions`] with [`compute_cluster_bounds_with_positions`].
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for too many indices; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 pub fn compute_cluster_bounds(
     indices: &[u32],
     p: Positions<'_>,
@@ -375,6 +380,9 @@ pub fn compute_cluster_bounds(
 /// Output bits, errors, error precedence and logical workspace usage match
 /// [`compute_cluster_bounds`]. Per-call work is O(indices.len()), without a
 /// full positions scan; constructing [`BoundsPositions`] costs O(n) once.
+///
+/// # Errors
+/// Same errors as [`compute_cluster_bounds`].
 pub fn compute_cluster_bounds_with_positions(
     indices: &[u32],
     p: BoundsPositions<'_>,
@@ -477,6 +485,11 @@ fn cluster_bounds<const M: usize, const N: usize>(
 ///
 /// Scans all positions in O(n) time per call. For repeated bounds queries use
 /// [`BoundsPositions`] with [`compute_meshlet_bounds_with_positions`].
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported meshlet counts; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 pub fn compute_meshlet_bounds(
     vertices: &[u32],
     triangles: &[u8],
@@ -498,6 +511,9 @@ pub fn compute_meshlet_bounds(
 /// Output bits, errors, error precedence and logical workspace usage match
 /// [`compute_meshlet_bounds`]. Per-call work is O(vertices.len() + triangles.len()),
 /// without a full positions scan; constructing [`BoundsPositions`] costs O(n) once.
+///
+/// # Errors
+/// Same errors as [`compute_meshlet_bounds`].
 pub fn compute_meshlet_bounds_with_positions(
     vertices: &[u32],
     triangles: &[u8],
@@ -591,6 +607,11 @@ fn meshlet_bounds_result<const N: usize>(
     }
 }
 /// `meshopt_computeSphereBounds`. Optional radii use a checked one-component view.
+///
+/// # Errors
+/// `InvalidLayout` for mismatched radii; `InvalidParameter` for negative or non-finite radii;
+/// `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 pub fn compute_sphere_bounds(
     p: Positions<'_>,
     radii: Option<Attributes<'_>>,
@@ -680,6 +701,10 @@ fn extract<const V: usize, const T: usize>(
     Ok(n)
 }
 /// `meshopt_extractMeshletIndices`: preserve first-visit vertex order.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported meshlet counts;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn extract_meshlet_indices(
     indices: &[u32],
     workspace: &mut Workspace,
@@ -716,6 +741,9 @@ fn extracted<R>(
     }
 }
 /// Caller-buffer extraction. Errors leave both destinations unchanged; tails are preserved.
+///
+/// # Errors
+/// Same errors as [`extract_meshlet_indices`]. `BufferTooSmall` if either output is too short; no output allocation is needed.
 pub fn extract_meshlet_indices_into(
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -879,6 +907,10 @@ fn optimize_body<const ADVANCED: bool>(
     Ok(())
 }
 /// `meshopt_optimizeMeshletLevel`: atomic destructive variant, levels 0 through 9.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported meshlet counts or level; `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 pub fn optimize_meshlet_level_in_place(
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -902,6 +934,9 @@ pub fn optimize_meshlet_level_in_place(
     Ok(())
 }
 /// Atomic destructive `meshopt_optimizeMeshlet` (level zero).
+///
+/// # Errors
+/// Same errors as [`optimize_meshlet_level_in_place`].
 pub fn optimize_meshlet_in_place(
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -910,6 +945,9 @@ pub fn optimize_meshlet_in_place(
     optimize_meshlet_level_in_place(vertices, triangles, 0, workspace)
 }
 /// Allocating `meshopt_optimizeMeshletLevel`; unused vertex suffix stays unchanged.
+///
+/// # Errors
+/// Same errors as [`optimize_meshlet_level_in_place`]. `AllocationFailed` if output reservation fails.
 pub fn optimize_meshlet_level(
     vertices: &[u32],
     triangles: &[u8],
@@ -927,6 +965,9 @@ pub fn optimize_meshlet_level(
     })
 }
 /// Allocating `meshopt_optimizeMeshlet` (level zero).
+///
+/// # Errors
+/// Same errors as [`optimize_meshlet_level_in_place`]. `AllocationFailed` if output reservation fails.
 pub fn optimize_meshlet(
     vertices: &[u32],
     triangles: &[u8],
@@ -937,6 +978,9 @@ pub fn optimize_meshlet(
 
 /// Caller-buffer meshlet optimization. Errors leave destinations unchanged;
 /// suffixes beyond the supplied vertex and triangle lengths are preserved.
+///
+/// # Errors
+/// Same errors as [`optimize_meshlet_level_in_place`]. `BufferTooSmall` if either destination is too short.
 pub fn optimize_meshlet_level_into(
     out_vertices: &mut [u32],
     out_triangles: &mut [u8],
@@ -965,6 +1009,9 @@ pub fn optimize_meshlet_level_into(
     Ok(())
 }
 /// Caller-buffer level-zero meshlet optimization, preserving unused tails.
+///
+/// # Errors
+/// Same errors as [`optimize_meshlet_level_in_place`]. `BufferTooSmall` if either destination is too short.
 pub fn optimize_meshlet_into(
     out_vertices: &mut [u32],
     out_triangles: &mut [u8],

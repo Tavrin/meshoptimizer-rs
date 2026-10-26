@@ -27,6 +27,10 @@ impl<'a> PositionsMut<'a> {
         }
     }
     /// Borrow interleaved floats with a stride and offset in float components.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_interleaved(
         data: &'a mut [f32],
         count: usize,
@@ -42,6 +46,10 @@ impl<'a> PositionsMut<'a> {
         })
     }
     /// Borrow initialized byte positions with explicit byte order and byte addresses.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_bytes(
         data: &'a mut [u8],
         count: usize,
@@ -111,6 +119,10 @@ pub struct AttributesMut<'a> {
 }
 impl<'a> AttributesMut<'a> {
     /// Borrow up to 32 components per interleaved float record.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_interleaved(
         data: &'a mut [f32],
         count: usize,
@@ -128,6 +140,10 @@ impl<'a> AttributesMut<'a> {
         })
     }
     /// Borrow initialized byte attributes with explicit byte order.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_bytes(
         data: &'a mut [u8],
         count: usize,
@@ -212,6 +228,9 @@ impl VertexFlags {
     pub const PRIORITY: Self = Self(4);
 
     /// Construct a flag combination, rejecting all unknown bits.
+    ///
+    /// # Errors
+    /// `UnknownFlags` if any flag bit is unsupported.
     pub const fn from_bits(bits: u8) -> Result<Self, Error> {
         if bits & !7 != 0 {
             Err(Error::UnknownFlags)
@@ -256,6 +275,9 @@ impl BitAndAssign for VertexFlags {
 ///
 /// Function-specific flag restrictions belong to the consuming operation;
 /// the sloppy simplifier must not treat `PROTECT` or `PRIORITY` as locks.
+///
+/// # Errors
+/// `InvalidLayout` if the supplied flag count differs from the vertex count.
 pub fn validate_vertex_flags(flags: Option<&[VertexFlags]>, count: usize) -> Result<(), Error> {
     if flags.is_some_and(|f| f.len() != count) {
         Err(Error::InvalidLayout)
@@ -499,6 +521,10 @@ impl<'a> Positions<'a> {
     }
     /// Borrow interleaved floats; `stride` and `offset` are in f32 elements.
     /// The stride must be between 3 and 64 elements.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_interleaved(
         data: &'a [f32],
         count: usize,
@@ -516,6 +542,10 @@ impl<'a> Positions<'a> {
     }
     /// Borrow initialized bytes; stride and offset are in bytes, with an explicit byte order.
     /// Stride must be a multiple of four between 12 and 256 bytes.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_bytes(
         data: &'a [u8],
         count: usize,
@@ -859,6 +889,10 @@ pub struct Attributes<'a>(View<'a>, Option<&'a [u32]>);
 impl<'a> Attributes<'a> {
     /// Borrow interleaved attributes; stride and offset are in f32 elements.
     /// Zero components are supported; stride is at most 64 elements.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_interleaved(
         data: &'a [f32],
         count: usize,
@@ -876,6 +910,10 @@ impl<'a> Attributes<'a> {
     }
     /// Borrow initialized attribute bytes with an explicit byte order.
     /// Byte stride is a multiple of four and at most 256 bytes.
+    ///
+    /// # Errors
+    /// `InvalidLayout` for an unsupported width, stride, offset or buffer length;
+    /// `SizeOverflow` if view size arithmetic overflows.
     pub fn from_bytes(
         data: &'a [u8],
         count: usize,

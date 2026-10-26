@@ -567,6 +567,11 @@ fn partition(
 }
 /// `meshopt_partitionClusters`. Clusters may contain arbitrary index lists; empty clusters are invalid.
 /// Positions are optional; without them only connected clusters merge.
+///
+/// # Errors
+/// `InvalidLayout` for inconsistent counts/positions; `InvalidParameter` for empty clusters or an invalid target;
+/// `IndexOutOfBounds` for invalid references; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn partition_clusters(
     indices: &[u32],
     counts: &[u32],
@@ -589,6 +594,9 @@ pub fn partition_clusters(
     Ok(Partitions { assignments, count })
 }
 /// Caller-buffer cluster partitioning; a late failure may modify the used prefix.
+///
+/// # Errors
+/// Same errors as [`partition_clusters`]. `BufferTooSmall` if the assignments buffer is too short.
 pub fn partition_clusters_into(
     out: &mut [u32],
     indices: &[u32],

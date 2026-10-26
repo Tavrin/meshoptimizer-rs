@@ -63,6 +63,9 @@ pub enum Mode {
 }
 impl Mode {
     /// Parse an EXT mode name, rejecting unknown names.
+    ///
+    /// # Errors
+    /// `InvalidParameter` if the name is not a supported EXT value.
     pub fn parse(name: &str) -> Result<Self, Error> {
         match name {
             "ATTRIBUTES" => Ok(Self::Attributes),
@@ -86,6 +89,9 @@ pub enum Filter {
 }
 impl Filter {
     /// Parse an EXT filter name, rejecting unknown names.
+    ///
+    /// # Errors
+    /// `InvalidParameter` if the name is not a supported EXT value.
     pub fn parse(name: &str) -> Result<Self, Error> {
         match name {
             "NONE" => Ok(Self::None),
@@ -107,6 +113,10 @@ pub struct BufferView {
 }
 impl BufferView {
     /// Check mode, filter, count and stride. EXT count must be positive.
+    ///
+    /// # Errors
+    /// `InvalidParameter` for zero count or an incompatible mode/filter; `InvalidLayout` for an invalid stride;
+    /// `InvalidTopology` for incomplete triangles; `SizeOverflow` for overflowing decoded size.
     pub fn new(mode: Mode, filter: Filter, count: usize, stride: usize) -> Result<Self, Error> {
         if count == 0 {
             return Err(Error::InvalidParameter);
@@ -129,6 +139,9 @@ impl BufferView {
         self.bytes
     }
     /// Check parent bufferView byteLength and its optional byteStride.
+    ///
+    /// # Errors
+    /// `InvalidLayout` if parent byte length or byte stride differs from this view.
     pub fn validate_parent(
         self,
         byte_length: usize,
@@ -140,6 +153,9 @@ impl BufferView {
         Ok(())
     }
     /// Allocate and decode this EXT view using explicit per-call limits.
+    ///
+    /// # Errors
+    /// Same errors as [`decode_buffer_view`].
     pub fn decode(self, source: &[u8], workspace: &mut Workspace) -> Result<Vec<u8>, Error> {
         decode_buffer_view(
             self.mode,
@@ -152,6 +168,9 @@ impl BufferView {
     }
     /// Decode into a caller buffer, without heap allocation.
     /// A late stream/filter error can modify the used destination prefix.
+    ///
+    /// # Errors
+    /// Same errors as [`decode_buffer_view_into`].
     pub fn decode_into(
         self,
         destination: &mut [u8],
@@ -212,11 +231,17 @@ fn version(source: &[u8], headers: &[u8]) -> Result<u8, Error> {
 }
 /// Inspect a raw vertex codec header (meshopt_decodeVertexVersion).
 /// This does not validate the stream body.
+///
+/// # Errors
+/// `InvalidStream` for a missing/wrong header; `UnsupportedVersion` for an unsupported version nibble.
 pub fn decode_vertex_version(source: &[u8]) -> Result<u8, Error> {
     version(source, &[0xa0])
 }
 /// Inspect either triangle or sequence codec header (meshopt_decodeIndexVersion).
 /// This does not validate the stream body.
+///
+/// # Errors
+/// `InvalidStream` for a missing/wrong header; `UnsupportedVersion` for an unsupported version nibble.
 pub fn decode_index_version(source: &[u8]) -> Result<u8, Error> {
     version(source, &[0xe0, 0xd0])
 }
@@ -363,6 +388,11 @@ fn preflight(mode: Mode, count: usize, stride: usize, source: &[u8]) -> Result<(
     Ok(())
 }
 /// Decode raw vertex codec version 0/1 (meshopt_decodeVertexBuffer).
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn decode_vertex_buffer(
     count: usize,
     stride: usize,
@@ -380,6 +410,11 @@ pub fn decode_vertex_buffer(
 }
 /// Decode raw vertices into a caller buffer without heap allocation.
 /// On a late error the used prefix can change; destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits. `BufferTooSmall` if the destination is too short.
 pub fn decode_vertex_buffer_into(
     destination: &mut [u8],
     count: usize,
@@ -400,6 +435,11 @@ pub fn decode_vertex_buffer_into(
 }
 /// Decode triangle codec version 0/1 (meshopt_decodeIndexBuffer).
 /// Two-byte output retains upstream truncating u16 conversion semantics.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `InvalidTopology` for incomplete triangles;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn decode_index_buffer(
     count: usize,
     stride: usize,
@@ -417,6 +457,11 @@ pub fn decode_index_buffer(
 }
 /// Decode triangle indices into a caller buffer without heap allocation.
 /// On a late error the used prefix can change; destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `InvalidTopology` for incomplete triangles;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits. `BufferTooSmall` if the destination is too short.
 pub fn decode_index_buffer_into(
     destination: &mut [u8],
     count: usize,
@@ -437,6 +482,11 @@ pub fn decode_index_buffer_into(
 }
 /// Decode sequence codec version 0/1 (meshopt_decodeIndexSequence).
 /// Two-byte output retains upstream truncating u16 conversion semantics.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn decode_index_sequence(
     count: usize,
     stride: usize,
@@ -454,6 +504,11 @@ pub fn decode_index_sequence(
 }
 /// Decode an index sequence into a caller buffer without heap allocation.
 /// On a late error the used prefix can change; destination tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits. `BufferTooSmall` if the destination is too short.
 pub fn decode_index_sequence_into(
     destination: &mut [u8],
     count: usize,
@@ -487,6 +542,11 @@ fn ext(
 }
 /// Decode one checked EXT view; vertex v1 remains raw-only.
 /// Parent metadata can additionally be checked with BufferView::validate_parent.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `InvalidParameter` for invalid EXT mode/filter/count; `InvalidTopology` for incomplete triangles;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version; `NumericalFailure` for invalid filtered values;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn decode_buffer_view(
     mode: Mode,
     filter: Filter,
@@ -501,6 +561,11 @@ pub fn decode_buffer_view(
 }
 /// Decode a checked EXT view into a caller buffer, without allocation.
 /// On a late stream/filter error the used prefix can change.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `InvalidParameter` for invalid EXT mode/filter/count; `InvalidTopology` for incomplete triangles;
+/// `InvalidStream` for malformed data; `UnsupportedVersion` for an unsupported version; `NumericalFailure` for invalid filtered values;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits. `BufferTooSmall` if the destination is too short.
 #[allow(clippy::too_many_arguments)]
 pub fn decode_buffer_view_into(
     destination: &mut [u8],
@@ -549,6 +614,11 @@ fn post<const EXP: bool>(
 /// Apply canonical scalar Oct decoding (meshopt_decodeFilterOct).
 /// Zero-length normals return NumericalFailure instead of C++ undefined conversion.
 /// A late numerical error can modify preceding records; the tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `BufferTooSmall` for insufficient data;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `NumericalFailure` for non-finite geometry or calculations.
 pub fn decode_filter_oct(
     data: &mut [u8],
     count: usize,
@@ -559,6 +629,10 @@ pub fn decode_filter_oct(
 }
 /// Apply canonical scalar Quat decoding (meshopt_decodeFilterQuat).
 /// A late numerical error can modify preceding records; the tail is preserved.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `BufferTooSmall` for insufficient data;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 pub fn decode_filter_quat(
     data: &mut [u8],
     count: usize,
@@ -568,6 +642,10 @@ pub fn decode_filter_quat(
     post::<false>(Filter::Quaternion, data, count, stride, workspace)
 }
 /// Apply scalar Exp decoding (meshopt_decodeFilterExp), preserving float bits.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `BufferTooSmall` for insufficient data;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 pub fn decode_filter_exp(
     data: &mut [u8],
     count: usize,
@@ -581,6 +659,11 @@ pub fn decode_filter_exp(
 /// minimum, so not offered by [`BufferView`]. Returns NumericalFailure where
 /// the C++ float-to-int conversion is undefined (zero alpha word, or a 16-bit
 /// component scaled outside the i32 range); the data may then be partially decoded.
+///
+/// # Errors
+/// `InvalidLayout` for unsupported stride; `BufferTooSmall` for insufficient data;
+/// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
+/// `NumericalFailure` for non-finite geometry or calculations.
 pub fn decode_filter_color(
     data: &mut [u8],
     count: usize,

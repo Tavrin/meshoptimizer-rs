@@ -78,6 +78,9 @@ fn reserve_output(output: &mut Vec<u32>, bound: usize) -> Result<(), Error> {
 }
 
 /// Worst-case output index count for `meshopt_stripify`.
+///
+/// # Errors
+/// `InvalidTopology` for an invalid index count; `SizeOverflow` if the worst-case output size overflows.
 #[inline(always)]
 pub fn stripify_bound(index_count: usize) -> Result<usize, Error> {
     if !index_count.is_multiple_of(3) {
@@ -91,6 +94,9 @@ pub fn stripify_bound(index_count: usize) -> Result<usize, Error> {
 }
 
 /// Worst-case output index count for `meshopt_unstripify`.
+///
+/// # Errors
+/// `InvalidTopology` for an invalid index count; `SizeOverflow` if the worst-case output size overflows.
 #[inline(always)]
 pub fn unstripify_bound(index_count: usize) -> Result<usize, Error> {
     if index_count == 1 || index_count == 2 {
@@ -157,6 +163,10 @@ fn key(value: Option<(usize, usize)>) -> usize {
 }
 
 /// Convert triangles to an exact upstream strip. A nonzero `restart_index` enables restarts.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline(always)]
 pub fn stripify(
     indices: &[u32],
@@ -188,6 +198,9 @@ pub fn stripify(
 }
 
 /// Caller-buffer form of `meshopt_stripify`; destination needs the bound capacity.
+///
+/// # Errors
+/// Same errors as [`stripify`]. `BufferTooSmall` if the destination is smaller than the bound; no output allocation is needed.
 pub fn stripify_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -340,6 +353,10 @@ fn stripify_core(
 }
 
 /// Convert a strip to triangles, skipping degenerate triangles as upstream does.
+///
+/// # Errors
+/// `InvalidTopology` for a one- or two-index strip;
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline(always)]
 pub fn unstripify(
     indices: &[u32],
@@ -370,6 +387,9 @@ pub fn unstripify(
 }
 
 /// Caller-buffer form of `meshopt_unstripify`; destination needs the bound capacity.
+///
+/// # Errors
+/// Same errors as [`unstripify`]. `BufferTooSmall` if the destination is smaller than the bound; no output allocation is needed.
 pub fn unstripify_into(
     destination: &mut [u32],
     indices: &[u32],

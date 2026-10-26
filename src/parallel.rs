@@ -145,6 +145,9 @@ pub struct LodChainInput<'a> {
 /// assert_eq!(chain[0].indices, indices);
 /// # Ok::<(), meshoptimizer_rs::Error>(())
 /// ```
+///
+/// # Errors
+/// Same errors as [`crate::simplify_with_attributes`]. Limits apply to cumulative work and peak live storage for the chain.
 pub fn simplify_lod_chain(
     input: &LodChainInput<'_>,
     workspace: &mut Workspace,
@@ -205,6 +208,13 @@ pub fn simplify_lod_chain(
 
 /// Simplify independent LOD chains in parallel, returning one result per chain.
 /// Levels within each chain retain the sequential reference's order and budget.
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`simplify_lod_chain`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 pub fn simplify_lod_chains_batch(
     inputs: &[LodChainInput<'_>],
     limits: Limits,
@@ -243,6 +253,10 @@ pub enum EncodeInput<'a> {
 }
 impl EncodeInput<'_> {
     /// Encode this descriptor through the corresponding sequential codec API.
+    ///
+    /// # Errors
+    /// The selected [`crate::codec`] encoder's errors: `InvalidLayout`, `InvalidTopology`,
+    /// `SizeOverflow`, `LimitExceeded` or `AllocationFailed`, for invalid input or exhausted resources.
     pub fn encode(self, workspace: &mut Workspace) -> Result<Vec<u8>, Error> {
         match self {
             Self::Vertices {
@@ -262,6 +276,13 @@ impl EncodeInput<'_> {
 }
 
 /// Encode vertex, triangle and sequence buffers in input order.
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`EncodeInput::encode`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 pub fn encode_buffers_batch(inputs: &[EncodeInput<'_>], limits: Limits) -> BatchResult<Vec<u8>> {
     batch(inputs, limits, |input, workspace| input.encode(workspace))
 }
@@ -276,6 +297,13 @@ pub struct DecodeInput<'a> {
 }
 
 /// Decode complete independent EXT views through [`BufferView::decode`].
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`crate::codec::BufferView::decode`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 pub fn decode_buffer_views_batch(
     inputs: &[DecodeInput<'_>],
     limits: Limits,
@@ -327,6 +355,9 @@ pub struct MeshletInput<'a> {
 }
 impl MeshletInput<'_> {
     /// Run this descriptor through the selected sequential meshlet builder.
+    ///
+    /// # Errors
+    /// Same errors as [`crate::build_meshlets`]. The selected builder validates its own parameters.
     pub fn build(self, workspace: &mut Workspace) -> Result<Meshlets, Error> {
         let Self {
             indices,
@@ -370,6 +401,13 @@ impl MeshletInput<'_> {
 }
 
 /// Build meshlets for independent meshes, preserving descriptors and packed bytes.
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`MeshletInput::build`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 pub fn build_meshlets_batch(inputs: &[MeshletInput<'_>], limits: Limits) -> BatchResult<Meshlets> {
     batch(inputs, limits, |input, workspace| input.build(workspace))
 }
@@ -389,6 +427,13 @@ pub struct ClusterLodInput<'a> {
 /// Dilation has the same partial-mutation contract as the sequential builder.
 /// Groups within a mesh stay sequential: shared dilation and later refinement
 /// consume earlier results. Parallelism is across meshes with disjoint positions.
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`crate::clusterlod::build`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 #[cfg(feature = "clusterlod")]
 pub fn build_cluster_lod_batch(
     inputs: &mut [ClusterLodInput<'_>],
@@ -435,6 +480,13 @@ pub struct ClusterHierarchyInput<'a> {
 /// sequentially on the calling thread to avoid dispatch overhead. Larger batches
 /// use the current Rayon pool. Ordering, workspace reset and per-item limits are
 /// identical on both paths. This cutoff is a workload heuristic, not a speed guarantee.
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`crate::clusterlod::build_hierarchy`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 #[cfg(feature = "clusterlod")]
 pub fn build_cluster_hierarchies_batch(
     inputs: &[ClusterHierarchyInput<'_>],
@@ -487,6 +539,13 @@ pub struct DagBuildInput<'a> {
 /// construction, flattening and hierarchy. Caller buffers, result slots and
 /// Rayon infrastructure are excluded; there is no aggregate memory guarantee.
 /// Late errors can write output prefixes and mutate positions through dilation.
+///
+/// # Errors
+/// Outer `SizeOverflow` or `AllocationFailed` if result-slot allocation fails;
+/// per-item errors are those of [`crate::clusterlod::build_dag_into`] and do not cancel other items.
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
 #[cfg(feature = "clusterlod")]
 pub fn build_dags_batch_into(
     inputs: &mut [DagBuildInput<'_>],

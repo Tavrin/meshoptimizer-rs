@@ -762,6 +762,11 @@ fn run(
 }
 
 /// Return the upstream triangle-count upper bound with no output allocation.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported resolution; `UnknownFlags` for unsupported options; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn remesh_bound(
     indices: &[u32],
     positions: Positions<'_>,
@@ -774,6 +779,9 @@ pub fn remesh_bound(
 
 /// Write up to `destination.len()/3` triangles and return the full triangle count.
 /// A short destination receives a prefix, matching upstream's partial-write rule.
+///
+/// # Errors
+/// Same errors as [`remesh_bound`]. `InvalidLayout` if destination length is not a multiple of three.
 pub fn remesh_into(
     destination: &mut [[f32; 3]],
     indices: &[u32],
@@ -797,6 +805,9 @@ pub fn remesh_into(
 }
 
 /// Allocate the upper bound, remesh, and return three vertices per output triangle.
+///
+/// # Errors
+/// Same errors as [`remesh_bound`].
 pub fn remesh(
     indices: &[u32],
     positions: Positions<'_>,

@@ -104,6 +104,12 @@ pub(super) fn selected() -> Level {
 /// Run under a lower dispatch ceiling. Unsupported or cross-architecture levels
 /// return InvalidParameter. With std the ceiling is thread-local and unwind-safe;
 /// without std it is process-wide (concurrent diagnostics may lower each other).
+///
+/// # Errors
+/// `crate::Error::InvalidParameter` if the requested ceiling is unsupported or belongs to another architecture.
+///
+/// # Panics
+/// Panics if the supplied callback panics.
 #[cfg(any(test, feature = "parity-internals"))]
 pub fn with_level<R>(level: Level, f: impl FnOnce() -> R) -> Result<R, crate::Error> {
     let detected = detected_level();

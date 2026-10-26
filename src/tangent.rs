@@ -485,6 +485,11 @@ fn accumulate_loop<const CHARGE: bool>(
 
 /// Generate per-corner XYZ plus handedness, matching `meshopt_generateTangents`.
 /// `None` indices denote an unindexed triangle list. Normals and UVs are packed.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidLayout` for incompatible streams; `UnknownFlags` for unsupported options; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[allow(clippy::too_many_arguments)]
 pub fn generate_tangents(
     indices: Option<&[u32]>,
@@ -704,6 +709,9 @@ fn generate_tangents_core(
 
 /// Caller-buffer form of `meshopt_generateTangents`; writes one vector per corner.
 /// The destination is unchanged if validation or allocation fails.
+///
+/// # Errors
+/// Same errors as [`generate_tangents`]. `BufferTooSmall` if the destination is too short.
 #[allow(clippy::too_many_arguments)]
 pub fn generate_tangents_into(
     destination: &mut [[f32; 4]],

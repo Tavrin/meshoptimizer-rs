@@ -216,6 +216,11 @@ pub(super) fn prune(
 }
 /// Remove disconnected components whose bounding-sphere radius is at most the
 /// relative error. Position welding is numerical, including signed zeros; unused positions affect bounds.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for invalid error/positions; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn simplify_prune(
     indices: &[u32],
     positions: Positions<'_>,
@@ -676,6 +681,9 @@ fn solve_records<const LIMITED: bool>(s: &mut State, work: &mut Work) -> Result<
 /// attributes. Late work or numerical failures may modify the index prefix;
 /// position and attribute writes start only after solving completes. Unused
 /// vertices, externally locked vertices and zero-weight attributes are preserved.
+///
+/// # Errors
+/// Same errors as [`crate::simplify_with_attributes`]. `InvalidLayout` for incompatible mutable views.
 #[allow(clippy::too_many_arguments)]
 pub fn simplify_with_update(
     indices: &mut [u32],
@@ -959,6 +967,11 @@ fn interpolate(y: f32, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> 
 
 /// Grid-based sloppy triangle simplification. Only `LOCK` flags are accepted;
 /// target error and returned error are relative to the full position extent.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidLayout` for mismatched locks; `InvalidParameter` for invalid targets/error/positions; `UnknownFlags` for unsupported locks; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn simplify_sloppy(
     indices: &[u32],
     positions: Positions<'_>,
@@ -1454,6 +1467,11 @@ fn color_at(colors: &Option<Positions<'_>>, i: usize) -> Result<[f32; 3], Error>
 }
 /// Simplify points to original vertex indices using grid reservoirs. Optional
 /// colors are checked three-component views; all supplied values must be finite.
+///
+/// # Errors
+/// `InvalidLayout` for mismatched colors; `InvalidParameter` for invalid target, weight or positions;
+/// `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn simplify_points(
     positions: Positions<'_>,
     colors: Option<Positions<'_>>,
@@ -1762,6 +1780,9 @@ fn simplify_points_kernel_impl<const COLORS: bool, const RESERVOIR: usize>(
 }
 
 /// Caller-buffer sloppy simplification. Requires input-length capacity; work exhaustion may partially modify output.
+///
+/// # Errors
+/// Same errors as [`simplify_sloppy`]. `BufferTooSmall` if the destination cannot hold the required prefix.
 pub fn simplify_sloppy_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -1790,6 +1811,9 @@ pub fn simplify_sloppy_into(
     })
 }
 /// Caller-buffer component pruning. Requires input-length capacity; work exhaustion may partially modify output.
+///
+/// # Errors
+/// Same errors as [`simplify_prune`]. `BufferTooSmall` if the destination cannot hold the required prefix.
 pub fn simplify_prune_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -1811,6 +1835,9 @@ pub fn simplify_prune_into(
     .1)
 }
 /// Caller-buffer point reduction. Requires target-count capacity; work exhaustion may partially modify output.
+///
+/// # Errors
+/// Same errors as [`simplify_points`]. `BufferTooSmall` if the destination cannot hold the required prefix.
 pub fn simplify_points_into(
     destination: &mut [u32],
     positions: Positions<'_>,

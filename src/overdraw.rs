@@ -10,6 +10,11 @@ use alloc::vec::Vec;
 /// Geometry and intermediates must be finite. All supplied vertices contribute
 /// to the mesh centroid, including vertices not referenced by any triangle.
 /// Empty and degenerate meshes are supported. No cache optimization is implicit.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for a non-finite threshold; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn optimize_overdraw(
     indices: &[u32],
     positions: Positions<'_>,
@@ -46,6 +51,9 @@ pub fn optimize_overdraw(
 /// The unused tail is untouched. Validation and reservation precede writes;
 /// a later numerical or work-limit failure may leave output partially modified.
 /// Caller-owned destination storage does not count toward the byte limit.
+///
+/// # Errors
+/// Same errors as [`optimize_overdraw`]. `BufferTooSmall` if the destination is shorter than the input.
 pub fn optimize_overdraw_into(
     destination: &mut [u32],
     indices: &[u32],
@@ -76,6 +84,9 @@ pub fn optimize_overdraw_into(
 
 /// Destructively apply upstream overdraw ordering, leaving input unchanged on error.
 /// A fallibly allocated temporary output counts toward the byte limit.
+///
+/// # Errors
+/// Same errors as [`optimize_overdraw`].
 pub fn optimize_overdraw_in_place(
     indices: &mut [u32],
     positions: Positions<'_>,

@@ -66,6 +66,9 @@ pub struct Config {
     pub optimize_clusters_level: u8,
 }
 /// `clodDefaultConfig`: rasterization defaults, for 4 through 256 triangles.
+///
+/// # Errors
+/// `InvalidParameter` if `max_triangles` is outside 4 through 256.
 pub fn default_config(max_triangles: usize) -> Result<Config, Error> {
     if !(4..=256).contains(&max_triangles) {
         return Err(Error::InvalidParameter);
@@ -99,6 +102,9 @@ pub fn default_config(max_triangles: usize) -> Result<Config, Error> {
     })
 }
 /// `clodDefaultConfigRT`: ray-tracing defaults.
+///
+/// # Errors
+/// `InvalidParameter` if `max_triangles` is outside 4 through 256.
 pub fn default_config_rt(max_triangles: usize) -> Result<Config, Error> {
     let mut c = default_config(max_triangles)?;
     c.min_triangles = max_triangles / 4;
@@ -1008,6 +1014,12 @@ fn build_in_context(
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave
 /// dilated positions changed and callbacks already emitted.
+///
+/// # Errors
+/// Same errors as [`build`]. Any `Error` returned by the output callback is propagated.
+///
+/// # Panics
+/// Panics if the supplied callback panics.
 pub fn build_with_output(
     c: Config,
     mesh: Mesh<'_>,
@@ -1030,6 +1042,11 @@ pub fn build_with_output(
 }
 /// Allocating demo hierarchy. Refined identifiers index the returned group list.
 /// Dilation may change positions even if a later operation fails.
+///
+/// # Errors
+/// `InvalidLayout` for incompatible attributes/flags; `InvalidParameter` for unsupported configuration;
+/// `InvalidTopology` or `IndexOutOfBounds` for invalid topology; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn build(
     c: Config,
     mesh: Mesh<'_>,
@@ -1054,6 +1071,9 @@ pub fn build(
     Ok(result)
 }
 /// `clodLocalIndices`: first-visit local extraction.
+///
+/// # Errors
+/// Same errors as [`crate::extract_meshlet_indices`].
 pub fn local_indices(
     indices: &[u32],
     workspace: &mut Workspace,
@@ -1061,6 +1081,9 @@ pub fn local_indices(
     crate::extract_meshlet_indices(indices, workspace)
 }
 /// `clodBuildHierarchyBound`: checked bound for a per-level spatial forest.
+///
+/// # Errors
+/// `InvalidParameter` if `node_width` is below two; `SizeOverflow` if the bound overflows.
 pub fn build_hierarchy_bound(
     group_count: usize,
     node_width: usize,
@@ -1084,6 +1107,10 @@ pub fn build_hierarchy_bound(
     Ok(total)
 }
 /// `clodBuildHierarchy`: every supplied level must have at least one group.
+///
+/// # Errors
+/// `InvalidParameter` for invalid width, depths, bounds or missing levels; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn build_hierarchy(
     groups: &[Group],
     node_width: usize,

@@ -3,6 +3,9 @@ use crate::Error;
 
 /// Quantize to an unsigned normalized integer with 0 through 30 bits.
 /// Infinities clamp; NaN follows upstream comparisons and becomes zero.
+///
+/// # Errors
+/// `InvalidParameter` if `bits` is outside the documented range.
 #[inline(always)]
 pub fn quantize_unorm(value: f32, bits: u32) -> Result<i32, Error> {
     if bits > 30 {
@@ -25,6 +28,9 @@ pub fn quantize_unorm(value: f32, bits: u32) -> Result<i32, Error> {
 
 /// Quantize to a signed normalized integer with 1 through 31 bits.
 /// Infinities clamp; NaN follows upstream comparisons and becomes the minimum.
+///
+/// # Errors
+/// `InvalidParameter` if `bits` is outside the documented range.
 #[inline]
 pub fn quantize_snorm(mut value: f32, bits: u32) -> Result<i32, Error> {
     if !(1..=31).contains(&bits) {
@@ -55,6 +61,9 @@ pub fn quantize_half(value: f32) -> u16 {
 
 /// Round to 0 through 23 mantissa bits. Preserve infinity and NaN payloads;
 /// flush all exponent-zero values, including negative zero, to positive zero.
+///
+/// # Errors
+/// `InvalidParameter` if `bits` is outside the documented range.
 #[inline]
 pub fn quantize_float(value: f32, bits: u32) -> Result<f32, Error> {
     if bits > 23 {
@@ -91,6 +100,10 @@ pub fn dequantize_half(half: u16) -> f32 {
 /// Compute the exponent of a conservative signed position grid.
 /// Bounds must be finite and ordered; `min_exp` is at least -126 and
 /// `max_bits` is 2 through 24. Overflowing scaled bounds return an error.
+///
+/// # Errors
+/// `InvalidParameter` for invalid bounds or exponent/bit settings;
+/// `NumericalFailure` for overflowing scaled bounds; `SizeOverflow` if the exponent cannot be advanced.
 #[inline]
 pub fn compute_position_exponent(
     min: [f32; 3],

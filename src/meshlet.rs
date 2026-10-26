@@ -54,6 +54,10 @@ pub struct MeshletSizes {
     pub triangles: usize,
 }
 /// `meshopt_buildMeshletsBound`: conservative descriptor capacity, with checked arithmetic.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported meshlet limits;
+/// `SizeOverflow` if the bound cannot be represented.
 #[inline(always)]
 pub fn build_meshlets_bound(
     index_count: usize,
@@ -1674,6 +1678,10 @@ fn build_into(
     )
 }
 /// `meshopt_buildMeshletsScan`: consume triangles in input order.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported meshlet limits; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn build_meshlets_scan(
     indices: &[u32],
     vertex_count: usize,
@@ -1691,6 +1699,11 @@ pub fn build_meshlets_scan(
     )
 }
 /// `meshopt_buildMeshlets`: connectivity and cone-aware meshlets.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported builder settings; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn build_meshlets(
     indices: &[u32],
     p: Positions<'_>,
@@ -1701,6 +1714,11 @@ pub fn build_meshlets(
     build_meshlets_flex(indices, p, s, s.max_triangles, cone_weight, 0., workspace)
 }
 /// `meshopt_buildMeshletsFlex`: variable triangle counts and optional spatial splits.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported builder settings; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn build_meshlets_flex(
     indices: &[u32],
     p: Positions<'_>,
@@ -1750,6 +1768,11 @@ pub(crate) fn build_meshlets_flex_validated(
     )
 }
 /// `meshopt_buildMeshletsSpatial`: surface-area heuristic meshlets for ray tracing.
+///
+/// # Errors
+/// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
+/// `InvalidParameter` for unsupported builder settings; `NumericalFailure` for non-finite geometry or calculations.
+/// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 pub fn build_meshlets_spatial(
     indices: &[u32],
     p: Positions<'_>,
@@ -1795,6 +1818,9 @@ pub(crate) fn build_meshlets_spatial_validated(
     )
 }
 /// Caller-buffer scan builder; a late work-limit failure may modify output prefixes.
+///
+/// # Errors
+/// Same errors as [`build_meshlets_scan`]. `BufferTooSmall` if any output buffer lacks capacity.
 pub fn build_meshlets_scan_into(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
@@ -1817,6 +1843,9 @@ pub fn build_meshlets_scan_into(
     )
 }
 /// Caller-buffer standard builder; a late failure may modify output prefixes.
+///
+/// # Errors
+/// Same errors as [`build_meshlets`]. `BufferTooSmall` if any output buffer lacks capacity.
 pub fn build_meshlets_into(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
@@ -1841,6 +1870,9 @@ pub fn build_meshlets_into(
     )
 }
 /// Caller-buffer flexible builder; a late failure may modify output prefixes.
+///
+/// # Errors
+/// Same errors as [`build_meshlets_flex`]. `BufferTooSmall` if any output buffer lacks capacity.
 pub fn build_meshlets_flex_into(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
@@ -1870,6 +1902,9 @@ pub fn build_meshlets_flex_into(
     )
 }
 /// Caller-buffer spatial builder; a late failure may modify output prefixes.
+///
+/// # Errors
+/// Same errors as [`build_meshlets_spatial`]. `BufferTooSmall` if any output buffer lacks capacity.
 pub fn build_meshlets_spatial_into(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
