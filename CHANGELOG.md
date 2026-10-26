@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Real-chain `simplify` instruction ratios versus 0.2.11 / scalar C++ 1.3:
+  214e 0.892071× / 1.670312×;
+  a082 0.867441× / 1.549117×;
+  b6fd 0.864697× / 1.554694×.
+- Corpus instruction geometric-mean ratios versus 0.2.11 / scalar C++ 1.3:
+  `simplify` 0.944439× / 1.153435×;
+  `simplify-attributes` 0.966132× / 1.171960×;
+  `simplify-update` 0.919039× / 1.175510×;
+  `simplify-sloppy` 0.942416× / 1.383386×;
+  `simplify-prune` 1.000000× / 1.504012×;
+  `simplify-points` 0.998950× / 1.548028×.
+
 ## [0.2.11] - 2026-10-26
 
 - Add the `guide` module from docs/USING.md with task recipes, doctests and a

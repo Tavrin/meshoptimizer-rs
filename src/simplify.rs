@@ -1,5 +1,4 @@
 //! Scalar edge-collapse simplification translated from upstream simplifier.cpp.
-use crate::math::sqrt;
 use crate::workspace::{checked_bytes, topology, Work};
 use crate::{validate_vertex_flags, Attributes, Error, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
@@ -10,6 +9,36 @@ pub use extra::{
     simplify_points, simplify_points_into, simplify_prune, simplify_prune_into, simplify_sloppy,
     simplify_sloppy_into, simplify_with_update,
 };
+
+// Keep the native backend local to simplify; other families retain their
+// qualified portable backend. Special values use that backend too, preserving
+// its NaN payload/sign behavior rather than relying on hardware NaN selection.
+#[inline(always)]
+fn sqrt(value: f32) -> f32 {
+    #[cfg(feature = "std")]
+    if value.to_bits() < 0x7f80_0000 {
+        return value.sqrt();
+    }
+    crate::math::sqrt(value)
+}
+
+#[cfg(not(feature = "std"))]
+type SqrtCache = crate::math::SqrtCache;
+
+// A native scalar root is cheaper than hashing and traversing the software-root
+// memo. Keep the same call sites and arithmetic order on both backends.
+#[cfg(feature = "std")]
+struct SqrtCache;
+#[cfg(feature = "std")]
+impl SqrtCache {
+    const fn new() -> Self {
+        Self
+    }
+    #[inline(always)]
+    fn sqrt(&mut self, value: f32) -> f32 {
+        sqrt(value)
+    }
+}
 
 // Counted work for one simplifier phase. `Work` checks every visit against the
 // remaining budget. `Prepaid` is used only after `metered!` has established that
@@ -571,7 +600,7 @@ impl V {
         }
     }
     #[inline(always)]
-    fn normalize(&mut self, cache: &mut crate::math::SqrtCache) -> f32 {
+    fn normalize(&mut self, cache: &mut SqrtCache) -> f32 {
         let l = cache.sqrt(self.dot(*self));
         if l > 0.0 {
             self.x /= l;
@@ -665,13 +694,13 @@ impl Q {
         }
     }
     #[inline(always)]
-    fn triangle(a: V, b: V, c: V, w: f32, cache: &mut crate::math::SqrtCache) -> Self {
+    fn triangle(a: V, b: V, c: V, w: f32, cache: &mut SqrtCache) -> Self {
         let mut n = b.sub(a).cross(c.sub(a));
         let area = n.normalize(cache);
         Self::plane(n, -n.dot(a), cache.sqrt(area) * w)
     }
     #[inline(always)]
-    fn edge(a: V, b: V, c: V, w: f32, cache: &mut crate::math::SqrtCache) -> Self {
+    fn edge(a: V, b: V, c: V, w: f32, cache: &mut SqrtCache) -> Self {
         let p10 = b.sub(a);
         let ls = p10.dot(p10);
         let p20 = c.sub(a);
@@ -812,7 +841,7 @@ impl Indices {
 }
 pub(crate) struct State {
     vertex_count: usize,
-    sqrt_cache: crate::math::SqrtCache,
+    sqrt_cache: SqrtCache,
     offsets: Indices,
     edges: Vec<Edge>,
     remap: Indices,
@@ -1072,7 +1101,7 @@ impl State {
     fn empty() -> Self {
         Self {
             vertex_count: 0,
-            sqrt_cache: crate::math::SqrtCache::new(),
+            sqrt_cache: SqrtCache::new(),
             offsets: Indices(Vec::new()),
             edges: Vec::new(),
             remap: Indices(Vec::new()),
@@ -1630,6 +1659,9 @@ impl State {
         let p = &self.p[..n];
         let remap = &self.remap.0[..n];
         let qv = &mut self.q[..n];
+        let kind = &self.kind[..n];
+        let forward = &self.forward.0[..n];
+        let back = &self.back.0[..n];
         let triangles = indices.as_chunks::<3>().0;
         let charged = work.precharge(triangles.len(), 3)?;
         for t in triangles {
@@ -1688,18 +1720,18 @@ impl State {
                 let a = t[e] as usize;
                 let b = t[(e + 1) % 3] as usize;
                 let c = t[(e + 2) % 3] as usize;
-                let k0 = self.kind[a];
-                let k1 = self.kind[b];
+                let k0 = kind[a];
+                let k1 = kind[b];
                 if k0 == MAN || k1 == MAN {
                     continue;
                 }
                 if ![BORDER, SEAM, FRINGE].contains(&k0) && ![BORDER, SEAM, FRINGE].contains(&k1) {
                     continue;
                 }
-                if (k0 == BORDER || k0 == SEAM) && self.forward.get(a) != b {
+                if (k0 == BORDER || k0 == SEAM) && forward[a] as usize != b {
                     continue;
                 }
-                if (k1 == BORDER || k1 == SEAM) && self.back.get(b) != a {
+                if (k1 == BORDER || k1 == SEAM) && back[b] as usize != a {
                     continue;
                 }
                 if (k0 == FRINGE || k1 == FRINGE) && (k0 == COMPLEX || k1 == COMPLEX) {
@@ -1760,10 +1792,13 @@ impl State {
     ) -> Result<usize, Error> {
         let mut count = 0;
         // Disjoint borrows keep table bases in registers across pushes.
-        let remap = &self.remap.0[..];
-        let kind = &self.kind[..];
-        let forward = &self.forward.0[..];
-        let back = &self.back.0[..];
+        // State::new initializes all four tables to the active vertex count.
+        // Sharing the slice length lets one corner check cover every table.
+        let n = self.vertex_count;
+        let remap = &self.remap.0[..n];
+        let kind = &self.kind[..n];
+        let forward = &self.forward.0[..n];
+        let back = &self.back.0[..n];
         let collapses = &mut self.collapses;
         collapses.clear();
         for t in indices.as_chunks::<3>().0 {
@@ -2366,7 +2401,11 @@ fn run_state(
     out[..m].copy_from_slice(input.as_slice());
     while count > settings.target_index_count {
         s.adjacency::<true>(&out[..count], work)?;
-        let nc = s.pick(&out[..count], capacity, work)?;
+        // pick visits each corner at most once, including triangles that
+        // produce no collapses. The capacity stop can only reduce that count.
+        // It has no fallible arithmetic/reader callbacks; an insufficient
+        // budget takes the original checked path with identical partial pushes.
+        let nc = metered!(work, Some(count), |w| s.pick(&out[..count], capacity, w))?;
         if nc == 0 {
             break;
         }
@@ -2488,6 +2527,21 @@ mod tests {
         ));
     }
 
+    // Run explicitly in release mode under moss-heavy. Compare all bit patterns,
+    // including signed zero, subnormals, infinities and every NaN payload.
+    #[test]
+    #[ignore = "exhaustive 2^32-pattern backend identity gate"]
+    fn simplify_sqrt_exhaustive_identity() {
+        for bits in 0..=u32::MAX {
+            let value = core::hint::black_box(f32::from_bits(bits));
+            assert_eq!(
+                sqrt(value).to_bits(),
+                crate::math::sqrt(value).to_bits(),
+                "sqrt operand {bits:08x}"
+            );
+        }
+    }
+
     #[test]
     fn repeated_simplify_reuses_arrays_but_releases_the_remapping_hash() {
         let p = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
@@ -2520,6 +2574,50 @@ mod tests {
                 state.order.0.as_ptr()
             )
         );
+    }
+
+    #[test]
+    fn prepaid_picker_preserves_every_budget_prefix_and_capacity_stop() {
+        type PickObservation = (Result<usize, Error>, u64, Vec<(u32, u32, u32)>);
+        fn run(limit: u64, capacity: usize, prepaid: bool, welded: bool) -> PickObservation {
+            let indices = [0, 1, 2, 2, 1, 0, 0, 2, 3, 3, 2, 0];
+            let mut ws = Workspace::new(Limits {
+                max_bytes: 1 << 20,
+                max_work: limit,
+            });
+            let mut state = State::new(4, 12, 0, &mut ws, 0, false, &mut Vec::new()).unwrap();
+            state
+                .remap
+                .0
+                .extend(if welded { [0; 4] } else { [0, 1, 2, 3] });
+            state.collapses.reserve_exact(12);
+            let mut work = ws.begin();
+            let result = if prepaid {
+                (|| {
+                    metered!(&mut work, Some(indices.len()), |w| state
+                        .pick(&indices, capacity, w))
+                })()
+            } else {
+                state.pick(&indices, capacity, &mut work)
+            };
+            ws.finish(&work);
+            let collapses = state
+                .collapses
+                .iter()
+                .map(|c| (c.a, c.b, c.error.to_bits()))
+                .collect();
+            (result, ws.usage().work, collapses)
+        }
+        for limit in 0..=13 {
+            for capacity in [0, 2, 3, 6, 12] {
+                for welded in [false, true] {
+                    assert_eq!(
+                        run(limit, capacity, true, welded),
+                        run(limit, capacity, false, welded)
+                    );
+                }
+            }
+        }
     }
 
     #[test]

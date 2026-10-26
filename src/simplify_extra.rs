@@ -1103,7 +1103,7 @@ pub(crate) struct SloppyScratch {
     remap: Vec<u32>,
     errors: Vec<f32>,
     triangles: Vec<u32>,
-    cache: crate::math::SqrtCache,
+    cache: SqrtCache,
 }
 impl Default for SloppyScratch {
     fn default() -> Self {
@@ -1116,7 +1116,7 @@ impl Default for SloppyScratch {
             remap: Vec::new(),
             errors: Vec::new(),
             triangles: Vec::new(),
-            cache: crate::math::SqrtCache::new(),
+            cache: SqrtCache::new(),
         }
     }
 }
