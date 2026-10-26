@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Moss scalar frozen-corpus candidate/v0.2.6 time GMs: adjacency 0.7572,
+  optimize-meshlet 0.8918, fetch 0.7542, remap-indices 0.8257. Candidate/optimesh
+  1.1.0 GMs: 1.0119, 1.0804, 0.9567, 1.0419 respectively; same-session A/A
+  floor 0.2799. Fetch PASS; the other three families PARTIAL under SPEC-027.
+
 ## [0.2.6] - 2026-10-26
 
 - Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and
