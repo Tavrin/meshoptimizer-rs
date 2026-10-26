@@ -466,3 +466,60 @@ pub fn build_cluster_hierarchies_batch(
         batch(inputs, limits, run)
     }
 }
+
+/// One canonical caller-buffer DAG build, including exclusive positions and output.
+#[cfg(feature = "clusterlod")]
+pub struct DagBuildInput<'a> {
+    /// Complete pinned-demo configuration.
+    pub config: crate::clusterlod::Config,
+    /// Mesh input; dilation may mutate positions even on failure.
+    pub mesh: crate::clusterlod::Mesh<'a>,
+    /// Maximum children per spatial node, at least two.
+    pub node_width: usize,
+    /// Caller storage; publish only successful returned prefixes.
+    pub destination: crate::clusterlod::DagBuffers<'a>,
+}
+
+/// Build independent DAGs into caller buffers, retaining ordered item results.
+///
+/// Slot allocation fails before any mesh executes. Item errors do not cancel
+/// peers. Each worker uses one workspace; each item shares its limits across
+/// construction, flattening and hierarchy. Caller buffers, result slots and
+/// Rayon infrastructure are excluded; there is no aggregate memory guarantee.
+/// Late errors can write output prefixes and mutate positions through dilation.
+#[cfg(feature = "clusterlod")]
+pub fn build_dags_batch_into(
+    inputs: &mut [DagBuildInput<'_>],
+    limits: Limits,
+) -> BatchResult<crate::clusterlod::DagCounts> {
+    let mut result = slots(inputs.len())?;
+    result
+        .par_iter_mut()
+        .zip(inputs.par_iter_mut())
+        .for_each(|(out, input)| {
+            *out = item(limits, |workspace| {
+                crate::clusterlod::build_dag_into(
+                    input.config,
+                    crate::clusterlod::Mesh {
+                        indices: input.mesh.indices,
+                        positions: &mut *input.mesh.positions,
+                        attributes: input.mesh.attributes,
+                        vertex_lock: input.mesh.vertex_lock,
+                        attribute_weights: input.mesh.attribute_weights,
+                        attribute_protect_mask: input.mesh.attribute_protect_mask,
+                    },
+                    input.node_width,
+                    crate::clusterlod::DagBuffers {
+                        vertex_source: &mut *input.destination.vertex_source,
+                        vertex_positions: &mut *input.destination.vertex_positions,
+                        indices: &mut *input.destination.indices,
+                        clusters: &mut *input.destination.clusters,
+                        groups: &mut *input.destination.groups,
+                        nodes: &mut *input.destination.nodes,
+                    },
+                    workspace,
+                )
+            });
+        });
+    Ok(result)
+}

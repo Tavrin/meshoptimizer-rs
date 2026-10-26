@@ -19,3 +19,18 @@ and invariant failures stop the target and retain its stderr. The panic hook
 prints the target, seed and iteration. Reproduce the prefix with the built
 `vertex_cache` or `overdraw` binary's arguments: elapsed seconds, seed, and
 maximum executions. A nonzero initial seed is required.
+
+
+The cluster milestone adds the safe `build_dag_into` target. Run it with the
+same CPU-accounted release harness:
+
+```sh
+parity/fuzz.sh --target build_dag_into --cpu-hours-per-target 4 --jobs 8 --seed 20261025
+```
+
+This target mutates indexed meshes, finite/arbitrary position bits, canonical
+configs, hierarchy widths, workspace limits and each caller-buffer capacity.
+It includes too-small buffers and checks successful prefixes, index/source and
+record ranges, untouched tails, external guards and workspace accounting.
+The stable seeded harness retains replay seeds and execution counts; it has no
+coverage guidance or sanitizer instrumentation.

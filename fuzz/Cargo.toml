@@ -6,7 +6,7 @@ rust-version = "1.88"
 publish = false
 
 [dependencies]
-meshoptimizer-rs = { path = "..", features = ["experimental"] }
+meshoptimizer-rs = { path = "..", features = ["experimental", "clusterlod"] }
 meshoptimizer-parity = { path = "../parity" }
 
 [profile.release]

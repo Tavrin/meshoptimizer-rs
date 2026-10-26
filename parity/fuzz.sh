@@ -27,6 +27,7 @@ import smoke
 
 p = argparse.ArgumentParser()
 p.add_argument('--phase', choices=['0.1'], default='0.1')
+p.add_argument('--target', action='append', choices=['vertex_cache', 'overdraw', 'simplify', 'simplify_with_attributes', 'simplify_scale', 'build_dag_into'])
 p.add_argument('--cpu-hours-per-target', type=float, default=4)
 p.add_argument('--jobs', '--cores', type=int, default=8)
 p.add_argument('--chunk-seconds', type=int, default=300)
@@ -59,7 +60,7 @@ env = {**smoke.ENV, 'TMPDIR': str(target / 'tmp')}
 before = smoke.snapshot()
 driver_sha = smoke.sha(ROOT / 'parity/fuzz.sh')
 subprocess.run(['cargo', 'build', '--offline', '--locked', '--release', '--manifest-path', 'fuzz/Cargo.toml'], env=env, check=True)
-names = ['vertex_cache', 'overdraw', 'simplify', 'simplify_with_attributes', 'simplify_scale']
+names = a.target or ['vertex_cache', 'overdraw', 'simplify', 'simplify_with_attributes', 'simplify_scale']
 binaries = {}
 for name in names:
     archive = base / 'binaries' / name

@@ -16,3 +16,11 @@ inherits = "release"
 opt-level = 3
 codegen-units = 1
 lto = "thin"
+
+[[bin]]
+name = "rfc113-dag-oracle"
+path = "dag_oracle.rs"
+
+[[bin]]
+name = "rfc113-cluster-c"
+path = "cluster_c/main.rs"

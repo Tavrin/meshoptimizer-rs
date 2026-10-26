@@ -642,3 +642,391 @@ fn demo_attribute_layouts_preserve_output_and_workspace_peak() {
         }
     }
 }
+
+#[cfg(feature = "clusterlod")]
+mod caller_dag {
+    use super::*;
+    use clusterlod::{DagBuffers, DagCounts, FlatDagCluster, FlatDagGroup, Mesh, Node};
+
+    struct Storage {
+        source: Vec<u32>,
+        positions: Vec<[f32; 3]>,
+        indices: Vec<u32>,
+        clusters: Vec<FlatDagCluster>,
+        groups: Vec<FlatDagGroup>,
+        nodes: Vec<Node>,
+    }
+    impl Storage {
+        fn new() -> Self {
+            let mut cluster = FlatDagCluster::default();
+            cluster.refined = -123;
+            let mut group = FlatDagGroup::default();
+            group.depth = -123;
+            Self {
+                source: vec![u32::MAX; 4096],
+                positions: vec![[-123.; 3]; 4096],
+                indices: vec![u32::MAX; 16384],
+                clusters: vec![cluster; 4096],
+                groups: vec![group; 4096],
+                nodes: vec![
+                    Node {
+                        group: -123,
+                        ..Node::default()
+                    };
+                    4096
+                ],
+            }
+        }
+        fn buffers(&mut self) -> DagBuffers<'_> {
+            DagBuffers {
+                vertex_source: &mut self.source,
+                vertex_positions: &mut self.positions,
+                indices: &mut self.indices,
+                clusters: &mut self.clusters,
+                groups: &mut self.groups,
+                nodes: &mut self.nodes,
+            }
+        }
+        fn words(&self, c: DagCounts) -> Vec<u32> {
+            let mut out = vec![
+                c.vertices as u32,
+                c.indices as u32,
+                c.clusters as u32,
+                c.groups as u32,
+                c.nodes as u32,
+                c.level_count,
+                c.bvh_depth,
+            ];
+            out.extend(&self.source[..c.vertices]);
+            out.extend(
+                self.positions[..c.vertices]
+                    .iter()
+                    .flatten()
+                    .map(|v| v.to_bits()),
+            );
+            out.extend(&self.indices[..c.indices]);
+            for cl in &self.clusters[..c.clusters] {
+                out.extend([cl.first_index, cl.index_count, cl.group, cl.refined as u32]);
+                out.extend(cl.center.map(f32::to_bits));
+                out.push(cl.radius.to_bits());
+            }
+            for g in &self.groups[..c.groups] {
+                out.extend(g.center.map(f32::to_bits));
+                out.extend([
+                    g.radius.to_bits(),
+                    g.error.to_bits(),
+                    g.depth as u32,
+                    g.first_cluster,
+                    g.cluster_count,
+                ]);
+            }
+            for n in &self.nodes[..c.nodes] {
+                out.extend(n.bounds.center.map(f32::to_bits));
+                out.extend([
+                    n.bounds.radius.to_bits(),
+                    n.bounds.error.to_bits(),
+                    n.group as u32,
+                    n.child_offset,
+                    n.child_count,
+                ]);
+            }
+            out
+        }
+    }
+    fn input<'a>(p: &'a mut [[f32; 3]], indices: &'a [u32]) -> Mesh<'a> {
+        Mesh {
+            indices,
+            positions: p,
+            attributes: None,
+            vertex_lock: None,
+            attribute_weights: &[],
+            attribute_protect_mask: 0,
+        }
+    }
+    fn disk() -> (Vec<[f32; 3]>, Vec<u32>) {
+        let n = 16;
+        let mut p = vec![[0.; 3]];
+        p.extend((0..n).map(|i| {
+            let a = i as f32 * core::f32::consts::TAU / n as f32;
+            [a.cos(), a.sin(), 0.]
+        }));
+        (
+            p,
+            (0..n).flat_map(|i| [0, i + 1, (i + 1) % n + 1]).collect(),
+        )
+    }
+    #[test]
+    fn flat_dag_matches_callback_order_hierarchy_and_preserves_all_tails() {
+        let (original, indices) = super::mesh();
+        let config = clusterlod::default_config(16).unwrap();
+        let mut p = original.clone();
+        let mut ws = Workspace::default();
+        let owned = clusterlod::build(config, input(&mut p, &indices), &mut ws).unwrap();
+        let meta: Vec<_> = owned.iter().map(|g| g.group).collect();
+        let levels = meta.iter().map(|g| g.depth as usize + 1).max().unwrap();
+        let nodes = clusterlod::build_hierarchy(&meta, 4, levels, &mut ws).unwrap();
+        let mut storage = Storage::new();
+        let c = clusterlod::build_dag_into(
+            config,
+            input(&mut p, &indices),
+            4,
+            storage.buffers(),
+            &mut ws,
+        )
+        .unwrap();
+        let mut keys = std::collections::BTreeMap::new();
+        let mut expected_source = Vec::new();
+        let mut expected_indices = Vec::new();
+        let mut ci = 0;
+        for (gid, g) in owned.iter().enumerate() {
+            let flat = storage.groups[gid];
+            assert_eq!(flat.first_cluster as usize, ci);
+            assert_eq!(flat.cluster_count as usize, g.clusters.len());
+            assert_eq!(flat.depth, g.group.depth);
+            assert_eq!(flat.error.to_bits(), g.group.simplified.error.to_bits());
+            assert_eq!(
+                flat.center.map(f32::to_bits),
+                g.group.simplified.center.map(f32::to_bits)
+            );
+            assert_eq!(flat.radius.to_bits(), g.group.simplified.radius.to_bits());
+            for cl in &g.clusters {
+                let flat = storage.clusters[ci];
+                ci += 1;
+                assert_eq!(flat.first_index as usize, expected_indices.len());
+                assert_eq!(flat.index_count as usize, cl.indices.len());
+                assert_eq!(flat.group as usize, gid);
+                assert_eq!(flat.refined, cl.refined);
+                assert_eq!(
+                    flat.center.map(f32::to_bits),
+                    cl.bounds.center.map(f32::to_bits)
+                );
+                assert_eq!(flat.radius.to_bits(), cl.bounds.radius.to_bits());
+                for &src in &cl.indices {
+                    let k = (src, original[src as usize].map(f32::to_bits));
+                    let id = *keys.entry(k).or_insert_with(|| {
+                        let id = expected_source.len() as u32;
+                        expected_source.push(src);
+                        id
+                    });
+                    expected_indices.push(id);
+                }
+            }
+        }
+        assert_eq!(&storage.source[..c.vertices], expected_source);
+        assert_eq!(&storage.indices[..c.indices], expected_indices);
+        assert_eq!(&storage.nodes[..c.nodes], nodes);
+        assert_eq!(c.groups, owned.len());
+        assert_eq!(c.clusters, ci);
+        assert_eq!(c.level_count as usize, levels);
+        assert!(storage.source[c.vertices..].iter().all(|&v| v == u32::MAX));
+        assert!(storage.positions[c.vertices..]
+            .iter()
+            .all(|&v| v == [-123.; 3]));
+        assert!(storage.indices[c.indices..].iter().all(|&v| v == u32::MAX));
+        assert!(storage.clusters[c.clusters..]
+            .iter()
+            .all(|v| v.refined == -123));
+        assert!(storage.groups[c.groups..].iter().all(|v| v.depth == -123));
+        assert!(storage.nodes[c.nodes..].iter().all(|v| v.group == -123));
+    }
+    #[test]
+    fn each_caller_buffer_can_fail_without_replacement_output() {
+        for short in 0..6 {
+            let (mut p, indices) = disk();
+            let mut storage = Storage::new();
+            let mut dst = storage.buffers();
+            match short {
+                0 => dst.vertex_source = &mut [],
+                1 => dst.vertex_positions = &mut [],
+                2 => dst.indices = &mut [],
+                3 => dst.clusters = &mut [],
+                4 => dst.groups = &mut [],
+                _ => dst.nodes = &mut [],
+            }
+            let result = clusterlod::build_dag_into(
+                clusterlod::default_config(8).unwrap(),
+                input(&mut p, &indices),
+                4,
+                dst,
+                &mut Workspace::default(),
+            );
+            assert_eq!(result.unwrap_err(), Error::BufferTooSmall);
+        }
+    }
+    #[test]
+    fn dilation_keeps_earlier_snapshots_and_full_dag_limits_are_cumulative() {
+        let (original, indices) = disk();
+        let mut p = original.clone();
+        let mut storage = Storage::new();
+        let mut config = clusterlod::default_config(8).unwrap();
+        config.simplify_dilate_borders = true;
+        let mut ws = Workspace::default();
+        let c = clusterlod::build_dag_into(
+            config,
+            input(&mut p, &indices),
+            4,
+            storage.buffers(),
+            &mut ws,
+        )
+        .unwrap();
+        let usage = ws.usage();
+        assert_ne!(p, original);
+        let mut distinct = std::collections::BTreeSet::new();
+        let mut repeated_source = false;
+        for i in 0..c.vertices {
+            assert!(distinct.insert((storage.source[i], storage.positions[i].map(f32::to_bits))));
+            repeated_source |= storage.source[..i].contains(&storage.source[i]);
+        }
+        assert!(
+            repeated_source,
+            "moved source must have multiple emission snapshots"
+        );
+        let leaf = storage
+            .groups
+            .iter()
+            .take(c.groups)
+            .find(|g| g.depth == 0)
+            .unwrap();
+        for cl in &storage.clusters
+            [leaf.first_cluster as usize..(leaf.first_cluster + leaf.cluster_count) as usize]
+        {
+            for &v in &storage.indices
+                [cl.first_index as usize..(cl.first_index + cl.index_count) as usize]
+            {
+                assert_eq!(
+                    storage.positions[v as usize].map(f32::to_bits),
+                    original[storage.source[v as usize] as usize].map(f32::to_bits)
+                );
+            }
+        }
+        for limits in [
+            Limits {
+                max_bytes: usage.bytes - 1,
+                max_work: usage.work,
+            },
+            Limits {
+                max_bytes: usage.bytes,
+                max_work: usage.work - 1,
+            },
+        ] {
+            let mut p = original.clone();
+            let result = clusterlod::build_dag_into(
+                config,
+                input(&mut p, &indices),
+                4,
+                storage.buffers(),
+                &mut Workspace::new(limits),
+            );
+            assert_eq!(result.unwrap_err(), Error::LimitExceeded);
+        }
+    }
+    #[test]
+    fn empty_and_invalid_width_have_explicit_results() {
+        let mut storage = Storage::new();
+        let mut p = [];
+        let c = clusterlod::build_dag_into(
+            clusterlod::default_config(8).unwrap(),
+            input(&mut p, &[]),
+            4,
+            storage.buffers(),
+            &mut Workspace::default(),
+        )
+        .unwrap();
+        assert_eq!(
+            (
+                c.vertices,
+                c.indices,
+                c.clusters,
+                c.groups,
+                c.nodes,
+                c.level_count,
+                c.bvh_depth
+            ),
+            (0, 0, 0, 0, 0, 0, 0)
+        );
+        let mut workspace = Workspace::default();
+        spatial_sort_remap(
+            Positions::from_packed(&[[0., 0., 0.], [1., 0., 0.]]),
+            &mut workspace,
+        )
+        .unwrap();
+        assert!(workspace.usage().work > 0);
+        assert_eq!(
+            clusterlod::build_dag_into(
+                clusterlod::default_config(8).unwrap(),
+                input(&mut p, &[]),
+                1,
+                storage.buffers(),
+                &mut workspace
+            )
+            .unwrap_err(),
+            Error::InvalidParameter
+        );
+        assert_eq!(workspace.usage(), Usage::default());
+    }
+    #[cfg(feature = "parallel")]
+    #[test]
+    fn caller_dag_batches_match_at_1_2_8_threads_and_isolate_ordered_errors() {
+        use meshoptimizer_rs::parallel::{build_dags_batch_into, DagBuildInput};
+        let (original, indices) = disk();
+        let mut config = clusterlod::default_config(8).unwrap();
+        config.simplify_dilate_borders = true;
+        let configs = [config; 4];
+        let mut expected = Vec::new();
+        let mut expected_positions = Vec::new();
+        for i in 0..4 {
+            let mut p = original.clone();
+            let mut storage = Storage::new();
+            let mut dst = storage.buffers();
+            if i == 1 {
+                dst.indices = &mut [];
+            }
+            let result = clusterlod::build_dag_into(
+                config,
+                input(&mut p, &indices),
+                if i == 2 { 1 } else { 4 },
+                dst,
+                &mut Workspace::default(),
+            );
+            expected.push(result.map(|c| storage.words(c)));
+            expected_positions.push(p);
+        }
+        assert!(expected[0].is_ok());
+        assert_eq!(expected[1], Err(Error::BufferTooSmall));
+        assert_eq!(expected[2], Err(Error::InvalidParameter));
+        assert!(expected[3].is_ok());
+        for threads in [1, 2, 8] {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap();
+            let mut positions = vec![original.clone(); 4];
+            let mut storage: Vec<_> = (0..4).map(|_| Storage::new()).collect();
+            let mut inputs: Vec<_> = positions
+                .iter_mut()
+                .zip(&mut storage)
+                .enumerate()
+                .map(|(i, (p, s))| {
+                    let mut dst = s.buffers();
+                    if i == 1 {
+                        dst.indices = &mut [];
+                    }
+                    DagBuildInput {
+                        config: configs[i],
+                        mesh: input(p, &indices),
+                        node_width: if i == 2 { 1 } else { 4 },
+                        destination: dst,
+                    }
+                })
+                .collect();
+            let results = pool
+                .install(|| build_dags_batch_into(&mut inputs, Limits::default()))
+                .unwrap();
+            drop(inputs);
+            for (i, result) in results.into_iter().enumerate() {
+                assert_eq!(result.map(|c| storage[i].words(c)), expected[i]);
+            }
+            assert_eq!(positions, expected_positions);
+        }
+    }
+}

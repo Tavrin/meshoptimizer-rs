@@ -8266,3 +8266,25 @@ All required spec correctness proof completed: foundation gates, native/WASM dif
 The extra independent retained-buffer rehash was not a named spec gate. It remained queued behind the critical RAM request; only its waiting wrapper was cancelled before its audit payload started. It is explicitly NOT RUN, separate from the completed required proof and without changing any bar or verdict. Rerunning this optional audit later is cheap and needs no remeasurement. Original source/executable manifests, replay buffers and timed records remain retained. No running fuzz/frozen job was killed by the agent.
 
 Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LARGE_MESH_R2_RESULTS.json. Evidence: /mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/. Reversal cost for the unmerged fixes is cheap; the registered decision and retained samples must not be rewritten. Owner performs the one review and any release decision. No merge/tag/publish.
+
+## Cluster lane A: caller-buffer DAGs (2026-10-25)
+
+- Extend canonical emission with an internal position view; keep all existing
+  public callback/build signatures and arithmetic. One context carries scratch
+  and cumulative work through clustering, flattening and the existing hierarchy.
+- Deduplicate one mesh across levels using the full four-word source/XYZ-bit key.
+  Hash buckets accelerate lookup only; equality always compares all four words.
+  Index scanning preserves local first occurrence and emission order. Snapshot
+  positions before later dilation; never reconstruct them from final positions.
+- Caller output capacities and batch slots remain outside per-item limits.
+  Hierarchy construction uses the existing checked node scratch and copies only
+  successful prefixes. Buffer exhaustion returns `BufferTooSmall`, never an
+  allocating replacement output. Failed prefixes and changed positions are not
+  publishable. Empty inputs return zero counts; levels>64/depth>32 are rejected.
+- Reborrow mutable positions and destination slices per batch item; retain ordered
+  errors without cancellation. No mesh Copy bound or aggregate memory guarantee.
+- The unpublished S1 harness owns MCLD v1 and its ceiling policy. The two-file
+  fail-fast milestone passed byte-exact with zero collisions before batch work.
+  Lane C owns performance/release proof, and lane B owns the Moss writer.
+- Reversal cost before publication: revert additive exports/callers and harness;
+  no payload version, dependency, algorithm pin or existing API migration changes.
