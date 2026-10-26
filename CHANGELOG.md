@@ -5,11 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.9] - 2026-10-26
 
 - `simplify_scale` on little-endian byte views with 64-byte records uses
-  0.7353× the instructions of 0.2.8 on three real-mesh inputs (2.0833× C++ 1.3).
-  Packed frozen-corpus inputs use 1.0000001–1.001558× the instructions of 0.2.8.
+  0.74× the instructions of 0.2.8 on three real-mesh LOD chains, and
+  2.08× the instructions of C++ 1.3. Packed and other layouts are unchanged.
+  No wall timing was taken because the host was loaded.
+- Replace references to private design documents and an internal profile name
+  in the documentation with plain descriptions.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.9/docs/PERFORMANCE.md) for method.
 
 ## [0.2.8] - 2026-10-26
 
@@ -375,6 +382,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.9]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.5...v0.2.6
