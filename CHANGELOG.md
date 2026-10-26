@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `simplify_scale` on little-endian byte views with 64-byte records uses
+  0.7353× the instructions of 0.2.8 on three real-mesh inputs (2.0833× C++ 1.3).
+  Packed frozen-corpus inputs use 1.0000001–1.001558× the instructions of 0.2.8.
+
 ## [0.2.8] - 2026-10-26
 
 - `build_meshlets_scan`, `build_meshlets`, `build_meshlets_flex`,

@@ -334,15 +334,18 @@ pub fn run_simplifier(kind: u32) -> Result<(), Box<dyn std::error::Error>> {
         let mut ws = Workspace::new(limits);
         // Scale has its own bounds reduction. Reach its packed, padded-float,
         // and both byte-order paths with the same seeded position mutations.
+        // Cycle 16/64-byte records, offsets 0..=3 and final XYZ-only records.
         let mut scale_floats = Vec::new();
         let mut scale_bytes = Vec::new();
         let scale_layout = if kind == 6 { executions / 4 % 4 } else { 0 };
+        let scale_stride = if executions / 16 % 2 == 0 { 16 } else { 64 };
+        let scale_offset = (executions / 32 % 4) as usize;
         if scale_layout != 0 {
-            scale_floats.push(0.0);
-            scale_bytes.push(0);
+            scale_floats.resize(scale_offset, 0.0);
+            scale_bytes.resize(scale_offset, 0);
             for point in &p {
                 scale_floats.extend_from_slice(point);
-                scale_floats.push(13.0);
+                scale_floats.resize(scale_floats.len() + scale_stride / 4 - 3, 13.0);
                 for value in point {
                     scale_bytes.extend(if scale_layout == 3 {
                         value.to_be_bytes()
@@ -350,17 +353,21 @@ pub fn run_simplifier(kind: u32) -> Result<(), Box<dyn std::error::Error>> {
                         value.to_le_bytes()
                     });
                 }
-                scale_bytes.extend([0; 4]);
+                scale_bytes.resize(scale_bytes.len() + scale_stride - 12, 0);
+            }
+            if n > 0 && executions / 128 % 2 != 0 {
+                scale_bytes.truncate(scale_offset + (n - 1) * scale_stride + 12);
+                scale_floats.truncate(scale_offset + (n - 1) * (scale_stride / 4) + 3);
             }
         }
         let p = match scale_layout {
             0 => Positions::from_packed(&p),
-            1 => Positions::from_interleaved(&scale_floats, n, 4, 1)?,
+            1 => Positions::from_interleaved(&scale_floats, n, scale_stride / 4, scale_offset)?,
             2 | 3 => Positions::from_bytes(
                 &scale_bytes,
                 n,
-                16,
-                1,
+                scale_stride,
+                scale_offset,
                 if scale_layout == 3 {
                     ByteOrder::BigEndian
                 } else {

@@ -187,7 +187,7 @@ pub struct SimplifyResult {
 /// extents return an error. This operation allocates no memory.
 pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {
     let Some(values) = positions.packed_values() else {
-        return Ok(bounds(positions)?.1);
+        return scale_view(positions);
     };
     // Separating the finite reduction from the bounds loop lets each scan
     // run without a per-coordinate early exit. No output/work is observable
@@ -212,6 +212,53 @@ pub fn simplify_scale(positions: Positions<'_>) -> Result<f32, Error> {
         }
     }
     if values.is_empty() {
+        return Ok(0.0);
+    }
+    let mut extent = 0.0;
+    for j in 0..3 {
+        let d = hi[j] - lo[j];
+        if d >= extent {
+            extent = d;
+        }
+    }
+    if !extent.is_finite() {
+        return Err(Error::NumericalFailure);
+    }
+    Ok(extent)
+}
+// Keep the byte reader and its scan state out of the packed fast path.
+#[inline(never)]
+fn scale_view(positions: Positions<'_>) -> Result<f32, Error> {
+    if let Some(records) = positions.scale_records() {
+        return scale_records(records, positions.is_empty());
+    }
+    Ok(bounds(positions)?.1)
+}
+fn scale_records(
+    values: impl Iterator<Item = [f32; 3]> + Clone,
+    empty: bool,
+) -> Result<f32, Error> {
+    // Validate every XYZ before computing extents, retaining InvalidParameter
+    // precedence over NumericalFailure even when an earlier extent overflows.
+    let finite = values.clone().fold(true, |finite, v| {
+        finite & v[0].is_finite() & v[1].is_finite() & v[2].is_finite()
+    });
+    if !finite {
+        return Err(Error::InvalidParameter);
+    }
+    let mut lo = [f32::MAX; 3];
+    let mut hi = [-f32::MAX; 3];
+    for v in values {
+        for j in 0..3 {
+            if lo[j] > v[j] {
+                lo[j] = v[j];
+            }
+            if hi[j] < v[j] {
+                hi[j] = v[j];
+            }
+        }
+    }
+    if empty {
         return Ok(0.0);
     }
     let mut extent = 0.0;
