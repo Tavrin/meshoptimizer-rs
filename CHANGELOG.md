@@ -344,6 +344,8 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.7]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.6...v0.2.7
+[0.2.6]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.2...v0.2.3
@@ -351,5 +353,3 @@ wasm32 run.
 [0.2.1]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tavrin/meshoptimizer-rs/releases/tag/v0.1.0
-
-[0.2.7]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.6...v0.2.7

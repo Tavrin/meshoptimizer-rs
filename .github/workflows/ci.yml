@@ -27,6 +27,15 @@ jobs:
       - run: cargo test --locked --no-default-features
       - run: cargo build --locked --no-default-features
 
+  # Fails when the public API breaks compatibility with the latest release on crates.io.
+  semver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          feature-group: all-features
+
   docs:
     runs-on: ubuntu-latest
     steps:
