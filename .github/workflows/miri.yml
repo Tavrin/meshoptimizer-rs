@@ -1,0 +1,39 @@
+name: Miri
+# Miri interprets the unsafe SIMD codec and the codec tests, which takes about 45 minutes.
+# Pull requests run it only when that code changes; main is checked on every push and nightly.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "src/codec/**"
+      - "tests/simd.rs"
+      - "tests/codec.rs"
+      - "tests/codec04.rs"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/miri.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "37 3 * * *"
+permissions:
+  contents: read
+jobs:
+  miri:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: miri
+      - run: cargo miri test --all-features --lib codec::simd
+        env:
+          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
+      - run: cargo miri test --all-features --test simd filters_match_scalar_with_extreme_words_and_tails
+        env:
+          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
+      - run: cargo miri test --all-features --test simd meshlet_controls_widths_partial_groups_and_tail_preservation
+        env:
+          RUSTFLAGS: -C target-feature=+ssse3,+popcnt,+sse4.1
+      - run: cargo miri test --all-features --test simd lowering_is_checked_nested_and_unwind_safe
+      - run: cargo miri test --no-default-features --test codec
