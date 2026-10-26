@@ -112,11 +112,13 @@ fn kernel<const STRIP: bool>(
     }
     let faces = indices.len() / 3;
     let vertices = &mut ws.vertices[..v];
-    let adjacency = &mut ws.integers;
-    let triangle_scores = &mut ws.floats;
-    let emitted = &mut ws.flags;
+    let adjacency = &mut ws.integers[..indices.len()];
+    let triangle_scores = &mut ws.floats[..faces];
+    let emitted = &mut ws.flags[..faces];
     let triangles = indices.as_chunks::<3>().0;
     let destination = dest[..indices.len()].as_chunks_mut::<3>().0;
+    assert_eq!(triangles.len(), triangle_scores.len());
+    assert_eq!(triangles.len(), emitted.len());
     work.add(v)?;
     for vertex in vertices.iter_mut() {
         vertex.live = 0;
@@ -131,16 +133,28 @@ fn kernel<const STRIP: bool>(
         offset += vertex.live;
         Ok(())
     })?;
-    for (i, triangle) in indices.as_chunks::<3>().0.iter().enumerate() {
-        for &index in triangle {
-            work.add(1)?;
-            let j = index as usize;
-            let vertex = &mut vertices[j];
-            adjacency[vertex.offset as usize] = i as u32;
-            vertex.offset += 1;
+    if work.precharge(indices.len(), 1)? {
+        for (i, triangle) in triangles.iter().enumerate() {
+            for &index in triangle {
+                let vertex = &mut vertices[index as usize];
+                adjacency[vertex.offset as usize] = i as u32;
+                vertex.offset += 1;
+            }
+        }
+    } else {
+        for (i, triangle) in indices.as_chunks::<3>().0.iter().enumerate() {
+            for &index in triangle {
+                work.add(1)?;
+                let j = index as usize;
+                let vertex = &mut vertices[j];
+                adjacency[vertex.offset as usize] = i as u32;
+                vertex.offset += 1;
+            }
         }
     }
+    let mut max_live = 0usize;
     work.scan(vertices.iter_mut(), |vertex| {
+        max_live = max_live.max(vertex.live as usize);
         vertex.offset -= vertex.live;
         vertex.score = score::<STRIP>(0, vertex.live);
         Ok(())
@@ -156,6 +170,52 @@ fn kernel<const STRIP: bool>(
             Ok(())
         },
     )?;
+    // Per emission: one face, <=16 old cache entries, three removal searches
+    // of <=max_live entries, <=19 score visits each scanning <=max_live. The
+    // cursor advances <=faces-1 times and stops on <=faces-1 selections.
+    let bound = max_live
+        .checked_mul(22)
+        .and_then(|n| n.checked_add(38))
+        .and_then(|n| faces.checked_mul(n));
+    if let Some(bound) = bound.filter(|&n| work.covers(n) == Ok(true)) {
+        let mut counted = CacheWork::<true>::reserved(work, bound)?;
+        let result = cache_loop::<STRIP, true>(
+            destination,
+            triangles,
+            vertices,
+            adjacency,
+            triangle_scores,
+            emitted,
+            &mut counted,
+        );
+        counted.finish();
+        result
+    } else {
+        cache_loop::<STRIP, false>(
+            destination,
+            triangles,
+            vertices,
+            adjacency,
+            triangle_scores,
+            emitted,
+            &mut CacheWork::<false>::new(work),
+        )
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn cache_loop<const STRIP: bool, const FAST: bool>(
+    destination: &mut [[u32; 3]],
+    triangles: &[[u32; 3]],
+    vertices: &mut [crate::workspace::CacheVertex],
+    adjacency: &mut [u32],
+    triangle_scores: &mut [f32],
+    emitted: &mut [u8],
+    work: &mut CacheWork<'_, FAST>,
+) -> Result<(), Error> {
+    let faces = triangles.len();
+    assert_eq!(triangles.len(), triangle_scores.len());
+    assert_eq!(triangles.len(), emitted.len());
     let mut cache_storage = [0u32; 20];
     let mut next_storage = [0u32; 20];
     // Upstream exchanges pointers, not the contents of its two cache arrays.
@@ -174,6 +234,7 @@ fn kernel<const STRIP: bool>(
         triangle_scores[current] = 0.;
         next[..3].copy_from_slice(triangle);
         let mut write = 3;
+        assert!(cache_count <= 16);
         work.scan(cache[..cache_count].iter().copied(), |index| {
             next[write] = index;
             write += usize::from(!triangle.contains(&index));
@@ -187,7 +248,7 @@ fn kernel<const STRIP: bool>(
             let start = vertex.offset as usize;
             let count = vertex.live as usize;
             let adjacent = &mut adjacency[start..start + count];
-            let found = work.search(adjacent.len(), |i| adjacent[i] == current as u32)?;
+            let found = work.find(adjacent.iter().copied(), |tri| tri == current as u32)?;
             if let Some(i) = found {
                 adjacent[i] = adjacent[count - 1];
                 vertex.live -= 1;
@@ -519,4 +580,79 @@ fn fifo(
         }
     }
     Ok(())
+}
+
+// FAST prepays a proven whole-kernel bound and refunds unvisited work at the
+// end. Exact visits are accumulated without budget checks. The limited monomorph keeps
+// every original charge before its observable mutation.
+struct CacheWork<'a, const FAST: bool> {
+    work: &'a mut Work,
+    spent: usize,
+    reserved: usize,
+}
+impl<'a, const FAST: bool> CacheWork<'a, FAST> {
+    fn new(work: &'a mut Work) -> Self {
+        Self {
+            work,
+            spent: 0,
+            reserved: 0,
+        }
+    }
+    fn reserved(work: &'a mut Work, bound: usize) -> Result<Self, Error> {
+        work.add(bound)?;
+        Ok(Self {
+            work,
+            spent: 0,
+            reserved: bound,
+        })
+    }
+    #[inline(always)]
+    fn add(&mut self, count: usize) -> Result<(), Error> {
+        if FAST {
+            self.spent += count;
+            Ok(())
+        } else {
+            self.work.add(count)
+        }
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        mut visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        if FAST {
+            self.spent += values.len();
+            for value in values {
+                visit(value)?;
+            }
+            Ok(())
+        } else {
+            self.work.scan(values, visit)
+        }
+    }
+    #[inline(always)]
+    fn find<T>(
+        &mut self,
+        mut values: impl ExactSizeIterator<Item = T>,
+        mut found: impl FnMut(T) -> bool,
+    ) -> Result<Option<usize>, Error> {
+        if FAST {
+            let count = values.len();
+            let result = values.position(found);
+            self.spent += result.map_or(count, |i| i + 1);
+            Ok(result)
+        } else {
+            // search visits at most `len` items, so `next` is always Some.
+            self.work
+                .search(values.len(), |_| values.next().is_some_and(&mut found))
+        }
+    }
+    fn finish(self) {
+        // The dispatch bound covers every possible visit; all covered-path
+        // callbacks are infallible and there are no early exits.
+        debug_assert!(self.spent <= self.reserved, "cache work bound overrun");
+        self.work
+            .refund_cache(self.reserved.saturating_sub(self.spent));
+    }
 }
