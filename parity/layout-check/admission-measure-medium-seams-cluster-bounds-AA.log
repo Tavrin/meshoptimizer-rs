@@ -1,0 +1,5 @@
+heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, p95 0.5 GB over 5 runs x 1.15): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh medium-seams cluster-bounds AA
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=12539804 - margin_kb=2097152 = free_kb=-14636956; need_kb=2097152; normal_slots=1/6; lane_slots=0/2]
+heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh medium-seams cluster-bounds AA
+medium-seams-cluster-bounds-AA 1.0064793457801382

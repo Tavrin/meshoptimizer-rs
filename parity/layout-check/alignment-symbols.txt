@@ -1,0 +1,8 @@
+B-default:            8d1a0            8d1a0      64e     1                 meshoptimizer_rs::meshlet_util::compute_meshlet_bounds
+B-default:            8d030            8d030      163     1                 meshoptimizer_rs::meshlet_util::compute_cluster_bounds
+B-pinned:            8f500            8f500      64e     1                 meshoptimizer_rs::meshlet_util::compute_meshlet_bounds
+B-pinned:            8f380            8f380      163     1                 meshoptimizer_rs::meshlet_util::compute_cluster_bounds
+C-default:            8d0c0            8d0c0      64e     1                 meshoptimizer_rs::meshlet_util::compute_meshlet_bounds
+C-default:            8cf50            8cf50      163     1                 meshoptimizer_rs::meshlet_util::compute_cluster_bounds
+C-pinned:            8f440            8f440      64e     1                 meshoptimizer_rs::meshlet_util::compute_meshlet_bounds
+C-pinned:            8f2c0            8f2c0      163     1                 meshoptimizer_rs::meshlet_util::compute_cluster_bounds

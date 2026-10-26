@@ -1,0 +1,62 @@
+{
+  "flag": "-C llvm-args=-align-all-functions=6",
+  "rows": [
+    {
+      "arm": "B",
+      "variant": "default",
+      "kernel": "compute_meshlet_bounds",
+      "address": "0x8d1a0",
+      "mod64": 32
+    },
+    {
+      "arm": "B",
+      "variant": "default",
+      "kernel": "compute_cluster_bounds",
+      "address": "0x8d030",
+      "mod64": 48
+    },
+    {
+      "arm": "B",
+      "variant": "pinned",
+      "kernel": "compute_meshlet_bounds",
+      "address": "0x8f500",
+      "mod64": 0
+    },
+    {
+      "arm": "B",
+      "variant": "pinned",
+      "kernel": "compute_cluster_bounds",
+      "address": "0x8f380",
+      "mod64": 0
+    },
+    {
+      "arm": "C",
+      "variant": "default",
+      "kernel": "compute_meshlet_bounds",
+      "address": "0x8d0c0",
+      "mod64": 0
+    },
+    {
+      "arm": "C",
+      "variant": "default",
+      "kernel": "compute_cluster_bounds",
+      "address": "0x8cf50",
+      "mod64": 16
+    },
+    {
+      "arm": "C",
+      "variant": "pinned",
+      "kernel": "compute_meshlet_bounds",
+      "address": "0x8f440",
+      "mod64": 0
+    },
+    {
+      "arm": "C",
+      "variant": "pinned",
+      "kernel": "compute_cluster_bounds",
+      "address": "0x8f2c0",
+      "mod64": 0
+    }
+  ],
+  "passed": true
+}

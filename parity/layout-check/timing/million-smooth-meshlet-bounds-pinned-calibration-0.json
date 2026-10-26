@@ -1,0 +1,17 @@
+{
+  "case": "million-smooth",
+  "operation": "meshlet-bounds",
+  "comparison": "pinned",
+  "cpu": 11,
+  "attempt": 0,
+  "samples": [],
+  "binary_sha256": {
+    "A": "f1109b67f6ffa9f75d155cc6ac93f049931e0f1f4ed94c024b121565be64e045",
+    "B": "e2b827b7f78319dc61ab96e74f5bfd57da920930f2597e1386436aa31e480bc7"
+  },
+  "iterations": 63,
+  "calibration_ns": {
+    "A": 400122.0,
+    "B": 405923.0
+  }
+}

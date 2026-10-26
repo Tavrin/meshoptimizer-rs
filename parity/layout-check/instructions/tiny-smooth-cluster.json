@@ -1,0 +1,10 @@
+{
+  "case": "tiny-smooth",
+  "operation": "cluster-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 15438.0456,
+    "B": 15388.046
+  },
+  "ratio": 1.003249249449865
+}
