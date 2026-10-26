@@ -1,4 +1,4 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build-pinned.sh, reserving 3G, cap 7G, declared 3G, no history yet): bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build-pinned.sh
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/build-pinned.sh, reserving 3G, cap 7G, declared 3G, no history yet): bash <scratch>/meshopt-validate-once/layout-check/build-pinned.sh
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=3145728; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — queued behind a push job (pid 2712059) — waiting for 13 GB RAM / the GPU [capacity: available_kb=17340044 - unused_kb=13604828 - margin_kb=2097152 = free_kb=1638064; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
 heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17594508 - unused_kb=13512012 - margin_kb=2097152 = free_kb=1985344; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
@@ -15,11 +15,11 @@ heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; w
 heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16713752 - unused_kb=12500220 - margin_kb=2097152 = free_kb=2116380; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
 heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16328000 - unused_kb=12424216 - margin_kb=2097152 = free_kb=1806632; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
 heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16954576 - unused_kb=12643700 - margin_kb=2097152 = free_kb=2213724; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
-heavy: running (3G reserved, cap 7G, 16G available): bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build-pinned.sh
+heavy: running (3G reserved, cap 7G, 16G available): bash <scratch>/meshopt-validate-once/layout-check/build-pinned.sh
    Compiling libm v0.2.16
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-B)
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/B-pinned-harness)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-B)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/B-pinned-harness)
     Finished `moss` profile [optimized] target(s) in 17.44s
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-C)
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/C-pinned-harness)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-C)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/C-pinned-harness)
     Finished `moss` profile [optimized] target(s) in 16.90s

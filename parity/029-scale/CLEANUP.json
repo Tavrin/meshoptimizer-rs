@@ -1,7 +1,7 @@
 {
-  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-scale-strided",
+  "target": "<target-dir>",
   "deleted": true,
   "bytes": 712124546,
   "utc": "2026-10-26T14:08:31.740661+00:00",
-  "retained": "/mnt/linux-extra/moss-scratch/meshopt-029-scale"
+  "retained": "<scratch>/meshopt-029-scale"
 }

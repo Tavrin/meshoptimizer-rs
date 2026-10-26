@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Frozen input comparison; CPU-admitted, pinned, interleaved resident drivers."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import sys,os,json,subprocess,hashlib,time,struct,math,statistics,select,shutil,collections
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path(os.environ.get('MESHOPT_COMPARE_ARTIFACTS','/mnt/linux-extra/moss-scratch/meshopt-cmp'))
+ART=Path(os.environ.get('MESHOPT_COMPARE_ARTIFACTS',_public_path('<scratch>/meshopt-cmp')))
 sys.path.insert(0,str(ROOT/'parity'))
 import runner,performance,quiet
 PERF=['vertex-decode','vertex-encode','vertex-encode-v0','vertex-encode-default','index-decode','index-encode','sequence-decode','sequence-encode','oct-decode','quat-decode','exp-decode','color-decode','oct-encode','quat-encode','exp-encode','color-encode','cache','cache-strip','cache-fifo','overdraw','fetch','fetch-remap','simplify','stripify','unstripify','meshlets','meshlets-scan','meshlets-flex','meshlets-spatial']

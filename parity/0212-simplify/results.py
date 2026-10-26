@@ -1,4 +1,14 @@
 """Apply the pre-registered instruction gate verbatim; retain failed ratios."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import collections
 import json
@@ -6,7 +16,7 @@ import math
 import statistics
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-0212-simplify')
+ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
 rows = [json.loads(line) for line in (ART / 'counts.jsonl').read_text().splitlines()]
 assert len(rows) == 432
 for arm in ['base', 'candidate', 'M7']:
@@ -82,7 +92,7 @@ for mode in ['std', 'no-std']:
 cpp = len(json.loads((ART / 'cpp-differential.json').read_text()))
 report.append(f"\nProof: exact baseline comparisons passed {observations['std']:,} paired observations under std and {observations['no-std']:,} under no_std. They compare Result discriminants/error bits, output words including failure prefixes and unused tails, updated positions/attributes, and both Usage fields, with cold/warm calls. Coverage includes all 512 option masks, all six families, every small-mesh work limit 0..unrestricted-work+1, worst-case picker meshes in both retention modes, byte limits and invalid/non-finite/overflow/signed-zero/subnormal inputs. The exhaustive adapter/backend sweep passed all 4,294,967,296 operand patterns with zero mismatches. Pinned C++ differential: {cpp} comparisons. Widened exact differential fuzz: {len(fuzz):,} seeds / {len(fuzz)*64:,} generated cases / {fuzz[-1]['cpu_seconds']:.6f} child CPU-seconds, zero mismatches. CPU duration is a fuzz work budget, not a performance result.\n")
 report.append('\nRetained failed attempts: launcher parse=2 before preparation; initial picker test compilation=101; second proof fmt=1 after test-all/test-no-default/clippy=0. The latter two attempts and their successful arm builds are retained in attempt1-test-compile/ and attempt2-test-format/. Repairs affect launcher/tests only. The final complete proof passed on the final source; every accepted instruction sample comes from that source. No failed attempt is relabeled as passing.\n')
-report.append('\nRaw counters, output buffers, commands, source/binary hashes and admission identities remain in `/mnt/linux-extra/moss-scratch/meshopt-0212-simplify/`. Compact per-case counts, results, proof exits and an independently checked hash binding are retained beside this report. No wall-time or production-performance claim is made. No new unsafe, API, version or shared-math changes.\n')
+report.append(_public_path('\nRaw counters, output buffers, commands, source/binary hashes and admission identities remain in `<scratch>/meshopt-0212-simplify/`. Compact per-case counts, results, proof exits and an independently checked hash binding are retained beside this report. No wall-time or production-performance claim is made. No new unsafe, API, version or shared-math changes.\n'))
 failed = any(c['candidate_base'] > 1.01 for c in cells)
 (ART / 'results.json').write_text(json.dumps(dict(cells=cells, families=families, exits=exits, regression_fail=failed), indent=2) + '\n')
 (ROOT / 'parity/0212-simplify/REPORT.md').write_text(''.join(report))

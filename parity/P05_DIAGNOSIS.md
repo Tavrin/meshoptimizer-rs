@@ -7,13 +7,13 @@ read first. D142/D143 are unfinished hypotheses, not measured rejections.
 
 ## Evidence and limits
 
-Fresh artifacts: `/mnt/linux-extra/meshopt-artifacts/p05-diagfix/before`.
+Fresh artifacts: `<artifacts>/p05-diagfix/before`.
 `counts.json` binds source, scalar C++ reference and executable SHA-256s;
 `sources.tar.gz`, both Rust executables, C++ library/runner, complete objdump
 assembly, instruction-event samples and `assembly-metrics.json` are retained.
 The reproducible controller is the sibling `instructions.py`.
 
-Both consumers use opt-level 3, generic target, empty Rust flags; Moss uses
+Both consumers use opt-level 3, generic target, empty Rust flags; a downstream engine uses
 thin LTO/cgu=1 and default uses LTO=false/cgu=16. Reference is unmodified
 `4c203430ca565cb59a468a91922c76c208169536`, O3, NO_SIMD, no fast math or FMA.
 Every family is measured on frozen shapes 0 and 2, except remesh uses 0 and
@@ -35,7 +35,7 @@ never equated with retired instructions or directly compared as equal scopes.
 ## All-family comparison
 
 Medium owned calls, retired instructions per call (rounded). Tiny ratio includes
-the worst owned/caller observation on shape 0. M/D = Moss/default.
+the worst owned/caller observation on shape 0. M/D = a downstream engine/default.
 
 | Family | C++ instructions | Rust M / D | Ratio M / D | Tiny ratio M / D |
 |---|---:|---:|---:|---:|
@@ -81,8 +81,8 @@ the worst owned/caller observation on shape 0. M/D = Moss/default.
   Further assembly read after D163 separates the pixel reduction: default
   overdraw's covered loop at `5cd13..5cd48` remains scalar and tests the fuel
   selector before each pixel (`5cd40`); coverage has a separate vector loop.
-  Moss overdraw emits packed `paddd` reductions. On tiny shape 0, default
-  overdraw retires 6,376,421 instructions/1,127,511 branches vs Moss
+  a downstream engine overdraw emits packed `paddd` reductions. On tiny shape 0, default
+  overdraw retires 6,376,421 instructions/1,127,511 branches vs a downstream engine
   4,595,281/742,413 and C++ 4,249,103/678,716. Add a const-covered pixel scan
   retaining the original charge-before-read fallback. This is viewport analysis,
   not the rejected OMM state specialization or cache-kernel expansion.
@@ -158,7 +158,7 @@ an approved residual, or acceptance of an unmeasured family.
 | 1 | Fixed 8-pitch 512-byte marking grid for resolution 4..8 | Remove two runtime products and grid guard in repeated hot marking; target several percent of total instructions | Low/medium: copy successful interior back; retain borders, heap quotas, fuel and all float operations. Existing resolution-16 fallback goldens. ~1h |
 | 2 | Same bounded representation plus 64-entry row map for accumulation | Remove runtime products/grid-row guards from the other ~42% sampled path | Medium: identical cell numbering/voxel and octant bits, original higher-resolution fallback. ~1h |
 | 3 | Omit initial redundant raster clear | One fewer 1 MiB clear/call; 25% fewer initialization writes | Low: newly initialized positive-zero buffer, clear between axes. ~15min |
-| 4 | Specialize covered pixel reductions, retain tight-fuel scan | Remove default scalar fuel selector and permit automatic integer reduction vectorization; target the 1.78M default/Moss tiny-instruction gap | Low/medium: exact visit charges and error prefixes; integer sums only, no floating reassociation. ~30min |
+| 4 | Specialize covered pixel reductions, retain tight-fuel scan | Remove default scalar fuel selector and permit automatic integer reduction vectorization; target the 1.78M default/a downstream engine tiny-instruction gap | Low/medium: exact visit charges and error prefixes; integer sums only, no floating reassociation. ~30min |
 | 5 | Packed raster transform reader selected once | Fewer per-position layout/Option checks, primarily large-input/default codegen | Low/medium: preserve finite checks, scalar operation order and fuel prefixes; generic layout witness. ~30min |
 | 6 | Inline OMM compact byte hash | Remove call boundary; expect small instruction saving and expose chunk codegen | Low: retain exact arithmetic and probes. Abandon if assembly/counts show a no-op or regression. ~15min |
 
@@ -179,7 +179,7 @@ unmatched diagnostics; only Phase 3's new stream decides the touched-family bar.
 
 All six ranked fixes are implemented, each with its own commit, fresh two-profile
 counts/assembly and exact native/libm/executed-WASM sweeps. Marking and accumulation
-constant-pitch grids reduce medium owned remesh instructions 1.439->1.292 Moss and
+constant-pitch grids reduce medium owned remesh instructions 1.439->1.292 a downstream engine and
 1.493->1.276 default. Skipping the first clear removes 1 MiB of writes; its instruction
 count is neutral. Covered scans remove default tiny overdraw's fuel selector and
 reduce instructions 25%, with exact tight-fuel prefix regression coverage. The
@@ -189,7 +189,7 @@ neutral. Hash inlining removes a call and about 1% compact instructions.
 
 One lean campaign covers all frozen shapes/forms in the four touched families.
 Remesh, overdraw and coverage pass both profiles. OMM compact fails mean in both:
-1.325353 Moss / 1.295537 default, while its maxima and heap ratios pass. It is now
+1.325353 a downstream engine / 1.295537 default, while its maxima and heap ratios pass. It is now
 abandoned for further optimization in this campaign. The small inlining hypothesis
 was insufficient; retained validation/scratch/copy/probe structure and the full six
 failed-family observations are the evidence. No novel broader safe transformation

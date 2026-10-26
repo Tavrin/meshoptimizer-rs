@@ -1,8 +1,8 @@
 #!/bin/bash
 set -uo pipefail
-s=/mnt/linux-extra/moss-scratch/meshopt-decode
+s="${SCRATCH:?}"/meshopt-decode
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS= CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
-export MESHOPT_REFERENCE=/home/etienne/dev/refs/meshoptimizer MESHOPT_ARTIFACTS="$s" TMPDIR="$CARGO_TARGET_DIR/tmp"
+export MESHOPT_REFERENCE="${REFS:?}"/meshoptimizer MESHOPT_ARTIFACTS="$s" TMPDIR="$CARGO_TARGET_DIR/tmp"
 mkdir -p "$TMPDIR"
 record() {
     local label="$1"

@@ -4,7 +4,7 @@ Implementation: `9589e0cab7fdf8eef50654a744a6f05a20a01047`; baseline: `3db42ccc8
 
 **Verdict: PASS.** Both correctness fixes remain intact. Ratios below compare safe scalar Rust to scalar C++ on the frozen S2 meshes. Consumer aggregate **1.196×**; Cargo-defaults aggregate **1.090×**.
 
-| Mesh (stride 48) | Consumer / scalar | Defaults / scalar | Consumer / Moss | Defaults / Moss | Pairs consumer/defaults |
+| Mesh (stride 48) | Consumer / scalar | Defaults / scalar | Consumer / a downstream engine | Defaults / a downstream engine | Pairs consumer/defaults |
 |---|---:|---:|---:|---:|---:|
 | `grass_a_01` | 1.163× | 1.212× | 1.174× | 1.222× | 5/5 |
 | `grass_b_01` | 1.080× | 1.234× | 1.235× | 1.269× | 5/5 |
@@ -16,7 +16,7 @@ Implementation: `9589e0cab7fdf8eef50654a744a6f05a20a01047`; baseline: `3db42ccc8
 | `riverforest_01_trunk` | 1.197× | 1.254× | 1.238× | 1.228× | 9/6 |
 | `sponza_lionhead` | 1.189× | 1.088× | 1.186× | 1.090× | 5/5 |
 
-Moss-style aggregate: 1.160× consumer, 1.128× defaults. Scalar sum-of-medians seconds (C++ / Rust): 1.869586 / 2.235926 consumer; 2.363221 / 2.575799 defaults.
+a downstream engine-style aggregate: 1.160× consumer, 1.128× defaults. Scalar sum-of-medians seconds (C++ / Rust): 1.869586 / 2.235926 consumer; 2.363221 / 2.575799 defaults.
 
 ## Root cause and design
 
@@ -35,7 +35,7 @@ The diagnostic perf captures preceded implementation and were repeated afterward
 
 ## Correctness and memory
 
-- All 15 supported RFC 113 layouts match scalar C++, Moss-style C++ and Rust byte for byte, including bounds; all 90 codec comparisons match. The two historical stride-32 setups remain invalid under S2’s bit-8 protect mask, as documented in the original report.
+- All 15 supported RFC 113 layouts match scalar C++, a downstream engine-style C++ and Rust byte for byte, including bounds; all 90 codec comparisons match. The two historical stride-32 setups remain invalid under S2’s bit-8 protect mask, as documented in the original report.
 - All 12 archived-main/current/C++ differential cases match. The moving near-threshold case moves 16 vertices; threshold crossing is not claimed. Unconditional invalidation remains established directly by the unchanged source.
 - All 517 byte limits pass the old-success/no-error-kind-regression checks. Old peak 34,904 bytes; current 24,576 bytes. Removing the two allocations and replacing u8 locks with an identically sized type preserves the general heap bound; no cache/high-water allocation is introduced.
 - fmt, clippy with all features and no default features (-D warnings), and both test configurations pass. The new multi-level test compares output, mutated positions, work and exact byte boundaries across packed/padded floats and unaligned little-/big-endian bytes, with all three flag kinds, zero weights and both dilation settings.
@@ -74,13 +74,13 @@ defaults: load before/after `[12.98779296875, 15.2861328125, 17.1357421875]` / `
 
 ## Identity and reproduction
 
-Consumer Rust SHA-256 `afcb4e17f22160cb0becb173f3183abda690d4c63e6627beb0462950930f6625`; defaults Rust `5e54510ac2bc79a583f6adea9200f70d7d7fd55fde9172c708823c14a4c927b5`; scalar C++ `9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f`; Moss-style C++ `16aab10d502e76cd35b2e7d2c6037c407726a06a935e577a7d39d74fa9189395`.
+Consumer Rust SHA-256 `afcb4e17f22160cb0becb173f3183abda690d4c63e6627beb0462950930f6625`; defaults Rust `5e54510ac2bc79a583f6adea9200f70d7d7fd55fde9172c708823c14a4c927b5`; scalar C++ `9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f`; a downstream engine-style C++ `16aab10d502e76cd35b2e7d2c6037c407726a06a935e577a7d39d74fa9189395`.
 
-Artifacts: `/mnt/linux-extra/meshopt-artifacts/clodrec`. Source archives, perf captures, raw pairs, protocol output hashes, fixtures/sweeps and validation logs are retained. The frozen input meshes are referenced by hashes rather than copied. These results establish this corpus and Linux x86-64/WASM parity; no Moss runtime or GPU integration claim is made.
+Artifacts: `<artifacts>/clodrec`. Source archives, perf captures, raw pairs, protocol output hashes, fixtures/sweeps and validation logs are retained. The frozen input meshes are referenced by hashes rather than copied. These results establish this corpus and Linux x86-64/WASM parity; no a downstream engine runtime or GPU integration claim is made.
 
 ```sh
-export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodrec
-export MESHOPT_RFC113_ART_DIR=/mnt/linux-extra/meshopt-artifacts/clodrec-new
+export CARGO_TARGET_DIR=<target-dir>
+export MESHOPT_RFC113_ART_DIR=<artifacts>/clodrec-new
 python3 parity/rfc113/timing.py
 ```
 

@@ -89,7 +89,7 @@
     "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
     "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
   },
-  "artifact_root": "/mnt/linux-extra/meshopt-artifacts/p05-last3-20261005",
+  "artifact_root": "<artifacts>/p05-last3-20261005",
   "artifact_inventory_sha256": "7876a4ef2dfe07ad88ca1c699bb798fd15010f36d96d659b1fa5a24ab132fdcd",
   "scope_complete": true,
   "scope_passed": true,
@@ -217,7 +217,7 @@
   "functional_cases": 90000,
   "fixture_contracts": 15,
   "cleanup": {
-    "path": "/mnt/linux-extra/moss-cargo-targets/codex-p05-last3",
+    "path": "<target-dir>",
     "removed": true,
     "before_bytes": 1757115512,
     "after_exists": false,

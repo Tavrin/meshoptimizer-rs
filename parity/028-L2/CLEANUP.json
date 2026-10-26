@@ -1,5 +1,5 @@
 {
-  "deleted": "/mnt/linux-extra/moss-cargo-targets/meshopt-L2",
+  "deleted": "<target-dir>",
   "bytes_removed": 802269012,
   "absent": true,
   "retained_binaries": {
@@ -86,7 +86,7 @@
     "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
     "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46"
   },
-  "source_archive": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/final-source.tar.gz",
+  "source_archive": "<scratch>/meshopt-028-L2/final-source.tar.gz",
   "source_archive_sha256": "3459230e863153898f9120838e92f063a3768ae505310e2e0d11fa0dffcf6d42",
   "utc": 1793016500.0177283
 }

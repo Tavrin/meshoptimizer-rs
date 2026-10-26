@@ -59,19 +59,19 @@ exit 0. The test also covers same-family reuse, FIFO switching, validation
 error equality, preserving limits, and clear/set_limits/policy transitions.
 Builds and the instruction/capacity/RSS proof exit 0.
 
-CPU-only moss-heavy, MOSS_HEAVY_GPU=0, 4 GB declaration; measurements also set
+CPU-only <job-runner>, MOSS_HEAVY_GPU=0, 4 GB declaration; measurements also set
 MOSS_HEAVY_MEASUREMENT=1. The first Python submission inherited the shared
 Python executable's 9 GB reservation and was canceled before admission (143,
 no samples). Resubmission used the normal named shell script class and 4 GB
 reservation; queue/admission logs are retained. No policy overrides.
 
 Full source snapshots, binaries, raw results, byte sidecars and logs:
-`/mnt/linux-extra/moss-scratch/meshopt-memory/optin/`. Compact committed
+`<scratch>/meshopt-memory/optin/`. Compact committed
 [receipts](optin/VERDICT.json), [registration](optin/REGISTRATION.md) and
 [gate exits](optin/GATES.tsv) bind the new proof. The designated Cargo target
 was deleted after retaining all binaries;
 [cleanup](optin/CLEANUP.json) confirms source identity and removal. Historical
-evidence below remains unchanged. No Moss change, PR merge, tag or publish
+evidence below remains unchanged. No a downstream engine change, PR merge, tag or publish
 is part of this work.
 
 ## Historical default-candidate campaign (unchanged)
@@ -314,7 +314,7 @@ six microbench outputs match on every execution. Only elapsed fields differ.
 Registered verdict: **FAIL**.
 
 Timing is full-driver process wall time for chains and a six-call bracket for
-the microbench. This is a shared-host result, not a production Moss acceptance
+the microbench. This is a shared-host result, not a production a downstream engine acceptance
 or a GPU result. The C++ RSS reference is the retained step-1 execution; it is
 not a fresh timing comparison. Source, binaries, inputs, all samples and
 SHA256-verified hardlinked byte sidecars remain in designated scratch.
@@ -334,7 +334,7 @@ RSS probe is 2.430492 GiB, above 2.318 GiB. Releasing all simplify scratch has
 the earlier 2.103016 GiB RSS control but no qualifying timing evidence. An
 opt-in caller lifetime API or a different allocation/representation design is
 an option for a future specification; neither is built here. No global
-allocator trimming, limits change, quadric layout change, Moss change, merge,
+allocator trimming, limits change, quadric layout change, a downstream engine change, merge,
 tag or publication is performed.
 
 Audit: 176 processes, including 160 measured processes and 16 warm-ups; ten
@@ -344,9 +344,9 @@ exit 0. The registered campaign exits 1 solely for its FAIL verdict. The
 probe-only missing-doc build 101 and earlier full-gate fixture failure 101
 remain retained and disclosed; the complete final full gate exits 0.
 
-The designated Cargo target `/mnt/linux-extra/moss-cargo-targets/meshopt-memory`
+The designated Cargo target `<target-dir>`
 is deleted; CLEANUP-027.json verifies absence and retained binary hashes. Raw
-scratch is `/mnt/linux-extra/moss-scratch/meshopt-memory/spec027/`. Compact
+scratch is `<scratch>/meshopt-memory/spec027/`. Compact
 registration, audit, source/input/binary bindings, sample execution receipts,
 residency inventory, driver patch, rejected-probe summary and metadata hashes
 are committed beside this report. Prior step-1 captures remain unchanged.

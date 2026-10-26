@@ -10,6 +10,6 @@
     "registration_before_first_case": true,
     "same_session_floor": true,
     "no_value_retries": true,
-    "record": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/C-attempt-1/record.json"
+    "record": "<scratch>/meshopt-simplify-perf/release-v2/C-attempt-1/record.json"
   }
 }

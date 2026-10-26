@@ -106,7 +106,7 @@ Records default to `parity/results/`; `MESHOPT_RESULTS` can override the retaine
 destination. Large ZIP artifacts go to `MESHOPT_ARTIFACTS`, defaulting to
 `$CARGO_TARGET_DIR/parity-artifacts`, outside the repository. Set it to a durable
 external directory before deleting the build target; this lane uses
-`/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final`. JSON records retain archive
+`<local>/final`. JSON records retain archive
 and member hashes, not archive contents. Hostnames are excluded from hardware
 metadata. ZIP artifacts preserve explicit little-endian input and response
 bytes. Build outputs stay in `CARGO_TARGET_DIR`. After verification, delete that

@@ -2,7 +2,7 @@
 set -euo pipefail
 : "${MOSS_HEAVY_ACTIVE:?admission required}"
 export CXXFLAGS=-DMESHOPTIMIZER_NO_SIMD
-S=/mnt/linux-extra/moss-scratch/meshopt-0210-H2
+S="${SCRATCH:?}"/meshopt-0210-H2
 export TMPDIR="$S/tmp"
 mkdir -p "$TMPDIR"
 python3 parity/0210-H2/build-binding.py before

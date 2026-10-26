@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -uo pipefail
-: "${MOSS_HEAVY_ACTIVE:?run under moss-heavy}"
+: "${MOSS_HEAVY_ACTIVE:?run under ${JOB_RUNNER:?}}"
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
 export CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0
-art=/mnt/linux-extra/moss-scratch/meshopt-028-L2
+art="${SCRATCH:?}"/meshopt-028-L2
 overall=0
 run_gate() {
  local name=$1; shift

@@ -5,7 +5,7 @@ resident driver's elapsed-time replies and use only `instructions:u`.
 
 Candidate versus optimesh 1.1.0 (X), and candidate versus v0.2.6 (33556c4).
 Exported `bench/peer-screen` adapters and input files are frozen; only scratch
-manifest dependency paths and lockfiles are adapted. Moss profile: opt-level 3,
+manifest dependency paths and lockfiles are adapted. a downstream engine profile: opt-level 3,
 thin LTO, one codegen unit, scalar adapters, no peer SIMD features, C++ NO_SIMD.
 
 Families: adjacency, optimize-meshlet, fetch, remap-indices. Each uses all five
@@ -38,6 +38,6 @@ v0.2.6 is PARTIAL. Any baseline GM or per-case bar failure is FAIL. Any missing
 measurement is UNMEASURED. Retain and report the first verdict; no reruns to
 change it. Proof failures block shipping independently of performance verdicts.
 
-All execution uses moss-heavy, MOSS_HEAVY_GPU=0, declaration <=4 GB; target
-`/mnt/linux-extra/moss-cargo-targets/meshopt-peer-c` is deleted after retaining
-executables and receipts. Scratch: `/mnt/linux-extra/moss-scratch/meshopt-peer-c`.
+All execution uses <job-runner>, MOSS_HEAVY_GPU=0, declaration <=4 GB; target
+`<target-dir>` is deleted after retaining
+executables and receipts. Scratch: `<scratch>/meshopt-peer-c`.

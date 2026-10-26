@@ -14,9 +14,9 @@ the frozen-only population is 1.318×. No new measurements were run.
 ## Checks
 
 `checks.sh` ran as one job through
-`/mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 bash parity/release-0210/checks.sh`,
+`<job-runner> 4 bash parity/release-0210/checks.sh`,
 with `MOSS_HEAVY_GPU=0`, `CARGO_BUILD_JOBS=2`, and
-`CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-rel0210`.
+`CARGO_TARGET_DIR=<target-dir>`.
 The job exited 0.
 
 | Check | Exit |
@@ -42,7 +42,7 @@ consistent with preparing an uncommitted release. No Git mutation was used
 to avoid that refusal.
 
 Logs, exit codes and extracted public text are retained at
-`/mnt/linux-extra/moss-scratch/meshopt-rel0210/`.
+`<scratch>/meshopt-rel0210/`.
 The script's exit trap deleted the designated target directory;
 `cleanup.txt` records its absence. No other target was removed.
 

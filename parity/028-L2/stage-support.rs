@@ -49,7 +49,7 @@ fn chain(a: &[String]) {
         let fields: Vec<_> = line.split('\t').collect();
         let op = fields[0];
         if fields.len() > 6 && fields[6] != active_vertices {
-            // Positions change for Moss's aggregate-pruned packaging stages.
+            // Positions change for a downstream engine's aggregate-pruned packaging stages.
             // Load the captured/reconstructed buffer outside the stage timer.
             drop(std::mem::take(&mut x.replay.as_mut().unwrap().data));
             let raw = std::fs::read(fields[6]).unwrap();

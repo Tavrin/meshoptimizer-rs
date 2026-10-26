@@ -34,7 +34,7 @@ over the applicable worst-case bar, cap at twenty. Borderline cases alone
 receive D146's thirty fresh pairs and Student-t interval; inconclusive fails.
 All raw samples retained, order rotated, one pinned core, telemetry before
 and after each pair. Each timed burst <15 minutes, releasing cores between
-bursts. Admission fails closed on a GPU lease or active moss-scoreboard unit;
+bursts. Admission fails closed on a GPU lease or active downstream-scoreboard unit;
 a pair overlapping either is discarded and retained as interrupted evidence.
 Family means and S3 are independently reported, never cleared by a case retry.
 Missing platform/safety/release records prevent a release qualification claim.

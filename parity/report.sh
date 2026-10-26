@@ -689,7 +689,7 @@ def render(records, fuzz, missing, incomplete):
     summary = {'schema': 'meshopt-release-summary/1', 'phase': '0.1', 'passed': passed,
                'evidence_complete': evidence_complete,
                'moss_performance_accepted': 'benchmark-moss' in records and records['benchmark-moss'][0]['passed'],
-               'report_exit_policy': 'complete verified evidence exits zero; failed Moss bars block release acceptance',
+               'report_exit_policy': 'complete verified evidence exits zero; failed a downstream engine bars block release acceptance',
                'incomplete': sorted(incomplete), 'absent_current_artifacts': sorted(set(missing)),
                'local_execution_targets': ['linux-x86_64', 'wasm32 (qualified native Rust reference)'],
                'remote_execution': 'CI configured; local records do not establish remote execution',
@@ -713,13 +713,13 @@ def render(records, fuzz, missing, incomplete):
     (ROOT / 'parity/MEASURED_PARITY.md').write_text('\n'.join(lines) + '\n')
     fat = json.loads((ROOT / 'parity/results/benchmark.json').read_text()).get('functions', {})
     lines = ['# Measured release performance', '', 'Rust/C++ time ratios; each value is the family geometric mean of case median paired ratios, followed by the maximum case in parentheses.', '',
-             '| Function | Fat LTO (historical lane 3b) | Moss thin LTO | Cargo release defaults |', '|---|---:|---:|---:|']
+             '| Function | Fat LTO (historical lane 3b) | a downstream engine thin LTO | Cargo release defaults |', '|---|---:|---:|---:|']
     for family in family_names:
         values = [fat.get(family)] + [records[n][0]['functions'].get(family) if n in records else None for n in ['benchmark-moss', 'benchmark-default']]
         cells = [f"{v['geometric_mean']:.3f} ({v['maximum']:.3f})" if v else 'Pending' for v in values]
         lines.append('| ' + family + ' | ' + ' | '.join(cells) + ' |')
     lines += ['', 'RFC bars are unchanged: family geometric mean <= 1.25, maximum case <= 1.50, and requested output-plus-scratch memory <= 1.25 times C++.', '',
-              'Moss uses thin LTO, one codegen unit and opt-level 3. Cargo defaults use LTO disabled, 16 codegen units and opt-level 3. Both consumer records disable release debug. The crate retains its own fat-LTO profile; dependents do not inherit it.', '',
+              'a downstream engine uses thin LTO, one codegen unit and opt-level 3. Cargo defaults use LTO disabled, 16 codegen units and opt-level 3. Both consumer records disable release debug. The crate retains its own fat-LTO profile; dependents do not inherit it.', '',
               'The complete matrix has 204 allocating, caller-buffer and allocation-free cases, covering tiny, medium and million-triangle smooth, seam-heavy and sparse meshes. The single-thread resident drivers share one physical core, one warm-up each and 20 or 30 alternating pairs. Validation, required copies, allocation and scratch are timed.', '',
               'These are shared-load measurements. Per-case timings, dispersion, memory, load telemetry and source/executable identities are in the external records. This table does not claim quiet-host performance or a universal speedup.', '',
               'See results/benchmark.json, results/benchmark-moss.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.']
@@ -1037,9 +1037,9 @@ def report(verify):
         print('Summary available; release artifact verification incomplete.')
         raise SystemExit(1)
     if not records['benchmark-moss'][0]['passed']:
-        print('Release evidence verified. Moss-profile RFC performance gate failed; release acceptance is blocked, bars unchanged.')
+        print('Release evidence verified. a downstream engine-profile RFC performance gate failed; release acceptance is blocked, bars unchanged.')
     else:
-        print('Release parity, Moss-profile performance and long fuzz records pass.')
+        print('Release parity, a downstream engine-profile performance and long fuzz records pass.')
 
 argv = sys.argv[1:]
 if argv and argv[0] == '--execute':

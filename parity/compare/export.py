@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Retain compact, source-bound comparison results beside the report."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,hashlib,math,statistics
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-cmp')
+ART=Path(_public_path('<scratch>/meshopt-cmp'))
 def read(name):return json.loads((ART/name).read_text())
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 result={'schema':1,'measured_revision':read('measurement-source.json')['revision'],

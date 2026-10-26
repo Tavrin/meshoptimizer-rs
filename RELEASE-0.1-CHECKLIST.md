@@ -1,8 +1,8 @@
 # Release 0.1 checklist
 
 Status values: **pass** (evidence verified by `parity/report.sh --phase 0.1
---verify-artifacts`, exit 0), **pending human** (owner action), **pending Moss
-migration proof** (RFC section 7; needs the Moss-side harness). Evidence paths
+--verify-artifacts`, exit 0), **pending human** (owner action), **pending a downstream engine
+migration proof** (RFC section 7; needs the a downstream engine-side harness). Evidence paths
 are relative to the repository; large per-case records live in
 `$MESHOPT_ARTIFACTS` and are identified by SHA-256 in the JSON summaries.
 Source baseline: `src/simplify.rs` after d1230c3. Decisions: `parity/DECISIONS.md` D50, D51.
@@ -23,14 +23,14 @@ Source baseline: `src/simplify.rs` after d1230c3. Decisions: `parity/DECISIONS.m
 | 12 | fmt, clippy `-D warnings`, rustdoc warnings denied | `parity/results/gates.json` | pass |
 | 13 | Fuzz robustness, 4 CPU-hours per target (RFC 14); 5 targets | `parity/results/fuzz.json`: 4.111-4.242 CPU-h, 0 findings, on an earlier revision. The final source passed the 0.4 and 0.1.x smoke runs (19 + 32 targets, at least 300 s each). The full run on the release revision is the nightly robustness timer of 2026-10-05 01:00; any crash means yanking 0.1.0 and releasing 0.1.1 | pass (earlier revision); release-revision run scheduled (coordinator decision 2026-10-04, owner veto stands) |
 | 14 | Weekly/nightly background fuzzing; any crash blocks the next release (RFC 14) | `.github/workflows/fuzz.yml`, `parity/fuzz-continuous.sh` | pass (configured) |
-| 15 | Performance: family GM <= 1.25, case max <= 1.50, memory <= 1.25 (6.1), Moss thin-LTO profile | `parity/results/benchmark-moss.json` (204 cases, all families pass) | pass |
+| 15 | Performance: family GM <= 1.25, case max <= 1.50, memory <= 1.25 (6.1), a downstream engine thin-LTO profile | `parity/results/benchmark-moss.json` (204 cases, all families pass) | pass |
 | 16 | Same bars under Cargo release defaults | `parity/results/benchmark-default.json` (204 cases, all families pass) | pass |
-| 17 | Moss integration: cook time <= 1.10x, mesh stage <= 1.25x baseline (6.1) | runs overnight; it gates the Moss production switch, not this release (owner decision 2026-10-04) | pending |
-| 18 | Three-way output proof (cpp 0.25, cpp 1.3, Rust) and intentional-deviation records (7.2) | none yet | pending Moss migration proof |
+| 17 | a downstream engine integration: cook time <= 1.10x, mesh stage <= 1.25x baseline (6.1) | runs overnight; it gates the a downstream engine production switch, not this release (owner decision 2026-10-04) | pending |
+| 18 | Three-way output proof (cpp 0.25, cpp 1.3, Rust) and intentional-deviation records (7.2) | none yet | pending a downstream engine migration proof |
 | 19 | Package contents and publish dry run | `parity/results/gates.json` (`cargo package --list`, `cargo publish --dry-run --allow-dirty`; offline loopback registry, D9) | pass |
 | 20 | Licence and upstream notices, `UPSTREAM.md`, README scope/limits/alternatives (8) | `LICENSE`, `UPSTREAM.md`, `README.md` | pass |
 | 21 | `MEASURED_PARITY.md`, `MEASURED_PERFORMANCE.md`, `MEASURED_RESULTS.json`, API and target coverage table (8) | `parity/` | pass |
-| 22 | Moss distributed notices carry upstream attribution (8) | Moss repository | pending Moss migration proof |
+| 22 | a downstream engine distributed notices carry upstream attribution (8) | a downstream engine repository | pending a downstream engine migration proof |
 | 23 | Crate name availability, naming approval, trademark clearance (2, 13) | none | pending human |
 | 24 | Publishing to crates.io and tagging | none | pending human |
 

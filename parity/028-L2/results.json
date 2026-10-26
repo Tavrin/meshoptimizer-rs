@@ -55,47 +55,47 @@
     "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46"
   },
   "harness_sources": {
-    "parity/028-L2/audit.py": "0f6e620b500685360f3167c62266a2660652ed2b3429a3f7da7f1b82a8422c51",
-    "parity/028-L2/instructions.py": "d3c7195ee16e1431d127621df4a176cf5743e5bf56a97b8e8bf8597e0dab62ec",
-    "parity/028-L2/gates.sh": "fb2ed104aaee43c50311e99da5fe395fc78b7e7327bcb20dd349cd19e033b855",
+    "parity/028-L2/audit.py": "e5d5e163bd2e5342921c0f5e16baf3d8a554313a2a40466e1c92636d1d490723",
+    "parity/028-L2/instructions.py": "56a646c95b0a10b9b77c5f854e718459c1e24f4ea5cf63c973edc0e47134c7ca",
+    "parity/028-L2/gates.sh": "a0cf7a5dfacb62e30097417180b8f50a74ea30c96a6d0f496065984bde13ab30",
     "parity/028-L2/strict-overdraw.cpp": "94184b3d2653bc43c65d7c3b78496813fbf2d79b8a75d63b349fbb3fd7dea828",
-    "parity/028-L2/campaign.py": "27a579618112c55019a12b00cb41c09cd0b571990343afe5ccdb29d1dbc229ea",
-    "parity/028-L2/cleanup.py": "1115b1026d0f1cfc3e895ec6e99e8e88d187b96189720c6290674f4aacf022db",
-    "parity/028-L2/build.py": "6b0b3e7d6750cb10ca87fe8ac8ae53e2c1248732f396abe40f079faab67937b9",
-    "parity/028-L2/proof.py": "65758d9e681b3bac76891e8d3cf4896bb9450512bcde28ce4f35e3eb1bc77352",
-    "parity/028-L2/wall.sh": "ca5914279ab9aa5747bd3302ba364860fe3c760a6b51bdb1ef2b82e4b51b956d",
-    "parity/028-L2/admit.sh": "8495329f0223f83279f8dba0bd4a182d63113fa26b09d6cbe7bcecd7275597a6",
+    "parity/028-L2/campaign.py": "18657ef4370bd8dc1bb64b9f8c93c6740492278343022d892484f9b1dbea5c17",
+    "parity/028-L2/cleanup.py": "9a40830c34fbd87c8d0f03fb3370330d7f14bab29810008746fc937d966ae48c",
+    "parity/028-L2/build.py": "3e2d85ec578aced94b5cf0a00b16160589ebeda942f532b78d197938e9a8e1d0",
+    "parity/028-L2/proof.py": "2cf7c8a00711529b4a2f0d4e4860388472871534f85ca05f2ac88dc07e63ca9d",
+    "parity/028-L2/wall.sh": "b18b644b97a826cec6f3206415a8bbb6d0fed1234bce925f8830b46de442185d",
+    "parity/028-L2/admit.sh": "2bc22bc9eb78f3d8dbb41fa50716cc45d87cbedb5fe0a106044374c8047cc089",
     "parity/028-L2/exact.rs": "75b713485ed7f90aaa045a94540c5400c38d3c26f3c7480ac351de882d68429e",
-    "parity/028-L2/strict-overdraw.py": "5ef1bbb0ad0e30a4b77d66bf3e1a92861f748fc6224a14a6038c85be42b347b6",
-    "parity/028-L2/compose-proof.py": "327bf2ddb51b53d1b922a290b594ae37c4c572466f473d319e22e671f39f0f40",
-    "parity/028-L2/seed-proof.py": "3c5063a7445a12a897f324c04d67a5454489e3586bd73204990d0a678a641d18",
-    "parity/028-L2/finalize-report.py": "567da1f6fe8f574610bbc323e2a09ab0b58fbe5ff16053407bc9c81e1958fcda",
-    "parity/028-L2/proof-adapters.sh": "b139b5e1f05b0723407cbc57075e389f69512dfd13db93a985a8bedb9bd26bf1",
-    "parity/028-L2/prepare-proof.py": "a03867051bfae8ab5a8ed4e3d5f130821cbebf55cd98d5a9d29f584314f1b9dd",
-    "parity/028-L2/stage-support.rs": "64e482d8d266ac2e4ad3675130d1dd37dc4442f66724c25b28613480d17f03d9",
-    "parity/028-L2/stage_vertices.py": "d770c99120f77be77bdb0685c79b740f62524cf2ff51f60ca47f5bb2a2c7077e",
-    "parity/028-L2/prepare-stages.py": "c2be2b42263580c829c7e4de1a134a11c17a42c3397c0d62c8432503a73c0548",
-    "parity/028-L2/adapter-proof.py": "1a8aa894c569c5ee63123df45d570ae1cf57d2c64a9c695e623042f4d3adef7e",
-    "parity/028-L2/fuzz.sh": "542221bb3e882d6e5823e55cc3b5b732d8c08c4855a89091eafa1a40cd931794",
-    "parity/028-L2/job.sh": "4890634ead6fe74c296975c4d9077599b40142042c65c15695e14b5de2392c1b",
+    "parity/028-L2/strict-overdraw.py": "bf0eb6d4bb7478313507548d8d2c805466c6694ece86bc78c6f4c9295125268b",
+    "parity/028-L2/compose-proof.py": "4eb2865373e682aa32bf2491a548c67c035fed717a9b8e3e736794772c8c4cac",
+    "parity/028-L2/seed-proof.py": "030039ba30f4a655d51e9059ca109032052ab2f1cf3662129fd84c880c3440de",
+    "parity/028-L2/finalize-report.py": "107956689627c84b07f8713d453c29a3fe1b2eea7d7dfbc5a51b18779c7e1d4b",
+    "parity/028-L2/proof-adapters.sh": "182d1e80a5510de25c8d07cfddea94d2298953a8847a42cdd716e1795b36c6ec",
+    "parity/028-L2/prepare-proof.py": "c23d4f6ffb36b97cd24417eb6484067de562921f051736a605d910c940691406",
+    "parity/028-L2/stage-support.rs": "3ef04cb019d34faa91813e390e4d29dfdc229e0da4a0e3c2e6ff91672c47cadc",
+    "parity/028-L2/stage_vertices.py": "e2c9e835becfa5e7b2a4e07e8c0d2d68de41f95a731580f77429cf0e405abb39",
+    "parity/028-L2/prepare-stages.py": "d82a64d6dd32f5610abc0de05a97b576f382cc8a1572a473052dd9987807f0f3",
+    "parity/028-L2/adapter-proof.py": "a3eeea4389baf702c64abd532f67f848649c51bc130e7ad9b969f7255f455b7f",
+    "parity/028-L2/fuzz.sh": "47422c1eca3aa0e921a205b555efc95f59c6aed082dbaf5f83564654f5324e56",
+    "parity/028-L2/job.sh": "40dab2c567bb6897ec080d00cb99200354fcaa583d80b26eca57cb4c97dcb521",
     "parity/028-L2/protocol.rs": "f8cce9c75eb16bbe1be51c08240085d5ca7ac4f9061d3e4fedac5e0a1306720d"
   },
-  "registration_sha256": "ddc8220c40313f45e795a6732975714e50d6dd71f0e964ded06570fdccc3308f",
+  "registration_sha256": "c5556f97010492bcc2cc9bfa01bafdf5712ccabcdd499cbe39bbfeeeca421c76",
   "binaries": {
     "candidate": {
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-candidate-4",
+      "path": "<scratch>/meshopt-028-L2/driver-candidate-4",
       "sha256": "40156d47bf96d0abb7bb90ac4de5c665fc80cf814f0fd0c05dc1a721d8d0d7ba"
     },
     "base": {
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-base-3",
+      "path": "<scratch>/meshopt-028-L2/driver-base-3",
       "sha256": "39cc05f7bc33b009bb65090ac8743af7ba9d7ae166b60cdb5cdff72f31551ae1"
     },
     "M7": {
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-M7-3",
+      "path": "<scratch>/meshopt-028-L2/driver-M7-3",
       "sha256": "8bd1f43c5c99e08624f596f6bf1b61583ab6b2373c1b0798e179f7ccd52f35c2"
     },
     "X": {
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/driver-X-3",
+      "path": "<scratch>/meshopt-028-L2/driver-X-3",
       "sha256": "8ecb32ad36545dc06f2fd281a78485a2c53a5a1aa23b334296c00d7480f90093"
     }
   },

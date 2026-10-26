@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: Check public text
+        run: bash parity/tools/check_public_text.sh
       - run: parity/check-unsafe-boundary.sh
       - run: cargo test --locked --no-default-features
         env:

@@ -1,4 +1,4 @@
-# moss-qx5g3 release check v2
+# downstream-qx5g3 release check v2
 
 **RELEASE**. Candidate `f40f5af`; baseline 0.2.3 `afe803b`; fallback `a7688ef`. Candidate src diff from r2 `d74b914` is empty.
 
@@ -26,7 +26,7 @@ F = **0.093803340**, T = ceil_to_0.001(1 + F + 0.02) = **1.114**. Floor case: `s
 |---|---|---|---|
 | None: no C/B lower bound exceeds this session’s T. | — | — | No replication or layout case required |
 
-Main + A/A + replication session wall time: 40.81 minutes, including any admission PAUSE. Raw records: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/C-attempt-1/record.json`.
+Main + A/A + replication session wall time: 40.81 minutes, including any admission PAUSE. Raw records: `<scratch>/meshopt-simplify-perf/release-v2/C-attempt-1/record.json`.
 
 ## Alignment qualification
 
@@ -45,7 +45,7 @@ Full raw symbol tables: Bp-symbols.txt and Cp-symbols.txt. Qualification records
 
 ## Absolute bars and inherited correctness
 
-r2 complete frozen-final matrix: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json`; SHA-256 `c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd`; 204/204 cases. Family GM ≤1.25 and non-exempt case max ≤1.50: **True**. Named million/disconnected/allocating overdraw exemption retained exactly as v1. No new C++ timing.
+r2 complete frozen-final matrix: `<scratch>/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json`; SHA-256 `c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd`; 204/204 cases. Family GM ≤1.25 and non-exempt case max ≤1.50: **True**. Named million/disconnected/allocating overdraw exemption retained exactly as v1. No new C++ timing.
 
 | Family | GM vs C++ 1.3 | Max |
 |---|---:|---:|
@@ -59,22 +59,22 @@ Inherited candidate correctness and fuzz: r2/REPORT.md, r2/source-continuity.jso
 
 ## Receipts and scheduling
 
-[Registration](REGISTRATION.md), [analysis with every case and A/A interval](analysis.json), [all raw measured pairs](SAMPLES.csv), [protocol verification](verification.json), [source/profile/binary identities](identities.json). Scratch evidence root: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/`. Full raw resident responses, archive sources, executables, scripts and wrapper logs remain there. No perf profiles were required or collected because the flagged set is empty. No evidence was deleted. All six private Cargo target directories were removed after retaining every ELF/WASM binary by content hash. [Cleanup receipt](cleanup.json), [independent audit](independent-audit.json), [admission receipts](heavy-receipts.tsv), and [frozen protocol scripts](protocol/) are retained. The independent audit verified 4,896 unique raw pairs, recomputed all case medians and family GMs, and checked every registered script and arm binary hash. The first generic-python cleanup submission was canceled while queued because it inherited an unrelated 9 GiB class estimate; the identical cleanup script ran through its own 2 GiB entry point. This occurred after measurement.
+[Registration](REGISTRATION.md), [analysis with every case and A/A interval](analysis.json), [all raw measured pairs](SAMPLES.csv), [protocol verification](verification.json), [source/profile/binary identities](identities.json). Scratch evidence root: `<scratch>/meshopt-simplify-perf/release-v2/`. Full raw resident responses, archive sources, executables, scripts and wrapper logs remain there. No perf profiles were required or collected because the flagged set is empty. No evidence was deleted. All six private Cargo target directories were removed after retaining every ELF/WASM binary by content hash. [Cleanup receipt](cleanup.json), [independent audit](independent-audit.json), [admission receipts](heavy-receipts.tsv), and [frozen protocol scripts](protocol/) are retained. The independent audit verified 4,896 unique raw pairs, recomputed all case medians and family GMs, and checked every registered script and arm binary hash. The first generic-python cleanup submission was canceled while queued because it inherited an unrelated 9 GiB class estimate; the identical cleanup script ran through its own 2 GiB entry point. This occurred after measurement.
 
 PAUSE events: 11. Every waiting train detected at a completed-case boundary released admission; no mid-pair pause or completed-case repeat.
 
 ```json
-{"event": "PAUSE", "utc": "2026-10-25T12:02:21.393655+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 155, "AA": 0, "replication": 0}, "waiting": [{"pid": 1119437, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:04:54.690934+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 168, "AA": 0, "replication": 0}, "waiting": [{"pid": 1147712, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:18:31.985659+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 176, "AA": 0, "replication": 0}, "waiting": [{"pid": 1435486, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:17.313704+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 0, "replication": 0}, "waiting": [{"pid": 1528777, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:20.517505+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 14, "replication": 0}, "waiting": [{"pid": 1528414, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:27.715827+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 85, "replication": 0}, "waiting": [{"pid": 1533212, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:32.172929+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 85, "replication": 0}, "waiting": [{"pid": 1532365, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:38.041246+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 114, "replication": 0}, "waiting": [{"pid": 1538700, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:41.281546+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 116, "replication": 0}, "waiting": [{"pid": 1538283, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:25:46.729267+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 135, "replication": 0}, "waiting": [{"pid": 1541797, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
-{"event": "PAUSE", "utc": "2026-10-25T12:29:01.054505+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 158, "replication": 0}, "waiting": [{"pid": 1577127, "cwd": "/mnt/linux-extra/moss-lane-worktrees/train-20261025-032810-554e2a", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:02:21.393655+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 155, "AA": 0, "replication": 0}, "waiting": [{"pid": 1119437, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:04:54.690934+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 168, "AA": 0, "replication": 0}, "waiting": [{"pid": 1147712, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:18:31.985659+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 176, "AA": 0, "replication": 0}, "waiting": [{"pid": 1435486, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:17.313704+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 0, "replication": 0}, "waiting": [{"pid": 1528777, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:20.517505+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 14, "replication": 0}, "waiting": [{"pid": 1528414, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:27.715827+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 85, "replication": 0}, "waiting": [{"pid": 1533212, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:32.172929+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 85, "replication": 0}, "waiting": [{"pid": 1532365, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:38.041246+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 114, "replication": 0}, "waiting": [{"pid": 1538700, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:41.281546+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 116, "replication": 0}, "waiting": [{"pid": 1538283, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:25:46.729267+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 135, "replication": 0}, "waiting": [{"pid": 1541797, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
+{"event": "PAUSE", "utc": "2026-10-25T12:29:01.054505+00:00", "arm": "C", "attempt": 1, "completed_cases": {"main": 204, "AA": 158, "replication": 0}, "waiting": [{"pid": 1577127, "cwd": "<worktree>", "queue": "heavy.waiting"}]}
 ```
 
 Wrapper segment exits (75 is a train PAUSE, not a measurement failure):

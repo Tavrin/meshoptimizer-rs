@@ -2,7 +2,7 @@
 
 `run.py` compares the exact S2 bridge output with a safe Rust equivalent. Its
 `bridge.cpp` is a byte-for-byte copy of S2's `cluster_lod_bridge.cpp`, checked
-before each build; the C++ build links Moss's read-only vendored sources. Both
+before each build; the C++ build links a downstream engine's read-only vendored sources. Both
 drivers receive the same S0b mesh bytes, synthesized layout, and S2
 `boundary_locks` array. The Rust callback emits S2's DAG records in callback
 order and uses `clusterlod::local_indices`. It passes the 3 normal weights to
@@ -13,7 +13,7 @@ The `R11B` parity request appends independent cluster and meshlet bounds to
 the complete S2 DAG. Every output byte is compared. The `R11T` timing request
 executes the S2 bridge without extra bounds and returns internal monotonic
 time. All three drivers stay pinned to one CPU and samples alternate scalar
-C++, Moss-style SIMD C++, and Rust order. The runner samples `/proc/stat` for
+C++, a downstream engine-style SIMD C++, and Rust order. The runner samples `/proc/stat` for
 one second and chooses the least busy allowed core unless `--core` is supplied.
 It excludes cores 0 and 1, used by concurrent benchmark lanes, by default;
 `MESHOPT_RFC113_EXCLUDE_CORES` changes that list.
@@ -39,16 +39,16 @@ python3 parity/rfc113/profile.py --core 21
 ```
 
 Results are `result.json`, `codec.json`, `differential.json`, `budget.json`, and small perf call-graph summaries under
-`/mnt/linux-extra/meshopt-artifacts/rfc113`. The small handoff is
+`<artifacts>/rfc113`. The small handoff is
 `parity/results/rfc113-clod.md`. Pass `--case mesh:stride` to either runner
 for a single deterministic reproduction.
 
-Set `MESHOPT_RFC113_MOSS_DIR` to the Moss cooker directory,
+Set `MESHOPT_RFC113_MOSS_DIR` to the a downstream engine cooker directory,
 `MESHOPT_RFC113_MESH_DIR` to the frozen `.mesh` directory,
 `MESHOPT_RFC113_ART_DIR` to the artifact directory, and `CARGO_TARGET_DIR`
 to the build target. Their current paths are the defaults in `run.py`; this
 performance lane uses
-`CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodfix`.
+`CARGO_TARGET_DIR=<target-dir>`.
 
 `differential.py` archives the exact `main` commit into the artifact directory,
 builds its phase 0.3 Rust driver, then builds the current Rust driver and the
@@ -60,7 +60,7 @@ this worktree. Its JSON records all three binary hashes and the source commit.
 driver. It sweeps each byte around the old success boundary, checks that every
 old success still succeeds, and compares error kinds where both sides fail.
 The scalar C++ build uses `MESHOPTIMIZER_NO_SIMD` and strict scalar float
-flags. The second C++ build mirrors Moss's release `cc` flags, including
+flags. The second C++ build mirrors a downstream engine's release `cc` flags, including
 `-O3` and SIMD enabled; it is the adoption reference, while the scalar build
 remains this lane's performance bar.
 
@@ -85,13 +85,13 @@ The caller allocates the S1 ceiling capacities: 4<<20 vertices, 16<<20 indices,
 Processing is one mesh at a time. Every distinct emitted source/position tuple
 is checked for collision under S1's u64 hash; collisions block acceptance.
 
-Freeze `MANIFEST.json` under `/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/`
+Freeze `MANIFEST.json` under `<scratch>/meshopt-cluster-dag/`
 from S1's `selection.txt`, `build_dags.sh`, builder, candidates, stats, headers,
 all source inputs and all retained `.clod` files before replay. The manifest
-records their SHA-256 hashes and configuration. Through `moss-heavy.sh`, build:
+records their SHA-256 hashes and configuration. Through `<job-runner>`, build:
 
 ```sh
-export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-cluster-dag
+export CARGO_TARGET_DIR=<target-dir>
 cargo build --release --manifest-path parity/rfc113/Cargo.toml --bin rfc113-dag-oracle
 python3 parity/rfc113/dag_oracle.py --milestone
 python3 parity/rfc113/dag_oracle.py

@@ -28,10 +28,10 @@ Only the after stream decides this candidate's scoped performance verdict.
 | omm_compact | moss | 1.246 (1.319) | 1.325 (1.331) | FAIL mean; abandoned |
 | omm_compact | default | 1.115 (1.181) | 1.296 (1.335) | FAIL mean; abandoned |
 
-Fresh remesh caller means/maxima are 1.106/1.259 Moss and 1.101/1.231 default.
+Fresh remesh caller means/maxima are 1.106/1.259 a downstream engine and 1.101/1.231 default.
 All five API groups per profile pass their unchanged maximum gate and every
-memory ratio is 1.000 (bar 1.25). OMM compact fails GM <=1.25: 1.325353 Moss and
-1.295537 default. Moss's six cases range 1.317..1.331, default 1.243..1.335;
+memory ratio is 1.000 (bar 1.25). OMM compact fails GM <=1.25: 1.325353 a downstream engine and
+1.295537 default. a downstream engine's six cases range 1.317..1.331, default 1.243..1.335;
 this failure is broader than one maximum outlier. Inlining removes its helper
 call and saves about 1% instructions on diagnosed shapes, but does not qualify
 its fresh frozen family. Retain that narrow verified improvement; abandon
@@ -42,17 +42,17 @@ Do not repeat timing to select a favorable stream or extend the ranked batch.
 
 ## Protocol, validation and retained artifacts
 
-The dffe7f5 library/harness epoch stays fixed throughout both profiles. Moss is
+The dffe7f5 library/harness epoch stays fixed throughout both profiles. a downstream engine is
 opt-level3/thin-LTO/cgu1; default is opt-level3/LTO=false/cgu16, generic target and
 empty Rust flags. The scalar reference is pinned at 4c203430ca565cb59a468a91922c76c208169536,
 O3/NO_SIMD/no-fast-math/no-FMA. Frozen shapes, allocating/caller storage,
 allocation/sink semantics and bars are unchanged. No unsafe or explicit SIMD.
 
 A single lease_run.py campaign declares 4 GB through MOSS_HEAVY_GPU=1 and shared
-moss-heavy.sh, which dynamically reserves 2 GB, visibly waits for admission and
+<job-runner>, which dynamically reserves 2 GB, visibly waits for admission and
 holds heavy:timeout's kernel GPU flock. One 840-second bounded burst completes
 in 96 seconds including compilation. Complete inventory: 38 cases/profile,
-76 total, 400 interleaved pairs. Moss stops all 38 at five; default stops 34 at
+76 total, 400 interleaved pairs. a downstream engine stops all 38 at five; default stops 34 at
 five and four at ten. No cap remains borderline, so no D146 30-pair second stage
 is required. The existing 5/10/20 policy and fresh-unpooled D146 rule are retained.
 All 759 admission snapshots pass holder/ancestor/flock/reservation checks.
@@ -67,7 +67,7 @@ functional gates, preserved 0.6/cluster-LOD APIs and the supported RFC113 layout
 Historical fuzz and all-family timing records are not promoted to this source.
 
 Entry points outside the deleted target cache:
-`/mnt/linux-extra/meshopt-artifacts/p05-diagfix/audit.json`, `final-manifest.json`,
+`<artifacts>/p05-diagfix/audit.json`, `final-manifest.json`,
 `final-sources.tar.gz`, `frozen-proof/record.json`, `final-counts/counts.json`,
 `compact-hash-proof/receipts.json`, `final-gates/receipts.json` and
 `timing/lean-0.5-{moss,default}.json`. Sources, proof executables/libraries/WASM,
@@ -101,7 +101,7 @@ per mode; fourteen phase fixture/fuel/storage contracts; native, libm and execut
 WASM differential identity 30,000 cases each with zero mismatches. Expanded selected
 family parity checks cover 38 shapes per std/libm mode. Receipts and immutable
 proof binaries live outside the deleted build cache in
-`/mnt/linux-extra/meshopt-artifacts/p05`. `D144-validate.done`,
+`<artifacts>/p05`. `D144-validate.done`,
 `D144-functional-preflight.json` and `D144-per-family-status.json` are the entry points.
 Historical fuzz receipts are preserved; fuzz was not rerun against D144.
 
@@ -120,7 +120,7 @@ These source-bound observations use different corpora/methods and do not imply
 matched-case speedup or qualify the newly combined D144 source. Every family needs
 a fresh complete final record. Helpers and compact still have only D73 evidence.
 
-| Family | Before GM M / D | Latest applicable evidence GM (max), Moss | Default | Max heap ratio | Scope / status |
+| Family | Before GM M / D | Latest applicable evidence GM (max), a downstream engine | Default | Max heap ratio | Scope / status |
 |---|---:|---:|---:|---:|---|
 | `stripify` | 1.346 / 1.266 | 1.106 (1.176) | 1.176 (1.257) | 1.000 | D131 edge subset passes; full pending |
 | `stripify_bound` | 2.803 / 3.009 | 0.424 (0.476) | 0.423 (0.478) | 1.000 | D73 historical pass; fresh final pending |
@@ -139,11 +139,11 @@ a fresh complete final record. Helpers and compact still have only D73 evidence.
 | `remesh` | 1.613 / 1.732 | 1.248 (1.377) | 1.264 (1.348) | 1.000 | D128; default owned mean FAIL |
 
 Remesh is the remaining observed full-family mean failure: D128 allocating
-Moss 1.2484/default 1.2641, caller 1.1858/1.2488, heap 1.0. Default caller and Moss
+a downstream engine 1.2484/default 1.2641, caller 1.1858/1.2488, heap 1.0. Default caller and a downstream engine
 owned means are near the bar; neither is qualified. Cache D126's full diagnostic
 has default maximum 1.499; D129's updated two-edge subset passes but cannot replace
-it with a full mean. D131 clears the prior Moss raster case around1.55:
-its largest Moss owned/caller maxima are1.274/1.286. Strip/decoder edge evidence
+it with a full mean. D131 clears the prior a downstream engine raster case around1.55:
+its largest a downstream engine owned/caller maxima are1.274/1.286. Strip/decoder edge evidence
 covers shapes 0/7 only and leaves the six other shapes unmeasured for this method.
 
 ## Next diagnosis lane
@@ -155,10 +155,10 @@ Rust/C++ instructions 4,383,683,293/2,929,328,885 (~1.50x); Rust cycle samples a
 setup and do not prove API causality. Bound and owned paths repeat marking;
 allocation, cast/bounds and code-layout costs need measured attribution.
 
-D142's source/binary-checked Moss-only diagnostic passes (GM 1.195/1.168,
+D142's source/binary-checked a downstream engine-only diagnostic passes (GM 1.195/1.168,
 max 1.264/1.261, heap 1.0), but its external worker assumed
 `libmeshopt-p05-bench.so` after a broad prototype package rename produced
-`libmeshopt-p05-padded-grid-prototype-bench.so`. It exits1 after completing Moss,
+`libmeshopt-p05-padded-grid-prototype-bench.so`. It exits1 after completing a downstream engine,
 before profiling/default. Do not promote it or infer the default result. D143
 extends the padded representation to accumulation, passes full semantic/strict
 proof, and has no timing. Both remain outside production. Fix the external worker
@@ -166,7 +166,7 @@ basename handling or restrict package renaming before any separately authorized
 future timing; source identity will require a fresh stream after harness edits.
 
 For future authorized timing, use only `parity/p05/lease_run.py` (which invokes
-`MOSS_HEAVY_GPU=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ...`).
+`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`).
 It verifies shared admission/holder ancestry and kernel flock; no nested/direct
 lease, scoreboard or quiet-host gate. Grant soft checkpoint 600s, hard 840s,
 retry 75/resume 76; touched rows/five pairs while iterating. Selected complete final
@@ -181,7 +181,7 @@ The exact target directory is deleted at wrap-up; external archives survive.
 Every source candidate is recorded in D71–D143 above. This index distinguishes
 retained corrections from failed explanations, performance rejections, a compiler
 no-op, and unfinished hypotheses. All artifacts are under
-`/mnt/linux-extra/meshopt-artifacts/p05`; completed D128–D141 prototypes have
+`<artifacts>/p05`; completed D128–D141 prototypes have
 source/binary-bound `Dnnn-proof/baseline-*` archives. Earlier streams use
 `baseline-Dnnn-*`, except frozen D106. D142 uses `D142-proof/baseline-D142-partial`.
 No samples across sources/methods are pooled. Lower instruction counts or
@@ -189,23 +189,23 @@ semantic equivalence never establish a wall-time pass.
 
 | Candidate / hypothesis | Outcome and disposition |
 |---|---|
-| D71–D73: batched helper timing, matched strict scalar reference, analyzer/generator loop reductions and adjacent normal pairs | Retained foundations. D73 full matrix still fails12/21 Moss and14/21 default groups. Historical data uses the earlier method. |
+| D71–D73: batched helper timing, matched strict scalar reference, analyzer/generator loop reductions and adjacent normal pairs | Retained foundations. D73 full matrix still fails12/21 a downstream engine and14/21 default groups. Historical data uses the earlier method. |
 | D74–D85: sequential strip reads, cache bounds, scalar raster rows/setup, direct corner/voxel/hash reads, covered caller raster, eight-triangle removal, scalar log2 and inline OMM hash | Retained validated changes; caller witness D83. Individually untimed while gated, subsequently exercised by diagnostics. No individual speedup inferred. |
 | D87/D89–D92: covered caller normal/tangent storage, fuel-specialized decoder/raster, once-only scratch initialization, retired remap removal | Retained semantics and requested-heap reductions. D88 adds executed libm proof. Superseded narrow emission choices are listed below. |
 | D97/D98/D101/D102/D105: packed reads, disabled cache simulation, bounded OMM ranges, normal clear/charging, tangent accumulation and fetch bounds | Retained validated changes. Interim queues admitted no samples or partial samples; D102/D103 partial streams are preserved separately. |
 | D99/D112: append owned strip/unstrip output, including the <=64 small decoder branch | Rejected as the final ownership layout. D118 replaces decoder append with initialized chunks; D131 replaces strip append with SliceOutput. Exact capacity/work/heap retained. |
-| D103: branchless decoder degeneracy and checked triangle chunks | Retained, but D105 owned tiny/million maxima1.543/1.851 Moss and1.560/1.791 default still fail. Not sufficient alone. |
+| D103: branchless decoder degeneracy and checked triangle chunks | Retained, but D105 owned tiny/million maxima1.543/1.851 a downstream engine and1.560/1.791 default still fail. Not sufficient alone. |
 | D104: caller page commitment and owned output chunks | Retained matching correction; not a sufficient explanation for the remaining owned-only gap. |
 | D106: resident immutable inputs and explicit decoder validation | Retained matching correction; focused default owned maximum1.756 still fails. Frozen D106 source/binaries preserved. |
 | D107: matched conditional caller buffers | Retained correction. Discarded its first draft's unrelated untimed OMM parity branch edit. Does not alone clear tiny owned decoding. |
-| D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive Moss tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
-| D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny Moss maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
+| D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive a downstream engine tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
+| D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny a downstream engine maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
 | D111: static API selection outside both loops | Retained method fix. Tiny owned Moss2.883 still fails. Wider dispatcher asymmetry is insufficient. |
-| D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 Moss still fails; D114 matched method subsequently clears fetch. |
+| D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 a downstream engine still fails; D114 matched method subsequently clears fetch. |
 | D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned Moss2.145 still fails. |
 | D117: matched standalone timer functions | Retained method correction; tiny owned Moss2.056 still fails. |
-| D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny Moss maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
-| D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny Moss maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
+| D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny a downstream engine maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
+| D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny a downstream engine maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
 | D122: keep Vec ownership local to fallible reservation | Retained. Decoder edge subsets finally pass both profiles; full family remains unqualified. |
 | D123: cache kernel inlining, slicing and timestamp changes | Rejected: cache means1.364/1.402, maxima1.737/1.855. Restore kernel in D124. D123 normal merging/probe changes retained; tangent charging refined in D124. |
 | D124: original cache kernel, fixed timestamp preparation, actual tangent probes | Retained; tangents pass, cache default tiny maximum1.613 still fails. |
@@ -216,7 +216,7 @@ semantic equivalence never establish a wall-time pass.
 | D129: inline small strip/workspace helpers | Retained where still present; strip/raster replaced by D131. Per-triangle remesh extraction separately rejected below. |
 | D131: nine direct raster edges in original order and initialized checked owned strip output | Retained in final tree. Raster full diagnostic and strip edge subset pass both profiles, heap 1.0; no complete final matrix. |
 
-| Remesh candidate | Moss owned/caller GM | Default owned/caller GM | Decision |
+| Remesh candidate | a downstream engine owned/caller GM | Default owned/caller GM | Decision |
 |---|---:|---:|---|
 | D127: whole-input charging | 1.467 / 1.358 | 1.482 / 1.304 | Rejected; at least one mean fails. |
 | D129: extracted sample helpers | 1.538 / 1.449 | 1.562 / 1.445 | Rejected; at least one mean fails. |
@@ -231,7 +231,7 @@ semantic equivalence never establish a wall-time pass.
 | D140: twice-cutoff finite grid upper bound | 1.419 / 1.328 | 1.468 / 1.396 | Rejected; at least one mean fails. |
 | D141: direct saturating half-cell byte conversion | 1.270 / 1.198 | 1.274 / 1.272 | Rejected; at least one mean fails. |
 | D135: rounded base point per sample row | — | — | Rejected before timing: generated default marking/accumulation instructions, registers, branches and float constants identical to D128. Compiler already hoists it. |
-| D142: fixed-pitch512-byte stack marking grid, resolutions4..8 | 1.195 / 1.168 | unmeasured | Abandoned at owner stop; Moss maxima 1.264/1.261, heap 1.0. Wrapper exits1 after Moss due renamed C++ library basename; no default or perf run. Not a demonstrated performance rejection. |
+| D142: fixed-pitch512-byte stack marking grid, resolutions4..8 | 1.195 / 1.168 | unmeasured | Abandoned at owner stop; a downstream engine maxima 1.264/1.261, heap 1.0. Wrapper exits1 after a downstream engine due renamed C++ library basename; no default or perf run. Not a demonstrated performance rejection. |
 | D143: extend fixed-pitch stack grid/row map to accumulation | unmeasured | unmeasured | Abandoned without any timing submission; full strict/native/libm/executed-WASM proof passes. No performance inference. |
 
 The operative rejection is failure against the unchanged bar; none of these
@@ -271,21 +271,21 @@ SIMD is added. Exact errors, work prefixes, destination tails and values remain.
 
 D122 completes eight five-pair strip/decoder edge rows per profile, archived
 in `baseline-D122-focused`. All subset groups pass: owned decoder maxima
-0.999 Moss / 1.033 default, caller 1.118 / 1.152; owned strip maxima 1.407 /
+0.999 a downstream engine / 1.033 default, caller 1.118 / 1.152; owned strip maxima 1.407 /
 1.459, caller 1.149 / 1.144. All requested-memory ratios are 1.0. The combined
 admission lasted 78 seconds, measured process peak 0.5 GB. These are incomplete
 family means and cannot qualify the full matrix. D122's subsequent 48 rows per
 profile complete in a 217-second admission (`baseline-D122-pending`). OMM measure
 passes both profiles (means 1.176/1.154, maxima 1.381/1.302, memory 1.156). Tangent
 owned means 1.263/1.269 and default caller 1.291 fail; cache maxima 1.541/1.766
-and Moss normal owned maximum 1.535 fail.
+and a downstream engine normal owned maximum 1.535 fail.
 
 D123 normals pass all API/profile groups (`baseline-D123-focus`). D124 rejects
 the regressing cache attempt, restores the D122 kernel and exposes fixed
 timestamp-only buffer lengths through identical workspace preparation. Tangent
 hashing uses bounded actual-probe charging. All tangent groups pass D124's
 24-row diagnostics in both profiles (largest mean 1.248, max 1.351, memory 1.0).
-Cache means pass 1.105/1.116; Moss max 1.450 passes, default tiny max 1.613 fails.
+Cache means pass 1.105/1.116; a downstream engine max 1.450 passes, default tiny max 1.613 fails.
 Both streams and fresh profiles are archived in `baseline-D124-focus`; its
 visible grant lasted 117 seconds. No residual is accepted.
 
@@ -305,7 +305,7 @@ Validation, quotas, work, allocations and result math stay exact. Full strict
 checks and 30,000 native/libm/executed-WASM cases each pass. D126 completes cache
 and pending raster/remesh diagnostics in an 86-second admission
 (`baseline-D126-focus`). Cache passes both consumers (means 1.093/1.151, maxima
-1.346/1.499, memory 1.0). Raster owned/caller means fail 1.366/1.439 Moss and
+1.346/1.499, memory 1.0). Raster owned/caller means fail 1.366/1.439 a downstream engine and
 1.423/1.507 default; default remesh means fail 1.296/1.259.
 
 D127 specializes validated raster state formats through recursion/emission,
@@ -318,7 +318,7 @@ native/libm/executed-WASM sweep pass. D127 completes in 97 seconds, archived
 in baseline-D127-focus. Its remesh charging change regresses both profiles and
 is rejected. Artifact-side D128 passes strict/native/libm/executed-WASM proof
 and completes 50 five-pair rows per profile (D128-proof/baseline-D128-focused).
-Tangents pass both profiles; Moss raster maximum falls to 1.246. Default
+Tangents pass both profiles; a downstream engine raster maximum falls to 1.246. Default
 strip/cache/raster/remesh still fail some diagnostic groups. D129 promotes
 D128, inlines their profiled small helpers and separates original per-triangle
 sample charging. Its 34-row/profile focus completes; remesh extraction regresses and is
@@ -332,20 +332,20 @@ executed-WASM proof; its timing waits in visible shared admission. D134 entry
 inlining is prepared and being proved as a follow-on if D133 still fails.
 The required full final matrix launcher is ready but has not run. No residual is accepted; final matrices remain unrun.
 
-D121's four-row Moss stream is retained in `baseline-D121-partial`: tiny owned
+D121's four-row a downstream engine stream is retained in `baseline-D121-partial`: tiny owned
 maximum 1.561 still fails, caller/million probes pass, memory is 1.0. Its first
 visible admission held the lease for 26 seconds and measured a 0.5 GB process
 peak. D121 default and fresh failing profiles were not collected; the queued
 profile was stopped before admission. No live burst was interrupted.
 
 D119's focused five-pair decoder probes remain separately source-bound in
-`baseline-D119-focused`: tiny owned Moss maximum 1.550, default maximum 1.102;
+`baseline-D119-focused`: tiny owned a downstream engine maximum 1.550, default maximum 1.102;
 caller and million-owned probes pass. The two-case decoder mean is incomplete,
-and the Moss maximum still fails. No residual is accepted. Prior D106-D119
+and the a downstream engine maximum still fails. No residual is accepted. Prior D106-D119
 streams retain their matching sources, binaries and failing-family profiles.
 
 D120 supersedes direct lease submission with visible shared admission:
-`MOSS_HEAVY_GPU=1 moss-heavy.sh 4 timeout 840 ...`, dashboard lane
+`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`, dashboard lane
 `meshopt-timing:p05-*`. The 4 GB declaration is adjustable if the measured peak
 requires it. The shared wrapper obtains/releases the GPU lease; this lane never
 calls or nests gpu-lease.sh. Receipts verify the admitted timeout, memory
@@ -366,13 +366,13 @@ has not started; pending family diagnostics must pass before it does.
 The figures below are the historical final D73 timed run after the safe-Rust optimization
 passes. The measured source also passed exact native and WASM parity.
 
-**Verdict: evidence verified; performance not qualified.** The unchanged scalar-strict C++ bar is geometric mean Rust/C++ time <= 1.25 per family/API, every case <= 1.50, and peak requested output-plus-scratch <= 1.25. Moss passes 9/21 family/API groups and Cargo defaults pass 7/21. Three caller-buffer groups fail memory in both profiles. No exception was approved.
+**Verdict: evidence verified; performance not qualified.** The unchanged scalar-strict C++ bar is geometric mean Rust/C++ time <= 1.25 per family/API, every case <= 1.50, and peak requested output-plus-scratch <= 1.25. a downstream engine passes 9/21 family/API groups and Cargo defaults pass 7/21. Three caller-buffer groups fail memory in both profiles. No exception was approved.
 
-Each profile has 160 cases with 20 alternating same-core pairs each, pinned to the measured least-busy physical core. Geometry-dependent functions include tiny, medium, five topology styles (random, connected, seam-heavy, sparse, explicitly disconnected) and a million-triangle connected case. Geometry-independent OMM operations use six varied cases. Load averages are stored before and after every pair; the driver never waits for a quiet host. Both profiles use opt-level 3 and debug 0; Moss uses thin LTO and one codegen unit, Cargo defaults disable LTO and use 16. The benchmark checks complete output bytes before timing.
+Each profile has 160 cases with 20 alternating same-core pairs each, pinned to the measured least-busy physical core. Geometry-dependent functions include tiny, medium, five topology styles (random, connected, seam-heavy, sparse, explicitly disconnected) and a million-triangle connected case. Geometry-independent OMM operations use six varied cases. Load averages are stored before and after every pair; the driver never waits for a quiet host. Both profiles use opt-level 3 and debug 0; a downstream engine uses thin LTO and one codegen unit, Cargo defaults disable LTO and use 16. The benchmark checks complete output bytes before timing.
 
 Memory is peak requested output plus scratch, excluding caller buffers. The C++ driver tracks meshoptimizer scratch allocations and adds requested output vector sizes. Rust records per-call workspace usage, including staged outputs. These are requested bytes, not process RSS. In `omm_rasterize:caller`, C++ requests zero scratch while Rust requests a temporary output byte, so the ratio has no finite denominator.
 
-| Family (worst API) | Moss old -> final | Cargo default old -> final | Final max case M / D | Max memory |
+| Family (worst API) | a downstream engine old -> final | Cargo default old -> final | Final max case M / D | Max memory |
 |---|---:|---:|---:|---:|
 | `stripify` | 1.346 -> 1.146 | 1.266 -> 1.094 | 2.098 / 2.022 | 1.000 |
 | `stripify_bound` | 2.803 -> 0.424 | 3.009 -> 0.423 | 0.476 / 0.478 | 1.000 |
@@ -394,9 +394,9 @@ The old and final geometric means use different corpora; these arrows show the l
 
 ## Profile evidence
 
-`perf stat` instruction ratios below compare whole profiling drivers at the selected worst benchmark case. They include input setup, so they are diagnostic rather than per-call instruction counts. `perf record` identifies the Rust hot path. Every failing family in each profile has a retained stat log, record data file and report under `/mnt/linux-extra/meshopt-artifacts/p05/profiles-0.5-{moss,default}`.
+`perf stat` instruction ratios below compare whole profiling drivers at the selected worst benchmark case. They include input setup, so they are diagnostic rather than per-call instruction counts. `perf record` identifies the Rust hot path. Every failing family in each profile has a retained stat log, record data file and report under `<artifacts>/p05/profiles-0.5-{moss,default}`.
 
-| Failing family | Moss instructions Rust/C++ | Default instructions Rust/C++ |
+| Failing family | a downstream engine instructions Rust/C++ | Default instructions Rust/C++ |
 |---|---:|---:|
 | `stripify` | 1.07x | 1.07x |
 | `unstripify` | 1.56x | 1.53x |
@@ -411,7 +411,7 @@ The old and final geometric means use different corpora; these arrows show the l
 | `normals` | 1.58x | 1.54x |
 | `remesh` | 1.46x | 1.49x |
 
-Moss `perf record` places the largest Rust samples in `unstripify_core`, the vertex cache analyzer, OMM measurement/rasterization, tangent accumulation, normal grouping and remesh voxelization. Stripify's selected profiling driver spends material time in `memmove`, so its whole-driver instruction ratio must not be read as a pure algorithm ratio. D73's normal merging skips unrelated pair dot products; its Moss seam-heavy median fell from 1.63 to 1.34, and default fell from 1.71 to 1.48. These are paired benchmark observations on the same case, while the profile summaries select each run's worst case and need not select the same input across revisions. Exact symbol percentages and raw counts are in the profile artifacts.
+a downstream engine `perf record` places the largest Rust samples in `unstripify_core`, the vertex cache analyzer, OMM measurement/rasterization, tangent accumulation, normal grouping and remesh voxelization. Stripify's selected profiling driver spends material time in `memmove`, so its whole-driver instruction ratio must not be read as a pure algorithm ratio. D73's normal merging skips unrelated pair dot products; its a downstream engine seam-heavy median fell from 1.63 to 1.34, and default fell from 1.71 to 1.48. These are paired benchmark observations on the same case, while the profile summaries select each run's worst case and need not select the same input across revisions. Exact symbol percentages and raw counts are in the profile artifacts.
 
 The safe-Rust changes removed repeated position reads in tangent/normal accumulation, used a direct scalar square root in standard builds while preserving the `libm` path for `no_std`, simplified checked bounds, batched exact work charges, and reduced OMM UV mapping and cache analyzer work accounting. The three tiny helper gaps were measurement artifacts: the final harness varies valid inputs, batches at least 100,000 calls, dispatches outside both loops, and matches the result compiler barriers. D73 caller-buffer OMM rasterization, tangents and normals preserved the destination on any error by staging a complete result. D81/D87 subsequently removed this staging when a conservative work bound proves completion after all fallible setup. The other D73 failing rows retain their historical measured ratios and worst-case profiles; no exception to the bar is claimed. Fresh measurements of the resumed candidate remain pending admission.
 

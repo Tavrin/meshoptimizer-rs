@@ -23,7 +23,7 @@ def gm(values):
     return statistics.geometric_mean(values)
 
 
-result = {'scope': 'SPEC-03 allocating encoders, shared host, Cargo defaults and Moss thin LTO',
+result = {'scope': 'SPEC-03 allocating encoders, shared host, Cargo defaults and a downstream engine thin LTO',
           'evidence_directory': str(A), 'registration': registration, 'build': read('build.json'),
           'native': {}, 'historical_request': {}, 'peer': {}, 'parity': {}, 'evidence_sha256': {}}
 lines = ['## SPEC-03 consumer-profile qualification', '',

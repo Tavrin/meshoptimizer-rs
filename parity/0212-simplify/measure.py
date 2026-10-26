@@ -1,4 +1,14 @@
 """Attribution resident-loop protocol; instructions only, three fresh arms."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib
 import json
@@ -7,7 +17,7 @@ import os
 import struct
 import subprocess
 
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-0212-simplify')
+ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
 PERF = '/usr/lib/linux-tools/6.17.0-22-generic/perf'
 CPU = 9
 ARMS = ['base', 'candidate', 'M7']

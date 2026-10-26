@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= CARGO_ENCODED_RUSTFLAGS=
-A=/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check
+A="${SCRATCH:?}"/meshopt-validate-once/layout-check
 export RUSTFLAGS=""
 cargo rustc --manifest-path "$A/B-default-harness/Cargo.toml" --offline --profile moss --features ours,meshoptimizer-rs/experimental,meshoptimizer-rs/clusterlod --bin cmp-driver -- -C link-arg=-Wl,-Map,$A/B-default.map
 cp "$CARGO_TARGET_DIR/moss/cmp-driver" "$A/B-default"

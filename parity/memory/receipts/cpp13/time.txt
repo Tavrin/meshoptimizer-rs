@@ -1,4 +1,4 @@
-	Command being timed: "/mnt/linux-extra/moss-scratch/meshopt-memory/bin/migration-b --manifest /mnt/linux-extra/moss-scratch/meshopt-memory/214e-corpus.toml --fixtures jungle-scoreboard-214e85c568a64e8a-entity --output /mnt/linux-extra/moss-scratch/meshopt-memory/step1/cpp13/result.json"
+	Command being timed: "<scratch>/meshopt-memory/bin/migration-b --manifest <scratch>/meshopt-memory/214e-corpus.toml --fixtures jungle-scoreboard-214e85c568a64e8a-entity --output <scratch>/meshopt-memory/step1/cpp13/result.json"
 	User time (seconds): 26.74
 	System time (seconds): 12.98
 	Percent of CPU this job got: 85%

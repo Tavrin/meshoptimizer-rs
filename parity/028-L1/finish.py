@@ -83,7 +83,7 @@ identities are retained in the exported receipts and scratch.
 
 Measurements are native Linux x86-64 on a shared host, pinned to CPU 2 for the
 interleaved wall campaign; all load observations are retained. Claims are limited
-to the registered corpus/profile. No Moss runtime/GPU acceptance, other-platform
+to the registered corpus/profile. No a downstream engine runtime/GPU acceptance, other-platform
 performance, release, merge, tag or publication is claimed. All lane additions
 are under parity/028-L1; only required library edits and the existing changelog
 are outside it. Scratch and binaries are retained at `{ART}`. The designated
@@ -95,12 +95,12 @@ assert '## Final result'not in old,'do not overwrite a completed report'
 at=old.index('## Adapter diagnosis');p.write_text(old[:at]+summary+old[at:])
 # Required existing-root-file edit, measured values only; no version bump.
 p=ROOT/'CHANGELOG.md';s=p.read_text();assert '## [Unreleased]'not in s
-entry='## [Unreleased]\n\n- L1 cluster paths, Moss scalar five-case GM times versus 0.2.7 / C++ 1.3: '+', '.join(f"{r['family']} {r['base']:.3f}x / {r['M7']:.3f}x"for r in rows)+f". RFC113 aggregate {disclosure['all']:.3f}x C++, S1 {disclosure['S1']:.3f}x and S2 {disclosure['S2']:.3f}x.\n\n"
+entry='## [Unreleased]\n\n- L1 cluster paths, a downstream engine scalar five-case GM times versus 0.2.7 / C++ 1.3: '+', '.join(f"{r['family']} {r['base']:.3f}x / {r['M7']:.3f}x"for r in rows)+f". RFC113 aggregate {disclosure['all']:.3f}x C++, S1 {disclosure['S1']:.3f}x and S2 {disclosure['S2']:.3f}x.\n\n"
 s=s.replace('## [0.2.7]',entry+'## [0.2.7]',1);p.write_text(s)
 # Exact, reviewable draft PR body. No memory citations in PR content.
 body=f'''The L1 cluster path spends time clearing partition maps, publishing scan descriptors per triangle, evaluating zero-weight cone arithmetic, and dividing inside BVH pivots. This change reuses generation tags, keeps scan output state local, specializes the zero-weight search, and uses an exact invariant integer quotient. Position preparation and Morton interleave are also tightened. Public outputs, errors, work usage and APIs remain unchanged.
 
-Registered performance verdict: **{verdict}**. The single final campaign used the equalized Moss scalar adapters, 1 warm-up + 10 alternating pairs, 10,000 bootstrap resamples, seed 20261030, with A/A floor {F:.6f}. X is disclosure only.
+Registered performance verdict: **{verdict}**. The single final campaign used the equalized a downstream engine scalar adapters, 1 warm-up + 10 alternating pairs, 10,000 bootstrap resamples, seed 20261030, with A/A floor {F:.6f}. X is disclosure only.
 
 {table(rows)}
 RFC113 aggregate: {disclosure['all']:.6f}x C++ (S1 {disclosure['S1']:.6f}x; S2 {disclosure['S2']:.6f}x), disclosure only. PARTIAL families have no C++ performance-parity claim; FAIL families are not performance-qualified.

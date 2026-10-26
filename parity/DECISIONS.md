@@ -8,7 +8,7 @@ missing runner, provenance, docs and CI. Do not replace sound code merely to
 restart the interrupted lane. No code from another Rust port was adopted.
 
 The bounded reuse review found no locally qualified 1.3 implementation of
-these modules. The Moss decoder is a later codec reuse candidate, not an
+these modules. The a downstream engine decoder is a later codec reuse candidate, not an
 optimizer. Its current main source uses allocating Vec/String interfaces,
 infallible output allocation and a narrower codec version domain; its reuse
 still requires separate version, limits, no_std and parity qualification.
@@ -71,7 +71,7 @@ The full later-release 89-name ledger is outside this lane's explicit scope.
 Run every applicable upstream native fixture (the two emptyMesh calls), plus
 17 corpus cases and 2,000 seeded cases per shipped function. Include meshes
 with 1,000,002 indices, degeneracy, disconnection, unused vertices, varying
-scales and thresholds. Read current Moss main at
+scales and thresholds. Read current a downstream engine main at
 `8d3cc0664948cfb7a779304382c1e8b79133fe2e` without changing its checkout;
 the cooker and editor use threshold 1.05, matching the RFC's earlier baseline.
 Overdraw comparisons use the verified standard-cache output as input.
@@ -133,7 +133,7 @@ startup. Record medians, dispersion, raw samples and identities. Scalar-strict
 C++ is appropriate for these modules, which have no explicit SIMD paths.
 The lane's requested benchmark is recorded only; `--enforce` rejects an
 unsupported qualification claim. Broader workloads, caller-buffer benchmarks,
-release performance bars and Moss migration are deferred by lane scope.
+release performance bars and a downstream engine migration are deferred by lane scope.
 
 ## D11 — Simplifier API and stable options
 
@@ -152,7 +152,7 @@ bits rather than silently approximating behavior. All LOCK/PROTECT/PRIORITY
 combinations are accepted for attribute simplification. Priority examines the
 canonical vertex, as upstream does, and does not guarantee preservation.
 
-Read Moss main without checkout changes at
+Read a downstream engine main without checkout changes at
 `eddd56d1ba95b8bd2e1b8f9296bf080a86801a0e`. Cooker/editor use empty options;
 the cooker retry uses Permissive and Boolean locks, mapped to LOCK/empty.
 No LockBorder call was found. Cooker targets are 0.5/0.25/0.125 with error
@@ -160,7 +160,7 @@ No LockBorder call was found. Cooker targets are 0.5/0.25/0.125 with error
 scale before calling relative mode; qualification includes those actual inputs
 without changing the consumer. Current cooker attributes are normal xyz,
 UV, tangent xyz (weights 2/2/2/1/1/1/1/1), plus optional RGBA (weight 8 each).
-Opposite tangent handedness is locked by the consumer. Moss integration remains
+Opposite tangent handedness is locked by the consumer. a downstream engine integration remains
 outside this lane.
 
 ## D12 — Scratch, work and numerical contracts
@@ -191,7 +191,7 @@ Interpret the brief's default `target/parity-artifacts` as the isolated
 `$CARGO_TARGET_DIR/parity-artifacts`; a repository-local default would contradict
 its explicit outside-repository requirement. Reject any MESHOPT_ARTIFACTS path
 inside this checkout. Retain this lane's archives at
-`/mnt/linux-extra/moss-capture-archive/meshopt-lane2`, independently of the
+`<local>/meshopt-lane2`, independently of the
 throwaway build target. JSON contains archive/member hashes and metadata only.
 Remove the hostname field from both parity and fuzz hardware identities.
 
@@ -455,7 +455,7 @@ The starting column is supplied by the brief, not a controlled before/after
 measurement of this expanded matrix. The separately archived lane 2 record
 has different historical ratios: cache 1.320, overdraw 2.406, simplify
 1.553–1.675, attributes 1.467–1.750 and scale 1.334. It remains at
-`/mnt/linux-extra/moss-capture-archive/meshopt-lane3/lane2-benchmark.json`.
+`<local>/lane2-benchmark.json`.
 Neither historical single-grid table establishes a full-matrix speedup.
 
 Both individual time failures are medium sparse simplification at target 0.5:
@@ -499,9 +499,9 @@ lane does not refresh legacy package/release gates or claim AArch64 execution.
 
 Verify all current source identities, archive members, sample medians, family
 aggregates and executable hashes before retaining binaries and a source archive.
-Then remove exactly `/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane3`.
+Then remove exactly `<target-dir>`.
 Large artifacts remain at
-`/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final`.
+`<local>/final`.
 
 ## D29 — Require quiet admission before lane 3b measurements
 
@@ -532,9 +532,9 @@ universal safe-Rust performance limit.
 
 The requested `$MESHOPT_ARTIFACTS/lane3b` is outside the session's
 writable roots. Creating it returned `Read-only file system`. Store this lane's
-artifacts in `/mnt/linux-extra/moss-capture-archive/meshopt-lane3b` and record the
+artifacts in `<local>/meshopt-lane3b` and record the
 substitution in `results/lane3b-setup.json`. Use exactly the requested temporary
-target `/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane3b`, then remove it
+target `<target-dir>`, then remove it
 after retaining the evidence. Leave all Git metadata and state unchanged.
 
 ## D31 — Retain paired hardware evidence without claiming a ceiling
@@ -593,7 +593,7 @@ of variation. Keep the complete matrix and unchanged RFC bars. Schema 4 records
 this contract; load no longer gates measurements or triggers repeats. D29's
 quiet requirement and D31's deferral pending quiet measurement are superseded.
 
-The coordinator also reserved `/mnt/linux-extra/moss-capture-archive`. Move only
+The coordinator also reserved `<local>/downstream-capture-archive`. Move only
 this lane's `meshopt-lane3b` directory out and make no further artifact writes
 there. The requested `$MESHOPT_ARTIFACTS/lane3b` still rejects
 mkdir with `Read-only file system`; the session's writable roots have not changed.
@@ -772,11 +772,11 @@ safe-Rust ceiling is claimed.
 
 ## D38 — Relocate artifacts off the full root filesystem
 
-The coordinator requires artifacts on `/mnt/linux-extra/meshopt-artifacts/lane3b`,
+The coordinator requires artifacts on `<artifacts>/lane3b`,
 with no further `/tmp` or home artifact writes. That directory and the former
 home destination are not visible in this sandbox. Creating the requested mount
 path fails with `Read-only file system`; it is outside the exposed writable roots.
-Use `/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b` on the writable
+Use `<target-dir>/lane3b` on the writable
 large volume as the available fallback. This artifact directory is separate from
 the exact build target that must be deleted. The requested destination remains
 a sandbox/mount blocker, not a benchmark or parity failure.
@@ -827,9 +827,9 @@ before deleting the exact isolated build target. Verify Git metadata unchanged.
 All 612 original moved files have hash-preserving copies on the large volume;
 updated records retain byte-for-byte originals with a relocation map. The /tmp
 lane directory is removed and no subsequent commands write artifacts there.
-The requested /mnt/linux-extra/meshopt-artifacts/lane3b remains outside the
+The requested <artifacts>/lane3b remains outside the
 exposed writable roots and not visible; mkdir returns Read-only file system.
-Keep evidence at /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane3b.
+Keep evidence at <target-dir>/lane3b.
 Final placement at the exact requested path is the sole filesystem residual.
 
 The short final C++ cache cycle capture lost 27 samples. Repeat only that capture
@@ -837,7 +837,7 @@ with four times the event period; its output stays exact and all final captures
 have zero lost samples. Retain the superseded capture and original hashes.
 
 Cleanup completed: all archived file hashes were verified before deleting
-`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane3b`. All 125 Git metadata
+`<target-dir>`. All 125 Git metadata
 file hashes remain unchanged. A final relocation audit resolves and verifies
 all 612 original file hashes, including the closed benchmark and records whose
 original bytes are retained separately. `lane3b-cleanup.json` records removal;
@@ -853,9 +853,9 @@ library, test, Rust harness and fuzz-target sources unchanged. The report
 interface owns the external-record adapter so this lane does not broaden its
 source-file ownership to runner.py or performance.py.
 
-Creating /mnt/linux-extra/meshopt-artifacts/lane4 fails with Read-only file
+Creating <artifacts>/lane4 fails with Read-only file
 system: that path is outside this sandbox's writable roots. As in D38, retain
-artifacts at /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4 on the
+artifacts at <target-dir>/lane4 on the
 large volume, separate from the exact disposable build target. Exact requested
 placement remains a filesystem blocker. Do not put fuzz artifacts on root,
 in the repository, /tmp or home. Preserve every migrated record's original
@@ -866,7 +866,7 @@ current source-bound pass. Unavailable historical buffer hashes remain explicit.
 
 Keep the crate's own fat-LTO, one-codegen-unit release profile as its local
 measurement baseline. It does not configure dependents. Override the dependent
-parity harness's effective Cargo profile explicitly for Moss (thin LTO, one
+parity harness's effective Cargo profile explicitly for a downstream engine (thin LTO, one
 codegen unit, optimization level 3) and defaults (LTO false, 16 codegen units,
 optimization level 3), with release debug disabled in both. Record these exact
 environment overrides alongside the source manifests and executable hashes.
@@ -920,9 +920,9 @@ while keeping C++ Linux-only. No remote execution pass is claimed locally.
 
 D40 continuation: strengthen report verification to follow the fuzz record into
 every replay descriptor, executable identity, dependency identity and shard
-budget/execution sum. Retain the preceding report script and initial Moss
+budget/execution sum. Retain the preceding report script and initial a downstream engine
 matrix as diagnostic evidence because the source manifest includes this script;
-rerun Moss against the final verifier rather than accepting changed harness
+rerun a downstream engine against the final verifier rather than accepting changed harness
 sources. No library or fuzz-target code changed.
 
 ## D44 — Apply the owner's four-hour release amendment
@@ -955,7 +955,7 @@ old source manifest and per-session CPU selection beside the final identities.
 Measure every remaining case and the complete Cargo-default matrix.
 
 Keep the crate's own fat-LTO profile for its existing measurement baseline;
-dependents select their own profiles. Moss means, maxima and memory bars remain
+dependents select their own profiles. a downstream engine means, maxima and memory bars remain
 1.25, 1.50 and 1.25 respectively. A failed consumer family is reported without
 performance edits or altered acceptance thresholds.
 
@@ -1002,7 +1002,7 @@ is empty.
 
 ## D47 — Require a complete matrix with immutable execution paths
 
-The resumed Moss matrix completes with family GM (maximum): cache 1.182
+The resumed a downstream engine matrix completes with family GM (maximum): cache 1.182
 (1.464), overdraw 1.131 (1.554), plain simplification 1.213 (1.420), attributes
 1.211 (1.429), and scale 0.766 (0.869). Its overdraw maximum exceeds 1.50;
 memory passes. Preserve the complete failed record and its per-family numbers.
@@ -1013,7 +1013,7 @@ matrix also existed there. Rebuilding an identical executable afterward does
 not prove that every preceding case executed that profile. The surviving
 scratch-file race confirms that the old execution paths were shared. Supersede
 the performance adoption: retain all old buffers and timing records as
-diagnostics, and rerun the complete Moss matrix using immutable archived
+diagnostics, and rerun the complete a downstream engine matrix using immutable archived
 executables and a unique scratch path, as D40's continuation requires. This
 rerun addresses provenance, with no load admission, load-based repetition,
 performance code changes or relaxed bars. The saved fuzz binaries and
@@ -1027,7 +1027,7 @@ only the required buffer entry to that verifier after checking every attachment
 SHA-256 in the outer adapter. Require archived executable hashes to match the
 recorded build identities. Do not edit the shared Python verifier.
 
-Finish the active immutable Moss matrix before changing the adapter. Preserve
+Finish the active immutable a downstream engine matrix before changing the adapter. Preserve
 its complete original record, ZIP, sources and executable copies. Rebind the
 closed consumer matrices through the verified continuation interface: require
 identical executable hashes, effective profiles, compiler, dependencies and
@@ -1036,10 +1036,10 @@ report adapter change. Reuse all 204 measurements without new timing samples.
 Rerun native/WASM parity and the release sweep with the final verifier.
 
 The spec requires the verification report to exit zero when complete and also
-requires reporting a failed Moss bar without performance work. Therefore the
+requires reporting a failed a downstream engine bar without performance work. Therefore the
 report command's exit status describes evidence verification. Missing, changed,
 stale, incomplete or incorrect evidence remains nonzero. A fully verified
-failed Moss matrix is reported explicitly with release summary passed=false
+failed a downstream engine matrix is reported explicitly with release summary passed=false
 and moss_performance_accepted=false; it blocks release acceptance but does not
 make a complete verification command fail. Benchmark --enforce remains
 nonzero for either failed consumer matrix. No acceptance bar changes, no
@@ -1047,7 +1047,7 @@ performance edits, and no release-performance pass is inferred from exit zero.
 
 ## D49 — Final lane 4 outcome
 
-The complete immutable Moss matrix has 204 cases. Family mean (maximum)
+The complete immutable a downstream engine matrix has 204 cases. Family mean (maximum)
 Rust/C++ ratios are cache 1.243 (1.315), overdraw 1.130 (1.361), plain
 simplification 1.258 (1.429), attribute simplification 1.243 (1.356), and
 scale 0.782 (0.935). Plain simplification exceeds the 1.25 mean bar;
@@ -1076,7 +1076,7 @@ or registry readiness. The package contains only source, tests and metadata;
 its source and release-document bytes match the working tree. It is retained
 with its SHA-256 outside the build target.
 
-Delete only /mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane4 after
+Delete only <target-dir> after
 retaining sources, executables, records and corpora. Verification after that
 cleanup exits zero and does not recreate the target. Record complete verified
 evidence separately from failed release-performance acceptance. All preexisting
@@ -1085,8 +1085,8 @@ phase/0.2 and phase/0.3 worktrees. No Git state changes are performed here.
 The final status contains only lane-owned files and none over 5 MB.
 
 D40's exact artifact-placement blocker remains: use the retained large-volume
-fallback /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4 because
-the requested /mnt/linux-extra/meshopt-artifacts/lane4 is not writable in this
+fallback <target-dir>/lane4 because
+the requested <artifacts>/lane4 is not writable in this
 session. Missing historical buffer archives are explicit and are not current
 qualification evidence. Remote macOS, Windows and Linux arm64 execution is
 configured, not locally established. The out-of-scope checker finding remains
@@ -1097,8 +1097,8 @@ and leave that checker outside this lane's file ownership.
 
 ## D50 — Prepaid work accounting for plain simplification under thin LTO
 
-Lane 4 measured plain simplification at 1.258 (maximum 1.429) under the Moss
-profile, failing the unchanged 1.25 mean bar. Diagnostic Moss-profile builds
+Lane 4 measured plain simplification at 1.258 (maximum 1.429) under the a downstream engine
+profile, failing the unchanged 1.25 mean bar. Diagnostic a downstream engine-profile builds
 (thin LTO, one codegen unit, opt-level 3) on the worst medium sparse case show
 Rust/C++ cycles 1.42 and retired instructions 1.52. Per-visit work checks
 (`Work::add` compare, branch and subtract) were the largest separable cost. A
@@ -1150,7 +1150,7 @@ The wasm32 no_std build passed. `parity/run.sh --phase 0.1` passed with zero
 mismatches, including executed wasm32 identity and the math probe. So did
 `parity/sweep.sh --phase 0.1` with 10,000 cases per function.
 
-The complete 204-case Moss matrix (`--enforce`, exit 0) used CPU 17 (physical
+The complete 204-case a downstream engine matrix (`--enforce`, exit 0) used CPU 17 (physical
 core 8, 7.4% busy at selection), with at least 20 interleaved same-core pairs per
 case. One-minute load was 18.5 at the start and 21.4 at the end. Family GM
 (maximum), lane 4 -> now: cache 1.243 (1.315) -> 1.176 (1.344), overdraw 1.130
@@ -1161,7 +1161,7 @@ overdraw and scale code is unchanged. Their maxima moved on tiny cases: scale's
 1.292 is tiny/smooth, whose other tiny cases are at or below 0.994. This is
 shared-load dispersion, not a regression, and every case stays below 1.50.
 Records: results/benchmark-moss.json, with details under
-/mnt/linux-extra/meshopt-artifacts/simplify-perf/records.
+<artifacts>/simplify-perf/records.
 
 Not re-established: the Cargo-default matrix, gates.json, fuzz.json and the
 package checks are now stale against the changed simplify.rs. The Cargo-default
@@ -1174,8 +1174,8 @@ require them.
 Re-established on source `src/simplify.rs` sha256 fc4a3c4b... (d1230c3), with no
 source change: the Cargo-default matrix, `gates.json`, `fuzz.json` and the
 package checks that D50 marked stale. Build target
-`/mnt/linux-extra/moss-cargo-targets/claude-meshopt-release` (to be deleted);
-artifacts in `/mnt/linux-extra/meshopt-artifacts/release-0.1`.
+`<target-dir>` (to be deleted);
+artifacts in `<artifacts>/release-0.1`.
 
 Cargo-default matrix (`benchmark.sh --consumer-profile default --enforce`, exit
 0, 204 cases, record directory `benchmark-default-release`), family GM (max):
@@ -1198,7 +1198,7 @@ D9's offline loopback registry fallback; not a crates.io readiness claim).
 Run before and after the README update below; the retained record is the second.
 
 Decisions. (1) README performance table and fuzz range were stale (they still
-said release performance was blocked); updated to the new records. The Moss
+said release performance was blocked); updated to the new records. The a downstream engine
 column now shows the D50 numbers and the fat-LTO column is kept as historical.
 Alternative rejected: leave README untouched; it would have contradicted the
 evidence. Reversal: free. This forced a gates re-run because README is in the
@@ -1206,7 +1206,7 @@ package and the gates source snapshot. (2) `run.json`, `sweep.json`, `js.json`
 and `benchmark-moss.json` were not re-run: their recorded source hashes match
 the current tree and `report.sh --verify-artifacts` verifies them; their
 retained buffers were copied unchanged from
-`/mnt/linux-extra/meshopt-artifacts/simplify-perf/records` and lane 4's
+`<artifacts>/simplify-perf/records` and lane 4's
 `js-final` into the release artifact directory. Alternative rejected: re-run
 and re-record identical evidence. Reversal: free. (3) `RELEASE-0.1-CHECKLIST.md`
 added at the repository root; it is not part of the crate package or the gates
@@ -1219,17 +1219,17 @@ not locally established; historical lane 3 artifacts stay absent as before.
 
 ## D52 — Baseline, provenance and artifact placement (0.2; was P02-D1)
 
-Recover the missing Moss source path read-only with git show from binding
+Recover the missing a downstream engine source path read-only with git show from binding
 commit dc4af42a5e94f8a0f22932c53977f66cd88aadc2. Reuse its MIT index
 and byte-group decoder material with explicit attribution. Translate raw
-vertex v1 and Quat arithmetic from pinned C++ 1.3; Moss is baseline material,
+vertex v1 and Quat arithmetic from pinned C++ 1.3; a downstream engine is baseline material,
 not the canonical 1.3 filter oracle.
 
-The exact artifact path /mnt/linux-extra/meshopt-artifacts/p02 was denied
+The exact artifact path <artifacts>/p02 was denied
 with Read-only file system. Retain all evidence at
-/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02, outside the
+<target-dir>/p02, outside the
 isolated build target that will be deleted. Exact artifact placement remains
-an environment residual. No Moss or upstream sources are edited.
+an environment residual. No a downstream engine or upstream sources are edited.
 
 Before any candidate timing, reject the provisional baseline because its C++
 vector retained allocation between samples. Retain the provisional JSON and
@@ -1244,7 +1244,7 @@ buffer decoders, separate header-version inspection, post-filters and a
 checked BufferView. Use little-endian byte slices for both index widths; u16
 narrowing wraps exactly as the reference does. Raw vertex/index/sequence
 versions 0 and 1 are supported. EXT attributes retain vertex v0; the index
-helper retains Moss's accepted v0/v1 domain. Reject zero EXT counts, bad
+helper retains a downstream engine's accepted v0/v1 domain. Reject zero EXT counts, bad
 triangle counts, incompatible filters and invalid strides. Parent byteLength
 and optional byteStride are checked explicitly with validate_parent; JSON,
 resource resolution and loader budgets remain consumer responsibilities.
@@ -1267,7 +1267,7 @@ construction and exceptional results instead of introducing clamps. SIMD
 Oct/Quat conformance on valid encoded filters is checked separately with the
 extension's one-unit allowance. No tolerance applies to canonical bytes.
 
-Reuse Moss index parsing and byte-group material; translate v1 channel
+Reuse a downstream engine index parsing and byte-group material; translate v1 channel
 controls, packed 1-bit groups, 16-bit zigzag and rotated 32-bit XOR channels
 from upstream. Specialize safe chunk kernels by bit and component width.
 Use one checked 24-byte lookahead per packed group and block staging for
@@ -1277,14 +1277,14 @@ its no_mangle linkage attributes follow the existing parity adapter boundary.
 
 ## D55 — Evidence scope and pre-decided performance policy (0.2; was P02-D4)
 
-Register numeric decoder minima from the corrected pinned Moss baseline
+Register numeric decoder minima from the corrected pinned a downstream engine baseline
 before candidate timing. Use 95 percent of throughput corresponding to each
-workload's worst of twelve measured Moss samples, stating this conservative
+workload's worst of twelve measured a downstream engine samples, stating this conservative
 shared-load uncertainty rule. Keep raw samples, dispersion, absolute
 throughput and both scalar and SIMD ratios. Do not alter minima using
 candidate results. Raw v1, extra encoder levels and the millions-of-triangles
 case receive actual measurements and the scalar codec bar; they do not
-receive inferred Moss measurements. Report allocating and caller-buffer
+receive inferred a downstream engine measurements. Report allocating and caller-buffer
 results separately. Below 80 percent of optimized C++ throughput selects the
 safe scalar implementation as already decided by RFC 6.2; unsafe is excluded.
 
@@ -1324,15 +1324,15 @@ not established by the constant-input bar; varied filter correctness is
 covered by the seeded sweeps. No wider float accumulation or unsafe is added.
 
 Observe CPU load before the final measurement and select logical CPU 7
-(sibling 6) on the same Ryzen 9 7945HX target. Keep the CPU-0 Moss minima
+(sibling 6) on the same Ryzen 9 7945HX target. Keep the CPU-0 a downstream engine minima
 frozen. Rotate all backend orders and target 40 ms samples, increasing from
 12 to 60 pairs when dispersion or gate uncertainty warrants it. Retain all
 samples and the CPU-selection observation. No quiet-host claim is made.
 
 Correct standalone C++ filter temporaries to copy-construct instead of
-zeroing and then copying. This does not affect the measured Moss baseline
+zeroing and then copying. This does not affect the measured a downstream engine baseline
 or its numeric minima. Retain the original baseline and a separate paired
-Moss/C++ correction before final candidate acceptance. Record the changed
+a downstream engine/C++ correction before final candidate acceptance. Record the changed
 C++ binary identities; do not substitute these diagnostic samples into the
 registered bar. C++ checks nearest rounding and gradual underflow on startup.
 
@@ -1487,7 +1487,7 @@ assert round trips. The four-CPU-hour release gate is not claimed.
 
 The RFC 6.1 raw scalar codec bar applies unchanged per family and API: Rust /
 scalar-strict C++ time ratio geometric mean <= 1.25, no case > 1.50. There is
-no Moss baseline for these operations, so no minima are registered; SIMD C++
+no a downstream engine baseline for these operations, so no minima are registered; SIMD C++
 ratios are reported. Both consumer profiles of D41 are measured on identical
 inputs. The C++ driver allocates fresh output for allocating calls and reuses
 it for caller-buffer calls (D52's rule); input conversion and validation are
@@ -1504,7 +1504,7 @@ triangle loop out of line. Empty-workspace codec accounting takes a checked
 fast path; allocating typed meshlet decode recounts capacity only when the
 allocator returns more than requested. These changes preserve the checked
 limits and output contracts. Earlier failed benchmark records remain under
-`/mnt/linux-extra/meshopt-artifacts/p04/superseded/`; they are not acceptance
+`<artifacts>/p04/superseded/`; they are not acceptance
 records.
 
 Final-source gates all exit 0: three fmt checks, three clippy checks with
@@ -1521,20 +1521,20 @@ manifest SHA-256 `5b49549e3b6ab5021eeb12c313f244c24e1cb338b937450c7528af4716847e
 pass all twelve families for allocating and caller-buffer APIs under D65's
 unchanged 1.25 geometric-mean and 1.50 per-case limits. The largest family
 geometric mean is 1.239 (default, allocating sequence encode); the largest
-single-case ratio is 1.457 (Moss, allocating Quat encode). The small
+single-case ratio is 1.457 (a downstream engine, allocating Quat encode). The small
 3-vertex/1-triangle typed meshlet decode now measures 1.165/1.185
-(Moss allocating/caller-buffer) and 1.351/1.164 (Cargo defaults). The
-rewritten bounds family measures geometric mean/maximum 0.684/1.155 (Moss)
+(a downstream engine allocating/caller-buffer) and 1.351/1.164 (Cargo defaults). The
+rewritten bounds family measures geometric mean/maximum 0.684/1.155 (a downstream engine)
 and 0.680/1.150 (defaults); bounds have one API form. Exact per-family,
 per-case ratios and raw samples are in the two `benchmark-0.4` records and
 the slim `parity/results/benchmark-0.4-*.json` summaries. The measurements
 are local Linux x86-64 evidence on a loaded host, not a release-platform or
-Moss integration qualification.
+a downstream engine integration qualification.
 
 `parity/report.sh --phase 0.4 --verify-artifacts` exits 0 and verifies all
 recorded hashes and case buffers against the final sources. The generated
 target directory is deleted afterward; detailed evidence remains under
-`/mnt/linux-extra/meshopt-artifacts/p04` at 752 MB, below the 3 GB lane cap.
+`<artifacts>/p04` at 752 MB, below the 3 GB lane cap.
 No Git metadata operations were performed. D63 records the unmerged 0.3
 dependency: the isolated codec accepts its `u32` vertex and
 three-`u8` triangle slices, with 256/256 codec limits, so later type
@@ -1643,7 +1643,7 @@ Existing MIT notices cover the upstream translation; private support is safe
 Rust and uses the same pinned libm. Restrict simplify_ratio and the stopping
 threshold to [0,1), ensuring progress instead of an unsupported infinite demo
 loop. Document that output matches the demo rather than a stable library
-contract. No meshlet codec or Moss integration is added.
+contract. No meshlet codec or a downstream engine integration is added.
 
 ## D71 — Evidence, timing and artifact placement
 
@@ -1677,12 +1677,12 @@ No quiet-load qualification, bar relaxation or optimized-output identity claim
 is inferred from exact scalar parity. --enforce fails incomplete/quick/selected
 matrices and failed family timing/memory verdicts.
 
-The mandated /mnt/linux-extra/meshopt-artifacts/p03 lies outside the exposed
+The mandated <artifacts>/p03 lies outside the exposed
 writable roots; its mkdir returns Read-only file system. Keep evidence on the
-writable large volume at /mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p03,
+writable large volume at <target-dir>/p03,
 separate from the exact isolated build target. Record this filesystem residual.
 Preserve final source/binaries and verify their hashes before deleting
-/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03. Final gate status will be
+<target-dir>. Final gate status will be
 appended only from completed records, with any remaining acceptance failures
 stated explicitly.
 
@@ -1851,14 +1851,14 @@ archives/sources, specification/RFC, source archive, prior changed source
 versions, command logs, profile captures and hashes under D71's writable
 artifact root. All 238 archive manifest files were checked before cleanup and
 no target executable remained active. Delete the exact required target
-`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03`; deletion completes and
+`<target-dir>`; deletion completes and
 cleanup.json records it. At that checkpoint no Git mutation had been performed.
 HEAD was `8ec3b3d0ca78caedd445dfb827a9579e2b8d7fef`; D83 records the later rebase.
 
 ## D78 — Phase 0.3 performance: profiles, pairing and driver timing
 
 The bar of RFC §6.1 is measured for two builds of the unpublished driver: the
-Moss-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`) and
+a downstream engine-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`) and
 Cargo's release defaults (`opt-level = 3`, 16 codegen units, thin-local LTO).
 They are `[profile.consumer]` and `[profile.release-defaults]` in
 `parity/p03/Cargo.toml` (Cargo reserves the `cargo-` prefix);
@@ -1885,8 +1885,8 @@ scan builders and part of the spatial builder) together with the fat-LTO
 624-row matrix of D77. The run was stopped to free cores: the shared machine
 ran at load 20–45 with cores clocked near 600 MHz, and a full pass of one
 profile takes most of a day there. Artifacts are under
-`/mnt/linux-extra/meshopt-artifacts/p03/perf`; the build target is
-`/mnt/linux-extra/moss-cargo-targets/claude-meshopt-p03perf`.
+`<artifacts>/p03/perf`; the build target is
+`<target-dir>`.
 
 Reversal cost: free (driver and measurement only).
 
@@ -2002,7 +2002,7 @@ Reversal cost: cheap (internal).
 ## D82 — Phase 0.3 performance baseline and final qualification
 
 The coordinator resolves the 0.3 baseline ambiguity in favor of the scalar
-C++ build (`MESHOPTIMIZER_NO_SIMD`), as for 0.2. Both the Moss-like consumer
+C++ build (`MESHOPTIMIZER_NO_SIMD`), as for 0.2. Both the a downstream engine-like consumer
 profile and Cargo release defaults must meet the unchanged RFC §6.1 family
 bars against that build: geometric mean at most 1.25, every case at most 1.50,
 and requested output plus scratch at most 1.25. The upstream SIMD C++ ratios
@@ -2042,7 +2042,7 @@ are 46.3% `adjacent` and 42.8% `partition`; a line-table build of the same
 source locates 15.1% at centroid accumulation, 8.9% at adjacency deduplication
 and 5.9% at initial vertex filtering. These are broad costs rather than one
 isolated call overhead. The recordings and binary hashes are under
-`/mnt/linux-extra/meshopt-artifacts/p03/perf/final4`. This documents the
+`<artifacts>/p03/perf/final4`. This documents the
 residual without asserting a universal safe-Rust limit or changing the bar.
 
 The separately published SIMD comparison fails for spatial meshlets in both
@@ -2056,7 +2056,7 @@ phase's performance acceptance. Reversal cost: cheap while unmerged.
 Rebase the single 0.3 commit onto main in this worktree. Retain main's script
 and slim-record behavior, and route 0.3 run/sweep through `report.sh`. Keep the
 0.3 per-message corpus outside Git under
-`/mnt/linux-extra/meshopt-artifacts/p03`; commit only hashed summaries. Preserve
+`<artifacts>/p03`; commit only hashed summaries. Preserve
 main's D1–D66 and renumber the 0.3 D40–D55 as D67–D82, including references
 in 0.3 code comments and records.
 
@@ -2099,11 +2099,11 @@ float operation order, and the distinct binary/numerical position equality rules
 
 In the original 0.1.x lane, the requested destination was unavailable and
 evidence was retained on a writable sibling volume. Integration records now
-point to /mnt/linux-extra/meshopt-artifacts/p01x; the coordinator moves the
+point to <artifacts>/p01x; the coordinator moves the
 historical data there. That archive is separate from the disposable build
 target. Historical hashes need verification after the move.
 
-Parallel lane 4 D41 settles two consumer profiles: Moss uses opt-level 3, thin
+Parallel lane 4 D41 settles two consumer profiles: a downstream engine uses opt-level 3, thin
 LTO, one codegen unit, release debug disabled; defaults uses opt-level 3, LTO
 false, sixteen codegen units, release debug disabled. Keep the local crate
 fat-LTO profile and benchmark both consumers with explicit environment overrides.
@@ -2218,7 +2218,7 @@ prefix for every small exhaustion boundary. Inline these helpers at the hot loop
 The preprocessing benchmark starts with ten alternating pairs, the RFC 6.1
 minimum, and adds ten when the ratio interquartile range crosses a timing bar,
 up to thirty. Preserve all 888 workloads and both consumer profiles. The interrupted
-pre-refinement Moss baseline remains diagnostic evidence, never qualification.
+pre-refinement a downstream engine baseline remains diagnostic evidence, never qualification.
 Check positive finite sample intervals and exact agreement between resident
 sample frames and the final serialized sample stream. Reject an incomplete CPU
 override instead of attaching another core's sibling metadata to a record.
@@ -2283,7 +2283,7 @@ binaries show allocating fetch slowed by about 45 to 50 percent. Remove forced
 inlining of generic remap generation after the same comparison shows slower
 remap/custom/shadow calls. Retain the measured trial source and executables.
 
-Retain the complete previous Moss baseline, source archive, executables,
+Retain the complete previous a downstream engine baseline, source archive, executables,
 functional records and smokes under before-edge-point-specialization. Its 888
 outputs match, but only 17 of 32 families pass all bars. The command exits 1.
 Interrupt the default-profile build before measurement to optimize first;
@@ -2552,7 +2552,7 @@ required.
 ## D112 — Bounded hash visits, provoking loops and empty workspaces
 
 Preserve the preceding complete diagnostic matrices and executables: 25 of 32
-families pass Moss's smaller matrix; 17 pass Cargo defaults. Neither is the full
+families pass a downstream engine's smaller matrix; 17 pass Cargo defaults. Neither is the full
 qualification gate. Keep the corrected reference adapter unchanged.
 
 Specialize canonical generation internally. Batch records only when the sum of
@@ -2612,7 +2612,7 @@ verification; historical matrices remain diagnostics for their registered scope.
 ## D115 — Fused shadow emission and owned fetch topology
 
 Retain the complete 608-case corrected-adapter diagnostics: thirty families pass
-Moss and twenty-five pass Cargo defaults. They do not qualify the full matrix.
+a downstream engine and twenty-five pass Cargo defaults. They do not qualify the full matrix.
 
 Fuse canonical shadow hashing with index emission, matching the oracle's single
 walk. Preserve all keys, probes, first representatives and total work; bounded
@@ -2689,7 +2689,7 @@ Keep the same reference, timing batches, workloads and bars; rerun all gates.
 
 ## D119 — Counted attribute-row normalization
 
-Retain the 32-of-32 default diagnostic and interrupted full Moss attempt from the
+Retain the 32-of-32 default diagnostic and interrupted full a downstream engine attempt from the
 preceding source. Its tiny sparse caller-update median is 1.5045358319020972,
 above the unchanged maximum of 1.5. Stop with exit 130 to optimize; recover and
 verify the interrupted ZIP, preserving raw samples and bound executables.
@@ -2704,7 +2704,7 @@ exercise both paths. Requalify fixtures, sweeps, smokes and both profiles.
 
 ## D120 — FIFO initialized scratch and direct setup scans
 
-Retain both preceding complete diagnostics: all families pass defaults; Moss
+Retain both preceding complete diagnostics: all families pass defaults; a downstream engine
 FIFO's tiny sparse caller case misses the maximum. Update now passes both.
 
 Workspace preparation initializes newly extended integer and flag elements to
@@ -2722,10 +2722,10 @@ gates on the new source; retain both profiles, all workloads and unchanged bars.
 
 ## D121 — Sloppy direct scans and fetch remap initialization
 
-Retain D120's complete 912-workload Moss result: thirty families pass, while
+Retain D120's complete 912-workload a downstream engine result: thirty families pass, while
 million disconnected caller Sloppy measures 1.5028046427425936 and million sparse
 allocating fetch measures 1.680978884849942, above the unchanged maximum of 1.5.
-Moss exits 1. Stop defaults with exit 130; preserve its partial record and buffers.
+a downstream engine exits 1. Stop defaults with exit 130; preserve its partial record and buffers.
 The D120 fixture, full sweep, local checks, source and executables are historical
 proof for that source, not qualification for this change.
 
@@ -2769,7 +2769,7 @@ Requalify unchanged fixtures, sweeps, smokes, all 912 workloads and both profile
 ## D123 — Keep typed reservation local to fetch
 
 Retain D122's full exact sweep, fixtures and local checks, and both passing
-48-workload fetch/Sloppy diagnostics. Its full Moss attempt records 632 workloads
+48-workload fetch/Sloppy diagnostics. Its full a downstream engine attempt records 632 workloads
 before being stopped with exit 130: tiny seam-heavy allocating shadow generation
 measures 1.9635326001589135, with a narrow paired ratio range. Preserve and recover
 that raw archive; it does not qualify the changed source.
@@ -2782,7 +2782,7 @@ all families on the resulting source, preserving every preceding result.
 
 ## D124 — Fetch output strategy by input size
 
-Retain D123's 608-case Moss diagnostic with all thirty-two families passing.
+Retain D123's 608-case a downstream engine diagnostic with all thirty-two families passing.
 Defaults passes thirty-one: tiny smooth allocating fetch measures
 1.771242085582236, above the unchanged maximum. The queued full benchmark does
 not start and exits 1 on this diagnostic gate. Keep the full record and samples.
@@ -2800,7 +2800,7 @@ Requalify every gate on the changed source.
 ## D125 — Prepared shadow sentinels and fixed-width keys
 
 Retain D124's 924 exact fixtures, 74,000 exact seeded comparisons and all eleven
-local checks. Moss passes all thirty-two families in its 608-case diagnostic;
+local checks. a downstream engine passes all thirty-two families in its 608-case diagnostic;
 defaults passes thirty-one, with tiny sparse allocating multi-stream shadow at
 1.5618944177614738. The diagnostic guard exits 1 before starting the full matrices.
 Keep all raw samples and source/executable bindings.
@@ -2823,7 +2823,7 @@ Requalify all families with the same profiles, inputs, sampling and bars.
 ## D126 — Exponent scalar transport outside timing
 
 Retain D125's 924 matching fixtures, 74,000 exact seeded comparisons and eleven
-passing local checks. Its complete 608-workload Moss diagnostic passes all
+passing local checks. Its complete 608-workload a downstream engine diagnostic passes all
 families; defaults passes thirty-one. Position exponent measures mean
 1.255058259215078 and maximum 1.6255089507839753. The diagnostic guard exits 1
 before the full benchmark starts. Shadow now passes both profiles.
@@ -2839,7 +2839,7 @@ all source/executable identities and gates; earlier timings are historical.
 ## D127 — Prepared owned remaps and longer fixed batches
 
 Retain D126's 924 fixtures, 74,000 seeded comparisons and all eleven local gates.
-Both complete 608-workload diagnostics pass every family. Its full Moss attempt
+Both complete 608-workload diagnostics pass every family. Its full a downstream engine attempt
 is stopped with exit 130 after a tiny smooth allocating custom-remap miss.
 The exact same input, Rust executable, C++ executable and CPU 15 measure
 0.9585386152386463 in the diagnostic and 1.94185916805916 in the full attempt.
@@ -2866,7 +2866,7 @@ Requalify fixtures, sweeps, smokes and both complete profiles on the new source.
 ## D128 — Fixed-width keys in single-stream generation
 
 Retain D127's 924 exact fixtures, 74,000 exact seeded cases and eleven passing
-local checks. Its longer-batch Moss diagnostic records 202 workloads before
+local checks. Its longer-batch a downstream engine diagnostic records 202 workloads before
 being stopped with exit 130 after tiny smooth allocating filtering measures
 1.882115003775167. Stop the queued full benchmark with exit 130 as well; recover
 and preserve the partial diagnostic buffers. None is a final bar verdict.
@@ -2923,7 +2923,7 @@ once more with exit 130; no million samples have been measured or discarded.
 
 D128 retains 924 exact fixture comparisons, 74,000 exact seeded comparisons,
 76 root tests in each feature mode and eleven passing local checks. Stop its
-Moss tiny/medium diagnostic with exit 130 after its maximum exceeds 1.5:
+a downstream engine tiny/medium diagnostic with exit 130 after its maximum exceeds 1.5:
 `simplify_with_update/tiny/sparse/mode-1` measures 1.5039728238969359 and
 `generate_vertex_remap_custom/medium/smooth/mode-1` measures
 1.588478319023424. Stop both still-waiting continuations with exit 130. Preserve
@@ -2958,7 +2958,7 @@ output identity; diagnostic counts do not establish timing acceptance.
 ## D133 — Keep custom callbacks behind position equality
 
 D132's eleven local checks and all 924 fixture comparisons pass. Its focused
-Moss update ratios are 1.399 and 1.478 for allocating and caller forms; custom
+a downstream engine update ratios are 1.399 and 1.478 for allocating and caller forms; custom
 remap is 1.560 and 1.477, so the allocating maximum still misses. Stop the
 focused continuation and the incomplete sweep with exit 130, retaining their
 records, buffers, source and executable identities under `short-custom-plane-trial`.
@@ -2975,7 +2975,7 @@ Requalify the new source, starting with the saved missed cases in both profiles.
 
 D133 retains 924 exact fixture comparisons and eleven passing local checks. Both
 focused diagnostic commands exit 0, but their diagnostic-only ratios still miss
-the bar: Moss allocating update/custom are 1.508049062218985 and
+the bar: a downstream engine allocating update/custom are 1.508049062218985 and
 1.5033565359822592; defaults allocating update is 1.5834009068344073. Preserve
 these records, source and seven executable copies in `outlined-callback-trial`.
 The RFC names time ratios without specifying a clock. Retain the established
@@ -3043,7 +3043,7 @@ is unapplied in the final artifact inventory.
 D134's source `db4a731ac894767c02ba69e480229df0b83136a9987784d1e3871edb16d00c25`
 passes 924 fixtures, 74,000 sweep cases and eleven local gates. Both 608-case
 small/medium groups completed, but defaults allocating custom remap on medium
-sparse geometry has median 1.520766148, exceeding 1.5. Moss's group passes;
+sparse geometry has median 1.520766148, exceeding 1.5. a downstream engine's group passes;
 its worst maximum is 1.474358. Stop the million continuation and final checks
 with exit 130; retain all records and samples in `indexed-custom-trial`.
 Recover its interrupted million ZIP and verify all 24 recorded workloads (72
@@ -3084,7 +3084,7 @@ D137's source `7c0b2caf7e69d2a05e372c5ba891dc9faa4577332e3e5427ed8695a632163f79`
 passes all eleven local gates, 924 fixtures and 74,000 seeded comparisons.
 Both 608-case size groups complete with passing case maxima and heap ratios.
 Defaults FIFO's group geometric mean is 1.250148942; a full-family verdict still
-requires the million group. Stop the million continuation when Moss allocating
+requires the million group. Stop the million continuation when a downstream engine allocating
 fetch on million sparse geometry records 1.741135, above 1.5. Retain all samples,
 297 completed million workloads and the exit-130 orchestration receipts in
 `inline-custom-trial`; this epoch does not qualify.
@@ -3122,7 +3122,7 @@ Retain failed attempts; never repeat an unchanged source until a bar passes.
 
 D139's source `158fa42e6e09d4a46cb14c2b85ffea97c275f481672ac9d1c72c346c1361df12`
 passes all eleven local gates, 924 fixtures and 74,000 seeded comparisons.
-D140's enforced Moss matrix stops after its seventh case: allocating million
+D140's enforced a downstream engine matrix stops after its seventh case: allocating million
 sparse fetch records 1.664227231, still above 1.5. The matrix and final-check
 commands exit 1. Retain its seven complete cases, every sample and all bound
 executables in `packed-fetch-trial`; verify all 21 ZIP members against their
@@ -3152,7 +3152,7 @@ passing family. Do not claim a residual as an unconditional performance pass.
 ## D143 — Final permitted fetch attempt: iterator append
 
 D141's source `a5779043780c97c2231b575d76e8f6cd5ba393780751a953b54b10bf07e01bfb`
-passes all eleven local gates and 924 fixtures. Its enforced Moss matrix fails
+passes all eleven local gates and 924 fixtures. Its enforced a downstream engine matrix fails
 on allocating million sparse fetch at 1.878920636, worse than D139's 1.664227231.
 The matrix exits 1 after seven recorded cases. Stop the still-running sweep with
 exit 130 before changing sources; retain its partial archive and all benchmark
@@ -3175,7 +3175,7 @@ D142; make no further fetch optimization.
 ## D144 — Fixed-width allocating vertex-remap keys
 
 D143's source passes all eleven local gates, 924 fixtures and 74,000 seeded
-comparisons. Its Moss matrix stops after 477 cases at allocating vertex remap on
+comparisons. Its a downstream engine matrix stops after 477 cases at allocating vertex remap on
 tiny disconnected geometry: 1.998288406 against 1.5. Fetch's previously failing
 case passes at 1.378806161. Retain the complete failed epoch and all 1,431 closed
 ZIP members in `iterator-fetch-trial`; both orchestrations exit 1. No benchmark
@@ -3206,7 +3206,7 @@ performance verdict is `recorded residual; coordinator decision pending`.
 All 27 additional functions and five option families are implemented. Sparse,
 Prune and RegularizeLight are stable; PreserveFolds and ErrorClamped remain
 behind `experimental`, with independent records. Unknown option bits are rejected.
-No codecs, meshlets, Moss integration or publication are claimed.
+No codecs, meshlets, a downstream engine integration or publication are claimed.
 
 All eleven local checks exit 0, including formatting, strict Clippy, all-feature
 and no-default-feature tests (78 root tests each), core no_std WASM compilation,
@@ -3228,7 +3228,7 @@ case and paired sample is retained. The independent verifier checks exact
 membership and scheduling, source/executable identities, raw outputs and timing
 summaries. Both enforced matrix commands exit 0; no fragment assembly is used.
 
-| Family | Moss GM | Moss max | Moss heap max | Defaults GM | Defaults max | Defaults heap max | Verdict |
+| Family | a downstream engine GM | a downstream engine max | a downstream engine heap max | Defaults GM | Defaults max | Defaults heap max | Verdict |
 |---|---:|---:|---:|---:|---:|---:|---|
 | `vertex_cache_strip` | 1.156608175 | 1.240929969 | 1.000000000 | 1.157376353 | 1.299164679 | 1.000000000 | pass |
 | `vertex_cache_fifo` | 1.234650415 | 1.465943075 | 1.000000000 | 1.208330027 | 1.398317265 | 1.000000000 | pass |
@@ -3296,7 +3296,7 @@ Shared-machine wall timing is retained with every raw sample and observed load;
 no quiet-machine or universal speed claim is made.
 
 The requested artifact directory was unavailable to the earlier managed session.
-The committed archive pointers now use `/mnt/linux-extra/meshopt-artifacts/p01x`.
+The committed archive pointers now use `<artifacts>/p01x`.
 The coordinator moves and verifies the earlier data. Source, reference, dependencies, binding brief/RFC,
 executables, raw buffers, logs and verifier/orchestrator code are retained there.
 D130 avoids duplicating million payload archives. D136's storage trial was rolled
@@ -3322,7 +3322,7 @@ final executable counts and actual deletion; the target was not recreated.
 
 The owner approved this rule on 2026-10-04, as relayed by the coordinator,
 replacing clean full-profile repeats. Stage 1 is the complete 912-case 0.1.x
-and 204-case retained 0.1 matrix under each of the Moss and default consumer
+and 204-case retained 0.1 matrix under each of the a downstream engine and default consumer
 profiles on the rebased source. The family geometric-mean and heap bars use
 stage 1 without alteration. For **every** stage-1 case with Rust/C++ ratio
 strictly greater than 1.5, run 30 fresh interleaved Rust/C++ pairs on one
@@ -3373,19 +3373,19 @@ measured 1.319 scalar aggregate on CPU 0; it is superseded because another
 lane also used that core. The final 20-pair consumer run on CPU 16 measures
 1.171 scalar aggregate (2.570 s C++, 3.009 s
 Rust), with every mesh at or below 1.394 and all 15 valid layout outputs
-identical. The Moss-style C++ build measures 2.597 s, giving a 1.159 Rust/Moss
+identical. The a downstream engine-style C++ build measures 2.597 s, giving a 1.159 Rust/a downstream engine
 ratio. The scalar bar passes without SIMD Rust. The optimized scalar ratio no
 longer rises with group count (nine-mesh Pearson -0.388) or depth (-0.810).
-A separate 20-pair Cargo-defaults run measures 1.071 scalar/1.096 Moss
+A separate 20-pair Cargo-defaults run measures 1.071 scalar/1.096 a downstream engine
 aggregate, but selected a much busier core; the profiles cannot be ranked by
 their wall times. Full per-mesh medians, load, stage profiles and gates are in
 the handoff.
 
-Moss's `build.rs` does not define `MESHOPTIMIZER_NO_SIMD`; the harness also
+a downstream engine's `build.rs` does not define `MESHOPTIMIZER_NO_SIMD`; the harness also
 times a second C++ binary with release `cc` flags and SIMD enabled. Vendored
 `clusterizer.cpp` places explicit SSE/NEON code only in the spatial BVH
 builder, while this S2 config sets `cluster_spatial=false`. Thus any
-scalar/Moss-style difference on these cases is not evidence of that explicit
+scalar/a downstream engine-style difference on these cases is not evidence of that explicit
 SIMD path. The two C++ binaries' output bytes are checked separately and
 match on all 15 valid cases; no active S2 stage shows an explicit SIMD gain.
 
@@ -3432,7 +3432,7 @@ covered by the source invariant, not claimed as observed differential evidence.
 
 ## D151 — RFC 113 three-way and portable harness gates
 
-The RFC 113 runner now fails when either Moss-style or scalar C++ disagrees
+The RFC 113 runner now fails when either a downstream engine-style or scalar C++ disagrees
 with Rust. The codec builder creates a fresh target directory before C++
 compilation. The deterministic differential builds archived `main`, current
 Rust, and the vendored C++ demo and compares the complete result on large,
@@ -3445,10 +3445,10 @@ timing admitted only below load 12 and without a GPU lease holder.
 
 The owner's binding 2026-10-05 directives replace the original load-average
 and no-active-scoreboard gate. Admit only when `gpu-lease.sh status` reports
-no holder and no `moss-scoreboard-*` unit is measuring. An active unit whose
+no holder and no `downstream-scoreboard-*` unit is measuring. An active unit whose
 only child is `sleep` is waiting and does not block. Record its MainPID and
 child process tree. Load is informational, never an admission threshold.
-Check before each interleaved scalar-C++ / Moss-C++ / Rust pair; a new blocker
+Check before each interleaved scalar-C++ / a downstream engine-C++ / Rust pair; a new blocker
 allows the current pair to finish, then closes all driver processes before
 waiting. Failed admission polls retain the five-minute cadence.
 
@@ -3500,7 +3500,7 @@ These are diagnostic stage shares under recorded shared-machine load, collected
 while a GPU lease was held. They are not paired wall-time evidence. The spec's
 **timing** admission gate remains binding for every iterative and final pair.
 Baseline source/binary identities, raw perf captures, reports, core/load and
-admission records are retained in `/mnt/linux-extra/meshopt-artifacts/clodrec`.
+admission records are retained in `<artifacts>/clodrec`.
 
 The private support attribute view now borrows the already validated immutable
 public view. Sparse remapping still happens inside the existing simplifier and
@@ -3537,7 +3537,7 @@ both unchanged bars on one final adaptive pass per Rust profile. Consumer
 Rust/scalar-C++ aggregate is **1.1959471126155838**, Cargo defaults
 **1.0899528253461015**. Every mesh is below 1.5; observed maxima are
 1.269240275051873 and 1.315468938081677 respectively (the full-precision
-records are authoritative). Moss-style comparison aggregates are 1.1604228528
+records are authoritative). a downstream engine-style comparison aggregates are 1.1604228528
 and 1.1280284467. The profiles use different admitted bursts and loads, so
 these wall times do not rank the profiles or claim quiet-machine performance.
 
@@ -3561,18 +3561,18 @@ interleaving, core selection, stopping intervals and aggregate calculation
 remain those of the committed runner.
 
 Both final profiles match all 15 supported layouts byte for byte against
-scalar and Moss-style C++; all 90 codec comparisons, 12 three-way cases and
+scalar and a downstream engine-style C++; all 90 codec comparisons, 12 three-way cases and
 517 byte limits pass. All 0.1–0.4 fixture/seeded gates and the 80 cluster-LOD
 C++/native/WASM cases pass, with independently verified manifests. Both
 feature test/clippy configurations and fmt pass. D149's single-cluster memory
 guarantee and D150's unconditional post-dilation invalidation remain intact.
 
-Evidence is in `/mnt/linux-extra/meshopt-artifacts/clodrec` and the detailed
+Evidence is in `<artifacts>/clodrec` and the detailed
 handoff is `parity/results/rfc113-clod-recover.md`. Twenty required native/WASM
 executable identities were retained and hash-verified, along with baseline
 and implementation source archives, raw perf data, raw pairs and validation
 corpora. The exact named target
-`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodrec` was deleted after
+`<target-dir>` was deleted after
 verification; `target-cleanup.json` and `artifact-manifest.json` are the
 receipts. No push or integration/runtime qualification is performed.
 
@@ -3626,7 +3626,7 @@ additive wrappers.
 
 Use the pinned upstream demo/pirate.obj (Clint Bellanger, CC-BY-SA 3.0) as an
 authored realistic mesh, with sixteen deterministic spatial variants. Report
-this single-model corpus honestly, not as private Moss assets or broad mesh
+this single-model corpus honestly, not as private a downstream engine assets or broad mesh
 coverage. Pool creation, parsing, generation, serialization and output hashing
 are outside timing; validation, output/scratch allocation, execution and
 required fresh dilation-input copies are inside. Compare complete serialized
@@ -3636,7 +3636,7 @@ source, dependency and input SHA-256 identities. Use Cargo release defaults in
 the unpublished dependent driver; the library's profile does not configure it.
 
 Admit warm-ups and each pair only with no GPU lease holder and no actively
-measuring moss-scoreboard-* service. A service with only a sleep child is idle.
+measuring downstream-scoreboard-* service. A service with only a sleep child is idle.
 Retain admission observations before and after each pair, finish the current
 pair if a lease starts, then pause. Each burst has a deadline below fifteen
 minutes and releases all worker cores on exit; resumption keeps completed pairs.
@@ -3680,7 +3680,7 @@ method is followed; no repeated full matrix or iterative timing is performed.
 The external read-only verifier rechecks every recorded source, dependency,
 archive/member hash, meaningful comparison and corpus inventory. Retain slim
 summary MEASURED_P06.json and reviewable method/table in parity/p06/README.md.
-Evidence stays under /mnt/linux-extra/meshopt-artifacts/p06, separate from the
+Evidence stays under <artifacts>/p06, separate from the
 specified disposable target. Preserve exact binaries and sources, verify hashes,
 then delete only codex-meshopt-p06. Commit only on phase/0.6 with the authorized
 author; no push, merge, rebase or other worktree change. The remaining 0.5
@@ -3736,11 +3736,11 @@ under this load. The fallback removes internal parallel item scheduling; it
 does not remove custom-pool entry or promise a gain under shared scheduling.
 
 Each timed pair was admitted with no GPU lease holder and no actively measuring
-moss-scoreboard unit (only sleep children). After the diagnostic's last completed
+downstream-scoreboard unit (only sleep children). After the diagnostic's last completed
 row a new lease appeared, and all workers were released before waiting. No
 measurements ran while waiting. Preserve complete raw pairs, controls, loads,
 affinity/admission observations, output hashes, source/dependency/input identities
-and exact binaries under /mnt/linux-extra/meshopt-artifacts/p06fix/{before,after}.
+and exact binaries under <artifacts>/p06fix/{before,after}.
 The baseline curve intentionally remains incomplete; the final curve is complete
 for the selected hierarchy family only. Other families and historical P06
 qualification records are unchanged, not reverified or promoted by this fix.
@@ -3776,15 +3776,15 @@ Re-run fmt, strict Clippy, tests and wasm32 builds in all-feature and
 no-default modes, 0.1/0.1.x/0.2/0.3/0.4 fixture runs and 2,000-case-per-family
 sweeps, the 80-case cluster-LOD demo gate, RFC 113's 15 supported layouts and
 90 codec comparisons, and all nine P06 thread-count determinism tests.
-Use only /mnt/linux-extra/moss-cargo-targets/codex-meshopt-rel020 for builds
+Use only <target-dir> for builds
 and remove it after preserving and verifying evidence. Retain fresh records
-under /mnt/linux-extra/meshopt-artifacts/rel020.
+under <artifacts>/rel020.
 
 No timing is rerun: the source branches' measured evidence stands, with its
 recorded corpus, profiles and remaining limitations. RFC 113 runs with
 --pairs 0. The two stride-32 S2 protect-mask setups remain invalid, outside
 the fifteen supported layouts. Phase 0.5 and phase 0.7 remain outside this
-first integration tranche; no remote, GPU or Moss runtime acceptance is added.
+first integration tranche; no remote, GPU or a downstream engine runtime acceptance is added.
 
 Final integration gates all exit 0: both strict Clippy/test/wasm32 modes,
 fmt, all nine P06 determinism tests, every registered 0.1–0.4 fixture run
@@ -3799,7 +3799,7 @@ The independent artifact audit verifies source hashes, archive/member hashes
 and executable identities, and preserves exact harness binaries and the
 implementation source archive before deleting the named Cargo target.
 parity/results/integration-0.2.0.json links the gate, audit, manifest and
-target-deletion receipts under /mnt/linux-extra/meshopt-artifacts/rel020.
+target-deletion receipts under <artifacts>/rel020.
 Only coverage wording and this outcome/evidence were added after validation;
 algorithm, test, harness and dependency bytes remain the validated bytes.
 Package version remains 0.1.0. No timing, push or other-worktree change.
@@ -3849,11 +3849,11 @@ levels above twelve. The failed first-run record stays under the external
 
 The RFC's 1.25 geometric-mean and 1.50 individual-case Rust/scalar-C++ time
 limits remain unchanged. Ten interleaved paired samples per case under both
-Moss-like and Cargo-default release profiles record raw times and byte-checked
+a downstream engine-like and Cargo-default release profiles record raw times and byte-checked
 outputs. Each family uses three sizes and separately measures caller-buffer
 forms where exposed. These local measurements fail the time bar in 18/21
-family/API groups under the Moss-like profile and 17/21 under Cargo defaults.
-Only unstripify (both forms) and overdraw pass in the Moss-like record; only
+family/API groups under the a downstream engine-like profile and 17/21 under Cargo defaults.
+Only unstripify (both forms) and overdraw pass in the a downstream engine-like record; only
 allocating stripify, both unstripify forms and OMM compact pass under Cargo
 defaults. In particular, tangent and experimental normal generation are
 roughly 2.7–3.8 times scalar C++; remeshing is roughly 1.5–1.8 times. The existing corpus does
@@ -4011,11 +4011,11 @@ tests, 30,000 native differential cases and 30,000 executed WASM identity
 cases pass with zero mismatches. The full 160-case, 20-pair matrices and
 worst-failing-family `perf stat`/`perf record` runs are source- and binary-hash
 bound. `parity/report.sh --phase 0.5 --verify-artifacts` exits 0 with
-`verified: true`, no errors and `performance_qualified: false`. Moss passes
+`verified: true`, no errors and `performance_qualified: false`. a downstream engine passes
 9/21 API groups and Cargo defaults pass 7/21. The same seam-heavy normal
-case fell from 1.63x to 1.34x in Moss and 1.71x to 1.48x in defaults; the
+case fell from 1.63x to 1.34x in a downstream engine and 1.71x to 1.48x in defaults; the
 normal family still misses geometric-mean and caller-buffer memory limits.
-The selected Moss tangent million-triangle instruction ratio fell from
+The selected a downstream engine tangent million-triangle instruction ratio fell from
 1.41x to 1.37x but the family remains above time and caller-buffer memory
 limits. These observations support retaining the exact D73 change, not a
 performance-qualification claim.
@@ -4089,7 +4089,7 @@ change awaits native/WASM differential checks and the deferred timed matrix.
 
 ## D78 — 0.5 direct tangent-corner loads
 
-The D73 Moss tangent profile attributes its largest Rust sample to
+The D73 a downstream engine tangent profile attributes its largest Rust sample to
 accumulation. The three per-face positions are now read explicitly in corner
 order, replacing an array-map wrapper inside that hot loop. This matches the
 already explicit normal-face accumulation and preserves the same three
@@ -4194,7 +4194,7 @@ retention checks.
 
 The resumed review found that the old external load gate checked only time
 and load. The coordinator now also requires no GPU lease holder and no active
-`moss-scoreboard-*` user unit. `p05/timing_gate.py` records all four conditions
+`downstream-scoreboard-*` user unit. `p05/timing_gate.py` records all four conditions
 and repeats blocked checks every 120 seconds. Each calibration and timed pair,
 and each `perf stat` and `perf record` invocation, must pass this admission.
 Compilation and exact-output checks remain available while the gate is closed.
@@ -4392,7 +4392,7 @@ alternative for tonight's 0.2.0 delivery: every 0.5 family mean must meet 1.25
 under both profiles. Only genuinely unreachable individual edge cases may be
 residuals with fresh profiles; a failing family is not accepted. The subsequent
 measurement directive stops repeated full matrices. The D94 matrix was stopped
-at 21 complete Moss cases and retained externally as diagnostic evidence.
+at 21 complete a downstream engine cases and retained externally as diagnostic evidence.
 
 Iteration uses only the touched families/cases, five alternating same-core
 pairs per case, with separate diagnostic artifacts that cannot overwrite final
@@ -4423,14 +4423,14 @@ fixed twenty-pair requirement and D146's stage-2 trigger for clear failures.
 D95 focused diagnostics completed 48 cases per profile with exactly five
 alternating pairs. Baseline artifacts, binaries, compressed fixture inputs,
 perf data and source snapshots are retained in external `baseline-D95`.
-The Moss means/maxima are: cache 1.394/1.875, measure 1.276/1.487,
+The a downstream engine means/maxima are: cache 1.394/1.875, measure 1.276/1.487,
 tangents allocating 1.286/1.422 and caller 1.349/1.612, normals allocating
 1.225/1.353 and caller 1.251/1.372. Default: cache 1.401/1.833,
 measure 1.289/1.425, tangents 1.357/1.428 and 1.382/1.605,
 normals 1.259/1.526 and 1.334/1.544. Every measured memory group passes;
 normal/tangent peaks match C++ (ratio 1.0), measure is at most 1.156.
 
-Fresh Moss whole-driver instruction ratios are cache 1.548, measure 1.384,
+Fresh a downstream engine whole-driver instruction ratios are cache 1.548, measure 1.384,
 tangents 1.317 and normals 1.287. Cache samples concentrate in its analyzer
 (86%) and topology validation (13%). Tangents concentrate in accumulation,
 merging, remap and generator finalization; normal accumulation, merging and
@@ -4590,7 +4590,7 @@ and expanded touched-case differential checks must pass before diagnostics.
 D101 strict all-feature/no-default Clippy, the thirteen phase fixtures and
 contract/budget tests, 30,000 native, 30,000 libm and 30,000 executed WASM
 cases and all 48 expanded touched shapes pass exactly. The six-family,
-five-pair runner rebuilt its Moss binary and is polling the GPU lease gate;
+five-pair runner rebuilt its a downstream engine binary and is polling the GPU lease gate;
 the current scoreboard MainPID has only a sleep child and does not block.
 Current-candidate speed and the final complete matrix remain unmeasured.
 
@@ -4622,15 +4622,15 @@ libm-experimental suites, thirteen phase fixtures/contracts/budget tests,
 formatting, 30,000 native, 30,000 libm and 30,000 executed WASM differential
 cases, and all 56 expanded touched shapes exactly. The existing fetch budget
 test now covers sizes 1, 12, 64, 127, 128, 255 and 256, including five-line
-unaligned vertices. The seven-family runner admitted 39 Moss cases before a
+unaligned vertices. The seven-family runner admitted 39 a downstream engine cases before a
 new capture lease began; it finished its pair and released affinity at the
 next boundary, then resumed 120-second blocked checks.
 
-Complete five-pair Moss groups so far: strip allocating GM 0.962532/max
+Complete five-pair a downstream engine groups so far: strip allocating GM 0.962532/max
 1.149211, strip caller 0.968451/1.184244; unstrip allocating 1.077230/2.182479,
 unstrip caller 1.265043/6.077575. Memory ratios are 1.0. Seven of eight cache
 cases are present; a partial mean is not an accepted family result. The default
-profile and remaining Moss groups/profiles are pending. Static inspection of
+profile and remaining a downstream engine groups/profiles are pending. Static inspection of
 the retained current Rust/C++ decoder binaries motivates a prepared, unapplied
 branchless-degeneracy/checked-triangle writer candidate. Prepared OMM packed-UV
 and range-accounting code is likewise unapplied pending its measurements.
@@ -4639,7 +4639,7 @@ Neither prototype is a retained optimization or a measured speedup.
 ## D103 — prioritize the measured decoder failure during the long lease wait
 
 After more than thirty minutes paused at a subsequent capture lease, preserve
-all 39 completed D102 Moss cases, their exact Rust/C++ binaries and bound
+all 39 completed D102 a downstream engine cases, their exact Rust/C++ binaries and bound
 production/harness source snapshot externally in `baseline-D102-partial`.
 Stop the sleeping runner, retaining every sample. Its complete sixteen unstrip
 cases also seed a source/binary-bound historical worst-case perf run before
@@ -4674,7 +4674,7 @@ while retaining their earlier core selections and completed case samples.
 
 ## D104 — match caller-page commitment and initialize owned decoder chunks
 
-Preserve all fifteen completed D103 Moss cases, binaries and bound source
+Preserve all fifteen completed D103 a downstream engine cases, binaries and bound source
 snapshot externally in `baseline-D103-partial` before stopping its sleeping
 last-case runner. D103 passed thirteen fixtures/contracts/budget tests, strict
 checks, 30,000 native, 30,000 libm and 30,000 executed WASM cases and eight
@@ -4824,16 +4824,16 @@ admission/utilization metadata; they are not performance samples.
 
 D105 completes and archives sixteen five-pair unstrip cases per consumer in
 `baseline-D105-unstrip`, including each bound source, Rust/C++ binary, and fresh
-worst-case stat/record profile. Caller means/maxima are 0.723/1.157 Moss and
+worst-case stat/record profile. Caller means/maxima are 0.723/1.157 a downstream engine and
 0.742/1.224 default; all sixteen caller cases pass time and requested memory.
 Allocating means are 0.885/0.891, but the tiny and million cases still miss
-maximum: Moss tiny 1.543, million 1.851; default tiny 1.560, million 1.791.
-Moss worst-case whole-process instruction ratio is 1.065 and cycles are nearly
+maximum: a downstream engine tiny 1.543, million 1.851; default tiny 1.560, million 1.791.
+a downstream engine worst-case whole-process instruction ratio is 1.065 and cycles are nearly
 equal to C++, so repeated long-loop profiling does not reproduce the short
 owned benchmark's wall gap. This is motivation to inspect allocator/setup
 state, not permission to waive either case. Their residuals are not accepted.
 
-The queued pending-path diagnostic first measures the million-triangle Moss
+The queued pending-path diagnostic first measures the million-triangle a downstream engine
 cache case at 0.998 (five pairs), then pauses before fetch at a new GPU lease.
 Its other groups/default profile remain pending. The seven earlier D102 cache
 cases are preserved separately; source-mixed diagnostics do not qualify a
@@ -4841,7 +4841,7 @@ family. No final full matrix has run.
 
 ## D106 — resident benchmark inputs and direct decoder validation
 
-Preserve the completed one-row D105 Moss pending cache diagnostic alongside
+Preserve the completed one-row D105 a downstream engine pending cache diagnostic alongside
 its identical source/Rust/C++ snapshot in `baseline-D105-unstrip`, then stop
 only the own waiting workers. Fresh owned unstrip profiling is 1.065/1.068
 instructions Rust/C++ across consumers; the short benchmark still misses its
@@ -4912,7 +4912,7 @@ waits; the scoreboard's sole sleeping child does not block it.
 
 Resume by reviewing the complete uncommitted implementation, D95/D100 owner
 protocol, D106 validation receipts and checkpointed measurements. D106 finishes
-its four five-pair decoder cases under both profiles: Moss allocating/caller
+its four five-pair decoder cases under both profiles: a downstream engine allocating/caller
 focused means 1.147/0.972 and maxima 1.295/1.047; default focused means
 1.319/1.033 and maxima 1.756/1.202. These two-shape focused means are not full
 family means. The default tiny allocating case remains an ordinary failure,
@@ -4958,7 +4958,7 @@ validation while D107 remains frozen. It is not yet a production/timing change.
 
 Archive complete D107 four-case/five-pair diagnostics and fresh profiles in
 `baseline-D107-unstrip`, verifying both source/binary snapshots before source
-changes. Moss focused allocating/caller means are 1.190/1.156, maxima
+changes. a downstream engine focused allocating/caller means are 1.190/1.156, maxima
 1.317/1.251; defaults are 1.369/1.049, maxima 1.659/1.206. Both million
 allocating cases pass, but the default tiny allocating failure is not waived.
 Its fresh instruction ratio is 1.370. These are two-shape diagnostic means,
@@ -5004,9 +5004,9 @@ proof remains current because those sources and build settings are unchanged.
 ## D110 — calibrate resident batches after matched warm-up
 
 Archive complete D108/D109 decoder diagnostics and fresh profiles in
-`baseline-D109-unstrip`. Default focused cases pass; Moss tiny allocating
+`baseline-D109-unstrip`. Default focused cases pass; a downstream engine tiny allocating
 measures 1.849, while its fresh whole-process instruction ratio is 1.281.
-Moss tiny's cold one-call probe selected only 14,358 iterations; its resident
+a downstream engine tiny's cold one-call probe selected only 14,358 iterations; its resident
 Rust/C++ medians are 62.4/34.0 ns, so batches last roughly 0.9/0.5 ms rather
 than the intended twenty milliseconds. Its five ratios include 2.865/3.098,
 so the undersized batch is a concrete method problem, not a residual waiver.
@@ -5030,7 +5030,7 @@ older streams remain source-identified diagnostics and are never pooled.
 The first D110 launch rejected a busy executable before any calibration or
 sample: an orphan pending-family child had already launched during the D108
 queue-parent handoff. Stop its own shell, then stop the benchmark at a blocked
-pair boundary. Preserve all 36 completed old-method Moss cases, their original
+pair boundary. Preserve all 36 completed old-method a downstream engine cases, their original
 source tar and both binary hashes in `baseline-D109-pending-partial`. Its native
 source and loaded method were still D109; the on-disk D110 Python edit would
 have correctly rejected its final qualification. No record is pooled or
@@ -5040,7 +5040,7 @@ accepted, and the corrected D110 driver restarts only after that child exits.
 
 Archive D110's complete four-row/five-pair decoder diagnostics and fresh
 worst-case profiles in `baseline-D110-unstrip`. Warmed batch calibration does
-not clear Moss tiny's 2.889 maximum; default focused decoder rows pass. No
+not clear a downstream engine tiny's 2.889 maximum; default focused decoder rows pass. No
 maximum is waived. All raw cold/warm calibration and iteration counts remain
 visible, and previous short batches are not reused.
 
@@ -5063,7 +5063,7 @@ pending changed-family diagnostics require the D111 matched-dispatch method;
 source/binary snapshots prevent pooling older-method results. All owner bars,
 fifteen-second lease polling, ten-minute bursts and D100/D146 rules persist.
 
-The separately retained old-method partial Moss fetch group has mean 1.335
+The separately retained old-method partial a downstream engine fetch group has mean 1.335
 (maximum 1.442); it is a failing whole-family diagnostic, not a residual.
 An external safe-Rust fetch candidate replaces general ceiling division with
 a proven-safe add/shift, totals known-valid cache-line visits outside the inner
@@ -5076,7 +5076,7 @@ fresh method-consistent fetch measurements decide whether it is needed.
 
 Preserve D111's full focused streams and fresh profiles in
 `baseline-D111-unstrip` before applying production changes. Default focused
-allocating/caller means are 1.174/1.097, maxima 1.293/1.338. Moss caller mean
+allocating/caller means are 1.174/1.097, maxima 1.293/1.338. a downstream engine caller mean
 1.018/max 1.149 and million owned ratio 0.998 pass, but tiny owned 2.883 fails.
 Its fresh whole-process instruction ratio is 1.227 and cycle ratio 2.243;
 Rust profile includes 17.7% in memset, versus 2.15% C++. Stable warmed batches
@@ -5091,7 +5091,7 @@ allocation order, charging, failure usage and exact output. Caller decoding
 is unchanged. External standard/libm runs each pass fourteen phase contracts,
 including every existing tight-fuel owned/caller prefix and tail witness.
 
-The old-method complete Moss fetch diagnostic misses the family mean at
+The old-method complete a downstream engine fetch diagnostic misses the family mean at
 1.335 across eight cases, with large-case ratios 1.298–1.442. Dispatcher cost
 is negligible relative to these large calls; the safe instruction reductions
 already validated externally are therefore worth retaining without another
@@ -5121,9 +5121,9 @@ second input exhaustion; it remains unapplied pending the small-append timing.
 ## D113 — retain output storage directly and specialize common decoder/fetch loops
 
 Archive D112's complete twelve-row streams and worst-case profiles for both
-consumers in `baseline-D112-focused`. Moss fetch mean/max are 1.290/1.359;
+consumers in `baseline-D112-focused`. a downstream engine fetch mean/max are 1.290/1.359;
 all its maxima and memory pass, but its family mean does not. Default fetch
-also misses the mean. Moss tiny owned decoder remains 2.835; no edge residual
+also misses the mean. a downstream engine tiny owned decoder remains 2.835; no edge residual
 is accepted. Its full requested bound and million path remain exact.
 
 An identified sink asymmetry survives matched dispatch: Rust made entire
@@ -5168,7 +5168,7 @@ D113 complete validation passes 79/74/79 feature-mode tests, strict root Clippy
 in all three modes, both consumer Clippy/resident modes, and 30,000 native,
 30,000 libm and 30,000 executed WASM cases. HEAD remains 11a2b5a on phase/0.5;
 the clean scalar reference remains 4c203430ca565cb59a468a91922c76c208169536.
-No D113 sample is admitted during the initial occupied Moss lease wait.
+No D113 sample is admitted during the initial occupied a downstream engine lease wait.
 
 ## D114 — owner schedules timing through the shared lease queue
 
@@ -5211,15 +5211,15 @@ as meshopt-timing:p05-{moss,default}-focus, with separate leased worst-case prof
 
 ## D115 — inline the checked decoder into its already inlined owned wrapper
 
-The D114 shared queue admits both profiles and profiles: Moss focus completes
+The D114 shared queue admits both profiles and profiles: a downstream engine focus completes
 in 39 seconds. Preserve all twelve rows/binaries/source/perf evidence per profile
 in baseline-D114-focused before source mutation. Complete fetch mean/max passes:
-Moss 0.932/1.081, default 0.929/1.105, memory 1.0. The two decoder edge cases pass
-for default (owned maximum 1.184, caller 1.195). Moss caller maximum is 1.210,
+a downstream engine 0.932/1.081, default 0.929/1.105, memory 1.0. The two decoder edge cases pass
+for default (owned maximum 1.184, caller 1.195). a downstream engine caller maximum is 1.210,
 but tiny owned is 2.145, with million owned 0.986; it is a clear failure and no
 residual is accepted. The subset decoder mean is not a complete family mean.
 
-Fresh tiny Moss profile has instruction ratio 1.088 but cycle ratio 1.692;
+Fresh tiny a downstream engine profile has instruction ratio 1.088 but cycle ratio 1.692;
 68% of Rust cycles are in the inlined main driver. Both binaries still call an
 out-of-line unstripify_checked<Vec<u32>> despite the public owned wrapper being
 always inline. Its mutable workspace/output boundary prevents consumer folding
@@ -5235,8 +5235,8 @@ new source's final matrix. The final matrix still has not started.
 
 ## D116 — expose the emitting decoder loop instead of its mutable Vec boundary
 
-D115's checked helper is now absent from the Moss symbol table, but the next
-emitting unstripify_loop<false,Vec<u32>> remains out of line. Tiny owned Moss
+D115's checked helper is now absent from the a downstream engine symbol table, but the next
+emitting unstripify_loop<false,Vec<u32>> remains out of line. Tiny owned a downstream engine
 still clearly fails at 2.229 (41.67ns versus 18.93ns); default maximum passes
 at 1.090. Both caller edge maxima and million owned pass; memory is 1.0.
 Retain all four-row streams, source/binaries and fresh failing profiles in
@@ -5252,12 +5252,12 @@ four-row decoder-edge diagnostics under both profiles through queued leases.
 ## D117 — matched standalone timer functions in the two drivers
 
 D116 completes both four-row profiles and fresh failing profiles. Preserve all
-records/binaries/sources in baseline-D116-focused before mutation. Moss tiny
+records/binaries/sources in baseline-D116-focused before mutation. a downstream engine tiny
 owned remains above the bar (maximum 1.555; 42.39ns versus 28.53ns medians),
 while default maximum 1.226, all caller maxima and million owned pass. Neither
 the partial mean nor borderline diagnostic maximum establishes acceptance.
 
-Inlining the emitting loop removes its symbols but does not remove the Moss/
+Inlining the emitting loop removes its symbols but does not remove the a downstream engine/
 default owned gap. Inspect generated timer/dispatcher boundaries: most timed
 loops merge into the benchmark/command machinery; only one monomorph remains
 separate. Test matched non-inlined timed_iterations functions in Rust and C++.
@@ -5276,7 +5276,7 @@ source-bound and are never pooled. Queued ownership and all bars remain unchange
 ## D118 — fixed initialized chunks for small owned decoder outputs too
 
 Archive D117 both four-row streams and fresh failing profiles in
-baseline-D117-focused. Moss owned tiny still fails at 2.056 (41.41ns/20.15ns),
+baseline-D117-focused. a downstream engine owned tiny still fails at 2.056 (41.41ns/20.15ns),
 million owned passes 0.999. Caller edge maxima pass below 0.906; default owned/
 caller maxima pass 1.007/1.034. Matched standalone timers retain allocation/
 workspace work and expose the remaining owned-only gap. No residual is accepted.
@@ -5295,7 +5295,7 @@ consumer. Other families and the D117 matched/queued method are untouched.
 
 ## D119 — select owned/caller API before each statically typed timer loop
 
-D118 initialized chunks reduce tiny Moss owned to 31.83ns; its maximum 1.551
+D118 initialized chunks reduce tiny a downstream engine owned to 31.83ns; its maximum 1.551
 still misses the unchanged bar. Preserve complete streams/source/binaries and
 profiles in baseline-D118-focused. An external LD_PRELOAD allocation counter
 under a separate shared queued lease subtracts zero-iteration setup from
@@ -5319,7 +5319,7 @@ only decoder shapes 0/7 receive the next five-pair diagnostic probe.
 ## D120 — visible shared admission replaces direct lease submission
 
 The owner supersedes D114 scheduling: every next timed burst enters
-MOSS_HEAVY_GPU=1 moss-heavy.sh 4 timeout 840, with its meshopt-timing:p05-*
+MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840, with its meshopt-timing:p05-*
 dashboard lane. Four GB is the declared peak, adjustable explicitly if needed.
 The shared wrapper reserves memory, queues visibly, and obtains/releases the
 GPU lease itself. No direct or nested gpu-lease.sh call remains in this lane.
@@ -5333,7 +5333,7 @@ and requeue, 75 retries admission, 76 resumes a completed checkpointed burst.
 Source/reference identities remain immutable between bursts. No scoreboard or
 lease-free gap polling returns. Statistical rules, corpus and bars are unchanged.
 D119's complete focused streams and profiles were archived before this change;
-Moss tiny owned still fails at 1.550 (28.06ns/17.60ns medians), default maximum
+a downstream engine tiny owned still fails at 1.550 (28.06ns/17.60ns medians), default maximum
 passes 1.102, and both caller and million-owned probes pass. No partial mean
 qualifies the decoder and no residual is accepted.
 
@@ -5346,12 +5346,12 @@ Both still pass exactly the same strip length/data/restart value to every call.
 No API work, allocation, initialization, workspace/error checks or result sinks
 move outside the timer. Production Rust stays at D118. Full strict/native/libm/
 executed-WASM proof precedes only the four decoder edge rows per profile under
-D120 visible admission. This probes the remaining tiny Moss gap without pooling
+D120 visible admission. This probes the remaining tiny a downstream engine gap without pooling
 prior samples or altering the bar.
 
 ## D122 — keep Vec ownership local to fallible output reservation
 
-D121's first visible admission completed all four Moss decoder-edge rows with
+D121's first visible admission completed all four a downstream engine decoder-edge rows with
 five pairs each, a 26-second lease and measured 0.5 GB process peak against the
 honest 4 GB declaration. Its own heavy/lease ancestor and kernel-fd receipts
 pass. Tiny owned remains a clear diagnostic failure at 1.561; caller maximum
@@ -5373,7 +5373,7 @@ ownership transfer through the private result representation without moving
 any allocation or API work outside timing. No public API, unsafe or SIMD change.
 
 An external same-driver prototype passes fourteen existing phase contracts in
-both std and libm and strict Clippy. Its Moss assembly eliminates those three
+both std and libm and strict Clippy. Its a downstream engine assembly eliminates those three
 overlapping accesses (474 to 457 static assembly lines); this is code-generation
 evidence, not measured speedup. Full root/consumer/native/libm/executed-WASM
 proof precedes eight diagnostic rows per consumer: only strip/decoder shapes
@@ -5386,7 +5386,7 @@ D122 completes eight five-pair strip/decoder rows per consumer in one visible
 worker. All eight API-subset groups pass time/memory; no failing-family profile
 is required for these subsets. Preserve both matching sources/binaries and
 empty completed profile summaries in baseline-D122-focused. Owned decoder
-maxima are 0.999 Moss / 1.033 default; caller 1.118 / 1.152. Strip owned maxima
+maxima are 0.999 a downstream engine / 1.033 default; caller 1.118 / 1.152. Strip owned maxima
 1.407 / 1.459, caller 1.149 / 1.144. Requested-memory ratios are all 1.0.
 These are edge-subset observations, never full family qualification or a
 matched-core causal speedup against old streams. The next five-pair diagnostics
@@ -5398,12 +5398,12 @@ then other touched families. The final matrix still has not started.
 D122 pending diagnostics complete all 48 rows per consumer with five pairs in
 one visible 217-second admission, peak 0.5 GB. Archive exact source, binaries,
 streams and fresh failing profiles in baseline-D122-pending. OMM measure passes
-(Moss/default means 1.176/1.154, maxima 1.381/1.302, memory 1.156). Tangent owned
+(a downstream engine/default means 1.176/1.154, maxima 1.381/1.302, memory 1.156). Tangent owned
 means still fail 1.263/1.269, and default caller fails 1.291. Cache maxima fail
-1.541/1.766; Moss normal owned maximum fails 1.535. No failing mean is waived.
+1.541/1.766; a downstream engine normal owned maximum fails 1.535. No failing mean is waived.
 
 Fresh tangent profiles place 47–55% of cycles in merge; normal hashing costs
-20.5% and merging 15.0% in its Moss worst case. Specialize the existing merge
+20.5% and merging 15.0% in its a downstream engine worst case. Specialize the existing merge
 bulk-charge choice with const-generic loops: same checked pair count, precharge,
 pair order and tight-budget fallback. Normal hashing proves at most buckets
 visits per vertex over 128-entry chunks, then charges actual probes locally;
@@ -5423,12 +5423,12 @@ qualification is inferred before that run; the complete final matrix is pending.
 
 Archive both D123 streams and fresh failing profiles in baseline-D123-focus.
 Its visible lease lasted 167 seconds, combined worker exit 0. Normals pass all
-four groups (Moss/default owned means 1.189/1.178, caller 1.145/1.180; every max
+four groups (a downstream engine/default owned means 1.189/1.178, caller 1.145/1.180; every max
 <=1.318, memory 1.0). Tangent owned passes 1.243/1.206 and default caller 1.240;
-Moss caller mean still fails 1.275, maximum 1.340 on the million case. Retain the
+a downstream engine caller mean still fails 1.275, maximum 1.340 on the million case. Retain the
 proven merge/hash changes, with no mean waiver or full qualification claim.
 
-Cache worsens to means 1.364/1.402, maxima 1.737/1.855. Its fresh Moss tiny
+Cache worsens to means 1.364/1.402, maxima 1.737/1.855. Its fresh a downstream engine tiny
 instruction ratio is 2.066 versus D122 1.933; preparation/reservation functions
 remain prominent. Restore the exact D122 cache kernel/entry, rejecting all
 D123 cache slicing, inlining and disabled-warp counter changes. Factor the
@@ -5452,8 +5452,8 @@ Final acceptance and all bars remain unchanged.
 
 D124 completes both 24-row streams and profiles in a 117-second visible
 admission, archived with exact source/binaries in baseline-D124-focus. All
-tangent groups pass: Moss owned/caller means 1.248/1.236, default 1.228/1.231,
-maxima <=1.351 and memory 1.0. Cache means pass 1.105/1.116; Moss maximum 1.450
+tangent groups pass: a downstream engine owned/caller means 1.248/1.236, default 1.228/1.231,
+maxima <=1.351 and memory 1.0. Cache means pass 1.105/1.116; a downstream engine maximum 1.450
 passes, default tiny remains 1.613. Its fresh whole-process instruction ratio
 is 1.992, dominated by analyzer, kernel and fallible allocation. No residual
 or full family qualification is inferred from five-pair diagnostics.
@@ -5478,7 +5478,7 @@ still requires fresh complete matrices under this matched method.
 D125 completes 32 rows per consumer plus fresh failing cache profiles in an
 89-second shared admission; archive exact sources/binaries in baseline-D125-focus.
 Fetch, overdraw and coverage pass both profiles. Cache means pass 1.147/1.149;
-Moss tiny maximum 1.492 passes diagnostically, default tiny still fails 1.591.
+a downstream engine tiny maximum 1.492 passes diagnostically, default tiny still fails 1.591.
 Matched complete-statistic pointer retention remains; it does not prove a
 causal speedup or excuse the remaining edge. No residual is accepted.
 
@@ -5504,7 +5504,7 @@ per consumer remains pending after focused acceptance; bars/D146 are unchanged.
 Archive D126 both 36-row streams and failing profiles in baseline-D126-focus.
 The 86-second shared admission completes exact matching evidence. Cache now
 passes both profiles (means 1.093/1.151, maxima 1.346/1.499, memory 1.0), with
-no accepted residual. Raster owned/caller means fail 1.366/1.439 Moss and
+no accepted residual. Raster owned/caller means fail 1.366/1.439 a downstream engine and
 1.423/1.507 default; default remesh means fail 1.296/1.259. Memory is 1.0.
 Fresh default instruction ratios are raster 1.338 and remesh 1.485. Raster
 cycles split 44.1% recursion, 33.7% setup, 10.6% floorf; remesh spends 98.1%
@@ -5537,8 +5537,8 @@ matrices remain pending; all bars and D146 rules are unchanged.
 
 D127 completes 28 five-pair rows per profile in a 97-second visible admission;
 archive exact sources/binaries/streams/fresh profiles in baseline-D127-focus.
-Raster Moss owned mean 1.245 passes, but caller maximum 1.596 fails. Default
-raster means 1.302/1.361 fail. Remesh regresses to Moss means 1.467/1.358,
+Raster a downstream engine owned mean 1.245 passes, but caller maximum 1.596 fails. Default
+raster means 1.302/1.361 fail. Remesh regresses to a downstream engine means 1.467/1.358,
 default 1.483/1.304, and maxima up to 2.126. Reject its whole-input charging
 specialization; neither lower instruction counts nor parity excuses slower time.
 
@@ -5555,10 +5555,10 @@ or timing-boundary change. Native/libm/executed-WASM each match 30,000 cases;
 format, strict Clippy, required tests and fourteen phase contracts all pass.
 
 The immediately following visible admission completes 50 five-pair rows per
-profile and fresh profiles; archive in D128-proof/baseline-D128-focused. Moss
+profile and fresh profiles; archive in D128-proof/baseline-D128-focused. a downstream engine
 all nine subset/API groups pass (raster means 1.125/1.140, maxima 1.234/1.246;
 remesh owned mean 1.248 remains close to the bar). Tangents pass both profiles:
-Moss means 1.165/1.169, default 1.172/1.195, maxima <=1.339, memory 1.0.
+a downstream engine means 1.165/1.169, default 1.172/1.195, maxima <=1.339, memory 1.0.
 Default owned strip subset mean/max 1.309/1.626, cache subset mean 1.336,
 raster means 1.340/1.365, and owned remesh mean 1.264 still fail. Every heap
 ratio is 1.0. Subset means do not qualify full families; no residual is accepted.
@@ -5589,10 +5589,10 @@ qualification is inferred from preparation; all bars/D146 remain unchanged.
 
 
 D129 completes both streams and fresh profiles, archived in baseline-D129-focus.
-Moss cache/strip/raster pass their diagnostic groups; default cache subset also
+a downstream engine cache/strip/raster pass their diagnostic groups; default cache subset also
 passes (mean/max 1.207/1.219). Default strip subset mean 1.303 and raster means
 1.337/1.397 still fail. Extracted remesh sample kernels regress to means
-1.538/1.449 Moss, 1.562/1.445 default; reject that extraction. Default raster's
+1.538/1.449 a downstream engine, 1.562/1.445 default; reject that extraction. Default raster's
 fresh profile now puts 64.2% in the array-map closure despite edge inlining.
 Default strip's million profile puts 85.6% in its owned Vec-emitting core.
 
@@ -5603,7 +5603,7 @@ selects covered/tight sample loops once per row inside each triangle. Native,
 libm and executed WASM each match 30,000 cases; all strict checks/contracts pass.
 Sixteen five-pair rows per profile plus fresh profiles complete in a visible
 72-second admission (D130-proof/baseline-D130-remesh). Both profiles regress:
-owned/caller means 1.514/1.392 Moss, 1.510/1.407 default; maxima up to 2.170.
+owned/caller means 1.514/1.392 a downstream engine, 1.510/1.407 default; maxima up to 2.170.
 Reject it too. D128's unchanged per-triangle loop remains the retained starting
 point; branch removal and lower instruction counts cannot substitute for time.
 
@@ -5644,13 +5644,13 @@ the complete final matrix remains pending and no residual has been accepted.
 
 
 D131 completes in a 57-second visible admission with no failing groups;
-archive D131-proof/baseline-D131-raster-strip. Moss owned/caller strip subset
+archive D131-proof/baseline-D131-raster-strip. a downstream engine owned/caller strip subset
 means 1.081/1.105, default 1.176/0.997, maxima <=1.257. Raster complete-family
-means 1.097/1.159 Moss and 1.105/1.127 default, maxima <=1.302. Memory is 1.0.
-This clears the prior Moss caller maximum and default raster means; full final
+means 1.097/1.159 a downstream engine and 1.105/1.127 default, maxima <=1.302. Memory is 1.0.
+This clears the prior a downstream engine caller maximum and default raster means; full final
 qualification is still required. D132 completes in 78 seconds with fresh
 profiles (D132-proof/baseline-D132-coordinates), but regresses remesh means to
-1.588/1.485 Moss, 1.682/1.524 default. Reject scalar bit coordinate conversion;
+1.588/1.485 a downstream engine, 1.682/1.524 default. Reject scalar bit coordinate conversion;
 retain its exactness proof as rejected-candidate evidence, not a speedup.
 
 ## D133 — separate packed remesh kernels and specialize solve mode
@@ -5714,7 +5714,7 @@ D133 finishes both sixteen-row/profile streams and fresh profiles in 131
 seconds (D133-proof/baseline-D133-solve). Owned means 1.277/1.303 fail, default
 caller 1.254 fails; retain its narrower kernel instruction profile as evidence,
 not acceptance. D134 finishes in 221 seconds (D134-proof/baseline-D134-entry),
-but blanket run/entry inlining regresses default means to 1.446/1.434. Moss
+but blanket run/entry inlining regresses default means to 1.446/1.434. a downstream engine
 owned mean 1.285 and both maxima around 1.53 fail. Reject that inlining too.
 
 ## D136 — reuse successful owned-bound validation with exact work charges
@@ -5756,9 +5756,9 @@ full matrices still have not started; no mean or maximum residual is waived.
 
 
 D136 completes both sixteen-row/profile streams and fresh profiles in 242
-seconds (D136-proof/baseline-D136-validated). Moss means 1.277/1.282 and default
+seconds (D136-proof/baseline-D136-validated). a downstream engine means 1.277/1.282 and default
 1.395/1.437 fail. D137 completes in 190 seconds (D137-proof/baseline-D137-cast),
-but equivalent unsigned conversion also regresses: Moss means 1.479/1.432,
+but equivalent unsigned conversion also regresses: a downstream engine means 1.479/1.432,
 default 1.712/1.617. Reject both measured candidates; semantic equivalence and
 changed instruction selection cannot establish speed. D138 validation-only
 with original entry boundaries remains queued, strict proof complete.
@@ -5780,12 +5780,12 @@ integer-ULP boundary cases against the old expression in BOTH native and execute
 WASM with zero mismatches. These are semantic proofs, never speed measurements.
 Full strict/contracts/native/libm/executed-WASM proof gates a staged remesh-only
 sixteen-row/profile burst, skipped if D138 already clears both profiles. Actual
-Moss/default configurations are prebuilt without timing. No unsafe, explicit
+a downstream engine/default configurations are prebuilt without timing. No unsafe, explicit
 SIMD, public API, corpus or bar change. Final matrices have not started.
 
 
 D138 completes in a178-second visible admission with fresh default profiles
-(D138-proof/baseline-D138-validation-only). Moss owned/caller means1.243/1.196
+(D138-proof/baseline-D138-validation-only). a downstream engine owned/caller means1.243/1.196
 pass, maxima1.422/1.425 and memory1.0. Default means1.293/1.307 still fail,
 maxima<=1.492. Validation reuse alone does not clear the default bar; neither
 mean is an edge residual. D139's max/min intentionally yields finite zero for
@@ -5811,7 +5811,7 @@ API, bar or corpus change. Full final matrices remain unrun.
 
 
 D139 completes both profiles in 192 seconds (D139-proof/baseline-D139-grid).
-Moss means1.406/1.256 and default1.388/1.357 fail. D140 finishes in88 seconds:
+a downstream engine means1.406/1.256 and default1.388/1.357 fail. D140 finishes in88 seconds:
 Moss1.419/1.328, default1.468/1.396, with failing maxima too. Reject both grid
 conversion candidates. Exact native/WASM scalar proofs establish semantics,
 not speed; no failing mean can become a residual. Heap ratios remain1.0.
@@ -5844,13 +5844,13 @@ the fallback. Strict/native/libm/executed-WASM proof gates a conditional16-row/
 profile remesh burst. Full final matrices are still unrun; no residual accepted.
 
 
-D141 finishes in 173 seconds (D141-proof/baseline-D141-cell-byte). Moss means
-1.270/1.198, default1.274/1.272; only Moss caller passes. Reject this conversion
+D141 finishes in 173 seconds (D141-proof/baseline-D141-cell-byte). a downstream engine means
+1.270/1.198, default1.274/1.272; only a downstream engine caller passes. Reject this conversion
 candidate: all maxima/memory passing does not clear its failing means.
 
 D142 strict/native/libm/executed-WASM proof and expanded eight-shape std/libm
 checks pass. Its admission finishes in 34 seconds with exit1 after 16 complete
-Moss rows: means 1.195/1.168, maxima 1.264/1.261, heap 1.0. The external diagnostic
+a downstream engine rows: means 1.195/1.168, maxima 1.264/1.261, heap 1.0. The external diagnostic
 worker expects the old C++ library basename after prototype package renaming.
 Actual renamed binary SHA matches the stream; its source/binaries/raw pairs are
 archived in D142-proof/baseline-D142-partial. No default timing/perf evidence,
@@ -5885,11 +5885,11 @@ covers 38 shapes per std/libm mode. `D144-functional-preflight.json` has zero fu
 errors and 51 historical benchmark/profile errors; full verify remains exit1.
 Do not relabel old final summaries as qualified. Preserve exact sources/proof bins
 and pending diagnosis scripts externally before deleting only
-`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p05perf`.
+`<target-dir>`.
 
 ### Current per-family observations (not current final acceptance)
 
-| Family | Before GM M / D | Latest applicable evidence GM (max), Moss | Default | Max heap ratio | Scope / status |
+| Family | Before GM M / D | Latest applicable evidence GM (max), a downstream engine | Default | Max heap ratio | Scope / status |
 |---|---:|---:|---:|---:|---|
 | `stripify` | 1.346 / 1.266 | 1.106 (1.176) | 1.176 (1.257) | 1.000 | D131 edge subset passes; full pending |
 | `stripify_bound` | 2.803 / 3.009 | 0.424 (0.476) | 0.423 (0.478) | 1.000 | D73 historical pass; fresh final pending |
@@ -5912,7 +5912,7 @@ and pending diagnosis scripts externally before deleting only
 Every source candidate is recorded in D71–D143 above. This index distinguishes
 retained corrections from failed explanations, performance rejections, a compiler
 no-op, and unfinished hypotheses. All artifacts are under
-`/mnt/linux-extra/meshopt-artifacts/p05`; completed D128–D141 prototypes have
+`<artifacts>/p05`; completed D128–D141 prototypes have
 source/binary-bound `Dnnn-proof/baseline-*` archives. Earlier streams use
 `baseline-Dnnn-*`, except frozen D106. D142 uses `D142-proof/baseline-D142-partial`.
 No samples across sources/methods are pooled. Lower instruction counts or
@@ -5920,23 +5920,23 @@ semantic equivalence never establish a wall-time pass.
 
 | Candidate / hypothesis | Outcome and disposition |
 |---|---|
-| D71–D73: batched helper timing, matched strict scalar reference, analyzer/generator loop reductions and adjacent normal pairs | Retained foundations. D73 full matrix still fails12/21 Moss and14/21 default groups. Historical data uses the earlier method. |
+| D71–D73: batched helper timing, matched strict scalar reference, analyzer/generator loop reductions and adjacent normal pairs | Retained foundations. D73 full matrix still fails12/21 a downstream engine and14/21 default groups. Historical data uses the earlier method. |
 | D74–D85: sequential strip reads, cache bounds, scalar raster rows/setup, direct corner/voxel/hash reads, covered caller raster, eight-triangle removal, scalar log2 and inline OMM hash | Retained validated changes; caller witness D83. Individually untimed while gated, subsequently exercised by diagnostics. No individual speedup inferred. |
 | D87/D89–D92: covered caller normal/tangent storage, fuel-specialized decoder/raster, once-only scratch initialization, retired remap removal | Retained semantics and requested-heap reductions. D88 adds executed libm proof. Superseded narrow emission choices are listed below. |
 | D97/D98/D101/D102/D105: packed reads, disabled cache simulation, bounded OMM ranges, normal clear/charging, tangent accumulation and fetch bounds | Retained validated changes. Interim queues admitted no samples or partial samples; D102/D103 partial streams are preserved separately. |
 | D99/D112: append owned strip/unstrip output, including the <=64 small decoder branch | Rejected as the final ownership layout. D118 replaces decoder append with initialized chunks; D131 replaces strip append with SliceOutput. Exact capacity/work/heap retained. |
-| D103: branchless decoder degeneracy and checked triangle chunks | Retained, but D105 owned tiny/million maxima1.543/1.851 Moss and1.560/1.791 default still fail. Not sufficient alone. |
+| D103: branchless decoder degeneracy and checked triangle chunks | Retained, but D105 owned tiny/million maxima1.543/1.851 a downstream engine and1.560/1.791 default still fail. Not sufficient alone. |
 | D104: caller page commitment and owned output chunks | Retained matching correction; not a sufficient explanation for the remaining owned-only gap. |
 | D106: resident immutable inputs and explicit decoder validation | Retained matching correction; focused default owned maximum1.756 still fails. Frozen D106 source/binaries preserved. |
 | D107: matched conditional caller buffers | Retained correction. Discarded its first draft's unrelated untimed OMM parity branch edit. Does not alone clear tiny owned decoding. |
-| D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive Moss tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
-| D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny Moss maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
+| D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive a downstream engine tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
+| D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny a downstream engine maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
 | D111: static API selection outside both loops | Retained method fix. Tiny owned Moss2.883 still fails. Wider dispatcher asymmetry is insufficient. |
-| D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 Moss still fails; D114 matched method subsequently clears fetch. |
+| D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 a downstream engine still fails; D114 matched method subsequently clears fetch. |
 | D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned Moss2.145 still fails. |
 | D117: matched standalone timer functions | Retained method correction; tiny owned Moss2.056 still fails. |
-| D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny Moss maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
-| D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny Moss maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
+| D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny a downstream engine maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
+| D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny a downstream engine maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
 | D122: keep Vec ownership local to fallible reservation | Retained. Decoder edge subsets finally pass both profiles; full family remains unqualified. |
 | D123: cache kernel inlining, slicing and timestamp changes | Rejected: cache means1.364/1.402, maxima1.737/1.855. Restore kernel in D124. D123 normal merging/probe changes retained; tangent charging refined in D124. |
 | D124: original cache kernel, fixed timestamp preparation, actual tangent probes | Retained; tangents pass, cache default tiny maximum1.613 still fails. |
@@ -5947,7 +5947,7 @@ semantic equivalence never establish a wall-time pass.
 | D129: inline small strip/workspace helpers | Retained where still present; strip/raster replaced by D131. Per-triangle remesh extraction separately rejected below. |
 | D131: nine direct raster edges in original order and initialized checked owned strip output | Retained in final tree. Raster full diagnostic and strip edge subset pass both profiles, heap 1.0; no complete final matrix. |
 
-| Remesh candidate | Moss owned/caller GM | Default owned/caller GM | Decision |
+| Remesh candidate | a downstream engine owned/caller GM | Default owned/caller GM | Decision |
 |---|---:|---:|---|
 | D127: whole-input charging | 1.467 / 1.358 | 1.482 / 1.304 | Rejected; at least one mean fails. |
 | D129: extracted sample helpers | 1.538 / 1.449 | 1.562 / 1.445 | Rejected; at least one mean fails. |
@@ -5962,7 +5962,7 @@ semantic equivalence never establish a wall-time pass.
 | D140: twice-cutoff finite grid upper bound | 1.419 / 1.328 | 1.468 / 1.396 | Rejected; at least one mean fails. |
 | D141: direct saturating half-cell byte conversion | 1.270 / 1.198 | 1.274 / 1.272 | Rejected; at least one mean fails. |
 | D135: rounded base point per sample row | — | — | Rejected before timing: generated default marking/accumulation instructions, registers, branches and float constants identical to D128. Compiler already hoists it. |
-| D142: fixed-pitch512-byte stack marking grid, resolutions4..8 | 1.195 / 1.168 | unmeasured | Abandoned at owner stop; Moss maxima 1.264/1.261, heap 1.0. Wrapper exits1 after Moss due renamed C++ library basename; no default or perf run. Not a demonstrated performance rejection. |
+| D142: fixed-pitch512-byte stack marking grid, resolutions4..8 | 1.195 / 1.168 | unmeasured | Abandoned at owner stop; a downstream engine maxima 1.264/1.261, heap 1.0. Wrapper exits1 after a downstream engine due renamed C++ library basename; no default or perf run. Not a demonstrated performance rejection. |
 | D143: extend fixed-pitch stack grid/row map to accumulation | unmeasured | unmeasured | Abandoned without any timing submission; full strict/native/libm/executed-WASM proof passes. No performance inference. |
 
 The operative rejection is failure against the unchanged bar; none of these
@@ -5998,7 +5998,7 @@ sweeps (including 50,000 0.1 and 64,000 0.1.x comparisons); upstream JS suites;
 80 cluster-LOD cases; all 15 supported RFC113 layouts and 90 codec comparisons
 with zero timing pairs. P05 native/libm/executed-WASM each match 30,000 cases.
 No corpus/bar changes, unsafe or SIMD. Receipts, exact sources and proof binaries
-are under /mnt/linux-extra/meshopt-artifacts/p05-diagfix/phase0; the slim record is
+are under <artifacts>/p05-diagfix/phase0; the slim record is
 parity/results/p05-diagfix-phase0.json. Historical performance/fuzz records are
 not promoted to current evidence. This closes Phase 0, not performance acceptance.
 
@@ -6007,7 +6007,7 @@ not promoted to current evidence. This closes Phase 0, not performance acceptanc
 Complete Phase 1 without timing. Every 0.5 family and both API forms where
 available have fresh instruction/branch counts on frozen shapes 0/2 (remesh
 0/4) under both consumers. Retain immutable source/binary/assembly/sample
-identities in /mnt/linux-extra/meshopt-artifacts/p05-diagfix/before. Counts
+identities in <artifacts>/p05-diagfix/before. Counts
 subtract fixture/setup with two batch lengths; timer output is discarded.
 P05_DIAGNOSIS.md records all causes, quantified limits, ranked fixes and explicit
 abandonment of unsupported further edits. Remesh default medium owned retires
@@ -6031,7 +6031,7 @@ indexing in that bounded store; original casts remain.
 
 All root feature-mode tests/strict Clippy, fourteen contracts and 30,000 native,
 libm and executed-WASM cases each pass (`marking-proof`). Fresh two-profile counts
-(`marking-counts`) support retention: medium owned instructions fall 6.40% Moss /
+(`marking-counts`) support retention: medium owned instructions fall 6.40% a downstream engine /
 10.24% default, branches 13.52%/13.82%; caller instructions fall 4.45%/7.15%.
 Tiny owned/caller instruction changes range -0.23%..-1.16%; branch differences
 ~0.4% are fixed-cost noise, not a timing claim. Both consumer binaries, sources,
@@ -6046,7 +6046,7 @@ float operations, all resolution>8 paths, heap requests/quotas and fuel prefixes
 Root tests/strict Clippy in all three modes and 30,000 native/libm/executed-WASM
 cases each pass (`accumulation-proof`). Both-profile objdump/counts support the
 next step (`accumulation-counts`): medium owned instruction ratios to C++ are
-1.292 Moss / 1.276 default, caller 1.248/1.242, versus D162 1.347/1.340 and
+1.292 a downstream engine / 1.276 default, caller 1.248/1.242, versus D162 1.347/1.340 and
 1.322/1.327. Tiny ratios remain ~1.47–1.49 owned/~1.43–1.45 caller. These are
 instruction diagnostics, not timing qualification. No timing occurred.
 
@@ -6062,9 +6062,9 @@ measure of written bytes; no timing speedup inferred. All root checks and three
 
 Further default assembly inspection identifies the missing overdraw vector
 reduction: the full-fuel selector remains inside its scalar pixel loop, while
-Moss emits packed integer reductions and default coverage already vectorizes.
+a downstream engine emits packed integer reductions and default coverage already vectorizes.
 The baseline tiny overdraw cost is 6,376,421 instructions/1,127,511 branches
-(default), 4,595,281/742,413 (Moss), 4,249,103/678,716 (C++). Refine D161's plan
+(default), 4,595,281/742,413 (a downstream engine), 4,249,103/678,716 (C++). Refine D161's plan
 with a covered/tight-fuel pixel-scan specialization before the packed reader.
 Keep charge-before-read and partial private statistics/fuel in the fallback;
 only integer sums may vectorize. This is distinct from rejected cache expansion
@@ -6083,7 +6083,7 @@ Root tests/strict Clippy in all modes and three exact 30,000-case sweeps pass
 (`raster-scan-proof`). Fresh counts/asm (`raster-scan-counts`) confirm the intended
 default overdraw change: tiny instructions -25.00%, branches -32.69%; medium
 instructions -3.96%, branches -4.80%. Ratios to C++ improve 1.501->1.125 tiny and
-1.072->1.030 medium. Moss is instruction-neutral; coverage changes are at most
+1.072->1.030 medium. a downstream engine is instruction-neutral; coverage changes are at most
 +0.13% in these counts. No timing inference or changed bar. Retain the fix.
 
 ## D166 — Select a checked packed viewport reader once
@@ -6112,7 +6112,7 @@ Inline only hash_bytes, retaining exact wrapping arithmetic, byte-chunk order,
 key/source copies, collision order and per-probe work. The separate helper call
 is absent in final assembly. Root checks and all three exact 30,000-case sweeps
 pass (`compact-hash-proof`). Counts (`compact-hash-counts`) support the modest
-change: compact ratios to C++ go ~1.101->1.087 Moss and ~1.138->1.127 default;
+change: compact ratios to C++ go ~1.101->1.087 a downstream engine and ~1.138->1.127 default;
 tiny reductions are similarly about 1%. No timing inference or new hash table.
 This finishes the library batch; every other family is abandoned for further
 edits with D161/P05_DIAGNOSIS evidence. Proceed to a single touched-family timing
@@ -6148,7 +6148,7 @@ counts retain the small compact win and remesh/covered-overdraw savings.
 
 One shared-admitted 4 GB-declared burst (dynamic reservation 2 GB, 840s hard cap,
 96s actual) measures 38 cases/profile, 400 pairs, 759 verified admission receipts.
-38 Moss cases stop at five pairs; default 34 at five/four at ten. No D146 needed.
+38 a downstream engine cases stop at five pairs; default 34 at five/four at ten. No D146 needed.
 Remesh/overdraw/coverage pass both profiles, all maximum and heap checks pass;
 compact means 1.325353/1.295537 fail the unchanged 1.25 bar. Abandon further compact
 optimization with these six-case/profile failures and the retained structural
@@ -6245,7 +6245,7 @@ changes. The old complete 160-case source epoch is historical, not promoted into
 a fresh all-family/release/fuzz verdict. No further clocks are submitted.
 
 Retain binaries, sources, logs, counters, pair/admission receipts and audits in
-/mnt/linux-extra/meshopt-artifacts/p05-last3-20261005. Delete only the mandated Cargo target after all
+<artifacts>/p05-last3-20261005. Delete only the mandated Cargo target after all
 validation; cleanup.json confirms removal. Commit closure with repository author,
 no AI trailer, push or merge.
 
@@ -6258,7 +6258,7 @@ refer to separate branch histories; their original identifiers remain intact.
 
 The owner approved this rule on 2026-10-04, as relayed by the coordinator,
 replacing clean full-profile repeats. Stage 1 is the complete 912-case 0.1.x
-and 204-case retained 0.1 matrix under each of the Moss and default consumer
+and 204-case retained 0.1 matrix under each of the a downstream engine and default consumer
 profiles on the rebased source. The family geometric-mean and heap bars use
 stage 1 without alteration. For **every** stage-1 case with Rust/C++ ratio
 strictly greater than 1.5, run 30 fresh interleaved Rust/C++ pairs on one
@@ -6293,7 +6293,7 @@ only touched families, about five interleaved pairs; the final complete matrix
 runs once, early stops after 5–20 pairs on a paired 95% interval, and sends
 only borderline cases to thirty fresh D146 pairs. Bursts last <15 minutes,
 then release cores. Pin one core, retain load and raw samples, pause on GPU
-lease or active moss-scoreboard measurements. No post-measurement bar edits.
+lease or active downstream-scoreboard measurements. No post-measurement bar edits.
 
 ## P07-D2 — sqrt exceptional bits and canonical SIMD adapter
 
@@ -6389,7 +6389,7 @@ target, then delete that target as the brief requires.
 The perf lane starts at implementation `2feefb2`, bars `179ba52`, and the
 unchanged upstream `4c203430`. Retained binaries, framed caller-buffer inputs,
 four hardware counters, disassembly and cycle reports are in
-`/mnt/linux-extra/meshopt-artifacts/p07perf/profiles-before`. Counters include
+`<artifacts>/p07perf/profiles-before`. Counters include
 startup, transport, warmup and 3,000 calls; they diagnose costs, not timing bars.
 Cycle captures report zero lost samples. The tiny meshlet capture is short and
 its attribution is less precise than the resident filter/vertex captures.
@@ -6519,7 +6519,7 @@ both failing index inputs. No performance matrix or supplement is repeated.
 
 Done-when is satisfied by implementation plus residual profile/best-ratio
 evidence. Do not claim that the SIMD bars, full release gates, ARM execution,
-Windows/macOS identity, dedicated-host timing, Moss integration or phase-0.6
+Windows/macOS identity, dedicated-host timing, a downstream engine integration or phase-0.6
 composition are qualified. Retain all receipts/binaries/source archives
 outside the exact target, delete that target, and never push this branch.
 
@@ -6530,11 +6530,11 @@ Start `e6eac35` on `phase/0.7`; upstream remains
 byte-group decoding and meshlet decoding are optimized. Filters, index/sequence,
 encoders, bars and frozen inputs are unchanged. This owner's explicit target
 `codex-meshopt-p07r3` supersedes the spec's earlier target spelling. Evidence
-is retained at `/mnt/linux-extra/meshopt-artifacts/p07r3` outside that target.
+is retained at `<artifacts>/p07r3` outside that target.
 No subagents or push are authorized. The first two diagnostics used the owner's
 `gpu-lease.sh run meshopt-timing:p07 -- ...`. The coordinator then requires
 visible shared admission: from diagnostic three onward, every timed burst uses
-`MOSS_HEAVY_GPU=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ...`,
+`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`,
 without nesting a lease command. Cancel the still-queued third direct request
 before it measures anything. The admission receipts check both wrapper and
 lease ancestry, queue telemetry and the declared four-GB peak. Five paired
@@ -6690,7 +6690,7 @@ source/binary/golden/archive identities, helper-version proofs and static/Miri
 receipts. It passes. S1/S2 and S5 still fail both APIs; S3 has nineteen
 significant case/ceiling regressions. S4 passes caller-buffer and all frozen
 minima; allocating fails three maxima. Preserve these outcomes rather than
-claiming full bar, release/platform, Moss or phase-0.6 acceptance.
+claiming full bar, release/platform, a downstream engine or phase-0.6 acceptance.
 
 ## P07-F4 — execution from e41f4bb
 
@@ -6774,7 +6774,7 @@ deciding whether it persists; do not infer an allocation cause from time alone.
 Implementation fixes are separately committed as a48d060, 70727c3, 72e03af,
 f72221b, b0f0377 and eb6bac6. The four-triangle regression extension and
 timing adapter are 52f22d5. Production source is frozen before timing.
-Evidence root: `/mnt/linux-extra/meshopt-artifacts/p07-fix4`. All 138 archived
+Evidence root: `<artifacts>/p07-fix4`. All 138 archived
 inputs are hard-linked unchanged from p07r3 and checked by SHA-256; the
 pinned upstream checkout passes check-reference.sh. Frozen benchmark parity
 passes both APIs, scalar/SSE2/SSSE3/SSE4.1 and executed wasm without/with SIMD.
@@ -6933,7 +6933,7 @@ target, commit records with configured repo author and stop. Never push,
 merge or rebase.
 
 
-Cleanup complete: only `/mnt/linux-extra/moss-cargo-targets/codex-p07-fix4`
+Cleanup complete: only `<target-dir>`
 (1.1 GB) is removed after all own build/test/timing sessions finish. Archived
 binaries are present; cleanup.json confirms target absence and before/after
 disk receipts. No foreign target, artifact, cache or lease is removed.
@@ -6946,8 +6946,8 @@ Follow SPEC-p07-fix5 and the fix-four development-first/admission/cleanup rules.
 No subagents or integration actions. Registered SIMD_BAR.md and all 138
 benchmark requests stay byte-identical. S1 is 1.10/1.30, S2 1.25/1.50,
 S4 1.25/1.50 plus frozen minima, S5 1.25/1.60; filtered views belong to S2.
-Artifacts: /mnt/linux-extra/meshopt-artifacts/p07-fix5; only build target
-/mnt/linux-extra/moss-cargo-targets/codex-p07-fix5, removed after receipts.
+Artifacts: <artifacts>/p07-fix5; only build target
+<target-dir>, removed after receipts.
 
 Color instruction diagnosis: the old packed kernel performs six FP min/max
 reductions and two range comparisons on each four-record batch. Replace
@@ -7127,7 +7127,7 @@ seconds, exit 0; no accepted pair or completed row repeats. Native uses 19
 borderline-only fresh D146 rows; Node uses 9. Independent verification
 recomputes intervals/stopping rules, preserves stage-one family means,
 and checks every source, binary, input, lease and wrapper identity.
-Artifacts: /mnt/linux-extra/meshopt-artifacts/p07-fix5.
+Artifacts: <artifacts>/p07-fix5.
 
 All 869 frozen fixture cases, 7653 malformed cases and 138 benchmark identities
 pass at native ceilings and actual wasm scalar/SIMD; 292 Node output hashes
@@ -7166,7 +7166,7 @@ with final intervals and development counters as evidence. No post-timing
 code change or rescue measurement is selected. Registered acceptance is
 not achieved; the scoped execution stop condition is met.
 
-Delete only /mnt/linux-extra/moss-cargo-targets/codex-p07-fix5 after all
+Delete only <target-dir> after all
 checks and timings finish. cleanup.json records target absence and
 1,486,684,160 allocated bytes before deletion. Preserve artifacts outside
 that target and archive the final clean committed source. No push, merge,
@@ -7174,7 +7174,7 @@ rebase, subagent, ARM execution or broader release/integration acceptance.
 
 ### Fix-six Oct attribution and exact sign arithmetic
 
-Start clean at f069e84; artifacts /mnt/linux-extra/meshopt-artifacts/p07-fix6;
+Start clean at f069e84; artifacts <artifacts>/p07-fix6;
 only target codex-p07-fix6, no subagents/push/merge/rebase. Inherited round-four
 one-final-pass rule, frozen inputs and registered bars remain binding. Report
 both RFC (1.25/1.50) and registered bars; use the registered maximum for stopping
@@ -7306,7 +7306,7 @@ trials; current caller means remain above the RFC mean. Tiny/allocating and
 filtered-view maxima also remain residual failures. Further tuning is abandoned
 within this completed native pass; WASM final measurements and independent
 whole-epoch verification remain pending at this decision. No full release,
-platform or Moss integration acceptance is established.
+platform or a downstream engine integration acceptance is established.
 
 
 ### Fix-six final result and cleanup decision
@@ -7334,11 +7334,11 @@ Oct8 plus finite Oct16/Quat and edge proofs on native/actual SIMD wasm, unchange
 valid-alpha Color and upstream odd-tail reproduction, seven test/Clippy/Miri
 receipts, MSRV/no-std portability and the 23-block unsafe boundary/package audit.
 No ARM execution, dedicated-host, other-platform, full native matrix, native
-triangle-index, phase-0.6, Moss integration or release qualification.
+triangle-index, phase-0.6, a downstream engine integration or release qualification.
 
-Delete only /mnt/linux-extra/moss-cargo-targets/codex-p07-fix6 after checks
+Delete only <target-dir> after checks
 and timings have closed. Preserve every retained artifact outside the target
-at /mnt/linux-extra/meshopt-artifacts/p07-fix6. cleanup.json records allocated
+at <artifacts>/p07-fix6. cleanup.json records allocated
 bytes and target absence; final-evidence.json inventories the clean committed
 source archive and every artifact hash. No push, merge, rebase or subagent.
 
@@ -7348,7 +7348,7 @@ source archive and every artifact hash. No push, merge, rebase or subagent.
 Start clean at c87431d in phase/0.7. SPEC-p07-fix7 selects the owner RFC
 mean <=1.25 / maximum <=1.50 only; stricter registration is deferred to 0.3.
 Do not edit SIMD_BAR.md or frozen inputs. No subagents/push/merge/rebase.
-Target codex-p07-fix7; artifacts /mnt/linux-extra/meshopt-artifacts/p07-fix7.
+Target codex-p07-fix7; artifacts <artifacts>/p07-fix7.
 Retain and hash-verify round-six native/Node control binaries before edits.
 prior-failures.json enumerates all 11 native and 26 Node unresolved/failed RFC
 maxima, including intervals crossing 1.50; classifies tiny fixed setup versus
@@ -7532,8 +7532,8 @@ not a release qualification.
 
 Start clean at 3f58dda (phase/0.7). Full fix8/fix7/fix4 and RUN-RULES read;
 no subagents, no push/merge/rebase. Read-only map and first cheap pinned
-CPU26 N/2N measurement recorded in moss-scratch/p07-fix8 within 20 minutes.
-Artifacts: /mnt/linux-extra/meshopt-artifacts/p07-fix8. Frozen inputs and
+CPU26 N/2N measurement recorded in downstream-scratch/p07-fix8 within 20 minutes.
+Artifacts: <artifacts>/p07-fix8. Frozen inputs and
 round-seven controls are hardlinked read-only, with independent hash checks.
 Builds pause below 25 GiB free; the exact codex-p07-fix8 target is disposable.
 
@@ -7684,7 +7684,7 @@ source edit after the single final epoch, and no broad acceptance claimed.
 
 Final tables/current failed intervals, old-control comparisons and all source,
 parity, ordinary/Miri/MSRV/static/package/counter receipts are in
-P07_FIX8_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix8.
+P07_FIX8_PERFORMANCE.md and <artifacts>/p07-fix8.
 Only codex-p07-fix8 is removed at final cleanup. The continued execution is
 complete with unresolved RFC/S3 residuals; the prior disk-derived abandonments
 remain void, and remaining-work.json is superseded by the completed receipt.
@@ -7701,8 +7701,8 @@ or unmeasured post-timing source modification is introduced.
 
 Baseline is clean 6035fc3 with all retained fix8 build source hashes verified.
 First counters and emitted native/WASM hot functions are retained under
-/mnt/linux-extra/meshopt-artifacts/p07-fix9; read-only file map and milestones
-under /mnt/linux-extra/moss-scratch/p07-fix9. Builds paused below 25 GiB, then
+<artifacts>/p07-fix9; read-only file map and milestones
+under <scratch>/p07-fix9. Builds paused below 25 GiB, then
 resumed when the gate reopened. Never borrow another lane's target or delete it.
 
 The suspected wider-store problem is rejected: upstream and our generic WASM
@@ -7789,8 +7789,8 @@ Oct4 A/C pass; tiny Exp32 caller S3 clears. RFC/S3 closure remains false:
 These failed maxima/S3 do not prove paired regressions against fix8: each
 corresponding new/old interval includes1. No rescue epoch or subsequent
 engine edit. Current full case/family tables, proofs and limits are in
-P07_FIX9_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix9.
-No untouched-family, other-platform, release or Moss integration acceptance.
+P07_FIX9_PERFORMANCE.md and <artifacts>/p07-fix9.
+No untouched-family, other-platform, release or a downstream engine integration acceptance.
 
 ## P07 fix10 — 2026-10-06
 
@@ -7831,7 +7831,7 @@ recorded in final-source-binding.json. Below25GiB shared free disk closes
 further builds. Existing matching binaries can run parity and measurements.
 
 Coordinator correction during the A/A epoch: meshopt is CPU/WASM only.
-Remaining bursts use MOSS_HEAVY_GPU=0 moss-heavy.sh 4 timeout840 with
+Remaining bursts use MOSS_HEAVY_GPU=0 <job-runner> 4 timeout840 with
 taskset CPU26 and the unchanged interleaved slots. Original controller and
 GPU receipts remain immutable for completed bursts; new CPU controller/admission
 segments retain accepted pairs without remeasuring a completed row. WASM A/A
@@ -7954,10 +7954,10 @@ other phase/ISA evidence remain unchanged.
 
 Final local gate results and source/artifact identities are recorded in
 `parity/results/integration-07.json`; the durable detailed receipt directory is
-`/mnt/linux-extra/moss-scratch/meshopt-integ-07`. Native Linux x86-64, libm and
+`<scratch>/meshopt-integ-07`. Native Linux x86-64, libm and
 executed WASM parity are integration evidence only. Remote platform execution,
 scheduled/manual extended fuzz/exhaustive matrices, historical performance
-qualification and Moss runtime/GPU acceptance remain separate. No timing is
+qualification and a downstream engine runtime/GPU acceptance remain separate. No timing is
 run and no historical performance verdict is promoted by this integration.
 The final tree passes 33 named integration gates plus independent evidence
 verification: all 12 locks are current; 17 foundation commands pass; the
@@ -8170,7 +8170,7 @@ tiny filter setup and the original historical consumer profile.
 Commit the complete sample/hash receipt and lean README comparison; retain
 all binaries, sources, raw counters, failed attempts and lease receipts in
 meshopt-v03. Delete only the owned named target after every job is reaped.
-Native remote platforms, executed WASM, default/Moss profile timing and
+Native remote platforms, executed WASM, default/a downstream engine profile timing and
 downstream engine integration are not acceptance from this focused campaign.
 
 ## V03-16 — Diagnose tiny fixed cost without weakening checks
@@ -8243,19 +8243,19 @@ dependency bytes before and after building/sampling; historical full records
 without that evidence require a fresh matched full run. These identity checks
 do not authorize any unrun timing campaign.
 
-## moss-qx5g3 r2: registered readiness timeout
+## downstream-qx5g3 r2: registered readiness timeout
 
-Before r2 sampling, raise the resident paired-driver read/readiness timeout from 180 to 600 seconds (one harness line). Apply this identical harness to both 0.2.3 and final arms. The fixed 600-second budget is about three times r1, independent of timing ratios. One full rerun per arm is allowed only after a timeout/crash; a second infrastructure failure is FAIL. The frozen corpus, sample policy and bars are unchanged. Registration: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/REGISTRATION.md`.
+Before r2 sampling, raise the resident paired-driver read/readiness timeout from 180 to 600 seconds (one harness line). Apply this identical harness to both 0.2.3 and final arms. The fixed 600-second budget is about three times r1, independent of timing ratios. One full rerun per arm is allowed only after a timeout/crash; a second infrastructure failure is FAIL. The frozen corpus, sample policy and bars are unchanged. Registration: `<scratch>/meshopt-simplify-perf/r2/REGISTRATION.md`.
 
-## moss-qx5g3 r2: overdraw implementation freeze
+## downstream-qx5g3 r2: overdraw implementation freeze
 
-Diagnosis milestone: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/DIAGNOSIS.md`, written before library changes. The primary centroid scan was estimated at 0.074775 s and indexed reads at 0.066691 s of 0.319310 s. The highest predicted byte-exact saving exceeds 10%, so the kill condition does not apply.
+Diagnosis milestone: `<scratch>/meshopt-simplify-perf/r2/DIAGNOSIS.md`, written before library changes. The primary centroid scan was estimated at 0.074775 s and indexed reads at 0.066691 s of 0.319310 s. The highest predicted byte-exact saving exceeds 10%, so the kill condition does not apply.
 
 Land two ranked fixes: reuse the centroid accumulated during required finite-position validation, retaining checks/divisions and exact later scan work at the original point; specialize checked indexed triangle reads by layout once per cluster and use existing Work::scan for the same per-triangle failure prefix. Keep mapped-view fallback, endian/unaligned support, all float expressions, the pinned sqrt cache, allocation contract and r1's four fixes. The lower-gain third candidate is deferred. No hypothesis failed parity. A regression-test type annotation and one formatting failure were corrected before qualification; retained logs distinguish these setup failures from byte mismatches.
 
-The final-source gates run once: parity/gates.sh, native/WASM differential, 10,000-case sweep, JS coverage and four process CPU-hours per fuzz target. The real campaign uses CPU 8 with 1 warmup + 10 interleaved pairs per arm and case; raw samples and fixed-seed 10,000-resample intervals survive. Fuzz workers exclude CPU 8 and sibling 9. No time-value reruns, corpus/bar changes, sqrt substitution, simplifier/cache/encoder/SIMD/Moss changes or aggregate report repairs. Baseline is an isolated archive of afe803b with the identical committed one-line 600-second read timeout; each frozen arm may retry once only for a timeout/crash, in full, preserving the failed run. r1 FAIL stands independently.
+The final-source gates run once: parity/gates.sh, native/WASM differential, 10,000-case sweep, JS coverage and four process CPU-hours per fuzz target. The real campaign uses CPU 8 with 1 warmup + 10 interleaved pairs per arm and case; raw samples and fixed-seed 10,000-resample intervals survive. Fuzz workers exclude CPU 8 and sibling 9. No time-value reruns, corpus/bar changes, sqrt substitution, simplifier/cache/encoder/SIMD/a downstream engine changes or aggregate report repairs. Baseline is an isolated archive of afe803b with the identical committed one-line 600-second read timeout; each frozen arm may retry once only for a timeout/crash, in full, preserving the failed run. r1 FAIL stands independently.
 
-## moss-qx5g3 r2: final decision
+## downstream-qx5g3 r2: final decision
 
 **FAIL / not a release candidate.** Final real-case simplify medians are 0.963033 (214e), 0.946573 (b6fd), 0.941030 (a082), all below 1.25. Overdraw medians are 1.534538, 1.595715, 1.466592: 214e and b6fd exceed 1.50. The fixed-seed 10,000-resample intervals and all raw samples remain in the r2 report. No retuning, post-campaign fix, exclusion or timing-value rerun followed this decision. Two byte-exact fixes landed; the low-gain third candidate was deferred before samples. The hypothesis of target closure is disproved; individual per-fix gains remain unisolated.
 
@@ -8265,7 +8265,7 @@ All required spec correctness proof completed: foundation gates, native/WASM dif
 
 The extra independent retained-buffer rehash was not a named spec gate. It remained queued behind the critical RAM request; only its waiting wrapper was cancelled before its audit payload started. It is explicitly NOT RUN, separate from the completed required proof and without changing any bar or verdict. Rerunning this optional audit later is cheap and needs no remeasurement. Original source/executable manifests, replay buffers and timed records remain retained. No running fuzz/frozen job was killed by the agent.
 
-Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LARGE_MESH_R2_RESULTS.json. Evidence: /mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/. Reversal cost for the unmerged fixes is cheap; the registered decision and retained samples must not be rewritten. Owner performs the one review and any release decision. No merge/tag/publish.
+Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LARGE_MESH_R2_RESULTS.json. Evidence: <scratch>/meshopt-simplify-perf/r2/. Reversal cost for the unmerged fixes is cheap; the registered decision and retained samples must not be rewritten. Owner performs the one review and any release decision. No merge/tag/publish.
 
 ## Cluster lane A: caller-buffer DAGs (2026-10-25)
 
@@ -8285,7 +8285,7 @@ Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LA
   errors without cancellation. No mesh Copy bound or aggregate memory guarantee.
 - The unpublished S1 harness owns MCLD v1 and its ceiling policy. The two-file
   fail-fast milestone passed byte-exact with zero collisions before batch work.
-  Lane C owns performance/release proof, and lane B owns the Moss writer.
+  Lane C owns performance/release proof, and lane B owns the a downstream engine writer.
 - Reversal cost before publication: revert additive exports/callers and harness;
   no payload version, dependency, algorithm pin or existing API migration changes.
 
@@ -8302,7 +8302,7 @@ fuzz run before their first release.
 
 ## Bounds layout check — post-fix1 methodology disclosure
 
-2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the Moss coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through SPEC-bounds-layout-check.md. This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.
+2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the a downstream engine coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through SPEC-bounds-layout-check.md. This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.
 
 ## 2026-10-26 — SPEC-026 decode (0.2.6 bet 2): PARTIAL
 
@@ -8325,8 +8325,8 @@ All requested targeted gates pass, including 853 C++ 1.3 differential cases /
 90,661 records and unchanged native SIMD bytes. The one browser infrastructure
 retry fixes only the initial CDP navigation race; native results were not rerun.
 Stop with a draft PR and retained receipts; no verdict-driven tuning/rerun,
-release acceptance, merge/tag/publish or Moss adoption. See
-`parity/decode/REPORT.md` and `/mnt/linux-extra/moss-scratch/meshopt-decode/`.
+release acceptance, merge/tag/publish or a downstream engine adoption. See
+`parity/decode/REPORT.md` and `<scratch>/meshopt-decode/`.
 
 ## 2026-10-26 — SPEC-027 memory opt-in
 
@@ -8335,9 +8335,9 @@ that mechanism only through `Workspace::set_retention(Retention::Lean)`;
 `Retention::Reuse` defaults to the v0.2.6 allocation and initialization path.
 Changing policy clears scratch and resets Usage, matching the existing
 `set_limits` convention; clear/set_limits preserve the chosen policy.
-No global switch, limit change, quadric layout change or Moss edit.
+No global switch, limit change, quadric layout change or a downstream engine edit.
 The targeted registration precedes samples:
-`/mnt/linux-extra/moss-scratch/meshopt-memory/optin/REGISTRATION.md`.
+`<scratch>/meshopt-memory/optin/REGISTRATION.md`.
 Compare default capacities at every 214e observe point and instruction counts
 on all three chains plus the original six-simplify workload. Measure Lean RSS
 once; disclose the existing timing cost without repeating that campaign.

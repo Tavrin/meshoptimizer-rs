@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Build the exported, frozen comparator under lane C admission."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import json
 import os
@@ -8,8 +18,8 @@ import shutil
 import subprocess
 import sys
 
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-c')
-TARGET = Path('/mnt/linux-extra/moss-cargo-targets/meshopt-peer-c')
+ART = Path(_public_path('<scratch>/meshopt-peer-c'))
+TARGET = Path(_public_path('<target-dir>'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 assert Path(os.environ['CARGO_TARGET_DIR']) == TARGET
 for arm in sys.argv[1:]:

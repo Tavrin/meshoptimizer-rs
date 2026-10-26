@@ -1,6 +1,6 @@
 # P07 fix9 — one paired epoch
 
-**Scoped RFC/S3 pass: False.** No untouched-family, other-platform, release or Moss integration acceptance is implied.
+**Scoped RFC/S3 pass: False.** No untouched-family, other-platform, release or a downstream engine integration acceptance is implied.
 
 RFC: family geometric mean <=1.25; every final 95% maximum upper bound <=1.50. Unresolved intervals fail. Stage-one medians define means; borderline maxima alone receive 30 fresh D146 pairs. Fix8 control (6035fc3 source identity) is interleaved within each burst.
 
@@ -64,7 +64,7 @@ Fix commits 8ffa2b9 (stride32), 14069f8 (Oct), e94365e (Exp wrapper). No new uns
 
 Fresh frozen execution: 869 fixtures, 7653 malformed inputs, 138 benchmark identities on all local native ceilings and scalar/SIMD WASM, both APIs, plus retained native control. 438 exact Node timing-module outputs include retained fix8 control. Native Oct8 all 16,777,216 triples, one million seeded Oct16 records, arithmetic edges and extended group/tail regression pass. Required all-feature/unsafe-free tests, native/WASM Clippy, native/WASM MSRV no-std SIMD, Miri/full group, formatting, 23-block boundary and package inventory pass. The initially missing Rust1.88 WASM target is recorded in failed-check-attempts.json and corrected by installing it and rerunning the check.
 
-Artifacts, bound native asm/WASM disassembly and WAT, raw counters, raw timing pairs, controller checksums and manifests: `/mnt/linux-extra/meshopt-artifacts/p07-fix9`. Milestones/scout: `/mnt/linux-extra/moss-scratch/p07-fix9`. Build gate 25 GiB, target codex-p07-fix9, sequential -j4/no incremental. One final epoch uses declared 4GB heavy/GPU admission, 840-second timeouts and 690-second pair checkpoints. Accepted pairs are resumed without repetition.
+Artifacts, bound native asm/WASM disassembly and WAT, raw counters, raw timing pairs, controller checksums and manifests: `<artifacts>/p07-fix9`. Milestones/scout: `<scratch>/p07-fix9`. Build gate 25 GiB, target codex-p07-fix9, sequential -j4/no incremental. One final epoch uses declared 4GB heavy/GPU admission, 840-second timeouts and 690-second pair checkpoints. Accepted pairs are resumed without repetition.
 
 - native burst1: wrapper 1091.8s including queue; exit 0; native-final-burst1.log.
 - wasm burst1: wrapper 650.1s including queue; exit 0; wasm-final-burst1.log.

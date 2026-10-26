@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Independently verify the performance refresh without crediting release gates."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import json
 import math
@@ -152,7 +162,7 @@ def gate_identity(gate):
     chain = gate['ancestors']
     assert int(gate['lease_holder'].split('|')[1]) in {r['pid'] for r in chain}
     wrapper = next(r for r in chain if r['pid'] == gate['heavy_pid'])
-    assert '/mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ' in wrapper['command']
+    assert _public_path('<job-runner> 4 timeout 840 ') in wrapper['command']
 
 for name in ['performance', 'wasm-performance']:
     for row in read(name)['rows']:
@@ -173,7 +183,7 @@ assert len(profile['cases']) == 30 and profile['wall_seconds'] < 840
 assert all(row['exit_code'] == 0 for row in profile['cases'])
 assert profile['controller_sha256'] == sha(art / 'profile.py')
 assert profile['admission_sha256'] == sha(root / 'parity/p07_lease.py') or sha(art/'controller-versions'/(profile['admission_sha256']+'.py')) == profile['admission_sha256']
-assert profile['base_binary_sha256'] == sha(Path('/mnt/linux-extra/meshopt-artifacts/p07perf/bin/rust-simd'))
+assert profile['base_binary_sha256'] == sha(Path(_public_path('<artifacts>/p07perf/bin/rust-simd')))
 for row in profile['cases']:
     gate_identity(row['before']); gate_identity(row['after'])
     response = art / 'profiles-final' / (row['case']+'-'+row['backend']+'-'+row['mode']+'.response')

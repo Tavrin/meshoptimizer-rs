@@ -4,7 +4,7 @@
     "build",
     "--offline",
     "--manifest-path",
-    "/mnt/linux-extra/moss-scratch/meshopt-peer-a/O/parity/compare/Cargo.toml",
+    "<scratch>/meshopt-peer-a/O/parity/compare/Cargo.toml",
     "--profile",
     "moss",
     "--features",

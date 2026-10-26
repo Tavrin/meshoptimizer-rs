@@ -339,9 +339,9 @@
     "wasm": "bb614f170c32648d33fca5208750fb878d0d9238c9db066ef5131f40e6a6d2f1"
   },
   "previous_benchmark_native_identical_to_previous_final": true,
-  "artifact_root": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4",
-  "artifact_path_decision": "The earlier 0.3 lane used the D71 fallback; this performance follow-up wrote the requested /mnt/linux-extra/meshopt-artifacts/p03 location.",
-  "target": "/mnt/linux-extra/moss-cargo-targets/claude-meshopt-p03perf",
+  "artifact_root": "<artifacts>/p03/perf/final4",
+  "artifact_path_decision": "The earlier 0.3 lane used the D71 fallback; this performance follow-up wrote the requested <artifacts>/p03 location.",
+  "target": "<target-dir>",
   "target_cleanup": "removed after final verification; path absent",
   "git_changes": "No Git commands or Git state mutations in this performance follow-up; source edits remain unstaged.",
   "proof_limits": [
@@ -380,8 +380,8 @@
     "wasm-unit-execution.json": "4df75282eb9cd1958bdbe99874d37a4266598ae35cc1729fc483b07f338ff3e8"
   },
   "performance_spec": "SPEC-p03-perf.md",
-  "previous_artifact_root": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p03",
-  "previous_target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03",
+  "previous_artifact_root": "<target-dir>/p03",
+  "previous_target": "<target-dir>",
   "performance_followup": {
     "current": true,
     "decision": "D82",
@@ -399,7 +399,7 @@
     ],
     "profiles": {
       "consumer": {
-        "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/benchmark-consumer/record.json",
+        "record": "<artifacts>/p03/perf/final4/benchmark-consumer/record.json",
         "record_sha256": "dd254dd479c2adc97c3405b2b2a3b76d25fc4af37c49845c4a7a985e04a5d9fc",
         "rows": 624,
         "complete": true,
@@ -678,7 +678,7 @@
         }
       },
       "release-defaults": {
-        "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/benchmark-release-defaults/record.json",
+        "record": "<artifacts>/p03/perf/final4/benchmark-release-defaults/record.json",
         "record_sha256": "dd21fbc891e88d8bf8938f87cc7a1ac381bb00628574481d15603793ae182039",
         "rows": 624,
         "complete": true,
@@ -974,7 +974,7 @@
       "release-defaults": 1
     },
     "run": {
-      "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/run/record.json",
+      "record": "<artifacts>/p03/perf/final4/run/record.json",
       "record_sha256": "f0445955a2b8ceac3f7228e51c71acc9502416a59f25590c7c7c5ada0b9d7c6b",
       "corpus_sha256": "4e139ed7638d93e4ef3acb33450c5cf71630236f70a29795986517d70a844813",
       "cases": {
@@ -998,7 +998,7 @@
       "mismatches": 0
     },
     "sweep": {
-      "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/sweep/record.json",
+      "record": "<artifacts>/p03/perf/final4/sweep/record.json",
       "record_sha256": "257f326a74dc08ab7acbe3d6518e44e47e80cddb6d36a6f7bc7b056ead5ec6ef",
       "corpus_sha256": "8ba4d5d665ce8eab4f7530938b53ab8dbe476ff2190e6ff4d4807e06b83b6479",
       "cases": {
@@ -1021,7 +1021,7 @@
       "mismatches": 0
     },
     "clusterlod": {
-      "record": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4/clusterlod/record.json",
+      "record": "<artifacts>/p03/perf/final4/clusterlod/record.json",
       "record_sha256": "403b7a35c9c2ab6958b352fc898613b2a9686e1b640012730a3333313c2fbc86",
       "corpus_sha256": "56110a0e7b6e42c69e4663339c97f7e47942e12f34f9e1e469be637942264c3a",
       "cases": {
@@ -1039,7 +1039,7 @@
       "cpp_branches": 862341543,
       "rust_cycle_samples_adjacent_percent": 46.28,
       "rust_cycle_samples_partition_percent": 42.79,
-      "profile_artifacts": "/mnt/linux-extra/meshopt-artifacts/p03/perf/final4"
+      "profile_artifacts": "<artifacts>/p03/perf/final4"
     }
   }
 }

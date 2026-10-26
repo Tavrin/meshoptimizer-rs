@@ -5,8 +5,8 @@ B: opt-in patch after merge 839c31c, bound by SOURCE.json.
 
 Use existing spec027 timed-harness and corpus (214e/b6fd/a082); preserve the
 six-call simplify workload. Same release profile: thin LTO, codegen-units=1,
-no explicit target-cpu or alignment changes. CPU 8. CPU-only moss-heavy,
-4 GB declaration, CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-memory.
+no explicit target-cpu or alignment changes. CPU 8. CPU-only <job-runner>,
+4 GB declaration, CARGO_TARGET_DIR=<target-dir>.
 
 1. Default A/B one fixed chain per case, perf stat -e instructions:u, including
    the unchanged full driver. One six-simplify microbench per arm. Default B/A
@@ -26,4 +26,4 @@ no explicit target-cpu or alignment changes. CPU 8. CPU-only moss-heavy,
 
 All source snapshots, binaries, raw counters, full results and admission logs
 stay in this new optin directory. Historical measurements are preserved.
-Stop at about three hours; no Moss changes, new timing campaign or other-family work.
+Stop at about three hours; no a downstream engine changes, new timing campaign or other-family work.

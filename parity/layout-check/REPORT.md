@@ -17,7 +17,7 @@ Preflight encoded-flags override was caught before samples; preflight artifacts 
 
 Registered decision applied verbatim: REGRESSION if instruction GM >1.01 or both wall GMs >T; LAYOUT if instructions <=1.01, default >T, pinned <=T; PASS otherwise.
 
-Receipts: /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check; raw timing/calibration/load and instruction stat files retained here and under parity/layout-check. Source/binary/input epoch hashes in MEASUREMENT-IDENTITY.json. Full linker maps and executables retained in scratch. No library source changes, new API/fetch-remap remeasurement, release/tag/version action, GPU or production acceptance.
+Receipts: <scratch>/meshopt-validate-once/layout-check; raw timing/calibration/load and instruction stat files retained here and under parity/layout-check. Source/binary/input epoch hashes in MEASUREMENT-IDENTITY.json. Full linker maps and executables retained in scratch. No library source changes, new API/fetch-remap remeasurement, release/tag/version action, GPU or production acceptance.
 
 Cleanup: designated Cargo target deleted after executable retention; see CLEANUP.json and RETAINED-EXECUTABLES.json.
 

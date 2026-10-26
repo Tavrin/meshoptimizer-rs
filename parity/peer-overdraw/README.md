@@ -6,7 +6,7 @@ Read REGISTRATION.md for the one wall campaign and REPORT.md for its results.
 
 Full immutable inputs, harness export, source snapshots, drivers, raw perf files,
 protocol responses, gate logs and wall pairs are retained under
-`/mnt/linux-extra/moss-scratch/meshopt-peer-b/`. The setup/build/admission scripts
+`<scratch>/meshopt-peer-b/`. The setup/build/admission scripts
 and original unmodified exported harness files are there too. No captured mesh
 buffers are committed here. Only the designated Cargo target is removed.
 
@@ -27,6 +27,6 @@ Proof scripts:
   completed campaign. Sampling requires all final gates and source hashes in
   the scratch wall.sh admission entry. Never overwrite that campaign.
 
-All heavy commands use CPU-only moss-heavy and a declaration of at most 4 GB.
+All heavy commands use CPU-only <job-runner> and a declaration of at most 4 GB.
 The initial counter launch/parse failures and canceled queued entry are retained
 separately from the complete baseline and candidate instruction records.

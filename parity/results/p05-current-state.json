@@ -1,7 +1,7 @@
 {
   "schema": "meshopt-p05-current-state/1",
   "source_head": "df96a78d6d1cd53ceb69ba81df107571f622a5db",
-  "artifact_root": "/mnt/linux-extra/meshopt-artifacts/p05-measure-20261005",
+  "artifact_root": "<artifacts>/p05-measure-20261005",
   "audit": {
     "moss": {
       "verified": true,
@@ -46,10 +46,10 @@
     }
   },
   "cleanup": {
-    "target": "/mnt/linux-extra/moss-cargo-targets/codex-p05-measure",
+    "target": "<target-dir>",
     "deleted": true,
     "at": "2026-10-05T16:58:24.594731+00:00",
-    "retained_artifacts": "/mnt/linux-extra/meshopt-artifacts/p05-measure-20261005"
+    "retained_artifacts": "<artifacts>/p05-measure-20261005"
   },
   "artifact_sha256": {
     "audit.json": "6e239fa0566a98fec100a295385c292614a3a5249784ea7fcbbc17c28f3e9dea",

@@ -8,7 +8,7 @@ no reruns to change verdicts. Earlier instruction-only calls discard timer value
 - Families: partition, meshlets-scan, meshlets, meshlets-spatial, meshlets-flex,
   spatial-triangles. Frozen bet-0 tiny-smooth, medium-smooth, medium-seams,
   medium-sparse, million-smooth inputs; SHA256s retained in inputs.json.
-- Moss scalar profile: opt-level=3, thin LTO, codegen-units=1; Rust SIMD disabled;
+- a downstream engine scalar profile: opt-level=3, thin LTO, codegen-units=1; Rust SIMD disabled;
   M7 meshopt 0.7.0 / C++ 1.3 with MESHOPTIMIZER_NO_SIMD. X optimesh 1.1.0 is
   disclosed, not a bar. Same slices and output allocation boundaries for all arms.
 - Resident drivers pinned to CPU 2 (all arms share that CPU). Timing includes
@@ -29,11 +29,11 @@ no reruns to change verdicts. Earlier instruction-only calls discard timer value
   every case's upper95 <=1.10+F against v0.2.7. Missing M7 while passing v0.2.7
   gives PARTIAL, a speedup with no performance parity claim. Failing either
   v0.2.7 condition gives FAIL. Proof failures block shipping independently.
-- Lane disclosure only: RFC113 S1 41 and valid S2 nine cases, Moss scalar;
+- Lane disclosure only: RFC113 S1 41 and valid S2 nine cases, a downstream engine scalar;
   one warm-up plus ten alternating candidate/C++ pairs per case, one DAG per
   sample, using retained cluster-C inputs/configurations and original timer
   boundary. Aggregate = sum of candidate case medians / sum of C++ medians,
   separately S1/S2. No threshold, no reruns, invalid stride32 excluded as before.
 - All heavy work admitted with MOSS_HEAVY_GPU=0, declaration at most 4 GiB (2 GiB for serial preparation); measurements
   additionally MOSS_HEAVY_MEASUREMENT=1. Target meshopt-L1 deleted after retaining
-  binaries. Scratch retained at /mnt/linux-extra/moss-scratch/meshopt-028-L1.
+  binaries. Scratch retained at <scratch>/meshopt-028-L1.

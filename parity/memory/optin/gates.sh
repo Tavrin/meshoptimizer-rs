@@ -1,7 +1,7 @@
 #!/bin/bash
 set -uo pipefail
-repo=/home/etienne/dev/meshoptimizer-rs-wt/memory
-s=/mnt/linux-extra/moss-scratch/meshopt-memory/optin
+repo="${REPO:?}"
+s="${SCRATCH:?}"/meshopt-memory/optin
 cargo fmt --manifest-path "$repo/Cargo.toml" > "$s/format.log" 2>&1
 : > "$s/GATES.tsv"
 run_gate() {

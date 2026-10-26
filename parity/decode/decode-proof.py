@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """SPEC-026 proof only: exact Rust Result/bytes, no clocks or library edits.
 
-Run with decode-proof.sh through moss-heavy. Sources, corpus, executables,
+Run with decode-proof.sh through <job-runner>. Sources, corpus, executables,
 compiler logs, counters and comparison receipts are retained in fresh scratch.
 The embedded Rust program is a driver, never a permanent crate test.
 """
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import json
 import os
@@ -18,9 +28,9 @@ import sys
 import tarfile
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-decode-proof')
-TARGET = Path('/mnt/linux-extra/moss-cargo-targets/meshopt-decode-proof')
-OLD = Path('/mnt/linux-extra/moss-scratch/meshopt-decode')
+ART = Path(_public_path('<scratch>/meshopt-decode-proof'))
+TARGET = Path(_public_path('<target-dir>'))
+OLD = Path(_public_path('<scratch>/meshopt-decode'))
 PROBES = {
     'codec/filter.rs': ['filter_root', 'scalar_oct', 'oct_records',
                         'scalar_oct_with_root', 'scalar_quat', 'quat_cached',
@@ -213,7 +223,7 @@ lto = "fat"
 
 
 def fixtures():
-    os.environ.update(MESHOPT_REFERENCE='/home/etienne/dev/refs/meshoptimizer',MESHOPT_ARTIFACTS=str(OLD))
+    os.environ.update(MESHOPT_REFERENCE=_public_path('<refs>/meshoptimizer'),MESHOPT_ARTIFACTS=str(OLD))
     sys.path.insert(0,str(ROOT/'parity/codec'))
     from measure import Driver, request
     from runner import filter_floats
@@ -342,7 +352,7 @@ def compare(a,b,label,wasm=False,probe=False,suite=None):
 
 
 def main():
-    assert os.environ.get('MOSS_HEAVY_ACTIVE'), 'moss-heavy required'
+    assert os.environ.get('MOSS_HEAVY_ACTIVE'), _public_path('<job-runner> required')
     assert os.environ['CARGO_TARGET_DIR']==str(TARGET)
     assert not ART.exists(), 'fresh scratch required; never overwrite receipts'
     ART.mkdir(parents=True)

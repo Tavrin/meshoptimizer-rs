@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Existing comparator, untimed exact output check for all frozen lane B cases."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib
 import json
 import os
 import subprocess
-S = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-b')
+S = Path(_public_path('<scratch>/meshopt-peer-b'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 rows = []
 for item in json.loads((S / 'frozen-inputs.json').read_text()):

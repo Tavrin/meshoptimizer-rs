@@ -15,7 +15,7 @@ No production source, tests, frozen inputs or numeric bars changed. Only this
 report and the stale summary section of SIMD_RESULTS are edited and committed.
 Throwaway source lives exclusively under the artifact directory below.
 
-Evidence root: `/mnt/linux-extra/meshopt-artifacts/p07-diag/`. Read `records.json`,
+Evidence root: `<artifacts>/p07-diag/`. Read `records.json`,
 `counts.json`, `wasm-counts.json`, `followup-counts.json`, `asm-summary.json`,
 `wat-summary.json`, `v8-summary.json`, `samples.json`,
 `historical-native-counts.json`, `manifest.json` and their
@@ -406,7 +406,7 @@ used as retired hot-path counts.
 
 Reproduction commands and exact execution hashes live in the evidence root.
 `cleanup.json` records deletion of the exact temporary Cargo target
-`/mnt/linux-extra/moss-cargo-targets/codex-p07-diag`; retained evidence and scratch
+`<target-dir>`; retained evidence and scratch
 binaries are outside it. Documentation checks verify all current summary ratios,
 both-stage S3 counts, probe outputs and unchanged source/bar identity.
 

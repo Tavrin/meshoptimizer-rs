@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import subprocess,tarfile,io,shutil,json,hashlib
-s=Path(__file__).parent;old=s.parent;repo=Path('/home/etienne/dev/meshoptimizer-rs-wt/memory')
+s=Path(__file__).parent;old=s.parent;repo=Path(_public_path('<repo>'))
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 base=subprocess.check_output(['git','rev-parse','v0.2.6^{}'],text=True).strip()
 with tarfile.open(fileobj=io.BytesIO(subprocess.check_output(['git','archive',base]))) as ar:ar.extractall(s/'library-A',filter='data')

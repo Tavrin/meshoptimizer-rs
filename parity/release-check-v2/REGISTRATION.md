@@ -1,4 +1,4 @@
-# moss-qx5g3 release check v2 registration
+# downstream-qx5g3 release check v2 registration
 
 UTC: 2026-10-25T11:05:57.557437+00:00
 
@@ -6,11 +6,11 @@ Registered before all qualification and measurement. Candidate f40f5af; baseline
 
 The complete approved protocol below is binding. Alignment qualification will be appended and frozen before step 1. No timing samples have been collected. Archive copies use unchanged release parity/src, identical in B/B-prime. Normal arms have empty Rust flags; perturbation flags apply only to Bp/Cp.
 
-# SPEC — moss-qx5g3 release check v2: no regression vs 0.2.3, with a measured noise floor and replication
+# SPEC — downstream-qx5g3 release check v2: no regression vs 0.2.3, with a measured noise floor and replication
 Kind: proof
 Effort: medium
 Heavy: yes
-Status: APPROVED by the coordinator on 2026-10-25, before the moss-z9kkq repro result was known.
+Status: APPROVED by the coordinator on 2026-10-25, before the downstream-z9kkq repro result was known.
 Registered when the lane writes release-v2/REGISTRATION.md, before any sample.
 
 Repo: meshoptimizer-rs worktree ~/dev/meshoptimizer-rs-wt/simplify-perf (branch
@@ -18,17 +18,17 @@ perf/simplify-large-mesh, draft PR #10). You are a fresh agent. You may commit r
 parity/release-check-v2/ on this branch and push to PR #10, with author
 `Tavrin <4936492+Tavrin@users.noreply.github.com>` and no AI trailers. Never merge, tag, publish, or
 change src/. Build variants from `git archive` copies under
-/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/src-*, each with its own target dir
-under /mnt/linux-extra/moss-cargo-targets/meshopt-rcv2-*. Delete those target dirs at the end,
-after saving the binaries. Heavy work goes through /mnt/linux-extra/moss-coord/bin/moss-heavy.sh;
+<scratch>/meshopt-simplify-perf/release-v2/src-*, each with its own target dir
+under <target-dir>. Delete those target dirs at the end,
+after saving the binaries. Heavy work goes through <job-runner>;
 measurement jobs set MOSS_HEAVY_MEASUREMENT=1. **Train first:** between cases, never mid-pair,
-yield to any waiting /mnt/linux-extra/moss-lane-worktrees/train-* job and record a PAUSE. Do not
+yield to any waiting <worktree> job and record a PAUSE. Do not
 spawn subagents. Never delete evidence.
 
 ## Context
 - Release check v1 (parity/release-check/REPORT.md) gave NO RELEASE on case-level rules: the
   candidate had 6 regressing cases, the fallback 4. No family regressed.
-- The moss-z9kkq diagnosis (/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/z9kkq/DIAGNOSIS.md):
+- The downstream-z9kkq diagnosis (<scratch>/meshopt-simplify-perf/z9kkq/DIAGNOSIS.md):
   - Builds of identical source differ on this host by up to 3.4–3.8% per case. The binaries are not
     bit-identical, and both A/A controls trip v1's 1.02 lower-bound case rule.
   - The worst v1 case (vertex_cache million/smooth allocating, 1.131) runs no changed code. Its
@@ -109,7 +109,7 @@ The check fails if any of these is true:
 - release-v2/REPORT.md holds the family table, T and F, the flagged, replicated and LAYOUT cases,
   the verdict and the raw samples.
 - On RELEASE: add the README known-exceptions line and the CHANGELOG entry, as in v1 Goal 3.
-- Push to PR #10, and run `br comments add moss-qx5g3`.
+- Push to PR #10, and run `br comments add downstream-qx5g3`.
 
 Stop there; the owner runs the review and the publish.
 
@@ -135,7 +135,7 @@ Never end on a question.
 
 UTC: 2026-10-25T11:56:19.951665+00:00
 
-Selected first option: `-C llvm-args=-align-all-functions=6`. Both arms built; phase 0.1 scalar-strict parity and all three real-case exact hash checks passed on Cp. `cmp` verified the parity qualification executable equals the retained Cp driver. The scratch-only runner preserves RUSTFLAGS and removes the empty encoded-flags override. Its inherited descriptive rust_profile sentence still says flags are empty; the retained Cargo fingerprints, explicit build flags and symbol checks establish the actual alignment flag; no algorithm or driver changes. Real-case checker is the retained r2 exact checker with archive dependency/output paths adapted. Initial unqualified perturbation binaries and build incidents retained in build-preflight-incident.json. The real-case checker dependency build hit its 7 GiB cap and moss-heavy queued a retry at 11 GiB, which refused to overwrite the immutable completed parity receipt. The unfinished real-checker build was resumed alone at 11 GiB; the original OOM log is retained; no measurement occurred.
+Selected first option: `-C llvm-args=-align-all-functions=6`. Both arms built; phase 0.1 scalar-strict parity and all three real-case exact hash checks passed on Cp. `cmp` verified the parity qualification executable equals the retained Cp driver. The scratch-only runner preserves RUSTFLAGS and removes the empty encoded-flags override. Its inherited descriptive rust_profile sentence still says flags are empty; the retained Cargo fingerprints, explicit build flags and symbol checks establish the actual alignment flag; no algorithm or driver changes. Real-case checker is the retained r2 exact checker with archive dependency/output paths adapted. Initial unqualified perturbation binaries and build incidents retained in build-preflight-incident.json. The real-case checker dependency build hit its 7 GiB cap and <job-runner> queued a retry at 11 GiB, which refused to overwrite the immutable completed parity receipt. The unfinished real-checker build was resumed alone at 11 GiB; the original OOM log is retained; no measurement occurred.
 
 Raw kernel symbol table checks (every required address mod 64 = 0):
 

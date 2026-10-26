@@ -1,23 +1,23 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build.sh, reserving 3G, cap 7G, declared 3G, no history yet): bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build.sh
-heavy: running (3G reserved, cap 7G, 17G available): bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build.sh
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/build.sh, reserving 3G, cap 7G, declared 3G, no history yet): bash <scratch>/meshopt-validate-once/layout-check/build.sh
+heavy: running (3G reserved, cap 7G, 17G available): bash <scratch>/meshopt-validate-once/layout-check/build.sh
    Compiling libm v0.2.16
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-B)
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/B-default-harness)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-B)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/B-default-harness)
     Finished `moss` profile [optimized] target(s) in 15.75s
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/B-pinned-harness)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/B-pinned-harness)
     Finished `moss` profile [optimized] target(s) in 6.00s
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-Bprime)
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/Bprime-default-harness)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-Bprime)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/Bprime-default-harness)
     Finished `moss` profile [optimized] target(s) in 18.00s
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-C)
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/C-default-harness)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-C)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/C-default-harness)
     Finished `moss` profile [optimized] target(s) in 18.92s
-   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/C-pinned-harness)
+   Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/C-pinned-harness)
     Finished `moss` profile [optimized] target(s) in 6.39s
    Compiling libm v0.2.16
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-C)
-   Compiling probe-after-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/probe-C-src)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-C)
+   Compiling probe-after-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/probe-C-src)
     Finished `release` profile [optimized + debuginfo] target(s) in 16.83s
-   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-B)
-   Compiling probe-v024 v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/probe-B-src)
+   Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-B)
+   Compiling probe-v024 v0.0.0 (<scratch>/meshopt-validate-once/layout-check/probe-B-src)
     Finished `release` profile [optimized + debuginfo] target(s) in 15.79s

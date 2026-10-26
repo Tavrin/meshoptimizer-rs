@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "measured_revision": "dcaf997ef55d2c4ccc05ce0ef885d2d9a16018d0",
-  "evidence_directory": "/mnt/linux-extra/moss-scratch/meshopt-cmp",
+  "evidence_directory": "<scratch>/meshopt-cmp",
   "report_sha256": "21eaa4958193b4522aaf6e583c2cad9bb6c4e5b3c1d1bb3b99f5084c8c0ade25",
   "source_epoch": {
     "schema": 1,
@@ -80,7 +80,7 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/home/etienne/dev/meshopt-wt/cmp/Cargo.toml",
+        "<local>/Cargo.toml",
         "--offline",
         "--locked",
         "--no-default-features",
@@ -93,7 +93,7 @@
       },
       "exit": 0,
       "seconds": 3.221745729446411,
-      "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/ours-no-std-wasm-no-c.log",
+      "log": "<scratch>/meshopt-cmp/ours-no-std-wasm-no-c.log",
       "compile_only": true
     },
     {
@@ -102,7 +102,7 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/home/etienne/dev/meshopt-wt/cmp/Cargo.toml",
+        "<local>/Cargo.toml",
         "--offline",
         "--locked",
         "--target",
@@ -111,7 +111,7 @@
       "environment_override": {},
       "exit": 0,
       "seconds": 2.1917688846588135,
-      "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/ours-aarch64.log",
+      "log": "<scratch>/meshopt-cmp/ours-aarch64.log",
       "compile_only": true
     },
     {
@@ -120,7 +120,7 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+        "<local>/Cargo.toml",
         "--offline",
         "--locked",
         "--features",
@@ -136,7 +136,7 @@
       },
       "exit": 101,
       "seconds": 2.148127794265747,
-      "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/theirs-wasm-no-c.log",
+      "log": "<scratch>/meshopt-cmp/theirs-wasm-no-c.log",
       "compile_only": true
     },
     {
@@ -145,7 +145,7 @@
         "cargo",
         "check",
         "--manifest-path",
-        "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+        "<local>/Cargo.toml",
         "--offline",
         "--locked",
         "--features",
@@ -158,7 +158,7 @@
       "environment_override": {},
       "exit": 101,
       "seconds": 0.8000092506408691,
-      "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/theirs-aarch64.log",
+      "log": "<scratch>/meshopt-cmp/theirs-aarch64.log",
       "compile_only": true
     },
     {
@@ -168,7 +168,7 @@
         "+1.88",
         "check",
         "--manifest-path",
-        "/home/etienne/dev/meshopt-wt/cmp/Cargo.toml",
+        "<local>/Cargo.toml",
         "--offline",
         "--locked",
         "--all-features"
@@ -176,7 +176,7 @@
       "environment_override": {},
       "exit": 0,
       "seconds": 4.273727655410767,
-      "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/ours-msrv.log",
+      "log": "<scratch>/meshopt-cmp/ours-msrv.log",
       "compile_only": true
     },
     {
@@ -186,7 +186,7 @@
         "+1.88",
         "check",
         "--manifest-path",
-        "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+        "<local>/Cargo.toml",
         "--offline",
         "--locked",
         "--features",
@@ -197,7 +197,7 @@
       "environment_override": {},
       "exit": 0,
       "seconds": 2.982807159423828,
-      "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/theirs-rust-1.88.log",
+      "log": "<scratch>/meshopt-cmp/theirs-rust-1.88.log",
       "compile_only": true
     }
   ],
@@ -333,7 +333,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -343,7 +343,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-ours-clean.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-ours-clean.log",
         "free_bytes": 37573373952
       },
       {
@@ -354,7 +354,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -364,7 +364,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-ours-incremental.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-ours-incremental.log",
         "free_bytes": 37415903232
       },
       {
@@ -375,7 +375,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -391,7 +391,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-ours-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-ours-footprint-and-driver.log",
         "free_bytes": 37412990976
       },
       {
@@ -402,7 +402,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -418,7 +418,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-ours-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-ours-footprint-and-driver.log",
         "free_bytes": 36339036160
       },
       {
@@ -429,7 +429,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -439,7 +439,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-ours-decode-footprint.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-ours-decode-footprint.log",
         "free_bytes": 26885332992
       }
     ],
@@ -452,7 +452,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -462,7 +462,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-theirs-clean.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-theirs-clean.log",
         "free_bytes": 37077774336
       },
       {
@@ -473,7 +473,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -483,7 +483,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-theirs-incremental.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-theirs-incremental.log",
         "free_bytes": 36991115264
       },
       {
@@ -494,7 +494,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -510,7 +510,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-theirs-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-theirs-footprint-and-driver.log",
         "free_bytes": 36991111168
       },
       {
@@ -521,7 +521,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -537,7 +537,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-defaults-theirs-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-defaults-theirs-footprint-and-driver.log",
         "free_bytes": 36383428608
       }
     ],
@@ -550,7 +550,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -560,7 +560,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-moss-ours-clean.log",
+        "log": "<scratch>/meshopt-cmp/build-moss-ours-clean.log",
         "free_bytes": 36331831296
       },
       {
@@ -571,7 +571,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -581,7 +581,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-moss-ours-incremental.log",
+        "log": "<scratch>/meshopt-cmp/build-moss-ours-incremental.log",
         "free_bytes": 37079232512
       },
       {
@@ -592,7 +592,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -608,7 +608,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-moss-ours-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-moss-ours-footprint-and-driver.log",
         "free_bytes": 36937162752
       }
     ],
@@ -621,7 +621,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -631,7 +631,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-moss-theirs-clean.log",
+        "log": "<scratch>/meshopt-cmp/build-moss-theirs-clean.log",
         "free_bytes": 34656894976
       },
       {
@@ -642,7 +642,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -652,7 +652,7 @@
           "--bin",
           "cmp-decode"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-moss-theirs-incremental.log",
+        "log": "<scratch>/meshopt-cmp/build-moss-theirs-incremental.log",
         "free_bytes": 34372960256
       },
       {
@@ -663,7 +663,7 @@
           "cargo",
           "build",
           "--manifest-path",
-          "/home/etienne/dev/meshopt-wt/cmp/parity/compare/Cargo.toml",
+          "<local>/Cargo.toml",
           "--offline",
           "--locked",
           "--profile",
@@ -679,7 +679,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-cmp/build-moss-theirs-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-moss-theirs-footprint-and-driver.log",
         "free_bytes": 34242600960
       }
     ]

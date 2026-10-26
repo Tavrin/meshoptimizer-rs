@@ -61,7 +61,7 @@ tail inlining (no instruction gain), and further unproven parser/filter tuning.
 Every prior maximum receives a classification and an outcome below. The
 single final pass is a scoped stop; any residual failure prevents RFC closure.
 
-Artifacts: `/mnt/linux-extra/meshopt-artifacts/p07-fix7`. Verified old-control
+Artifacts: `<artifacts>/p07-fix7`. Verified old-control
 hashes bind to source c87431d; current binaries bind to build.json. Frozen
 869 fixture and 7653 malformed cases, all 138 benchmark identities, both APIs,
 local native ceilings and actual scalar/SIMD wasm match round-six statuses and
@@ -73,7 +73,7 @@ production/test code. Its Miri-only NaN comparison permits only a NaN sign
 difference; native assertions retain byte equality. No production change.
 Exhaustive Oct8 and finite Exp/Oct16/Quat checks are scoped arithmetic proof,
 with separate native large-Exp threshold/frozen streaming checks. This does
-not requalify ARM, other platforms, the full native matrix, Moss integration,
+not requalify ARM, other platforms, the full native matrix, a downstream engine integration,
 native triangle-index, phase-0.6, or release acceptance.
 
 ## Final S3 significant slowdowns

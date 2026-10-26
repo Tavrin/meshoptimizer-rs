@@ -34,7 +34,7 @@ Review fixes:
 | FIFO, final | 1.000 | 1.344 | unchanged |
 
 Worst cache case against 0.2.9: 0.935. The per-case table is in
-/mnt/linux-extra/moss-scratch/meshopt-0210-H1/results.json.
+<scratch>/meshopt-0210-H1/results.json.
 
 ## Gates (exit codes)
 - test all-features 0; test no-default 0; clippy 0; fmt 0; boundary 0.

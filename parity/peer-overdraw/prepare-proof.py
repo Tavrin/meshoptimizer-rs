@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Prepare a scratch-only two-version checker; never alters the kept harness."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import os, shutil, subprocess
 ROOT = Path(__file__).resolve().parents[2]
-S = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-b')
+S = Path(_public_path('<scratch>/meshopt-peer-b'))
 base = S / 'proof-baseline'
 if not base.exists():
     shutil.copytree(S / 'baseline', base)

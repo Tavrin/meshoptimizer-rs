@@ -9,7 +9,7 @@ historical epoch. Only sequence also interleaves the starting Rust binary.
 
 Candidate fixes: a48d060, 70727c3, 72e03af, f72221b, b0f0377, eb6bac6.
 Tests and scoped controllers: 52f22d5. Evidence:
-`/mnt/linux-extra/meshopt-artifacts/p07-fix4`; summary.json and verify.log
+`<artifacts>/p07-fix4`; summary.json and verify.log
 retain independent checks. Source/kernel identity is frozen before timing.
 
 ## Family means and verdicts
@@ -42,7 +42,7 @@ S4 sequence-only:
 - caller-buffer: scalar-C++ geomean 1.073, 0 maximum failures, 0 frozen minimum failures: **pass**.
 
 Triangle-index S4 is not requalified. No release, ARM execution, dedicated
-host, Windows/macOS, Moss integration or phase-0.6 qualification is claimed.
+host, Windows/macOS, a downstream engine integration or phase-0.6 qualification is claimed.
 
 ## Sequence allocation investigation
 

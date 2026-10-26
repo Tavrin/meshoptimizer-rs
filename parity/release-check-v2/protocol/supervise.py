@@ -1,3 +1,13 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import subprocess,os,time,json
 s=Path(__file__).parent
@@ -6,7 +16,7 @@ attempt=1;segment=0
 while True:
  segment+=1
  with (s/f'{arm}-attempt-{attempt}-segment-{segment}.log').open('x') as log:
-  p=subprocess.run(['/mnt/linux-extra/moss-coord/bin/moss-heavy.sh','4',str(s/'run.sh'),arm,str(attempt)],stdout=log,stderr=subprocess.STDOUT,env={**os.environ,'MOSS_HEAVY_MEASUREMENT':'1','MOSS_LANE':'meshopt-release-v2'})
+  p=subprocess.run([_public_path('<job-runner>'),'4',str(s/'run.sh'),arm,str(attempt)],stdout=log,stderr=subprocess.STDOUT,env={**os.environ,'MOSS_HEAVY_MEASUREMENT':'1','MOSS_LANE':'meshopt-release-v2'})
  with (s/'attempts.jsonl').open('a') as f:f.write(json.dumps({'arm':arm,'attempt':attempt,'segment':segment,'exit':p.returncode,'unix':time.time()})+'\n')
  if p.returncode==0:break
  if p.returncode==75:
@@ -14,10 +24,10 @@ while True:
   while True:
    waiting=[]
    for q in ['heavy.waiting','heavy.waiting-exclusive']:
-    for line in (Path('/mnt/linux-extra/moss-coord')/q).read_text().splitlines():
+    for line in (Path(_public_path('<local>/downstream-coord'))/q).read_text().splitlines():
      try:cwd=os.readlink('/proc/'+line.split()[0]+'/cwd')
      except (FileNotFoundError,ProcessLookupError,PermissionError):continue
-     if cwd.startswith('/mnt/linux-extra/moss-lane-worktrees/train-'):waiting.append(cwd)
+     if cwd.startswith(_public_path('<worktree>')):waiting.append(cwd)
    if not waiting:break
    time.sleep(5)
   continue

@@ -20,7 +20,7 @@ listed below must be supplied before any SIMD release ships.
 
 ## Evidence and identities
 
-Artifacts: `/mnt/linux-extra/meshopt-artifacts/p07`. The committed preregistration
+Artifacts: `<artifacts>/p07`. The committed preregistration
 is `179ba52`; `SIMD_BAR.md` SHA-256 is
 `b5730ff38c5b03ed0870004842a775fd286cc3545d4d354b3bd697f3074edca6`.
 The C++ 1.3 oracle is commit `4c203430ca565cb59a468a91922c76c208169536`.
@@ -120,17 +120,17 @@ The Node scalar timing is a diagnostic lowering within the SIMD-enabled
 module; it does not qualify performance against an unsafe-free wasm build.
 Standalone filters and meshlets have no upstream JS API, so S5 covers raw
 vertex/index/sequence and buffer-view cases. Shared-host load is recorded;
-these results do not establish dedicated-host or Moss integration performance.
+these results do not establish dedicated-host or a downstream engine integration performance.
 
 ## Native measured gaps — current round three
 
-Current evidence is `/mnt/linux-extra/meshopt-artifacts/p07r3/performance.json`,
+Current evidence is `<artifacts>/p07r3/performance.json`,
 implementation `4e7eea0` (documented HEAD `002872f`). These are geometric means
 of stage-1 Rust time / C++ SIMD time over the frozen matrix; lower is faster.
 Repeated standalone Oct/Quat inputs remain separate from the varied-filter rows.
 
 The former vertex 2.283 / 2.610 table described original implementation `2feefb2`
-in `/mnt/linux-extra/meshopt-artifacts/p07`; it was not the round-three result.
+in `<artifacts>/p07`; it was not the round-three result.
 The P07-perf and P07-R3 sections below preserve historical comparisons.
 This table now agrees with [SIMD_PERFORMANCE.md](SIMD_PERFORMANCE.md).
 
@@ -203,8 +203,8 @@ or wasm-worker composition qualification in this record.
 
 ## P07-perf refresh — 2026-10-05
 
-Current evidence is retained in `/mnt/linux-extra/meshopt-artifacts/p07perf`;
-the original `/mnt/linux-extra/meshopt-artifacts/p07` epoch is preserved.
+Current evidence is retained in `<artifacts>/p07perf`;
+the original `<artifacts>/p07` epoch is preserved.
 Upstream, the 138 frozen benchmark inputs and `SIMD_BAR.md` are unchanged.
 P07-P1/P2 in DECISIONS record the profile evidence, implementation choices,
 rejected estimates/prefetch and maintenance tradeoffs.
@@ -238,7 +238,7 @@ listed above remain unestablished by this local refresh.
 The owner replaced the lease-free/scoreboard gate with fair shared-lease
 queueing during this run. The three completed native rows from the earlier
 gate are preserved in `performance-pre-queue.json`; none is repeated.
-All subsequent timed work runs through the specified Moss `gpu-lease.sh run
+All subsequent timed work runs through the specified a downstream engine `gpu-lease.sh run
 meshopt-timing:p07 -- ...`, with a 3,600-second queue timeout and retry on 75.
 The leased native/Node adapters use the original numerical controllers, retain
 completed keys and unfinished samples, and verify that the lease holder is an
@@ -294,7 +294,7 @@ it does not qualify an upstream-parity or release claim.
 ## P07-R3 refresh — 2026-10-05
 
 Start `e6eac35`; implementation `4e7eea0`, shared-admission controller
-`88c80f7`. Evidence lives at `/mnt/linux-extra/meshopt-artifacts/p07r3`.
+`88c80f7`. Evidence lives at `<artifacts>/p07r3`.
 Only native vertex byte groups/reconstruction and meshlet decoding change;
 filters, index/sequence, encoders, wasm algorithms and frozen bars are unchanged.
 The detailed upstream instruction comparison and rejected trials are recorded
@@ -354,7 +354,7 @@ Checked/counting loops and three-byte pair output also remain in meshlets.
 DECISIONS gives the per-input counters, branch counts and upstream comparison.
 
 The owner moves all new timing to the visible shared admission wrapper,
-`MOSS_HEAVY_GPU=1 /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ...`.
+`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`.
 No lease wrapper is nested. Actual reservation, four-GB declaration, scope cap,
 ancestor wrapper and owned GPU holder are recorded separately. The scoreboard
 exclusion remains active; a sleeping when-idle service is eligible. New helper
@@ -377,9 +377,9 @@ full current tables, including failures. No failed case is rerun for selection.
 
 Done-when is satisfied by the two optimized kernels, exact proof and documented
 residual profiles/best ratios. This is not SIMD release, ARM execution,
-Windows/macOS, dedicated-host, Moss integration or phase-0.6 qualification.
+Windows/macOS, dedicated-host, a downstream engine integration or phase-0.6 qualification.
 Retain source/binary archives and receipts outside the exact target; delete
-`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p07r3` at completion. No push.
+`<target-dir>` at completion. No push.
 
 
 ## P07 fix-four — 2026-10-05
@@ -387,7 +387,7 @@ Retain source/binary archives and receipts outside the exact target; delete
 Start `e41f4bb`; each ranked fix is separately committed: `a48d060`,
 `70727c3`, `72e03af`, `f72221b`, `b0f0377`, `eb6bac6`. Production source
 is frozen before one scoped timing epoch. Evidence:
-`/mnt/linux-extra/meshopt-artifacts/p07-fix4`. The independent verifier passes.
+`<artifacts>/p07-fix4`. The independent verifier passes.
 [Every scoped native/Node row, failures and residuals](P07_FIX4_PERFORMANCE.md).
 
 | Family | Before allocating / caller-buffer | After allocating / caller-buffer | Registered family bar A/C | Brief bar A/C |
@@ -469,9 +469,9 @@ without proof. No late unmeasured threshold or revert is introduced.
 All six fixes are implemented; sequence cause attribution is the explicit
 unresolved subgoal. Scoped timing and result recording satisfy the stop
 condition. This does not qualify SIMD release, ARM execution, dedicated-host,
-Windows/macOS, Moss integration or phase-0.6 acceptance. Binaries/evidence
+Windows/macOS, a downstream engine integration or phase-0.6 acceptance. Binaries/evidence
 are archived outside the exact build target. The prescribed
-`/mnt/linux-extra/moss-cargo-targets/codex-p07-fix4` (1.1 GB) is deleted;
+`<target-dir>` (1.1 GB) is deleted;
 cleanup.json confirms absence and disk receipts.
 No push, merge or rebase.
 
@@ -553,7 +553,7 @@ Independent source/binary/control-bound verification passes; numeric failures
 remain failures. One final epoch, with checkpointed continuations of unaccepted
 work only. No late source tuning or rescue timing. Exact proof and all test,
 Clippy, Miri, MSRV/no-std and unsafe-boundary/package gates pass.
-This does not establish release, ARM, other-host or Moss integration acceptance.
+This does not establish release, ARM, other-host or a downstream engine integration acceptance.
 The prescribed fix-seven target is deleted after collecting final evidence.
 No push, merge or rebase.
 
@@ -603,8 +603,8 @@ Oct4 A/C pass; tiny Exp32 caller S3 clears. RFC/S3 closure remains false:
 These failed maxima/S3 do not prove paired regressions against fix8: each
 corresponding new/old interval includes1. No rescue epoch or subsequent
 engine edit. Current full case/family tables, proofs and limits are in
-P07_FIX9_PERFORMANCE.md and /mnt/linux-extra/meshopt-artifacts/p07-fix9.
-No untouched-family, other-platform, release or Moss integration acceptance.
+P07_FIX9_PERFORMANCE.md and <artifacts>/p07-fix9.
+No untouched-family, other-platform, release or a downstream engine integration acceptance.
 
 ## P07 fix10 full RFC qualification — 2026-10-06
 
@@ -656,5 +656,5 @@ timing uses MOSS_HEAVY_GPU=0 heavy 4 timeout 840 with CPU26 pinning and rotating
 interleaved slots. Previous completed GPU A/A receipts stay immutable; the
 unstarted queued GPU request was canceled, no running burst killed. Native
 final bursts 693.3/451.7s, JS final 450.4s, all wrapper exits 0. Artifact directory:
-`/mnt/linux-extra/meshopt-artifacts/p07-fix10`; target deleted after owned jobs
-exit. No ARM/Windows/Moss/release/integration acceptance.
+`<artifacts>/p07-fix10`; target deleted after owned jobs
+exit. No ARM/Windows/a downstream engine/release/integration acceptance.

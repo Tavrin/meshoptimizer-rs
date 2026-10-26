@@ -55,7 +55,7 @@ no Workspace allocations and retain the original Result/work/byte accounting.
 | cargo test --locked --no-default-features | 0 |
 | cargo clippy --locked --all-features --all-targets -- -D warnings | 0 |
 | cargo fmt --all -- --check | 0 |
-| cargo fmt --manifest-path /home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/028-L1/Cargo.toml -- --check | 0 |
+| cargo fmt --manifest-path <repo>/parity/028-L1/Cargo.toml -- --check | 0 |
 | Existing C++ L1 differential, 2,000 seeds/family, alloc/into plus 64 wide partition seeds | 0 |
 | v0.2.7 exact Results/work/output/caller-buffer contents, 34,172 comparisons | 0 |
 | Frozen five-case corpus against M7 and v0.2.7, all six families | 0 |
@@ -76,10 +76,10 @@ identities are retained in the exported receipts and scratch.
 
 Measurements are native Linux x86-64 on a shared host, pinned to CPU 2 for the
 interleaved wall campaign; all load observations are retained. Claims are limited
-to the registered corpus/profile. No Moss runtime/GPU acceptance, other-platform
+to the registered corpus/profile. No a downstream engine runtime/GPU acceptance, other-platform
 performance, release, merge, tag or publication is claimed. All lane additions
 are under parity/028-L1; only required library edits and the existing changelog
-are outside it. Scratch and binaries are retained at `/mnt/linux-extra/moss-scratch/meshopt-028-L1`. The designated
+are outside it. Scratch and binaries are retained at `<scratch>/meshopt-028-L1`. The designated
 Cargo target is deleted only after retention; cleanup is a separate receipt.
 
 ## Adapter diagnosis before library edits
@@ -102,7 +102,7 @@ No library edits until equalized counts and named causes are recorded here.
 
 - Initial generic-python admission inferred an 8 GiB reservation despite the
   4 GiB declaration; canceled while queued and used the explicit declared-size
-  mode supported by moss-heavy. The first admitted compile failed before codegen
+  mode supported by <job-runner>. The first admitted compile failed before codegen
   because the frozen comparator lock still named its historical library version.
   Regenerated only the lane/scratch lockfiles offline, then kept --locked builds.
 - Switched the preparation batch to one Cargo worker and a 2 GiB declaration
@@ -111,7 +111,7 @@ No library edits until equalized counts and named causes are recorded here.
 - Existing CHANGELOG.md will receive the specifically required measured-only
   Unreleased entry. The no-root-files rule is applied to newly created lane
   artifacts; this required edit of the existing changelog is not a new root file.
-- No subagents, no other lane worktree reads/writes, no SIMD/encoder/Moss/version
+- No subagents, no other lane worktree reads/writes, no SIMD/encoder/a downstream engine/version
   edits. Existing comparator FFI code is reused for trusted frozen inputs; no new
   unsafe library code or optimesh implementation is introduced.
 

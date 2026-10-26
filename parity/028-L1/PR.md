@@ -1,6 +1,6 @@
 The L1 cluster path spends time clearing partition maps, publishing scan descriptors per triangle, evaluating zero-weight cone arithmetic, and dividing inside BVH pivots. This change reuses generation tags, keeps scan output state local, specializes the zero-weight search, and uses an exact invariant integer quotient. Position preparation and Morton interleave are also tightened. Public outputs, errors, work usage and APIs remain unchanged.
 
-Registered performance verdict: **PARTIAL**. The single final campaign used the equalized Moss scalar adapters, 1 warm-up + 10 alternating pairs, 10,000 bootstrap resamples, seed 20261030, with A/A floor 0.170512. X is disclosure only.
+Registered performance verdict: **PARTIAL**. The single final campaign used the equalized a downstream engine scalar adapters, 1 warm-up + 10 alternating pairs, 10,000 bootstrap resamples, seed 20261030, with A/A floor 0.170512. X is disclosure only.
 
 | Family | O/M7 GM | O/0.2.7 GM | O/X GM | Max case upper95 vs 0.2.7 | Verdict |
 |---|---:|---:|---:|---:|---|

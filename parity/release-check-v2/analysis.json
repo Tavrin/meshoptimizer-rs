@@ -3424,13 +3424,13 @@
         "cases": {},
         "families": {}
       },
-      "record": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/C-attempt-1/record.json",
+      "record": "<scratch>/meshopt-simplify-perf/release-v2/C-attempt-1/record.json",
       "started_unix": 1792929556.292225,
       "finished_unix": 1792932004.7245772
     }
   },
   "absolute": {
-    "source": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json",
+    "source": "<scratch>/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json",
     "sha256": "c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd",
     "families": {
       "vertex_cache": {

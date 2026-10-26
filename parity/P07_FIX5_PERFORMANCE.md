@@ -9,7 +9,7 @@ Before: fix-four where measured; standalone Oct/Quat/Exp uses the explicitly
 historical fix-three epoch. Sequence also interleaves fix-four Rust in the
 same final pass. Family before/after values describe different shared-host
 epochs. No changed bar, frozen input, maximum retry or full matrix.
-Artifacts: `/mnt/linux-extra/meshopt-artifacts/p07-fix5`; summary.json and
+Artifacts: `<artifacts>/p07-fix5`; summary.json and
 final-evidence.json retain verdicts and identities.
 
 ## Family results
@@ -122,7 +122,7 @@ levels and actual wasm SIMD/scalar. The seven static/test/Miri receipts,
 portability checks and 23-block single
 unsafe-module/package gates pass. Node preflight matches 292 golden hashes.
 
-No ARM execution, dedicated host, broader release, Windows/macOS, Moss
+No ARM execution, dedicated host, broader release, Windows/macOS, a downstream engine
 integration, triangle-index S4 or phase-0.6 performance qualification is claimed.
 
 ## Timing receipts

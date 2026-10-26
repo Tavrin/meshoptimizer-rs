@@ -1,8 +1,8 @@
 # 0.2.7 release validation
 
-Run from the release worktree, with CPU-only `moss-heavy` admission declaring
-4 GB, and `CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-rel027`.
-`MESHOPT_ARTIFACTS=/mnt/linux-extra/moss-scratch/meshopt-rel027` retains receipts
+Run from the release worktree, with CPU-only `<job-runner>` admission declaring
+4 GB, and `CARGO_TARGET_DIR=<target-dir>`.
+`MESHOPT_ARTIFACTS=<scratch>/meshopt-rel027` retains receipts
 outside the target directory. Delete that target after the final checks.
 
 Build `retention`, `vertex_fetch` and `overdraw` from `fuzz/Cargo.toml` in release

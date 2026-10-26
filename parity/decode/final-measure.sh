@@ -1,10 +1,20 @@
 #!/bin/bash
 set -euo pipefail
-s=/mnt/linux-extra/moss-scratch/meshopt-decode
+s="${SCRATCH:?}"/meshopt-decode
 python3 - <<'PY'
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib,json
 from pathlib import Path
-s=Path('/mnt/linux-extra/moss-scratch/meshopt-decode')
+s=Path(_public_path('<scratch>/meshopt-decode'))
 x=json.loads((s/'MEASUREMENT-IDENTITY.json').read_text())
 assert all(Path(p).exists() and hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in x['source_and_artifacts'].items())
 assert all(line.split('\t')[1]=='0'for line in (s/'gates.tsv').read_text().splitlines())

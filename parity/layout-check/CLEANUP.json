@@ -1,5 +1,5 @@
 {
-  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-bounds-layout",
+  "target": "<target-dir>",
   "bytes_removed": 104850915,
   "absent": true,
   "utc": "2026-10-25T23:58:05.106524+00:00",

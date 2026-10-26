@@ -1,7 +1,7 @@
 # SPEC-027 lane A
 
 Baseline: clean perf/quantize at 33556c4 (v0.2.6). Only lane A is owned.
-Scratch: /mnt/linux-extra/moss-scratch/meshopt-peer-a.
+Scratch: <scratch>/meshopt-peer-a.
 
 ## Causes (milestone, recorded before implementation)
 
@@ -43,7 +43,7 @@ remain intact for the registered campaign.
 ## Registered results — verbatim, no reruns
 
 Ratios are candidate/comparator (lower is faster), five equal-weight frozen
-cases. One warm-up, ten alternating pairs, Moss scalar profile, CPU 23;
+cases. One warm-up, ten alternating pairs, a downstream engine scalar profile, CPU 23;
 bootstrap 10,000, seed 20261029. See REGISTRATION.md and results.json for exact
 core metadata, pairs, intervals and hashes. Same-session A/A F=0.309994;
 per-case baseline upper95 allowance=1.409994. This noisy shared-host floor is
@@ -93,7 +93,7 @@ No 10k sweeps or long fuzz runs; those remain nightly.
   dependencies. All frozen input hashes match its results.json.
 - Upstream C++ oracle is clean at 4c203430ca565cb59a468a91922c76c208169536,
   identical to v1.3; existing check-reference.sh exits 0.
-- Every heavy job declares 4 GB through moss-heavy, MOSS_HEAVY_GPU=0. Generic
+- Every heavy job declares 4 GB through <job-runner>, MOSS_HEAVY_GPU=0. Generic
   python admission initially inherited a 9 GB historical reservation; that
   queued attempt was canceled before execution and requeued with the documented
   lane-specific MOSS_HEAVY_CLASS=meshopt-peer-a. No admission gate was disabled.
@@ -126,7 +126,7 @@ Scratch-only adapter copies use `x.p.as_flattened().iter()` for ours (baseline
 and candidate) and M7; X retains its existing contiguous-slice adapter. Frozen
 repository and bet 0 harnesses are unchanged. Same retained million-smooth
 input (SHA-256 f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf),
-same Moss scalar profile, 100 resident iterations plus startup/serialization,
+same a downstream engine scalar profile, 100 resident iterations plus startup/serialization,
 one `perf stat -e instructions:u` run per cell, CPU affinity pinned to the
 first allowed CPU. Installed 6.17 perf used as in the original diagnosis.
 Counts are diagnostic only: no acceptance bar, timing inference, or revision
@@ -151,10 +151,10 @@ Result/Error/output-bit proof (1,575,007 values, 34 widths),
 `cargo clippy --all-targets --all-features -- -D warnings`, and
 `cargo fmt --all -- --check`. Both families were rechecked after the revert.
 
-Every heavy action ran under CPU-only moss-heavy, declaring 4 GB.
+Every heavy action ran under CPU-only <job-runner>, declaring 4 GB.
 Raw logs, copied adapters, executables, proof rows and final source are retained
-under `/mnt/linux-extra/moss-scratch/meshopt-peer-a/finish/`; compact receipts,
+under `<scratch>/meshopt-peer-a/finish/`; compact receipts,
 adapter diffs and SHA-256 inventory are in `parity/peer-quantize/finish/`.
 Original receipts remain retained. The designated target
-`/mnt/linux-extra/moss-cargo-targets/meshopt-peer-a2` was deleted after validation;
+`<target-dir>` was deleted after validation;
 `finish/cleanup.json` records deletion. No merge, tag, publication or version bump.

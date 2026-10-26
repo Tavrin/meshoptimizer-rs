@@ -28,12 +28,12 @@ Scalar output SHA-256:
 Reproduce using this checkout's frozen driver protocol and pinned binaries:
 
 ```sh
-source /mnt/linux-extra/meshopt-artifacts/p07-fix5/env.sh
+source <artifacts>/p07-fix5/env.sh
 python3 parity/reproduce-upstream-tail.py
 ```
 
 The script embeds the entire request, verifies its hash, asserts the expected
 split on both APIs and records source/binary/output identities in
-`/mnt/linux-extra/meshopt-artifacts/p07-fix5/upstream-tail-reproduction.json`.
+`<artifacts>/p07-fix5/upstream-tail-reproduction.json`.
 Original failure and partial sweep archive remain under `p07-fix4`:
 `sweep04-failure.json`, `seed-failure-reproduction.json`, `sweep04.zip`.

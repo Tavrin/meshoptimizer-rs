@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """RFC113 S2 bridge differential and same-core interleaved cook timing."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import argparse
 import hashlib
 import json
@@ -14,14 +24,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 MOSS = Path(os.environ.get('MESHOPT_RFC113_MOSS_DIR',
-    '/mnt/linux-extra/moss-lane-worktrees/cluster-lod-s2/crates/moss_cooker'))
+    _public_path('<worktree>/crates/downstream_cooker')))
 VENDOR = MOSS / 'vendor/meshoptimizer'
 MESHES = Path(os.environ.get('MESHOPT_RFC113_MESH_DIR',
-    '/mnt/linux-extra/moss-spikes/cluster-lod-s0b/meshes'))
+    _public_path('<local>/meshes')))
 ART = Path(os.environ.get('MESHOPT_RFC113_ART_DIR',
-    '/mnt/linux-extra/meshopt-artifacts/rfc113'))
+    _public_path('<artifacts>/rfc113')))
 TARGET = Path(os.environ.get('CARGO_TARGET_DIR',
-    '/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodperf'))
+    _public_path('<target-dir>')))
 LAYOUTS = {'pos3-norm3-uv2': 32, 'pos3-norm3-uv2-tangent4': 48,
            'pos3-norm3-uv2-tangent4-color4': 64,
            'pos3-norm3-uv2-tangent4-joints4-weights4': 72,

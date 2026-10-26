@@ -6,8 +6,8 @@ D67–D77 in ../DECISIONS.md, and D78 onward for the performance work. The optio
 pinned demo rather than a stable upstream output contract.
 
 ```sh
-export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-int03
-export MESHOPT_ARTIFACTS=/mnt/linux-extra/meshopt-artifacts/p03
+export CARGO_TARGET_DIR=<target-dir>
+export MESHOPT_ARTIFACTS=<artifacts>/p03
 export MESHOPT_REFERENCE=/path/to/pinned/meshoptimizer
 parity/run.sh --phase 0.3
 parity/sweep.sh --phase 0.3 --cases-per-family 2000
@@ -17,7 +17,7 @@ python3 fuzz/p03/smoke.py
 ```
 
 The performance bar is enforced for two Rust profiles of the driver (D78):
-the Moss-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`)
+the a downstream engine-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`)
 and Cargo's release defaults. Select one with `MESHOPT_RUST_PROFILE`
 (`consumer`, `release-defaults`, or `release` for the historical fat-LTO
 build); each writes its own `benchmark-<profile>` record:
@@ -28,7 +28,7 @@ MESHOPT_RUST_PROFILE=release-defaults python3 parity/p03/benchmark.py --enforce
 ```
 
 The combined-tree integration records detailed parity data in
-`/mnt/linux-extra/meshopt-artifacts/p03`. Run
+`<artifacts>/p03`. Run
 `parity/report.sh --phase 0.3 --verify-artifacts` to verify the slim summaries.
 Build and compare jobs share the exact target: run them sequentially so active
 reference drivers cannot be overwritten. Fuzz uses its native target subdirectory
@@ -63,4 +63,4 @@ The cargo-fuzz smoke requires instrumentation counters, successful final stats,
 unchanged source/binaries and at least 300 elapsed seconds per target. It uses
 coverage plus trace compares and sanitizer none. It does not establish the RFC
 release's four CPU-hours per target, 10,000-case sweeps, sustained nightly/weekly
-runs, ARM execution, other-platform acceptance or Moss integration.
+runs, ARM execution, other-platform acceptance or a downstream engine integration.

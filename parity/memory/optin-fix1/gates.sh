@@ -1,7 +1,7 @@
 #!/bin/bash
 set -uo pipefail
-repo=/home/etienne/dev/meshoptimizer-rs-wt/memory
-s=/mnt/linux-extra/moss-scratch/meshopt-memory/optin-fix1
+repo="${REPO:?}"
+s="${SCRATCH:?}"/meshopt-memory/optin-fix1
 run_gate() {
  local name=$1; shift
  "$@" > "$s/gate-$name.log" 2>&1

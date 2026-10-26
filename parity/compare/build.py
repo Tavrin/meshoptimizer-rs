@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
-"""Sequential consumer builds. Invoke inside CPU moss-heavy admission."""
+"""Sequential consumer builds. Invoke inside CPU <job-runner> admission."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import os,sys,time,json,subprocess,shutil,hashlib
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-cmp')
-TARGET=Path('/mnt/linux-extra/moss-cargo-targets/codex-meshopt-cmp')
+ART=Path(_public_path('<scratch>/meshopt-cmp'))
+TARGET=Path(_public_path('<target-dir>'))
 assert Path(os.environ['CARGO_TARGET_DIR'])==TARGET
 assert os.environ.get('MOSS_HEAVY_ACTIVE'), 'shared admission required'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()

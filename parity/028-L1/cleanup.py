@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """Retain evidence, then delete only the specified lane Cargo target."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import shutil,json
 from control import ART,TARGET,ROOT,LANE,sha,save
-assert TARGET==__import__('pathlib').Path('/mnt/linux-extra/moss-cargo-targets/meshopt-L1')
+assert TARGET==__import__('pathlib').Path(_public_path('<target-dir>'))
 assert not TARGET.is_symlink()
 assert json.loads((ART/'campaign-complete.json').read_text())['exit']==0
 binaries={p.name:sha(p)for p in ART.iterdir()if p.is_file()and(p.name.startswith(('driver-','proof-','rfc-','p03-'))or p.name=='division-fuzz')and p.stat().st_mode&0o111}

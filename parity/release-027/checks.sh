@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run as one CPU-only moss-heavy job, declaring 4 GB.
+# Run as one CPU-only <job-runner> job, declaring 4 GB.
 set -euo pipefail
 cd -- "$(dirname -- "$0")/../.."
 : "${MESHOPT_ARTIFACTS:?retain logs outside the target}"

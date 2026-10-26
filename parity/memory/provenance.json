@@ -53,6 +53,6 @@
     "src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
     "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46"
   },
-  "old_driver": "/mnt/linux-extra/moss-scratch/meshopt-a082-diag/harness",
+  "old_driver": "<scratch>/meshopt-a082-diag/harness",
   "definition": "mesh boundary = complete LOD chain before legacy chain; per-call control separately labeled"
 }

@@ -1,4 +1,4 @@
-heavy: waiting (class script:/usr/bin/python3.12, reserving 9G, cap 12G, declared 2G, p95 7.5 GB over 488 runs x 1.15): timeout 840 python3 /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.py tiny-smooth meshlet-bounds AA
+heavy: waiting (class script:/usr/bin/python3.12, reserving 9G, cap 12G, declared 2G, p95 7.5 GB over 488 runs x 1.15): timeout 840 python3 <scratch>/meshopt-validate-once/layout-check/measure.py tiny-smooth meshlet-bounds AA
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=9437184; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — needs 9G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16534320 - unused_kb=12682352 - margin_kb=2097152 = free_kb=1754816; need_kb=9437184; normal_slots=1/6; lane_slots=0/2]
 heavy: waiting — needs 9G RAM, -3G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=17093124 - unused_kb=19096220 - margin_kb=2097152 = free_kb=-4100248; need_kb=9437184; normal_slots=2/6; lane_slots=0/2]

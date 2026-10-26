@@ -1,8 +1,8 @@
 # SPEC-027 lane B — overdraw peer gaps
 
 Baseline v0.2.6 at 33556c48efc13f3f36a9293aa5fbf451c0884fe3.
-Scratch: `/mnt/linux-extra/moss-scratch/meshopt-peer-b/`.
-Target: `/mnt/linux-extra/moss-cargo-targets/meshopt-peer-b`.
+Scratch: `<scratch>/meshopt-peer-b/`.
+Target: `<target-dir>`.
 Harness export: bench/peer-screen e8827e4de9b69c98b9a96c6f49f8192a6b045ff7.
 
 The diagnosis below was recorded before edits. Final source passed targeted
@@ -128,7 +128,7 @@ Results apply to this native x86-64 scalar campaign, without a WASM timing claim
 ## Registered wall verdicts — final, no reruns
 
 Exactly one completed campaign: 27 comparisons / 270 interleaved pairs,
-1 warm-up batch + 10 pairs each, CPU 20, fixed iterations, Moss scalar.
+1 warm-up batch + 10 pairs each, CPU 20, fixed iterations, a downstream engine scalar.
 Bootstrap 10,000, seed 20261029. F = 0.164794109, giving case bar 1.264794109.
 The largest A/A uncertainty is retained; both families also pass the case
 bar with F=0, so the floor does not determine their acceptance.

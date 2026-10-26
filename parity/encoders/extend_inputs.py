@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Append frozen cook-like geometry without changing any existing fixture."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import json,struct,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import run as lane
-A=lane.ART;OLD=Path('/mnt/linux-extra/moss-scratch/meshopt-cmp');rows=json.loads((A/'inputs.json').read_text());assert not (A/'timing.json').exists()
+A=lane.ART;OLD=Path(_public_path('<scratch>/meshopt-cmp'));rows=json.loads((A/'inputs.json').read_text());assert not (A/'timing.json').exists()
 assert not any('geometry' in r['name'] for r in rows),'already extended'
 for row in rows:assert lane.sha(Path(row['path']))==row['sha256']
 metadata=json.loads((OLD/'inputs.json').read_text())

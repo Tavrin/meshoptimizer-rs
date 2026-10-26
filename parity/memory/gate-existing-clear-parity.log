@@ -1,5 +1,5 @@
     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
-     Running tests/api.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/api-188ecd94830b8eb7)
+     Running tests/api.rs (<target-dir>/debug/deps/api-188ecd94830b8eb7)
 
 running 1 test
 test other_algorithms_release_unused_cache_vertex_storage ... ok

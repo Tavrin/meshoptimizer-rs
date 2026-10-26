@@ -15,7 +15,7 @@ b6fd and a082, with their full stride-64 captured vertices and thresholds.
 `frozen-inputs.json` binds lossless copies from the retained bet 0 corpus.
 No cache prepass, replacement geometry or changed threshold.
 
-Moss scalar profile: opt-level 3, thin LTO, one codegen unit, stripped;
+a downstream engine scalar profile: opt-level 3, thin LTO, one codegen unit, stripped;
 no peer-simd; default generic target; empty Rust flags and compiler wrappers;
 M7 CXXFLAGS=-DMESHOPTIMIZER_NO_SIMD. Candidate and v0.2.6 use std with
 crate default features disabled, as in the comparator. X is optimesh 1.1.0;
@@ -25,8 +25,8 @@ afterward. Two independently started candidate processes supply A/A.
 
 ## Sampling and analysis
 
-CPU-only moss-heavy, MOSS_HEAVY_GPU=0, MOSS_HEAVY_MEASUREMENT=1, declaration
-4 GB, target `/mnt/linux-extra/moss-cargo-targets/meshopt-peer-b`.
+CPU-only <job-runner>, MOSS_HEAVY_GPU=0, MOSS_HEAVY_MEASUREMENT=1, declaration
+4 GB, target `<target-dir>`.
 Pin every resident process to CPU 20 (physical core 10, sibling 21).
 Do not wait for other lanes or seek a quiet host. Retain host/load telemetry.
 

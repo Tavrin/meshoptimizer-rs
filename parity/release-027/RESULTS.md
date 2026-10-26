@@ -18,7 +18,7 @@ The meshlet run uses libFuzzer coverage with no sanitizer; the other targets
 use stable seeded mutation. These are bounded release checks.
 
 Raw receipts, source archives, binaries, seeds, corpora and logs:
-`/mnt/linux-extra/moss-scratch/meshopt-rel027`.
+`<scratch>/meshopt-rel027`.
 Fuzz record SHA-256:
 `91660677d17368a9758b50b93cc5288791b3b49d38d5a09d25cd56cd47b135a7`.
 The supplemental `parity-source-identity.json` and `parity-sources.tar.gz`
@@ -26,7 +26,7 @@ retain the unchanged protocol dependency used by the fetch target.
 
 ## Checks
 
-All checks ran in one script through CPU-only `moss-heavy`, declaring 4 GB.
+All checks ran in one script through CPU-only `<job-runner>`, declaring 4 GB.
 
 | Check | Exit |
 |---|---:|
@@ -50,6 +50,6 @@ to their root originals. README changes are limited to the Lean usage line
 and v0.2.7 links. Formatting and whitespace checks pass.
 
 Cleanup: the designated target
-`/mnt/linux-extra/moss-cargo-targets/meshopt-rel027` was deleted after saving
-all receipts and executables; `/mnt/linux-extra/moss-scratch/meshopt-rel027/cleanup.json`
+`<target-dir>` was deleted after saving
+all receipts and executables; `<scratch>/meshopt-rel027/cleanup.json`
 records removal. No other target directory was removed.

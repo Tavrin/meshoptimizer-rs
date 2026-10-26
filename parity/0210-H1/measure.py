@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib,json,os,statistics,subprocess,struct,select,math
-S=Path('/mnt/linux-extra/moss-scratch/meshopt-0210-H1');O=S/'meshopt-028-L2';OUT=S/'samples';OUT.mkdir(exist_ok=True)
+S=Path(_public_path('<scratch>/meshopt-0210-H1'));O=S/'meshopt-028-L2';OUT=S/'samples';OUT.mkdir(exist_ok=True)
 assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'
 PERF='/usr/lib/linux-tools/6.17.0-22-generic/perf'
 ARMS=['base','candidate','M7'];FAMILIES=['cache','cache-fifo']
@@ -25,18 +35,18 @@ for op in FAMILIES:
   cases.append(dict(id=f'frozen-{op}-{name}',kind='frozen',family=op,source=str(path),source_sha256=sha(path),args=[op,str(path)],iterations=10000 if name.startswith('tiny') else 4 if name.startswith('million') else 100,multiplicity=1))
 # Keep real-fixture metadata distinct; overdraw family summary includes all eight frozen cases.
 for trace in json.loads((O/'stages.json').read_text()):
- original=O/f"chain-{trace['case']}.tsv";text=original.read_text().replace('/mnt/linux-extra/moss-scratch/meshopt-028-L2/',str(O)+'/')
+ original=O/f"chain-{trace['case']}.tsv";text=original.read_text().replace(_public_path('<scratch>/meshopt-028-L2/'),str(O)+'/')
  manifest=S/original.name;manifest.write_text(text);lines=text.splitlines();unique={}
  for idx,call in enumerate(trace['calls']):
   if call['operation'] not in ['cache']:continue
   key=(call['operation'],call['vertex_sha256'],call['input_sha256'],tuple(lines[idx+1].split('\t')[2:6]))
   if key in unique:
    unique[key]['multiplicity']+=1;unique[key]['call_indices'].append(idx);continue
-  vp=Path(call['vertex_path'].replace('/mnt/linux-extra/moss-scratch/meshopt-028-L2/',str(O)+'/'));assert sha(vp)==call['vertex_sha256']
+  vp=Path(call['vertex_path'].replace(_public_path('<scratch>/meshopt-028-L2/'),str(O)+'/'));assert sha(vp)==call['vertex_sha256']
   if call['input_path']!='-':assert sha(call['input_path'])==call['input_sha256']
   row=dict(id=f"chain-{trace['case'][:4]}-{idx}-{call['operation']}",kind='chain',chain=trace['case'],family=call['operation'],source=str(manifest),source_sha256=sha(manifest),args=['attr-stage',str(manifest)],index=idx,iterations=4,multiplicity=1,call_indices=[idx],expected=call['output_sha256'],vertex_sha256=call['vertex_sha256'],index_sha256=call['input_sha256']);unique[key]=row;cases.append(row)
 save(S/'cases.json',cases)
-roots={'base':S/'base','candidate':Path('/home/etienne/dev/meshoptimizer-rs-wt/hot-cache')}
+roots={'base':S/'base','candidate':Path(_public_path('<repo>'))}
 source={arm:{str(p.relative_to(root)):sha(p) for p in (root/'src').rglob('*.rs')} for arm,root in roots.items()}
 for arm in ['base','candidate']:
  build=json.loads((S/f'build-{arm}-binding.json').read_text())

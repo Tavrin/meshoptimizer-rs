@@ -1,6 +1,6 @@
 {
   "arm": "C",
-  "record": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release/C-attempt-1/record.json",
+  "record": "<scratch>/meshopt-simplify-perf/release/C-attempt-1/record.json",
   "bootstrap": "numpy PCG64 default_rng seed 20261025, 10000 draws, percentile 95%; resample paired ratios within case",
   "families": {
     "overdraw": {
@@ -1888,7 +1888,7 @@
     }
   },
   "absolute": {
-    "source": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json",
+    "source": "<scratch>/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json",
     "sha256": "c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd",
     "families": {
       "vertex_cache": {

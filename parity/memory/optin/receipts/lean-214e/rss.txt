@@ -1,4 +1,4 @@
-	Command being timed: "/mnt/linux-extra/moss-scratch/meshopt-memory/optin/bin/B --manifest /mnt/linux-extra/moss-scratch/meshopt-memory/optin/corpus.toml --fixtures jungle-scoreboard-214e85c568a64e8a-entity --output /mnt/linux-extra/moss-scratch/meshopt-memory/optin/measurements/lean-214e/result.json"
+	Command being timed: "<scratch>/meshopt-memory/optin/bin/B --manifest <scratch>/meshopt-memory/optin/corpus.toml --fixtures jungle-scoreboard-214e85c568a64e8a-entity --output <scratch>/meshopt-memory/optin/measurements/lean-214e/result.json"
 	User time (seconds): 18.17
 	System time (seconds): 6.27
 	Percent of CPU this job got: 78%

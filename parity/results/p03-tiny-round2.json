@@ -1,7 +1,7 @@
 {
   "spec": "SPEC-p03-tiny.md",
   "baseline_revision": "a14cbc1",
-  "durable_directory": "/mnt/linux-extra/moss-scratch/meshopt-v03-tiny",
+  "durable_directory": "<scratch>/meshopt-v03-tiny",
   "tiny": {
     "stage": "tiny-record16",
     "policy_sha256": "a0031c1b66a8d344e50a0e14440a515adfcf1bf2b23a91cef39858dac6178a35",
@@ -1918,7 +1918,7 @@
           "--locked"
         ],
         "exit_code": 0,
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-v03-tiny/verify-0.log",
+        "log": "<scratch>/meshopt-v03-tiny/verify-0.log",
         "sha256": "85ddcfa084df2e45754ef21ee86487eaf92f383086e9a359af50e55f08ebdfe1"
       },
       {
@@ -1932,7 +1932,7 @@
           "codec"
         ],
         "exit_code": 0,
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-v03-tiny/verify-1.log",
+        "log": "<scratch>/meshopt-v03-tiny/verify-1.log",
         "sha256": "d362578294fbfe6f3dbb0116f3b3031a6ec47ce9f8b4e66b9d2410e7c9f9eeae"
       },
       {
@@ -1948,7 +1948,7 @@
           "warnings"
         ],
         "exit_code": 0,
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-v03-tiny/verify-2.log",
+        "log": "<scratch>/meshopt-v03-tiny/verify-2.log",
         "sha256": "8669d8bb1a0a79aeb670a6f39168c748642e48c1591206729ae55b0dfc6e57a3"
       },
       {
@@ -1960,21 +1960,21 @@
           "--check"
         ],
         "exit_code": 0,
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-v03-tiny/verify-3.log",
+        "log": "<scratch>/meshopt-v03-tiny/verify-3.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       },
       {
         "command": [
-          "/home/etienne/dev/meshopt-wt/v03/parity/check-reference.sh"
+          "<local>/check-reference.sh"
         ],
         "exit_code": 0,
-        "log": "/mnt/linux-extra/moss-scratch/meshopt-v03-tiny/verify-4.log",
+        "log": "<scratch>/meshopt-v03-tiny/verify-4.log",
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     ]
   },
   "cleanup": {
-    "target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-tiny",
+    "target": "<target-dir>",
     "bytes_before_delete": 86792129,
     "limit_bytes": 5368709120,
     "exists_after": false,
