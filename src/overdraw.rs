@@ -146,6 +146,76 @@ fn finite(x: f32) -> Result<f32, Error> {
     }
 }
 
+#[derive(Default)]
+struct ClusterGeometry {
+    area_sum: f32,
+    centroid: [f32; 3],
+    normal: [f32; 3],
+}
+impl ClusterGeometry {
+    #[inline(always)]
+    fn triangle(&mut self, [p0, p1, p2]: [[f32; 3]; 3], sqrt: &mut impl FnMut(f32) -> f32) {
+        let mut p10 = [0f32; 3];
+        let mut p20 = [0f32; 3];
+        for j in 0..3 {
+            p10[j] = p1[j] - p0[j];
+            p20[j] = p2[j] - p0[j];
+        }
+        let n = [
+            p10[1] * p20[2] - p10[2] * p20[1],
+            p10[2] * p20[0] - p10[0] * p20[2],
+            p10[0] * p20[1] - p10[1] * p20[0],
+        ];
+        // A nonfinite squared norm produces a nonfinite area. Areas are
+        // nonnegative, so the checked cluster sum below cannot hide it.
+        let area = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+        for j in 0..3 {
+            self.centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
+            self.normal[j] += n[j];
+        }
+        self.area_sum += area;
+    }
+
+    #[inline(always)]
+    fn score(
+        self,
+        mesh_centroid: [f32; 3],
+        sqrt: &mut impl FnMut(f32) -> f32,
+    ) -> Result<f32, Error> {
+        let Self {
+            area_sum,
+            mut centroid,
+            mut normal,
+        } = self;
+        finite(area_sum)?;
+        let inv_area = if area_sum == 0. {
+            0.
+        } else {
+            finite(1. / area_sum)?
+        };
+        for x in &mut centroid {
+            *x = finite(*x * inv_area)?;
+        }
+        let length = sqrt(finite(
+            normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2],
+        )?);
+        let inv_length = if length == 0. {
+            0.
+        } else {
+            finite(1. / length)?
+        };
+        for x in &mut normal {
+            *x = finite(*x * inv_length)?;
+        }
+        let cv = [
+            finite(centroid[0] - mesh_centroid[0])?,
+            finite(centroid[1] - mesh_centroid[1])?,
+            finite(centroid[2] - mesh_centroid[2])?,
+        ];
+        finite(cv[0] * normal[0] + cv[1] * normal[1] + cv[2] * normal[2])
+    }
+}
+
 fn kernel(
     dest: &mut [u32],
     indices: &[u32],
@@ -231,86 +301,82 @@ fn kernel(
         *x = finite(*x)? / v as f32;
     }
     let data = &mut ws.floats;
+    // Scalar IEEE sqrt is correctly rounded, like the pinned software backend.
+    // A hardware root avoids hashing and software-root misses on varied faces;
+    // retain the original cached backend when std is unavailable.
+    #[cfg(feature = "std")]
+    let mut sqrt = f32::sqrt;
+    #[cfg(not(feature = "std"))]
     let mut sqrt_cache = crate::math::SqrtCache::new();
-    for cluster in 0..soft_count {
-        work.add(1)?;
-        let start = soft[cluster] as usize * 3;
-        let end = if cluster + 1 < soft_count {
-            soft[cluster + 1] as usize * 3
-        } else {
-            indices.len()
-        };
-        let mut area_sum = 0f32;
-        let mut centroid = [0f32; 3];
-        let mut normal = [0f32; 3];
-        positions.for_each_triangle_counted(
-            indices[start..end].as_chunks::<3>().0,
-            work,
-            |[p0, p1, p2]| {
-                let mut p10 = [0f32; 3];
-                let mut p20 = [0f32; 3];
-                for j in 0..3 {
-                    p10[j] = p1[j] - p0[j];
-                    p20[j] = p2[j] - p0[j];
-                }
-                let n = [
-                    p10[1] * p20[2] - p10[2] * p20[1],
-                    p10[2] * p20[0] - p10[0] * p20[2],
-                    p10[0] * p20[1] - p10[1] * p20[0],
-                ];
-                // A nonfinite squared norm produces a nonfinite area. Areas are
-                // nonnegative, so the checked cluster sum below cannot hide it.
-                let area = sqrt_cache.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-                for j in 0..3 {
-                    centroid[j] += (p0[j] + p1[j] + p2[j]) * (area / 3.);
-                    normal[j] += n[j];
-                }
-                area_sum += area;
-                Ok(())
-            },
-        )?;
-        finite(area_sum)?;
-        let inv_area = if area_sum == 0. {
-            0.
-        } else {
-            finite(1. / area_sum)?
-        };
-        for x in &mut centroid {
-            *x = finite(*x * inv_area)?;
+    #[cfg(not(feature = "std"))]
+    let mut sqrt = |value| sqrt_cache.sqrt(value);
+    // For strided storage, dispatch once if the entire geometry phase fits.
+    // Packed reads are already cheap; retain their per-cluster scan so the
+    // triangle loop needs no extra cluster-end branch.
+    // Cluster visits can be charged after the scan: all charges fit, and the
+    // number of started clusters preserves usage on the first numerical error.
+    if positions.packed_values().is_none() && work.covers(faces + soft_count)? {
+        let mut cluster = 0;
+        let mut started_clusters = 1;
+        let mut face = 0;
+        let mut geometry = ClusterGeometry::default();
+        let result = positions.for_each_triangle_counted(triangles, work, |triangle| {
+            geometry.triangle(triangle, &mut sqrt);
+            face += 1;
+            let end = if cluster + 1 < soft_count {
+                soft[cluster + 1] as usize
+            } else {
+                faces
+            };
+            if face == end {
+                data[cluster] = core::mem::take(&mut geometry).score(mesh_centroid, &mut sqrt)?;
+                cluster += 1;
+                started_clusters += usize::from(cluster < soft_count);
+            }
+            Ok(())
+        });
+        work.add(started_clusters)?;
+        result?;
+    } else {
+        for cluster in 0..soft_count {
+            work.add(1)?;
+            let start = soft[cluster] as usize * 3;
+            let end = if cluster + 1 < soft_count {
+                soft[cluster + 1] as usize * 3
+            } else {
+                indices.len()
+            };
+            let mut geometry = ClusterGeometry::default();
+            positions.for_each_triangle_counted(
+                indices[start..end].as_chunks::<3>().0,
+                work,
+                |triangle| {
+                    geometry.triangle(triangle, &mut sqrt);
+                    Ok(())
+                },
+            )?;
+            data[cluster] = geometry.score(mesh_centroid, &mut sqrt)?;
         }
-        let length = sqrt_cache.sqrt(finite(
-            normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2],
-        )?);
-        let inv_length = if length == 0. {
-            0.
-        } else {
-            finite(1. / length)?
-        };
-        for x in &mut normal {
-            *x = finite(*x * inv_length)?;
-        }
-        let cv = [
-            finite(centroid[0] - mesh_centroid[0])?,
-            finite(centroid[1] - mesh_centroid[1])?,
-            finite(centroid[2] - mesh_centroid[2])?,
-        ];
-        data[cluster] = finite(cv[0] * normal[0] + cv[1] * normal[1] + cv[2] * normal[2])?;
     }
+
     let mut max = 1e-3f32;
-    for &d in &data[..soft_count] {
-        work.add(1)?;
+    work.scan(data[..soft_count].iter().copied(), |d| {
         if max < d.abs() {
             max = d.abs();
         }
-    }
+        Ok(())
+    })?;
     let mut histogram = [0u32; 2048];
-    for i in 0..soft_count {
-        work.add(1)?;
-        let key = 0.5f32 - 0.5f32 * (data[i] / max);
-        let clamped = key.clamp(0., 1.);
-        ws.keys[i] = ((clamped * 2047. + 0.5) as u16) & 2047;
-        histogram[ws.keys[i] as usize] += 1;
-    }
+    work.scan(
+        data[..soft_count].iter().zip(&mut ws.keys[..soft_count]),
+        |(&d, sort_key)| {
+            let key = 0.5f32 - 0.5f32 * (d / max);
+            let clamped = key.clamp(0., 1.);
+            *sort_key = ((clamped * 2047. + 0.5) as u16) & 2047;
+            histogram[*sort_key as usize] += 1;
+            Ok(())
+        },
+    )?;
     let mut sum = 0;
     work.add(histogram.len())?;
     for h in &mut histogram {
@@ -318,12 +384,12 @@ fn kernel(
         *h = sum;
         sum += count;
     }
-    for i in 0..soft_count {
-        work.add(1)?;
-        let h = &mut histogram[ws.keys[i] as usize];
+    work.scan(ws.keys[..soft_count].iter().enumerate(), |(i, &key)| {
+        let h = &mut histogram[key as usize];
         order[*h as usize] = i as u32;
         *h += 1;
-    }
+        Ok(())
+    })?;
     let mut offset = 0;
     for &cluster in &order[..soft_count] {
         work.add(1)?;
@@ -339,4 +405,28 @@ fn kernel(
         offset += end - start;
     }
     Ok(())
+}
+
+#[cfg(all(test, feature = "std"))]
+mod tests {
+    #[test]
+    fn scalar_root_matches_pinned_backend() {
+        // Every finite nonnegative exponent, both mantissa ends, and a stride
+        // through each binade, including subnormals and overflow-adjacent norms.
+        for exponent in 0u32..255 {
+            for mantissa in (0..1 << 23).step_by(4093).chain([1, 0x7fffff]) {
+                let bits = exponent << 23 | mantissa;
+                let value = f32::from_bits(bits);
+                assert_eq!(
+                    value.sqrt().to_bits(),
+                    crate::math::sqrt(value).to_bits(),
+                    "{bits:08x}"
+                );
+            }
+        }
+        assert_eq!(
+            (-0.0f32).sqrt().to_bits(),
+            crate::math::sqrt(-0.0).to_bits()
+        );
+    }
 }

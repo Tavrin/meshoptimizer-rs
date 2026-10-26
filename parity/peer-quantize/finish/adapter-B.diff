@@ -1,0 +1,42 @@
+--- /mnt/linux-extra/moss-scratch/meshopt-peer-a/B/parity/compare/src/main.rs	2026-10-25 23:16:32.000000000 +0100
++++ /mnt/linux-extra/moss-scratch/meshopt-peer-a/finish/B/parity/compare/src/main.rs	2026-10-26 08:13:25.392966563 +0100
+@@ -496,8 +496,7 @@
+         "spatial-triangles" => Output::Indices(m::spatial_sort_triangles(&x.i, p, w).unwrap()),
+         "spatial-points" => Output::Indices(m::spatial_cluster_points(p, 16, w).unwrap()),
+         "quantize-half" => Output::Indices(
+-            x.p.iter()
+-                .flatten()
++            x.p.as_flattened().iter()
+                 .map(|v| m::quantize_half(*v) as u32)
+                 .collect(),
+         ),
+@@ -507,8 +506,7 @@
+                 .collect::<Vec<_>>(),
+         ),
+         "quantize-float" => floats(
+-            &x.p.iter()
+-                .flatten()
++            &x.p.as_flattened().iter()
+                 .map(|v| m::quantize_float(*v, 12).unwrap())
+                 .collect::<Vec<_>>(),
+         ),
+@@ -1099,8 +1097,7 @@
+                 Output::Indices(b)
+             }
+             "quantize-half" => Output::Indices(
+-                x.p.iter()
+-                    .flatten()
++                x.p.as_flattened().iter()
+                     .map(|v| f::meshopt_quantizeHalf(*v) as u32)
+                     .collect(),
+             ),
+@@ -1110,8 +1107,7 @@
+                     .collect::<Vec<_>>(),
+             ),
+             "quantize-float" => floats(
+-                &x.p.iter()
+-                    .flatten()
++                &x.p.as_flattened().iter()
+                     .map(|v| f::meshopt_quantizeFloat(*v, 12))
+                     .collect::<Vec<_>>(),
+             ),

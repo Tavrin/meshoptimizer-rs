@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "operation": "quantize-half",
+      "arm": "B",
+      "instructions": 1356610288,
+      "exit": 0,
+      "binary_sha256": "05eeb4953e7e98c6d58f39fb37f45d9dc4150a5b7d76d3e7f286de7da64ffba6",
+      "output_sha256": "94d8a5ec6425d0a27169dcc3be3b11f643d5271edb343e42cc35318bb59afa45"
+    },
+    {
+      "operation": "quantize-half",
+      "arm": "O",
+      "instructions": 1280454393,
+      "exit": 0,
+      "binary_sha256": "20bb99265df186bc7be34a8901a615df5fa40201dd1e2ff76dfded294b70f3fa",
+      "output_sha256": "94d8a5ec6425d0a27169dcc3be3b11f643d5271edb343e42cc35318bb59afa45"
+    },
+    {
+      "operation": "quantize-half",
+      "arm": "X",
+      "instructions": 1369695290,
+      "exit": 0,
+      "binary_sha256": "5e2892bd1a7e41d4d0695c8a308e75ad9bb0db38e7d38994dccd7cbf18794ab5",
+      "output_sha256": "94d8a5ec6425d0a27169dcc3be3b11f643d5271edb343e42cc35318bb59afa45"
+    },
+    {
+      "operation": "quantize-half",
+      "arm": "M7",
+      "instructions": 3693533036,
+      "exit": 0,
+      "binary_sha256": "8621d5e5f95c42e05691f83ab3618fd303c8a586f29843dde9240fc3d7a46eb2",
+      "output_sha256": "94d8a5ec6425d0a27169dcc3be3b11f643d5271edb343e42cc35318bb59afa45"
+    },
+    {
+      "operation": "quantize-float",
+      "arm": "B",
+      "instructions": 947655255,
+      "exit": 0,
+      "binary_sha256": "05eeb4953e7e98c6d58f39fb37f45d9dc4150a5b7d76d3e7f286de7da64ffba6",
+      "output_sha256": "5df7defdef3610694db2cfbfbf4fb23a3fae605978e3c5ad502f4ef2fdf91218"
+    },
+    {
+      "operation": "quantize-float",
+      "arm": "O",
+      "instructions": 947654166,
+      "exit": 0,
+      "binary_sha256": "20bb99265df186bc7be34a8901a615df5fa40201dd1e2ff76dfded294b70f3fa",
+      "output_sha256": "5df7defdef3610694db2cfbfbf4fb23a3fae605978e3c5ad502f4ef2fdf91218"
+    },
+    {
+      "operation": "quantize-float",
+      "arm": "X",
+      "instructions": 960733814,
+      "exit": 0,
+      "binary_sha256": "5e2892bd1a7e41d4d0695c8a308e75ad9bb0db38e7d38994dccd7cbf18794ab5",
+      "output_sha256": "5df7defdef3610694db2cfbfbf4fb23a3fae605978e3c5ad502f4ef2fdf91218"
+    },
+    {
+      "operation": "quantize-float",
+      "arm": "M7",
+      "instructions": 4478634647,
+      "exit": 0,
+      "binary_sha256": "8621d5e5f95c42e05691f83ab3618fd303c8a586f29843dde9240fc3d7a46eb2",
+      "output_sha256": "5df7defdef3610694db2cfbfbf4fb23a3fae605978e3c5ad502f4ef2fdf91218"
+    }
+  ],
+  "input_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf"
+}

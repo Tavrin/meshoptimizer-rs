@@ -160,13 +160,7 @@ fn validate_indices(indices: Option<&[u32]>, count: usize, work: &mut Work) -> R
         return Err(Error::SizeOverflow);
     }
     if let Some(indices) = indices {
-        work.scan(indices.iter().copied(), |i| {
-            if i as usize >= count {
-                Err(Error::IndexOutOfBounds)
-            } else {
-                Ok(())
-            }
-        })?;
+        work.indices(indices, count)?;
     }
     Ok(())
 }
@@ -286,62 +280,6 @@ fn generate_unique<const CANONICAL: bool, const LIMITED: bool>(
     }
     Ok(())
 }
-fn generate_general_kernel<const CANONICAL: bool, const PREPARED: bool, const OUTLINE: bool>(
-    remap: &mut [u32],
-    indices: Option<&[u32]>,
-    table: &mut [u32],
-    hash: impl Fn(u32) -> u32,
-    mut equal: impl FnMut(u32, u32) -> bool,
-    work: &mut Work,
-) -> Result<usize, Error> {
-    work.add(remap.len())?;
-    if !PREPARED {
-        remap.fill(NONE);
-    }
-    work.add(table.len())?;
-    table.fill(NONE);
-    let n = indices.map_or(remap.len(), <[u32]>::len);
-    let bound = table.len().checked_add(1).ok_or(Error::SizeOverflow)?;
-    let mut next = 0;
-    let mut begin = 0;
-    while begin < n {
-        let count = work.batch(n - begin, bound)?;
-        let mut visits = 0;
-        if count == 0 {
-            let index = indices.map_or(begin as u32, |v| v[begin]);
-            generate_record::<CANONICAL, true, OUTLINE>(
-                index,
-                remap,
-                table,
-                &hash,
-                &mut equal,
-                &mut next,
-                (work, &mut visits),
-            )?;
-            begin += 1;
-        } else {
-            let result = (|| {
-                for i in begin..begin + count {
-                    let index = indices.map_or(i as u32, |v| v[i]);
-                    generate_record::<CANONICAL, false, OUTLINE>(
-                        index,
-                        remap,
-                        table,
-                        &hash,
-                        &mut equal,
-                        &mut next,
-                        (work, &mut visits),
-                    )?;
-                }
-                Ok(())
-            })();
-            work.add(visits)?;
-            result?;
-            begin += count;
-        }
-    }
-    Ok(next as usize)
-}
 fn generate_kernel<const CANONICAL: bool, const PREPARED: bool, const OUTLINE: bool>(
     remap: &mut [u32],
     indices: Option<&[u32]>,
@@ -350,25 +288,13 @@ fn generate_kernel<const CANONICAL: bool, const PREPARED: bool, const OUTLINE: b
     equal: impl FnMut(u32, u32) -> bool,
     work: &mut Work,
 ) -> Result<usize, Error> {
-    if OUTLINE {
-        if let Some(indices) = indices {
-            generate_custom_kernel::<CANONICAL, PREPARED, true>(
-                remap, indices, table, hash, equal, work,
-            )
-        } else {
-            generate_custom_kernel::<CANONICAL, PREPARED, false>(
-                remap,
-                &[],
-                table,
-                hash,
-                equal,
-                work,
-            )
-        }
-    } else {
-        generate_general_kernel::<CANONICAL, PREPARED, false>(
+    // Select indexed/linear traversal once, outside the bounded hash batches.
+    if let Some(indices) = indices {
+        generate_custom_kernel::<CANONICAL, PREPARED, true>(
             remap, indices, table, hash, equal, work,
         )
+    } else {
+        generate_custom_kernel::<CANONICAL, PREPARED, false>(remap, &[], table, hash, equal, work)
     }
 }
 fn generate_custom_kernel<const CANONICAL: bool, const PREPARED: bool, const INDEXED: bool>(
@@ -1275,8 +1201,10 @@ pub fn filter_index_buffer_multi(
 
 #[inline(always)]
 fn edge_hash(edge: u64, remap: &[u32]) -> u32 {
-    let mut h1 = remap[(edge >> 32) as usize];
-    let mut h2 = remap[edge as u32 as usize];
+    edge_value_hash(remap[(edge >> 32) as usize], remap[edge as u32 as usize])
+}
+#[inline(always)]
+fn edge_value_hash(mut h1: u32, mut h2: u32) -> u32 {
     const M: u32 = 0x5bd1e995;
     h1 ^= h2 >> 18;
     h1 = h1.wrapping_mul(M);
@@ -1353,6 +1281,11 @@ fn patches_kernel<const TESS: bool>(
             return Err(Error::BufferTooSmall);
         }
         let out = &mut out[..size];
+        if !TESS {
+            adjacency_pass::<true>(indices, out, &mut edges, &mut opposite, &remap, &mut work)?;
+            adjacency_pass::<false>(indices, out, &mut edges, &mut opposite, &remap, &mut work)?;
+            return Ok(owned);
+        }
         for tri in indices.as_chunks::<3>().0 {
             for e in 0..3 {
                 work.add(1)?;
@@ -1402,6 +1335,104 @@ fn patches_kernel<const TESS: bool>(
     })();
     workspace.finish(&work);
     result
+}
+
+// A triangle visits three edges; each lookup probes at most the entire table.
+// Charge completed batches once when that conservative bound fits. Near the
+// limit, replay the original per-edge/per-probe sequence before any writes.
+fn adjacency_pass<const BUILD: bool>(
+    indices: &[u32],
+    out: &mut [u32],
+    edges: &mut [u64],
+    opposite: &mut [u32],
+    remap: &[u32],
+    work: &mut Work,
+) -> Result<(), Error> {
+    let triangles = indices.as_chunks::<3>().0;
+    let bound = edges.len().checked_add(1).and_then(|n| n.checked_mul(3));
+    let mut begin = 0;
+    while begin < triangles.len() {
+        let count = match bound {
+            Some(bound) => work.batch(triangles.len() - begin, bound)?,
+            None => 0,
+        };
+        let mut visits = 0;
+        for (offset, tri) in triangles[begin..begin + count.max(1)].iter().enumerate() {
+            for e in 0..3 {
+                let a = tri[e];
+                let b = tri[(e + 1) % 3];
+                let edge = if BUILD {
+                    (u64::from(remap[a as usize]) << 32) | u64::from(remap[b as usize])
+                } else {
+                    (u64::from(remap[b as usize]) << 32) | u64::from(remap[a as usize])
+                };
+                let slot = if count == 0 {
+                    work.add(1)?;
+                    adjacency_lookup(edges, edge, work)?
+                } else {
+                    visits += 1;
+                    let (slot, probes) = edge_probe(edges, edge);
+                    visits += probes;
+                    let Some(slot) = slot else {
+                        work.add(visits)?;
+                        return Err(Error::NumericalFailure);
+                    };
+                    slot
+                };
+                if BUILD {
+                    if edges[slot] == u64::MAX {
+                        edges[slot] = edge;
+                        opposite[slot] = tri[(e + 2) % 3];
+                    }
+                } else {
+                    let patch = &mut out[(begin + offset) * 6..][..6];
+                    patch[e * 2] = a;
+                    patch[e * 2 + 1] = if edges[slot] == u64::MAX {
+                        a
+                    } else {
+                        opposite[slot]
+                    };
+                }
+            }
+        }
+        work.add(visits)?;
+        begin += count.max(1);
+    }
+    Ok(())
+}
+
+#[inline(always)]
+fn edge_probe(table: &[u64], edge: u64) -> (Option<usize>, usize) {
+    let mask = table.len() - 1;
+    let mut bucket = edge_value_hash((edge >> 32) as u32, edge as u32) as usize & mask;
+    for probe in 0..table.len() {
+        let old = table[bucket];
+        if old == u64::MAX || old == edge {
+            return (Some(bucket), probe + 1);
+        }
+        bucket = (bucket + probe + 1) & mask;
+    }
+    (None, table.len())
+}
+
+#[inline(always)]
+fn adjacency_lookup(table: &[u64], edge: u64, work: &mut Work) -> Result<usize, Error> {
+    if work.covers(table.len())? {
+        let (slot, probes) = edge_probe(table, edge);
+        work.add(probes)?;
+        slot.ok_or(Error::NumericalFailure)
+    } else {
+        let mask = table.len() - 1;
+        let mut bucket = edge_value_hash((edge >> 32) as u32, edge as u32) as usize & mask;
+        for probe in 0..table.len() {
+            work.add(1)?;
+            if table[bucket] == u64::MAX || table[bucket] == edge {
+                return Ok(bucket);
+            }
+            bucket = (bucket + probe + 1) & mask;
+        }
+        Err(Error::NumericalFailure)
+    }
 }
 #[inline(always)]
 fn edge_lookup(table: &[u64], remap: &[u32], edge: u64, work: &mut Work) -> Result<usize, Error> {
@@ -1897,9 +1928,13 @@ fn fetch_owned_kernel<const SIZE: usize, const PACKED: bool>(
 ) -> Result<usize, Error> {
     let mut next = 0;
     if work.precharge(out.len(), 1)? {
-        records.extend(out.iter_mut().filter_map(|index| {
-            fetch_owned_record::<SIZE, PACKED>(vertices, source, remap, index, &mut next)
-        }));
+        for index in out {
+            if let Some(record) =
+                fetch_owned_record::<SIZE, PACKED>(vertices, source, remap, index, &mut next)
+            {
+                records.push(record);
+            }
+        }
     } else {
         for index in out {
             work.add(1)?;
@@ -1923,7 +1958,7 @@ pub fn optimize_vertex_fetch(
     let result = (|| {
         validate_indices(Some(indices), vertices.count, &mut work)?;
         work.add(indices.len())?;
-        if vertices.count >= 1024 {
+        if vertices.count >= 1024 && vertices.stride != vertices.size {
             match vertices.size {
                 4 => return fetch_owned::<4>(indices, vertices, workspace, &mut work),
                 8 => return fetch_owned::<8>(indices, vertices, workspace, &mut work),

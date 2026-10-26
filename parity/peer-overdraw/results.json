@@ -1,0 +1,456 @@
+{
+  "analysis": {
+    "floor": 0.16479410895183277,
+    "families": {
+      "overdraw": {
+        "ratios": {
+          "X": {
+            "gm": 1.1161916176043865,
+            "ci95": [
+              1.0837436630243145,
+              1.152426764135654
+            ]
+          },
+          "B": {
+            "gm": 0.8510510066071815,
+            "ci95": [
+              0.8472347493588918,
+              0.8548524597190896
+            ]
+          }
+        },
+        "worst_baseline_upper95": 0.941474889421864,
+        "no_regression_bar": 1.2647941089518329,
+        "verdict": "PARTIAL"
+      },
+      "real-overdraw": {
+        "ratios": {
+          "X": {
+            "gm": 1.2240097147546407,
+            "ci95": [
+              1.1976976598701579,
+              1.2477752498385117
+            ]
+          },
+          "B": {
+            "gm": 0.8342400854111856,
+            "ci95": [
+              0.8186492316868564,
+              0.8511559144409362
+            ]
+          },
+          "M7": {
+            "gm": 1.2689368650495785,
+            "ci95": [
+              1.2328669206870786,
+              1.317175828064026
+            ]
+          }
+        },
+        "worst_baseline_upper95": 0.9303782368681588,
+        "no_regression_bar": 1.2647941089518329,
+        "verdict": "PARTIAL"
+      }
+    }
+  },
+  "rows": [
+    {
+      "case": "tiny-smooth",
+      "family": "overdraw",
+      "arm": "AA",
+      "iterations": 10000,
+      "gm": 0.9876757457027744,
+      "ci95": [
+        0.9849803714384757,
+        0.9903354235420319
+      ],
+      "completed": true
+    },
+    {
+      "case": "tiny-smooth",
+      "family": "overdraw",
+      "arm": "X",
+      "iterations": 10000,
+      "gm": 1.055982442549779,
+      "ci95": [
+        1.0516361230867781,
+        1.059991913435903
+      ],
+      "completed": true
+    },
+    {
+      "case": "tiny-smooth",
+      "family": "overdraw",
+      "arm": "B",
+      "iterations": 10000,
+      "gm": 0.934649431302858,
+      "ci95": [
+        0.9272105315223326,
+        0.941474889421864
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-smooth",
+      "family": "overdraw",
+      "arm": "AA",
+      "iterations": 100,
+      "gm": 0.9974600183242085,
+      "ci95": [
+        0.9839868286980432,
+        1.0090409905799866
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-smooth",
+      "family": "overdraw",
+      "arm": "X",
+      "iterations": 100,
+      "gm": 1.0988433412787173,
+      "ci95": [
+        1.034228433229782,
+        1.1569745880648723
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-smooth",
+      "family": "overdraw",
+      "arm": "B",
+      "iterations": 100,
+      "gm": 0.9024137732870171,
+      "ci95": [
+        0.8895388451815307,
+        0.9141881701376361
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-seams",
+      "family": "overdraw",
+      "arm": "AA",
+      "iterations": 100,
+      "gm": 1.001154950993087,
+      "ci95": [
+        0.9893500227428587,
+        1.0138742165987595
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-seams",
+      "family": "overdraw",
+      "arm": "X",
+      "iterations": 100,
+      "gm": 1.1618718347747605,
+      "ci95": [
+        1.1492078679075155,
+        1.1752739944527055
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-seams",
+      "family": "overdraw",
+      "arm": "B",
+      "iterations": 100,
+      "gm": 0.8509850822087119,
+      "ci95": [
+        0.8453410002748164,
+        0.8573571475889566
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-sparse",
+      "family": "overdraw",
+      "arm": "AA",
+      "iterations": 100,
+      "gm": 1.001484052387162,
+      "ci95": [
+        0.9867924845278446,
+        1.0172186004160695
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-sparse",
+      "family": "overdraw",
+      "arm": "X",
+      "iterations": 100,
+      "gm": 1.1651509353495124,
+      "ci95": [
+        1.1485234528778736,
+        1.1829767513674132
+      ],
+      "completed": true
+    },
+    {
+      "case": "medium-sparse",
+      "family": "overdraw",
+      "arm": "B",
+      "iterations": 100,
+      "gm": 0.8999413540266555,
+      "ci95": [
+        0.891466481452218,
+        0.9098086702330326
+      ],
+      "completed": true
+    },
+    {
+      "case": "million-smooth",
+      "family": "overdraw",
+      "arm": "AA",
+      "iterations": 2,
+      "gm": 1.0241841090954265,
+      "ci95": [
+        0.960986490799966,
+        1.1249158755874031
+      ],
+      "completed": true
+    },
+    {
+      "case": "million-smooth",
+      "family": "overdraw",
+      "arm": "X",
+      "iterations": 2,
+      "gm": 1.1029628715484634,
+      "ci95": [
+        0.9658911571263655,
+        1.2780065550252915
+      ],
+      "completed": true
+    },
+    {
+      "case": "million-smooth",
+      "family": "overdraw",
+      "arm": "B",
+      "iterations": 2,
+      "gm": 0.6911739023044904,
+      "ci95": [
+        0.6843790644193869,
+        0.6989414343831867
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-214e-overdraw",
+      "family": "real-overdraw",
+      "arm": "AA",
+      "iterations": 4,
+      "gm": 1.0112875630132125,
+      "ci95": [
+        0.9902042562584134,
+        1.0403690820816165
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-214e-overdraw",
+      "family": "real-overdraw",
+      "arm": "X",
+      "iterations": 4,
+      "gm": 1.2823395420105799,
+      "ci95": [
+        1.2738624861151904,
+        1.2917660384818974
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-214e-overdraw",
+      "family": "real-overdraw",
+      "arm": "B",
+      "iterations": 4,
+      "gm": 0.7932556954080991,
+      "ci95": [
+        0.7769118705281426,
+        0.8090367955452591
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-214e-overdraw",
+      "family": "real-overdraw",
+      "arm": "M7",
+      "iterations": 4,
+      "gm": 1.2405558501857374,
+      "ci95": [
+        1.2175404412211817,
+        1.2648977586241312
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-b6fd-overdraw",
+      "family": "real-overdraw",
+      "arm": "AA",
+      "iterations": 4,
+      "gm": 0.936773206813527,
+      "ci95": [
+        0.8585208255387499,
+        1.007128838546934
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-b6fd-overdraw",
+      "family": "real-overdraw",
+      "arm": "X",
+      "iterations": 4,
+      "gm": 1.2914429599399608,
+      "ci95": [
+        1.267305998386631,
+        1.3142415024284757
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-b6fd-overdraw",
+      "family": "real-overdraw",
+      "arm": "B",
+      "iterations": 4,
+      "gm": 0.9262887665119127,
+      "ci95": [
+        0.9218381375626298,
+        0.9303782368681588
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-b6fd-overdraw",
+      "family": "real-overdraw",
+      "arm": "M7",
+      "iterations": 4,
+      "gm": 1.421515025988975,
+      "ci95": [
+        1.4116883930307187,
+        1.4318720453887217
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-a082-overdraw",
+      "family": "real-overdraw",
+      "arm": "AA",
+      "iterations": 4,
+      "gm": 0.9816856105819083,
+      "ci95": [
+        0.954759637386059,
+        1.0102830551053157
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-a082-overdraw",
+      "family": "real-overdraw",
+      "arm": "X",
+      "iterations": 4,
+      "gm": 1.10732812522418,
+      "ci95": [
+        1.0416842463587295,
+        1.1681554526161235
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-a082-overdraw",
+      "family": "real-overdraw",
+      "arm": "B",
+      "iterations": 4,
+      "gm": 0.7901573162935452,
+      "ci95": [
+        0.7492068686998723,
+        0.8352327341907044
+      ],
+      "completed": true
+    },
+    {
+      "case": "real-a082-overdraw",
+      "family": "real-overdraw",
+      "arm": "M7",
+      "iterations": 4,
+      "gm": 1.1586500057657207,
+      "ci95": [
+        1.0667015957386332,
+        1.292195980598183
+      ],
+      "completed": true
+    }
+  ],
+  "binary_sha256": {
+    "O": "7bf3717618a28392f3a3316040f3483de3cd99cd5efae5988eb763d755434a37",
+    "B": "3362036f6e227eeb840925c854a3995158df645e470ab7e26d0e3832dd2dcddc",
+    "X": "412f1356f5ba3d9b3b15b7784aaf98fc71bfcd043fbafc4def4b136d7a849e5a",
+    "M7": "7926337a202a4721204faf8d7cc4cd51c6dfd46c2c33acc8ccf5b9c170e56da9"
+  },
+  "source_sha256": {
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/budget.rs": "3ea9bf56f9c493fdc855e9052290cef844c00a1b86baafbed64a68f9676f7b0f",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/cache.rs": "c2724d97ec08e9c674ffc01dba9dc26265cd3e3858b82c0ca8f1c1f3c21e949d",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/dag.rs": "8a81d048162dbf833f01ddd26c27ec2f74f095a381621f893272d6c164dc64ae",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/mod.rs": "7bba8b6e13adcb3243d70cff93a487caeb316a588ae61aa27c3ef6559bbc9b93",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/input.rs": "b51cec4182809662d329b7e4efb81f06b114b41df407f700b984e2dbd1d22a8a",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/math.rs": "acdf0f53b92d6fc6e61278d13eb9823c923dd1977aeb8c086a888eb17d54ff87",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/mod.rs": "aa4429be92238dd0089e2e9629e4544aae85f81ecefa9885f1a9a1d1806412c0",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/simplify.rs": "4e1baa97f9048439f8b8af5a2a53e83867e9a4b080873e52fa50947070b8f06d",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/simplify_extra.rs": "301db10220b7e7078f4f87b2dba0d672bd74a5877ff9d5675bd7eab554b0e15a",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/clusterlod/support/workspace.rs": "79859b9613aa305b4f7ba338fc91718aa04cd9d52b58d3cc38656ac136083fda",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/encode.rs": "1fcae2a347c653fc675086a881e6b51eef0a17549f1c9b7338aa032845ba2f08",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/filter.rs": "dc1858c41524bf6791d105597ad2cc024c8592b22386c2dfb5177fc35e3c8ace",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/filter_encode.rs": "db610e73f275998218138ca9609a1ae73cb680939fb90ea0bc75771e7ebd6f29",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/index.rs": "f22348f319afab7857c2620f3f1c99ff85e5cbae68890b0ee2880894e0c84877",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/index_encode.rs": "d09cd8c00ddef25136f616124632e820e885da3be7320593f9209efd640dae1d",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/meshlet.rs": "72d74d24787bbaa62288435c677f8fee1f689144d0927b2fc78338c3f8f70f5f",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/mod.rs": "271abf3ee801bed6ef0a2ccdf03c5820d0be7b6082e809e97a68f8a11f4d88c1",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/simd/aarch64.rs": "e9ed3d1830a29d5ed348ebe2cb6bc0a09b9faa352fa5ad4273658cd34db73509",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/simd/dispatch.rs": "0db9cb454a0314fc111b278911f1e2bd9b5f788518fc56dd28defabf2915e9d5",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/simd/kernels.rs": "e08323103fc8dea3fc86dc0623bb768bcb7c2707de308c604c49b67efca9f101",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/simd/mod.rs": "f950e9a34a64e526bd065932bd0aa15f40da5e2523957ccae0d808e7673e3cf0",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/simd/wasm32.rs": "f5fa84787d4ee360239aa3c3fbdaf828e707e32e597827b24191432d0033283b",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/simd/x86.rs": "98aa3f59d596ac7eef39bba74164bc78e9b226bd26f7dc8603bdbc6a8484008c",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/vertex.rs": "c9599d92eb6829d543b58fe9a9b7a680f31f4fe60067b4892c7579c95d5fdf4d",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/codec/vertex_encode.rs": "660efbb48bb226329619de9d2ee75475c5ccb1dc5fa56c224d12d1b909c74dda",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/error.rs": "8551db87dfa9523c071158a30c04ad2e4b476bb049661ac44ab51738963d6824",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/input.rs": "dfbf12df74c5fe1ec352186bfbd9d44db235d040ae7295c0ba01b464ef3344e7",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/lib.rs": "54bea50fd0c00a8a4b3f9a87e6f3a53cb3fae2d113b04988ede445630d24301d",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/math.rs": "ebea3c227635d058aae15f132fe5bf96545296b7751c90c8652bccd9902b23c1",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/meshlet.rs": "5923a30f15fa9f4d355b3e4008a9f6815359f3c46fd7575a25f4dea0bda8e8e5",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/meshlet_spatial.rs": "cf0bab74fe629a9fa46d78adad5a48f4184848ad7f1a44c272acaecd325ed9d8",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/meshlet_util.rs": "910e1a18e33b1d104f55cb85f78862acc7ba7f70a6ad577134c4c90103ea522b",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/normal.rs": "0ea24cf42fcdab3f2f2593cfc223de055874e2c16290341503628fe5e65a3ec3",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/opacity.rs": "917aefa39df376d6ae22bf57f02d49f7e3d5cfab4f2e3eabf5bbb1d5fdb6892d",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/overdraw.rs": "97307f8a03142411d57b6438c5e41ef8d3cf351cb7049e60f9d879e4575fdb13",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/parallel.rs": "d9a2ef66e97334f1324176241756f14535d69e1788d18f02a6ab96dd5d4bc0c4",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/partition.rs": "98bcc2836eb24cd1290017db6607def266a3fea041b01b319887d3fca37aeb43",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/processing.rs": "a1ce21dc34b318ab5f008414a189ccf7ae58ad24e0c0fea69c7c8ebc1c4d11f4",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/raster.rs": "042987f046b947ae1c48e6603ce4652c2442e904bc836dd53893eee41b5dea07",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/remap.rs": "4d9abd77a20da99ed379bc80158558156b6c487a9a75ec26390f1b6a2edd79f8",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/remesh.rs": "1638a9aeb75bdd85b638be766a6f35126ce1ece8947a32a38ef66867ceee08ec",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/remesh_table.rs": "0c47c84144bd02e1088f4f6a9ab3ee8440cdd6cdd2ad9f1c40b32056ff4d7d08",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/simplify.rs": "ce213698273ef8447faf0744956b5c4a283acc0116a05ccb608f5dead1c7ff4b",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/simplify_extra.rs": "678e50c31066a63c951ae46accfa9b766e86500dd560f6eec7b08cc916b30182",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/spatial.rs": "c1829a02b7821a5076a21be5a053154fa3e46e6439d3ce7dbda52c038128559c",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/strip.rs": "92f5e49e3b9e8da606471d8c1f00bd515f03e9b0f865f8b58f2e47c2e5a3c792",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/tangent.rs": "e31665b1f146ea32ac258cb4eded8276de4b521b4b0449d8c8994b23f82dcf4e",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/src/workspace.rs": "2f5be2405bfa0eab8dd0aff260328990afade7b77e82f1928cbf1b45e1bc5da3",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/parity/peer-overdraw/campaign.py": "56a0f30f0c31d81b95454cb1b5c3268fac9ccbe05a3c2cb19d3c6c73e01dd795",
+    "/home/etienne/dev/meshoptimizer-rs-wt/peer-overdraw/parity/peer-overdraw/REGISTRATION.md": "7ffd4b537e41497be94865284f1244cced896b82e314b4ca1fa81d51ff7fe58d",
+    "/mnt/linux-extra/moss-scratch/meshopt-peer-b/parity/compare/src/main.rs": "dada2cd3aad460720e982b9af32a14f028df0c69d08989837d726c9bddd66b58",
+    "/mnt/linux-extra/moss-scratch/meshopt-peer-b/parity/compare/src/peer_x.rs": "1c7080c55d7f6f4b30e75f735f04d796094c08c77b3577c0f77345abe591b6ea",
+    "/mnt/linux-extra/moss-scratch/meshopt-peer-b/parity/compare/Cargo.toml": "55b705784422aae2e91ac64295ade820f483fe61d76050604d595b8750b082a4",
+    "/mnt/linux-extra/moss-scratch/meshopt-peer-b/parity/compare/Cargo.lock": "95469a3b9fe4fdd94da9153852d184fca8a35bf5307276212eaf7077af0f93a6"
+  },
+  "raw_campaign_sha256": "650811417430ab4cc4c7355acc641d4ce7a807f2b436b4249e655d6026039081",
+  "audit": {
+    "completed": true,
+    "rows": 27,
+    "pairs": 270,
+    "all_registered_intervals_recomputed": true,
+    "verdicts_verbatim": true,
+    "source_and_binaries_unchanged": true
+  }
+}
