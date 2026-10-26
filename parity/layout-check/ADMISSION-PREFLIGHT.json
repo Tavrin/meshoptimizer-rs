@@ -1,0 +1,4 @@
+{
+  "utc": "2026-10-25T23:41:47.634519+00:00",
+  "issue": "Queued generic python class reserved 9 GB from unrelated history; cancelled before admission/payload/sample. Changed only launch to dedicated shell entry point as fix1. No admission override, protocol or declaration change. Prior empty epoch retained as QUEUED-PREFLIGHT-IDENTITY.json."
+}

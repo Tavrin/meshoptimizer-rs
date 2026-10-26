@@ -1,0 +1,17 @@
+{
+  "case": "tiny-smooth",
+  "operation": "meshlet-bounds",
+  "comparison": "AA",
+  "cpu": 11,
+  "attempt": 0,
+  "samples": [],
+  "binary_sha256": {
+    "A": "bd67228f04465b6764c7b3ddaa8c7e3ad312b1c7f76abb778cb86306e96cf584",
+    "B": "1d45ad7d6fac67f30e73a7bb31f8271d8ec6ceb3a12773896bb913d2e24b57fe"
+  },
+  "iterations": 7972,
+  "calibration_ns": {
+    "A": 3968.0,
+    "B": 3136.0
+  }
+}

@@ -4,6 +4,38 @@ use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, Positions, Workspace};
 use alloc::vec::Vec;
 
+/// A borrowed positions view whose bounds-validation scan is cached once.
+///
+/// Construction scans all positions in O(n) time without allocating. The scan
+/// result, including a failure, is retained: bounds calls report it at their
+/// original validation point, after topology checks and work-limit checks.
+/// This preserves error precedence even for malformed topology combined with
+/// non-finite positions. Repeated calls do no full-view scan, but charge the
+/// original logical position visits to preserve [`Workspace`] limits and usage.
+#[derive(Clone, Copy, Debug)]
+pub struct BoundsPositions<'a> {
+    positions: Positions<'a>,
+    validation: Result<bool, Error>,
+}
+impl<'a> BoundsPositions<'a> {
+    /// Scan and cache the size, finiteness and arithmetic-range checks for `positions`.
+    ///
+    /// Errors are deferred to the bounds operation to preserve its precedence.
+    pub fn new(positions: Positions<'a>) -> Self {
+        Self {
+            positions,
+            validation: crate::processing::validate_positions(positions),
+        }
+    }
+    fn apply(self, ctx: &mut Context<'_>) -> Result<bool, Error> {
+        if self.positions.len() > u32::MAX as usize {
+            return Err(Error::SizeOverflow);
+        }
+        ctx.tick(self.positions.len())?;
+        self.validation
+    }
+}
+
 /// Meaningful fields of `meshopt_Bounds`, without native padding.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Bounds {
@@ -45,17 +77,34 @@ fn number<const CHECK: bool>(value: f32) -> Result<f32, Error> {
 trait SphereSource {
     fn sample(&self, index: usize) -> ([f32; 3], f32);
 }
-struct PointSource<'a> {
-    p: Positions<'a>,
+// Select a packed layout once before repeated point reads. The view fallback
+// retains checked access for strided, byte-ordered and mapped positions.
+trait BoundsSource: Copy {
+    fn point(self, index: u32) -> [f32; 3];
+}
+impl BoundsSource for Positions<'_> {
+    #[inline(always)]
+    fn point(self, index: u32) -> [f32; 3] {
+        point(self, index)
+    }
+}
+impl BoundsSource for &[[f32; 3]] {
+    #[inline(always)]
+    fn point(self, index: u32) -> [f32; 3] {
+        self[index as usize]
+    }
+}
+struct PointSource<'a, P = Positions<'a>> {
+    p: P,
     indices: Option<&'a [u32]>,
     radii: Option<Attributes<'a>>,
 }
-impl SphereSource for PointSource<'_> {
+impl<P: BoundsSource> SphereSource for PointSource<'_, P> {
     #[inline(always)]
     fn sample(&self, index: usize) -> ([f32; 3], f32) {
         let v = self.indices.map_or(index as u32, |i| i[index]);
         (
-            point(self.p, v),
+            self.p.point(v),
             self.radii
                 .map_or(0., |r| r.get(v as usize, 0).expect("validated radius")),
         )
@@ -69,10 +118,30 @@ impl SphereSource for NormalSource<'_> {
         ([p[0], p[1], p[2]], 0.)
     }
 }
+// The scalar fallback in sqrt8 computes every lane, including unused 1.0
+// padding. For one-triangle bounds, omit those unused fallback calls while
+// keeping the used operands, backend and evaluation order identical.
+#[inline(always)]
+fn bounds_roots(values: [f32; LANES], used: usize) -> [f32; LANES] {
+    if used < LANES
+        && values[..used]
+            .iter()
+            .any(|v| v.to_bits().wrapping_sub(0x0080_0000) >= 0x7f00_0000)
+    {
+        let mut result = [1.; LANES];
+        for i in 0..used {
+            result[i] = crate::math::sqrt(values[i]);
+        }
+        result
+    } else {
+        sqrt8(values)
+    }
+}
 #[inline(always)]
 fn sphere<const A: usize, const CHECK: bool>(
     count: usize,
     get: impl SphereSource,
+    skip_padding: bool,
     ctx: &mut Context<'_>,
 ) -> Result<([f32; 3], f32), Error> {
     if count == 0 {
@@ -115,7 +184,11 @@ fn sphere<const A: usize, const CHECK: bool>(
         let d = sub(b, a);
         squares[k] = number::<CHECK>(dot(d, d))?;
     }
-    let lengths = sqrt8(squares);
+    let lengths = if skip_padding {
+        bounds_roots(squares, A)
+    } else {
+        sqrt8(squares)
+    };
     let mut axis = 0;
     let mut dr = 0.;
     for k in 0..A {
@@ -175,7 +248,7 @@ fn sphere<const A: usize, const CHECK: bool>(
 fn bounds<const CHECK: bool, const N: usize>(
     indices: &[u32],
     corners: &[u32],
-    p: Positions<'_>,
+    p: impl BoundsSource,
     ctx: &mut Context<'_>,
 ) -> Result<Bounds, Error> {
     let mut normals = [[0f32; 4]; N];
@@ -189,13 +262,17 @@ fn bounds<const CHECK: bool, const N: usize>(
         let mut normals_raw = [[0f32; 3]; LANES];
         let mut squares = [1f32; LANES];
         for (k, t) in group.iter().enumerate() {
-            let a = point(p, t[0]);
-            let normal = cross(sub(point(p, t[1]), a), sub(point(p, t[2]), a));
+            let a = p.point(t[0]);
+            let normal = cross(sub(p.point(t[1]), a), sub(p.point(t[2]), a));
             squares[k] = number::<CHECK>(dot(normal, normal))?;
             corners[k] = a;
             normals_raw[k] = normal;
         }
-        let areas = sqrt8(squares);
+        let areas = if N == 1 && group.len() == 1 {
+            bounds_roots(squares, 1)
+        } else {
+            sqrt8(squares)
+        };
         for k in 0..group.len() {
             let area = areas[k];
             if area == 0. {
@@ -225,11 +302,12 @@ fn bounds<const CHECK: bool, const N: usize>(
             indices: Some(corners),
             radii: None,
         },
+        N == 1,
         ctx,
     )?;
     b.center = center;
     b.radius = radius;
-    let (mut axis, _) = sphere::<3, CHECK>(n, NormalSource(&normals[..n]), ctx)?;
+    let (mut axis, _) = sphere::<3, CHECK>(n, NormalSource(&normals[..n]), N == 1, ctx)?;
     let len = ctx.sqrt(number::<CHECK>(dot(axis, axis))?);
     let inv = if len == 0. { 0. } else { 1. / len };
     for a in &mut axis {
@@ -272,6 +350,9 @@ fn bounds<const CHECK: bool, const N: usize>(
     Ok(b)
 }
 /// `meshopt_computeClusterBounds`: sphere and conservative normal cone.
+///
+/// Scans all positions in O(n) time per call. For repeated bounds queries use
+/// [`BoundsPositions`] with [`compute_cluster_bounds_with_positions`].
 pub fn compute_cluster_bounds(
     indices: &[u32],
     p: Positions<'_>,
@@ -287,6 +368,60 @@ pub fn compute_cluster_bounds(
         cluster_bounds::<384, 128>(indices, p, &mut ctx, None)
     } else {
         cluster_bounds::<1536, 512>(indices, p, &mut ctx, None)
+    }
+}
+/// Compute cluster bounds using a cached positions-validation scan.
+///
+/// Output bits, errors, error precedence and logical workspace usage match
+/// [`compute_cluster_bounds`]. Per-call work is O(indices.len()), without a
+/// full positions scan; constructing [`BoundsPositions`] costs O(n) once.
+pub fn compute_cluster_bounds_with_positions(
+    indices: &[u32],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    let mut ctx = Context::new(workspace)?;
+    if indices.len() > 1536 {
+        return Err(Error::InvalidParameter);
+    }
+    if indices.len() <= 96 {
+        cluster_bounds_cached::<96, 32>(indices, p, &mut ctx)
+    } else if indices.len() <= 384 {
+        cluster_bounds_cached::<384, 128>(indices, p, &mut ctx)
+    } else {
+        cluster_bounds_cached::<1536, 512>(indices, p, &mut ctx)
+    }
+}
+fn cluster_bounds_cached<const M: usize, const N: usize>(
+    indices: &[u32],
+    p: BoundsPositions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
+    ctx.topology(indices, p.positions.len())?;
+    ctx.moderate = p.apply(ctx)?;
+    cluster_bounds_body::<M, N>(indices, p.positions, ctx)
+}
+fn cluster_bounds_body<const M: usize, const N: usize>(
+    indices: &[u32],
+    p: Positions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
+    let mut cache = [u32::MAX; 512];
+    let mut corners = [0u32; M];
+    let mut n = 0;
+    ctx.tick(indices.len())?;
+    for &v in indices {
+        let c = &mut cache[v as usize & 511];
+        if *c != v {
+            corners[n] = v;
+            n += 1;
+        }
+        *c = v;
+    }
+    if ctx.moderate {
+        bounds::<false, N>(indices, &corners[..n], p, ctx)
+    } else {
+        bounds::<true, N>(indices, &corners[..n], p, ctx)
     }
 }
 #[cfg(feature = "clusterlod")]
@@ -339,6 +474,9 @@ fn cluster_bounds<const M: usize, const N: usize>(
     }
 }
 /// `meshopt_computeMeshletBounds`: bounds of byte-local triangles.
+///
+/// Scans all positions in O(n) time per call. For repeated bounds queries use
+/// [`BoundsPositions`] with [`compute_meshlet_bounds_with_positions`].
 pub fn compute_meshlet_bounds(
     vertices: &[u32],
     triangles: &[u8],
@@ -353,6 +491,30 @@ pub fn compute_meshlet_bounds(
         meshlet_bounds::<384, 128>(vertices, triangles, p, &mut ctx)
     } else {
         meshlet_bounds::<1536, 512>(vertices, triangles, p, &mut ctx)
+    }
+}
+/// Compute meshlet bounds using a cached positions-validation scan.
+///
+/// Output bits, errors, error precedence and logical workspace usage match
+/// [`compute_meshlet_bounds`]. Per-call work is O(vertices.len() + triangles.len()),
+/// without a full positions scan; constructing [`BoundsPositions`] costs O(n) once.
+pub fn compute_meshlet_bounds_with_positions(
+    vertices: &[u32],
+    triangles: &[u8],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    let mut ctx = Context::new(workspace)?;
+    validate_local(vertices, triangles)?;
+    ctx.moderate = p.apply(&mut ctx)?;
+    if triangles.len() <= 3 {
+        meshlet_bounds_body::<3, 1>(vertices, triangles, p.positions, &mut ctx)
+    } else if triangles.len() <= 96 {
+        meshlet_bounds_body::<96, 32>(vertices, triangles, p.positions, &mut ctx)
+    } else if triangles.len() <= 384 {
+        meshlet_bounds_body::<384, 128>(vertices, triangles, p.positions, &mut ctx)
+    } else {
+        meshlet_bounds_body::<1536, 512>(vertices, triangles, p.positions, &mut ctx)
     }
 }
 fn meshlet_bounds<const M: usize, const N: usize>(
@@ -376,6 +538,56 @@ fn meshlet_bounds<const M: usize, const N: usize>(
         bounds::<false, N>(&indices[..triangles.len()], &vertices[..n], p, ctx)
     } else {
         bounds::<true, N>(&indices[..triangles.len()], &vertices[..n], p, ctx)
+    }
+}
+fn meshlet_bounds_body<const M: usize, const N: usize>(
+    vertices: &[u32],
+    triangles: &[u8],
+    p: Positions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
+    ctx.tick(vertices.len() + triangles.len())?;
+    if vertices
+        .iter()
+        .copied()
+        .max()
+        .is_some_and(|v| v as usize >= p.len())
+    {
+        return Err(Error::IndexOutOfBounds);
+    }
+    if N == 1 {
+        let Some(triangle) = triangles.first_chunk::<3>() else {
+            return Ok(Bounds::default());
+        };
+        let indices = triangle.map(|v| vertices[v as usize]);
+        let n = triangle.iter().copied().max().unwrap() as usize + 1;
+        return meshlet_bounds_result::<N>(&indices, &vertices[..n], p, ctx);
+    }
+    let mut indices = [0u32; M];
+    let mut n = 0;
+    for (i, &v) in triangles.iter().enumerate() {
+        indices[i] = vertices[v as usize];
+        n = n.max(v as usize + 1);
+    }
+    meshlet_bounds_result::<N>(&indices[..triangles.len()], &vertices[..n], p, ctx)
+}
+#[inline(always)]
+fn meshlet_bounds_result<const N: usize>(
+    indices: &[u32],
+    corners: &[u32],
+    p: Positions<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<Bounds, Error> {
+    if let Some(packed) = p.packed_values() {
+        if ctx.moderate {
+            bounds::<false, N>(indices, corners, packed, ctx)
+        } else {
+            bounds::<true, N>(indices, corners, packed, ctx)
+        }
+    } else if ctx.moderate {
+        bounds::<false, N>(indices, corners, p, ctx)
+    } else {
+        bounds::<true, N>(indices, corners, p, ctx)
     }
 }
 /// `meshopt_computeSphereBounds`. Optional radii use a checked one-component view.
@@ -405,9 +617,9 @@ pub fn compute_sphere_bounds(
         radii,
     };
     let (center, radius) = if ctx.moderate {
-        sphere::<7, false>(p.len(), get, &mut ctx)?
+        sphere::<7, false>(p.len(), get, false, &mut ctx)?
     } else {
-        sphere::<7, true>(p.len(), get, &mut ctx)?
+        sphere::<7, true>(p.len(), get, false, &mut ctx)?
     };
     Ok(Bounds {
         center,
@@ -738,4 +950,46 @@ pub fn optimize_meshlet_into(
         0,
         workspace,
     )
+}
+
+#[cfg(test)]
+mod bounds_root_tests {
+    use super::{bounds_roots, sqrt8, LANES};
+
+    #[test]
+    fn used_roots_match_full_lanes_bit_for_bit() {
+        let mut state = 0x1357_2468u32;
+        let special = [
+            0,
+            1,
+            0x007f_ffff,
+            0x0080_0000,
+            0x3f80_0000,
+            0x7f7f_ffff,
+            0x8000_0000,
+            0xbf80_0000,
+            0x7f80_0000,
+            0x7fc0_1234,
+        ];
+        for sample in 0..512 {
+            for used in 1..=LANES {
+                let mut values = [1.; LANES];
+                for value in &mut values[..used] {
+                    state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+                    let bits = if sample < special.len() {
+                        special[sample]
+                    } else if sample.is_multiple_of(2) {
+                        0x0080_0000 + state % 0x7f00_0000
+                    } else {
+                        state
+                    };
+                    *value = f32::from_bits(bits);
+                }
+                assert_eq!(
+                    bounds_roots(values, used).map(f32::to_bits),
+                    sqrt8(values).map(f32::to_bits)
+                );
+            }
+        }
+    }
 }

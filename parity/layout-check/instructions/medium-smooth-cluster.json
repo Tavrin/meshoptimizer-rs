@@ -1,0 +1,10 @@
+{
+  "case": "medium-smooth",
+  "operation": "cluster-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 125496.0615,
+    "B": 125366.0591
+  },
+  "ratio": 1.0010369824251737
+}

@@ -8299,3 +8299,7 @@ The full 10,000-case sweeps for phases 0.1 and 0.1.x and long fuzz runs
 run nightly on main through the meshopt-robustness timer instead of blocking
 each patch release. New public APIs require one approximately 15-minute
 fuzz run before their first release.
+
+## Bounds layout check — post-fix1 methodology disclosure
+
+2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the Moss coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through SPEC-bounds-layout-check.md. This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.

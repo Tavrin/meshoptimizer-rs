@@ -1,0 +1,10 @@
+{
+  "case": "tiny-smooth",
+  "operation": "meshlet-bounds",
+  "calls": 10000,
+  "counts": {
+    "C": 3997.0449,
+    "B": 3998.0448
+  },
+  "ratio": 0.9997499027524653
+}

@@ -1,0 +1,25 @@
+heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build-pinned.sh, reserving 3G, cap 7G, declared 3G, no history yet): bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build-pinned.sh
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=3145728; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — queued behind a push job (pid 2712059) — waiting for 13 GB RAM / the GPU [capacity: available_kb=17340044 - unused_kb=13604828 - margin_kb=2097152 = free_kb=1638064; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17594508 - unused_kb=13512012 - margin_kb=2097152 = free_kb=1985344; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17664732 - unused_kb=13429016 - margin_kb=2097152 = free_kb=2138564; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17397056 - unused_kb=13321340 - margin_kb=2097152 = free_kb=1978564; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17571352 - unused_kb=13220896 - margin_kb=2097152 = free_kb=2253304; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16755676 - unused_kb=12691236 - margin_kb=2097152 = free_kb=1967288; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17072392 - unused_kb=12661472 - margin_kb=2097152 = free_kb=2313768; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16789016 - unused_kb=12622664 - margin_kb=2097152 = free_kb=2069200; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=17008996 - unused_kb=12627988 - margin_kb=2097152 = free_kb=2283856; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16540952 - unused_kb=12505992 - margin_kb=2097152 = free_kb=1937808; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16305568 - unused_kb=12049612 - margin_kb=2097152 = free_kb=2158804; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16231672 - unused_kb=12132548 - margin_kb=2097152 = free_kb=2001972; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16713752 - unused_kb=12500220 - margin_kb=2097152 = free_kb=2116380; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 1G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16328000 - unused_kb=12424216 - margin_kb=2097152 = free_kb=1806632; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: waiting — needs 3G RAM, 2G admissible, 13G reserved for running jobs; will start automatically [capacity: available_kb=16954576 - unused_kb=12643700 - margin_kb=2097152 = free_kb=2213724; need_kb=3145728; normal_slots=1/6; lane_slots=0/2]
+heavy: running (3G reserved, cap 7G, 16G available): bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/build-pinned.sh
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-B)
+   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/B-pinned-harness)
+    Finished `moss` profile [optimized] target(s) in 17.44s
+   Compiling meshoptimizer-rs v0.2.4 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/lib-C)
+   Compiling meshopt-fix1-old v0.0.0 (/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/C-pinned-harness)
+    Finished `moss` profile [optimized] target(s) in 16.90s
