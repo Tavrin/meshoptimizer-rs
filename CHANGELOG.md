@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Native scalar overdraw takes 0.85× the time of 0.2.6 on five frozen synthetic
+  cases and 0.83× on three captured meshes. The same cases take 1.12× and
+  1.22× the time of optimesh 1.1.0, respectively; the captured meshes take
+  1.27× the time of C++ 1.3.
+
 ## [0.2.6] - 2026-10-26
 
 - Add `BoundsPositions`, `compute_cluster_bounds_with_positions` and
