@@ -135,6 +135,11 @@ extern crate alloc;
 #[doc = include_str!("../README.md")]
 pub struct ReadmeDoctests;
 
+/// Compiles and runs the migration guide examples as doctests.
+#[cfg(doctest)]
+#[doc = include_str!("../docs/MIGRATING_FROM_MESHOPT.md")]
+pub struct MigrationDoctests;
+
 mod budget;
 
 mod analyze;

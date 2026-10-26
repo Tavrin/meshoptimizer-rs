@@ -147,7 +147,11 @@ impl Output<'_> {
         // Work on a local copy of the open descriptor: the output slices could
         // otherwise alias it for the optimizer, forcing a reload per access.
         let mut m = self.current;
-        let extra = t.iter().filter(|&&v| used.local(v as usize) < 0).count();
+        let [a, b, c] = t.map(|v| v as usize);
+        let mut local = [used.local(a), used.local(b), used.local(c)];
+        // Count missing corners before deduplicating, as upstream does. Keep
+        // the original conservative flush decision on degenerate triangles.
+        let extra = local.iter().filter(|&&v| v < 0).count();
         let mut flush = false;
         if m.vertex_count as usize + extra > s.max_vertices
             || m.triangle_count as usize >= s.max_triangles
@@ -163,17 +167,27 @@ impl Output<'_> {
             m.triangle_offset += m.triangle_count * 3;
             m.vertex_count = 0;
             m.triangle_count = 0;
+            local = [-1; 3];
             flush = true;
         }
         let off = m.triangle_offset as usize + m.triangle_count as usize * 3;
         let triangle = &mut self.triangles[off..off + 3];
-        for (slot, &v) in triangle.iter_mut().zip(t) {
-            if used.local(v as usize) < 0 {
-                used.set_local(v as usize, m.vertex_count as i16);
-                self.vertices[m.vertex_offset as usize + m.vertex_count as usize] = v;
-                m.vertex_count += 1;
+        for k in 0..3 {
+            if local[k] < 0 {
+                // A preceding missing corner may have inserted this vertex.
+                // The usual distinct-corner case needs no second table load.
+                if k > 0 && t[k] == t[0] {
+                    local[k] = local[0];
+                } else if k == 2 && t[k] == t[1] {
+                    local[k] = local[1];
+                } else {
+                    local[k] = m.vertex_count as i16;
+                    used.set_local(t[k] as usize, local[k]);
+                    self.vertices[m.vertex_offset as usize + m.vertex_count as usize] = t[k];
+                    m.vertex_count += 1;
+                }
             }
-            *slot = used.local(v as usize) as u8;
+            triangle[k] = local[k] as u8;
         }
         m.triangle_count += 1;
         self.current = m;
@@ -768,6 +782,11 @@ impl CandidateInput<'_> {
     // Bounds of the cone factor from the meshlet normal bounds.
     #[inline(always)]
     fn clamped_bounds(&self, n: [f32; 3], low: bool) -> f32 {
+        // Bounded-mode normals are finite. With zero cone weight the factor
+        // is exactly one, independently of the normal interval.
+        if self.weight == 0. {
+            return 1.;
+        }
         // Each exact term n_k * normal_k lies between the products with the
         // normal bounds, so their larger (smaller) values bound the spread.
         let (lo, hi) = (self.normal_low, self.normal_high);
@@ -786,6 +805,9 @@ impl CandidateInput<'_> {
     #[cold]
     #[inline(never)]
     fn exact_normal(&self, search: &mut Search<'_>) -> [f32; 3] {
+        if self.weight == 0. {
+            return [0.; 3];
+        }
         if let Some(n) = search.normal {
             return n;
         }
@@ -1107,39 +1129,21 @@ impl Active {
         self.synced = count;
     }
 }
-fn flex<const CHECK: bool>(
-    out: &mut Output<'_>,
-    indices: &[u32],
-    p: Positions<'_>,
-    s: MeshletSettings,
-    min: usize,
-    weight: f32,
-    split_factor: f32,
-    ctx: &mut Context<'_>,
-) -> Result<(), Error> {
-    if indices.is_empty() {
-        return Ok(());
-    }
-    let n = indices.len() / 3;
-    let node_count = n.checked_mul(2).ok_or(Error::SizeOverflow)?;
-    // One exact per-call memo with a fixed table: no per-lookup dispatch.
-    let mut roots = SqrtCache::new();
-    let mut adj = adjacency(indices, p.len(), ctx)?;
-    let mut emitted = ctx.alloc::<u8>(n)?;
-    let mut cones = ctx.alloc::<Cone>(n)?;
+// Dispatch position storage once, outside the triangle loop. This keeps
+// packed inputs as direct checked slice accesses without per-corner view tests.
+fn fill_cones<const CHECK: bool>(
+    triangles: &[[u32; 3]],
+    cones: &mut [Cone],
+    read: impl Fn(u32) -> [f32; 3],
+) -> Result<f32, Error> {
     let mut mesh_area = 0.;
-    ctx.tick(n)?;
-    // Triangle areas are independent: take their roots eight at a time. Every
-    // failure is NumericalFailure and work is charged above, so the grouped
-    // check order is unobservable; mesh_area still sums in triangle order.
-    let triangles = indices.as_chunks::<3>().0;
     for (group, out_cones) in triangles.chunks(LANES).zip(cones.chunks_mut(LANES)) {
         let mut normals = [[0f32; 3]; LANES];
         let mut squares = [1f32; LANES];
         for (k, (t, cone)) in group.iter().zip(out_cones.iter_mut()).enumerate() {
-            let a = point(p, t[0]);
-            let b = point(p, t[1]);
-            let c = point(p, t[2]);
+            let a = read(t[0]);
+            let b = read(t[1]);
+            let c = read(t[2]);
             let normal = cross(sub(b, a), sub(c, a));
             squares[k] = number::<CHECK>(dot(normal, normal))?;
             normals[k] = normal;
@@ -1157,6 +1161,39 @@ fn flex<const CHECK: bool>(
             mesh_area = number::<CHECK>(mesh_area + area)?;
         }
     }
+    Ok(mesh_area)
+}
+fn flex<const CHECK: bool, const ZERO_WEIGHT: bool>(
+    out: &mut Output<'_>,
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min: usize,
+    weight: f32,
+    split_factor: f32,
+    ctx: &mut Context<'_>,
+) -> Result<(), Error> {
+    // A separate monomorphization lets the bounded search fold its cone
+    // factor and score multipliers, rather than testing a runtime zero at
+    // every candidate. The checked/degenerate path retains its old arithmetic.
+    let weight = if ZERO_WEIGHT { 0. } else { weight };
+    if indices.is_empty() {
+        return Ok(());
+    }
+    let n = indices.len() / 3;
+    let node_count = n.checked_mul(2).ok_or(Error::SizeOverflow)?;
+    // One exact per-call memo with a fixed table: no per-lookup dispatch.
+    let mut roots = SqrtCache::new();
+    let mut adj = adjacency(indices, p.len(), ctx)?;
+    let mut emitted = ctx.alloc::<u8>(n)?;
+    let mut cones = ctx.alloc::<Cone>(n)?;
+    ctx.tick(n)?;
+    let triangles = indices.as_chunks::<3>().0;
+    let mesh_area = if let Some(values) = p.packed_values() {
+        fill_cones::<CHECK>(triangles, &mut cones, |i| values[i as usize])?
+    } else {
+        fill_cones::<CHECK>(triangles, &mut cones, |i| point(p, i))?
+    };
     let radius = roots.sqrt(number::<CHECK>(
         mesh_area / n as f32 * 0.5 * s.max_triangles as f32,
     )?) * 0.5;
@@ -1218,7 +1255,13 @@ fn flex<const CHECK: bool>(
             // In bounded mode the meshlet normal is only bounded here (its root
             // is taken on demand); otherwise it is exact, as upstream. The
             // initial seed does not search neighbors and needs no normal.
-            let normal = if bounded {
+            let normal = if bounded && weight == 0. {
+                MeshletNormal {
+                    exact: Some([0.; 3]),
+                    low: [0.; 3],
+                    high: [0.; 3],
+                }
+            } else if bounded {
                 MeshletNormal::bounds(acc.n, &mut roots)
             } else {
                 MeshletNormal::exact(acc.n, &mut roots)
@@ -1404,6 +1447,60 @@ fn flex<const CHECK: bool>(
     }
     Ok(())
 }
+// The scan's output triangles are sequential and unpadded. A zipped output
+// iterator proves all three destination slots once, and the descriptor stays
+// local for the entire covered-budget loop instead of being published per face.
+fn scan_covered(
+    out: &mut Output<'_>,
+    triangles: &[[u32; 3]],
+    used: &mut [i16],
+    s: MeshletSettings,
+) -> usize {
+    let mut m = out.current;
+    let mut count = out.count;
+    let mut visits = triangles.len();
+    for (t, triangle) in triangles
+        .iter()
+        .zip(out.triangles[..triangles.len() * 3].as_chunks_mut::<3>().0)
+    {
+        let mut local = t.map(|v| used[v as usize]);
+        let extra = local.iter().filter(|&&v| v < 0).count();
+        if m.vertex_count as usize + extra > s.max_vertices
+            || m.triangle_count as usize >= s.max_triangles
+        {
+            out.descriptors[count] = m;
+            count += 1;
+            visits += m.vertex_count as usize;
+            for &v in &out.vertices[m.vertex_offset as usize..][..m.vertex_count as usize] {
+                used[v as usize] = -1;
+            }
+            m.vertex_offset += m.vertex_count;
+            m.triangle_offset += m.triangle_count * 3;
+            m.vertex_count = 0;
+            m.triangle_count = 0;
+            local = [-1; 3];
+        }
+        for k in 0..3 {
+            if local[k] < 0 {
+                if k > 0 && t[k] == t[0] {
+                    local[k] = local[0];
+                } else if k == 2 && t[k] == t[1] {
+                    local[k] = local[1];
+                } else {
+                    local[k] = m.vertex_count as i16;
+                    used[t[k] as usize] = local[k];
+                    out.vertices[m.vertex_offset as usize + m.vertex_count as usize] = t[k];
+                    m.vertex_count += 1;
+                }
+            }
+            triangle[k] = local[k] as u8;
+        }
+        m.triangle_count += 1;
+    }
+    out.current = m;
+    out.count = count;
+    visits
+}
 fn scan(
     out: &mut Output<'_>,
     indices: &[u32],
@@ -1413,8 +1510,21 @@ fn scan(
 ) -> Result<(), Error> {
     let mut used = ctx.alloc::<i16>(n)?;
     used.fill(-1);
-    for t in indices.as_chunks::<3>().0 {
-        out.append(t, &mut used, s, false, ctx)?;
+    let triangles = indices.as_chunks::<3>().0;
+    // Each triangle costs one visit, and every flushed vertex was inserted by
+    // a preceding corner. A covered upper bound lets the hot loop keep its
+    // exact charge locally; short budgets retain every original failure point.
+    if indices
+        .len()
+        .checked_add(triangles.len())
+        .is_some_and(|bound| ctx.work.covers(bound).unwrap_or(false))
+    {
+        let visits = scan_covered(out, triangles, &mut used, s);
+        ctx.tick(visits)?;
+    } else {
+        for t in triangles {
+            out.append(t, &mut used, s, false, ctx)?;
+        }
     }
     Ok(())
 }
@@ -1444,9 +1554,13 @@ fn execute(
         Builder::Flex { min, weight, split } => {
             let p = p.expect("positions builder");
             if ctx.moderate {
-                flex::<false>(out, indices, p, s, min, weight, split, ctx)?;
+                if weight == 0. {
+                    flex::<false, true>(out, indices, p, s, min, weight, split, ctx)?;
+                } else {
+                    flex::<false, false>(out, indices, p, s, min, weight, split, ctx)?;
+                }
             } else {
-                flex::<true>(out, indices, p, s, min, weight, split, ctx)?;
+                flex::<true, false>(out, indices, p, s, min, weight, split, ctx)?;
             }
         }
         Builder::Spatial { min, fill } => crate::meshlet_spatial::spatial(

@@ -411,18 +411,41 @@ fn partition(
     let mut filtered = ctx.alloc::<u32>(indices.len())?;
     let mut offsets = ctx.alloc::<u32>(n + 1)?;
     let (mut start, mut write) = (0, 0);
+    // Reuse the existing byte table as a generation map on dense inputs.
+    // This avoids clearing the unique vertex list after every cluster. Sparse
+    // inputs retain the old local clear, so a wide unused vertex range is never
+    // repeatedly scanned. Storage and the exact visit charges are unchanged.
+    let tagged = vertices <= indices.len() / 3;
+    let mut generation_start = 0;
     for (i, &count) in counts.iter().enumerate() {
         offsets[i] = write as u32;
         ctx.tick(count as usize)?;
+        let tag = if tagged { (i % 255 + 1) as u8 } else { 1 };
+        if tagged && tag == 1 && i != 0 {
+            // Never scan more entries than this generation actually touched.
+            // A whole-table clear on every wrap would otherwise be quadratic
+            // for many small clusters over a large vertex domain.
+            let touched = &filtered[generation_start..write];
+            if used.len() <= touched.len() {
+                used.fill(0);
+            } else {
+                for &v in touched {
+                    used[v as usize] = 0;
+                }
+            }
+            generation_start = write;
+        }
         for &v in &indices[start..start + count as usize] {
-            if used[v as usize] == 0 {
+            if used[v as usize] != tag {
                 filtered[write] = v;
                 write += 1;
-                used[v as usize] = 1;
+                used[v as usize] = tag;
             }
         }
-        for &v in &filtered[offsets[i] as usize..write] {
-            used[v as usize] = 0;
+        if !tagged && i + 1 < n {
+            for &v in &filtered[offsets[i] as usize..write] {
+                used[v as usize] = 0;
+            }
         }
         start += count as usize;
     }
