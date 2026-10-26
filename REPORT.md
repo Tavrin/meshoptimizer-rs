@@ -109,3 +109,52 @@ No 10k sweeps or long fuzz runs; those remain nightly.
 The lane Cargo target was deleted after all builds/checks/collection finished;
 parity/peer-quantize/cleanup.json records the path and bytes removed. Raw scratch
 receipts and executables remain. Scope is lane A only; no other worktree touched.
+
+## SPEC-027 quantize finish — half only
+
+The failed quantize-float optimization is reverted verbatim to v0.2.6.
+`git diff v0.2.6 -- src/quantize.rs` now contains only quantize_half lines.
+The registered results above remain frozen: half is a speedup (0.951706×,
+95% GM interval [0.924654, 0.983932]), with no X timing-parity claim; the
+measured float candidate remains FAIL and is excluded from the shipped code.
+The historical overall FAIL describes that two-family candidate, not this
+half-only selection. No wall-clock campaign was run for this finish.
+
+### Fair-adapter instruction disclosure
+
+Scratch-only adapter copies use `x.p.as_flattened().iter()` for ours (baseline
+and candidate) and M7; X retains its existing contiguous-slice adapter. Frozen
+repository and bet 0 harnesses are unchanged. Same retained million-smooth
+input (SHA-256 f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf),
+same Moss scalar profile, 100 resident iterations plus startup/serialization,
+one `perf stat -e instructions:u` run per cell, CPU affinity pinned to the
+first allowed CPU. Installed 6.17 perf used as in the original diagnosis.
+Counts are diagnostic only: no acceptance bar, timing inference, or revision
+of the registered verdicts. M7's adapter is flattened too so all four arms
+iterate contiguous positions; scratch diffs retain the exact changes.
+
+| Family | v0.2.6 | Candidate (half only) | X 1.1.0 | M7 0.7.0 |
+|---|---:|---:|---:|---:|
+| quantize-half | 1,356,610,288 | 1,280,454,393 | 1,369,695,290 | 3,693,533,036 |
+| quantize-float | 947,655,255 | 947,654,166 | 960,733,814 | 4,478,634,647 |
+
+All eight perf exits are 0; all four serialized outputs match within each family.
+The reverted float's small baseline/candidate count difference includes process
+startup and binary-layout effects; its library source is identical.
+
+### Final proof, gates and retention
+
+All exits are 0: diagnostic builds, protocol/C++ builds and source-pin check,
+existing lane A exactness proof (717 cases, 660 C++ checks), direct Rust
+Result/Error/output-bit proof (1,575,007 values, 34 widths),
+`cargo test --all-features`,
+`cargo clippy --all-targets --all-features -- -D warnings`, and
+`cargo fmt --all -- --check`. Both families were rechecked after the revert.
+
+Every heavy action ran under CPU-only moss-heavy, declaring 4 GB.
+Raw logs, copied adapters, executables, proof rows and final source are retained
+under `/mnt/linux-extra/moss-scratch/meshopt-peer-a/finish/`; compact receipts,
+adapter diffs and SHA-256 inventory are in `parity/peer-quantize/finish/`.
+Original receipts remain retained. The designated target
+`/mnt/linux-extra/moss-cargo-targets/meshopt-peer-a2` was deleted after validation;
+`finish/cleanup.json` records deletion. No merge, tag, publication or version bump.

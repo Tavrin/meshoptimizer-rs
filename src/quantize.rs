@@ -60,16 +60,16 @@ pub fn quantize_float(value: f32, bits: u32) -> Result<f32, Error> {
     if bits > 23 {
         return Err(Error::InvalidParameter);
     }
-    let ui = value.to_bits();
-    let shift = 23 - bits;
+    let mut ui = value.to_bits();
+    let mask = (1u32 << (23 - bits)) - 1;
+    let round = (1u32 << (23 - bits)) >> 1;
     let exponent = ui & 0x7f800000;
-    // Disable both rounding and truncation for infinities/NaNs, keeping
-    // their original payload bits without a second value selection.
-    let finite = u32::from(exponent != 0x7f800000);
-    let mask = ((1u32 << shift) - 1) * finite;
-    let round = ((1u32 << shift) >> 1) * finite;
-    let nonzero = 0u32.wrapping_sub(u32::from(exponent != 0));
-    let ui = ui.wrapping_add(round) & !mask & nonzero;
+    if exponent != 0x7f800000 {
+        ui = ui.wrapping_add(round) & !mask;
+    }
+    if exponent == 0 {
+        ui = 0;
+    }
     Ok(f32::from_bits(ui))
 }
 

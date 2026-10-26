@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- SPEC-027 lane A candidate: half takes 0.952× v0.2.6 time and 1.439×
-  optimesh 1.1.0 time (PARTIAL); float takes 1.019× v0.2.6 time and 1.342×
-  optimesh time (FAIL). Registered draft results; overall acceptance FAIL.
+- `quantize_half` takes 0.95× the time of v0.2.6, GM 95% interval
+  [0.925, 0.984], with byte-identical output.
 
 ## [0.2.6] - 2026-10-26
 
