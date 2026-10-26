@@ -8327,3 +8327,17 @@ retry fixes only the initial CDP navigation race; native results were not rerun.
 Stop with a draft PR and retained receipts; no verdict-driven tuning/rerun,
 release acceptance, merge/tag/publish or Moss adoption. See
 `parity/decode/REPORT.md` and `/mnt/linux-extra/moss-scratch/meshopt-decode/`.
+
+## 2026-10-26 — SPEC-027 memory opt-in
+
+The previous default candidate's registered timing FAIL remains valid. Expose
+that mechanism only through `Workspace::set_retention(Retention::Lean)`;
+`Retention::Reuse` defaults to the v0.2.6 allocation and initialization path.
+Changing policy clears scratch and resets Usage, matching the existing
+`set_limits` convention; clear/set_limits preserve the chosen policy.
+No global switch, limit change, quadric layout change or Moss edit.
+The targeted registration precedes samples:
+`/mnt/linux-extra/moss-scratch/meshopt-memory/optin/REGISTRATION.md`.
+Compare default capacities at every 214e observe point and instruction counts
+on all three chains plus the original six-simplify workload. Measure Lean RSS
+once; disclose the existing timing cost without repeating that campaign.

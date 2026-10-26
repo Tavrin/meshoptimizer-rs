@@ -1,0 +1,94 @@
+{
+  "rows": [
+    {
+      "arm": "reuse",
+      "peak_rss_kib": 2988696,
+      "peak_rss_gib": 2.8502426147460938,
+      "peak_tracked_bytes": 1010286584,
+      "max_retained_on_return": 908965708,
+      "boundary": [
+        {
+          "retained": [
+            908965708,
+            789938002,
+            81581292,
+            32895784,
+            2851008,
+            712752,
+            986870
+          ],
+          "usage_bytes": 913242220,
+          "usage_work": 32239862
+        }
+      ],
+      "exact": true,
+      "algorithm_calls": 16
+    },
+    {
+      "arm": "clear-mesh",
+      "peak_rss_kib": 2992112,
+      "peak_rss_gib": 2.8535003662109375,
+      "peak_tracked_bytes": 1010286584,
+      "max_retained_on_return": 908965708,
+      "boundary": [
+        {
+          "retained": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "usage_bytes": 0,
+          "usage_work": 0
+        }
+      ],
+      "exact": true,
+      "algorithm_calls": 16
+    },
+    {
+      "arm": "cpp13",
+      "peak_rss_kib": 2209608,
+      "peak_rss_gib": 2.1072463989257812,
+      "peak_tracked_bytes": 762744238,
+      "max_retained_on_return": 0,
+      "boundary": [
+        {
+          "cpp_peak": 32511926,
+          "cpp_retained": 0
+        }
+      ],
+      "exact": true,
+      "algorithm_calls": 16
+    },
+    {
+      "arm": "clear-call-diagnostic",
+      "peak_rss_kib": 2205172,
+      "peak_rss_gib": 2.103015899658203,
+      "peak_tracked_bytes": 824150014,
+      "max_retained_on_return": 789938002,
+      "boundary": [
+        {
+          "retained": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "usage_bytes": 0,
+          "usage_work": 0
+        }
+      ],
+      "exact": true,
+      "algorithm_calls": 16
+    }
+  ],
+  "clear_mesh_saved_gib": -0.00325775146484375,
+  "clear_call_saved_gib": 0.7472267150878906,
+  "verdict": "no library change needed"
+}

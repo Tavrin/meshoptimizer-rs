@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cases and 0.83× on three captured meshes. The same cases take 1.12× and
   1.22× the time of optimesh 1.1.0, respectively; the captured meshes take
   1.27× the time of C++ 1.3.
+- Opt-in lean scratch retention: 214e peak RSS 2.851 → 2.196 GiB;
+  simplify-heavy chains up to 1.20× wall time. See [measurements](parity/memory/REPORT.md).
 
 ## [0.2.6] - 2026-10-26
 

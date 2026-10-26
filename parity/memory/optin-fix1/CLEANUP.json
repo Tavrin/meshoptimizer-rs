@@ -1,0 +1,9 @@
+{
+  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-memory",
+  "deleted": true,
+  "tested_source_matches": true,
+  "batch_exit": 0,
+  "declared_gb": 4,
+  "MOSS_HEAVY_GPU": 0,
+  "retained_binaries": "/mnt/linux-extra/moss-scratch/meshopt-memory/optin-fix1/bin"
+}

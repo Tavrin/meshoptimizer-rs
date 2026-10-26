@@ -1,0 +1,10 @@
+{
+  "event": "finish",
+  "name": "micro-A",
+  "rc": 0,
+  "exact": true,
+  "stable_sha256": "094b63a6bae707dd0177c196eac20efb1840c45ddaa0e86ec589da793a9a48fd",
+  "utc": 1792999067.5053227,
+  "instructions": 30726388530,
+  "counter_line": "30726388530;;instructions:u;8526268118;100.00;;"
+}

@@ -1,0 +1,248 @@
+{
+  "allocator": {
+    "arena": 397852672,
+    "arena_free": 151855696,
+    "arena_live": 245996976,
+    "live": 2890209241,
+    "mmap": 2644303872,
+    "moved_realloc_old_bytes": 682458888,
+    "peak": 3056382251
+  },
+  "detail": {
+    "fields": [
+      [
+        "offsets.0",
+        27193768
+      ],
+      [
+        "edges",
+        0
+      ],
+      [
+        "remap.0",
+        0
+      ],
+      [
+        "wedge.0",
+        0
+      ],
+      [
+        "kind",
+        6798441
+      ],
+      [
+        "forward.0",
+        27193764
+      ],
+      [
+        "back.0",
+        27193764
+      ],
+      [
+        "p",
+        0
+      ],
+      [
+        "a",
+        0
+      ],
+      [
+        "q",
+        326325168
+      ],
+      [
+        "aq",
+        0
+      ],
+      [
+        "g",
+        0
+      ],
+      [
+        "vg",
+        0
+      ],
+      [
+        "sparse",
+        0
+      ],
+      [
+        "original",
+        0
+      ],
+      [
+        "collapses",
+        102636036
+      ],
+      [
+        "order.0",
+        34212012
+      ],
+      [
+        "cr.0",
+        27193764
+      ],
+      [
+        "locked",
+        6798441
+      ],
+      [
+        "table.0",
+        0
+      ]
+    ],
+    "resident": [
+      {
+        "cap": 27193768,
+        "len": 27193768,
+        "mincore_rc": 0,
+        "name": "offsets.0",
+        "resident": 27197440
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "edges",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "remap.0",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "wedge.0",
+        "resident": 0
+      },
+      {
+        "cap": 6798441,
+        "len": 6798441,
+        "mincore_rc": 0,
+        "name": "kind",
+        "resident": 6799360
+      },
+      {
+        "cap": 27193764,
+        "len": 27193764,
+        "mincore_rc": 0,
+        "name": "forward.0",
+        "resident": 27197440
+      },
+      {
+        "cap": 27193764,
+        "len": 27193764,
+        "mincore_rc": 0,
+        "name": "back.0",
+        "resident": 27197440
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "p",
+        "resident": 0
+      },
+      {
+        "cap": 326325168,
+        "len": 326325168,
+        "mincore_rc": 0,
+        "name": "q",
+        "resident": 326328320
+      },
+      {
+        "cap": 102636036,
+        "len": 48,
+        "mincore_rc": 0,
+        "name": "collapses",
+        "resident": 4096
+      },
+      {
+        "cap": 34212012,
+        "len": 16,
+        "mincore_rc": 0,
+        "name": "order.0",
+        "resident": 4096
+      },
+      {
+        "cap": 27193764,
+        "len": 27193764,
+        "mincore_rc": 0,
+        "name": "cr.0",
+        "resident": 27197440
+      },
+      {
+        "cap": 6798441,
+        "len": 6798441,
+        "mincore_rc": 0,
+        "name": "locked",
+        "resident": 6799360
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "table.0",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "vertices",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "integers",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "floats",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "flags",
+        "resident": 0
+      },
+      {
+        "cap": 0,
+        "len": 0,
+        "mincore_rc": 0,
+        "name": "keys",
+        "resident": 0
+      }
+    ],
+    "retained": [
+      585545158,
+      585545158,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "usage_bytes": 824150014,
+    "usage_work": 185645006
+  },
+  "ns": "130",
+  "rss": [
+    "VmHWM:\t 2451684 kB",
+    "VmRSS:\t 2451684 kB"
+  ],
+  "stage": "observe:prune_decision",
+  "timestamp_ns": "1792989875957848454"
+}

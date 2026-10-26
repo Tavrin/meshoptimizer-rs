@@ -39,6 +39,22 @@ pub(crate) struct CacheVertex {
     pub(crate) score: f32,
 }
 
+/// Policy for retaining reusable algorithm scratch between calls.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Retention {
+    /// Reuse scratch across calls and algorithm families (the default).
+    #[default]
+    Reuse,
+    /// Release the previous family's scratch when simplify, cache or overdraw
+    /// acquires storage, release simplify position quadrics on return, and defer
+    /// initialization of simplify ordering entries until needed.
+    ///
+    /// Measured on 214e: peak RSS 2.85 → 2.20 GiB, with simplify-heavy chains
+    /// taking up to 1.20× wall time.
+    /// Other algorithm families keep their existing retention behavior.
+    Lean,
+}
+
 /// Reusable fallibly allocated scratch storage and per-call resource limits.
 ///
 /// Cache work counts topology/index validation, each adjacency initialization,
@@ -49,8 +65,9 @@ pub(crate) struct CacheVertex {
 /// adjacency visits, edge searches, classification, quadric and attribute
 /// accumulation, collapse ranking/sorting/flip checks, and remapping visits.
 /// Its typed scratch is allocated fallibly and retained after successful calls;
-/// retained scratch is reused when it fits and released under limit pressure
+/// retained scratch is reused when it fits and released under limit pressure,
 /// including excess capacity in buffers the current call uses.
+/// Use [`Self::set_retention`] to opt into [`Retention::Lean`].
 /// Usage reports peak storage including all retained workspace buffers. Scale
 /// computation is allocation-free and has no workspace argument.
 /// Limits never disable checked size arithmetic.
@@ -58,6 +75,8 @@ pub(crate) struct CacheVertex {
 pub struct Workspace {
     limits: Limits,
     active: [bool; 5],
+    family: Option<ScratchFamily>,
+    retention: Retention,
     usage: Usage,
     pub(crate) has_retained: bool,
     pub(crate) simplify: Option<crate::simplify::State>,
@@ -69,12 +88,34 @@ pub struct Workspace {
     pub(crate) keys: Vec<u16>,
 }
 
+// Only the LOD-chain families opt into switching; codecs and other algorithms
+// retain their existing workspace behavior.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ScratchFamily {
+    Simplify,
+    Cache,
+    Overdraw,
+}
+
 impl Workspace {
     /// Create an empty workspace with explicit limits.
     pub fn new(limits: Limits) -> Self {
         Self {
             limits,
             ..Self::default()
+        }
+    }
+    /// Current scratch retention policy.
+    pub const fn retention(&self) -> Retention {
+        self.retention
+    }
+    /// Set the retention policy, releasing scratch and resetting measurements
+    /// if the policy changes. Limits are preserved; [`Self::clear`] and
+    /// [`Self::set_limits`] preserve this policy.
+    pub fn set_retention(&mut self, retention: Retention) {
+        if self.retention != retention {
+            self.clear();
+            self.retention = retention;
         }
     }
     /// Current per-call limits.
@@ -97,6 +138,24 @@ impl Workspace {
         self.keys = Vec::new();
         self.usage = Usage::default();
         self.has_retained = false;
+        self.family = None;
+    }
+    #[inline]
+    pub(crate) fn acquire(&mut self, family: ScratchFamily) {
+        if self.retention == Retention::Lean && self.family != Some(family) {
+            // Acquisition precedes reservations, so none of the previous
+            // contents belong to the current call. Preserve its measurements,
+            // work counter and limits; clear() would reset the measurements.
+            self.simplify = None;
+            self.sloppy = None;
+            self.vertices = Vec::new();
+            self.integers = Vec::new();
+            self.floats = Vec::new();
+            self.flags = Vec::new();
+            self.keys = Vec::new();
+            self.has_retained = false;
+            self.family = Some(family);
+        }
     }
     /// Measurements for the most recent call, including a failed call's work.
     pub const fn usage(&self) -> Usage {

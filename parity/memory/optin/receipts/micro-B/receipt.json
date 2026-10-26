@@ -1,0 +1,10 @@
+{
+  "event": "finish",
+  "name": "micro-B",
+  "rc": 0,
+  "exact": true,
+  "stable_sha256": "094b63a6bae707dd0177c196eac20efb1840c45ddaa0e86ec589da793a9a48fd",
+  "utc": 1792999080.0508645,
+  "instructions": 30726396152,
+  "counter_line": "30726396152;;instructions:u;8203924217;100.00;;"
+}

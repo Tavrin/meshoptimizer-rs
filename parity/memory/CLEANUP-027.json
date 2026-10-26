@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-26T06:16:15.894537+00:00",
+  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-memory",
+  "absent": true,
+  "retained_binaries": {
+    "A": "7779ff7efea6dd29d742a74c7dd793ce712b3a5e1dab8e1e9fd44ae86f444a95",
+    "B": "2d86b665f3a90db26fd27a7cf9507aa4ae5cffc06aaff11a7f686ebc0f1708c6"
+  },
+  "retained_sources": [
+    "library-A",
+    "library-B"
+  ],
+  "scratch": "/mnt/linux-extra/moss-scratch/meshopt-memory/spec027"
+}

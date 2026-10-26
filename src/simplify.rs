@@ -267,6 +267,7 @@ fn allocating(
         validate(
             indices, positions, attributes, weights, flags, settings, &mut work,
         )?;
+        ws.acquire(crate::workspace::ScratchFamily::Simplify);
         ws.prepare([0; 4], checked_bytes(indices.len(), 4)?)?;
         let mut out = crate::workspace::output(indices.len())?;
         let output_bytes = checked_bytes(out.capacity(), 4)?;
@@ -353,6 +354,7 @@ fn into(
             return Err(Error::BufferTooSmall);
         }
         validate(indices, p, a, weights, flags, settings, &mut work)?;
+        ws.acquire(crate::workspace::ScratchFamily::Simplify);
         run(
             out, indices, p, a, weights, flags, settings, ws, &mut work, 0,
         )
@@ -927,6 +929,12 @@ impl State {
         Ok(())
     }
     fn retain(mut self, ws: &mut Workspace) {
+        // Position quadrics are fully rewritten on every call and dominate
+        // resident scratch during caller-side pruning. Keep the other typed
+        // buffers reusable, but release these pages before returning.
+        if ws.retention() == crate::Retention::Lean {
+            self.q = Vec::new();
+        }
         if let Some(mut unused) = ws.simplify.take() {
             if self.a.capacity() == 0 {
                 self.a = core::mem::take(&mut unused.a);
@@ -1063,6 +1071,7 @@ impl State {
         let bytes = output
             .checked_add(state.capacity_bytes()?)
             .ok_or(Error::SizeOverflow)?;
+        let lean = ws.retention() == crate::Retention::Lean;
         let mut b = Budget::new(ws, bytes);
         b.reuse(&mut state.offsets.0, n + 1)?;
         b.reuse(&mut state.edges, m)?;
@@ -1079,8 +1088,14 @@ impl State {
         state.p.clear();
         b.reuse_capacity(&mut state.p, n)?;
         b.reuse(&mut state.a, na)?;
-        b.reuse(&mut state.q, n)?;
-        state.q.fill(Q::default());
+        if lean {
+            // Initialize once for both fresh and reused allocations.
+            state.q.clear();
+            b.reuse(&mut state.q, n)?;
+        } else {
+            b.reuse(&mut state.q, n)?;
+            state.q.fill(Q::default());
+        }
         b.reuse(&mut state.aq, if ac > 0 { n } else { 0 })?;
         state.aq.fill(Q::default());
         b.reuse(&mut state.g, na)?;
@@ -2217,9 +2232,15 @@ fn run_state(
         Ok::<_, Error>(requested)
     })();
     s.reclaim_for(ws, requested, &mut input.original)?;
+    let lean = ws.retention() == crate::Retention::Lean;
     let mut budget = Budget::new(ws, s.bytes);
     budget.reuse_capacity(&mut s.collapses, capacity)?;
-    budget.reuse(&mut s.order.0, capacity)?;
+    if lean {
+        // Reserve the same fallible upper bound without touching unused pages.
+        budget.reuse_capacity(&mut s.order.0, capacity)?;
+    } else {
+        budget.reuse(&mut s.order.0, capacity)?;
+    }
     let mut count = m;
     let mut error = 0.0;
     let mut vertex_error = 0.0;
@@ -2237,6 +2258,11 @@ fn run_state(
         let nc = s.pick(&out[..count], capacity, work)?;
         if nc == 0 {
             break;
+        }
+        // pick is bounded by capacity; resize cannot allocate here. Sorting
+        // writes every used entry, and no ordering entries exist when nc == 0.
+        if lean {
+            s.order.0.resize(nc, 0);
         }
         s.rank(nc, work)?;
         s.sort(nc, work)?;
@@ -2479,5 +2505,186 @@ mod tests {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod retention_tests {
+    use alloc::vec::Vec;
+
+    use crate::{
+        optimize_overdraw, optimize_vertex_cache, simplify, Positions, SimplifyOptions,
+        SimplifySettings,
+    };
+    use crate::{Error, Limits, Retention, Workspace};
+
+    #[test]
+    fn cache_update_cache_releases_scratch_and_preserves_results() {
+        let positions = [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.1],
+        ];
+        let indices = [0, 1, 2, 2, 1, 3];
+        let mut outcomes = Vec::new();
+        for retention in [Retention::Lean, Retention::Reuse] {
+            let mut ws = Workspace::default();
+            ws.set_retention(retention);
+            let cached = optimize_vertex_cache(&indices, positions.len(), &mut ws).unwrap();
+            let cache_work = ws.usage().work;
+            let mut updated_indices = indices;
+            let mut updated_positions = positions;
+            let result = crate::simplify_with_update(
+                &mut updated_indices,
+                &mut crate::PositionsMut::from_packed(&mut updated_positions),
+                None,
+                &[],
+                None,
+                SimplifySettings {
+                    target_index_count: indices.len(),
+                    target_error: 0.5,
+                    options: SimplifyOptions::EMPTY,
+                },
+                &mut ws,
+            )
+            .unwrap();
+            let update_work = ws.usage().work;
+            if retention == Retention::Lean {
+                assert_eq!(ws.integers.capacity(), 0);
+                assert_eq!(ws.floats.capacity(), 0);
+                assert_eq!(ws.flags.capacity(), 0);
+                assert_eq!(ws.keys.capacity(), 0);
+                assert_eq!(ws.vertices.capacity(), 0);
+            }
+            assert!(ws.simplify.is_some());
+            let cached_again =
+                optimize_vertex_cache(&updated_indices, positions.len(), &mut ws).unwrap();
+            if retention == Retention::Lean {
+                assert!(ws.simplify.is_none());
+            }
+            outcomes.push((
+                cached,
+                result.index_count,
+                result.error.to_bits(),
+                updated_indices,
+                updated_positions.map(|p| p.map(f32::to_bits)),
+                cached_again,
+                [cache_work, update_work, ws.usage().work],
+            ));
+        }
+        assert_eq!(outcomes[0], outcomes[1]);
+    }
+
+    #[test]
+    fn switching_chain_family_releases_scratch_and_preserves_results() {
+        let p = [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.1],
+        ];
+        let i = [0, 1, 2, 2, 1, 3];
+        let settings = SimplifySettings {
+            target_index_count: 3,
+            target_error: 0.5,
+            options: SimplifyOptions::EMPTY,
+        };
+        let mut ws = Workspace::default();
+        ws.set_retention(Retention::Lean);
+        let simplified = simplify(&i, Positions::from_packed(&p), settings, &mut ws).unwrap();
+        assert!(ws.simplify.as_ref().unwrap().capacity_bytes().unwrap() > 0);
+        assert_eq!(ws.simplify.as_ref().unwrap().q.capacity(), 0);
+        let mut reuse = Workspace::default();
+        assert_eq!(reuse.retention(), Retention::Reuse);
+        let expected = simplify(&i, Positions::from_packed(&p), settings, &mut reuse).unwrap();
+        assert_eq!(expected.indices, simplified.indices);
+        assert_eq!(expected.error.to_bits(), simplified.error.to_bits());
+        assert!(reuse.simplify.as_ref().unwrap().q.capacity() > 0);
+        let expected_cache = optimize_vertex_cache(&i, p.len(), &mut reuse).unwrap();
+        assert!(reuse.simplify.is_some());
+        let expected_overdraw = optimize_overdraw(
+            &expected_cache,
+            Positions::from_packed(&p),
+            1.05,
+            &mut reuse,
+        )
+        .unwrap();
+        assert!(reuse.simplify.is_some());
+        assert!(reuse.vertices.capacity() > 0);
+        let cached = optimize_vertex_cache(&i, p.len(), &mut ws).unwrap();
+        assert!(ws.simplify.is_none());
+        assert!(ws.vertices.capacity() > 0);
+        assert_eq!(
+            cached,
+            optimize_vertex_cache(&i, p.len(), &mut Workspace::default()).unwrap()
+        );
+        let vertex_ptr = ws.vertices.as_ptr();
+        let integer_ptr = ws.integers.as_ptr();
+        assert_eq!(cached, optimize_vertex_cache(&i, p.len(), &mut ws).unwrap());
+        assert_eq!(vertex_ptr, ws.vertices.as_ptr());
+        assert_eq!(integer_ptr, ws.integers.as_ptr());
+        let overdraw =
+            optimize_overdraw(&cached, Positions::from_packed(&p), 1.05, &mut ws).unwrap();
+        assert_eq!(overdraw, expected_overdraw);
+        assert_eq!(ws.vertices.capacity(), 0);
+        assert_eq!(ws.flags.capacity(), 0);
+        assert_eq!(
+            overdraw,
+            optimize_overdraw(
+                &cached,
+                Positions::from_packed(&p),
+                1.05,
+                &mut Workspace::default()
+            )
+            .unwrap()
+        );
+        let integer_ptr = ws.integers.as_ptr();
+        let float_ptr = ws.floats.as_ptr();
+        assert_eq!(
+            overdraw,
+            optimize_overdraw(&cached, Positions::from_packed(&p), 1.05, &mut ws).unwrap()
+        );
+        assert_eq!(integer_ptr, ws.integers.as_ptr());
+        assert_eq!(float_ptr, ws.floats.as_ptr());
+        let again = simplify(&i, Positions::from_packed(&p), settings, &mut ws).unwrap();
+        assert_eq!(again.indices, simplified.indices);
+        assert_eq!(again.error.to_bits(), simplified.error.to_bits());
+        assert_eq!(ws.integers.capacity(), 0);
+        assert_eq!(ws.floats.capacity(), 0);
+        assert_eq!(ws.keys.capacity(), 0);
+        assert_eq!(ws.simplify.as_ref().unwrap().q.capacity(), 0);
+        let state_bytes = ws.simplify.as_ref().unwrap().capacity_bytes().unwrap();
+        assert_eq!(ws.retained_bytes().unwrap(), state_bytes);
+        assert_eq!(ws.limits(), Limits::default());
+        assert!(ws.usage().bytes >= state_bytes);
+        assert!(ws.usage().work > 0);
+        // Validation failures do not acquire scratch or alter the error.
+        assert_eq!(
+            optimize_vertex_cache(&[4, 0, 1], p.len(), &mut ws),
+            Err(Error::IndexOutOfBounds)
+        );
+        assert!(ws.simplify.is_some());
+        assert_eq!(
+            optimize_vertex_cache(&[4, 0, 1], p.len(), &mut reuse),
+            Err(Error::IndexOutOfBounds)
+        );
+        assert_eq!(ws.retained_bytes().unwrap(), state_bytes);
+        let fifo = crate::optimize_vertex_cache_fifo(&i, p.len(), 16, &mut ws).unwrap();
+        assert!(ws.simplify.is_none());
+        assert_eq!(
+            fifo,
+            crate::optimize_vertex_cache_fifo(&i, p.len(), 16, &mut Workspace::default()).unwrap()
+        );
+        let usage = ws.usage();
+        ws.set_retention(Retention::Lean);
+        assert_eq!(ws.usage(), usage);
+        ws.clear();
+        assert_eq!(ws.retention(), Retention::Lean);
+        ws.set_limits(Limits::default());
+        assert_eq!(ws.retention(), Retention::Lean);
+        ws.set_retention(Retention::Reuse);
+        assert_eq!(ws.retained_bytes().unwrap(), 0);
+        assert_eq!(ws.usage(), crate::Usage::default());
     }
 }

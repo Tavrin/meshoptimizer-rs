@@ -1,0 +1,159 @@
+[
+  {
+    "arm": "reuse",
+    "peak_kib": 2986576,
+    "at_peak": {
+      "allocator": {
+        "arena": 189734912,
+        "arena_free": 36098912,
+        "arena_live": 153636000,
+        "live": 3674212609,
+        "mmap": 3520684032,
+        "moved_realloc_old_bytes": 686132576,
+        "peak": 3929490364
+      },
+      "detail": {
+        "fields": [
+          [
+            "offsets.0",
+            27193768
+          ],
+          [
+            "edges",
+            68424024
+          ],
+          [
+            "remap.0",
+            27193764
+          ],
+          [
+            "wedge.0",
+            27193764
+          ],
+          [
+            "kind",
+            6798441
+          ],
+          [
+            "forward.0",
+            27193764
+          ],
+          [
+            "back.0",
+            27193764
+          ],
+          [
+            "p",
+            81581292
+          ],
+          [
+            "a",
+            0
+          ],
+          [
+            "q",
+            326325168
+          ],
+          [
+            "aq",
+            0
+          ],
+          [
+            "g",
+            0
+          ],
+          [
+            "vg",
+            0
+          ],
+          [
+            "sparse",
+            0
+          ],
+          [
+            "original",
+            0
+          ],
+          [
+            "collapses",
+            102636036
+          ],
+          [
+            "order.0",
+            34212012
+          ],
+          [
+            "cr.0",
+            27193764
+          ],
+          [
+            "locked",
+            6798441
+          ],
+          [
+            "table.0",
+            0
+          ]
+        ],
+        "retained": [
+          908965708,
+          789938002,
+          81581292,
+          32895784,
+          2851008,
+          712752,
+          986870
+        ],
+        "usage_bytes": 917518732,
+        "usage_work": 37283942
+      },
+      "ns": "210",
+      "rss": [
+        "VmHWM:\t 2986576 kB",
+        "VmRSS:\t 2810940 kB"
+      ],
+      "stage": "observe:packaged",
+      "timestamp_ns": "1792987574444043375"
+    },
+    "max_usage": 1010286584,
+    "max_allocator_requested": 3929490364
+  },
+  {
+    "arm": "clear-call",
+    "peak_kib": 2126424,
+    "at_peak": {
+      "allocator": {
+        "arena": 128798720,
+        "arena_free": 48154384,
+        "arena_live": 80644336,
+        "live": 2579412485,
+        "mmap": 2498818048,
+        "moved_realloc_old_bytes": 317087241,
+        "peak": 2834692263
+      },
+      "detail": {
+        "fields": [],
+        "retained": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "usage_bytes": 0,
+        "usage_work": 0
+      },
+      "ns": "20",
+      "rss": [
+        "VmHWM:\t 2126424 kB",
+        "VmRSS:\t 1951256 kB"
+      ],
+      "stage": "observe:packaged",
+      "timestamp_ns": "1792987599452828326"
+    },
+    "max_usage": 824150014,
+    "max_allocator_requested": 2834692263
+  }
+]

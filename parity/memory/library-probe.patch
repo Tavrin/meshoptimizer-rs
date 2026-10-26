@@ -1,0 +1,9 @@
+--- /home/etienne/dev/meshoptimizer-rs-wt/memory/src/workspace.rs
++++ /mnt/linux-extra/moss-scratch/meshopt-memory/library/src/workspace.rs
+@@ -935,3 +935,6 @@
+         }
+     }
+ }
++
++impl Workspace { /// Probe-only retained capacities.
++ pub fn diag(&self) -> (usize,usize,usize,usize,usize,usize,usize) { (self.retained_bytes().unwrap(), self.simplify.as_ref().map_or(0, |s| s.capacity_bytes().unwrap()), self.vertices.capacity()*core::mem::size_of::<CacheVertex>(), self.integers.capacity()*4, self.floats.capacity()*4, self.flags.capacity(), self.keys.capacity()*2) } }

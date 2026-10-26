@@ -1,0 +1,37 @@
+[
+  {
+    "iteration": 1,
+    "directory": "candidate-rss-probe",
+    "rss_kib": 2548556,
+    "exit": 0,
+    "timing_evidence": false
+  },
+  {
+    "iteration": 2,
+    "directory": "candidate-rss-probe2",
+    "rss_kib": 2515284,
+    "exit": 0,
+    "timing_evidence": false
+  },
+  {
+    "iteration": 3,
+    "directory": "candidate-rss-probe3",
+    "rss_kib": 2452120,
+    "exit": 0,
+    "timing_evidence": false
+  },
+  {
+    "iteration": 4,
+    "directory": "candidate-rss-probe4",
+    "rss_kib": 2451804,
+    "exit": 0,
+    "timing_evidence": false
+  },
+  {
+    "iteration": 5,
+    "directory": "candidate-rss-probe5",
+    "rss_kib": 2302956,
+    "exit": 0,
+    "timing_evidence": false
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-26T04:48:10.904553+00:00",
+  "sha256": "d83020c464930066173f7f464a817a2b973befa3334c314763e08615db370c95",
+  "timed_samples_started": false,
+  "amendment": "release q; preserve other typed scratch; initialize q once and order by actual picked count",
+  "supersedes": "iteration4-REGISTRATION-SEAL.json"
+}

@@ -1,0 +1,10 @@
+{
+  "event": "finish",
+  "name": "a082-A",
+  "rc": 0,
+  "exact": true,
+  "stable_sha256": "fcdc23d7d994822d08b95f813fbfc3e00741716552af582f65db42f92bf6cc1d",
+  "utc": 1792998992.6289523,
+  "instructions": 227502034599,
+  "counter_line": "227502034599;;instructions:u;42696748790;100.00;;"
+}

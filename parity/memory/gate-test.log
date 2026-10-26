@@ -1,0 +1,274 @@
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.18.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-rs v0.2.5 (/home/etienne/dev/meshoptimizer-rs-wt/memory)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.37s
+     Running unittests src/lib.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/meshoptimizer_rs-53b8983947056258)
+
+running 39 tests
+test clusterlod::support::workspace::tests::scan_preserves_failures_work_and_side_effects ... ok
+test codec::simd::tests::delta_prefixes_stage_partial_unaligned_vectors ... ok
+test codec::simd::tests::explicit_exp_kernel_matches_canonical_small_windows ... ok
+test math::tests::constant_normalization_root_matches_pinned_backend ... ok
+test input::triangle_tests::specialized_triangle_reads_keep_bits_errors_and_work_prefixes ... ok
+test codec::simd::tests::packed_groups_and_meshlet_masks_match_integer_reference ... ok
+test clusterlod::support::simplify::tests::ranking_preserves_numerical_failure_and_budget_prefix ... ok
+test meshlet::packed_tests::packed_children_check_actual_metadata_without_truncation ... ok
+test processing::tests::child_and_external_work_keep_u64_counts_on_32_bit_targets ... ok
+test processing::tests::processing_scan_preserves_budget_failure_visit_and_side_effects ... ok
+test processing::tests::processing_search_charges_only_visited_prefix ... ok
+test raster::tests::pixel_scan_keeps_tight_fuel_and_statistics_prefixes ... ok
+test simplify::tests::preflight_preserves_the_first_reservations_limit_error ... ok
+test simplify::extra::solve_tests::accumulated_solve_preserves_numerical_failure_work_and_position_prefix ... ok
+test simplify::tests::prepaid_phases_match_checked_visits ... ok
+test simplify::tests::repeated_simplify_reuses_arrays_but_releases_the_remapping_hash ... ok
+test simplify::tests::ranking_preserves_numerical_failure_and_budget_prefix ... ok
+test workspace::tests::active_capacity_reclamation_preserves_live_prefixes_and_fitting_reuse ... ok
+test workspace::tests::bounded_search_preserves_the_checked_callback_prefix ... ok
+test workspace::tests::index_fast_path_preserves_first_error_and_fuel_prefix ... ok
+test workspace::tests::scan_preserves_failures_work_and_side_effects ... ok
+test workspace::tests::precharged_scans_and_batches_fit_their_counter_width ... ok
+test codec::filter_encode::tiny_tests::bulk_quaternions_match_single_records_for_coherent_and_mixed_rotations ... ok
+test workspace::tests::fixed_charge_scans_preserve_failure_prefixes ... ok
+test codec::filter_encode::tiny_tests::tiny_matches_bulk_at_precision_and_dispatch_boundaries ... ok
+test codec::index_encode::fifo_tests::fifo_frontier_bound_matches_full_search ... ok
+test codec::vertex::streaming_tests::staged_vertex_destination_matches_initialized_reference ... ok
+test codec::meshlet::tests::single_matches_reference_for_all_controls_and_triangle_codes ... ok
+test meshlet::packed_tests::small_divide_matches_integer_division ... ok
+test codec::filter::tests::small_truncation_matches_the_reference_conversion ... ok
+test codec::simd::tests::byte_headers_share_lookahead_without_accepting_short_groups ... ok
+test raster::tests::packed_transform_keeps_logical_mapped_positions ... ok
+test math::tests::cache_preserves_full_bits_through_collisions_and_special_values ... ok
+test clusterlod::support::math::tests::cache_preserves_full_bits_through_collisions_and_special_values ... ok
+test raster::tests::empty_views_keep_triangle_and_scan_work ... ok
+test processing::tests::processing_memos_preserve_backend_bits_and_collisions ... ok
+test workspace::tests::simplify_then_cache_releases_retained_scratch_under_pressure ... ok
+test math::tests::bounds_hold_for_every_operand_class ... ok
+test math::tests::sqrt8_matches_backend ... ok
+
+test result: ok. 39 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running tests/api.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/api-188ecd94830b8eb7)
+
+running 49 tests
+test attributes_enforce_width_and_support_zero_components ... ok
+test byte_positions_honor_unaligned_offsets_and_endianness ... ok
+test cache_still_refuses_live_storage_that_does_not_fit ... ok
+test counted_cache_work_has_an_exact_boundary ... ok
+test cache_preserves_triangle_corners ... ok
+test destination_tail_is_untouched ... ok
+test counted_overdraw_work_has_an_exact_boundary ... ok
+test degenerate_triangles_remain_valid ... ok
+test empty_meshes_succeed ... ok
+test flags_preserve_all_combinations_and_reject_unknown_bits ... ok
+test finite_thresholds_below_one_are_accepted ... ok
+test in_place_errors_are_atomic ... ok
+test indices_are_checked ... ok
+test layouts_enforce_upstream_stride_bounds ... ok
+test intermediate_overflow_is_rejected ... ok
+test lowering_limits_releases_retained_scratch ... ok
+test nonfinite_threshold_is_rejected ... ok
+test optional_flags_require_one_entry_per_vertex ... ok
+test other_algorithms_release_unused_cache_vertex_storage ... ok
+test overdraw_destination_tail_is_untouched ... ok
+test overdraw_centroid_overflow_keeps_validation_and_reservation_precedence ... ok
+test overdraw_rejects_squared_area_overflow_with_finite_normal ... ok
+test platform_size_overflow_is_checked_without_allocation ... ok
+test overdraw_in_place_numerical_error_is_atomic ... ok
+test scale_has_no_epsilon_clamp ... ok
+test short_destination_is_unchanged ... ok
+test priority_increases_positional_cost ... ok
+test simplifier_checks_target_and_error ... ok
+test protect_prevents_permissive_discontinuity_collapses ... ok
+test simplifier_accepts_partial_triangle_target ... ok
+test simplifier_empty_has_zero_error ... ok
+test simplifier_rejects_unimplemented_option_bits ... ok
+test simplifier_into_matches_allocating_and_preserves_tail ... ok
+test simplifier_exact_work_budget_is_enforced ... ok
+test simplifier_locks_preserve_vertices ... ok
+test simplifier_matches_upstream_strip ... ok
+test simplifier_memory_budget_includes_scratch_and_output ... ok
+test simplifier_rejects_nonfinite_unused_geometry ... ok
+test simplifier_reports_overflowing_extent ... ok
+test storage_limit_includes_output ... ok
+test strided_positions_honor_offset_and_last_record_extent ... ok
+test simplifier_validates_attribute_dimensions_and_values ... ok
+test strided_and_byte_positions_match_packed_overdraw ... ok
+test topology_is_checked ... ok
+test simplifier_validates_flag_length ... ok
+test unused_nonfinite_geometry_is_rejected ... ok
+test simplifier_zero_weights_match_position_only ... ok
+test strided_overdraw_preserves_work_and_numerical_failure_precedence ... ok
+test strided_simplification_preserves_packed_results_and_work_limits ... ok
+
+test result: ok. 49 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/codec.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/codec-4b68be3fc9bf4296)
+
+running 12 tests
+test resources_destination_and_narrowing ... ok
+test ext_rules_and_parent_layout ... ok
+test arbitrary_malformed_bytes_never_panic ... ok
+test sequence_fixture_tail_truncation_and_raw_empty ... ok
+test decoder_accounts_retained_geometry_workspace_without_allocating_scratch ... ok
+test versions_are_header_inspection_and_ext_remains_narrow ... ok
+test scalar_filter_goldens_and_undefined_oct ... ok
+test quaternion_rounding_uses_the_original_component_sign ... ok
+test allocating_sequence_blocks_preserve_limits_headers_and_tails ... ok
+test allocating_vertex_preflight_at_minimum_block_boundary ... ok
+test allocating_vertex_blocks_preserve_capacity_limits_and_filtered_bytes ... ok
+test large_stride_four_owned_decode_preserves_limits_and_tail_checks ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/codec04.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/codec04-1c1e784139a0773a)
+
+running 9 tests
+test encoder_capacity_matches_reference_zero_returns ... ok
+test exp_separate_zero_records_inherit_each_component_exponent ... ok
+test encoders_reproduce_upstream_goldens ... ok
+test filter_encoders_validate_and_reject_undefined_conversions ... ok
+test quaternion_encoder_preserves_first_maximum_nan_and_signed_zero ... ok
+test sequence_baseline_negation_keeps_the_observed_reference_wrap ... ok
+test meshlet_codec_round_trips_and_rejects_malformed_streams ... ok
+test allocating_filters_preserve_work_usage_at_each_budget_boundary ... ok
+test explicit_configuration_replaces_global_versions ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/meshlets.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/meshlets-c69c2144ee289115)
+
+running 18 tests
+test bounds_keep_zero_degenerate_cones_and_enclose_spheres ... ok
+test caller_dag::empty_and_invalid_width_have_explicit_results ... ok
+test partition_arbitrary_lists_empty_and_disconnected ... ok
+test early_errors_replace_previous_workspace_measurements ... ok
+test demo_hierarchy_references_progress_and_explicit_errors ... ok
+test caller_dag::dilation_keeps_earlier_snapshots_and_full_dag_limits_are_cumulative ... ok
+test spatial_permutation_directions_and_strided_identity ... ok
+test packed_meshlets_and_caller_buffers_preserve_topology_and_tails ... ok
+test validation_and_exact_resource_boundaries ... ok
+test utilities_handle_collision_unused_vertices_wrapping_valence_and_rotation ... ok
+test demo_dilation_near_position_range_threshold ... ok
+test caller_dag::each_caller_buffer_can_fail_without_replacement_output ... ok
+test caller_dag::flat_dag_matches_callback_order_hierarchy_and_preserves_all_tails ... ok
+test caller_dag::caller_dag_batches_match_at_1_2_8_threads_and_isolate_ordered_errors ... ok
+test all_processing_families_enforce_work_and_retained_storage ... ok
+test demo_limits_charge_outputs_scratch_and_callback_lifetimes ... ok
+test demo_attribute_layouts_preserve_output_and_workspace_peak ... ok
+test demo_single_cluster_unused_attributes_do_not_consume_workspace ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/p05.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/p05-283d3e729eb20705)
+
+running 15 tests
+test batched_strip_and_fetch_work_respects_exact_boundary ... ok
+test normal_tangent_peak_storage_excludes_retired_remap_table ... ok
+test batched_normal_tangent_and_remesh_work_respects_exact_boundary ... ok
+test opacity_bulk_probe_work_preserves_numerical_failure_prefix ... ok
+test pinned_opacity_vectors ... ok
+test compact_scratch_boundaries_keep_duplicates_and_limits ... ok
+test opacity_measure_ranges_keep_global_sources_and_work_prefixes ... ok
+test pinned_strip_and_cache_vectors ... ok
+test upstream_normals_basic ... ok
+test upstream_tangents_basic ... ok
+test raster_into_uses_caller_storage_and_preserves_atomic_failure ... ok
+test strip_append_output_preserves_caller_prefixes_and_tails ... ok
+test pinned_remesh_tetrahedron ... ok
+test normal_tangent_into_uses_caller_storage_and_preserves_failures ... ok
+test pinned_raster_vector ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/parallel.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/parallel-86a35fe94dcf1f2e)
+
+running 9 tests
+test global_pool_and_concurrent_calls_keep_order ... ok
+test cluster_lod_late_failure_mutates_positions_and_isolates_neighbours ... ok
+test complete_views_match_sequential_decoding_including_filter_failures ... ok
+test cluster_lod_dags_dilation_and_hierarchies_match_at_each_thread_count ... ok
+test every_meshlet_builder_matches_sequential_packed_output_and_errors ... ok
+test chain_budget_includes_all_levels_and_cumulative_work ... ok
+test mixed_encodings_and_limits_are_independent_of_worker_history ... ok
+test hierarchy_small_and_large_batches_preserve_order_and_limits ... ok
+test lod_chains_match_direct_sequential_calls_at_1_2_8_and_n_threads ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+     Running tests/preprocessing.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/preprocessing-bad89823d6730d00)
+
+running 34 tests
+test checked_layout_topology_and_unused_remaps ... ok
+test bounded_hash_batches_preserve_every_callback_and_write_prefix ... ok
+test bounded_triangle_filter_preserves_winding_and_work_prefixes ... ok
+test early_validation_resets_measurements_and_preserves_retained_scratch ... ok
+test fetch_indices_constructor_retains_first_failing_visit ... ok
+test compact_float_views_exclude_padding_and_preserve_validation_prefixes ... ok
+test filtering_preserves_winding_and_representative_source_indices ... ok
+test fifo_reused_mixed_scratch_matches_fresh_results_and_work ... ok
+test first_use_fetch_and_binary_welding_are_distinct ... ok
+test fetch_remap_preserves_scalar_failure_prefix_and_work ... ok
+test half_rules_preserve_payloads_and_flush_subnormals ... ok
+test fused_shadow_generation_preserves_counted_write_prefixes ... ok
+test normalization_counts_only_the_visited_validation_prefix ... ok
+test mutable_byte_views_preserve_padding_and_external_locks ... ok
+test overdraw_reclaims_excess_capacity_of_active_integer_scratch ... ok
+test every_preprocessing_kernel_enforces_its_measured_work_and_heap_boundary ... ok
+test fetch_remap_initialization_preserves_mixed_workspace_reuse ... ok
+test packed_and_strided_preprocessing_views_have_identical_results ... ok
+test pruning_welds_signed_zero_across_disconnected_triangle_lists ... ok
+test preprocessing_work_and_memory_limits_are_enforced ... ok
+test remap_callbacks_and_signed_zero_follow_upstream_rules ... ok
+test remap_validation_precedence_and_limited_write_prefix ... ok
+test singleton_point_cells_preserve_numerics_tails_and_exhaustion_prefix ... ok
+test cached_fetch_remap_matches_allocating_errors_output_and_usage ... ok
+test zero_point_target_validates_without_rescaling_or_allocating ... ok
+test fixed_width_fetch_copies_only_used_records_and_charges_full_capacity ... ok
+test sentinel_shadow_scratch_resets_after_fifo_and_across_stream_widths ... ok
+test cached_fetch_remap_into_matches_errors_prefixes_tails_and_usage ... ok
+test sloppy_scratch_reuse_clears_cell_state_and_combines_typed_budgets ... ok
+test position_only_simplify_releases_unused_attribute_scratch_before_collapse ... ok
+test update_solving_matches_tight_work_limits_for_wedges_and_attributes ... ok
+test typed_simplifier_scratch_reuse_preserves_results_and_retained_budget ... ok
+test update_reclaims_excess_capacity_of_active_original_scratch ... ok
+test retained_different_size_processing_sequences_match_fresh ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/simd.rs (/mnt/linux-extra/moss-cargo-targets/meshopt-memory/debug/deps/simd-32986dd883f0b075)
+
+running 9 tests
+test lowering_is_checked_nested_and_unwind_safe ... ok
+test repeated_filter_runs_preserve_alpha_and_changed_suffix ... ok
+test color_alpha_conversion_bounds_and_wrap ... ok
+test meshlet_controls_widths_partial_groups_and_tail_preservation ... ok
+test filters_match_scalar_with_extreme_words_and_tails ... ok
+test meshlet_all_pair_codes_odd_tails_and_counter_wrap ... ok
+test vertex_versions_channels_boundaries_and_malformed_results ... ok
+test oct_short_tails_match_canonical_root_rounding ... ok
+test exp_dispatch_boundary_preserves_words_and_tail ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.68s
+
+   Doc-tests meshoptimizer_rs
+
+running 11 tests
+test src/lib.rs - ReadmeDoctests (line 161) ... ok
+test src/lib.rs - ReadmeDoctests (line 191) ... ok
+test src/lib.rs - ReadmeDoctests (line 223) ... ok
+test src/lib.rs - ReadmeDoctests (line 256) ... ok
+test src/parallel.rs - parallel (line 24) ... ok
+test src/lib.rs - (line 27) ... ok
+test src/lib.rs - (line 46) ... ok
+test src/lib.rs - (line 61) ... ok
+test src/parallel.rs - parallel::simplify_lod_chain (line 135) ... ok
+test src/parallel.rs - parallel (line 33) ... ok
+test src/lib.rs - (line 90) ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
