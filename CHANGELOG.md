@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   floor 0.2799. Fetch PASS; the other three families PARTIAL under SPEC-027.
 - `quantize_half` takes 0.95× the time of v0.2.6, GM 95% interval
   [0.925, 0.984], with byte-identical output.
+- Native scalar overdraw takes 0.85× the time of 0.2.6 on five frozen synthetic
+  cases and 0.83× on three captured meshes. The same cases take 1.12× and
+  1.22× the time of optimesh 1.1.0, respectively; the captured meshes take
+  1.27× the time of C++ 1.3.
 
 ## [0.2.6] - 2026-10-26
 

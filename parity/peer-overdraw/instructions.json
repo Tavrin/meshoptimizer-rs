@@ -1,0 +1,98 @@
+[
+  {
+    "case": "medium-seams",
+    "instructions_per_call": {
+      "B": 2322077.6033333335,
+      "X": 1846269.7266666666,
+      "M7": 1616957.1566666667,
+      "O": 1838860.8466666667
+    },
+    "candidate_baseline": 0.7919032697386982,
+    "candidate_x": 0.9959871085502896,
+    "candidate_m7": 1.1372353553618273
+  },
+  {
+    "case": "medium-smooth",
+    "instructions_per_call": {
+      "B": 2236105.4966666666,
+      "X": 1826513.8333333333,
+      "M7": 1621137.56,
+      "O": 1808451.1266666667
+    },
+    "candidate_baseline": 0.8087503605543215,
+    "candidate_x": 0.9901108295283465,
+    "candidate_m7": 1.1155445233572077
+  },
+  {
+    "case": "medium-sparse",
+    "instructions_per_call": {
+      "B": 2358791.76,
+      "X": 1902683.7966666666,
+      "M7": 1659151.5033333334,
+      "O": 1931138.7966666666
+    },
+    "candidate_baseline": 0.8186982969054746,
+    "candidate_x": 1.0149551912145627,
+    "candidate_m7": 1.163931559466929
+  },
+  {
+    "case": "million-smooth",
+    "instructions_per_call": {
+      "B": 331072797.5,
+      "X": 245277212.5,
+      "M7": 218536160.55,
+      "O": 241688635.65
+    },
+    "candidate_baseline": 0.730016592951887,
+    "candidate_x": 0.9853693018873492,
+    "candidate_m7": 1.1059434513799964
+  },
+  {
+    "case": "real-214e-overdraw",
+    "instructions_per_call": {
+      "B": 1048738886.15,
+      "X": 625047146.95,
+      "M7": 515249807.25,
+      "O": 885238552.3
+    },
+    "candidate_baseline": 0.8440981487296403,
+    "candidate_x": 1.4162748468169772,
+    "candidate_m7": 1.718076435631699
+  },
+  {
+    "case": "real-a082-overdraw",
+    "instructions_per_call": {
+      "B": 2793568602.7,
+      "X": 1530532570.05,
+      "M7": 1279677956.15,
+      "O": 2160552460.25
+    },
+    "candidate_baseline": 0.7734023278189102,
+    "candidate_x": 1.4116344222452046,
+    "candidate_m7": 1.688356394565217
+  },
+  {
+    "case": "real-b6fd-overdraw",
+    "instructions_per_call": {
+      "B": 698371600.3,
+      "X": 382634597.45,
+      "M7": 319984564.65,
+      "O": 540138455.75
+    },
+    "candidate_baseline": 0.7734255738892767,
+    "candidate_x": 1.4116299449910081,
+    "candidate_m7": 1.688014096369945
+  },
+  {
+    "case": "tiny-smooth",
+    "instructions_per_call": {
+      "B": 18428.1767,
+      "X": 18082.8718,
+      "M7": 20474.5782,
+      "O": 16651.9863
+    },
+    "candidate_baseline": 0.903615510697811,
+    "candidate_x": 0.9208706716595757,
+    "candidate_m7": 0.8133005787635713
+  }
+]
