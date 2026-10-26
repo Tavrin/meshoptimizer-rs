@@ -17,6 +17,8 @@ The minimum Rust version is 1.88. The library name is `meshoptimizer_rs`.
 
 ## Usage
 
+Coming from the `meshopt` crate? See [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/MIGRATING_FROM_MESHOPT.md).
+
 Every operation takes a `&mut Workspace` and returns `Result<_, meshoptimizer_rs::Error>`. Most
 have an allocating form, a caller-buffer `_into` form and, where it applies, an `_in_place` form.
 
