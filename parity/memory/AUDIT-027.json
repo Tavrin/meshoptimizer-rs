@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-26T06:15:17.388962+00:00",
+  "verdict": "PASS",
+  "registered_verdict": "FAIL",
+  "processes": 176,
+  "measured_processes": 160,
+  "warmup_processes": 16,
+  "pairs_per_workload_comparison": 10,
+  "order_exact": true,
+  "output_errors_exact": true,
+  "baseline_source_exact": true,
+  "candidate_source_exact": true,
+  "reruns": 0,
+  "campaign_exit": 1
+}

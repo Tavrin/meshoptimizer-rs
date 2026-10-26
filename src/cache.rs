@@ -92,6 +92,7 @@ pub fn optimize_vertex_cache_in_place(
 }
 
 fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Error> {
+    ws.acquire(crate::workspace::ScratchFamily::Cache);
     if n == 0 {
         return ws.prepare([0; 4], out);
     }
@@ -312,6 +313,7 @@ pub fn optimize_vertex_cache_fifo(
         if cache_size < 3 {
             return Err(Error::InvalidParameter);
         }
+        workspace.acquire(crate::workspace::ScratchFamily::Cache);
         let mut budget = Budget::new(workspace);
         let mut out = budget.filled(indices.len(), 0u32)?;
         fifo(
@@ -344,6 +346,7 @@ pub fn optimize_vertex_cache_fifo_into(
         if destination.len() < indices.len() {
             return Err(Error::BufferTooSmall);
         }
+        workspace.acquire(crate::workspace::ScratchFamily::Cache);
         fifo(
             destination,
             indices,

@@ -1,0 +1,41 @@
+schema = "moss-meshopt-corpus.v1"
+phase = "0.1-geometry"
+
+[[fixture]]
+id = "jungle-scoreboard-214e85c568a64e8a-entity"
+kind = "real"
+path = "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/214e85c568a64e8a.mesh"
+sha256 = "70cf8451981167c50cd1b8d296a062ca99517f679aad492e2e19f4e8711bcbf8"
+format = "cooked-mesh"
+drop_clump_area_loss = false
+max_vertices = 6798441
+max_indices = 8553003
+max_input_bytes = 469312236
+input_vertices = 6798441
+input_indices = 8553003
+
+[[fixture]]
+id = "jungle-scoreboard-b6fdb93d8a1709e2-entity"
+kind = "real"
+path = "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/b6fdb93d8a1709e2.mesh"
+sha256 = "4c195317e5e93bb4ccb469dd1ac37d0667ee89560bc9e134cd4d5e1e7f2b3076"
+format = "cooked-mesh"
+drop_clump_area_loss = false
+max_vertices = 1809344
+max_indices = 2467305
+max_input_bytes = 268435456
+input_vertices = 1809344
+input_indices = 2467305
+
+[[fixture]]
+id = "jungle-scoreboard-a082ca1fd19bb86a-entity"
+kind = "real"
+path = "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/a082ca1fd19bb86a.mesh"
+sha256 = "8b9c8adce7bdca361abbf4166b5f217e73849508b40a90ee830e286e56a313e8"
+format = "cooked-mesh"
+drop_clump_area_loss = false
+max_vertices = 7237324
+max_indices = 9869175
+max_input_bytes = 502665436
+input_vertices = 7237324
+input_indices = 9869175

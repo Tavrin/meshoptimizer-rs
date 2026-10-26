@@ -267,6 +267,7 @@ fn allocating(
         validate(
             indices, positions, attributes, weights, flags, settings, &mut work,
         )?;
+        ws.acquire(crate::workspace::ScratchFamily::Simplify);
         ws.prepare([0; 4], checked_bytes(indices.len(), 4)?)?;
         let mut out = crate::workspace::output(indices.len())?;
         let output_bytes = checked_bytes(out.capacity(), 4)?;
@@ -353,6 +354,7 @@ fn into(
             return Err(Error::BufferTooSmall);
         }
         validate(indices, p, a, weights, flags, settings, &mut work)?;
+        ws.acquire(crate::workspace::ScratchFamily::Simplify);
         run(
             out, indices, p, a, weights, flags, settings, ws, &mut work, 0,
         )
@@ -927,6 +929,10 @@ impl State {
         Ok(())
     }
     fn retain(mut self, ws: &mut Workspace) {
+        // Position quadrics are fully rewritten on every call and dominate
+        // resident scratch during caller-side pruning. Keep the other typed
+        // buffers reusable, but release these pages before returning.
+        self.q = Vec::new();
         if let Some(mut unused) = ws.simplify.take() {
             if self.a.capacity() == 0 {
                 self.a = core::mem::take(&mut unused.a);
@@ -1079,8 +1085,9 @@ impl State {
         state.p.clear();
         b.reuse_capacity(&mut state.p, n)?;
         b.reuse(&mut state.a, na)?;
+        // Initialize once for both fresh and reused allocations.
+        state.q.clear();
         b.reuse(&mut state.q, n)?;
-        state.q.fill(Q::default());
         b.reuse(&mut state.aq, if ac > 0 { n } else { 0 })?;
         state.aq.fill(Q::default());
         b.reuse(&mut state.g, na)?;
@@ -2219,7 +2226,8 @@ fn run_state(
     s.reclaim_for(ws, requested, &mut input.original)?;
     let mut budget = Budget::new(ws, s.bytes);
     budget.reuse_capacity(&mut s.collapses, capacity)?;
-    budget.reuse(&mut s.order.0, capacity)?;
+    // Reserve the same fallible upper bound without touching unused pages.
+    budget.reuse_capacity(&mut s.order.0, capacity)?;
     let mut count = m;
     let mut error = 0.0;
     let mut vertex_error = 0.0;
@@ -2238,6 +2246,9 @@ fn run_state(
         if nc == 0 {
             break;
         }
+        // pick is bounded by capacity; resize cannot allocate here. Sorting
+        // writes every used entry, and no ordering entries exist when nc == 0.
+        s.order.0.resize(nc, 0);
         s.rank(nc, work)?;
         s.sort(nc, work)?;
         let goal = (count - settings.target_index_count) / 3;
@@ -2363,9 +2374,12 @@ mod tests {
         let expected = simplify(&[0, 1, 2], Positions::from_packed(&p), settings, &mut ws).unwrap();
         let state = ws.simplify.as_ref().unwrap();
         assert_eq!(state.table.0.capacity(), 0);
+        assert_eq!(state.q.capacity(), 0);
         let before = (
             state.edges.as_ptr(),
-            state.q.as_ptr(),
+            state.p.as_ptr(),
+            state.remap.0.as_ptr(),
+            state.wedge.0.as_ptr(),
             state.collapses.as_ptr(),
             state.order.0.as_ptr(),
         );
@@ -2374,11 +2388,14 @@ mod tests {
         assert_eq!(expected.error.to_bits(), actual.error.to_bits());
         let state = ws.simplify.as_ref().unwrap();
         assert_eq!(state.table.0.capacity(), 0);
+        assert_eq!(state.q.capacity(), 0);
         assert_eq!(
             before,
             (
                 state.edges.as_ptr(),
-                state.q.as_ptr(),
+                state.p.as_ptr(),
+                state.remap.0.as_ptr(),
+                state.wedge.0.as_ptr(),
                 state.collapses.as_ptr(),
                 state.order.0.as_ptr()
             )

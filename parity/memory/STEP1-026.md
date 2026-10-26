@@ -1,0 +1,107 @@
+# 0.2.6 memory: step 1 kill check
+
+Verdict: **no library change needed**.
+
+SPEC-026-memory.md step 1 says to stop if clear-per-mesh saves less than
+0.50 GiB against ordinary reuse. It saves **-0.00325775 GiB** (3,416 KiB
+higher RSS), so this lane stops at that gate. No new API, library semantics,
+limits, version, or Moss source changes.
+
+## Step 1
+
+| Arm | Peak RSS KiB | Peak RSS GiB | Peak tracked bytes | Max scratch retained on algorithm return | Live scratch at mesh boundary |
+|---|---:|---:|---:|---:|---:|
+| v0.2.5 reuse | 2,988,696 | 2.850243 | 1,010,286,584 | 908,965,708 | 908,965,708 |
+| v0.2.5 clear after mesh | 2,992,112 | 2.853500 | 1,010,286,584 | 908,965,708 | 0 |
+| C++ 1.3 | 2,209,608 | 2.107246 | 762,744,238 | 0 | 0 |
+
+Rust tracked bytes are `Usage.bytes`: owned output plus retained workspace
+scratch. C++ allocator hooks track requested internal scratch only, excluding
+caller output, allocator metadata, and hook headers. RSS is the common
+whole-process measurement. Retained capacities are not a substitute for RSS.
+
+A mesh boundary means completion of the complete per-entity LOD chain,
+before the same-backend legacy chain; the workspace is cleared there, and
+its usual drop releases it after the final chain. Each process has two scale,
+six simplify, four cache, and four overdraw calls. Clear releases all scratch
+at the boundary, but cannot remove the first chain's already-observed peak.
+This is the per-mesh boundary requested by the spec.
+
+The older diagnosis used a different lifetime: clear after **every backend
+algorithm call**. A separately labeled diagnostic control reproduces that:
+2,205,172 KiB / 2.103016 GiB peak RSS, peak tracked 824,150,014 bytes,
+0.747227 GiB saved versus reuse. This does not qualify a per-mesh scope guard
+or establish its timing bar. We do not substitute this control for the
+registered per-mesh arm or expand into a per-call optimization campaign.
+
+## Identity and method
+
+Library: v0.2.5, `bea3e04` (full identity in `provenance.json`), clean starting
+branch `perf/scratch-scope`. Probe-only source copy adds a retained-capacity
+accessor; the worktree library source is unchanged. C++ 1.3:
+`4c203430ca565cb59a468a91922c76c208169536`, source verified clean.
+The original a082-diag full driver and 214e cooked input are used; manifest
+pins SHA256 `70cf8451981167c50cd1b8d296a062ca99517f679aad492e2e19f4e8711bcbf8`.
+The full driver preserves pruning and packaging, unlike the previously
+rejected minimal replay with original positions at pruned overdraw calls.
+
+Order: reuse, clear-mesh, C++ 1.3, separately labeled clear-call diagnostic;
+one process per arm, CPU affinity 8 inherited by all children. This is the
+cheap step 1 RSS kill check, not registered timing evidence. The shared host
+was noisy, including admission holds for I/O pressure; no timing acceptance
+or speedup is claimed. All runs exit 0. Every stage record, error/scale bit,
+packaged level and legacy output is exact across all four arms. Excluding
+processing time, the complete current reuse document is also identical to
+the retained original 0.2.2 C1 document.
+
+Builds/replays/gates use installed `moss-heavy.sh`, `MOSS_HEAVY_GPU=0`,
+declaration 4 GB and designated target
+`/mnt/linux-extra/moss-cargo-targets/meshopt-memory`. No admission override.
+Full scratch is `/mnt/linux-extra/moss-scratch/meshopt-memory/`, retaining
+source snapshots, executables, output blobs and logs. Compact review receipts
+and source instrumentation diffs are adjacent to this report.
+
+The first build exited 101 because Moss changed its borrowed position trait
+from VertexDataAdapter to MeshPositions. Only the scratch driver was adapted
+(the same bytes, stride, offset, options and reference pointers); its rebuild
+and the C++ build exit 0. `SOURCE-AUDIT.json` verifies that this driver file
+was the sole expected change since initial binding; external cooker and
+input files did not change. The analyzer initially selected a stage-list JSON
+instead of the mesh document; that path selection was corrected without
+rerunning samples. These setup/analysis errors do not replace any measurement.
+
+## API and registered check
+
+Existing API: `Workspace::clear`, `src/workspace.rs:90`; it releases retained
+scratch and resets measurements, preserving limits. No new API is added:
+the explicit step 1 stop condition takes precedence over steps 2 and 3.
+
+| Registered chain | RSS/time upper95/exact verdict |
+|---|---|
+| 214e | Not run: step 1 kill |
+| b6fd | Not run: step 1 kill |
+| a082 | Not run: step 1 kill |
+
+No REGISTRATION.md, bootstrap, A/A floor, warm-up or ten-pair timing campaign
+is claimed. A focused new scope-guard test is inapplicable because no scope
+guard is introduced. The existing clear/output parity test is run instead.
+The full 10k sweep and long fuzz remain nightly, as directed.
+
+## Gates and completion
+
+| Gate | Exit code |
+|---|---:|
+| `cargo test --all-features` | 0 |
+| `cargo clippy --all-targets --all-features -- -D warnings` | 0 |
+| `cargo fmt --check` | 0 |
+| Existing focused clear/output parity test | 0 |
+
+No scope guard or new test is introduced after the kill. The existing focused
+test is `other_algorithms_release_unused_cache_vertex_storage`; its invocation
+and result are retained. Initial harness build 101 and analyzer path-selection
+error remain disclosed above; corrected builds and all measured arms exit 0.
+
+Both replay executables, instrumented library/driver, cooker source, bindings,
+and raw result blobs are retained in scratch. The exact designated Cargo
+target is deleted; `CLEANUP.json` verifies absence. No merge, tag, publication,
+full sweep, fuzz campaign, or production adoption was performed.

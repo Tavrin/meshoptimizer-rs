@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Record the workspace retention candidate for simplify, cache and overdraw
+  optimization. Simplify releases position quadrics on
+  return, initializes them once and initializes ordering entries only for picked
+  candidates.
+  On the 214e LOD chain, peak RSS is 2.196 GiB versus
+  2.851 GiB for 0.2.5 and 2.107 GiB for C++ 1.3
+  (0.655 GiB saved). Wall-time B/A upper95 values for
+  214e/b6fd/a082/six-call simplify are 1.197656/1.120309/1.034114/1.344914;
+  registered verdict: FAIL; wall-time bars are unmet. See [method and results](parity/memory/REPORT.md).
+
 ## [0.2.5] - 2026-10-26
 
 - Add `clusterlod::build_dag_into`, caller-owned `DagBuffers` and

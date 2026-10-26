@@ -111,6 +111,7 @@ fn validate(
 }
 
 fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Error> {
+    ws.acquire(crate::workspace::ScratchFamily::Overdraw);
     if n == 0 {
         return ws.prepare([0; 4], out);
     }
