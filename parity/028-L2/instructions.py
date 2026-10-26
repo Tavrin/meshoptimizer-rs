@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""Count resident loops with perf 6.17; count mode never reads the timer."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+
+ART = Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
+PERF = '/usr/lib/linux-tools/6.17.0-22-generic/perf'
+OPS = ['cache', 'cache-fifo', 'simplify-scale', 'overdraw']
+CASES = ['tiny-smooth', 'medium-smooth', 'medium-seams', 'medium-sparse', 'million-smooth']
+assert os.environ.get('MOSS_HEAVY_ACTIVE')
+epoch = sys.argv[1]
+rows = []
+for binary in sys.argv[2:]:
+    for op in OPS:
+        for case in CASES + (['real-214e-overdraw','real-b6fd-overdraw','real-a082-overdraw'] if op == 'overdraw' else []):
+            count = 10000 if case == 'tiny-smooth' else 4 if case.startswith(('million','real')) else 100
+            stem = ART / f'instructions-{epoch}-{Path(binary).name}-{op}-{case}'
+            assert not stem.with_suffix('.json').exists()
+            output = stem.with_suffix('.bin')
+            cr, cw = os.pipe()
+            ar, aw = os.pipe()
+            perf = subprocess.Popen([PERF, 'stat', '-e', 'instructions:u', '-x', ',',
+                                     '-o', str(stem.with_suffix('.perf')), '--delay=-1',
+                                     f'--control=fd:{cr},{aw}', '--', 'taskset', '-c', '9',
+                                     binary, op, str(ART / 'inputs' / f'{case}.bin'), str(output)],
+                                    pass_fds=(cr, aw), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                    stderr=stem.with_suffix('.stderr').open('w'), text=True)
+            driver = perf
+            assert driver.stdout.readline().strip() == 'READY'
+            os.close(cr)
+            os.close(aw)
+            with os.fdopen(cw, 'w') as control, os.fdopen(ar) as ack:
+                control.write('enable\n'); control.flush()
+                assert ack.readline().strip('\x00\n\r ') == 'ack'
+                driver.stdin.write(f'count {count}\n'); driver.stdin.flush()
+                assert driver.stdout.readline().strip()
+                control.write('disable\n'); control.flush()
+                assert ack.readline().strip('\x00\n\r ') == 'ack'
+            driver.stdin.write('stop\n'); driver.stdin.flush()
+            driver.communicate(timeout=10)
+            assert driver.returncode == 0
+            raw = stem.with_suffix('.perf').read_text()
+            instructions = int(next(line.split(',')[0] for line in raw.splitlines() if ',instructions:u,' in line))
+            row = dict(binary=binary, operation=op, case=case, iterations=count,
+                       instructions=instructions, per_iteration=instructions / count,
+                       sha256=hashlib.sha256(Path(binary).read_bytes()).hexdigest(), cpu=9)
+            stem.with_suffix('.json').write_text(json.dumps(row, indent=2) + '\n')
+            rows.append(row)
+            print(Path(binary).name, op, case, round(instructions / count), flush=True)
+(ART / f'instructions-{epoch}.json').write_text(json.dumps(rows, indent=2) + '\n')

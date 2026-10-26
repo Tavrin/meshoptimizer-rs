@@ -174,13 +174,11 @@ fn kernel<const STRIP: bool>(
         triangle_scores[current] = 0.;
         next[..3].copy_from_slice(triangle);
         let mut write = 3;
-        for &index in &cache[..cache_count] {
-            work.add(1)?;
+        work.scan(cache[..cache_count].iter().copied(), |index| {
             next[write] = index;
-            if !triangle.contains(&index) {
-                write += 1;
-            }
-        }
+            write += usize::from(!triangle.contains(&index));
+            Ok(())
+        })?;
         core::mem::swap(&mut cache, &mut next);
         cache_count = write.min(16);
         for &index in triangle {
@@ -189,14 +187,7 @@ fn kernel<const STRIP: bool>(
             let start = vertex.offset as usize;
             let count = vertex.live as usize;
             let adjacent = &mut adjacency[start..start + count];
-            let mut found = None;
-            for (i, &triangle) in adjacent.iter().enumerate() {
-                work.add(1)?;
-                if triangle == current as u32 {
-                    found = Some(i);
-                    break;
-                }
-            }
+            let found = work.search(adjacent.len(), |i| adjacent[i] == current as u32)?;
             if let Some(i) = found {
                 adjacent[i] = adjacent[count - 1];
                 vertex.live -= 1;
@@ -214,18 +205,21 @@ fn kernel<const STRIP: bool>(
             let s = score::<STRIP>(if i >= 16 { 0 } else { i + 1 }, vertex.live);
             let diff = s - vertex.score;
             vertex.score = s;
-            for &tri in
-                &adjacency[vertex.offset as usize..vertex.offset as usize + vertex.live as usize]
-            {
-                work.add(1)?;
-                let tri = tri as usize;
-                let s = triangle_scores[tri] + diff;
-                if best_score < s {
-                    best = tri;
-                    best_score = s;
-                }
-                triangle_scores[tri] = s;
-            }
+            work.scan(
+                adjacency[vertex.offset as usize..vertex.offset as usize + vertex.live as usize]
+                    .iter()
+                    .copied(),
+                |tri| {
+                    let tri = tri as usize;
+                    let s = triangle_scores[tri] + diff;
+                    if best_score < s {
+                        best = tri;
+                        best_score = s;
+                    }
+                    triangle_scores[tri] = s;
+                    Ok(())
+                },
+            )?;
         }
         current = best;
         if current == usize::MAX {
@@ -418,13 +412,22 @@ fn fifo(
         *dst = offset;
         offset += count;
     }
-    let charged = work.precharge(indices.len(), 1)?;
-    for (i, &j) in indices.iter().enumerate() {
-        if !charged {
-            work.add(1)?;
+    let triangles = indices.as_chunks::<3>().0;
+    if work.precharge(indices.len(), 1)? {
+        // The triangle id is shared by its three corners. Iterating records
+        // avoids dividing an index-stream offset for every adjacency entry.
+        for (i, triangle) in triangles.iter().enumerate() {
+            for &j in triangle {
+                adjacency[offsets[j as usize] as usize] = i as u32;
+                offsets[j as usize] += 1;
+            }
         }
-        adjacency[offsets[j as usize] as usize] = (i / 3) as u32;
-        offsets[j as usize] += 1;
+    } else {
+        for (i, &j) in indices.iter().enumerate() {
+            work.add(1)?;
+            adjacency[offsets[j as usize] as usize] = (i / 3) as u32;
+            offsets[j as usize] += 1;
+        }
     }
     let charged = work.precharge(v, 1)?;
     for ((offset, &count), hot) in offsets.iter_mut().zip(counts.iter()).zip(hot.iter_mut()) {
@@ -439,6 +442,7 @@ fn fifo(
     let mut cursor = 1usize;
     let mut top = 0usize;
     let mut write = 0usize;
+    let destination = out[..indices.len()].as_chunks_mut::<3>().0;
     while current != u32::MAX {
         work.add(1)?;
         let begin = top;
@@ -453,9 +457,9 @@ fn fifo(
             if emitted[t] != 0 {
                 continue;
             }
-            let tri = &indices[t * 3..t * 3 + 3];
-            out[write..write + 3].copy_from_slice(tri);
-            write += 3;
+            let tri = &triangles[t];
+            destination[write].copy_from_slice(tri);
+            write += 1;
             dead[top..top + 3].copy_from_slice(tri);
             top += 3;
             for &index in tri {

@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - L1 cluster paths, Moss scalar five-case GM times versus 0.2.7 / C++ 1.3: partition 0.989x / 1.451x, meshlets-scan 0.801x / 1.067x, meshlets 0.930x / 1.022x, meshlets-spatial 0.992x / 1.122x, meshlets-flex 0.934x / 1.007x, spatial-triangles 0.928x / 1.026x. RFC113 aggregate 1.040x C++, S1 1.038x and S2 1.053x.
+- `optimize_vertex_cache` takes 0.958× the time of 0.2.7 and 1.176× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `optimize_vertex_cache_fifo` takes 0.966× the time of 0.2.7 and 1.284× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `simplify_scale` takes 0.698× the time of 0.2.7 and 0.940× the time of C++ 1.3 in the registered scalar microbenchmarks.
+- `optimize_overdraw` takes 0.983× the time of 0.2.7 and 1.108× the time of C++ 1.3 in the registered scalar microbenchmarks.
 
 ## [0.2.7] - 2026-10-26
 
