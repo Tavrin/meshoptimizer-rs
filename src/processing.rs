@@ -41,6 +41,7 @@ impl<'a> Context<'a> {
         }
         slot.1
     }
+    #[cfg(any(not(feature = "std"), test))]
     pub(crate) fn large_memo(&mut self) {
         self.large_roots = Some([(0, 0.0); 512]);
     }

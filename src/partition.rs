@@ -52,9 +52,29 @@ fn pop(heap: &mut [Order], n: &mut usize) -> Order {
     }
     top
 }
+// Partition roots are scalar and correctly rounded. Keep the pinned software
+// memo for no_std; std can compute a root directly without hashing its operand.
+#[inline(always)]
+fn sqrt(_ctx: &mut Context<'_>, value: f32) -> f32 {
+    #[cfg(feature = "std")]
+    {
+        // libm canonicalizes negative operands and every NaN payload. IEEE
+        // sqrt agrees on all other inputs, including signed zero and +inf.
+        let bits = value.to_bits();
+        if bits > 0x7f80_0000 && bits != 0x8000_0000 {
+            f32::NAN
+        } else {
+            value.sqrt()
+        }
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        _ctx.sqrt(value)
+    }
+}
 fn score(a: Group, b: Group, ctx: &mut Context<'_>) -> Result<f32, Error> {
     let dp = sub(b.center, a.center);
-    let d = ctx.sqrt(finite(dot(dp, dp))?);
+    let d = sqrt(ctx, finite(dot(dp, dp))?);
     let mr = if d + a.radius < b.radius {
         b.radius
     } else if d + b.radius < a.radius {
@@ -66,7 +86,7 @@ fn score(a: Group, b: Group, ctx: &mut Context<'_>) -> Result<f32, Error> {
 }
 fn merge(a: &mut Group, b: Group, ctx: &mut Context<'_>) -> Result<(), Error> {
     let dp = sub(b.center, a.center);
-    let d = ctx.sqrt(finite(dot(dp, dp))?);
+    let d = sqrt(ctx, finite(dot(dp, dp))?);
     if d + a.radius < b.radius {
         a.center = b.center;
         a.radius = b.radius;
@@ -288,7 +308,7 @@ fn pick(
     acc: &mut [u32],
     ctx: &mut Context<'_>,
 ) -> Result<Option<(usize, u32)>, Error> {
-    let r = 1. / ctx.sqrt(groups[id].vertices as i32 as f32);
+    let r = 1. / sqrt(ctx, groups[id].vertices as i32 as f32);
     let mut ci = id as i32;
     while ci >= 0 {
         let c = ci as usize;
@@ -321,7 +341,7 @@ fn pick(
                 continue;
             }
             let mut sc =
-                shared as i32 as f32 * (r + 1. / ctx.sqrt(groups[other].vertices as i32 as f32));
+                shared as i32 as f32 * (r + 1. / sqrt(ctx, groups[other].vertices as i32 as f32));
             if bounds {
                 sc *= 1. + 0.4 * score(groups[id], groups[other], ctx)?;
             }
@@ -383,6 +403,7 @@ fn partition(
     }
     let max = target.checked_add(target / 3).ok_or(Error::SizeOverflow)?;
     let n = counts.len();
+    #[cfg(not(feature = "std"))]
     ctx.large_memo();
     if n > i32::MAX as usize || vertices > u32::MAX as usize || indices.len() > u32::MAX as usize {
         return Err(Error::SizeOverflow);
@@ -476,7 +497,7 @@ fn partition(
                 group_sphere::<true>(p, verts)?
             };
             g.center = center;
-            g.radius = ctx.sqrt(r);
+            g.radius = sqrt(ctx, r);
         }
         groups[i] = g;
         push(
@@ -611,4 +632,39 @@ pub fn partition_clusters_into(
         target,
         &mut ctx,
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn roots_preserve_software_bits_including_exceptional_operands() {
+        let mut workspace = Workspace::default();
+        let mut ctx = Context::new(&mut workspace).unwrap();
+        for bits in [
+            0,
+            0x8000_0000,
+            1,
+            0x007f_ffff,
+            0x0080_0000,
+            0x3f80_0000,
+            0x4000_0000,
+            0x7f7f_ffff,
+            0x7f80_0000,
+            0xff80_0000,
+            0x7f80_0001,
+            0x7fc0_0123,
+            0xff80_0001,
+            0xffc0_0123,
+            0xbf80_0000,
+        ] {
+            let value = f32::from_bits(bits);
+            assert_eq!(
+                sqrt(&mut ctx, value).to_bits(),
+                crate::math::sqrt(value).to_bits(),
+                "{bits:08x}"
+            );
+        }
+    }
 }

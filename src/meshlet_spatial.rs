@@ -3,9 +3,6 @@ use crate::meshlet::{MeshletSettings, Output};
 use crate::processing::{finite, point, radix, Context};
 use crate::{Error, Positions};
 use alloc::vec::Vec;
-#[path = "meshlet_division.rs"]
-mod division;
-use division::Divisor;
 // Boxes padded to four lanes (lane 3 is ignored), so each merge loads
 // whole aligned records. Lanes 0-2 use upstream's ordered selects and area
 // expression, so results are identical.
@@ -99,11 +96,8 @@ impl Pivot<'_> {
         let n = self.n;
         let mut best = (f32::MAX, 0);
         let mut i = self.mint - 1;
-        // Reuse one exact reciprocal instead of two dependent integer
-        // divisions per candidate split. EASY loops do not need it.
-        let divisor = Divisor::new(if EASY { 1 } else { self.mint });
         let possible = |count| {
-            let q = divisor.quotient(count);
+            let q = count / self.mint;
             count - q * self.mint <= q * (self.max - self.mint)
         };
         if EASY && self.step == 1 {
@@ -119,37 +113,49 @@ impl Pivot<'_> {
                 }
                 for (j, &cost) in costs.iter().enumerate() {
                     if cost <= best.0 {
-                        self.fill_cost::<COUNTS>(i + j, cost, &mut best);
+                        self.fill_cost::<COUNTS>(i + j, left[j], right[7 - j], cost, &mut best);
                     }
                 }
                 i += 8;
             }
         }
-        while i < self.end {
+        // Split and reverse once so both area streams have proven lengths.
+        let left = &self.areas[i..self.end];
+        let right = &self.areas[2 * n - 1 - self.end..2 * n - 1 - i];
+        for (offset, (&la, &ra)) in left
+            .iter()
+            .zip(right.iter().rev())
+            .step_by(self.step)
+            .enumerate()
+        {
+            let i = i + offset * self.step;
             let l = i + 1;
             let r = n - l;
             if !EASY && (!possible(l) || (self.aligned && !possible(r))) {
-                i += self.step;
                 continue;
             }
-            let cost = self.areas[i] * l as f32 + self.areas[n - 1 - l + n] * r as f32;
+            let cost = la * l as f32 + ra * r as f32;
             if cost <= best.0 {
-                self.fill_cost::<COUNTS>(i, cost, &mut best);
+                self.fill_cost::<COUNTS>(i, la, ra, cost, &mut best);
             }
-            i += self.step;
         }
         best
     }
     // Add the vertex or triangle fill cost to a split's base SAH cost.
     #[inline(always)]
-    fn fill_cost<const COUNTS: bool>(&self, i: usize, cost: f32, best: &mut (f32, usize)) {
+    fn fill_cost<const COUNTS: bool>(
+        &self,
+        i: usize,
+        la: f32,
+        ra: f32,
+        cost: f32,
+        best: &mut (f32, usize),
+    ) {
         let n = self.n;
         let maxfill = self.maxfill;
         let rmaxfill = 1. / maxfill as f32;
         let l = i + 1;
         let r = n - l;
-        let la = self.areas[i];
-        let ra = self.areas[n - 1 - l + n];
         let (lf, rf) = if COUNTS {
             let c = self.counts[i] as usize;
             (c, c)
@@ -300,8 +306,8 @@ impl Bvh<'_> {
             return self.tail(start, n, ctx);
         }
         ctx.tick(n * 3)?;
-        for i in 0..n {
-            self.sides[self.axes[axis][start + i] as usize] = u8::from(i >= split);
+        for (i, &id) in self.axes[axis][start..start + n].iter().enumerate() {
+            self.sides[id as usize] = u8::from(i >= split);
         }
         for k in 0..3 {
             if k == axis {
@@ -324,7 +330,7 @@ impl Bvh<'_> {
     }
 }
 fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> [f32; 3]) {
-    for (i, t) in triangles.iter().enumerate() {
+    for (bounds, t) in boxes.iter_mut().zip(triangles) {
         let a = read(t[0]);
         let b = read(t[1]);
         let c = read(t[2]);
@@ -337,8 +343,8 @@ fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> 
             if c[k] > hi {
                 hi = c[k];
             }
-            boxes[i].lo[k] = lo;
-            boxes[i].hi[k] = hi;
+            bounds.lo[k] = lo;
+            bounds.hi[k] = hi;
         }
     }
 }
@@ -368,10 +374,10 @@ pub(crate) fn spatial(
     // Upstream radixFloat keys without the two low bits fit in u32.
     let mut keys = ctx.alloc::<u32>(n)?;
     for (k, axis) in axes.iter_mut().enumerate() {
-        for i in 0..n {
-            axis[i] = i as u32;
-            let c = finite((boxes[i].lo[k] + boxes[i].hi[k]) / 2.)?.to_bits();
-            keys[i] = (c ^ if c & 0x80000000 != 0 {
+        for (i, ((id, key), bounds)) in axis.iter_mut().zip(&mut keys).zip(&boxes).enumerate() {
+            *id = i as u32;
+            let c = finite((bounds.lo[k] + bounds.hi[k]) / 2.)?.to_bits();
+            *key = (c ^ if c & 0x80000000 != 0 {
                 u32::MAX
             } else {
                 0x80000000
