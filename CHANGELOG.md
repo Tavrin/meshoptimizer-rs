@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `optimize_overdraw` uses 0.930× the instructions of 0.2.9 and 1.584×
+  those of scalar C++ 1.3 across frozen meshes and three captured LOD chains.
+- `simplify_scale` on fully padded, little-endian 64-byte records uses 0.518×
+  the instructions of 0.2.9 and 1.066× those of scalar C++ 1.3 on the same
+  workloads. Ratios are geometric means of per-case medians of three counts.
+
 ## [0.2.9] - 2026-10-26
 
 - `simplify_scale` on little-endian byte views with 64-byte records uses

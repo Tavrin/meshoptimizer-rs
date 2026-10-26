@@ -1,0 +1,749 @@
+{
+  "summary": [
+    {
+      "id": "frozen-simplify-scale-tiny-smooth",
+      "kind": "frozen",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/tiny-smooth-scale64.bin",
+      "source_sha256": "6a9f67a2da2b96bcb1fe17c8ce15107a85bc337f5076d911a870e59a5ba22e69",
+      "args": [
+        "simplify-scale",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/tiny-smooth-scale64.bin"
+      ],
+      "iterations": 10000,
+      "multiplicity": 1,
+      "median": {
+        "base": 1629.1016,
+        "candidate": 1031.1016,
+        "M7": 852.1016
+      },
+      "ratio": {
+        "base": 1.9118630923824107,
+        "candidate": 1.2100688462502593
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-simplify-scale-medium-smooth",
+      "kind": "frozen",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-smooth-scale64.bin",
+      "source_sha256": "2dbd77980e0e00dbc5961842208492830df110a7051ee3a087453736cbf7229e",
+      "args": [
+        "simplify-scale",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-smooth-scale64.bin"
+      ],
+      "iterations": 100,
+      "multiplicity": 1,
+      "median": {
+        "base": 211638.72,
+        "candidate": 106565.72,
+        "M7": 101661.72
+      },
+      "ratio": {
+        "base": 2.081793619073138,
+        "candidate": 1.0482384126493236
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-simplify-scale-medium-seams",
+      "kind": "frozen",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-seams-scale64.bin",
+      "source_sha256": "2fbf6b770c11f3fbaad8e54f2caa29243e94c271111c65122b281c91e117b861",
+      "args": [
+        "simplify-scale",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-seams-scale64.bin"
+      ],
+      "iterations": 100,
+      "multiplicity": 1,
+      "median": {
+        "base": 259588.73,
+        "candidate": 130645.72,
+        "M7": 124677.72
+      },
+      "ratio": {
+        "base": 2.0820779366193096,
+        "candidate": 1.047867413680648
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-simplify-scale-medium-sparse",
+      "kind": "frozen",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-sparse-scale64.bin",
+      "source_sha256": "95e01f0a9deeb55db44441aa8f0dc6ed58b9f2c16fe0f2ebb89a8656cf7bfedd",
+      "args": [
+        "simplify-scale",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-sparse-scale64.bin"
+      ],
+      "iterations": 100,
+      "multiplicity": 1,
+      "median": {
+        "base": 422888.74,
+        "candidate": 212726.72,
+        "M7": 203061.72
+      },
+      "ratio": {
+        "base": 2.082562582450301,
+        "candidate": 1.0475963662673595
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-simplify-scale-million-smooth",
+      "kind": "frozen",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/million-smooth-scale64.bin",
+      "source_sha256": "62e1622ef8fe19148a72577bb5652400754271f44df7eb75bff96e960ba16c05",
+      "args": [
+        "simplify-scale",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/million-smooth-scale64.bin"
+      ],
+      "iterations": 4,
+      "multiplicity": 1,
+      "median": {
+        "base": 25134662.0,
+        "candidate": 12630496.0,
+        "M7": 12064828.5
+      },
+      "ratio": {
+        "base": 2.0833003966861194,
+        "candidate": 1.0468856643921627
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-overdraw-tiny-smooth",
+      "kind": "frozen",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/tiny-smooth.bin",
+      "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/tiny-smooth.bin"
+      ],
+      "iterations": 10000,
+      "multiplicity": 1,
+      "median": {
+        "base": 16564.1304,
+        "candidate": 16023.1302,
+        "M7": 20224.1353
+      },
+      "ratio": {
+        "base": 0.819027867164239,
+        "candidate": 0.7922776406662982
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-overdraw-medium-smooth",
+      "kind": "frozen",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-smooth.bin",
+      "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-smooth.bin"
+      ],
+      "iterations": 100,
+      "multiplicity": 1,
+      "median": {
+        "base": 1790948.02,
+        "candidate": 1651412.02,
+        "M7": 1598660.61
+      },
+      "ratio": {
+        "base": 1.120280320161263,
+        "candidate": 1.032997253869913
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-overdraw-medium-seams",
+      "kind": "frozen",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-seams.bin",
+      "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-seams.bin"
+      ],
+      "iterations": 100,
+      "multiplicity": 1,
+      "median": {
+        "base": 1819436.04,
+        "candidate": 1674524.01,
+        "M7": 1592645.72
+      },
+      "ratio": {
+        "base": 1.1423984739054207,
+        "candidate": 1.051410234537283
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-overdraw-medium-sparse",
+      "kind": "frozen",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-sparse.bin",
+      "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-sparse.bin"
+      ],
+      "iterations": 100,
+      "multiplicity": 1,
+      "median": {
+        "base": 1905023.04,
+        "candidate": 1765487.04,
+        "M7": 1627907.14
+      },
+      "ratio": {
+        "base": 1.1702283214999598,
+        "candidate": 1.0845133586673747
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "frozen-overdraw-million-smooth",
+      "kind": "frozen",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/million-smooth.bin",
+      "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/million-smooth.bin"
+      ],
+      "iterations": 4,
+      "multiplicity": 1,
+      "median": {
+        "base": 214071189.75,
+        "candidate": 197570478.5,
+        "M7": 191777659.75
+      },
+      "ratio": {
+        "base": 1.1162467517283383,
+        "candidate": 1.030205910102102
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "realfixture-overdraw-214e",
+      "kind": "realfixture",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-214e-overdraw.bin",
+      "source_sha256": "93ed009184795d34d224145943076fad3b566ea27feb20b3317b05208ec5d809",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-214e-overdraw.bin"
+      ],
+      "iterations": 4,
+      "multiplicity": 1,
+      "median": {
+        "base": 618573455.25,
+        "candidate": 578988775.5,
+        "M7": 283854700.75
+      },
+      "ratio": {
+        "base": 2.1791904577081413,
+        "candidate": 2.0397364354727885
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "realfixture-overdraw-b6fd",
+      "kind": "realfixture",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-b6fd-overdraw.bin",
+      "source_sha256": "e0a743ebbd958b4b8a645eb511673aa16e3f134f81f5c5bfb7f531c5304a3f67",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-b6fd-overdraw.bin"
+      ],
+      "iterations": 4,
+      "multiplicity": 1,
+      "median": {
+        "base": 438963122.25,
+        "candidate": 394389820.5,
+        "M7": 248932752.5
+      },
+      "ratio": {
+        "base": 1.7633803420463927,
+        "candidate": 1.5843227399335489
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "realfixture-overdraw-a082",
+      "kind": "realfixture",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-a082-overdraw.bin",
+      "source_sha256": "07fd53aa1e5c00657c5a0f694bf9794da82bbeb158ac447937c7751bfc0e1992",
+      "args": [
+        "overdraw",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-a082-overdraw.bin"
+      ],
+      "iterations": 4,
+      "multiplicity": 1,
+      "median": {
+        "base": 1755820963.75,
+        "candidate": 1577528266.0,
+        "M7": 995683034.0
+      },
+      "ratio": {
+        "base": 1.7634336468466931,
+        "candidate": 1.584367928478733
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-214e-0-simplify-scale",
+      "kind": "chain",
+      "chain": "214e85c568a64e8a",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
+      "source_sha256": "f4b4d595e072b817a90587b1315b8d025384cea8aa9c1f0a24baae1ba8b7f2f8",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
+      ],
+      "index": 0,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        0,
+        8
+      ],
+      "expected": "b626072f56d04197dad37c1c5835097372b75b0a945ed6a5888c9af3e0d6f795",
+      "vertex_sha256": "143dc6ef8a0d6d85e1b904ce0ae8ddbd3ad347c97d52fe4413977902a393170b",
+      "index_sha256": null,
+      "median": {
+        "base": 339922704.75,
+        "candidate": 170811506.5,
+        "M7": 163163096.5
+      },
+      "ratio": {
+        "base": 2.0833308023790784,
+        "candidate": 1.0468758571274113
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-214e-4-overdraw",
+      "kind": "chain",
+      "chain": "214e85c568a64e8a",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
+      "source_sha256": "f4b4d595e072b817a90587b1315b8d025384cea8aa9c1f0a24baae1ba8b7f2f8",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
+      ],
+      "index": 4,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        4,
+        12
+      ],
+      "expected": "df7ca4fa520006712f53250d35710c42030d60c0389ec707298a1a8d7f4da63a",
+      "vertex_sha256": "9f22bb76a67c0e329142193141dc069f413ebc590b6bc50884da39920b549c0d",
+      "index_sha256": "68383a04e0ca5d4724861d2f0203d0e4a6cf2a759dfb57afb8ba1e64a43a7768",
+      "median": {
+        "base": 619379275.75,
+        "candidate": 579794658.5,
+        "M7": 284667719.75
+      },
+      "ratio": {
+        "base": 2.1757973692765353,
+        "candidate": 2.036741851198251
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-214e-7-overdraw",
+      "kind": "chain",
+      "chain": "214e85c568a64e8a",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
+      "source_sha256": "f4b4d595e072b817a90587b1315b8d025384cea8aa9c1f0a24baae1ba8b7f2f8",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
+      ],
+      "index": 7,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        7,
+        15
+      ],
+      "expected": "c4ef028aa30a9c3b22c6d7d61e35a898f017de46bafee37e19023e6f79542706",
+      "vertex_sha256": "43fe26b21b8d606b5265435ffd84c1e993de2b648dcdc59963e51f2987cd7609",
+      "index_sha256": "c0d4bd4296cdc4d31ea90af6cee728e4f1df3e633f467f0840b20cce3c812b2c",
+      "median": {
+        "base": 432066886.5,
+        "candidate": 415674062.25,
+        "M7": 166131682.25
+      },
+      "ratio": {
+        "base": 2.6007494816660714,
+        "candidate": 2.5020758028831676
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-b6fd-0-simplify-scale",
+      "kind": "chain",
+      "chain": "b6fdb93d8a1709e2",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+      ],
+      "index": 0,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        0,
+        10
+      ],
+      "expected": "6b9fd32c5b860c1c38994e033b44999b42714d9255ba7625ef5e935ed2713be2",
+      "vertex_sha256": "c0f13e870a5e86879b698d6fc84fb6b46439a08e4e1a154ace0dba8b3326264c",
+      "index_sha256": null,
+      "median": {
+        "base": 90467833.25,
+        "candidate": 45460414.25,
+        "M7": 43424760.5
+      },
+      "ratio": {
+        "base": 2.08332371228622,
+        "candidate": 1.04687771968253
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-b6fd-3-overdraw",
+      "kind": "chain",
+      "chain": "b6fdb93d8a1709e2",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+      ],
+      "index": 3,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        3,
+        13
+      ],
+      "expected": "8d8cf6f6a2f925d015197144de7008363dbab9e167fb88b8e90dd2d9681d683e",
+      "vertex_sha256": "c0f13e870a5e86879b698d6fc84fb6b46439a08e4e1a154ace0dba8b3326264c",
+      "index_sha256": "5635b1fd9b6af92886b0ab2e680fa5e58cf699a31194d9efaa72420c5d0c05e8",
+      "median": {
+        "base": 439769140.5,
+        "candidate": 395195875.0,
+        "M7": 249739229.25
+      },
+      "ratio": {
+        "base": 1.7609133407702307,
+        "candidate": 1.5824341101188852
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-b6fd-6-overdraw",
+      "kind": "chain",
+      "chain": "b6fdb93d8a1709e2",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+      ],
+      "index": 6,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        6,
+        16
+      ],
+      "expected": "34ee38542eb70b1f63a1b292f64094c678f741dc52fd5369c4460f4cd46b3709",
+      "vertex_sha256": "4c3208d658dc16ffb915b9e59209a2023f60a9751cbc360e4f0862fd5a01f62a",
+      "index_sha256": "86f69aab0a7a48e001a064575362dd238dc353c7a375b1fd624e67d35b0c1d4f",
+      "median": {
+        "base": 165772824.0,
+        "candidate": 155491821.75,
+        "M7": 77029337.25
+      },
+      "ratio": {
+        "base": 2.1520738710496956,
+        "candidate": 2.0186052133013774
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-b6fd-9-overdraw",
+      "kind": "chain",
+      "chain": "b6fdb93d8a1709e2",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+      ],
+      "index": 9,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        9,
+        19
+      ],
+      "expected": "1381c4b3609e37c77028f17ccd1cf1e37c901b09bfe69824a9ea30ba1ff97b6d",
+      "vertex_sha256": "f5b99c32ef9c3912d57cac3f5118b72a6f7a3592b8f8867a267e46d00a1d8e00",
+      "index_sha256": "0542c531ff4ab0735839579a31384d39b4037f765ac3b38a21679def615e5110",
+      "median": {
+        "base": 115460517.5,
+        "candidate": 111224679.75,
+        "M7": 44854041.0
+      },
+      "ratio": {
+        "base": 2.574138582073352,
+        "candidate": 2.4797025478707706
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-a082-0-simplify-scale",
+      "kind": "chain",
+      "chain": "a082ca1fd19bb86a",
+      "family": "simplify-scale",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+      ],
+      "index": 0,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        0,
+        10
+      ],
+      "expected": "b626072f56d04197dad37c1c5835097372b75b0a945ed6a5888c9af3e0d6f795",
+      "vertex_sha256": "e98dd4889394bdf4aa6671dff7931ffe55a0fee1bf57306f75bf578d125d5448",
+      "index_sha256": null,
+      "median": {
+        "base": 361866857.25,
+        "candidate": 181838474.75,
+        "M7": 173696289.5
+      },
+      "ratio": {
+        "base": 2.0833309582586104,
+        "candidate": 1.0468759883900687
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-a082-3-overdraw",
+      "kind": "chain",
+      "chain": "a082ca1fd19bb86a",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+      ],
+      "index": 3,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        3,
+        13
+      ],
+      "expected": "b2a241f87c2f9aa61e17994b13e696f4cb0cd86f4e3c24436bdb6699dc7defc4",
+      "vertex_sha256": "e98dd4889394bdf4aa6671dff7931ffe55a0fee1bf57306f75bf578d125d5448",
+      "index_sha256": "3ffea11270a2b5b7f0840f2cc8cdbe4c9088edcb686179c0e066b784d3c97e36",
+      "median": {
+        "base": 1763355273.0,
+        "candidate": 1585062805.5,
+        "M7": 1003217517.0
+      },
+      "ratio": {
+        "base": 1.7576998438714462,
+        "candidate": 1.5799791955785796
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-a082-6-overdraw",
+      "kind": "chain",
+      "chain": "a082ca1fd19bb86a",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+      ],
+      "index": 6,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        6,
+        16
+      ],
+      "expected": "d994736c7c41dbd2f47803ee817d803d23cd9188655eb2f870564343bdeb8366",
+      "vertex_sha256": "5e32d57d2a08e3581a544dc6590299b9774f5061b002d00b3bd431e40c357866",
+      "index_sha256": "f1325e33a13a67a0e7ad128906eadecabf18ea19c107f1de18eb92ef8a706567",
+      "median": {
+        "base": 663030972.0,
+        "candidate": 621909892.5,
+        "M7": 308049103.0
+      },
+      "ratio": {
+        "base": 2.152354821172779,
+        "candidate": 2.018866104278187
+      },
+      "gap_shares": {}
+    },
+    {
+      "id": "chain-a082-9-overdraw",
+      "kind": "chain",
+      "chain": "a082ca1fd19bb86a",
+      "family": "overdraw",
+      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
+      "args": [
+        "attr-stage",
+        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+      ],
+      "index": 9,
+      "iterations": 4,
+      "multiplicity": 2,
+      "call_indices": [
+        9,
+        19
+      ],
+      "expected": "1f2f0c5a678b077c90b58932961daf9ab5c2cbf817078f52e72bd2ef650c72be",
+      "vertex_sha256": "94040b85e287aa44822aca554c59fd471cbb2dc0a8a6575100d595d0e619624e",
+      "index_sha256": "bffdf1d0bd198d5e529b96259bd292843a33ab5b4fb8643b11b15ef5a81544bb",
+      "median": {
+        "base": 461796194.0,
+        "candidate": 444854027.5,
+        "M7": 179360437.75
+      },
+      "ratio": {
+        "base": 2.5746825765650208,
+        "candidate": 2.4802238056535963
+      },
+      "gap_shares": {}
+    }
+  ],
+  "verdicts": {
+    "families": {
+      "simplify-scale": {
+        "all": {
+          "candidate_base": 0.5175087294561886,
+          "candidate_M7": 1.0663984684722538,
+          "worst": 0.6329265160625954,
+          "verdict": "PARTIAL"
+        },
+        "frozen": {
+          "candidate_base": 0.526727100681972,
+          "candidate_M7": 1.0782859447342588,
+          "worst": 0.6329265160625954,
+          "verdict": "PARTIAL"
+        }
+      },
+      "overdraw": {
+        "all": {
+          "candidate_base": 0.9303636629469086,
+          "candidate_M7": 1.5840823961600499,
+          "worst": 0.9673390521001937,
+          "verdict": "PARTIAL"
+        },
+        "frozen": {
+          "candidate_base": 0.9238222498554671,
+          "candidate_M7": 1.2204575622119131,
+          "worst": 0.9673390521001937,
+          "verdict": "PARTIAL"
+        }
+      }
+    },
+    "chains": {
+      "214e85c568a64e8a": {
+        "simplify-scale": {
+          "totals": {
+            "base": 679845409.5,
+            "candidate": 341623013.0,
+            "M7": 326326193.0
+          },
+          "candidate_base": 0.502501021888565,
+          "candidate_M7": 1.0468758571274113
+        },
+        "overdraw": {
+          "totals": {
+            "base": 2102892324.5,
+            "candidate": 1990937441.5,
+            "M7": 901598804.0
+          },
+          "candidate_base": 0.9467614762317328,
+          "candidate_M7": 2.2082299052162453
+        }
+      },
+      "a082ca1fd19bb86a": {
+        "simplify-scale": {
+          "totals": {
+            "base": 723733714.5,
+            "candidate": 363676949.5,
+            "M7": 347392579.0
+          },
+          "candidate_base": 0.5025010472964501,
+          "candidate_M7": 1.0468759883900687
+        },
+        "overdraw": {
+          "totals": {
+            "base": 5776364878.0,
+            "candidate": 5303653451.0,
+            "M7": 2981254115.5
+          },
+          "candidate_base": 0.9181645486419358,
+          "candidate_M7": 1.779000798162588
+        }
+      },
+      "b6fdb93d8a1709e2": {
+        "simplify-scale": {
+          "totals": {
+            "base": 180935666.5,
+            "candidate": 90920828.5,
+            "M7": 86849521.0
+          },
+          "candidate_base": 0.5025036260609237,
+          "candidate_M7": 1.04687771968253
+        },
+        "overdraw": {
+          "totals": {
+            "base": 1442004964.0,
+            "candidate": 1323824753.0,
+            "M7": 743245215.0
+          },
+          "candidate_base": 0.9180445186040289,
+          "candidate_M7": 1.7811413061031278
+        }
+      }
+    }
+  }
+}
