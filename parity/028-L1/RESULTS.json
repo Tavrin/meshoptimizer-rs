@@ -97,7 +97,7 @@
         "cargo",
         "fmt",
         "--manifest-path",
-        "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/028-L1/Cargo.toml",
+        "<repo>/parity/028-L1/Cargo.toml",
         "--",
         "--check"
       ],
@@ -199,30 +199,30 @@
       "-ffp-contract=off"
     ],
     "source_sha256": {
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/p03/reference.cpp": "0398372c5ee77c7179bac770ec63cd3e959e12b67c4d0ac51b904fcfd1bb5844",
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/p03/runner.py": "5a9f416c1f4ea90b7bf3e7c01c1c64c88630dd84d816f3ab4777103e6bfac1e5",
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/p03/src/lib.rs": "cc2b121d6789146f0e904247386fd2362c8dee86c0c3c4e125348f350e84306a",
-      "/home/etienne/dev/refs/meshoptimizer/src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
-      "/home/etienne/dev/refs/meshoptimizer/src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
-      "/home/etienne/dev/refs/meshoptimizer/src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
-      "/home/etienne/dev/refs/meshoptimizer/src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
-      "/home/etienne/dev/refs/meshoptimizer/src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
-      "/home/etienne/dev/refs/meshoptimizer/src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
-      "/home/etienne/dev/refs/meshoptimizer/src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
-      "/home/etienne/dev/refs/meshoptimizer/src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
-      "/home/etienne/dev/refs/meshoptimizer/src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
-      "/home/etienne/dev/refs/meshoptimizer/src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
-      "/home/etienne/dev/refs/meshoptimizer/src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
-      "/home/etienne/dev/refs/meshoptimizer/src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
-      "/home/etienne/dev/refs/meshoptimizer/src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
-      "/home/etienne/dev/refs/meshoptimizer/src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
-      "/home/etienne/dev/refs/meshoptimizer/src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
-      "/home/etienne/dev/refs/meshoptimizer/src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
-      "/home/etienne/dev/refs/meshoptimizer/src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
-      "/home/etienne/dev/refs/meshoptimizer/src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
-      "/home/etienne/dev/refs/meshoptimizer/src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
-      "/home/etienne/dev/refs/meshoptimizer/src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
-      "/home/etienne/dev/refs/meshoptimizer/src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
+      "<repo>/parity/p03/reference.cpp": "0398372c5ee77c7179bac770ec63cd3e959e12b67c4d0ac51b904fcfd1bb5844",
+      "<repo>/parity/p03/runner.py": "5a9f416c1f4ea90b7bf3e7c01c1c64c88630dd84d816f3ab4777103e6bfac1e5",
+      "<repo>/parity/p03/src/lib.rs": "cc2b121d6789146f0e904247386fd2362c8dee86c0c3c4e125348f350e84306a",
+      "<refs>/meshoptimizer/src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+      "<refs>/meshoptimizer/src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+      "<refs>/meshoptimizer/src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+      "<refs>/meshoptimizer/src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+      "<refs>/meshoptimizer/src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+      "<refs>/meshoptimizer/src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+      "<refs>/meshoptimizer/src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+      "<refs>/meshoptimizer/src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+      "<refs>/meshoptimizer/src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+      "<refs>/meshoptimizer/src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+      "<refs>/meshoptimizer/src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+      "<refs>/meshoptimizer/src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+      "<refs>/meshoptimizer/src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+      "<refs>/meshoptimizer/src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+      "<refs>/meshoptimizer/src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+      "<refs>/meshoptimizer/src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+      "<refs>/meshoptimizer/src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+      "<refs>/meshoptimizer/src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+      "<refs>/meshoptimizer/src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+      "<refs>/meshoptimizer/src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+      "<refs>/meshoptimizer/src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
     }
   },
   "frozen-differential.json": [
@@ -811,31 +811,31 @@
   ],
   "rfc-identity.json": {
     "source": {
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/028-L1/rfc113.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/028-L1/rfc113-bridge.cpp": "4160b264979ce236417133a77052efe5189443f02dc8bb3e47c5ce2f4e9559de",
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/028-L1/rfc113-reference.cpp": "e5de9c6f92ffee23671629dc8bbe1f159a0af0d2ff7209dd5ace1327da67a10a",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/clusterlod.h": "71f95c1f97ef567235540c038b41906091fcef1ef68046f2933cd5989f94ea93",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
-      "/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
+      "<repo>/parity/028-L1/rfc113.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
+      "<repo>/parity/028-L1/rfc113-bridge.cpp": "4160b264979ce236417133a77052efe5189443f02dc8bb3e47c5ce2f4e9559de",
+      "<repo>/parity/028-L1/rfc113-reference.cpp": "e5de9c6f92ffee23671629dc8bbe1f159a0af0d2ff7209dd5ace1327da67a10a",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/clusterlod.h": "71f95c1f97ef567235540c038b41906091fcef1ef68046f2933cd5989f94ea93",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+      "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
     },
     "binaries": {
       "ours": "831aa927fbc034bc09ab9e6273818d760b9d85527460c8c7ab5de15cd0f7b73f",
@@ -876,7 +876,7 @@
     "existing_generator_sha256": "5a9f416c1f4ea90b7bf3e7c01c1c64c88630dd84d816f3ab4777103e6bfac1e5",
     "replay": [
       "python3",
-      "/home/etienne/dev/meshoptimizer-rs-wt/clod-path/parity/028-L1/fuzz.py",
+      "<repo>/parity/028-L1/fuzz.py",
       "5130240"
     ],
     "method": "stable seeded mutation, exact baseline comparison; no sanitizer or coverage instrumentation"
@@ -1053,27 +1053,27 @@
     "inputs": [
       {
         "case": "tiny-smooth",
-        "source": "/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs/tiny-smooth.bin",
+        "source": "<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs/tiny-smooth.bin",
         "sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351"
       },
       {
         "case": "medium-smooth",
-        "source": "/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs/medium-smooth.bin",
+        "source": "<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs/medium-smooth.bin",
         "sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194"
       },
       {
         "case": "medium-seams",
-        "source": "/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs/medium-seams.bin",
+        "source": "<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs/medium-seams.bin",
         "sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe"
       },
       {
         "case": "medium-sparse",
-        "source": "/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs/medium-sparse.bin",
+        "source": "<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs/medium-sparse.bin",
         "sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021"
       },
       {
         "case": "million-smooth",
-        "source": "/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs/million-smooth.bin",
+        "source": "<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs/million-smooth.bin",
         "sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf"
       }
     ],
@@ -9631,7 +9631,7 @@
       "iterations": 3000,
       "instructions": 31439452,
       "per_call": 10479.817333333332,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9641,7 +9641,7 @@
       "iterations": 3000,
       "instructions": 20861397,
       "per_call": 6953.799,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9651,7 +9651,7 @@
       "iterations": 3000,
       "instructions": 31469595,
       "per_call": 10489.865,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9661,7 +9661,7 @@
       "iterations": 30,
       "instructions": 65791666,
       "per_call": 2193055.533333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9671,7 +9671,7 @@
       "iterations": 30,
       "instructions": 44610313,
       "per_call": 1487010.4333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9681,7 +9681,7 @@
       "iterations": 30,
       "instructions": 70213191,
       "per_call": 2340439.7,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9691,7 +9691,7 @@
       "iterations": 30,
       "instructions": 51439435,
       "per_call": 1714647.8333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -9701,7 +9701,7 @@
       "iterations": 30,
       "instructions": 34912838,
       "per_call": 1163761.2666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -9711,7 +9711,7 @@
       "iterations": 30,
       "instructions": 49994584,
       "per_call": 1666486.1333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -9721,7 +9721,7 @@
       "iterations": 30,
       "instructions": 68458996,
       "per_call": 2281966.533333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -9731,7 +9731,7 @@
       "iterations": 30,
       "instructions": 45404318,
       "per_call": 1513477.2666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -9741,7 +9741,7 @@
       "iterations": 30,
       "instructions": 72122353,
       "per_call": 2404078.433333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -9751,7 +9751,7 @@
       "iterations": 3,
       "instructions": 853004898,
       "per_call": 284334966.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9761,7 +9761,7 @@
       "iterations": 3,
       "instructions": 569030579,
       "per_call": 189676859.66666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9771,7 +9771,7 @@
       "iterations": 3,
       "instructions": 890137510,
       "per_call": 296712503.3333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9781,7 +9781,7 @@
       "iterations": 3000,
       "instructions": 13487324,
       "per_call": 4495.774666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9791,7 +9791,7 @@
       "iterations": 3000,
       "instructions": 9769353,
       "per_call": 3256.451,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9801,7 +9801,7 @@
       "iterations": 3000,
       "instructions": 15018759,
       "per_call": 5006.253,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9811,7 +9811,7 @@
       "iterations": 30,
       "instructions": 24262350,
       "per_call": 808745.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9821,7 +9821,7 @@
       "iterations": 30,
       "instructions": 15280578,
       "per_call": 509352.6,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9831,7 +9831,7 @@
       "iterations": 30,
       "instructions": 27676101,
       "per_call": 922536.7,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9841,7 +9841,7 @@
       "iterations": 30,
       "instructions": 23035856,
       "per_call": 767861.8666666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -9851,7 +9851,7 @@
       "iterations": 30,
       "instructions": 14378910,
       "per_call": 479297.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -9861,7 +9861,7 @@
       "iterations": 30,
       "instructions": 26183089,
       "per_call": 872769.6333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -9871,7 +9871,7 @@
       "iterations": 30,
       "instructions": 24261448,
       "per_call": 808714.9333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -9881,7 +9881,7 @@
       "iterations": 30,
       "instructions": 15279615,
       "per_call": 509320.5,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -9891,7 +9891,7 @@
       "iterations": 30,
       "instructions": 27675149,
       "per_call": 922504.9666666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -9901,7 +9901,7 @@
       "iterations": 3,
       "instructions": 294189305,
       "per_call": 98063101.66666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9911,7 +9911,7 @@
       "iterations": 3,
       "instructions": 185090998,
       "per_call": 61696999.333333336,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9921,7 +9921,7 @@
       "iterations": 3,
       "instructions": 336002745,
       "per_call": 112000915.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9931,7 +9931,7 @@
       "iterations": 3000,
       "instructions": 209438645,
       "per_call": 69812.88166666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9941,7 +9941,7 @@
       "iterations": 3000,
       "instructions": 134425984,
       "per_call": 44808.66133333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9951,7 +9951,7 @@
       "iterations": 3000,
       "instructions": 186355444,
       "per_call": 62118.48133333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9961,7 +9961,7 @@
       "iterations": 30,
       "instructions": 932497951,
       "per_call": 31083265.033333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9971,7 +9971,7 @@
       "iterations": 30,
       "instructions": 808519579,
       "per_call": 26950652.633333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9981,7 +9981,7 @@
       "iterations": 30,
       "instructions": 1102810949,
       "per_call": 36760364.96666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -9991,7 +9991,7 @@
       "iterations": 30,
       "instructions": 716630118,
       "per_call": 23887670.6,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10001,7 +10001,7 @@
       "iterations": 30,
       "instructions": 620671647,
       "per_call": 20689054.9,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10011,7 +10011,7 @@
       "iterations": 30,
       "instructions": 879555959,
       "per_call": 29318531.966666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10021,7 +10021,7 @@
       "iterations": 30,
       "instructions": 935873488,
       "per_call": 31195782.933333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10031,7 +10031,7 @@
       "iterations": 30,
       "instructions": 809367927,
       "per_call": 26978930.9,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10041,7 +10041,7 @@
       "iterations": 30,
       "instructions": 1103280237,
       "per_call": 36776007.9,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10051,7 +10051,7 @@
       "iterations": 3,
       "instructions": 13399993456,
       "per_call": 4466664485.333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10061,7 +10061,7 @@
       "iterations": 3,
       "instructions": 11610891843,
       "per_call": 3870297281.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10071,7 +10071,7 @@
       "iterations": 3,
       "instructions": 15601419197,
       "per_call": 5200473065.666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10081,7 +10081,7 @@
       "iterations": 3000,
       "instructions": 148415649,
       "per_call": 49471.883,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10091,7 +10091,7 @@
       "iterations": 3000,
       "instructions": 142777996,
       "per_call": 47592.66533333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10101,7 +10101,7 @@
       "iterations": 3000,
       "instructions": 137852092,
       "per_call": 45950.69733333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10111,7 +10111,7 @@
       "iterations": 30,
       "instructions": 904353305,
       "per_call": 30145110.166666668,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10121,7 +10121,7 @@
       "iterations": 30,
       "instructions": 800308823,
       "per_call": 26676960.766666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10131,7 +10131,7 @@
       "iterations": 30,
       "instructions": 923405343,
       "per_call": 30780178.1,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10141,7 +10141,7 @@
       "iterations": 30,
       "instructions": 905838514,
       "per_call": 30194617.133333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10151,7 +10151,7 @@
       "iterations": 30,
       "instructions": 800978647,
       "per_call": 26699288.233333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10161,7 +10161,7 @@
       "iterations": 30,
       "instructions": 924583911,
       "per_call": 30819463.7,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10171,7 +10171,7 @@
       "iterations": 30,
       "instructions": 906571923,
       "per_call": 30219064.1,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10181,7 +10181,7 @@
       "iterations": 30,
       "instructions": 800309368,
       "per_call": 26676978.933333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10191,7 +10191,7 @@
       "iterations": 30,
       "instructions": 923404640,
       "per_call": 30780154.666666668,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10201,7 +10201,7 @@
       "iterations": 3,
       "instructions": 19788804925,
       "per_call": 6596268308.333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10211,7 +10211,7 @@
       "iterations": 3,
       "instructions": 17593377142,
       "per_call": 5864459047.333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10221,7 +10221,7 @@
       "iterations": 3,
       "instructions": 20087789846,
       "per_call": 6695929948.666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10231,7 +10231,7 @@
       "iterations": 3000,
       "instructions": 209483398,
       "per_call": 69827.79933333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10241,7 +10241,7 @@
       "iterations": 3000,
       "instructions": 134489090,
       "per_call": 44829.69666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10251,7 +10251,7 @@
       "iterations": 3000,
       "instructions": 186379359,
       "per_call": 62126.453,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10261,7 +10261,7 @@
       "iterations": 30,
       "instructions": 932498398,
       "per_call": 31083279.933333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10271,7 +10271,7 @@
       "iterations": 30,
       "instructions": 808519958,
       "per_call": 26950665.266666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10281,7 +10281,7 @@
       "iterations": 30,
       "instructions": 1102811383,
       "per_call": 36760379.43333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10291,7 +10291,7 @@
       "iterations": 30,
       "instructions": 716630351,
       "per_call": 23887678.366666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10301,7 +10301,7 @@
       "iterations": 30,
       "instructions": 620674426,
       "per_call": 20689147.533333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10311,7 +10311,7 @@
       "iterations": 30,
       "instructions": 879559432,
       "per_call": 29318647.733333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10321,7 +10321,7 @@
       "iterations": 30,
       "instructions": 935873920,
       "per_call": 31195797.333333332,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10331,7 +10331,7 @@
       "iterations": 30,
       "instructions": 809368840,
       "per_call": 26978961.333333332,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10341,7 +10341,7 @@
       "iterations": 30,
       "instructions": 1103280998,
       "per_call": 36776033.266666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10351,7 +10351,7 @@
       "iterations": 3,
       "instructions": 13399993524,
       "per_call": 4466664508.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10361,7 +10361,7 @@
       "iterations": 3,
       "instructions": 11610892966,
       "per_call": 3870297655.3333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10371,7 +10371,7 @@
       "iterations": 3,
       "instructions": 15601420107,
       "per_call": 5200473369.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10381,7 +10381,7 @@
       "iterations": 3000,
       "instructions": 70112683,
       "per_call": 23370.894333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10391,7 +10391,7 @@
       "iterations": 3000,
       "instructions": 120587553,
       "per_call": 40195.851,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10401,7 +10401,7 @@
       "iterations": 3000,
       "instructions": 101642235,
       "per_call": 33880.745,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10411,7 +10411,7 @@
       "iterations": 30,
       "instructions": 94782487,
       "per_call": 3159416.2333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10421,7 +10421,7 @@
       "iterations": 30,
       "instructions": 60873465,
       "per_call": 2029115.5,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10431,7 +10431,7 @@
       "iterations": 30,
       "instructions": 90189938,
       "per_call": 3006331.2666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10441,7 +10441,7 @@
       "iterations": 30,
       "instructions": 95272807,
       "per_call": 3175760.2333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10451,7 +10451,7 @@
       "iterations": 30,
       "instructions": 60873162,
       "per_call": 2029105.4,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10461,7 +10461,7 @@
       "iterations": 30,
       "instructions": 90189954,
       "per_call": 3006331.8,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10471,7 +10471,7 @@
       "iterations": 30,
       "instructions": 97000900,
       "per_call": 3233363.3333333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10481,7 +10481,7 @@
       "iterations": 30,
       "instructions": 60873161,
       "per_call": 2029105.3666666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10491,7 +10491,7 @@
       "iterations": 30,
       "instructions": 90189957,
       "per_call": 3006331.9,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10501,7 +10501,7 @@
       "iterations": 3,
       "instructions": 1152393899,
       "per_call": 384131299.6666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-ours-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-ours-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10511,7 +10511,7 @@
       "iterations": 3,
       "instructions": 731001780,
       "per_call": 243667260.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-M7-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-M7-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10521,7 +10521,7 @@
       "iterations": 3,
       "instructions": 1092844451,
       "per_call": 364281483.6666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-original2-X-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-original2-X-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     }
   ],
@@ -10533,7 +10533,7 @@
       "iterations": 3000,
       "instructions": 31454448,
       "per_call": 10484.816,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10543,7 +10543,7 @@
       "iterations": 3000,
       "instructions": 20858745,
       "per_call": 6952.915,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10553,7 +10553,7 @@
       "iterations": 3000,
       "instructions": 31469594,
       "per_call": 10489.864666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10563,7 +10563,7 @@
       "iterations": 30,
       "instructions": 65791798,
       "per_call": 2193059.933333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10573,7 +10573,7 @@
       "iterations": 30,
       "instructions": 44610251,
       "per_call": 1487008.3666666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10583,7 +10583,7 @@
       "iterations": 30,
       "instructions": 70213179,
       "per_call": 2340439.3,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10593,7 +10593,7 @@
       "iterations": 30,
       "instructions": 51439583,
       "per_call": 1714652.7666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10603,7 +10603,7 @@
       "iterations": 30,
       "instructions": 34913429,
       "per_call": 1163780.9666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10613,7 +10613,7 @@
       "iterations": 30,
       "instructions": 49994323,
       "per_call": 1666477.4333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10623,7 +10623,7 @@
       "iterations": 30,
       "instructions": 68459164,
       "per_call": 2281972.1333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10633,7 +10633,7 @@
       "iterations": 30,
       "instructions": 45404287,
       "per_call": 1513476.2333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10643,7 +10643,7 @@
       "iterations": 30,
       "instructions": 72122664,
       "per_call": 2404088.8,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10653,7 +10653,7 @@
       "iterations": 3,
       "instructions": 853005066,
       "per_call": 284335022.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10663,7 +10663,7 @@
       "iterations": 3,
       "instructions": 569031152,
       "per_call": 189677050.66666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10673,7 +10673,7 @@
       "iterations": 3,
       "instructions": 890137668,
       "per_call": 296712556.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10683,7 +10683,7 @@
       "iterations": 3000,
       "instructions": 14308317,
       "per_call": 4769.439,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10693,7 +10693,7 @@
       "iterations": 3000,
       "instructions": 9784379,
       "per_call": 3261.4596666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10703,7 +10703,7 @@
       "iterations": 3000,
       "instructions": 15018763,
       "per_call": 5006.254333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10713,7 +10713,7 @@
       "iterations": 30,
       "instructions": 24256023,
       "per_call": 808534.1,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10723,7 +10723,7 @@
       "iterations": 30,
       "instructions": 15280724,
       "per_call": 509357.4666666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10733,7 +10733,7 @@
       "iterations": 30,
       "instructions": 27676107,
       "per_call": 922536.9,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10743,7 +10743,7 @@
       "iterations": 30,
       "instructions": 23029170,
       "per_call": 767639.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10753,7 +10753,7 @@
       "iterations": 30,
       "instructions": 14379394,
       "per_call": 479313.13333333336,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10763,7 +10763,7 @@
       "iterations": 30,
       "instructions": 26183450,
       "per_call": 872781.6666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10773,7 +10773,7 @@
       "iterations": 30,
       "instructions": 24255125,
       "per_call": 808504.1666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10783,7 +10783,7 @@
       "iterations": 30,
       "instructions": 15279766,
       "per_call": 509325.5333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10793,7 +10793,7 @@
       "iterations": 30,
       "instructions": 27675220,
       "per_call": 922507.3333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10803,7 +10803,7 @@
       "iterations": 3,
       "instructions": 294195015,
       "per_call": 98065005.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10813,7 +10813,7 @@
       "iterations": 3,
       "instructions": 185091009,
       "per_call": 61697003.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10823,7 +10823,7 @@
       "iterations": 3,
       "instructions": 336003207,
       "per_call": 112001069.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10833,7 +10833,7 @@
       "iterations": 3000,
       "instructions": 210127965,
       "per_call": 70042.655,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10843,7 +10843,7 @@
       "iterations": 3000,
       "instructions": 134440741,
       "per_call": 44813.58033333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10853,7 +10853,7 @@
       "iterations": 3000,
       "instructions": 186355414,
       "per_call": 62118.471333333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10863,7 +10863,7 @@
       "iterations": 30,
       "instructions": 932491457,
       "per_call": 31083048.566666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10873,7 +10873,7 @@
       "iterations": 30,
       "instructions": 808519470,
       "per_call": 26950649.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10883,7 +10883,7 @@
       "iterations": 30,
       "instructions": 1102810638,
       "per_call": 36760354.6,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10893,7 +10893,7 @@
       "iterations": 30,
       "instructions": 716624232,
       "per_call": 23887474.4,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10903,7 +10903,7 @@
       "iterations": 30,
       "instructions": 620671597,
       "per_call": 20689053.233333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10913,7 +10913,7 @@
       "iterations": 30,
       "instructions": 879555980,
       "per_call": 29318532.666666668,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -10923,7 +10923,7 @@
       "iterations": 30,
       "instructions": 935867109,
       "per_call": 31195570.3,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10933,7 +10933,7 @@
       "iterations": 30,
       "instructions": 809368118,
       "per_call": 26978937.266666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10943,7 +10943,7 @@
       "iterations": 30,
       "instructions": 1103280864,
       "per_call": 36776028.8,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -10953,7 +10953,7 @@
       "iterations": 3,
       "instructions": 13399993437,
       "per_call": 4466664479.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10963,7 +10963,7 @@
       "iterations": 3,
       "instructions": 11610890730,
       "per_call": 3870296910.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10973,7 +10973,7 @@
       "iterations": 3,
       "instructions": 15601419426,
       "per_call": 5200473142.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10983,7 +10983,7 @@
       "iterations": 3000,
       "instructions": 149320365,
       "per_call": 49773.455,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -10993,7 +10993,7 @@
       "iterations": 3000,
       "instructions": 142793044,
       "per_call": 47597.681333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11003,7 +11003,7 @@
       "iterations": 3000,
       "instructions": 137851835,
       "per_call": 45950.611666666664,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11013,7 +11013,7 @@
       "iterations": 30,
       "instructions": 904347454,
       "per_call": 30144915.133333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11023,7 +11023,7 @@
       "iterations": 30,
       "instructions": 800308975,
       "per_call": 26676965.833333332,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11033,7 +11033,7 @@
       "iterations": 30,
       "instructions": 923405340,
       "per_call": 30780178.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11043,7 +11043,7 @@
       "iterations": 30,
       "instructions": 905832789,
       "per_call": 30194426.3,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11053,7 +11053,7 @@
       "iterations": 30,
       "instructions": 800979049,
       "per_call": 26699301.633333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11063,7 +11063,7 @@
       "iterations": 30,
       "instructions": 924583846,
       "per_call": 30819461.533333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11073,7 +11073,7 @@
       "iterations": 30,
       "instructions": 906565606,
       "per_call": 30218853.533333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11083,7 +11083,7 @@
       "iterations": 30,
       "instructions": 800309493,
       "per_call": 26676983.1,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11093,7 +11093,7 @@
       "iterations": 30,
       "instructions": 923404758,
       "per_call": 30780158.6,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11103,7 +11103,7 @@
       "iterations": 3,
       "instructions": 19788794776,
       "per_call": 6596264925.333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11113,7 +11113,7 @@
       "iterations": 3,
       "instructions": 17593377208,
       "per_call": 5864459069.333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11123,7 +11123,7 @@
       "iterations": 3,
       "instructions": 20087790414,
       "per_call": 6695930138.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11133,7 +11133,7 @@
       "iterations": 3000,
       "instructions": 210217682,
       "per_call": 70072.56066666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11143,7 +11143,7 @@
       "iterations": 3000,
       "instructions": 134504080,
       "per_call": 44834.693333333336,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11153,7 +11153,7 @@
       "iterations": 3000,
       "instructions": 186379111,
       "per_call": 62126.37033333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11163,7 +11163,7 @@
       "iterations": 30,
       "instructions": 932492444,
       "per_call": 31083081.466666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11173,7 +11173,7 @@
       "iterations": 30,
       "instructions": 808520091,
       "per_call": 26950669.7,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11183,7 +11183,7 @@
       "iterations": 30,
       "instructions": 1102811104,
       "per_call": 36760370.13333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11193,7 +11193,7 @@
       "iterations": 30,
       "instructions": 716624611,
       "per_call": 23887487.033333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11203,7 +11203,7 @@
       "iterations": 30,
       "instructions": 620674849,
       "per_call": 20689161.633333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11213,7 +11213,7 @@
       "iterations": 30,
       "instructions": 879559690,
       "per_call": 29318656.333333332,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11223,7 +11223,7 @@
       "iterations": 30,
       "instructions": 935867819,
       "per_call": 31195593.966666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11233,7 +11233,7 @@
       "iterations": 30,
       "instructions": 809368988,
       "per_call": 26978966.266666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11243,7 +11243,7 @@
       "iterations": 30,
       "instructions": 1103281249,
       "per_call": 36776041.63333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11253,7 +11253,7 @@
       "iterations": 3,
       "instructions": 13400002590,
       "per_call": 4466667530.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11263,7 +11263,7 @@
       "iterations": 3,
       "instructions": 11610895817,
       "per_call": 3870298605.6666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11273,7 +11273,7 @@
       "iterations": 3,
       "instructions": 15601421493,
       "per_call": 5200473831.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11283,7 +11283,7 @@
       "iterations": 3000,
       "instructions": 70112668,
       "per_call": 23370.889333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11293,7 +11293,7 @@
       "iterations": 3000,
       "instructions": 120587659,
       "per_call": 40195.886333333336,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11303,7 +11303,7 @@
       "iterations": 3000,
       "instructions": 101642319,
       "per_call": 33880.773,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11313,7 +11313,7 @@
       "iterations": 30,
       "instructions": 94782293,
       "per_call": 3159409.7666666666,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11323,7 +11323,7 @@
       "iterations": 30,
       "instructions": 60873480,
       "per_call": 2029116.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11333,7 +11333,7 @@
       "iterations": 30,
       "instructions": 90189670,
       "per_call": 3006322.3333333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11343,7 +11343,7 @@
       "iterations": 30,
       "instructions": 95273132,
       "per_call": 3175771.066666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11353,7 +11353,7 @@
       "iterations": 30,
       "instructions": 60873492,
       "per_call": 2029116.4,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11363,7 +11363,7 @@
       "iterations": 30,
       "instructions": 90189665,
       "per_call": 3006322.1666666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11373,7 +11373,7 @@
       "iterations": 30,
       "instructions": 97001142,
       "per_call": 3233371.4,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11383,7 +11383,7 @@
       "iterations": 30,
       "instructions": 60873193,
       "per_call": 2029106.4333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11393,7 +11393,7 @@
       "iterations": 30,
       "instructions": 90189979,
       "per_call": 3006332.6333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11403,7 +11403,7 @@
       "iterations": 3,
       "instructions": 1152395439,
       "per_call": 384131813.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-ours-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-ours-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11413,7 +11413,7 @@
       "iterations": 3,
       "instructions": 731002410,
       "per_call": 243667470.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-M7-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-M7-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11423,7 +11423,7 @@
       "iterations": 3,
       "instructions": 1092845319,
       "per_call": 364281773.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-equalized-X-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-equalized-X-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     }
   ],
@@ -11437,7 +11437,7 @@
       "cycles": 6932919,
       "cycles_per_call": 2310.973,
       "per_call": 10011.908333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-partition-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-partition-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11449,7 +11449,7 @@
       "cycles": 15573928,
       "cycles_per_call": 519130.93333333335,
       "per_call": 2041911.9333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-partition-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-partition-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11461,7 +11461,7 @@
       "cycles": 11219525,
       "cycles_per_call": 373984.1666666667,
       "per_call": 1584431.6333333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-partition-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-partition-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11473,7 +11473,7 @@
       "cycles": 15252668,
       "cycles_per_call": 508422.26666666666,
       "per_call": 2190191.466666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-partition-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-partition-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11485,7 +11485,7 @@
       "cycles": 237470505,
       "cycles_per_call": 79156835.0,
       "per_call": 273218764.3333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-partition-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-partition-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11497,7 +11497,7 @@
       "cycles": 3109023,
       "cycles_per_call": 1036.341,
       "per_call": 4112.545,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-scan-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-scan-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11509,7 +11509,7 @@
       "cycles": 6131626,
       "cycles_per_call": 204387.53333333333,
       "per_call": 637616.8333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-scan-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-scan-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11521,7 +11521,7 @@
       "cycles": 5571816,
       "cycles_per_call": 185727.2,
       "per_call": 584952.5666666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-scan-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-scan-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11533,7 +11533,7 @@
       "cycles": 3742986,
       "cycles_per_call": 124766.2,
       "per_call": 637586.8333333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-scan-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-scan-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11545,7 +11545,7 @@
       "cycles": 55756598,
       "cycles_per_call": 18585532.666666668,
       "per_call": 77120697.66666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-scan-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-scan-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11557,7 +11557,7 @@
       "cycles": 60501282,
       "cycles_per_call": 20167.094,
       "per_call": 62320.57466666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11569,7 +11569,7 @@
       "cycles": 383437624,
       "cycles_per_call": 12781254.133333333,
       "per_call": 28407512.533333335,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11581,7 +11581,7 @@
       "cycles": 168988761,
       "cycles_per_call": 5632958.7,
       "per_call": 21806874.633333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11593,7 +11593,7 @@
       "cycles": 274563874,
       "cycles_per_call": 9152129.133333333,
       "per_call": 28520014.0,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11605,7 +11605,7 @@
       "cycles": 4511626063,
       "cycles_per_call": 1503875354.3333333,
       "per_call": 4131379561.6666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11617,7 +11617,7 @@
       "cycles": 42243655,
       "cycles_per_call": 14081.218333333334,
       "per_call": 47085.55566666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-spatial-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-spatial-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11629,7 +11629,7 @@
       "cycles": 315369141,
       "cycles_per_call": 10512304.7,
       "per_call": 32142525.2,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-spatial-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-spatial-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11641,7 +11641,7 @@
       "cycles": 196599260,
       "cycles_per_call": 6553308.666666667,
       "per_call": 32185614.4,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-spatial-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-spatial-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11653,7 +11653,7 @@
       "cycles": 199646350,
       "cycles_per_call": 6654878.333333333,
       "per_call": 32216473.633333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-spatial-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-spatial-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11665,7 +11665,7 @@
       "cycles": 6413951143,
       "cycles_per_call": 2137983714.3333333,
       "per_call": 7258257592.333333,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-spatial-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-spatial-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11677,7 +11677,7 @@
       "cycles": 41442708,
       "cycles_per_call": 13814.236,
       "per_call": 62357.66166666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-flex-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-flex-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11689,7 +11689,7 @@
       "cycles": 274017848,
       "cycles_per_call": 9133928.266666668,
       "per_call": 28407527.733333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-flex-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-flex-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11701,7 +11701,7 @@
       "cycles": 234459905,
       "cycles_per_call": 7815330.166666667,
       "per_call": 21806897.966666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-flex-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-flex-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11713,7 +11713,7 @@
       "cycles": 313973601,
       "cycles_per_call": 10465786.7,
       "per_call": 28520037.733333334,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-flex-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-flex-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11725,7 +11725,7 @@
       "cycles": 4660155216,
       "cycles_per_call": 1553385072.0,
       "per_call": 4131379572.6666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-meshlets-flex-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-meshlets-flex-million-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11737,7 +11737,7 @@
       "cycles": 16519310,
       "cycles_per_call": 5506.4366666666665,
       "per_call": 21325.893,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-spatial-triangles-tiny-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-spatial-triangles-tiny-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11749,7 +11749,7 @@
       "cycles": 31301781,
       "cycles_per_call": 1043392.7,
       "per_call": 2635124.4,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-spatial-triangles-medium-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-spatial-triangles-medium-smooth.stat",
       "perf_exit": -2
     },
     {
@@ -11761,7 +11761,7 @@
       "cycles": 30500800,
       "cycles_per_call": 1016693.3333333334,
       "per_call": 2651486.1666666665,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-spatial-triangles-medium-seams.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-spatial-triangles-medium-seams.stat",
       "perf_exit": -2
     },
     {
@@ -11773,7 +11773,7 @@
       "cycles": 31726765,
       "cycles_per_call": 1057558.8333333333,
       "per_call": 2709078.5,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-spatial-triangles-medium-sparse.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-spatial-triangles-medium-sparse.stat",
       "perf_exit": -2
     },
     {
@@ -11785,7 +11785,7 @@
       "cycles": 601970204,
       "cycles_per_call": 200656734.66666666,
       "per_call": 320131722.6666667,
-      "stat": "/mnt/linux-extra/moss-scratch/meshopt-028-L1/count-trial7-ours-spatial-triangles-million-smooth.stat",
+      "stat": "<scratch>/meshopt-028-L1/count-trial7-ours-spatial-triangles-million-smooth.stat",
       "perf_exit": -2
     }
   ],

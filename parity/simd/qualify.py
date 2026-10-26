@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """P07 per-level/native/WASM identity and bounded paired SIMD measurements."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import argparse, hashlib, json, math, os, random, shutil, statistics, struct, subprocess, sys, time, zipfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'codec'))
@@ -128,9 +138,9 @@ def compare(cases,label):
     print(label,len(records),'PASS',flush=True)
 
 def admission():
-    gpu=subprocess.run(['/mnt/linux-extra/moss-coord/bin/gpu-lease.sh','status'],capture_output=True,text=True)
+    gpu=subprocess.run([_public_path('<local>/gpu-lease.sh'),'status'],capture_output=True,text=True)
     if gpu.returncode or 'GPU lease: FREE' not in gpu.stdout or 'HELD' in gpu.stdout:return {'admitted':False,'gpu':gpu.stdout+gpu.stderr}
-    units=subprocess.run(['systemctl','--user','list-units','moss-scoreboard-*','--state=active','--no-legend','--plain'],capture_output=True,text=True,check=True).stdout
+    units=subprocess.run(['systemctl','--user','list-units','downstream-scoreboard-*','--state=active','--no-legend','--plain'],capture_output=True,text=True,check=True).stdout
     measuring=[]
     for line in units.splitlines():
         unit=line.split()[0]
@@ -139,7 +149,7 @@ def admission():
             for pid in p.read_text().split():
                 try:cmd=(Path('/proc')/pid/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
                 except FileNotFoundError:continue
-                if 'moss-scoreboard.sh' in cmd or 'moss-scoreboard.py' in cmd:measuring.append({'pid':pid,'cmd':cmd})
+                if 'downstream-scoreboard.sh' in cmd or 'downstream-scoreboard.py' in cmd:measuring.append({'pid':pid,'cmd':cmd})
     return {'admitted':not measuring,'gpu':gpu.stdout,'units':units,'measuring':measuring,'load':os.getloadavg(),'unix':time.time()}
 
 def interval(values):

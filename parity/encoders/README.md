@@ -1,21 +1,21 @@
 # Allocating encoder consumer profiles (SPEC-03)
 
 This campaign extends the frozen P03 requests to Cargo defaults (O3, no LTO,
-16 codegen units) and the Moss consumer (O3, thin LTO, one codegen unit). It
+16 codegen units) and the a downstream engine consumer (O3, thin LTO, one codegen unit). It
 retains the original scalar-strict C++ 1.3 oracle and normal SIMD time comparator.
 The peer is meshopt 0.6.2, with bundled C++ 0.25 and its published build flags.
 Tiny Oct/Quat implementations are not retuned.
 
-Set `CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03`
+Set `CARGO_TARGET_DIR=<target-dir>`
 and `CARGO_INCREMENTAL=0`. Every command below must run through
 `MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-enc03
-/mnt/linux-extra/moss-coord/bin/moss-heavy.sh <GB> timeout 840 <command>`.
+<job-runner> <GB> timeout 840 <command>`.
 Declare 3 GB for these builds, preparation, parity and measurements (measured
 controller peak RSS was below 1.2 GiB).
 The wrapper waits for RAM admission; no quiet-machine wait is used.
 For this measured lane, `MOSS_HEAVY_USE_DECLARED=1` uses the 3 GB declaration
 when generic interpreter history over-reserves. This is the explicit declaration
-mode documented by Moss HEAVY_JOBS; queue, RAM, disk and runtime guards remain.
+mode documented by a downstream engine HEAVY_JOBS; queue, RAM, disk and runtime guards remain.
 
 1. `python3 parity/encoders/build_profiles.py`
 2. `python3 parity/encoders/profiles.py prepare`
@@ -27,7 +27,7 @@ mode documented by Moss HEAVY_JOBS; queue, RAM, disk and runtime guards remain.
 5. `python3 parity/encoders/profiles.py timing defaults`, then `timing moss`.
 6. `python3 parity/encoders/profiles.py peer defaults`, then `peer moss`.
 
-Evidence defaults to `/mnt/linux-extra/moss-scratch/meshopt-enc03`;
+Evidence defaults to `<scratch>/meshopt-enc03`;
 `MESHOPT_ENCODER_ARTIFACTS` selects a new epoch without replacing old receipts.
 The Cargo target is fixed, stays below 10 GB, and is deleted after completion.
 Prepared geometry must match the hashes in the committed historical peer ledger;

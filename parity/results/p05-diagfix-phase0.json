@@ -4,7 +4,7 @@
   "rebase_from": "80663a8",
   "rebase_onto": "419dc7ad2b16c29e9fe00fe5adce3f4f211c9ac4",
   "rebased_head": "6109413a973d7bd00f85bf887f409c426aca6121",
-  "artifact_directory": "/mnt/linux-extra/meshopt-artifacts/p05-diagfix/phase0",
+  "artifact_directory": "<artifacts>/p05-diagfix/phase0",
   "receipts": [
     {
       "label": "lock-Cargo.toml",

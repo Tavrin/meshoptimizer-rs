@@ -7,8 +7,8 @@ if [[ ${MESHOPT_SIMPLIFY_TRAIN17_RELEASED:-} != yes ]]; then
   exit 75
 fi
 export MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-0212-simplify MOSS_HEAVY_MAX_PER_LANE=1
-export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-simplify-hot
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:?}"
 export CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 PYTHONDONTWRITEBYTECODE=1
 export CXXFLAGS='-DMESHOPTIMIZER_NO_SIMD -g'
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
-exec /mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 "$@"
+exec "${JOB_RUNNER:?}" 4 "$@"

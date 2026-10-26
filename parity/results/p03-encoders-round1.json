@@ -2,7 +2,7 @@
   "scope": "SPEC-p03-encoders round1; generic x86-64 native release fat LTO 1CGU; both APIs",
   "library_revision": "3c0ec280e880f95c8a4586768bd35e9508bbf443",
   "harness_revision": "b82191392e11ad84c4ee439be34f93c3cd57e62c",
-  "artifact_directory": "/mnt/linux-extra/moss-scratch/meshopt-v03",
+  "artifact_directory": "<scratch>/meshopt-v03",
   "artifact_sha256": {
     "timing.json": "939a25f4510248f5e4d56c4e6c420fbdd2c9725d99ac6420f049569e97a0dbe5",
     "timing-summary.json": "edbe8ebab83e2b46edc28497269fd5f3f742906714f5b415880408a5dfafdbea",
@@ -18152,12 +18152,12 @@
   "resolved_rows": 224,
   "paired_rounds": 1229,
   "cleanup": {
-    "owned_target": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-v03",
+    "owned_target": "<target-dir>",
     "bytes_before_deletion": 154753713,
     "under_5_GiB": true,
     "live_owned_jobs": [],
     "deleted": true,
-    "durable_artifacts_retained": "/mnt/linux-extra/moss-scratch/meshopt-v03",
+    "durable_artifacts_retained": "<scratch>/meshopt-v03",
     "free_bytes_before": 22705254400,
     "free_bytes_after": 22855282688
   },

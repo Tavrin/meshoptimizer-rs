@@ -3,7 +3,7 @@
 Written before any timing sample or candidate-library edit. Diagnostic RSS /
 allocation probes are excluded from timing evidence. No reruns to change the
 verdict. Source revisions, source hashes, binaries, input identities, order and
-all samples are retained under /mnt/linux-extra/moss-scratch/meshopt-memory/spec027.
+all samples are retained under <scratch>/meshopt-memory/spec027.
 
 ## Arms and workloads
 
@@ -29,7 +29,7 @@ output SHA256, index count and error bits for each call.
 
 ## Sampling and estimator
 
-One admitted CPU-only moss-heavy job, declared 4 GB, MOSS_HEAVY_MEASUREMENT=1,
+One admitted CPU-only <job-runner> job, declared 4 GB, MOSS_HEAVY_MEASUREMENT=1,
 core 8 affinity inherited by all children, sequential processes. Same compiler,
 inputs, host session and environment. No background measurements in this lane.
 Workload order: 214e, b6fd, a082, micro. For each workload:

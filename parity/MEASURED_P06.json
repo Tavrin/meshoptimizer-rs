@@ -250,9 +250,9 @@
       "sha256": "87ea2490ac1ec3a642e0c1e8daf05b25eeda1f37dc4f9533315886bc9a51b52f"
     }
   },
-  "artifacts": "/mnt/linux-extra/meshopt-artifacts/p06",
+  "artifacts": "<artifacts>/p06",
   "curve": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p06/parallel/curve.json",
+    "path": "<artifacts>/p06/parallel/curve.json",
     "sha256": "6102415eaf92acb43dccf886a409faa2f6d3c59fdb4b23eadd98b3223401a0a8",
     "pairs_per_case": 5,
     "thread_counts": [
@@ -313,11 +313,11 @@
     }
   },
   "verification": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p06/verification.json",
+    "path": "<artifacts>/p06/verification.json",
     "sha256": "0aebef72f0c76f820866ee60886c7f338bba96025a2ec7062a650cb99c4cc68d"
   },
   "binaries": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p06/binary-index.json",
+    "path": "<artifacts>/p06/binary-index.json",
     "sha256": "9f2ef2ed13ad083d1e98e2a8d5e0dd6c8ae8d8b787cbeebfb322773ef36b9934"
   }
 }

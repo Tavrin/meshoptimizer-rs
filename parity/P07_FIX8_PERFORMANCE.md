@@ -87,7 +87,7 @@ the single epoch. The original tiny Exp12 S3 clears; tiny Exp32 C remains.
 
 Source fixes: 5b9da67 (Exp), 513340c (Oct), 0531e15 (WASM reconstruction).
 Final source/binary manifests, counters, assembly and raw timing pairs are in
-`/mnt/linux-extra/meshopt-artifacts/p07-fix8`. Verified frozen execution covers
+`<artifacts>/p07-fix8`. Verified frozen execution covers
 869 fixtures, 7653 malformed cases and 138 benchmark identities on all local
 native ceilings and scalar/SIMD WASM, both APIs. 438 exact timing-module outputs
 include the retained Node control. Ordinary/all-feature and unsafe-free tests,
@@ -105,7 +105,7 @@ during a bounded 120-second/90-minute wait; every Cargo build ran sequentially
 with -j4 and no incremental artifacts. Only the exact fix8 target is deleted
 at final cleanup. Final absence and process/exit receipts are bound by
 `continuation-receipt.json`; milestones and scout remain under
-`/mnt/linux-extra/moss-scratch/p07-fix8`.
+`<scratch>/p07-fix8`.
 
 No native vertex retiming, untouched-family retiming, ARM/other-platform,
-release, Moss integration or full-matrix acceptance is implied.
+release, a downstream engine integration or full-matrix acceptance is implied.

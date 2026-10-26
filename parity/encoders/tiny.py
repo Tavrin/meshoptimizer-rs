@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """P03 tiny: immutable diagnosed epochs and registered 5-20-pair streams."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib,json,math,os,shutil,statistics,struct,subprocess,sys,time
 from pathlib import Path
 import run as lane
@@ -7,8 +17,8 @@ T95={5:2.776,6:2.571,7:2.447,8:2.365,9:2.306,10:2.262,11:2.228,12:2.201,13:2.179
 def interval(xs):
  logs=[math.log(x) for x in xs];mean=statistics.mean(logs);r=T95[len(xs)]*statistics.stdev(logs)/math.sqrt(len(xs));return [math.exp(mean-r),math.exp(mean+r)]
 OLD=lane.ART
-A=Path('/mnt/linux-extra/moss-scratch/meshopt-v03-tiny')
-TARGET=Path('/mnt/linux-extra/moss-cargo-targets/codex-meshopt-tiny')
+A=Path(_public_path('<scratch>/meshopt-v03-tiny'))
+TARGET=Path(_public_path('<target-dir>'))
 lane.ART=A;lane.TARGET=TARGET
 lane.ENV.update(CARGO_TARGET_DIR=str(TARGET),TMPDIR=str(TARGET/'tmp'))
 os.environ.update(CARGO_TARGET_DIR=str(TARGET))

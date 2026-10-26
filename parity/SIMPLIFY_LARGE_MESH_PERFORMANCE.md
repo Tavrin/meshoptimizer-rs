@@ -2,7 +2,7 @@
 
 Overall verdict: **FAIL — not a release candidate.** Simplify meets its real-case target on all three cases, but overdraw misses 1.50 on 214e and b6fd. The final frozen overdraw maximum is 1.545072, exceeding the unchanged 1.50 bar. Separately, the single 0.2.3 frozen baseline timed out after 200/204 cases, leaving four attribute cases and the complete attribute no-regression proof unavailable. No rerun, bar change, timeout change or sample replacement was performed.
 
-Base: `afe803bbf60796a7af6b5001594a979af009cfac` (0.2.3). Branch: `perf/simplify-large-mesh`. Corpus precheck: **695/695**, exit 0. Diagnosis: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/DIAGNOSIS.md`. Frozen failure: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/FROZEN_FAILURE.md`.
+Base: `afe803bbf60796a7af6b5001594a979af009cfac` (0.2.3). Branch: `perf/simplify-large-mesh`. Corpus precheck: **695/695**, exit 0. Diagnosis: `<scratch>/meshopt-simplify-perf/DIAGNOSIS.md`. Frozen failure: `<scratch>/meshopt-simplify-perf/FROZEN_FAILURE.md`.
 
 ## Diagnosis ranking
 
@@ -25,7 +25,7 @@ Rust overdraw validation adds an estimated 0.201 s. Grouped unresolved simplify 
 3. Dispatch sequential position scans by layout once; retain `Work::scan` and its exact failure prefix.
 4. Validate positional quadrics and refresh inverse weights in one pass, with unchanged divisions and numerical checks.
 
-Dead hypotheses: none rejected for byte parity; all four immutable fix snapshots passed all-feature tests and native/WASM differential checks. The hypothesis that these four fixes would close both real-case targets was not established: overdraw still misses on two cases. Per-fix timing gains were not isolated. Per-fix source exports, patches and test receipts are retained. Setup failures/canceled admission waits are described in BUILD_NOTES.md; they are not timing samples. No public signature, default Limits, accounting threshold, hash, algorithm, cache kernel, encoder, SIMD implementation or Moss source was changed. Quadric remains **48 bytes**; optional shrink not attempted; bytes saved: **0**.
+Dead hypotheses: none rejected for byte parity; all four immutable fix snapshots passed all-feature tests and native/WASM differential checks. The hypothesis that these four fixes would close both real-case targets was not established: overdraw still misses on two cases. Per-fix timing gains were not isolated. Per-fix source exports, patches and test receipts are retained. Setup failures/canceled admission waits are described in BUILD_NOTES.md; they are not timing samples. No public signature, default Limits, accounting threshold, hash, algorithm, cache kernel, encoder, SIMD implementation or a downstream engine source was changed. Quadric remains **48 bytes**; optional shrink not attempted; bytes saved: **0**.
 
 ## Registered real-case campaign
 

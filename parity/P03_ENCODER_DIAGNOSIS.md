@@ -1,8 +1,8 @@
 # Encoder diagnosis (0.3 round 1)
 
-Worktree `/home/etienne/dev/meshopt-wt/v03`, baseline `eb5b1a2`, pinned
+Worktree `<local>/v03`, baseline `eb5b1a2`, pinned
 meshoptimizer 1.3 `4c203430ca565cb59a468a91922c76c208169536`.
-Evidence: `/mnt/linux-extra/moss-scratch/meshopt-v03`.
+Evidence: `<scratch>/meshopt-v03`.
 
 No elapsed-time experiment preceded diagnosis. The read-only `SCOUT.md` maps
 hot functions to source lines. `scout-counters.json` binds an existing comparison

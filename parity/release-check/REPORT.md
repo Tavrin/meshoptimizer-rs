@@ -1,4 +1,4 @@
-# moss-qx5g3 release check
+# downstream-qx5g3 release check
 
 **NO RELEASE**. Candidate triggers FALLBACK; the single fallback campaign also fails the registered case no-regression rule. No timing-value reruns or retuning.
 
@@ -18,9 +18,9 @@ All family point estimates are ≤1.02. Candidate case regressions: 6. Fallback 
 
 [All 4896 measured pairs, with both times, ratios and order](SAMPLES.csv). [Candidate analysis](C-analysis.json), [fallback analysis](F-analysis.json), [protocol verification](verification.json), [binary/source/profile bindings](identities.json), [inherited fuzz bindings](inherited-proof-binding.json), [method](METHOD.md), [verbatim initial registration](REGISTRATION.md), [fallback registration](F-REGISTRATION.md).
 
-Full resident responses, raw JSON records, logs and scratch scripts remain at `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release/`. `C-attempt-1/record.json` and `F-attempt-1/record.json` bind all 204 cases in each campaign; corresponding `samples.jsonl` files retain per-pair timestamps and loads. Both jobs exited 0; no infrastructure failure or rerun. Statistical failure is separate from harness exit status.
+Full resident responses, raw JSON records, logs and scratch scripts remain at `<scratch>/meshopt-simplify-perf/release/`. `C-attempt-1/record.json` and `F-attempt-1/record.json` bind all 204 cases in each campaign; corresponding `samples.jsonl` files retain per-pair timestamps and loads. Both jobs exited 0; no infrastructure failure or rerun. Statistical failure is separate from harness exit status.
 
-Initial queue waited behind train pid 3177400. Sampling began after that job was marked `held by etienne`; no queue bypass. Between-case RAM-waiter checks caused no PAUSE in either campaign. STEER.md and wrapper logs retain the policy and admission.
+Initial queue waited behind train pid 3177400. Sampling began after that job was marked `held by the maintainer`; no queue bypass. Between-case RAM-waiter checks caused no PAUSE in either campaign. STEER.md and wrapper logs retain the policy and admission.
 
 ## Inherited parity and fuzz
 
@@ -54,7 +54,7 @@ No parity or fuzz rerun. Candidate: `../r2/parity-final/exits.tsv`, `../r2/final
 
 ### Absolute bars
 
-Source: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json`, SHA-256 `c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd`. Complete 204/204; family GM ≤1.25 and each non-exempt case ≤1.50: **True**.
+Source: `<scratch>/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json`, SHA-256 `c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd`. Complete 204/204; family GM ≤1.25 and each non-exempt case ≤1.50: **True**.
 
 | Family | GM vs C++ | Max vs C++ |
 |---|---:|---:|
@@ -94,7 +94,7 @@ Source: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/b
 
 ### Absolute bars
 
-Source: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json`, SHA-256 `c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd`. Complete 204/204; family GM ≤1.25 and each non-exempt case ≤1.50: **True**.
+Source: `<scratch>/meshopt-simplify-perf/r2/frozen-final-1/benchmark.json`, SHA-256 `c3034c1bc6b3130d9c91fe3a704859505bf1f60a84522809036d033a37245fbd`. Complete 204/204; family GM ≤1.25 and each non-exempt case ≤1.50: **True**.
 
 | Family | GM vs C++ | Max vs C++ |
 |---|---:|---:|

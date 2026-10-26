@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Reuse existing p03 differential seeds plus frozen corpus; retain replay corpus."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import os,sys,subprocess,json,struct,hashlib,importlib.util
 from control import ROOT,LANE,ART,TARGET,OPS,CASES,Driver,sha,save
 os.environ.setdefault('MESHOPT_ARTIFACTS',str(ART/'p03'))
-os.environ.setdefault('MESHOPT_REFERENCE','/home/etienne/dev/refs/meshoptimizer')
+os.environ.setdefault('MESHOPT_REFERENCE',_public_path('<refs>/meshoptimizer'))
 spec=importlib.util.spec_from_file_location('p03',ROOT/'parity/p03/runner.py');r=importlib.util.module_from_spec(spec);spec.loader.exec_module(r)
 FAMILIES={1:'meshlets',2:'meshlets-scan',3:'meshlets-flex',4:'meshlets-spatial',12:'partition',14:'spatial-triangles'}
 def wide_partition(seed):

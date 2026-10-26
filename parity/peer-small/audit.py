@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Bind final source, proof, registration and all first-campaign samples."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import json
 import math
@@ -7,7 +17,7 @@ from pathlib import Path
 import statistics
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-c')
+ART = Path(_public_path('<scratch>/meshopt-peer-c'))
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 

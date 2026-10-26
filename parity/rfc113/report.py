@@ -56,22 +56,22 @@ def main():
     default_valid=[r for r in defaults['cases'] if r['mismatch'] is None]
     default_timing=defaults['timing']
     default_bar=default_timing['ratio']<=1.2 and all(r['median_ratio'] is None or r['median_ratio']<=1.5 for r in default_valid)
-    lines=['# RFC 113 clodBuild parity against Moss S2','',
+    lines=['# RFC 113 clodBuild parity against a downstream engine S2','',
         '**Verdict:** all 15 valid layout cases have byte-identical DAG, local indices, hierarchy, cluster and meshlet bounds. '
         f'All 90 codec payload comparisons match. The nine-mesh paired cook ratio is **{timing["ratio"]:.3f}×** scalar C++ '
-        f'and **{timing["moss_ratio"]:.3f}×** Moss-style SIMD C++; the consumer scalar performance bar is {"met" if bar else "not met"}. '
+        f'and **{timing["moss_ratio"]:.3f}×** a downstream engine-style SIMD C++; the consumer scalar performance bar is {"met" if bar else "not met"}. '
         f'Cargo-defaults scalar aggregate is **{default_timing["ratio"]:.3f}×** ({"met" if default_bar else "not met"}). '
         'Stride 32 remains invalid under the exact S2 protect mask.','',
         '## Setup and identity','',
         f'- Worktree branch `{branch}`, HEAD `{head}`. No public API changes.',
-        '- C++ oracle: Moss S2 vendored `meshoptimizer` (master 717ca348), plus a hash-checked copy of `cluster_lod_bridge.cpp`.',
+        '- C++ oracle: a downstream engine S2 vendored `meshoptimizer` (master 717ca348), plus a hash-checked copy of `cluster_lod_bridge.cpp`.',
         '- S2 config: `clodDefaultConfig(128)` with only `simplify_dilate_borders=false`; 3 normal weights of 0.5; '
         'protect bits 0..8 (plus 9..12 at stride 64); S2 `boundary_locks`; callback `clodLocalIndices`; hierarchy width 8 and bridge-derived levels.',
         '- S0b inputs: all nine `.mesh` files actually present in the frozen directory (the brief says eight); '
         'stride 48 on all, plus 64/72/88 on pyramid and sponza_lionhead. Synthetic tangent/color/joints/weights are deterministic. '
         'The 72/88 layouts exercise the builder API although S2 candidate admission rejects skinned bases.',
         f'- Copied bridge SHA-256 `{hash_file(clod.HERE/"bridge.cpp")}`; vendored `clusterlod.h` SHA-256 `{hash_file(clod.VENDOR/"clusterlod.h")}`.',
-        f'- DAG driver SHA-256: scalar C++ `{dag["identity"]["executables"]["cpp"]}`, Moss-style C++ `{dag["identity"]["executables"]["moss_cpp"]}`, Rust `{dag["identity"]["executables"]["rust"]}`.',
+        f'- DAG driver SHA-256: scalar C++ `{dag["identity"]["executables"]["cpp"]}`, a downstream engine-style C++ `{dag["identity"]["executables"]["moss_cpp"]}`, Rust `{dag["identity"]["executables"]["rust"]}`.',
         f'- Codec driver SHA-256: C++ `{codec["executable_hashes"]["cpp"]}`, Rust `{codec["executable_hashes"]["rust"]}`.',
         f'- Full source and binary hashes: `{dag_path}` and `{codec_path}`. Artifacts contain hashes and timings only; no source mesh copies or large payloads.','',
         '## Review-fix differential and memory sweep','',
@@ -105,30 +105,30 @@ def main():
         '## Paired cook time','',
         f'{len(valid[0]["times_s"]["cpp"])} interleaved three-way pairs per mesh on pinned CPU {dag["identity"]["core"]}; internal monotonic timers cover input conversion and DAG cooking/serialization, '
         'excluding process launch, pipe transfer, and parity-only detailed bounds. '
-        f'Scalar C++: `{dag["identity"]["cpp_flags"]}`; Moss-style C++: `{dag["identity"]["moss_cpp_flags"]}`; Rust: `{dag["identity"]["rust_profile"]}`. '
+        f'Scalar C++: `{dag["identity"]["cpp_flags"]}`; a downstream engine-style C++: `{dag["identity"]["moss_cpp_flags"]}`; Rust: `{dag["identity"]["rust_profile"]}`. '
         'The aggregate is the ratio of summed per-mesh medians.','',
         f'Load average before/after: `{dag["identity"]["load_before"]}` / `{dag["identity"]["load_after"]}`; '
         f'core utilization over run: {dag["identity"]["core_utilization"]:.1%}.','',
-        '| Mesh (stride 48) | Groups | DAG depth | Before scalar | Scalar ms | Moss ms | Rust ms | After scalar | Rust/Moss |',
+        '| Mesh (stride 48) | Groups | DAG depth | Before scalar | Scalar ms | a downstream engine ms | Rust ms | After scalar | Rust/a downstream engine |',
         '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
     for r in valid:
         if r['median_ratio'] is None:continue
         c=statistics.median(r['times_s']['cpp'])*1000;m=statistics.median(r['times_s']['moss_cpp'])*1000;v=statistics.median(r['times_s']['rust'])*1000
         lines.append(f'| `{r["case"]}` | {r["group_count"]} | {r["dag_depth"]} | {BASELINE[r["case"].split(":")[0]]:.3f}× | {c:.3f} | {m:.3f} | {v:.3f} | {r["median_ratio"]:.3f}× | {r["moss_ratio"]:.3f}× |')
-    lines+=['',f'**Sum of medians:** scalar C++ {timing["cpp_sum_medians_s"]:.3f} s, Moss-style C++ {timing["moss_cpp_sum_medians_s"]:.3f} s, Rust {timing["rust_sum_medians_s"]:.3f} s; '
-           f'**{timing["ratio"]:.3f}×** scalar and **{timing["moss_ratio"]:.3f}×** Moss-style.','',
+    lines+=['',f'**Sum of medians:** scalar C++ {timing["cpp_sum_medians_s"]:.3f} s, a downstream engine-style C++ {timing["moss_cpp_sum_medians_s"]:.3f} s, Rust {timing["rust_sum_medians_s"]:.3f} s; '
+           f'**{timing["ratio"]:.3f}×** scalar and **{timing["moss_ratio"]:.3f}×** a downstream engine-style.','',
            '## Cargo-defaults paired time','',
-           '| Mesh (stride 48) | Rust/scalar | Rust/Moss |','|---|---:|---:|']
+           '| Mesh (stride 48) | Rust/scalar | Rust/a downstream engine |','|---|---:|---:|']
     for r in default_valid:
         if r['median_ratio'] is not None:
             lines.append(f'| `{r["case"]}` | {r["median_ratio"]:.3f}× | {r["moss_ratio"]:.3f}× |')
     lines+=['',f'Cargo-defaults aggregate: **{default_timing["ratio"]:.3f}×** scalar, '
-            f'**{default_timing["moss_ratio"]:.3f}×** Moss-style; '
+            f'**{default_timing["moss_ratio"]:.3f}×** a downstream engine-style; '
             f'bar {"met" if default_bar else "not met"}.','',
            '## Reproduction and limits','',
            'Run `python3 parity/rfc113/run.py --pairs 20` and `python3 parity/rfc113/codec.py` from the repository root. '
            'Use `--case mesh:stride` for one deterministic case. The comparison proves these frozen S0b inputs under the stated S2 setup; '
-           'it does not qualify a Moss runtime or GPU swap. The 32-byte request needs a corrected upstream setup.','',
+           'it does not qualify a a downstream engine runtime or GPU swap. The 32-byte request needs a corrected upstream setup.','',
            '## Artifact inventory','',
            f'- `{dag_path}`: {dag_path.stat().st_size:,} bytes; SHA-256 `{hash_file(dag_path)}`.',
            f'- `{codec_path}`: {codec_path.stat().st_size:,} bytes; SHA-256 `{hash_file(codec_path)}`.',

@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Encoder lane: immutable epochs, untimed parity/counters, one final paired campaign."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import os, sys, json, hashlib, subprocess, shutil, struct, random, math, statistics, time
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS','/mnt/linux-extra/moss-scratch/meshopt-v03'))
-TARGET=Path(os.environ.get('CARGO_TARGET_DIR','/mnt/linux-extra/moss-cargo-targets/codex-meshopt-v03'))
-REF=Path('/home/etienne/dev/refs/meshoptimizer')
+ART=Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS',_public_path('<scratch>/meshopt-v03')))
+TARGET=Path(os.environ.get('CARGO_TARGET_DIR',_public_path('<target-dir>')))
+REF=Path(_public_path('<refs>/meshoptimizer'))
 os.environ.update(MESHOPT_REFERENCE=str(REF),CARGO_TARGET_DIR=str(TARGET),MESHOPT_ARTIFACTS=str(ART),CARGO_INCREMENTAL='0',CARGO_PROFILE_DEV_DEBUG='0',MESHOPT_BENCH_CPU='26')
 sys.path.insert(0,str(ROOT/'parity/codec'))
 from measure import request,Driver,sha,build_cpp,decode,ENV
@@ -52,7 +62,7 @@ def prepare():
   add(f'quat-{label}',request(15,n,8,pack(quats),level=12))
   for m in range(4):add(f'exp-{label}-m{m}',request(16,n,12,pack(values),mode=m,level=15))
  with_driver=Driver(ART/'cpp')
- frozen=Path('/mnt/linux-extra/meshopt-artifacts/p07-fix10')
+ frozen=Path(_public_path('<artifacts>/p07-fix10'))
  metadata=next(r for r in json.loads((frozen/'inputs.json').read_text()) if r['case']=='vertex-v1-streaming-s4')
  p=frozen/metadata['path'];assert sha(p)==metadata['sha256']
  add('vertex-v1-streaming-s4',p.read_bytes());with_driver.close()

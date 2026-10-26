@@ -1,12 +1,22 @@
 #!/usr/bin/env python3
 """One final matrix with owner-authorized adaptive sampling and pair-boundary admission."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import datetime,hashlib,json,math,os,statistics,subprocess,sys,time
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[2];ART=Path(os.environ.get('MESHOPT_RFC113_ART_DIR','/mnt/linux-extra/meshopt-artifacts/clodrec'));TARGET=Path(os.environ.get('CARGO_TARGET_DIR','/mnt/linux-extra/moss-cargo-targets/codex-meshopt-clodrec'))
+ROOT=Path(__file__).resolve().parents[2];ART=Path(os.environ.get('MESHOPT_RFC113_ART_DIR',_public_path('<artifacts>/clodrec')));TARGET=Path(os.environ.get('CARGO_TARGET_DIR',_public_path('<target-dir>')))
 ART.mkdir(parents=True,exist_ok=True)
 os.environ['CARGO_TARGET_DIR']=str(TARGET);sys.path.insert(0,str(ROOT/'parity/rfc113'))
 import run as clod
-HEAD=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();LEASE=Path.home()/'Documents/automation_game/assets_toolings/Moss/scripts/gpu-lease.sh'
+HEAD=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();LEASE=Path.home()/'Documents/projects/assets_toolings/a downstream engine/scripts/gpu-lease.sh'
 POLICY='owner-adaptive: 5 to 20 stage-1 pairs, only borderline cases receive D146 stage 2; no load threshold; no GPU holder or scoreboard measurement'
 T={4:2.776445,5:2.570582,6:2.446912,7:2.364624,8:2.306004,9:2.262157,10:2.228139,11:2.200985,12:2.178813,13:2.160369,14:2.144787,15:2.131450,16:2.119905,17:2.109816,18:2.100922,19:2.093024,29:2.045230}
 profile=None;case=None
@@ -23,7 +33,7 @@ def proc(pid):
 
 def gate():
  lease=subprocess.run([str(LEASE),'status'],capture_output=True,text=True)
- units=subprocess.run(['systemctl','--user','list-units','moss-scoreboard-*','--state=active','--no-legend','--plain'],capture_output=True,text=True);details=[]
+ units=subprocess.run(['systemctl','--user','list-units','downstream-scoreboard-*','--state=active','--no-legend','--plain'],capture_output=True,text=True);details=[]
  clear=units.returncode==0
  for line in units.stdout.splitlines():
   if not line.strip():continue

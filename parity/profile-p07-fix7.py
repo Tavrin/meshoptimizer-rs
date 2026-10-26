@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import os,json,struct,subprocess,hashlib
 from pathlib import Path
-ROOT=Path('/home/etienne/dev/meshopt-wt/p07'); ART=Path(os.environ['MESHOPT_ARTIFACTS']); OLD=ART.parent/'p07-fix6'
+ROOT=Path(_public_path('<local>/p07')); ART=Path(os.environ['MESHOPT_ARTIFACTS']); OLD=ART.parent/'p07-fix6'
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
 import sys;sys.path.insert(0,str(ROOT/'parity/simd'));import qualify as q;build={'sources':q.sources()};phase=os.environ.get('FIX7_PHASE','baseline')
 inputs={r['case']:r for r in json.loads((ART/'inputs.json').read_text())}

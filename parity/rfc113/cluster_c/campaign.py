@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Lane C adapters; reuse the registered RFC113 statistics and admission code."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import datetime
 import hashlib
 import json
@@ -13,8 +23,8 @@ import time
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-cluster-c')
-TARGET = Path('/mnt/linux-extra/moss-cargo-targets/meshopt-cluster-c')
+ART = Path(_public_path('<scratch>/meshopt-cluster-c'))
+TARGET = Path(_public_path('<target-dir>'))
 os.environ['CARGO_TARGET_DIR'] = str(TARGET)
 os.environ['MESHOPT_RFC113_ART_DIR'] = str(ART)
 sys.path.insert(0, str(HERE.parent))
@@ -38,7 +48,7 @@ def paths(profile):
 
 
 def prepare():
-    manifest = json.loads(Path('/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/MANIFEST.json').read_text())
+    manifest = json.loads(Path(_public_path('<scratch>/meshopt-cluster-dag/MANIFEST.json')).read_text())
     for p, h in manifest['pins'].items():
         assert clod.sha(p) == h, p
     inputs = ART/'inputs'
@@ -125,7 +135,7 @@ def profile_instructions():
 
 def train_blockers():
     blockers=[]
-    coord=Path('/mnt/linux-extra/moss-coord')
+    coord=Path(_public_path('<local>/downstream-coord'))
     for filename in ('heavy.waiting','heavy.reservations'):
         for line in (coord/filename).read_text().splitlines():
             words=line.split()
@@ -134,7 +144,7 @@ def train_blockers():
                 pid=int(words[0]);proc=Path('/proc')/str(pid)
                 cmd=(proc/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
                 cwd=str((proc/'cwd').resolve())
-                if '/moss-lane-worktrees/train-' in cmd or '/moss-lane-worktrees/train-' in cwd or any(w.startswith('train') for w in words[1:]):
+                if '/downstream-lane-worktrees/train-' in cmd or '/downstream-lane-worktrees/train-' in cwd or any(w.startswith('train') for w in words[1:]):
                     blockers.append(dict(queue=filename,line=line,cwd=cwd,cmd=cmd))
             except (OSError,ValueError):pass
     return blockers

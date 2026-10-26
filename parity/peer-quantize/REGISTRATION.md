@@ -10,7 +10,7 @@ no reruns, replacement pairs, adaptive stopping, or removal of outliers.
 - Workloads: quantize-half and quantize-float on tiny-smooth, medium-smooth,
   medium-seams, medium-sparse, million-smooth; byte-identical frozen inputs from
   campaign-20261025T150615Z, checked against exported peer-results/results data.
-- Moss profile: opt-level=3, thin LTO, one codegen unit; default SIMD features
+- a downstream engine profile: opt-level=3, thin LTO, one codegen unit; default SIMD features
   disabled, CXXFLAGS=-DMESHOPTIMIZER_NO_SIMD, no target-cpu flags.
 - Select the least-busy allowed physical core via existing quiet.physical_core;
   pin every resident driver to that CPU. No waits on other lanes.
@@ -28,5 +28,5 @@ no reruns, replacement pairs, adaptive stopping, or removal of outliers.
 - PASS if all bars pass. PARTIAL if candidate/X misses but both baseline bars
   pass; no parity claim. FAIL if either baseline bar fails. Verdicts retained
   verbatim irrespective of noise. No second campaign to change a verdict.
-- All build, instruction, proof, and timing jobs use moss-heavy 4,
+- All build, instruction, proof, and timing jobs use <job-runner> 4,
   MOSS_HEAVY_GPU=0, lane-local target and scratch. No SIMD paths or API changes.

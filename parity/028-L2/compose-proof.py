@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Compose retained independent proofs; never rerun a passed library gate."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib,json,re,shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
+ART=Path(_public_path('<scratch>/meshopt-028-L2'))
 source={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'src').rglob('*.rs')}
 def read(name):return json.loads((ART/name).read_text())
 exact,protocol,adapter=read('proof.json'),read('proof-protocol.json'),read('adapter-proof.json')

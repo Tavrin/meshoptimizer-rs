@@ -45,7 +45,7 @@ edges, degeneracy, disconnected and unused vertices, signed zero/subnormals,
 thresholds below one, and a 1,000,002-index grid. Seeded sweeps mix valid grids,
 split/shared spheres and irregular topology; vary 0–32 attribute components,
 zero and positive weights, all supported options, all flag combinations,
-Moss target/error values and additional boundary values. Overdraw receives
+a downstream engine target/error values and additional boundary values. Overdraw receives
 standard-cache output as upstream recommends. Every result error is serialized
 as f32 bits and compared along with exact output count/order.
 
@@ -81,7 +81,7 @@ sanitizer or coverage instrumentation and does not replace release fuzz gates.
 | meshopt_decodeFilterExp | decode_filter_exp | Scalar canonical, four-byte words |
 | Consumer helper | BufferView / decode_buffer_view / decode_buffer_view_into | EXT rules, raw v1 excluded from attributes |
 
-P02 does not modify geometry implementations or Moss integration. See
+P02 does not modify geometry implementations or a downstream engine integration. See
 codec/README.md, DECODER_BAR.md and P02_PERFORMANCE.md for evidence, APIs and
 qualification limits.
 
@@ -242,7 +242,7 @@ verifier checks every archive member and exact matrix membership, including D144
 complete predetermined workload order. Every current measured sample is retained.
 
 This establishes the brief's local Linux x86-64 and executed WASM gates. It does
-not establish other native-platform execution, release fuzz, GPU or Moss
+not establish other native-platform execution, release fuzz, GPU or a downstream engine
 integration acceptance. D84 records the earlier artifact placement limitation;
 integration pointers use the requested destination pending the coordinator's move.
 

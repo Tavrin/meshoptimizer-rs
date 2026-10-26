@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Admitted sequential builds and instruction-only diagnosis for SPEC-028 L1."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import os, subprocess, sys, shutil, json, hashlib, select, signal, time
 ROOT=Path(__file__).resolve().parents[2]; LANE=ROOT/'parity/028-L1'
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-028-L1')
-TARGET=Path('/mnt/linux-extra/moss-cargo-targets/meshopt-L1')
+ART=Path(_public_path('<scratch>/meshopt-028-L1'))
+TARGET=Path(_public_path('<target-dir>'))
 PERF='/usr/lib/linux-tools/6.17.0-22-generic/perf'
 OPS=['partition','meshlets-scan','meshlets','meshlets-spatial','meshlets-flex','spatial-triangles']
 CASES=['tiny-smooth','medium-smooth','medium-seams','medium-sparse','million-smooth']

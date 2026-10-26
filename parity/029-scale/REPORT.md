@@ -10,7 +10,7 @@ All three chains use 64-byte records, XYZ byte offset 0, little endian.
 Ordinary and legacy scale calls share this layout. Frozen inputs are packed.
 
 Source evidence: parity/028-L2/stages.json and stage-support.rs; original
-r2 harness at /mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/harness/.
+r2 harness at <scratch>/meshopt-simplify-perf/r2/harness/.
 The specified NAS archive path was absent on first access. The original L2
 scratch is still available locally; use it read-only and copy required sources
 into this lane's scratch. Chain blobs remain read in place.
@@ -28,7 +28,7 @@ No Workspace or Work is used by simplify_scale, so accounting remains zero.
 ## Pre-registered measurement
 
 Retired user instructions (`perf stat -e instructions:u`), CPU 9; median of
-three resident repetitions per arm, same Moss scalar profile (opt-level 3,
+three resident repetitions per arm, same a downstream engine scalar profile (opt-level 3,
 thin LTO, codegen-units 1). Input preparation and warm-up precede perf enable.
 Candidate/v0.2.8 <=0.90 on each real chain: PASS; improvement missing 0.90:
 PARTIAL; any ratio >1.00: FAIL. Report candidate/M7 and packed frozen ratios
@@ -66,7 +66,7 @@ Host load average was 31.65 at 14:27 CET; omit wall runs as specified.
 The C++ driver is a standalone executable, not a Rust FFI driver. No new unsafe
 Rust, API change, explicit SIMD, memory policy change or version bump.
 
-Qualification declaration: retained moss-heavy build receipt 2893334 reported
+Qualification declaration: retained <job-runner> build receipt 2893334 reported
 882 MiB peak and 27 s runtime, exit 0. The qualification phases are sequential,
 the largest byte view is 463,188,736 bytes, and preparations precede each driver.
 Use a 2 GiB declaration for qualification (within the <=4 GiB spec ceiling),
@@ -159,7 +159,7 @@ outputs agree bit-for-bit across all three arms. No whole-cook latency claim.
 
 Raw perf counters, stderr, input and binary hashes, exact checker binaries,
 C++ protocol observations and fuzz receipts are retained under
-`/mnt/linux-extra/moss-scratch/meshopt-029-scale/`. `results.json` binds the
+`<scratch>/meshopt-029-scale/`. `results.json` binds the
 source hashes, compiler, CPU, profile and per-case instruction medians.
 
 Final proof: all-feature tests 219 passed, no-default-feature tests 173 passed
@@ -169,7 +169,7 @@ Seeded scale fuzzing completed 359.98 CPU-seconds,
 identities are unchanged. Six 60-second shards were needed because the first
 five totaled 299.99 CPU-seconds; the 300-second threshold was not rounded down.
 
-Designated target `/mnt/linux-extra/moss-cargo-targets/meshopt-scale-strided` deleted after retaining drivers, exact checkers,
+Designated target `<target-dir>` deleted after retaining drivers, exact checkers,
 fuzz binary/corpus, logs, counters and snapshots in lane scratch.
-`CLEANUP.json` records 712,124,546 bytes removed; CPU-only moss-heavy receipts
+`CLEANUP.json` records 712,124,546 bytes removed; CPU-only <job-runner> receipts
 are in `heavy-receipts.tsv`. No wall campaign or broader C++ parity claim.

@@ -155,15 +155,15 @@
   },
   "cleanup": {
     "passed": true,
-    "removed": "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane4",
+    "removed": "<target-dir>",
     "target_absent": true,
     "report_after_cleanup_exit": 0,
-    "retained_artifacts": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4",
+    "retained_artifacts": "<target-dir>/lane4",
     "report_log_sha256": "181d99aa001b79cc7b493de46c045f62c25e03b7065fa1c92f851a482654384b",
     "finished_unix": 1791075898.937488
   },
-  "artifact_directory_requested": "/mnt/linux-extra/meshopt-artifacts/lane4",
-  "artifact_directory_retained": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4",
+  "artifact_directory_requested": "<artifacts>/lane4",
+  "artifact_directory_retained": "<target-dir>/lane4",
   "exact_artifact_placement_complete": false,
   "decision_ids": [
     "D40",
@@ -177,7 +177,7 @@
     "D49"
   ],
   "proof_limits": [
-    "Shared-load consumer timing; Moss simplification mean fails the unchanged bar.",
+    "Shared-load consumer timing; a downstream engine simplification mean fails the unchanged bar.",
     "Existing stable seeded targets; no coverage instrumentation or sanitizer.",
     "Remote platform jobs configured; execution not established locally.",
     "Real publish dry-run validates packaging through the recorded offline registry fallback.",
@@ -192,7 +192,7 @@
     }
   ],
   "artifact_index": {
-    "path": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/lane4/artifact-index-final.json",
+    "path": "<target-dir>/lane4/artifact-index-final.json",
     "sha256": "2ce3f53ae6204a0244e2284cd5d84fb0b8733a28176fbe3bba694d0b998892f9",
     "entries": 1271
   },

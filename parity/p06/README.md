@@ -9,9 +9,9 @@ default `simd` feature adds no dependency.
 ## Reproduce
 
 ```sh
-export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p06
-export MESHOPT_ARTIFACTS=/mnt/linux-extra/meshopt-artifacts/p06
-export MESHOPT_REFERENCE=/home/etienne/dev/refs/meshoptimizer
+export CARGO_TARGET_DIR=<target-dir>
+export MESHOPT_ARTIFACTS=<artifacts>/p06
+export MESHOPT_REFERENCE=<refs>/meshoptimizer
 export CARGO_BUILD_JOBS=2
 cargo test --offline --locked --all-features --test parallel -- --test-threads=1
 cargo build --offline --locked --release --manifest-path parity/p06/Cargo.toml
@@ -55,7 +55,7 @@ deterministically translated/scaled variants of the pinned upstream
 `demo/pirate.obj`, **2,889 vertices / 5,010 triangles per mesh**. Pirate is by
 Clint Bellanger, [CC-BY-SA 3.0](https://opengameart.org/content/pirate); the asset
 is external, not republished in this crate. This is a single authored model,
-not a diverse asset suite or a Moss cook benchmark. The driver uses Cargo's
+not a diverse asset suite or a a downstream engine cook benchmark. The driver uses Cargo's
 release defaults (opt-level 3, 16 codegen units, LTO false).
 
 Parsing, input generation, pool creation, serialization and hashing are outside
@@ -82,7 +82,7 @@ cluster LOD ranges **1.82–10.23×** and meshlets **4.71–9.81×** across the 
 pairs. These medians are not universal gains or C++ algorithmic comparisons.
 The full curve, CPU affinities, load, GPU/scoreboard observations, raw pairs,
 input/source/dependency/binary identities and serialized output hashes are in
-`/mnt/linux-extra/meshopt-artifacts/p06/parallel/curve.json`.
+`<artifacts>/p06/parallel/curve.json`.
 
 ## Final gate record
 
@@ -93,7 +93,7 @@ C++ and executed WASM. The external verifier checks current source/dependency
 hashes, every ZIP buffer/member, full corpus inventories and the timing curve.
 The slim [MEASURED_P06.json](../MEASURED_P06.json) points to its retained records.
 Phase 0.5 remains the explicit missing integration prerequisite; no 0.5, release
-fuzz, historical performance-bar, remote CI or Moss integration pass is implied.
+fuzz, historical performance-bar, remote CI or a downstream engine integration pass is implied.
 
 
 ## Review fix follow-up (2026-10-05)
@@ -112,5 +112,5 @@ new GPU lease paused it; its 16-thread row was not measured. Dispatch alone cost
 Caller-side `pool.install` remains timed, including its scheduling overhead;
 these residual slowdowns are retained rather than claimed as gains. Both bursts
 lasted under eight seconds; admission observations and source/binary identities
-are in `/mnt/linux-extra/meshopt-artifacts/p06fix/{before,after}/parallel/curve.json`.
+are in `<artifacts>/p06fix/{before,after}/parallel/curve.json`.
 The earlier full-family curve and qualification record above are historical.

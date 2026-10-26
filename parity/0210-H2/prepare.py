@@ -1,9 +1,19 @@
 """Archive immutable inputs and prepare scratch-only count drivers."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import subprocess, shutil, re, json, hashlib
 R=Path(__file__).resolve().parents[2]
-S=Path('/mnt/linux-extra/moss-scratch/meshopt-0210-H2')
-A=Path('/mnt/linux-extra/moss-scratch/meshopt-0210-attr')
+S=Path(_public_path('<scratch>/meshopt-0210-H2'))
+A=Path(_public_path('<scratch>/meshopt-0210-attr'))
 def archive(ref,d):
  if not d.exists():
   d.mkdir();subprocess.run(['tar','-x','-C',str(d)],input=subprocess.check_output(['git','archive',ref]),check=True)
@@ -11,7 +21,7 @@ archive('v0.2.9',S/'baseline')
 archive('bench/peer-screen',S/'bet0')
 # Selectively extract the replay harness/metadata, never modify the NAS archive.
 if not (S/'meshopt-028-L2/harness-candidate/src/main.rs').exists():
- subprocess.run(['tar','--zstd','-xf','/mnt/apollo-main/linux-dev-storage-folder/meshoptimizer-rs/scratch-2026-10-26/meshopt-028-L2.tar.zst','-C',str(S),'--wildcards','meshopt-028-L2/harness-candidate/*','meshopt-028-L2/stages.json','meshopt-028-L2/chain-*.tsv'],check=True)
+ subprocess.run(['tar','--zstd','-xf',_public_path('<local>/meshopt-028-L2.tar.zst'),'-C',str(S),'--wildcards','meshopt-028-L2/harness-candidate/*','meshopt-028-L2/stages.json','meshopt-028-L2/chain-*.tsv'],check=True)
 # The attribution stage adapter removes the timer path and adds single-call replay
 # to the archived replay harness. Retain its complete source and binding.
 for arm in ['base','candidate','M7']:

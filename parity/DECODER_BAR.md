@@ -2,15 +2,15 @@
 
 Registered 2026-10-03T22:43:07Z, before port measurement.
 
-Moss commit `dc4af42a5e94f8a0f22932c53977f66cd88aadc2`, source SHA-256 `c1aa44ee92e536f2d812510c23b06b4cd6aa87a842f446316d0fe0d251cfa8ef`.
+a downstream engine commit `dc4af42a5e94f8a0f22932c53977f66cd88aadc2`, source SHA-256 `c1aa44ee92e536f2d812510c23b06b4cd6aa87a842f446316d0fe0d251cfa8ef`.
 
-Baseline evidence: `/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02/baseline.json`, SHA-256 `8ab17783c4237b52d9b6ce157dd5f7ae696dd126611d860692ec5c8a8fec5d13`.
+Baseline evidence: `<target-dir>/p02/baseline.json`, SHA-256 `8ab17783c4237b52d9b6ce157dd5f7ae696dd126611d860692ec5c8a8fec5d13`.
 
-minimum = 0.95 * decoded_bytes / maximum measured Moss seconds; 12 alternating paired samples; shared host load; worst sample plus 5% margin. Minima apply to allocating and caller-buffer APIs on this Linux x86-64 target. Raw v1 is measured separately against scalar C++; it has no Moss baseline.
+minimum = 0.95 * decoded_bytes / maximum measured a downstream engine seconds; 12 alternating paired samples; shared host load; worst sample plus 5% margin. Minima apply to allocating and caller-buffer APIs on this Linux x86-64 target. Raw v1 is measured separately against scalar C++; it has no a downstream engine baseline.
 
 Optimized C++ uses enabled upstream SIMD; scalar canonical output is separate. Below 80% ships safe scalar under RFC 6.2, subject to these measured non-regression minima.
 
-| Case | Moss MB/s | SIMD MB/s | Moss/SIMD | Minimum MB/s |
+| Case | a downstream engine MB/s | SIMD MB/s | a downstream engine/SIMD | Minimum MB/s |
 |---|---:|---:|---:|---:|
 | vertex-v0-tiny-s4 | 43.559557 | 200.545067 | 0.217206 | 31.449675 |
 | view-none-tiny-s4 | 44.194887 | 235.727009 | 0.187483 | 28.687669 |

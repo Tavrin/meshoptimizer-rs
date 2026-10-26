@@ -1,8 +1,8 @@
 #!/bin/bash
 set -u
-S=/mnt/linux-extra/moss-scratch/meshopt-0210-H1
-cd /home/etienne/dev/meshoptimizer-rs-wt/hot-cache
-export CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-H1
+S="${SCRATCH:?}"/meshopt-0210-H1
+cd "${REPO:?}"
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:?}"
 export CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
 run() {
   name=$1; shift

@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,math,statistics,hashlib,subprocess,datetime,shutil
-A=Path(__file__).parent;R=Path('/home/etienne/dev/meshoptimizer-rs-wt/validate-once');D=R/'parity/layout-check'
+A=Path(__file__).parent;R=Path(_public_path('<repo>'));D=R/'parity/layout-check'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def gm(v):return math.exp(statistics.mean(math.log(x) for x in v))
 assert (A/'COMPLETE.json').exists()

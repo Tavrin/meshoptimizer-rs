@@ -6,7 +6,7 @@ Baseline: `bea3e04bf22063988a80db4764e80c3dd422a634` (v0.2.5), existing `perf/sc
 
 ## Instruction evidence
 
-Fixed 100 calls minus a zero-call process count, `instructions:u`, CPU 2, bet-0 Moss scalar allocating/copy/drop boundaries. These are diagnostic counts, not wall-clock acceptance. Counts are instructions per call.
+Fixed 100 calls minus a zero-call process count, `instructions:u`, CPU 2, bet-0 a downstream engine scalar allocating/copy/drop boundaries. These are diagnostic counts, not wall-clock acceptance. Counts are instructions per call.
 
 | Case | Family | v0.2.5 | Final | M7 | Reduction |
 |---|---|---:|---:|---:|---:|
@@ -30,7 +30,7 @@ WASM instruction probes use Node/V8 fixed-call adapters with matched copies; the
 
 ## Registered native result
 
-One final campaign, same-session A/A first, five frozen bet-0 inputs, Moss scalar profile, CPU 2. Five alternating pairs extend once to twenty only when the five-pair nominal paired log Student-t interval straddles equality. No native timing rerun. Symbols were retained for instruction profiling; the Moss optimization settings are unchanged. Post-strip checks verify identical .text, .rodata, .data, .eh_frame and program headers for all three measured binaries (`STRIP-EQUIVALENCE.json`).
+One final campaign, same-session A/A first, five frozen bet-0 inputs, a downstream engine scalar profile, CPU 2. Five alternating pairs extend once to twenty only when the five-pair nominal paired log Student-t interval straddles equality. No native timing rerun. Symbols were retained for instruction profiling; the a downstream engine optimization settings are unchanged. Post-strip checks verify identical .text, .rodata, .data, .eh_frame and program headers for all three measured binaries (`STRIP-EQUIVALENCE.json`).
 
 | Family | ours / comparator GM | Bar | Verdict |
 |---|---:|---:|---|
@@ -92,6 +92,6 @@ Pre-sample setup failures are retained separately: standalone harness lockfile r
 
 ## Decision and retained boundary
 
-Overall **PARTIAL**. Keep the byte-exact scalar improvements in a draft PR for review, with no at-least-M7/upstream claim. No SIMD expansion or contract weakening. The registered wall campaign is terminal: neither another tuning round nor a verdict-driven rerun is authorized by this result. Long fuzzing/full sweeps remain nightly work. No merge, tag, publish, Moss adoption, decoder-size acceptance, other-host or GPU claim.
+Overall **PARTIAL**. Keep the byte-exact scalar improvements in a draft PR for review, with no at-least-M7/upstream claim. No SIMD expansion or contract weakening. The registered wall campaign is terminal: neither another tuning round nor a verdict-driven rerun is authorized by this result. Long fuzzing/full sweeps remain nightly work. No merge, tag, publish, a downstream engine adoption, decoder-size acceptance, other-host or GPU claim.
 
-Full evidence: `/mnt/linux-extra/moss-scratch/meshopt-decode/`. Compact analysis, timing rows, differential summary, registration and hashes are in this directory. The designated target is deleted after executable retention; see `CLEANUP.json`. `RESUME-2026-10-24.md` is updated under `0.2.6 decode`.
+Full evidence: `<scratch>/meshopt-decode/`. Compact analysis, timing rows, differential summary, registration and hashes are in this directory. The designated target is deleted after executable retention; see `CLEANUP.json`. `RESUME-2026-10-24.md` is updated under `0.2.6 decode`.

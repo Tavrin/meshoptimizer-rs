@@ -1,7 +1,17 @@
 """Apply the pre-registered instruction gate without selecting samples."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,math
-S=Path('/mnt/linux-extra/moss-scratch/meshopt-0210-H1')
+S=Path(_public_path('<scratch>/meshopt-0210-H1'))
 rows=json.loads((S/'summary.json').read_text())
 def aggregate(name,cases,weighted=False):
  values=[]

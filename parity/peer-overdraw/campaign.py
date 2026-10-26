@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """One registered SPEC-027 lane B campaign. Refuses replacement or retry."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib
 import json
@@ -12,7 +22,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-S = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-b')
+S = Path(_public_path('<scratch>/meshopt-peer-b'))
 sys.path.insert(0, str(ROOT / 'parity'))
 sys.path.insert(0, str(S / 'parity/compare'))
 import measure as m
@@ -87,7 +97,7 @@ def analyze(record):
 def main():
     assert os.environ.get('MOSS_HEAVY_ACTIVE')
     assert os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
-    assert os.environ['CARGO_TARGET_DIR'] == '/mnt/linux-extra/moss-cargo-targets/meshopt-peer-b'
+    assert os.environ['CARGO_TARGET_DIR'] == _public_path('<target-dir>')
     path = S / 'wall-campaign.json'
     # Exclusive creation makes partial campaigns terminal too.
     with path.open('x') as f:

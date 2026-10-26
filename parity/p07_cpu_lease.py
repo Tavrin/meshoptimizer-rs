@@ -1,4 +1,14 @@
 """Visible CPU-only shared admission; coordinator correction for fix10."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import os
 import subprocess
@@ -24,12 +34,12 @@ def admission():
         status = (proc / 'status').read_text()
         ancestor = int(next(line.split()[1] for line in status.splitlines() if line.startswith('PPid:')))
     wrapper = next(r for r in chain if r['pid'] == active)
-    assert '/mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ' in wrapper['command']
+    assert _public_path('<job-runner> 4 timeout 840 ') in wrapper['command']
     wrapper_env = dict(item.split(b'=', 1) for item in (Path('/proc') / str(active) / 'environ').read_bytes().split(b'\0') if b'=' in item)
     assert wrapper_env.get(b'MOSS_HEAVY_GPU') == b'0', 'explicit CPU-only queue request required'
     admitted = Path(os.environ['MOSS_HEAVY_ADMITTED'])
     assert admitted.resolve() == Path('/usr/bin/timeout').resolve()
-    queue = Path(os.environ.get('MOSS_HEAVY_DIR', os.environ.get('MOSS_COORD_DIR', '/mnt/linux-extra/moss-coord')))
+    queue = Path(os.environ.get('MOSS_HEAVY_DIR', os.environ.get('MOSS_COORD_DIR', _public_path('<local>/downstream-coord'))))
     receipt_path = queue / 'heavy.reservations'
     receipt = None
     # The shared pruning writer can expose an empty reservation file briefly.
@@ -43,7 +53,7 @@ def admission():
         time.sleep(0.01)
     # Keep the spec's scoreboard exclusion. A when-idle unit with only a
     # sleep child is not an actively measuring scoreboard.
-    units = subprocess.check_output(['systemctl','--user','list-units','moss-scoreboard-*','--state=active','--no-legend','--plain'], text=True)
+    units = subprocess.check_output(['systemctl','--user','list-units','downstream-scoreboard-*','--state=active','--no-legend','--plain'], text=True)
     measuring = []
     for line in units.splitlines():
         unit = line.split()[0]
@@ -54,7 +64,7 @@ def admission():
                     command = (Path('/proc')/process/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
                 except FileNotFoundError:
                     continue
-                if 'moss-scoreboard.sh' in command or 'moss-scoreboard.py' in command:
+                if 'downstream-scoreboard.sh' in command or 'downstream-scoreboard.py' in command:
                     measuring.append({'pid':process,'cmd':command})
     return {'admitted': not measuring and receipt is not None, 'policy': POLICY, 'gpu_lease_required': False, 'cpu': cpu, 'affinity': sorted(os.sched_getaffinity(0)),
             'units': units, 'measuring': measuring,

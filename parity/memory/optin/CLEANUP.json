@@ -1,6 +1,6 @@
 {
   "utc": "2026-10-26T07:23:39.399235+00:00",
-  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-memory",
+  "target": "<target-dir>",
   "bytes_deleted": 2747417393,
   "target_exists": false,
   "binaries_retained": {

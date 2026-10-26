@@ -1,7 +1,7 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, p95 0.6 GB over 27 runs x 1.15): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh million-smooth meshlet-bounds pinned
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, p95 0.6 GB over 27 runs x 1.15): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh million-smooth meshlet-bounds pinned
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — queued behind pid 2932731; no head-safe duration slot (unknown history, resources or protected priority) [capacity: available_kb=17230204 - unused_kb=3003269 - margin_kb=2097152 = free_kb=12129783; need_kb=2097152; normal_slots=2/6; lane_slots=0/2]
 heavy: waiting — queued behind a push job (pid 2986918) — waiting for 13 GB RAM / the GPU [capacity: available_kb=17958416 - unused_kb=15260127 - margin_kb=2097152 = free_kb=601137; need_kb=2097152; normal_slots=2/6; lane_slots=0/2]
 heavy: waiting — queued behind pid 2932731; no head-safe duration slot (unknown history, resources or protected priority) [capacity: available_kb=17663120 - unused_kb=14954088 - margin_kb=2097152 = free_kb=611880; need_kb=2097152; normal_slots=2/6; lane_slots=0/2]
-heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh million-smooth meshlet-bounds pinned
+heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh million-smooth meshlet-bounds pinned
 million-smooth-meshlet-bounds-pinned 0.9827201811291505

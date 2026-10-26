@@ -1,14 +1,14 @@
 # SPEC-027 lane C evidence
 
 All heavy commands run from this worktree through
-`/mnt/linux-extra/moss-coord/bin/moss-heavy.sh`, declaring at most 4 GB,
+`<job-runner>`, declaring at most 4 GB,
 with `MOSS_HEAVY_GPU=0` and
-`CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-peer-c`.
+`CARGO_TARGET_DIR=<target-dir>`.
 Use a lane-specific `MOSS_HEAVY_CLASS` for build, instructions, proof and gates
 so unrelated Python jobs do not determine this lane's reservation history.
 
 The comparator is exported unchanged from `bench/peer-screen` into
-`/mnt/linux-extra/moss-scratch/meshopt-peer-c/parity/compare`. Separate scratch
+`<scratch>/meshopt-peer-c/parity/compare`. Separate scratch
 manifests use that source with an absolute dependency path to the archived
 v0.2.6 or this worktree. No comparator code changes. Offline lock regeneration
 is necessary because the exported branch's local dependency is an older crate
@@ -18,7 +18,7 @@ exported `results.json`.
 
 Execution order:
 
-1. `build.py base X M7` retains immutable scalar Moss binaries and source hashes.
+1. `build.py base X M7` retains immutable scalar a downstream engine binaries and source hashes.
 2. `instructions.py EPOCH BINARY...` runs admitted CPU-7 resident counter
    measurements. Elapsed replies are discarded; failed counter setup attempts
    and rejected candidate measurements remain in scratch.

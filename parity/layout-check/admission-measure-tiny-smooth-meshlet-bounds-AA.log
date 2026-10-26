@@ -1,6 +1,6 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, no history yet): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds AA
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, no history yet): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds AA
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — needs 2G RAM, -1G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=14281992 - unused_kb=14079568 - margin_kb=2097152 = free_kb=-1894728; need_kb=2097152; normal_slots=2/6; lane_slots=0/2]
 heavy: waiting — needs 2G RAM, -2G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=14075736 - unused_kb=14082520 - margin_kb=2097152 = free_kb=-2103936; need_kb=2097152; normal_slots=2/6; lane_slots=0/2]
-heavy: running (2G reserved, cap 7G, 15G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds AA
+heavy: running (2G reserved, cap 7G, 15G available): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds AA
 tiny-smooth-meshlet-bounds-AA 1.012421976195108

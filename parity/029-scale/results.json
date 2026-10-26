@@ -310,7 +310,7 @@
   "rows": [
     {
       "case": "214e",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/campaign/214e85c568a64e8a/00-final-cpp/result/jungle-scoreboard-214e85c568a64e8a-entity.blobs/143dc6ef8a0d6d85e1b904ce0ae8ddbd3ad347c97d52fe4413977902a393170b.bin",
+      "path": "<scratch>/meshopt-simplify-perf/r2/campaign/214e85c568a64e8a/00-final-cpp/result/jungle-scoreboard-214e85c568a64e8a-entity.blobs/143dc6ef8a0d6d85e1b904ce0ae8ddbd3ad347c97d52fe4413977902a393170b.bin",
       "stride": 64,
       "iterations": 4,
       "calls": 2,
@@ -327,7 +327,7 @@
     },
     {
       "case": "b6fd",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/campaign/b6fdb93d8a1709e2/00-final-cpp/result/jungle-scoreboard-b6fdb93d8a1709e2-entity.blobs/c0f13e870a5e86879b698d6fc84fb6b46439a08e4e1a154ace0dba8b3326264c.bin",
+      "path": "<scratch>/meshopt-simplify-perf/r2/campaign/b6fdb93d8a1709e2/00-final-cpp/result/jungle-scoreboard-b6fdb93d8a1709e2-entity.blobs/c0f13e870a5e86879b698d6fc84fb6b46439a08e4e1a154ace0dba8b3326264c.bin",
       "stride": 64,
       "iterations": 4,
       "calls": 2,
@@ -344,7 +344,7 @@
     },
     {
       "case": "a082",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/campaign/a082ca1fd19bb86a/00-final-cpp/result/jungle-scoreboard-a082ca1fd19bb86a-entity.blobs/e98dd4889394bdf4aa6671dff7931ffe55a0fee1bf57306f75bf578d125d5448.bin",
+      "path": "<scratch>/meshopt-simplify-perf/r2/campaign/a082ca1fd19bb86a/00-final-cpp/result/jungle-scoreboard-a082ca1fd19bb86a-entity.blobs/e98dd4889394bdf4aa6671dff7931ffe55a0fee1bf57306f75bf578d125d5448.bin",
       "stride": 64,
       "iterations": 4,
       "calls": 2,
@@ -361,11 +361,11 @@
     },
     {
       "case": "tiny-smooth-12",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/tiny-smooth-12.raw",
+      "path": "<scratch>/meshopt-029-scale/tiny-smooth-12.raw",
       "stride": 12,
       "iterations": 10000,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/tiny-smooth.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/tiny-smooth.bin",
       "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
       "input_sha256": "755d5705ba1cf01d2cdea07120795d1d2b7df2c529cce821e4bd1a6d6269d2d2",
       "median": {
@@ -378,11 +378,11 @@
     },
     {
       "case": "tiny-smooth-64",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/tiny-smooth-64.raw",
+      "path": "<scratch>/meshopt-029-scale/tiny-smooth-64.raw",
       "stride": 64,
       "iterations": 10000,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/tiny-smooth.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/tiny-smooth.bin",
       "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
       "input_sha256": "75b1c7637bffa573883d9338b2f6bddd768aa2a2f649447cff015e31f0207742",
       "median": {
@@ -395,11 +395,11 @@
     },
     {
       "case": "medium-smooth-12",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/medium-smooth-12.raw",
+      "path": "<scratch>/meshopt-029-scale/medium-smooth-12.raw",
       "stride": 12,
       "iterations": 100,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/medium-smooth.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/medium-smooth.bin",
       "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
       "input_sha256": "6ef00da0bdc50aba4e43b89a8683838b06292927bc20f15bf5829d1ba59433f0",
       "median": {
@@ -412,11 +412,11 @@
     },
     {
       "case": "medium-smooth-64",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/medium-smooth-64.raw",
+      "path": "<scratch>/meshopt-029-scale/medium-smooth-64.raw",
       "stride": 64,
       "iterations": 100,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/medium-smooth.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/medium-smooth.bin",
       "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
       "input_sha256": "886a24a1f42e61b17fe8e3a541a5be132d599620556cff40e44d33a351b184de",
       "median": {
@@ -429,11 +429,11 @@
     },
     {
       "case": "medium-seams-12",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/medium-seams-12.raw",
+      "path": "<scratch>/meshopt-029-scale/medium-seams-12.raw",
       "stride": 12,
       "iterations": 100,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/medium-seams.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/medium-seams.bin",
       "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
       "input_sha256": "c41e826020acbf48a86cf742b83f0d4bb6666cec15be3ac14efbfbeb507d1b30",
       "median": {
@@ -446,11 +446,11 @@
     },
     {
       "case": "medium-seams-64",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/medium-seams-64.raw",
+      "path": "<scratch>/meshopt-029-scale/medium-seams-64.raw",
       "stride": 64,
       "iterations": 100,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/medium-seams.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/medium-seams.bin",
       "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
       "input_sha256": "63cc19f1877b54eacc57a40c2bb17f69038b2a3830b91d78dba64d988bef909d",
       "median": {
@@ -463,11 +463,11 @@
     },
     {
       "case": "medium-sparse-12",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/medium-sparse-12.raw",
+      "path": "<scratch>/meshopt-029-scale/medium-sparse-12.raw",
       "stride": 12,
       "iterations": 100,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/medium-sparse.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/medium-sparse.bin",
       "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
       "input_sha256": "fcbd81e5c24f5e77fa5bc4fb0eff554737679b34b9d3fed6f2bb1d0def6dce3a",
       "median": {
@@ -480,11 +480,11 @@
     },
     {
       "case": "medium-sparse-64",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/medium-sparse-64.raw",
+      "path": "<scratch>/meshopt-029-scale/medium-sparse-64.raw",
       "stride": 64,
       "iterations": 100,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/medium-sparse.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/medium-sparse.bin",
       "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
       "input_sha256": "5ee21da385c5aeb15f0337118cc02312e2d4c95b37051b7425204af44d3ddabd",
       "median": {
@@ -497,11 +497,11 @@
     },
     {
       "case": "million-smooth-12",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/million-smooth-12.raw",
+      "path": "<scratch>/meshopt-029-scale/million-smooth-12.raw",
       "stride": 12,
       "iterations": 4,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/million-smooth.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/million-smooth.bin",
       "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
       "input_sha256": "981c6a575bb182516d00390573aa19091c510dbb18ae03594c8278bb3b5c7966",
       "median": {
@@ -514,11 +514,11 @@
     },
     {
       "case": "million-smooth-64",
-      "path": "/mnt/linux-extra/moss-scratch/meshopt-029-scale/million-smooth-64.raw",
+      "path": "<scratch>/meshopt-029-scale/million-smooth-64.raw",
       "stride": 64,
       "iterations": 4,
       "calls": 1,
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-028-L2/inputs/million-smooth.bin",
+      "source": "<scratch>/meshopt-028-L2/inputs/million-smooth.bin",
       "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
       "input_sha256": "9be991abe402dc7041bc26880f8a8a08856eb1c862335f7607f46d54e367e3c5",
       "median": {

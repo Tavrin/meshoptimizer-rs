@@ -10,12 +10,12 @@
     "-F",
     "on",
     "-o",
-    "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/medium-residual/repeated.er",
+    "<local>/repeated.er",
     "/bin/sh",
-    "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/medium-residual/run.sh",
-    "/mnt/linux-extra/moss-cargo-targets/codex-meshopt-lane3/release/meshopt-driver",
-    "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/medium-residual/request.input",
-    "/mnt/linux-extra/moss-capture-archive/meshopt-lane3/final/medium-residual"
+    "<local>/run.sh",
+    "<target-dir>/release/meshopt-driver",
+    "<local>/request.input",
+    "<local>/medium-residual"
   ],
   "passed": null,
   "phase": "0.1",

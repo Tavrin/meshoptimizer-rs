@@ -1,7 +1,7 @@
 # SPEC-0212 simplify — registration and continuation record
 
 Historical status at initial registration: implementation and scripts written,
-UNQUALIFIED. The operations hold was active. No moss-heavy admission, build, test, fuzz run, sqrt sweep, C++ build or
+UNQUALIFIED. The operations hold was active. No <job-runner> admission, build, test, fuzz run, sqrt sweep, C++ build or
 instruction measurement has been launched in this lane. Only source inspection,
 code/script writes and a read-only Git diff review have been performed.
 
@@ -10,7 +10,7 @@ Branch: `perf/simplify-hot`. Entry HEAD:
 `v0.2.11^{}` = `40dbf9e42efc34d9292e439633e9ef52bc2248df`.
 Annotated tag object: `4b0c94bcf57861d8f80bcfdedf7a482bd2e99ff3`.
 The release merge and tag have the same tracked tree before these edits.
-Read first: `/mnt/linux-extra/moss-scratch/meshopt-0212-simp-attr/REPORT.md`.
+Read first: `<scratch>/meshopt-0212-simp-attr/REPORT.md`.
 No subagents. No Git commit, push, PR, version bump, tag or publication during hold.
 
 ## Candidate decisions and proof obligations
@@ -124,8 +124,8 @@ bash parity/0212-simplify/admit.sh bash parity/0212-simplify/job.sh report
 ```
 
 Every admission declares 4 GB, MOSS_HEAVY_GPU=0, one Cargo job and the dedicated
-`/mnt/linux-extra/moss-cargo-targets/meshopt-simplify-hot` target. Artifacts go
-only under `/mnt/linux-extra/moss-scratch/meshopt-0212-simplify/`. Preparation
+`<target-dir>` target. Artifacts go
+only under `<scratch>/meshopt-0212-simplify/`. Preparation
 refuses to overwrite that directory. Scripts retain failed exits and stop;
 retain any failed campaign before separately registering a repair/rerun.
 

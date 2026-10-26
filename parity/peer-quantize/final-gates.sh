@@ -1,6 +1,6 @@
 #!/bin/bash
 set -u
-s=/mnt/linux-extra/moss-scratch/meshopt-peer-a
+s="${SCRATCH:?}"/meshopt-peer-a
 : > "$s/gate-exits.tsv"
 run_gate() {
  local name="$1"

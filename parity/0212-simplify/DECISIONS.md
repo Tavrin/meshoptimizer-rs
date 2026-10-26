@@ -1,7 +1,7 @@
 # SPEC-0212 simplify decisions
 
 - Train 17 release was explicitly authorized in the continuation. Every build,
-  proof and instruction campaign uses the installed moss-heavy wrapper via
+  proof and instruction campaign uses the installed <job-runner> wrapper via
   admit.sh, declaring 4 GB and MOSS_HEAVY_GPU=0. Wrapper reservations may adapt
   from retained job history; the declaration stays 4 GB.
 - Keep the exact v0.2.11 baseline and the registered scalar M7 profile. Measure

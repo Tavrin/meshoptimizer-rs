@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 """Isolated baseline export and identical-profile scale drivers; admission required."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, os, shutil, subprocess
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-029-scale')
+ART = Path(_public_path('<scratch>/meshopt-029-scale'))
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
-REF = Path('/home/etienne/dev/refs/meshoptimizer')
+REF = Path(_public_path('<refs>/meshoptimizer'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
-assert TARGET == Path('/mnt/linux-extra/moss-cargo-targets/meshopt-scale-strided')
+assert TARGET == Path(_public_path('<target-dir>'))
 assert subprocess.check_output(['git', '-C', str(REF), 'rev-parse', 'HEAD'], text=True).strip() == '4c203430ca565cb59a468a91922c76c208169536'
 base = ART/'baseline'
 if not base.exists():

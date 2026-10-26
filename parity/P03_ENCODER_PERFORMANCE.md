@@ -4,7 +4,7 @@
 
 Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) was merged as `f20a177` and released in 0.2.2. Earlier `a6fc95f` numbers and diagnostic scouts are **superseded for final acceptance** and retained below and in the portable archive.
 
-Native allocating acceptance: **PASS in defaults and Moss**. All 111 cases per profile resolve; every family GM ≤1.25 and every case upper95 ≤1.50. The separate shared-peer family GM ≤1.00 target and exact historical owned request both **PASS in both profiles**. Historical non-reproduction does not establish a causal decoder fix.
+Native allocating acceptance: **PASS in defaults and a downstream engine**. All 111 cases per profile resolve; every family GM ≤1.25 and every case upper95 ≤1.50. The separate shared-peer family GM ≤1.00 target and exact historical owned request both **PASS in both profiles**. Historical non-reproduction does not establish a causal decoder fix.
 
 ## SPEC-03 consumer-profile qualification
 
@@ -61,7 +61,7 @@ Measurement used the retained build controller and registered interleaved pairs,
 
 Canonical C++ 1.3 pin: `4c203430ca565cb59a468a91922c76c208169536`. Peer meshopt 0.6.2 bundles C++ 0.25; wrapper, version, allocation and compiler differences are included.
 
-Final receipts: `/mnt/linux-extra/moss-scratch/meshopt-enc03/seen-frontier`; prior guarded epoch: `seen-frontier-pre-ci-0f04876`. [Handoff](encoders/ENC03_HANDOFF.md), [portable summary](results/enc03-allocating-profiles.json), [compressed raw receipts](results/enc03-allocating-profiles.json.gz). Not verified: downstream Moss runtime/cook, GPU/browser execution, other architectures, release fuzz budgets or universal performance. Reversal: documentation can be reverted without changing measured code; reverting the one-line lint fix restores the CI lint failure.
+Final receipts: `<scratch>/meshopt-enc03/seen-frontier`; prior guarded epoch: `seen-frontier-pre-ci-0f04876`. [Handoff](encoders/ENC03_HANDOFF.md), [portable summary](results/enc03-allocating-profiles.json), [compressed raw receipts](results/enc03-allocating-profiles.json.gz). Not verified: downstream a downstream engine runtime/cook, GPU/browser execution, other architectures, release fuzz budgets or universal performance. Reversal: documentation can be reverted without changing measured code; reverting the one-line lint fix restores the CI lint failure.
 
 ## Superseded pre-finish snapshot
 
@@ -71,7 +71,7 @@ The following snapshot records the previous handoff and its earlier numbers. Its
 
 **Final-source performance acceptance: PENDING.** Work mode was enabled before this candidate’s full native and peer confirmation streams began. No further performance run was started. Correctness work is complete. The four-lane-day cap was not exhausted; the spec’s performance done-when condition has not been established. This branch is a draft handoff, not a qualified release.
 
-Ratios below are Rust elapsed time / comparator elapsed time; lower is faster. Cargo defaults means O3, no LTO, 16 codegen units; Moss means O3, thin LTO, one codegen unit. Native target: each allocating family GM ≤1.25 and every case upper95 ≤1.50 in both profiles, with all A/A controls resolved. Shared peer target is separately registered at each family GM ≤1.00.
+Ratios below are Rust elapsed time / comparator elapsed time; lower is faster. Cargo defaults means O3, no LTO, 16 codegen units; a downstream engine means O3, thin LTO, one codegen unit. Native target: each allocating family GM ≤1.25 and every case upper95 ≤1.50 in both profiles, with all A/A controls resolved. Shared peer target is separately registered at each family GM ≤1.00.
 
 ### Last completed full native qualification — earlier source only
 
@@ -153,11 +153,11 @@ Both final profiles pass 17,264 scalar/SIMD C++ parity comparisons with zero mis
 
 AMD Ryzen 9 7945HX, Linux x86-64, performance governor; Rust 1.98.1, generic CPU, GCC 13.3. Canonical C++ 1.3 pin `4c203430ca565cb59a468a91922c76c208169536`; scalar-strict canonical bytes and normal runtime SIMD for timing. No fast-math or FP contraction in the oracle. Source, consumer, binary and request hashes bind each epoch independently of a dirty build’s Git label.
 
-All Cargo and timing commands use CPU-only `moss-heavy.sh`, the fixed target and disabled incremental compilation. Native streams pin CPU26 and rotate/reverse interleaved candidate, C++, duplicate A/A and released-source arms, each calibrated symmetrically to 25 ms. Registered sampling uses five complete pairs or exactly 256; no intermediate CI decisions. A/A intervals must lie inside [0.8,1.25]. Beyond 20 pairs the conservative 20-pair t critical value is retained. Intervals are nominal, without simultaneous/sequential adjustment. Bursts checkpoint after 690 seconds with an 840-second timeout. Peer retains its pinned interleaved 5-or-20-pair protocol. No quiet-machine waiting. Completed qualification streams are immutable; prior failed/unresolved epochs remain separate.
+All Cargo and timing commands use CPU-only `<job-runner>`, the fixed target and disabled incremental compilation. Native streams pin CPU26 and rotate/reverse interleaved candidate, C++, duplicate A/A and released-source arms, each calibrated symmetrically to 25 ms. Registered sampling uses five complete pairs or exactly 256; no intermediate CI decisions. A/A intervals must lie inside [0.8,1.25]. Beyond 20 pairs the conservative 20-pair t critical value is retained. Intervals are nominal, without simultaneous/sequential adjustment. Bursts checkpoint after 690 seconds with an 840-second timeout. Peer retains its pinned interleaved 5-or-20-pair protocol. No quiet-machine waiting. Completed qualification streams are immutable; prior failed/unresolved epochs remain separate.
 
 Native allocating C++ index/sequence now derives the same range bound inside the timed call, including the OR scan. Earlier mismatched worst-case allocation-bound epochs remain legacy evidence. Caller-buffer capacity semantics and published peer work are unchanged. C++ 0.25 and 1.3 differ on Exp zero-exponent carry; all selected frozen peer outputs still match. Broader cross-version identity is not claimed.
 
-Wasm execution, other architectures, downstream Moss cook/runtime, release fuzz budgets, general geometry performance, and final-source native/complete-peer performance are not verified. Rejected FIFO, version specialization, wrapper inlining/precharge and generalized-arithmetic experiments remain in the scratch milestone ledger. The target was below 10 GB and deleted after correctness work; copied binaries, fixtures and notes remain available.
+Wasm execution, other architectures, downstream a downstream engine cook/runtime, release fuzz budgets, general geometry performance, and final-source native/complete-peer performance are not verified. Rejected FIFO, version specialization, wrapper inlining/precharge and generalized-arithmetic experiments remain in the scratch milestone ledger. The target was below 10 GB and deleted after correctness work; copied binaries, fixtures and notes remain available.
 
 Exact pending commands and controls: [ENC03_HANDOFF.md](encoders/ENC03_HANDOFF.md). Run only after work mode is explicitly off. Portable [summary](results/enc03-allocating-profiles.json) and [raw receipts](results/enc03-allocating-profiles.json.gz) distinguish final correctness/scouts from earlier qualification. See [harness policy](encoders/README.md).
 
@@ -175,7 +175,7 @@ stream was repeated and no implementation changed after timing began.
 
 The exact allocating streaming exception passes the maximum bar in this
 consumer profile; its matched baseline also passes. This is not evidence that
-the historical Cargo-default/Moss-profile gap was removed by staging.
+the historical Cargo-default/a downstream engine-profile gap was removed by staging.
 
 ## Matched allocating means
 
@@ -302,7 +302,7 @@ snorm casts and the index unrolled varint writer remain recorded in
 [instruction diagnosis](P03_ENCODER_DIAGNOSIS.md),
 [decisions](DECISIONS.md), and [reproduction harness](encoders/run.py).
 
-Durable directory: `/mnt/linux-extra/moss-scratch/meshopt-v03`. It retains
+Durable directory: `<scratch>/meshopt-v03`. It retains
 all original/final/candidate binaries, full source copies, upstream sources,
 frozen input files, raw PMU/disassembly, pair samples, failed attempts and
 admission receipts. The committed receipt binds raw files by SHA-256. The
@@ -354,8 +354,8 @@ The first elapsed attempt passes Oct but fails Quat allocating 1.657 (1.653–1.
 
 ### Reproduction and retained evidence
 
-[Machine receipt](results/p03-tiny-round2.json), [controller](encoders/tiny.py). Durable artifacts: `/mnt/linux-extra/moss-scratch/meshopt-v03-tiny`; baseline and C++ copies are hash-checked against the retained round 1 build/stream. It contains all candidate binaries, PMU/disassembly, parity receipts, failed/final samples, final source copy and admission receipts. The JSON binds 703 raw files by SHA-256.
+[Machine receipt](results/p03-tiny-round2.json), [controller](encoders/tiny.py). Durable artifacts: `<scratch>/meshopt-v03-tiny`; baseline and C++ copies are hash-checked against the retained round 1 build/stream. It contains all candidate binaries, PMU/disassembly, parity receipts, failed/final samples, final source copy and admission receipts. The JSON binds 703 raw files by SHA-256.
 
-Commands used `MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-tiny-* /mnt/linux-extra/moss-coord/bin/moss-heavy.sh <2 or 4> timeout 840 python3 parity/encoders/tiny.py <action> <epoch>`. Final actions: `build record16`, `parity record16`, `counters record16`, `verify`, `MESHOPT_TINY_FINAL=record16 ... freeze`, `measure tiny-record16`, then `measure confirmation`. Every admitted run finished in <15min. All Cargo work used `/mnt/linux-extra/moss-cargo-targets/codex-meshopt-tiny`, CARGO_INCREMENTAL=0 and CARGO_PROFILE_DEV_DEBUG=0; its final 86,792,129-byte footprint was <5GB and was deleted after all owned jobs ended.
+Commands used `MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-tiny-* <job-runner> <2 or 4> timeout 840 python3 parity/encoders/tiny.py <action> <epoch>`. Final actions: `build record16`, `parity record16`, `counters record16`, `verify`, `MESHOPT_TINY_FINAL=record16 ... freeze`, `measure tiny-record16`, then `measure confirmation`. Every admitted run finished in <15min. All Cargo work used `<target-dir>`, CARGO_INCREMENTAL=0 and CARGO_PROFILE_DEV_DEBUG=0; its final 86,792,129-byte footprint was <5GB and was deleted after all owned jobs ended.
 
-Not run: other encoder elapsed rows, historical/default/Moss-profile streaming reproduction, GPU/downstream runtime, executed WASM, remote architectures or release qualification. Round 1 evidence for those separate boundaries is preserved.
+Not run: other encoder elapsed rows, historical/default/a downstream engine-profile streaming reproduction, GPU/downstream runtime, executed WASM, remote architectures or release qualification. Round 1 evidence for those separate boundaries is preserved.

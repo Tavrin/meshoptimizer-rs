@@ -1,5 +1,5 @@
---- /home/etienne/dev/meshoptimizer-rs-wt/memory/src/workspace.rs
-+++ /mnt/linux-extra/moss-scratch/meshopt-memory/library/src/workspace.rs
+--- <repo>/src/workspace.rs
++++ <scratch>/meshopt-memory/library/src/workspace.rs
 @@ -935,3 +935,6 @@
          }
      }

@@ -1,7 +1,7 @@
 # SPEC-027 lane C
 
 Baseline: v0.2.6, `33556c4`; branch `perf/small-gaps`, clean at entry.
-Scratch: `/mnt/linux-extra/moss-scratch/meshopt-peer-c`.
+Scratch: `<scratch>/meshopt-peer-c`.
 
 ## Cause milestone (before library edits)
 
@@ -72,7 +72,7 @@ below determines acceptance.
 
 Ratios are **ours/comparator elapsed time**, geometric means over five equally
 weighted frozen cases. Lower is faster. Exactly one warm-up and ten interleaved
-pairs per cell; bootstrap 10,000, seed 20261029, pinned CPU 7, Moss scalar.
+pairs per cell; bootstrap 10,000, seed 20261029, pinned CPU 7, a downstream engine scalar.
 All 600 recorded pair samples and calibrations are retained in
 `parity/peer-small/results.json` (20 A/A, 20 X and 20 baseline cells).
 

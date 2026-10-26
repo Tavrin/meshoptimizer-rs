@@ -1,12 +1,22 @@
 #!/usr/bin/env python3
 """Retain the qualified source/binaries and delete only this lane's target."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib,json,shutil,tarfile,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
-TARGET=Path('/mnt/linux-extra/moss-cargo-targets/meshopt-L2')
+ART=Path(_public_path('<scratch>/meshopt-028-L2'))
+TARGET=Path(_public_path('<target-dir>'))
 audit=json.loads((ART/'audit.json').read_text());assert audit['passed']
-assert not TARGET.is_symlink() and TARGET.parent==Path('/mnt/linux-extra/moss-cargo-targets')
+assert not TARGET.is_symlink() and TARGET.parent==Path(_public_path('<target-dir>'))
 assert all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in audit['source'].items())
 generator=TARGET/'release/cook-seed-generator'
 if generator.exists() and not (ART/'cook-seed-generator').exists(): shutil.copy2(generator,ART/'cook-seed-generator')

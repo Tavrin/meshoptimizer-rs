@@ -1,10 +1,10 @@
 # SPEC-028 lane L1
 
 Read REGISTRATION.md before the final wall campaign and REPORT.md for results.
-All preparation, proof and measurements run through the installed moss-heavy
+All preparation, proof and measurements run through the installed <job-runner>
 wrapper with MOSS_HEAVY_GPU=0, at most 4 GiB declared, and the exclusive
-CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-L1. The retained
-scratch directory is /mnt/linux-extra/moss-scratch/meshopt-028-L1.
+CARGO_TARGET_DIR=<target-dir>. The retained
+scratch directory is <scratch>/meshopt-028-L1.
 
 The trusted-input peer driver is derived from bench/peer-screen's comparator.
 Only its L1 output allocation boundaries are changed, by equalize.py. Its
@@ -16,7 +16,7 @@ input hashes against the frozen manifest, and refuses to overwrite preparation.
 The committed adapters are already equalized; `equalize.py` records the original
 transformation and is not a step to repeat on the committed files.
 
-`control.py build EPOCH ARMS...` retains each Moss-scalar executable and build
+`control.py build EPOCH ARMS...` retains each a downstream engine-scalar executable and build
 receipt; arms are ours, base, M7 and X. `counts EPOCH ARMS...` counts only user
 instructions during fixed resident calls through perf's enable/disable control
 and discards all timer values. `profile EPOCH` records instruction samples for

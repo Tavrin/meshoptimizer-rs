@@ -9,7 +9,7 @@ Registered before any L2 wall sample. Baseline v0.2.7 =
   medium-sparse, million-smooth. Overdraw additionally includes the retained
   real-214e-overdraw, real-b6fd-overdraw and real-a082-overdraw inputs and their
   captured thresholds. Each case has equal weight within its family.
-- Profile: Moss scalar, opt-level 3, thin LTO, one codegen unit; no default
+- Profile: a downstream engine scalar, opt-level 3, thin LTO, one codegen unit; no default
   SIMD features; C++ `MESHOPTIMIZER_NO_SIMD`. Same input preparation and public
   allocating output boundaries for candidate, baseline, M7 and X.
 - CPU 9, single selected logical CPU; retain sibling topology and affinity.
@@ -45,7 +45,7 @@ Registered before any L2 wall sample. Baseline v0.2.7 =
   interleaved pairs, candidate/M7 and baseline/M7; disclose paired stage GM
   and bootstrap intervals, no acceptance bar. The immutable stage traces come
   from the named r2 harness; replay excludes importer, serialization and the
-  rest of Moss, and must not be described as whole-application timing.
+  rest of a downstream engine, and must not be described as whole-application timing.
 - Seal candidate source hashes, registration hash, binary and input hashes
   before the first sample. Exactly one campaign; no reruns to change verdicts.
   On infrastructure failure retain partial samples and disclose incomplete

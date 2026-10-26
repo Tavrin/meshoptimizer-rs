@@ -1,7 +1,7 @@
 // Fixed-call, matched-transport instruction probe; deliberately no clock calls.
 import {readFileSync} from 'node:fs';
 import {loadArms} from './harness.mjs';
-const root = '/mnt/linux-extra/moss-scratch/meshopt-decode/browser';
+const root = '<scratch>/meshopt-decode/browser';
 const [name, index, calls] = process.argv.slice(2);
 const manifest = {
     'before-scalar': {kind:'rust', file:'before-scalar.wasm'},

@@ -1,7 +1,7 @@
 {
   "C": {
     "revision": "f40f5af",
-    "fuzz_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/fuzz-final/fuzz.json",
+    "fuzz_receipt": "<scratch>/meshopt-simplify-perf/r2/fuzz-final/fuzz.json",
     "src_hashes_verified": 27,
     "passed": true,
     "cpu_hours_by_target": {
@@ -14,7 +14,7 @@
   },
   "F": {
     "revision": "a7688ef",
-    "fuzz_receipt": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/fuzz-final/fuzz.json",
+    "fuzz_receipt": "<scratch>/meshopt-simplify-perf/fuzz-final/fuzz.json",
     "src_hashes_verified": 27,
     "passed": true,
     "cpu_hours_by_target": {

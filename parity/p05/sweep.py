@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Seeded exact differential sweep against the pinned scalar C++ library."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import ctypes as c
 import base64
 import gzip
@@ -14,10 +24,10 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 REF = pathlib.Path(os.environ.get('MESHOPT_REFERENCE', pathlib.Path.home() / 'dev/refs/meshoptimizer'))
-ART = pathlib.Path(os.environ.get('MESHOPT_ARTIFACTS', '/mnt/linux-extra/meshopt-artifacts/p05'))
+ART = pathlib.Path(os.environ.get('MESHOPT_ARTIFACTS', _public_path('<artifacts>/p05')))
 ART.mkdir(parents=True, exist_ok=True)
 CPP = ART / 'libmeshopt-p05.so'
-RUST = pathlib.Path(os.environ.get('CARGO_TARGET_DIR', '/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p05')) / 'release/meshopt-p05-parity'
+RUST = pathlib.Path(os.environ.get('CARGO_TARGET_DIR', _public_path('<target-dir>'))) / 'release/meshopt-p05-parity'
 FAMILIES = ['stripify', 'stripify_bound', 'unstripify', 'unstripify_bound', 'vertex_cache', 'vertex_fetch', 'overdraw', 'coverage', 'omm_measure', 'omm_rasterize', 'omm_entry_size', 'omm_compact', 'tangents', 'normals', 'remesh']
 U = c.c_uint; I = c.c_int; F = c.c_float; B = c.c_ubyte; Z = c.c_size_t
 PU = c.POINTER(U); PI = c.POINTER(I); PF = c.POINTER(F); PB = c.POINTER(B)
@@ -267,7 +277,7 @@ def wasm_identity():
     subprocess.run(['cargo', 'build', '--offline', '--locked', '--release', '--lib',
                     '--target', 'wasm32-unknown-unknown', '--manifest-path', 'parity/p05/Cargo.toml'],
                    cwd=ROOT, check=True)
-    wasm = pathlib.Path(os.environ.get('CARGO_TARGET_DIR', '/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p05')) / 'wasm32-unknown-unknown/release/meshopt_p05_parity.wasm'
+    wasm = pathlib.Path(os.environ.get('CARGO_TARGET_DIR', _public_path('<target-dir>'))) / 'wasm32-unknown-unknown/release/meshopt_p05_parity.wasm'
     process = subprocess.Popen(['node', str(ROOT / 'parity/wasm.cjs'), str(wasm)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
     detail = ART / 'wasm-0.5.jsonl.gz'
     counts = {}

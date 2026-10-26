@@ -1,10 +1,10 @@
-# moss-qx5g3 r2 overdraw qualification
+# downstream-qx5g3 r2 overdraw qualification
 
 Verdict: **FAIL**. Not a release candidate.
 
 Implementation: `d74b914194a7830975e6877a4e70be294458ec54`. Baseline: `afe803bbf60796a7af6b5001594a979af009cfac` (0.2.3). Draft PR: https://github.com/Tavrin/meshoptimizer-rs/pull/10. r1 FAIL remains unchanged.
 
-Evidence root: `/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2`. Exact registration: REGISTRATION.md, timestamped before any r2 sample. Source and executable manifests bind every run. Final documentation changes do not change the tested implementation source.
+Evidence root: `<scratch>/meshopt-simplify-perf/r2`. Exact registration: REGISTRATION.md, timestamped before any r2 sample. Source and executable manifests bind every run. Final documentation changes do not change the tested implementation source.
 
 ## Diagnosis and changes
 
@@ -25,7 +25,7 @@ Fixes landed in predicted-gain order:
 - `18732cc`: accumulate centroid during the required finite-position scan; retain addition order and original later numerical checks/divisions and exact work-charge prefix.
 - `d74b914`: specialize checked triangle position reads once per cluster, including byte order and unaligned offsets; batch per-triangle work through existing Work::scan with exact failure-prefix handling.
 
-Dead byte-exact hypotheses: none. The performance hypothesis that these two fixes would close the real overdraw bar was disproved (214e and b6fd remain above 1.50); no post-campaign tuning was attempted. Both fixes passed per-fix native/WASM differential checks (50/50/65/62/52 cases, zero mismatches). The lower-gain third candidate was deferred before the registered campaign. No algorithm, float-expression, pinned sqrt, allocation contract, API, Limits, Workspace, corpus or bar change. r1 fixes remain. No simplifier/cache/encoder/SIMD/Moss implementation work. Per-fix gains were not isolated. Regression setup corrections are in BUILD_NOTES.md.
+Dead byte-exact hypotheses: none. The performance hypothesis that these two fixes would close the real overdraw bar was disproved (214e and b6fd remain above 1.50); no post-campaign tuning was attempted. Both fixes passed per-fix native/WASM differential checks (50/50/65/62/52 cases, zero mismatches). The lower-gain third candidate was deferred before the registered campaign. No algorithm, float-expression, pinned sqrt, allocation contract, API, Limits, Workspace, corpus or bar change. r1 fixes remain. No simplifier/cache/encoder/SIMD/a downstream engine implementation work. Per-fix gains were not isolated. Regression setup corrections are in BUILD_NOTES.md.
 
 ## Registered real cases
 
@@ -66,11 +66,11 @@ Other infrastructure recovery: the replay harness initial fat-LTO link hit the 7
 
 ## Coordinator RAM hold
 
-Coordinator steer recorded in STATE.md and coordinator-hold.json: train 11 needed RAM; no new moss-heavy job while r2/HOLD exists. The agent left both running jobs untouched. The coordinator later stopped fuzz to admit train 11; one authorized same-source/binary/seed/core --resume continuation completed the remaining CPU budget with exit 0. This was not a fuzz failure or an infrastructure rerun. A blocking shell loop checks every 120 seconds. Hold-caused events are ineligible for infrastructure reruns. Observed removal: 2026-10-25T08:44:12Z. Retained-buffer verification status: NOT RUN: Deferred for train 11 RAM priority; optional audit never started.
+Coordinator steer recorded in STATE.md and coordinator-hold.json: train 11 needed RAM; no new <job-runner> job while r2/HOLD exists. The agent left both running jobs untouched. The coordinator later stopped fuzz to admit train 11; one authorized same-source/binary/seed/core --resume continuation completed the remaining CPU budget with exit 0. This was not a fuzz failure or an infrastructure rerun. A blocking shell loop checks every 120 seconds. Hold-caused events are ineligible for infrastructure reruns. Observed removal: 2026-10-25T08:44:12Z. Retained-buffer verification status: NOT RUN: Deferred for train 11 RAM priority; optional audit never started.
 
 ## Proof commands and exits
 
-All builds/tests/benchmarks use `/mnt/linux-extra/moss-coord/bin/moss-heavy.sh` and the prescribed isolated target. Measurement jobs set MOSS_HEAVY_MEASUREMENT=1.
+All builds/tests/benchmarks use `<job-runner>` and the prescribed isolated target. Measurement jobs set MOSS_HEAVY_MEASUREMENT=1.
 
 - `parity/gates.sh`: exit 0.
 - `parity/run.sh --phase 0.1 --profile scalar-strict`: exit 0.

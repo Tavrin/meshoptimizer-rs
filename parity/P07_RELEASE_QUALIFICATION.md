@@ -302,8 +302,8 @@ solely to verify the earlier admissions.
 Every accepted sample has before/after admission receipts and rotated slot
 order. Discarded admissions and checkpoint resumptions are retained.
 
-Artifacts: `/mnt/linux-extra/meshopt-artifacts/p07-fix10`; milestones/scout:
-`/mnt/linux-extra/moss-scratch/p07-fix10`. Raw pairs, A/A widths, sources,
+Artifacts: `<artifacts>/p07-fix10`; milestones/scout:
+`<scratch>/p07-fix10`. Raw pairs, A/A widths, sources,
 binary/controller hashes, counters, assembly and exit receipts are retained.
 The dedicated codex-p07-fix10 target is removed after owned jobs exit;
 final-receipt.json binds cleanup and SHA256.json inventories evidence.

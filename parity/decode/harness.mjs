@@ -244,7 +244,7 @@ export async function loadArms(wasmBytes) {
 
 async function nodeMain() {
     const { readFileSync, writeFileSync } = await import("node:fs");
-    const root = "/mnt/linux-extra/moss-scratch/meshopt-decode/browser";
+    const root = "<scratch>/meshopt-decode/browser";
     const streams = JSON.parse(readFileSync(root + "/data/streams.json", "utf8"));
     const bin = new Uint8Array(readFileSync(root + "/data/streams.bin"));
     const manifest = JSON.parse(readFileSync(root + "/data/arms.json", "utf8"));

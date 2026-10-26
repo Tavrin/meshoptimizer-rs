@@ -22,7 +22,7 @@
   "upstream": "4c203430ca565cb59a468a91922c76c208169536",
   "source_snapshot_sha256": "747af689c02da527aa843d97a9512f0812a2ab62fcdbc5f0fa841b4ed5f50aa1",
   "source_archive": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p01x/qualified-code-747af689c02da527aa843d97a9512f0812a2ab62fcdbc5f0fa841b4ed5f50aa1.zip",
+    "path": "<artifacts>/p01x/qualified-code-747af689c02da527aa843d97a9512f0812a2ab62fcdbc5f0fa841b4ed5f50aa1.zip",
     "sha256": "3b5969c5de920d46092073ada679217b997d440968ebed34939e98be5396b356"
   },
   "families": {
@@ -1018,11 +1018,11 @@
     "measurement-tests": 0
   },
   "verification": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p01x/verified-records.json",
+    "path": "<artifacts>/p01x/verified-records.json",
     "sha256": "f481186d53bf502fe5fec03e91cfe0208ac044eca119373eaed5e023ea908a4c"
   },
   "artifacts": {
-    "requested": "/mnt/linux-extra/meshopt-artifacts/p01x",
+    "requested": "<artifacts>/p01x",
     "actual": "coordinator_move_pending",
     "placement_residual": "requested directory was unavailable to the earlier managed session; historical evidence awaits relocation and hash verification"
   },
@@ -1033,7 +1033,7 @@
   ],
   "decisions": "parity/DECISIONS.md D84 onward",
   "benchmark_orchestration": {
-    "command": "python3 /mnt/linux-extra/meshopt-artifacts/p01x/complete_direct_profiles.py",
+    "command": "python3 <artifacts>/p01x/complete_direct_profiles.py",
     "policy": "D144 one complete 912-case matrix per profile; million first and fetch/sloppy/remap across all shapes first; no fragment assembly",
     "orchestration": {
       "moss": {
@@ -1051,11 +1051,11 @@
     }
   },
   "scope_audit": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p01x/scope-audit.json",
+    "path": "<artifacts>/p01x/scope-audit.json",
     "sha256": "df704500f6c496de43a6aba630eb8faa3314f59cf00eda0cdc182d4f10590a82"
   },
   "target_cleanup": {
-    "path": "/mnt/linux-extra/meshopt-artifacts/p01x/target-cleanup.json",
+    "path": "<artifacts>/p01x/target-cleanup.json",
     "sha256": "d7ebf6487a8d728703ff6de23db5f328e107b4aea0c2e2c06eff1cfd05efad53",
     "target_deleted": true
   },

@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """One registered, pinned-core, interleaved final campaign. Refuses overwrite."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import os,sys,json,math,random,statistics,subprocess,struct,hashlib,shutil,time
 from pathlib import Path
 from control import ROOT,LANE,ART,TARGET,OPS,CASES,Driver,sha,save
@@ -17,11 +27,11 @@ def build_rfc():
     with (ART/'rfc-build.log').open('x')as f:p=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
     records.append({'command':cmd,'exit':p.returncode});save(ART/'rfc-build.json',records);assert p.returncode==0
     shutil.copy2(TARGET/'moss/l1-rfc113',ART/'rfc-ours')
-    vendor=Path('/mnt/linux-extra/moss-scratch/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer')
+    vendor=Path(_public_path('<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer'))
     cmd=['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off','-I'+str(vendor/'src'),'-I'+str(vendor),str(LANE/'rfc113-bridge.cpp'),str(LANE/'rfc113-reference.cpp'),*[str(p)for p in sorted((vendor/'src').glob('*.cpp'))],'-o',str(ART/'rfc-cpp')]
     with (ART/'rfc-cpp-build.log').open('x')as f:p=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
     records.append({'command':cmd,'exit':p.returncode});save(ART/'rfc-build.json',records);assert p.returncode==0
-    old=Path('/mnt/linux-extra/moss-scratch/meshopt-cluster-c');cases=json.loads((old/'cases.json').read_text())
+    old=Path(_public_path('<scratch>/meshopt-cluster-c'));cases=json.loads((old/'cases.json').read_text())
     folder=ART/'rfc-inputs';folder.mkdir(exist_ok=True)
     for c in cases:
         source=Path(c['input']);assert sha(source)==c['input_sha256'];dst=folder/source.name;shutil.copy2(source,dst);c['input']=str(dst)

@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,math,subprocess
-R=Path(__file__).resolve().parents[2];S=Path('/mnt/linux-extra/moss-scratch/meshopt-0210-H2')
+R=Path(__file__).resolve().parents[2];S=Path(_public_path('<scratch>/meshopt-0210-H2'))
 rows=json.loads((S/'samples/summary.json').read_text())
 def gm(v):
  v=list(v);return math.exp(sum(map(math.log,v))/len(v))
@@ -23,7 +33,7 @@ for c in sorted(set(r['chain'] for r in rows if r['kind']=='chain')):
   chains[c][f]=dict(totals=totals,candidate_base=totals['candidate']/totals['base'],candidate_M7=totals['candidate']/totals['M7'])
 result=dict(families=agg,chains=chains)
 (S/'verdicts.json').write_text(json.dumps(result,indent=2)+'\n')
-lines=['# H2 safe hot loops','', 'Baseline: v0.2.9, `df7fc567b6540eb06cb583e2d323c01e5797609c`. Candidate source/binary/input hashes and all raw counter samples are retained under `/mnt/linux-extra/moss-scratch/meshopt-0210-H2/`. No wall timings were taken.','', '## Techniques','']
+lines=['# H2 safe hot loops','', _public_path('Baseline: v0.2.9, `df7fc567b6540eb06cb583e2d323c01e5797609c`. Candidate source/binary/input hashes and all raw counter samples are retained under `<scratch>/meshopt-0210-H2/`. No wall timings were taken.'),'', '## Techniques','']
 for fn,needle,desc in [('src/input.rs','pub(crate) fn scale_full_records','Pre-slice fully padded 64-byte records into fixed-size arrays. Short trailing records retain the original scale reader and validation-return position; mapped and other layouts retain their original paths. Preserve padding exclusion and the independent finiteness pass.'),('src/overdraw.rs','fn update(','Prove the three stamp access bounds together with their maximum index.'),('src/overdraw.rs','trait ClusterMeter','Precharge the exact soft-cluster phase bound when all work fits and the threshold proves the target finite. A monomorphized prepaid kernel omits budget checks; tight budgets and overflow-capable thresholds retain the original per-visit path.'),('src/overdraw.rs','fn soft_clusters','Iterate adjacent hard-cluster boundaries through slices rather than repeated indexed lookups.')]:
  text=(R/fn).read_text();lineno=next((i for i,l in enumerate(text.splitlines(),1) if needle in l),0)
  if lineno:lines.append(f'- `{fn}:{lineno}`: {desc}')

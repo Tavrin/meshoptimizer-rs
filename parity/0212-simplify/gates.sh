@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "${MOSS_HEAVY_ACTIVE:?all builds and validation require moss-heavy}"
+: "${MOSS_HEAVY_ACTIVE:?all builds and validation require ${JOB_RUNNER:?}}"
 [[ ${MOSS_HEAVY_GPU:-} == 0 ]]
 ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
-S=/mnt/linux-extra/moss-scratch/meshopt-0212-simplify
+S="${SCRATCH:?}"/meshopt-0212-simplify
 cd "$ROOT"
 run() {
   local name=$1 rc=0

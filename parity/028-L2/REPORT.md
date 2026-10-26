@@ -8,7 +8,7 @@ not establish a cook-chain speedup: 214e's candidate/C++ cache and overdraw
 ratios are higher than the v0.2.7/C++ controls in this campaign. Retain that
 unfavorable result; there is no end-to-end performance-parity claim.
 
-Exactly one registered campaign, CPU 9 (sibling 8), Moss scalar profile,
+Exactly one registered campaign, CPU 9 (sibling 8), a downstream engine scalar profile,
 one warm-up plus ten interleaved pairs; 10,000 bootstrap resamples, seed
 20261030. Five equally weighted frozen cases per family; overdraw also
 includes all three retained real-overdraw cases. Ratios are ours/comparator.
@@ -34,7 +34,7 @@ All ordinary and legacy r2 calls, with their actual pruned positions recovered
 from the immutable compacted captures. The corrected candidate/base/M7 proof
 reproduces every historical stage output. These are matched stage replays,
 excluding importer, policy evaluation, serialization and non-mesh work;
-no whole-Moss latency or production acceptance claim follows.
+no whole-a downstream engine latency or production acceptance claim follows.
 
 | Chain | Arm/CPP | Scale GM | Simplify GM | Cache GM | Overdraw GM |
 |---|---|---:|---:|---:|---:|
@@ -64,7 +64,7 @@ retained there too. No samples were discarded, and no wall campaign was rerun.
   other-stride and final-XYZ-only views retain the general reader.
 
 Safe Rust only; no public API, explicit SIMD path, encoder, memory policy,
-version or Moss source change. The shared cache-strip implementation is
+version or a downstream engine source change. The shared cache-strip implementation is
 covered by exact proof. Input preparation is equal in all arms; the final
 baseline/M7/X instruction audit agrees with the initial audit to four decimal
 places in family GM (see retained raw counts).
@@ -101,9 +101,9 @@ proofs/gates listed above bind the final source; no wall value caused a retry.
 
 
 Baseline: v0.2.7, `e5168983067a5decfc5bf15605c7dae7113dba49`.
-Worktree: `/home/etienne/dev/meshoptimizer-rs-wt/cook-chain`, branch `perf/cook-chain`.
-Scratch: `/mnt/linux-extra/moss-scratch/meshopt-028-L2/`.
-Target: `/mnt/linux-extra/moss-cargo-targets/meshopt-L2` (delete after retaining binaries).
+Worktree: `<repo>`, branch `perf/cook-chain`.
+Scratch: `<scratch>/meshopt-028-L2/`.
+Target: `<target-dir>` (delete after retaining binaries).
 All heavy work uses `admit.sh`: CPU only, 4 GiB, one build job. No subagents.
 
 ## Adapter audit (before library edits)
@@ -204,8 +204,8 @@ No admission bypass or declaration override was used.
 The r2 replay adapter retains all ordinary and legacy stage calls and their
 captured output bytes/error bits. It excludes importer, serialization and
 non-mesh stages. Clone, allocating result and output-copy boundaries are
-matched for both Rust and C++ reorder stages. The full Moss caller is not
-rebuilt or modified; this is a stage-trace disclosure, not whole-Moss latency.
+matched for both Rust and C++ reorder stages. The full a downstream engine caller is not
+rebuilt or modified; this is a stage-trace disclosure, not whole-a downstream engine latency.
 
 ## Instruction-only rejection of first probe
 
@@ -288,7 +288,7 @@ is now atomic. No wall sample existed and no acceptance stream was rerun.
 ## Resolved stage mismatch: aggregate pruning changes positions
 
 The historical capture is sound. The initial replay incorrectly reused the
-original vertex buffer for every stage. Moss `gltf_mesh.rs:1279` passes
+original vertex buffer for every stage. a downstream engine `gltf_mesh.rs:1279` passes
 `pruned.vertex_bytes` to packaging; `prune_level` at :1710 rescales positions
 of every kept component, including welded duplicate vertices. The cache
 stage's count remains the full original count. Only overdraw reads those
@@ -328,11 +328,11 @@ unchanged; own-lane admissions are limited to one going forward.
 
 The kept `real-214e-overdraw` family input pairs original vertex positions
 with a post-pruning index subset. It is a valid frozen real-derived geometry
-case, but it is not the rescaled-position call made by Moss's pruning path.
+case, but it is not the rescaled-position call made by a downstream engine's pruning path.
 Keep its bytes unchanged for the frozen family bar. The separate corrected
 r2 stage replay uses the actual recovered rescaled vertices and reproduces
 all historical outputs. Family ratios therefore must not be described as
-whole-Moss latency or as a substitute for the real stage disclosure. The
+whole-a downstream engine latency or as a substitute for the real stage disclosure. The
 packed scale speedup likewise leaves the original byte-view scale reduction
 unchanged; its actual real-chain stage ratio is disclosed separately.
 
@@ -341,8 +341,8 @@ unchanged; its actual real-chain stage ratio is disclosed separately.
 - Implementation commit: `b07dc7a2a2a52172ac869471ef23656d9234ba8c`, authored/committed as Tavrin, no AI trailers.
 - Draft PR: https://github.com/Tavrin/meshoptimizer-rs/pull/28; OPEN, targeting main from perf/cook-chain.
 - Commit, push, draft creation and PR verification: exit 0.
-- Target `/mnt/linux-extra/moss-cargo-targets/meshopt-L2` deleted: 802,269,012
+- Target `<target-dir>` deleted: 802,269,012
   bytes removed; 29 qualification executables retained outside the target.
 - `CLEANUP.json` binds the qualified library source, retained executables and
-  `/mnt/linux-extra/moss-scratch/meshopt-028-L2/final-source.tar.gz`.
-- No merge, tag, package publication, version bump or Moss source change.
+  `<scratch>/meshopt-028-L2/final-source.tar.gz`.
+- No merge, tag, package publication, version bump or a downstream engine source change.

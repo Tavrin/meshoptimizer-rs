@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Target only overdraw using the existing pinned C++ differential and fixtures."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib
 import json
@@ -8,11 +18,11 @@ import random
 import subprocess
 import sys
 ROOT = Path(__file__).resolve().parents[2]
-S = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-b')
+S = Path(_public_path('<scratch>/meshopt-peer-b'))
 sys.path.insert(0, str(ROOT / 'parity'))
 import runner as r
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
-reference = Path('/home/etienne/dev/refs/meshoptimizer')
+reference = Path(_public_path('<refs>/meshoptimizer'))
 os.environ['MESHOPT_REFERENCE'] = str(reference)
 r.ENV['MESHOPT_REFERENCE'] = str(reference)
 r.reference_check()

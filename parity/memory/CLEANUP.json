@@ -1,9 +1,9 @@
 {
-  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-memory",
+  "target": "<target-dir>",
   "exists_after": false,
   "retained_binaries": {
-    "/mnt/linux-extra/moss-scratch/meshopt-memory/bin/migration-b": "c8a339135fbe70730a300e449a518a82712076a3f4f6f8f7e413754b28c01f70",
-    "/mnt/linux-extra/moss-scratch/meshopt-memory/bin/migration-c": "b20c56a18eb77f4fae610f1e32ec5efa72de95ef5ca30da70ca94c9392de4980"
+    "<scratch>/meshopt-memory/bin/migration-b": "c8a339135fbe70730a300e449a518a82712076a3f4f6f8f7e413754b28c01f70",
+    "<scratch>/meshopt-memory/bin/migration-c": "b20c56a18eb77f4fae610f1e32ec5efa72de95ef5ca30da70ca94c9392de4980"
   },
   "gates": "test\t0\nclippy\t0\nfmt\t0\nexisting-clear-parity\t0\n"
 }

@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """Independent integrity/semantic audit of the completed comparison."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,hashlib,subprocess,sys,math,statistics,re,os,struct
-ROOT=Path(__file__).resolve().parents[2];ART=Path('/mnt/linux-extra/moss-scratch/meshopt-cmp')
+ROOT=Path(__file__).resolve().parents[2];ART=Path(_public_path('<scratch>/meshopt-cmp'))
 sys.path.insert(0,str(Path(__file__).parent));import measure
 checks=[]
 def check(name,condition):
@@ -86,7 +96,7 @@ for prof in ['defaults','moss']:
    check('valid sample',all(math.isfinite(v) and v>0 for v in s['ns'].values()));ratio=s['ns']['ours']/s['ns']['theirs'];check('matched ratio',ratio==s['ratio']);ratios.append(ratio)
   check('median and interval calculation',statistics.median(ratios)==r['median_ratio'] and measure.interval(ratios)==r['ci95'])
 # Receipts retain queue waits, run durations and exit outcomes, including rejected preflights.
-receipts=[l for l in Path('/mnt/linux-extra/moss-coord/heavy.log').read_text().splitlines() if '\tmeshopt-cmp\t' in l or l.split('\t')[-3:-2]==['meshopt-cmp']]
+receipts=[l for l in Path(_public_path('<local>/heavy.log')).read_text().splitlines() if '\tmeshopt-cmp\t' in l or l.split('\t')[-3:-2]==['meshopt-cmp']]
 check('shared receipts available',bool(receipts))
 check('all comparison receipts CPU only',all('[gpu]' not in l for l in receipts))
 check('bounded admitted runs',all(int(l.split('\t')[3])<900 for l in receipts))

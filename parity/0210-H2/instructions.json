@@ -4,11 +4,11 @@
       "id": "frozen-simplify-scale-tiny-smooth",
       "kind": "frozen",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/tiny-smooth-scale64.bin",
+      "source": "<scratch>/meshopt-0210-H2/tiny-smooth-scale64.bin",
       "source_sha256": "6a9f67a2da2b96bcb1fe17c8ce15107a85bc337f5076d911a870e59a5ba22e69",
       "args": [
         "simplify-scale",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/tiny-smooth-scale64.bin"
+        "<scratch>/meshopt-0210-H2/tiny-smooth-scale64.bin"
       ],
       "iterations": 10000,
       "multiplicity": 1,
@@ -27,11 +27,11 @@
       "id": "frozen-simplify-scale-medium-smooth",
       "kind": "frozen",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-smooth-scale64.bin",
+      "source": "<scratch>/meshopt-0210-H2/medium-smooth-scale64.bin",
       "source_sha256": "2dbd77980e0e00dbc5961842208492830df110a7051ee3a087453736cbf7229e",
       "args": [
         "simplify-scale",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-smooth-scale64.bin"
+        "<scratch>/meshopt-0210-H2/medium-smooth-scale64.bin"
       ],
       "iterations": 100,
       "multiplicity": 1,
@@ -50,11 +50,11 @@
       "id": "frozen-simplify-scale-medium-seams",
       "kind": "frozen",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-seams-scale64.bin",
+      "source": "<scratch>/meshopt-0210-H2/medium-seams-scale64.bin",
       "source_sha256": "2fbf6b770c11f3fbaad8e54f2caa29243e94c271111c65122b281c91e117b861",
       "args": [
         "simplify-scale",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-seams-scale64.bin"
+        "<scratch>/meshopt-0210-H2/medium-seams-scale64.bin"
       ],
       "iterations": 100,
       "multiplicity": 1,
@@ -73,11 +73,11 @@
       "id": "frozen-simplify-scale-medium-sparse",
       "kind": "frozen",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-sparse-scale64.bin",
+      "source": "<scratch>/meshopt-0210-H2/medium-sparse-scale64.bin",
       "source_sha256": "95e01f0a9deeb55db44441aa8f0dc6ed58b9f2c16fe0f2ebb89a8656cf7bfedd",
       "args": [
         "simplify-scale",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/medium-sparse-scale64.bin"
+        "<scratch>/meshopt-0210-H2/medium-sparse-scale64.bin"
       ],
       "iterations": 100,
       "multiplicity": 1,
@@ -96,11 +96,11 @@
       "id": "frozen-simplify-scale-million-smooth",
       "kind": "frozen",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/million-smooth-scale64.bin",
+      "source": "<scratch>/meshopt-0210-H2/million-smooth-scale64.bin",
       "source_sha256": "62e1622ef8fe19148a72577bb5652400754271f44df7eb75bff96e960ba16c05",
       "args": [
         "simplify-scale",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/million-smooth-scale64.bin"
+        "<scratch>/meshopt-0210-H2/million-smooth-scale64.bin"
       ],
       "iterations": 4,
       "multiplicity": 1,
@@ -119,11 +119,11 @@
       "id": "frozen-overdraw-tiny-smooth",
       "kind": "frozen",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/tiny-smooth.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/tiny-smooth.bin",
       "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/tiny-smooth.bin"
+        "<scratch>/meshopt-0210-H2/inputs/tiny-smooth.bin"
       ],
       "iterations": 10000,
       "multiplicity": 1,
@@ -142,11 +142,11 @@
       "id": "frozen-overdraw-medium-smooth",
       "kind": "frozen",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-smooth.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/medium-smooth.bin",
       "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-smooth.bin"
+        "<scratch>/meshopt-0210-H2/inputs/medium-smooth.bin"
       ],
       "iterations": 100,
       "multiplicity": 1,
@@ -165,11 +165,11 @@
       "id": "frozen-overdraw-medium-seams",
       "kind": "frozen",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-seams.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/medium-seams.bin",
       "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-seams.bin"
+        "<scratch>/meshopt-0210-H2/inputs/medium-seams.bin"
       ],
       "iterations": 100,
       "multiplicity": 1,
@@ -188,11 +188,11 @@
       "id": "frozen-overdraw-medium-sparse",
       "kind": "frozen",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-sparse.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/medium-sparse.bin",
       "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/medium-sparse.bin"
+        "<scratch>/meshopt-0210-H2/inputs/medium-sparse.bin"
       ],
       "iterations": 100,
       "multiplicity": 1,
@@ -211,11 +211,11 @@
       "id": "frozen-overdraw-million-smooth",
       "kind": "frozen",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/million-smooth.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/million-smooth.bin",
       "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/million-smooth.bin"
+        "<scratch>/meshopt-0210-H2/inputs/million-smooth.bin"
       ],
       "iterations": 4,
       "multiplicity": 1,
@@ -234,11 +234,11 @@
       "id": "realfixture-overdraw-214e",
       "kind": "realfixture",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-214e-overdraw.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/real-214e-overdraw.bin",
       "source_sha256": "93ed009184795d34d224145943076fad3b566ea27feb20b3317b05208ec5d809",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-214e-overdraw.bin"
+        "<scratch>/meshopt-0210-H2/inputs/real-214e-overdraw.bin"
       ],
       "iterations": 4,
       "multiplicity": 1,
@@ -257,11 +257,11 @@
       "id": "realfixture-overdraw-b6fd",
       "kind": "realfixture",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-b6fd-overdraw.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/real-b6fd-overdraw.bin",
       "source_sha256": "e0a743ebbd958b4b8a645eb511673aa16e3f134f81f5c5bfb7f531c5304a3f67",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-b6fd-overdraw.bin"
+        "<scratch>/meshopt-0210-H2/inputs/real-b6fd-overdraw.bin"
       ],
       "iterations": 4,
       "multiplicity": 1,
@@ -280,11 +280,11 @@
       "id": "realfixture-overdraw-a082",
       "kind": "realfixture",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-a082-overdraw.bin",
+      "source": "<scratch>/meshopt-0210-H2/inputs/real-a082-overdraw.bin",
       "source_sha256": "07fd53aa1e5c00657c5a0f694bf9794da82bbeb158ac447937c7751bfc0e1992",
       "args": [
         "overdraw",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/inputs/real-a082-overdraw.bin"
+        "<scratch>/meshopt-0210-H2/inputs/real-a082-overdraw.bin"
       ],
       "iterations": 4,
       "multiplicity": 1,
@@ -304,11 +304,11 @@
       "kind": "chain",
       "chain": "214e85c568a64e8a",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
       "source_sha256": "f4b4d595e072b817a90587b1315b8d025384cea8aa9c1f0a24baae1ba8b7f2f8",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
       ],
       "index": 0,
       "iterations": 4,
@@ -336,11 +336,11 @@
       "kind": "chain",
       "chain": "214e85c568a64e8a",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
       "source_sha256": "f4b4d595e072b817a90587b1315b8d025384cea8aa9c1f0a24baae1ba8b7f2f8",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
       ],
       "index": 4,
       "iterations": 4,
@@ -368,11 +368,11 @@
       "kind": "chain",
       "chain": "214e85c568a64e8a",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-214e85c568a64e8a.tsv",
       "source_sha256": "f4b4d595e072b817a90587b1315b8d025384cea8aa9c1f0a24baae1ba8b7f2f8",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-214e85c568a64e8a.tsv"
       ],
       "index": 7,
       "iterations": 4,
@@ -400,11 +400,11 @@
       "kind": "chain",
       "chain": "b6fdb93d8a1709e2",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
       "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+        "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
       ],
       "index": 0,
       "iterations": 4,
@@ -432,11 +432,11 @@
       "kind": "chain",
       "chain": "b6fdb93d8a1709e2",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
       "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+        "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
       ],
       "index": 3,
       "iterations": 4,
@@ -464,11 +464,11 @@
       "kind": "chain",
       "chain": "b6fdb93d8a1709e2",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
       "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+        "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
       ],
       "index": 6,
       "iterations": 4,
@@ -496,11 +496,11 @@
       "kind": "chain",
       "chain": "b6fdb93d8a1709e2",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv",
       "source_sha256": "b9035c6abdd12af4d03e28cc079050f4cc4351eabe73f459aa00700fc89eea19",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
+        "<scratch>/meshopt-0210-H2/chain-b6fdb93d8a1709e2.tsv"
       ],
       "index": 9,
       "iterations": 4,
@@ -528,11 +528,11 @@
       "kind": "chain",
       "chain": "a082ca1fd19bb86a",
       "family": "simplify-scale",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
       "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
       ],
       "index": 0,
       "iterations": 4,
@@ -560,11 +560,11 @@
       "kind": "chain",
       "chain": "a082ca1fd19bb86a",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
       "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
       ],
       "index": 3,
       "iterations": 4,
@@ -592,11 +592,11 @@
       "kind": "chain",
       "chain": "a082ca1fd19bb86a",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
       "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
       ],
       "index": 6,
       "iterations": 4,
@@ -624,11 +624,11 @@
       "kind": "chain",
       "chain": "a082ca1fd19bb86a",
       "family": "overdraw",
-      "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
+      "source": "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv",
       "source_sha256": "0ce2176cf5d40ba49f24dcb922fadd536d6d85b2d4f898fb3fcca27469bc3bc4",
       "args": [
         "attr-stage",
-        "/mnt/linux-extra/moss-scratch/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
+        "<scratch>/meshopt-0210-H2/chain-a082ca1fd19bb86a.tsv"
       ],
       "index": 9,
       "iterations": 4,

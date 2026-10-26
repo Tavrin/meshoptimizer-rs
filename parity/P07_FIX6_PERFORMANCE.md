@@ -89,7 +89,7 @@ no demonstrated exact gain and are abandoned before final timing.
 
 ## Correctness, safety and identities
 
-Artifacts: `/mnt/linux-extra/meshopt-artifacts/p07-fix6`; independently verified
+Artifacts: `<artifacts>/p07-fix6`; independently verified
 summary.json and final-evidence.json retain identities and receipts. Frozen
 fixture/malformed/benchmark proofs pass on both APIs, local native ceilings and
 actual wasm scalar/SIMD. Node timing modules match 292 golden output hashes.
@@ -100,7 +100,7 @@ The existing valid-alpha Color proof and pinned odd-tail scalar/SIMD status
 split are reproduced unchanged. Seven test/Clippy/Miri receipts, MSRV/no-std
 portability and the 23-block single-unsafe-module/package gates pass. No new
 unsafe block or scalar-reference arithmetic. No ARM execution, dedicated-host,
-Windows/macOS, Moss integration, native triangle-index or phase-0.6/release
+Windows/macOS, a downstream engine integration, native triangle-index or phase-0.6/release
 qualification is claimed.
 
 ## Timing receipts

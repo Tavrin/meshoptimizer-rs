@@ -1,5 +1,5 @@
 {
-  "registration_sha256": "457d929d31806ef332d9e2c3f714a90ffa4cf036143074ee0114c6c46ab9c314",
+  "registration_sha256": "ade31fc13072c926b23475ee33995203df7ec091c32039724ff1d1c4f87c89ba",
   "cpu": 7,
   "pairs": 10,
   "seed": 20261029,
@@ -8227,9 +8227,9 @@
     }
   ],
   "binaries": {
-    "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4": "d9f5bfcd3e1866b4a9e29399505e799f4f95370b33c0715db4126b6c8254dcd5",
-    "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1": "2d55cc07bb1d86fd7b4c151276e8e3114c3d32031bc1f5e961db34345f805e77",
-    "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0": "2856dd8902329afb2843970a16909bc3a6162c8ced1d625f8a1b4a300456d3bf"
+    "<scratch>/meshopt-peer-c/driver-candidate-4": "d9f5bfcd3e1866b4a9e29399505e799f4f95370b33c0715db4126b6c8254dcd5",
+    "<scratch>/meshopt-peer-c/driver-base-1": "2d55cc07bb1d86fd7b4c151276e8e3114c3d32031bc1f5e961db34345f805e77",
+    "<scratch>/meshopt-peer-c/driver-X-0": "2856dd8902329afb2843970a16909bc3a6162c8ced1d625f8a1b4a300456d3bf"
   },
   "F": 0.27986102836030247,
   "families": [

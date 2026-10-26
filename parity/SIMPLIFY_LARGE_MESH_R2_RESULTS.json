@@ -1,5 +1,5 @@
 {
-  "ticket": "moss-qx5g3",
+  "ticket": "downstream-qx5g3",
   "round": "r2",
   "verdict": "FAIL",
   "release_candidate": false,
@@ -1300,7 +1300,7 @@
   "finished_unix": 1792922171.8362813,
   "coordinator_hold": {
     "received_utc": "2026-10-25T08:19:16.760402+00:00",
-    "hold_path": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/HOLD",
+    "hold_path": "<scratch>/meshopt-simplify-perf/r2/HOLD",
     "exists_at_receipt": true,
     "no_new_heavy_while_present": true,
     "never_kill_running_jobs": true,
@@ -1318,7 +1318,7 @@
   "coordinator_fuzz_interruption": {
     "authority": "coordinator steer",
     "received_utc": "2026-10-25T08:45:06.676949+00:00",
-    "scope": "moss-heavy-1916165-9033",
+    "scope": "<job-runner>-1916165-9033",
     "classification": "coordinator interruption; not a fuzz failure or infrastructure rerun",
     "targets": [
       {
@@ -1388,16 +1388,16 @@
     "required_cpu_seconds_per_target": 14400.0,
     "resume_planned": true,
     "resume_submitted": true,
-    "same_artifact_dir": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/fuzz-final-artifacts",
+    "same_artifact_dir": "<scratch>/meshopt-simplify-perf/r2/fuzz-final-artifacts",
     "partial_shards": "interrupted stdout/stderr/usage/descriptors preserved separately; only completed recorded shards count toward CPU budget",
     "terminal_note": "scope stop left empty GNU time usage for an interrupted shard; driver IndexError is a consequence of the external stop, not a fuzz input crash",
     "initial_wrapper_exit": 2,
-    "resume_wrapper": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2/fuzz-resume.sh",
+    "resume_wrapper": "<scratch>/meshopt-simplify-perf/r2/fuzz-resume.sh",
     "resume_wall_policy": "original five-hour deadline minus five minutes for final handoff",
     "resume_queued": true,
     "resume_queued_observed_utc": "2026-10-25T08:50:04.985908+00:00",
     "resume_exec_session": 15601,
-    "resume_admission": "queued behind Moss train11 push priority; no bypass",
+    "resume_admission": "queued behind a downstream engine train11 push priority; no bypass",
     "resume_started_utc": "2026-10-25T09:01:41.211407+00:00",
     "resume_wall_seconds": 8401,
     "resume_command": "parity/fuzz.sh --phase 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --resume --wall-seconds 8401",

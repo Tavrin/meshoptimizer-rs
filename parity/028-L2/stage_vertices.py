@@ -1,12 +1,22 @@
 """Invert r2 compaction to recover the pruned positions used by overdraw.
 
-Moss prune_level only rescales kept components; unreferenced vertices in those
+a downstream engine prune_level only rescales kept components; unreferenced vertices in those
 components share a welded position with an indexed vertex. Copy captured XYZ
 bytes to that entire position class. No floating-point recomputation is used.
 """
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import array, hashlib, json, os
 from pathlib import Path
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
+ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 
 def sha(path):
     h=hashlib.sha256()

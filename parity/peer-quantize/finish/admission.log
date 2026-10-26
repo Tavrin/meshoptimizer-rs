@@ -1,8 +1,8 @@
-heavy: waiting (class meshopt-peer-a, reserving 2G, cap 4G, declared 4G, p95 0.7 GB over 8 runs x 1.15): python3 /mnt/linux-extra/moss-scratch/meshopt-peer-a/finish/run.py
+heavy: waiting (class meshopt-peer-a, reserving 2G, cap 4G, declared 4G, p95 0.7 GB over 8 runs x 1.15): python3 <scratch>/meshopt-peer-a/finish/run.py
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — queued behind a push job (pid 1384915) — waiting for 12 GB RAM [capacity: available_kb=9876836 - unused_kb=8076604 - margin_kb=2097152 = free_kb=-296920; need_kb=2097152; normal_slots=2/6; lane_slots=0/2]
 heavy: selected — EASY backfill before pid 1384915: class p95 83s, head start 08:18:46 CET
-heavy: running (2G reserved, cap 4G, 19G available): python3 /mnt/linux-extra/moss-scratch/meshopt-peer-a/finish/run.py
+heavy: running (2G reserved, cap 4G, 19G available): python3 <scratch>/meshopt-peer-a/finish/run.py
 quantize-half B 1356610288
 quantize-half O 1280454393
 quantize-half X 1369695290

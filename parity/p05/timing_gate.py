@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Verify phase-0.5 timing coverage by visible shared heavy admission."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from datetime import datetime
 import json
 import os
@@ -10,8 +20,8 @@ import sys
 import time
 from zoneinfo import ZoneInfo
 
-ART = Path(os.environ.get('MESHOPT_ARTIFACTS', '/mnt/linux-extra/meshopt-artifacts/p05'))
-LEASE_DIR = Path(os.environ.get('MOSS_GPU_LEASE_DIR', '/tmp/moss-gpu-lease'))
+ART = Path(os.environ.get('MESHOPT_ARTIFACTS', _public_path('<artifacts>/p05')))
+LEASE_DIR = Path(os.environ.get('MOSS_GPU_LEASE_DIR', '/tmp/downstream-gpu-lease'))
 
 
 def cpu_ticks():

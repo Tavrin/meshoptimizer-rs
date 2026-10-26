@@ -1,7 +1,17 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import contextlib,hashlib,json,math,os,struct,sys,time,zipfile,datetime
 from pathlib import Path
 from stats import analyze
-s=Path(__file__).parent;sys.path.insert(0,'/home/etienne/dev/meshoptimizer-rs-wt/simplify-perf/parity')
+s=Path(__file__).parent;sys.path.insert(0,_public_path('<repo>/parity'))
 import performance,runner as r
 r.benchmark_cpu=8;os.sched_setaffinity(0,{8})
 arm=sys.argv[1] if len(sys.argv)>1 else 'C';attempt=int(sys.argv[2]) if len(sys.argv)>2 else 1
@@ -14,7 +24,7 @@ record=json.loads(recordpath.read_text()) if recordpath.exists() else {'arm':arm
 assert not record['completed'];assert r.sha(reg)==record['registration_sha256']
 def save():recordpath.write_text(json.dumps(record,indent=2)+'\n')
 def boundary():
- coord=Path('/mnt/linux-extra/moss-coord');waiting=[]
+ coord=Path(_public_path('<local>/downstream-coord'));waiting=[]
  for q in ['heavy.waiting','heavy.waiting-exclusive']:
   for line in (coord/q).read_text().splitlines():
    fields=line.split()
@@ -22,7 +32,7 @@ def boundary():
    pid=int(fields[0])
    try:cwd=os.readlink(f'/proc/{pid}/cwd');state=Path(f'/proc/{pid}/stat').read_text().split(') ')[1].split()[0]
    except (FileNotFoundError,PermissionError,ProcessLookupError):continue
-   if cwd.startswith('/mnt/linux-extra/moss-lane-worktrees/train-') and state not in ['Z','X']:
+   if cwd.startswith(_public_path('<worktree>')) and state not in ['Z','X']:
     waiting.append({'pid':pid,'cwd':cwd,'queue':q})
  if waiting:
   pause={'event':'PAUSE','utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'arm':arm,'attempt':attempt,'completed_cases':{k:len(record[k]) for k in ['main','AA','replication']},'waiting':waiting}

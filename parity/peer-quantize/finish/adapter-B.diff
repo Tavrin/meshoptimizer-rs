@@ -1,5 +1,5 @@
---- /mnt/linux-extra/moss-scratch/meshopt-peer-a/B/parity/compare/src/main.rs	2026-10-25 23:16:32.000000000 +0100
-+++ /mnt/linux-extra/moss-scratch/meshopt-peer-a/finish/B/parity/compare/src/main.rs	2026-10-26 08:13:25.392966563 +0100
+--- <scratch>/meshopt-peer-a/B/parity/compare/src/main.rs	2026-10-25 23:16:32.000000000 +0100
++++ <scratch>/meshopt-peer-a/finish/B/parity/compare/src/main.rs	2026-10-26 08:13:25.392966563 +0100
 @@ -496,8 +496,7 @@
          "spatial-triangles" => Output::Indices(m::spatial_sort_triangles(&x.i, p, w).unwrap()),
          "spatial-points" => Output::Indices(m::spatial_cluster_points(p, 16, w).unwrap()),

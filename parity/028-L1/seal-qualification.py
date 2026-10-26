@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,hashlib
-A=Path('/mnt/linux-extra/moss-scratch/meshopt-028-L1');R=Path.cwd()
+A=Path(_public_path('<scratch>/meshopt-028-L1'));R=Path.cwd()
 load=lambda p:json.loads((A/p).read_text())
 fuzz_source=load('FUZZ-SOURCE.json')
 assert all(hashlib.sha256((R/path).read_bytes()).hexdigest()==h for path,h in fuzz_source['source'].items()),'proof source changed'

@@ -6,7 +6,7 @@
   "scope_performance_passed": false,
   "full_p05_performance_qualified": false,
   "release_accepted": false,
-  "artifact_directory": "/mnt/linux-extra/meshopt-artifacts/p05-diagfix",
+  "artifact_directory": "<artifacts>/p05-diagfix",
   "bar": {
     "geometric_mean": 1.25,
     "maximum": 1.5,
