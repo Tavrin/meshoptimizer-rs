@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.11] - 2026-10-26
+
+- Add the `guide` module from docs/USING.md with task recipes, doctests and a
+  Gotchas list.
+- Add `# Errors` sections to every public fallible function.
+- Add the `lod_chain`, `untrusted_input` and `meshlets` examples.
+- Add README badges.
+- Add llms.txt at the repository root; it is not included in the crate package.
+- Remove internal phase labels from the crate documentation.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.11/docs/PERFORMANCE.md) for method.
+
 ## [0.2.10] - 2026-10-26
 
 - `simplify_scale` on 64-byte little-endian byte views uses 0.52× the
@@ -398,6 +412,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.11]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.10...v0.2.11
 [0.2.10]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.7...v0.2.8
