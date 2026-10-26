@@ -3,8 +3,8 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Tavrin/meshoptimizer-rs/ci.yml?branch=main&label=CI)](https://github.com/Tavrin/meshoptimizer-rs/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/meshoptimizer-rs.svg)](https://crates.io/crates/meshoptimizer-rs)
 [![docs.rs](https://img.shields.io/docsrs/meshoptimizer-rs)](https://docs.rs/meshoptimizer-rs)
-[![License: MIT](https://img.shields.io/crates/l/meshoptimizer-rs)](LICENSE)
-[![MSRV: 1.88](https://img.shields.io/badge/MSRV-1.88-blue)](Cargo.toml)
+[![License: MIT](https://img.shields.io/crates/l/meshoptimizer-rs)](https://github.com/Tavrin/meshoptimizer-rs/blob/main/LICENSE)
+[![MSRV: 1.88](https://img.shields.io/badge/MSRV-1.88-blue)](https://github.com/Tavrin/meshoptimizer-rs/blob/main/Cargo.toml)
 
 A pure-Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3. Its output is
 byte-identical to the C++ library: index order, error values and encoded bytes match. It needs no
@@ -19,7 +19,7 @@ The minimum Rust version is 1.88. The library name is `meshoptimizer_rs`.
 
 ## Usage
 
-Task recipes: [using the crate](docs/USING.md).
+Task recipes: [the `guide` module](https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/guide/index.html) ([source](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/USING.md)).
 
 Coming from the `meshopt` crate? See [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/MIGRATING_FROM_MESHOPT.md).
 
