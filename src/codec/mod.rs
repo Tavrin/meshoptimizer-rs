@@ -9,8 +9,7 @@
 //! (encoding plus both decoding forms) works on the 0.3 meshlet layout's
 //! vertex-reference and local-triangle slices.
 //!
-//! The checked EXT helper retains vertex version 0 and the existing Moss index
-//! version 0/1 domain. Caller-buffer codecs allocate no heap storage. They
+//! The checked EXT helper accepts vertex version 0 and index versions 0 and 1. Caller-buffer codecs allocate no heap storage. They
 //! preserve unused destination bytes; a malformed body or filter, or an
 //! encoder capacity failure, can modify the used prefix. Allocating
 //! operations use fallible reservation and Workspace limits. Decoder work

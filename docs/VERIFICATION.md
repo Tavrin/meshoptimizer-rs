@@ -30,7 +30,7 @@ per-target release fuzz budgets or execution on every supported platform. See th
 
 A malformed meshlet tail is accepted by scalar upstream and Rust but rejected by upstream SSE. Rust
 follows the scalar oracle; the expanded strict sweep still fails on that upstream discrepancy. Two
-RFC 113 stride-32 setups are invalid because their protect masks exceed the layout. AVX2, AVX-512
+Stride-32 cluster-LOD test setups are invalid because their protect masks exceed the layout. AVX2, AVX-512
 and 32-bit ARM SIMD are not implemented; index/sequence decoding remains scalar.
 
 ## Cluster DAGs

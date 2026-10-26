@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `spatial_sort_triangles`, `partition_clusters` and `build_meshlets_spatial`
   take 0.80×, 0.93×, 0.93×, 0.93×, 0.99× and 0.99× the time of 0.2.7,
   respectively. Against C++ 1.3, they take 1.07×, 1.02×, 1.01×, 1.03×,
-  1.45× and 1.12× the time. A full cluster-LOD build over the 41-mesh RFC 113
+  1.45× and 1.12× the time. A full cluster-LOD build over a 41-mesh
   benchmark set takes 1.040× the time of C++ 1.3, compared with 1.05–1.07× in
   0.2.7.
 - `simplify_scale` (packed positions), `optimize_vertex_cache`,
@@ -69,13 +69,13 @@ See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.6
 ## [0.2.5] - 2026-10-26
 
 - Add `clusterlod::build_dag_into`, caller-owned `DagBuffers` and
-  `parallel::build_dags_batch_into`. Output matches the RFC 113 S1 oracle
-  byte for byte on 41/41 files. Across both mesh sets and consumer
+  `parallel::build_dags_batch_into`. Output matches the C++ reference build
+  byte for byte on 41/41 meshes. Across both mesh sets and consumer
   profiles, the Rust code takes 1.05–1.07× the time of scalar C++
   meshoptimizer 1.3 in aggregate, and at most 1.20× on any single mesh.
   Fuzzing ran for 4.6 CPU-hours with zero crashes.
 - Add `FetchIndices`, `optimize_vertex_fetch_remap_with_indices` and
-  `optimize_vertex_fetch_remap_with_indices_into`. In the Moss scalar
+  `optimize_vertex_fetch_remap_with_indices_into`. In the thin-LTO scalar
   profile, the new API takes 0.62× the time of meshopt 0.7.0 (C++ 1.3),
   as a geometric mean, excluding handle construction. The existing
   fetch-remap API now takes 0.57× its 0.2.4 time. Output matches byte for
@@ -152,7 +152,7 @@ Rust version is still 1.88.
 Geometric mean of Rust time / C++ meshoptimizer 1.3 time per encoder family,
 allocating API, 0.2.1 → 0.2.2. Lower is faster; 1.00 is equal.
 
-| Encoder | Cargo defaults | Moss profile |
+| Encoder | Cargo defaults | Thin-LTO profile |
 |---|---:|---:|
 | vertex | 0.666 → 0.667 | 0.660 → 0.657 |
 | index | 1.019 → 0.773 | 1.016 → 0.764 |
@@ -162,7 +162,7 @@ allocating API, 0.2.1 → 0.2.2. Lower is faster; 1.00 is equal.
 | exp | 0.609 → 0.621 | 0.588 → 0.590 |
 
 - Cargo defaults is a dependent's default release build: no LTO, 16 codegen
-  units. The Moss profile uses thin LTO and one codegen unit.
+  units. The thin-LTO profile uses thin LTO and one codegen unit.
 - In both profiles every family mean is at or below 1.25 and every one of the
   111 cases has a 95% upper bound at or below 1.50.
 - Against the meshopt 0.6.2 crate, meshoptimizer-rs is faster on all seven
@@ -266,7 +266,7 @@ The 0.2.0 known exceptions still apply, apart from the new
 
 - Cluster LOD reuses validated attributes and boundary flags, compacts sparse
   groups and invalidates the cached position range after dilation. The frozen
-  RFC 113 recovery corpus records aggregate Rust/scalar-C++ ratios of 1.196
+  cluster-LOD recovery corpus records aggregate Rust/scalar-C++ ratios of 1.196
   with thin LTO and 1.090 with Cargo defaults; 15 supported layouts and 90
   codec comparisons match byte for byte.
 - P05's final selected compact/coverage/raster-overdraw scope passes its bars.
@@ -302,7 +302,7 @@ The 0.2.0 known exceptions still apply, apart from the new
   first among 0.3 priorities.
 - The malformed meshlet tail accepted by upstream scalar and rejected by SSE
   remains a strict-sweep discrepancy; Rust follows canonical scalar output.
-  Two stride-32 RFC 113 layouts are invalid because of their protect masks.
+  Two stride-32 cluster-LOD test layouts are invalid because of their protect masks.
 - AVX2, AVX-512 and 32-bit ARM SIMD are absent. Compile-only checks and short
   fuzz runs do not establish full per-target runtime or release fuzz budgets.
 

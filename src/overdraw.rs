@@ -5,7 +5,7 @@ use alloc::vec::Vec;
 
 /// Reorder cache-optimized triangles using upstream `meshopt_optimizeOverdraw`.
 ///
-/// `threshold` is the permitted cache degradation factor (Moss uses 1.05).
+/// `threshold` is the permitted cache degradation factor (for example 1.05).
 /// All finite thresholds retain upstream behavior, including values below one.
 /// Geometry and intermediates must be finite. All supplied vertices contribute
 /// to the mesh centroid, including vertices not referenced by any triangle.
