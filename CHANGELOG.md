@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `optimize_overdraw` uses 0.930× the instructions of 0.2.9 and 1.584×
+  those of scalar C++ 1.3 across frozen meshes and three captured LOD chains.
+- `simplify_scale` on fully padded, little-endian 64-byte records uses 0.518×
+  the instructions of 0.2.9 and 1.066× those of scalar C++ 1.3 on the same
+  workloads. Ratios are geometric means of per-case medians of three counts.
 - `optimize_vertex_cache` uses 0.91× the instructions of 0.2.9 on the
   benchmark corpus and on three real-mesh LOD chains, and 1.32× (corpus) and
   1.26× (chains) the instructions of C++ 1.3. `optimize_vertex_cache_strip`
