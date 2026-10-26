@@ -335,3 +335,14 @@ all historical outputs. Family ratios therefore must not be described as
 whole-Moss latency or as a substitute for the real stage disclosure. The
 packed scale speedup likewise leaves the original byte-view scale reduction
 unchanged; its actual real-chain stage ratio is disclosed separately.
+
+## Completion receipt
+
+- Implementation commit: `b07dc7a2a2a52172ac869471ef23656d9234ba8c`, authored/committed as Tavrin, no AI trailers.
+- Draft PR: https://github.com/Tavrin/meshoptimizer-rs/pull/28; OPEN, targeting main from perf/cook-chain.
+- Commit, push, draft creation and PR verification: exit 0.
+- Target `/mnt/linux-extra/moss-cargo-targets/meshopt-L2` deleted: 802,269,012
+  bytes removed; 29 qualification executables retained outside the target.
+- `CLEANUP.json` binds the qualified library source, retained executables and
+  `/mnt/linux-extra/moss-scratch/meshopt-028-L2/final-source.tar.gz`.
+- No merge, tag, package publication, version bump or Moss source change.
