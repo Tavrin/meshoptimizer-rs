@@ -1,0 +1,189 @@
+{
+  "verdict": "PASS",
+  "candidate": "64e5494bd9cdf729466467ae01e0b81f10261a30",
+  "baseline": "bea3e04",
+  "native_vertex": {
+    "label": "native-exact",
+    "cases": 6249496,
+    "api_records": 12498992,
+    "success_records": 5876190,
+    "errors": {
+      "Err(InvalidStream)": 6621962,
+      "Err(UnsupportedVersion)": 840
+    },
+    "mismatches": 0,
+    "exit_codes": [
+      0,
+      0
+    ],
+    "transcript_sha256": "4407263752e14b14795f1920c8cf8cf344d43d345d5b2194d4734e05f0d64a32"
+  },
+  "filters": [
+    {
+      "label": "filter-final-native",
+      "cases": 3740,
+      "api_records": 14240,
+      "success_records": 10076,
+      "errors": {
+        "Err(InvalidParameter)": 240,
+        "Err(NumericalFailure)": 3924
+      },
+      "mismatches": 0,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "transcript_sha256": "cc8e99acc5f6895dd089e11a607b737cd41181895c4e4abaa3e025371bfab859"
+    },
+    {
+      "label": "filter-final-reach-native",
+      "cases": 3740,
+      "api_records": 14240,
+      "success_records": 10076,
+      "errors": {
+        "Err(InvalidParameter)": 240,
+        "Err(NumericalFailure)": 3924
+      },
+      "mismatches": 0,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "transcript_sha256": "cc8e99acc5f6895dd089e11a607b737cd41181895c4e4abaa3e025371bfab859",
+      "probes": {
+        "filter_root": 423219,
+        "scalar_oct": 4118,
+        "oct_records": 4044,
+        "scalar_oct_with_root": 4082,
+        "scalar_quat": 5782,
+        "quat_cached": 38890,
+        "trunc_normal": 600300,
+        "quat_records": 4602,
+        "packed": 371534,
+        "scalar_deltas": 63940,
+        "strided_bytes": 0
+      }
+    },
+    {
+      "label": "filter-final-wasm-debug",
+      "cases": 3740,
+      "api_records": 14240,
+      "success_records": 10076,
+      "errors": {
+        "Err(InvalidParameter)": 240,
+        "Err(NumericalFailure)": 3924
+      },
+      "mismatches": 0,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "transcript_sha256": "cc8e99acc5f6895dd089e11a607b737cd41181895c4e4abaa3e025371bfab859"
+    },
+    {
+      "label": "filter-final-reach-wasm-debug",
+      "cases": 3740,
+      "api_records": 14240,
+      "success_records": 10076,
+      "errors": {
+        "Err(InvalidParameter)": 240,
+        "Err(NumericalFailure)": 3924
+      },
+      "mismatches": 0,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "transcript_sha256": "cc8e99acc5f6895dd089e11a607b737cd41181895c4e4abaa3e025371bfab859",
+      "probes": {
+        "filter_root": 423219,
+        "scalar_oct": 4118,
+        "oct_records": 4044,
+        "scalar_oct_with_root": 4082,
+        "scalar_quat": 5782,
+        "quat_cached": 38890,
+        "trunc_normal": 600300,
+        "quat_records": 4602,
+        "packed": 371534,
+        "scalar_deltas": 63940,
+        "strided_bytes": 5630
+      }
+    },
+    {
+      "label": "filter-final-wasm-release",
+      "cases": 3740,
+      "api_records": 14240,
+      "success_records": 10076,
+      "errors": {
+        "Err(InvalidParameter)": 240,
+        "Err(NumericalFailure)": 3924
+      },
+      "mismatches": 0,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "transcript_sha256": "cc8e99acc5f6895dd089e11a607b737cd41181895c4e4abaa3e025371bfab859"
+    },
+    {
+      "label": "filter-final-reach-wasm-release",
+      "cases": 3740,
+      "api_records": 14240,
+      "success_records": 10076,
+      "errors": {
+        "Err(InvalidParameter)": 240,
+        "Err(NumericalFailure)": 3924
+      },
+      "mismatches": 0,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "transcript_sha256": "cc8e99acc5f6895dd089e11a607b737cd41181895c4e4abaa3e025371bfab859",
+      "probes": {
+        "filter_root": 423219,
+        "scalar_oct": 4118,
+        "oct_records": 4044,
+        "scalar_oct_with_root": 4082,
+        "scalar_quat": 5782,
+        "quat_cached": 38890,
+        "trunc_normal": 600300,
+        "quat_records": 4602,
+        "packed": 371534,
+        "scalar_deltas": 63940,
+        "strided_bytes": 5630
+      }
+    }
+  ],
+  "counts_audit": {
+    "vertex_fixtures": 360,
+    "truncations": 3047360,
+    "byte_mutations": 3047000,
+    "control_selector_assignments": 155136,
+    "filter_fixtures": 3380,
+    "wasm_cases_per_profile": 3740
+  },
+  "library_source_unchanged": true,
+  "corpus_sha256": "0c7cae4f0ad33a2145e9623563cf792b3a2310124d2e3faff7306f6926357545",
+  "setup_disposition": "Initial v1 EXT filter inputs rejected by design; superseded by v0 completion with per-API bulk counter assertions. Completion attempt 1 exited 1 at dependency guard before builds; corrected guard, completion exit 0.",
+  "redundant_replay": {
+    "status": "EXTERNAL_STOP_REDUNDANT_REPLAY",
+    "signal": "SIGTERM",
+    "runner_exit_expected": 143,
+    "fixture_at_last_observation": "vertex-v0-s256-n513-k1",
+    "reason": "Required native original-source exhaustive check passed. Corrected native counter suite independently reaches every native function, with every API bulk entry asserted. Both wasm profiles also pass all 11 counters. Stop duplicate full native counter replay; do not reinterpret it as PASS or a technical failure.",
+    "required_check_exit_codes": [
+      0,
+      0
+    ],
+    "filter_completion_exit": 0,
+    "runner_exit_observed": 143
+  },
+  "required_check_exits": [
+    0,
+    0
+  ],
+  "filter_completion_exit": 0,
+  "initial_dependency_guard_exit": 1,
+  "fresh_recipe_native_probe_suite": "valid vertex/filter fixtures; per-API bulk entry assertions"
+}
