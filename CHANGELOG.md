@@ -5,19 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.10] - 2026-10-26
 
-- `optimize_overdraw` uses 0.930× the instructions of 0.2.9 and 1.584×
-  those of scalar C++ 1.3 across frozen meshes and three captured LOD chains.
-- `simplify_scale` on fully padded, little-endian 64-byte records uses 0.518×
-  the instructions of 0.2.9 and 1.066× those of scalar C++ 1.3 on the same
-  workloads. Ratios are geometric means of per-case medians of three counts.
-- `optimize_vertex_cache` uses 0.91× the instructions of 0.2.9 on the
-  benchmark corpus and on three real-mesh LOD chains, and 1.32× (corpus) and
-  1.26× (chains) the instructions of C++ 1.3. `optimize_vertex_cache_strip`
-  shares the changed loop but was not measured separately. Output, errors,
-  reported work and partial writes on work exhaustion are unchanged. No wall
-  timing was taken because the host was loaded.
+- `simplify_scale` on 64-byte little-endian byte views uses 0.52× the
+  instructions of 0.2.9 and 1.07× those of C++ 1.3.
+- `optimize_overdraw` uses 0.93× the instructions of 0.2.9 and 1.58× those
+  of C++ 1.3 across the benchmark corpus and real meshes.
+- `optimize_vertex_cache` uses 0.91× the instructions of 0.2.9 and 1.26×
+  those of C++ 1.3 across the benchmark corpus and three real-mesh LOD chains.
+  `optimize_vertex_cache_fifo` is unchanged.
+
+No wall timing was taken because the host was loaded.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.10/docs/PERFORMANCE.md) for method.
 
 ## [0.2.9] - 2026-10-26
 
@@ -396,6 +398,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.10]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.6...v0.2.7
