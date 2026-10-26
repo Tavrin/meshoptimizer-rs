@@ -1,0 +1,16 @@
+{
+  "branch": "bench/peer-screen",
+  "source": "parity/peer-screen/rerun-results.json",
+  "families": [
+    "partition",
+    "meshlets-spatial"
+  ],
+  "inputs": {
+    "tiny-smooth": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
+    "medium-smooth": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
+    "medium-seams": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
+    "medium-sparse": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
+    "million-smooth": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf"
+  },
+  "exit": 0
+}

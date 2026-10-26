@@ -1,0 +1,14 @@
+{
+  "partition": {
+    "candidate_base": 1.00000006222069,
+    "candidate_M7": 1.411817050217267,
+    "worst_candidate_base": 1.000000339472397,
+    "verdict": "NO-GAIN"
+  },
+  "meshlets-spatial": {
+    "candidate_base": 1.0000000658078128,
+    "candidate_M7": 1.1637003656079854,
+    "worst_candidate_base": 1.000000410430298,
+    "verdict": "NO-GAIN"
+  }
+}

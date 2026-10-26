@@ -1,0 +1,7 @@
+test-all 0
+test-nostd 0
+clippy 0
+fmt 0
+boundary 0
+differential 0
+sqrt 0

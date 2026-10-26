@@ -1,0 +1,21 @@
+{
+  "trial": {
+    "partition": {
+      "candidate_base": 0.9767518546270588,
+      "candidate_M7": 1.37899569725192,
+      "worst_candidate_base": 0.9907528654452648,
+      "verdict": "NO-GAIN"
+    },
+    "meshlets-spatial": {
+      "candidate_base": 0.9721266801836745,
+      "candidate_M7": 1.1312640533296108,
+      "worst_candidate_base": 0.9848015732774785,
+      "verdict": "NO-GAIN"
+    }
+  },
+  "reverted": [
+    "partition",
+    "meshlets-spatial"
+  ],
+  "retained": []
+}

@@ -1,0 +1,30 @@
+{
+  "initial_build": {
+    "exit": 101,
+    "cause": "dependent build started before NAS extraction completed; missing manifest; no compilation or samples",
+    "receipt": "build-wrapper.log"
+  },
+  "preliminary_comparison": {
+    "exit": 1,
+    "cause": "proof corpus extended while separate arm snapshots were building; producer versions differ",
+    "receipt": "early-proof-wrapper.log",
+    "accepted": false
+  },
+  "proof_attempt1": {
+    "exit": 1,
+    "cause": "copy2 preserved backdated source mtimes, so Cargo reused an older no_std baseline driver",
+    "baseline_observations": 3053556,
+    "candidate_observations": 3060882,
+    "baseline_first_case": "empty grid",
+    "candidate_first_case": "27 disjoint triangles",
+    "receipt": "proof-attempt1/finish.log",
+    "accepted": false
+  },
+  "repair": [
+    "freeze all proof source bytes before any arm build",
+    "write snapshots with current mtimes",
+    "use unique package and binary names for every arm and feature mode",
+    "embed and verify frozen producer hash",
+    "rerun every gate and full exact-comparison/fuzz campaign"
+  ]
+}

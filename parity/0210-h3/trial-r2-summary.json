@@ -1,0 +1,252 @@
+[
+  {
+    "id": "frozen-partition-tiny-smooth",
+    "kind": "frozen",
+    "family": "partition",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/tiny-smooth.bin",
+    "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
+    "args": [
+      "partition",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/tiny-smooth.bin"
+    ],
+    "iterations": 10000,
+    "multiplicity": 1,
+    "median": {
+      "base": 10006.1242,
+      "candidate": 9886.1242,
+      "M7": 6952.1261
+    },
+    "ratio": {
+      "base": 1.4392898022951568,
+      "candidate": 1.422028895592098
+    },
+    "gap_shares": {
+      "candidate": 0.039292755290188296
+    }
+  },
+  {
+    "id": "frozen-partition-medium-smooth",
+    "kind": "frozen",
+    "family": "partition",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-smooth.bin",
+    "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
+    "args": [
+      "partition",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-smooth.bin"
+    ],
+    "iterations": 100,
+    "multiplicity": 1,
+    "median": {
+      "base": 2041824.1,
+      "candidate": 1997438.45,
+      "M7": 1486936.14
+    },
+    "ratio": {
+      "base": 1.3731753806185654,
+      "candidate": 1.3433249729204915
+    },
+    "gap_shares": {
+      "candidate": 0.07999029209428174
+    }
+  },
+  {
+    "id": "frozen-partition-medium-seams",
+    "kind": "frozen",
+    "family": "partition",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-seams.bin",
+    "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
+    "args": [
+      "partition",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-seams.bin"
+    ],
+    "iterations": 100,
+    "multiplicity": 1,
+    "median": {
+      "base": 1584383.78,
+      "candidate": 1569732.77,
+      "M7": 1163708.18
+    },
+    "ratio": {
+      "base": 1.361495783246965,
+      "candidate": 1.3489058485435756
+    },
+    "gap_shares": {
+      "candidate": 0.0348273348870246
+    }
+  },
+  {
+    "id": "frozen-partition-medium-sparse",
+    "kind": "frozen",
+    "family": "partition",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-sparse.bin",
+    "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
+    "args": [
+      "partition",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-sparse.bin"
+    ],
+    "iterations": 100,
+    "multiplicity": 1,
+    "median": {
+      "base": 2190098.77,
+      "candidate": 2145710.06,
+      "M7": 1513411.8
+    },
+    "ratio": {
+      "base": 1.447126796553324,
+      "candidate": 1.417796570635963
+    },
+    "gap_shares": {
+      "candidate": 0.06559711058127803
+    }
+  },
+  {
+    "id": "frozen-partition-million-smooth",
+    "kind": "frozen",
+    "family": "partition",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/million-smooth.bin",
+    "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
+    "args": [
+      "partition",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/million-smooth.bin"
+    ],
+    "iterations": 4,
+    "multiplicity": 1,
+    "median": {
+      "base": 273218303.25,
+      "candidate": 258906579.0,
+      "M7": 189676531.75
+    },
+    "ratio": {
+      "base": 1.4404433734064204,
+      "candidate": 1.3649900523341891
+    },
+    "gap_shares": {
+      "candidate": 0.1713121950017543
+    }
+  },
+  {
+    "id": "frozen-meshlets-spatial-tiny-smooth",
+    "kind": "frozen",
+    "family": "meshlets-spatial",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/tiny-smooth.bin",
+    "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
+    "args": [
+      "meshlets-spatial",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/tiny-smooth.bin"
+    ],
+    "iterations": 10000,
+    "multiplicity": 1,
+    "median": {
+      "base": 46781.1184,
+      "candidate": 46070.119,
+      "M7": 47591.0271
+    },
+    "ratio": {
+      "base": 0.9829819033260578,
+      "candidate": 0.968042124898792
+    },
+    "gap_shares": {
+      "candidate": -0.877875987750225
+    }
+  },
+  {
+    "id": "frozen-meshlets-spatial-medium-smooth",
+    "kind": "frozen",
+    "family": "meshlets-spatial",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-smooth.bin",
+    "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
+    "args": [
+      "meshlets-spatial",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-smooth.bin"
+    ],
+    "iterations": 100,
+    "multiplicity": 1,
+    "median": {
+      "base": 32142645.15,
+      "candidate": 31136799.86,
+      "M7": 26676884.64
+    },
+    "ratio": {
+      "base": 1.2048875115576463,
+      "candidate": 1.1671827606628657
+    },
+    "gap_shares": {
+      "candidate": 0.18402659394968615
+    }
+  },
+  {
+    "id": "frozen-meshlets-spatial-medium-seams",
+    "kind": "frozen",
+    "family": "meshlets-spatial",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-seams.bin",
+    "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
+    "args": [
+      "meshlets-spatial",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-seams.bin"
+    ],
+    "iterations": 100,
+    "multiplicity": 1,
+    "median": {
+      "base": 32185733.55,
+      "candidate": 31185287.65,
+      "M7": 26699221.42
+    },
+    "ratio": {
+      "base": 1.2054933379401893,
+      "candidate": 1.1680223613801544
+    },
+    "gap_shares": {
+      "candidate": 0.18234642998957562
+    }
+  },
+  {
+    "id": "frozen-meshlets-spatial-medium-sparse",
+    "kind": "frozen",
+    "family": "meshlets-spatial",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-sparse.bin",
+    "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
+    "args": [
+      "meshlets-spatial",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/medium-sparse.bin"
+    ],
+    "iterations": 100,
+    "multiplicity": 1,
+    "median": {
+      "base": 32216594.33,
+      "candidate": 31210747.83,
+      "M7": 26676900.45
+    },
+    "ratio": {
+      "base": 1.2076588279205427,
+      "candidate": 1.1699540540137976
+    },
+    "gap_shares": {
+      "candidate": 0.18157077300451846
+    }
+  },
+  {
+    "id": "frozen-meshlets-spatial-million-smooth",
+    "kind": "frozen",
+    "family": "meshlets-spatial",
+    "source": "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/million-smooth.bin",
+    "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
+    "args": [
+      "meshlets-spatial",
+      "/mnt/linux-extra/moss-scratch/meshopt-0210-h3/meshopt-028-L2/inputs/million-smooth.bin"
+    ],
+    "iterations": 4,
+    "multiplicity": 1,
+    "median": {
+      "base": 7258259882.25,
+      "candidate": 7037118154.5,
+      "M7": 5864459492.25
+    },
+    "ratio": {
+      "base": 1.2376690284657836,
+      "candidate": 1.199960228866734
+    },
+    "gap_shares": {
+      "candidate": 0.1586609742231454
+    }
+  }
+]

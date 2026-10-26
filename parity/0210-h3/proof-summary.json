@@ -1,0 +1,9 @@
+{
+  "exact_observations": 13648656,
+  "existing_seed_observations": 3076,
+  "comparison_pairs": 1796,
+  "candidate_fuzz_cpu_seconds": 300.11490200000026,
+  "fuzz_cases": 114432,
+  "all_pairs_equal": true,
+  "harness_sha256": "c90a5bf116e0987d82f71c331a05e6047d3450dc4dcab01d75fe66cbdd203c01"
+}
