@@ -5,6 +5,10 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- L1 cluster paths, Moss scalar five-case GM times versus 0.2.7 / C++ 1.3: partition 0.989x / 1.451x, meshlets-scan 0.801x / 1.067x, meshlets 0.930x / 1.022x, meshlets-spatial 0.992x / 1.122x, meshlets-flex 0.934x / 1.007x, spatial-triangles 0.928x / 1.026x. RFC113 aggregate 1.040x C++, S1 1.038x and S2 1.053x.
+
 ## [0.2.7] - 2026-10-26
 
 - Vertex fetch, adjacency, index remapping and one-triangle meshlet optimization

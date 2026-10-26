@@ -5,8 +5,10 @@ use crate::{Error, Positions, Workspace};
 use alloc::vec::Vec;
 
 fn part(mut x: u64) -> u64 {
-    x &= 0xfffff;
-    x = (x ^ (x << 32)) & 0x000f00000000ffff;
+    // keys() quantizes to 16 bits. Even the largest rounded product plus
+    // 0.5 stays below 65536, so the general 20-bit interleave's first stage
+    // is an identity and can be omitted.
+    x &= 0xffff;
     x = (x ^ (x << 16)) & 0x000f0000ff0000ff;
     x = (x ^ (x << 8)) & 0x000f00f00f00f00f;
     x = (x ^ (x << 4)) & 0x00c30c30c30c30c3;
@@ -96,6 +98,22 @@ pub fn spatial_sort_remap_into(
     ctx.positions(p)?;
     remap_into(&mut out[..p.len()], p, &mut ctx)
 }
+fn fill_centers<const CHECK: bool>(
+    centers: &mut [[f32; 3]],
+    triangles: &[[u32; 3]],
+    read: impl Fn(u32) -> [f32; 3],
+) -> Result<(), Error> {
+    for (i, t) in triangles.iter().enumerate() {
+        let a = read(t[0]);
+        let b = read(t[1]);
+        let c = read(t[2]);
+        for j in 0..3 {
+            let v = (a[j] + b[j] + c[j]) / 3.0;
+            centers[i][j] = if CHECK { finite(v)? } else { v };
+        }
+    }
+    Ok(())
+}
 fn triangles_into(
     out: &mut [u32],
     indices: &[u32],
@@ -104,13 +122,18 @@ fn triangles_into(
 ) -> Result<(), Error> {
     let mut centers = ctx.alloc::<[f32; 3]>(indices.len() / 3)?;
     ctx.tick(centers.len())?;
-    for (i, t) in indices.as_chunks::<3>().0.iter().enumerate() {
-        let a = point(p, t[0]);
-        let b = point(p, t[1]);
-        let c = point(p, t[2]);
-        for j in 0..3 {
-            centers[i][j] = finite((a[j] + b[j] + c[j]) / 3.0)?;
+    let triangles = indices.as_chunks::<3>().0;
+    // Moderate coordinates bound each ordered partial sum by 3e8. Preserve
+    // the checked path for large finite inputs and their original errors.
+    match (ctx.moderate, p.packed_values()) {
+        (true, Some(values)) => {
+            fill_centers::<false>(&mut centers, triangles, |i| values[i as usize])?
         }
+        (false, Some(values)) => {
+            fill_centers::<true>(&mut centers, triangles, |i| values[i as usize])?
+        }
+        (true, None) => fill_centers::<false>(&mut centers, triangles, |i| point(p, i))?,
+        (false, None) => fill_centers::<true>(&mut centers, triangles, |i| point(p, i))?,
     }
     let mut remap = ctx.alloc(centers.len())?;
     remap_into(&mut remap, Positions::from_packed(&centers), ctx)?;

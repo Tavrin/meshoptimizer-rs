@@ -3,6 +3,9 @@ use crate::meshlet::{MeshletSettings, Output};
 use crate::processing::{finite, point, radix, Context};
 use crate::{Error, Positions};
 use alloc::vec::Vec;
+#[path = "meshlet_division.rs"]
+mod division;
+use division::Divisor;
 // Boxes padded to four lanes (lane 3 is ignored), so each merge loads
 // whole aligned records. Lanes 0-2 use upstream's ordered selects and area
 // expression, so results are identical.
@@ -96,6 +99,13 @@ impl Pivot<'_> {
         let n = self.n;
         let mut best = (f32::MAX, 0);
         let mut i = self.mint - 1;
+        // Reuse one exact reciprocal instead of two dependent integer
+        // divisions per candidate split. EASY loops do not need it.
+        let divisor = Divisor::new(if EASY { 1 } else { self.mint });
+        let possible = |count| {
+            let q = divisor.quotient(count);
+            count - q * self.mint <= q * (self.max - self.mint)
+        };
         if EASY && self.step == 1 {
             // Compute eight base costs at a time (vectorizable, same
             // per-element expression), then visit them in order.
@@ -118,10 +128,7 @@ impl Pivot<'_> {
         while i < self.end {
             let l = i + 1;
             let r = n - l;
-            if !EASY
-                && (!divisible(l, self.mint, self.max)
-                    || (self.aligned && !divisible(r, self.mint, self.max)))
-            {
+            if !EASY && (!possible(l) || (self.aligned && !possible(r))) {
                 i += self.step;
                 continue;
             }
@@ -302,18 +309,37 @@ impl Bvh<'_> {
             }
             let (mut l, mut r) = (0, split);
             for &v in &self.axes[k][start..start + n] {
-                if self.sides[v as usize] == 0 {
-                    self.temp[l] = v;
-                    l += 1;
-                } else {
-                    self.temp[r] = v;
-                    r += 1;
-                }
+                // Sides are exactly 0/1. Select a destination and update both
+                // cursors, avoiding an unpredictable branch for interleaved axes.
+                let side = self.sides[v as usize] as usize;
+                let destination = if side == 0 { l } else { r };
+                self.temp[destination] = v;
+                l += 1 - side;
+                r += side;
             }
             self.axes[k][start..start + n].copy_from_slice(&self.temp[..n]);
         }
         self.split(start, split, depth + 1, ctx)?;
         self.split(start + split, n - split, depth + 1, ctx)
+    }
+}
+fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> [f32; 3]) {
+    for (i, t) in triangles.iter().enumerate() {
+        let a = read(t[0]);
+        let b = read(t[1]);
+        let c = read(t[2]);
+        for k in 0..3 {
+            let mut lo = if a[k] < b[k] { a[k] } else { b[k] };
+            if c[k] < lo {
+                lo = c[k];
+            }
+            let mut hi = if a[k] > b[k] { a[k] } else { b[k] };
+            if c[k] > hi {
+                hi = c[k];
+            }
+            boxes[i].lo[k] = lo;
+            boxes[i].hi[k] = hi;
+        }
     }
 }
 pub(crate) fn spatial(
@@ -331,22 +357,11 @@ pub(crate) fn spatial(
     }
     let mut boxes = ctx.alloc::<Box3>(n)?;
     ctx.tick(n)?;
-    for (i, t) in indices.as_chunks::<3>().0.iter().enumerate() {
-        let a = point(p, t[0]);
-        let b = point(p, t[1]);
-        let c = point(p, t[2]);
-        for k in 0..3 {
-            let mut lo = if a[k] < b[k] { a[k] } else { b[k] };
-            if c[k] < lo {
-                lo = c[k];
-            }
-            let mut hi = if a[k] > b[k] { a[k] } else { b[k] };
-            if c[k] > hi {
-                hi = c[k];
-            }
-            boxes[i].lo[k] = lo;
-            boxes[i].hi[k] = hi;
-        }
+    let triangles = indices.as_chunks::<3>().0;
+    if let Some(values) = p.packed_values() {
+        fill_boxes(&mut boxes, triangles, |i| values[i as usize]);
+    } else {
+        fill_boxes(&mut boxes, triangles, |i| point(p, i));
     }
     let mut axes = [ctx.alloc::<u32>(n)?, ctx.alloc(n)?, ctx.alloc(n)?];
     let mut temp = ctx.alloc(n)?;
