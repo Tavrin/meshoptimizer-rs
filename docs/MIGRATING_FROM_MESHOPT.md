@@ -1,19 +1,17 @@
 # Migrating from meshopt
 
 This guide maps `meshopt` 0.7.0 to `meshoptimizer-rs` 0.2.7 (`meshoptimizer_rs` in Rust).
-Change the Cargo dependency to `meshoptimizer-rs = "0.2.7"`.
+Change the Cargo dependency to `meshoptimizer-rs = "0.2"`. Both crates produce the same output: `meshopt` 0.7.0 wraps
+meshoptimizer 1.3, and this crate is a byte-identical Rust port of it.
 
 ## API map
 
-Names on the left are relative to `meshopt`; names on the right to `meshoptimizer_rs`.
-Semicolon groups correspond in order; aliases within each group share an equivalent, with different signatures. `_decoder` callers first collect decoded positions.
-The source inventory contains **164 wrapper items (126 functions, 33 types, 5 traits)** and
-**108 ffi items (93 functions, 15 types)**, plus **13 explicitly declared methods**: **285 entries**.
-Re-exports and module paths count once; fields, constants and generated trait/bitflags methods are not separate entries.
-Both a syntax-tree inventory (including generated bindings and bitflags types) and an independent
-module-by-module declaration count give these totals. The destination column names 131 distinct destination items/expressions (including primitives, constants and slice methods).
-Raw `ffi` entries map to checked Rust operations; there is no C ABI. `clusterlod::` requires `clusterlod`.
-See the [0.2.7 rustdoc](https://docs.rs/meshoptimizer-rs/0.2.7/meshoptimizer_rs/) for signatures.
+The table covers every public item of `meshopt` 0.7.0, including its raw `ffi` module (285 entries). Names on the
+left are relative to `meshopt`, names on the right to `meshoptimizer_rs`. Where a row lists several items separated
+by semicolons, they map in order. Raw `ffi` functions map to checked Rust functions; this crate has no C ABI.
+`_decoder` variants map to the plain function: decode your positions into a slice first. `clusterlod::` items
+need the `clusterlod` feature. See the [rustdoc](https://docs.rs/meshoptimizer-rs/0.2.7/meshoptimizer_rs/) for
+signatures.
 
 | meshopt 0.7.0 | meshoptimizer-rs 0.2.7 equivalent or reason |
 |---|---|
