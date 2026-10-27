@@ -22,6 +22,8 @@
     "gate-exits.tsv": "7109e811d01980bc4cf74c7f3b323ebba5e874460c66db78fa7a24cc2c5f1cf0",
     "gate-simplify-exact-std.log": "96466f928857d137d399a7e1c9917776bce271a8e399ade1f87e736489d4b087",
     "gate-overdraw-exact-std.log": "3af04bdd6933a8609c92df8ac8e2a848468e1fd026ad74b9c3172c4ef887c3bf",
-    "fuzz.jsonl": "36a201e93b2fbe77b9ad0ec69b7ed67f7ec89b378eb0d2ce610e2d96ee0a6013"
+    "fuzz.jsonl": "36a201e93b2fbe77b9ad0ec69b7ed67f7ec89b378eb0d2ce610e2d96ee0a6013",
+    "driver-differential.jsonl": "255a4fe68949a9c7a61c5d6f2b2dd107553f8b3e6730615745ef77405deeeb0f",
+    "driver-differential.py": "874a9ec1f35f4c0552d0b1a2777e0613af126eaf669187e4e28b94af9a54557f"
   }
 }
