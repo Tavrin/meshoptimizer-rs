@@ -314,12 +314,12 @@ fn scale_records(
     }
     Ok(extent)
 }
-fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
+fn bounds_impl<const VALIDATED: bool>(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
     let mut lo = [f32::MAX; 3];
     let mut hi = [-f32::MAX; 3];
     p.for_each(|v| {
         for j in 0..3 {
-            if !v[j].is_finite() {
+            if !VALIDATED && !v[j].is_finite() {
                 return Err(Error::InvalidParameter);
             }
             if lo[j] > v[j] {
@@ -345,6 +345,10 @@ fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
         return Err(Error::NumericalFailure);
     }
     Ok((lo, extent))
+}
+// The scale API has no prior finite-input validation.
+fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
+    bounds_impl::<false>(p)
 }
 /// Allocate meshopt_simplify's result, preserving upstream ordering and error bits.
 /// No welding, fetch compaction or cache optimization is applied to the result.
@@ -530,7 +534,7 @@ fn validate(
     })?;
     if a.is_none() {
         return p.for_each_counted(work, |v| {
-            if v.iter().any(|v| !v.is_finite()) {
+            if !v.iter().fold(true, |finite, x| finite & x.is_finite()) {
                 Err(Error::InvalidParameter)
             } else {
                 Ok(())
@@ -539,7 +543,11 @@ fn validate(
     }
     for i in 0..p.len() {
         work.add(1)?;
-        if p.at(i)?.iter().any(|v| !v.is_finite()) {
+        if !p
+            .at(i)?
+            .iter()
+            .fold(true, |finite, x| finite & x.is_finite())
+        {
             return Err(Error::InvalidParameter);
         }
         if let Some(a) = a {
@@ -720,7 +728,7 @@ impl Q {
             self.c, self.w,
         ]
         .iter()
-        .all(|x| x.is_finite())
+        .fold(true, |finite, x| finite & x.is_finite())
     }
 }
 #[derive(Clone, Copy, Default)]
@@ -1260,14 +1268,16 @@ impl State {
     fn adjacency<const WELD: bool>(
         &mut self,
         indices: &[u32],
-        work: &mut Work,
+        work: &mut impl Meter,
     ) -> Result<(), Error> {
         work.add(self.vertex_count)?;
         self.offsets.fill(0);
-        let counters = &mut self.offsets.0[1..];
+        let n = self.vertex_count;
+        let counters = &mut self.offsets.0[1..][..n];
+        let remap = &self.remap.0[..if WELD { n } else { 0 }];
         work.scan(indices.iter().copied(), |i| {
             let v = if WELD {
-                self.remap.get(i as usize)
+                remap[i as usize] as usize
             } else {
                 i as usize
             };
@@ -1292,7 +1302,7 @@ impl State {
             let mut v = [t[0] as usize, t[1] as usize, t[2] as usize];
             if WELD {
                 for x in &mut v {
-                    *x = self.remap.get(*x);
+                    *x = remap[*x] as usize;
                 }
             }
             for e in 0..3 {
@@ -1357,56 +1367,66 @@ impl State {
         work: &mut Work,
     ) -> Result<(), Error> {
         let mask = self.table.len() - 1;
-        for i in 0..count {
-            work.add(1)?;
-            let v = read(i)?;
-            // The normalized-position allocation is already reserved. Until
-            // normalization, keep original coordinates here so hash probes do
-            // not repeatedly decode strided records. Every occupied entry was
-            // inserted by this or an earlier iteration; hash/probe order and
-            // counted visits are unchanged. Packed sources need no copy.
-            if CACHE_POSITIONS {
-                self.p.push(V::from(v));
-            }
-            let mut bits = v.map(|v| if v == 0.0 { 0 } else { v.to_bits() });
-            for x in &mut bits {
-                *x ^= *x >> 17;
-            }
-            let hash = bits[0].wrapping_mul(73856093)
-                ^ bits[1].wrapping_mul(19349663)
-                ^ bits[2].wrapping_mul(83492791);
-            let mut bucket = hash as usize & mask;
-            for probe in 0..=mask {
-                work.add(1)?;
-                let j = self.table.get(bucket);
-                if j == NONE {
-                    self.table.set(bucket, i);
-                    break;
+        // At most table.len() probes plus the initial read per vertex.
+        // Batches keep the conservative bound useful for large real meshes.
+        for start in (0..count).step_by(64) {
+            let end = count.min(start.saturating_add(64));
+            let bound = (end - start).checked_mul(mask + 2);
+            metered!(work, bound, |work| (|| {
+                for i in start..end {
+                    work.add(1)?;
+                    let v = read(i)?;
+                    // The normalized-position allocation is already reserved. Until
+                    // normalization, keep original coordinates here so hash probes do
+                    // not repeatedly decode strided records. Every occupied entry was
+                    // inserted by this or an earlier iteration; hash/probe order and
+                    // counted visits are unchanged. Packed sources need no copy.
+                    if CACHE_POSITIONS {
+                        self.p.push(V::from(v));
+                    }
+                    let mut bits = v.map(|v| if v == 0.0 { 0 } else { v.to_bits() });
+                    for x in &mut bits {
+                        *x ^= *x >> 17;
+                    }
+                    let hash = bits[0].wrapping_mul(73856093)
+                        ^ bits[1].wrapping_mul(19349663)
+                        ^ bits[2].wrapping_mul(83492791);
+                    let mut bucket = hash as usize & mask;
+                    for probe in 0..=mask {
+                        work.add(1)?;
+                        let j = self.table.get(bucket);
+                        if j == NONE {
+                            self.table.set(bucket, i);
+                            break;
+                        }
+                        let candidate = if CACHE_POSITIONS {
+                            let p = self.p[j];
+                            [p.x, p.y, p.z]
+                        } else {
+                            read(j)?
+                        };
+                        if candidate == v {
+                            break;
+                        }
+                        bucket = (bucket + probe + 1) & mask;
+                    }
+                    self.remap.0.push(self.table.get(bucket) as u32);
+                    self.wedge.0.push(i as u32);
                 }
-                let candidate = if CACHE_POSITIONS {
-                    let p = self.p[j];
-                    [p.x, p.y, p.z]
-                } else {
-                    read(j)?
-                };
-                if candidate == v {
-                    break;
-                }
-                bucket = (bucket + probe + 1) & mask;
-            }
-            self.remap.0.push(self.table.get(bucket) as u32);
-            self.wedge.0.push(i as u32);
+                Ok(())
+            })())?;
         }
         self.bytes -= self.table.0.capacity() * core::mem::size_of::<u32>();
         self.table.0 = Vec::new();
-        for i in 0..count {
-            work.add(1)?;
-            let r = self.remap.get(i);
+        let wedge = &mut self.wedge.0[..count];
+        work.scan(self.remap.0[..count].iter().enumerate(), |(i, &r)| {
+            let r = r as usize;
             if r != i {
-                self.wedge.set(i, self.wedge.get(r));
-                self.wedge.set(r, i);
+                wedge[i] = wedge[r];
+                wedge[r] = i as u32;
             }
-        }
+            Ok(())
+        })?;
         Ok(())
     }
     // Visits without PERMISSIVE: each vertex and unwelded edge, an unwelded edge
@@ -1774,10 +1794,11 @@ impl State {
             q.cache_inverse_weight();
         }
         if self.aq.iter().any(|q| !q.finite())
-            || self
-                .g
-                .iter()
-                .any(|g| ![g.x, g.y, g.z, g.w].iter().all(|x| x.is_finite()))
+            || self.g.iter().any(|g| {
+                ![g.x, g.y, g.z, g.w]
+                    .iter()
+                    .fold(true, |finite, x| finite & x.is_finite())
+            })
         {
             return Err(Error::NumericalFailure);
         }
@@ -1889,7 +1910,7 @@ impl State {
                 } else {
                     f32::MAX
                 };
-                if !ei.is_finite() || !ej.is_finite() {
+                if !(ei.is_finite() & ej.is_finite()) {
                     return Err(Error::NumericalFailure);
                 }
                 if bidirectional && ej < ei {
@@ -1915,7 +1936,26 @@ impl State {
                 Ok(())
             };
         }
-        for i in 0..count {
+        // One candidate visit, 2ac base visits and at most two n-entry
+        // wedge traversals (the seam branch uses only 2ac additional visits).
+        let per_candidate = self
+            .vertex_count
+            .checked_add(1)
+            .and_then(|n| self.ac.checked_mul(2)?.checked_mul(n))
+            .and_then(|n| n.checked_add(1));
+        for start in (0..count).step_by(64) {
+            let end = count.min(start.saturating_add(64));
+            let bound = per_candidate.and_then(|n| n.checked_mul(end - start));
+            metered!(work, bound, |w| self.rank_attributes(start..end, w))?;
+        }
+        Ok(())
+    }
+    fn rank_attributes<M: Meter>(
+        &mut self,
+        range: core::ops::Range<usize>,
+        work: &mut M,
+    ) -> Result<(), Error> {
+        for i in range {
             work.add(1)?;
             let c = self.collapses[i];
             let a = c.a as usize;
@@ -1964,7 +2004,7 @@ impl State {
                     }
                 }
             }
-            if !ei.is_finite() || !ej.is_finite() {
+            if !(ei.is_finite() & ej.is_finite()) {
                 return Err(Error::NumericalFailure);
             }
             let rev = (c.error.to_bits() != 0) && ej < ei;
@@ -2137,7 +2177,7 @@ impl State {
         }
         Ok(edges)
     }
-    fn update(&mut self, vertex_error: &mut f32, work: &mut Work) -> Result<(), Error> {
+    fn update<M: Meter>(&mut self, vertex_error: &mut f32, work: &mut M) -> Result<(), Error> {
         for i in 0..self.p.len() {
             work.add(1)?;
             let t = self.cr.get(i);
@@ -2234,12 +2274,12 @@ fn run(
     Ok(result)
 }
 #[inline(always)]
-fn normalize_attribute_row(
+fn normalize_attribute_row<M: Meter>(
     destination: &mut [f32],
     source: Attributes<'_>,
     vertex: usize,
     weights: &[f32],
-    work: &mut Work,
+    work: &mut M,
 ) -> Result<(), Error> {
     let mut write = 0;
     if let Some(values) = source.float_record(vertex) {
@@ -2303,7 +2343,9 @@ fn run_state(
         s.vg.fill(G::default());
         s.bytes = b.bytes;
     }
-    s.adjacency::<false>(input.as_slice(), work)?;
+    // One vertex reset, one index count and one edge write per corner.
+    metered!(work, m.checked_mul(2).and_then(|v| v.checked_add(n)), |w| s
+        .adjacency::<false>(input.as_slice(), w))?;
     s.position_remap(positions, work)?;
     metered!(work, s.classify_work(m, settings.options), |w| s.classify(
         flags,
@@ -2311,34 +2353,50 @@ fn run_state(
         w
     ))?;
     work.add(n)?;
-    let (lo, extent) = bounds(positions)?;
+    // validate() checked every coordinate before State was allocated. The
+    // immutable position view cannot change; extent overflow remains checked.
+    let (lo, extent) = bounds_impl::<true>(positions)?;
     let scale = if extent == 0.0 { 0.0 } else { 1.0 / extent };
+    // bounds checked finite extent; validate checked finite coordinates.
+    // Each difference is in [0, extent]. If the rounded reciprocal is finite,
+    // extent*scale < 2, so every normalized coordinate is finite. A reciprocal
+    // overflow still takes the original per-vertex guard after its write.
+    let finite_scale = scale.is_finite();
     let cached_positions = s.p.len() == n;
-    for i in 0..n {
-        work.add(1)?;
-        let p = if cached_positions {
-            let p = s.p[i];
-            [p.x, p.y, p.z]
-        } else {
-            positions.at(i)?
-        };
-        let normalized = V {
-            x: (p[0] - lo[0]) * scale,
-            y: (p[1] - lo[1]) * scale,
-            z: (p[2] - lo[2]) * scale,
-        };
-        if cached_positions {
-            s.p[i] = normalized;
-        } else {
-            s.p.push(normalized);
+    // Each vertex charges once, then each supplied attribute weight once.
+    let normalize_work = weights.len().checked_add(1).and_then(|v| n.checked_mul(v));
+    metered!(work, normalize_work, |work| (|| {
+        for i in 0..n {
+            work.add(1)?;
+            let p = if cached_positions {
+                let p = s.p[i];
+                [p.x, p.y, p.z]
+            } else {
+                positions.at(i)?
+            };
+            let normalized = V {
+                x: (p[0] - lo[0]) * scale,
+                y: (p[1] - lo[1]) * scale,
+                z: (p[2] - lo[2]) * scale,
+            };
+            if cached_positions {
+                s.p[i] = normalized;
+            } else {
+                s.p.push(normalized);
+            }
+            if !finite_scale
+                && ![s.p[i].x, s.p[i].y, s.p[i].z]
+                    .iter()
+                    .fold(true, |finite, x| finite & x.is_finite())
+            {
+                return Err(Error::NumericalFailure);
+            }
+            if let Some(a) = attributes {
+                normalize_attribute_row(&mut s.a[i * ac..(i + 1) * ac], a, i, weights, work)?;
+            }
         }
-        if ![s.p[i].x, s.p[i].y, s.p[i].z].iter().all(|x| x.is_finite()) {
-            return Err(Error::NumericalFailure);
-        }
-        if let Some(a) = attributes {
-            normalize_attribute_row(&mut s.a[i * ac..(i + 1) * ac], a, i, weights, work)?;
-        }
-    }
+        Ok(())
+    })())?;
     let (components, component_errors) = if settings.options.contains(SimplifyOptions::PRUNE) {
         let requested = checked_bytes(n, 4)
             .and_then(|added| s.bytes.checked_add(added).ok_or(Error::SizeOverflow));
@@ -2356,7 +2414,29 @@ fn run_state(
     } else {
         (Vec::new(), Vec::new())
     };
-    s.quadrics(input.as_slice(), flags, settings.options, work)?;
+    // Triangles: m visits; regularization: n; edges: m; attributes:
+    // (m/3)*(3+3*ac). Folding has additional visits and keeps its checked path.
+    let quadric_work = if settings.options.bits() & 128 != 0 {
+        None
+    } else {
+        m.checked_mul(2)
+            .and_then(|v| v.checked_add(n))
+            .and_then(|v| {
+                if ac == 0 {
+                    Some(v)
+                } else {
+                    ac.checked_add(1)
+                        .and_then(|a| m.checked_mul(a))
+                        .and_then(|a| v.checked_add(a))
+                }
+            })
+    };
+    metered!(work, quadric_work, |w| s.quadrics(
+        input.as_slice(),
+        flags,
+        settings.options,
+        w
+    ))?;
     let mut dual = 0;
     work.scan(s.kind.iter().zip(s.offsets.0.windows(2)), |(&k, o)| {
         if k == MAN || k == SEAM {
@@ -2400,7 +2480,11 @@ fn run_state(
     work.add(m)?;
     out[..m].copy_from_slice(input.as_slice());
     while count > settings.target_index_count {
-        s.adjacency::<true>(&out[..count], work)?;
+        metered!(
+            work,
+            count.checked_mul(2).and_then(|v| v.checked_add(n)),
+            |w| s.adjacency::<true>(&out[..count], w)
+        )?;
         // pick visits each corner at most once, including triangles that
         // produce no collapses. The capacity stop can only reduce that count.
         // It has no fallible arithmetic/reader callbacks; an insufficient
@@ -2425,7 +2509,9 @@ fn run_state(
         if ac == 0 {
             vertex_error = error;
         }
-        s.update(&mut vertex_error, work)?;
+        // n vertex visits, at most n*ac gradient visits, two n loop passes.
+        let update_work = ac.checked_add(3).and_then(|v| n.checked_mul(v));
+        metered!(work, update_work, |w| s.update(&mut vertex_error, w))?;
         let mut write = 0;
         metered!(work, Some(count), |w| (|| {
             for i in (0..count).step_by(3) {
