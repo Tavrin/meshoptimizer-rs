@@ -5,19 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.12] - 2026-10-27
 
-- Real-chain `simplify` instruction ratios versus 0.2.11 / scalar C++ 1.3:
-  214e 0.843240× / 1.578882×;
-  a082 0.816931× / 1.458915×;
-  b6fd 0.814288× / 1.464061×.
-- Corpus instruction geometric-mean ratios versus 0.2.11 / scalar C++ 1.3:
-  `simplify` 0.915211× / 1.117740×;
-  `simplify-attributes` 0.943160× / 1.144094×;
-  `simplify-points` 0.998949× / 1.548023×;
-  `simplify-prune` 1.000000× / 1.504011×;
-  `simplify-sloppy` 0.942415× / 1.383384×;
-  `simplify-update` 0.895131× / 1.144930×.
+- `simplify` uses 0.81–0.84× the instructions of 0.2.11 and 1.46–1.58×
+  those of scalar C++ 1.3 on three production LOD-chain meshes.
+  Across the benchmark corpus, instruction ratios versus 0.2.11 / scalar C++ 1.3
+  are `simplify` 0.92× / 1.12×, `simplify_with_attributes` 0.94× / 1.14×,
+  `simplify_with_update` 0.90× / 1.14×, `simplify_sloppy` 0.94× / 1.38×,
+  `simplify_prune` 1.00× / 1.50× and `simplify_points` 1.00× / 1.55×.
+  Lower is better.
+
+All performance numbers are instruction counts.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.12/docs/PERFORMANCE.md) for method.
 
 ## [0.2.11] - 2026-10-26
 
@@ -426,6 +428,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.12]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.10...v0.2.11
 [0.2.10]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.8...v0.2.9
