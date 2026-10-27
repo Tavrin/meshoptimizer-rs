@@ -1,0 +1,5 @@
+role	admission	declared_GB	GPU	process_exit	disposition
+build-base-M7	3150270	4	0	0	accepted
+initial-profile	3536648	4	0	0	sampling-rejected
+replacement-profile	2267351	4	0	0	accepted
+proof-campaign-audit	2763271	4	0	0	PARTIAL
