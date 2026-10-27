@@ -1,0 +1,21 @@
+[package]
+name = "meshopt-peers"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[features]
+default = []
+ours = ["dep:meshoptimizer-rs"]
+cpp = ["dep:meshopt"]
+rust = ["dep:optimesh"]
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", optional = true, features = ["clusterlod"] }
+meshopt = { version = "=0.7.0", optional = true }
+optimesh = { version = "=1.1.0", optional = true, features = ["simd"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1

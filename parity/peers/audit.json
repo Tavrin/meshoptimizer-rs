@@ -1,0 +1,22 @@
+{
+  "exit": 0,
+  "coverage": {
+    "main": {
+      "samples": 840,
+      "cells": 280,
+      "stable_outputs": true,
+      "all_counters_running_100_percent": true
+    },
+    "stage-": {
+      "samples": 162,
+      "cells": 54,
+      "stable_outputs": true,
+      "all_counters_running_100_percent": true
+    }
+  },
+  "inventory_functions": 238,
+  "inventory_options": 106,
+  "max_process_rss_kib": 2026784,
+  "entry_commit": "42782f5b5088be0ce8aa34e80d1b1e6c8e3d665a",
+  "library_changes": false
+}

@@ -1,0 +1,139 @@
+{
+  "exits": {
+    "initial_callback_build": 101,
+    "excluded_default_limit_campaign": 1,
+    "excluded_default_limit_child": 101,
+    "final_build": 0,
+    "final_main_collection": 0,
+    "stage_collection": 0,
+    "main_validation": 0,
+    "stage_validation": 0,
+    "inventory": 0,
+    "audit": 0,
+    "public_text": 0,
+    "receipt_export": 0,
+    "cleanup": 0,
+    "initial_whitespace_check": 2,
+    "final_whitespace_check": 0,
+    "final_render_audit": 0,
+    "repository_boundary_ci": 1,
+    "repository_boundary_local": 1,
+    "independent_package_audit": 0,
+    "unapplied_patch_check": 0,
+    "integration_proof": 0,
+    "patch_context_trial": 1
+  },
+  "admissions": [
+    {
+      "file": "admission-final-campaign.log",
+      "sha256": "c1888db05b1bd58862e201ebbf3816397840e0fa24f8d34a515c343d60a6f2bd",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "admission-finish.log",
+      "sha256": "00030b19fe4657725e451f9e9271389757113f59473f80cb5b46af9a51b40e2d",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "rejected-build-1/admission-build.log",
+      "sha256": "f1c87ffda4bf5214ad9eec16a702d1a69aca6f1968290dcbf84e2c5f7832d7f6",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "rejected-default-limits/admission-build.log",
+      "sha256": "08ccb24acab25b744097b904a0b914330c6262e4059183381b07c91ea2aaa97d",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "rejected-default-limits/admission-campaign.log",
+      "sha256": "8f08beb7b287378fa89290a9f658e9987f359972acaa968ca750d86e2c4ca719",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "export.log",
+      "sha256": "4142e0c52bd5fe87f45cb25a16dca8f4ea8ff54c1dc1a57c3592b92cc7e62494",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "admission-final-audit.log",
+      "sha256": "a201f4da8a7553292fb95f4e3cca3338f7c9ff43adfabacfd1a74ca917a9433c",
+      "declared_gb": 4,
+      "gpu": false
+    },
+    {
+      "file": "admission-integration-proof.log",
+      "sha256": "280ba501a10a8cbf310bebc55a1cbea6e06ebf3a25e26646afbce77e66fd8063",
+      "declared_gb": 4,
+      "gpu": false
+    }
+  ],
+  "excluded_default_limit_samples": 535,
+  "retained_crate_archives": {
+    "optimesh-1.1.0.crate": "1b6d84424d4988ac9fed66567d917e435ff6ff69bd3db5a81f14f6ff5a288afe",
+    "meshopt-0.7.0.crate": "a403c16e3ca5752600e1d4c5ba3ba2a6496f407ded66e767f05279514363f461"
+  },
+  "raw_artifacts": {
+    "samples": {
+      "files": 5010,
+      "file_bytes": 773920,
+      "manifest_sha256": "47eb09133c96536d3751338d9087e62f1362e065667303caefccd29af7296059"
+    },
+    "outputs": {
+      "files": 1074,
+      "file_bytes": 17076555756,
+      "manifest_sha256": "a751da24d63ce66f433dced9134d59654578a7e943ad6b08ec91ebcfdb287c50"
+    },
+    "interrupted": {
+      "files": 0,
+      "file_bytes": 0,
+      "manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "public_files": {
+    "parity/peers/BOUNDARY.md": "7bbc9ab310fd32a65ac003ec32f8024f8cad97ddcc259987b41fab3e3e9e277c",
+    "parity/peers/Cargo.lock": "ead11d0895d39eb2b57b5d2606a6cd3961da17e55afefeb540a256d7ecb8e2e6",
+    "parity/peers/Cargo.toml": "29437e8a41dabd50ce5599aa4b28050889135952c35d6d8149059ea90322325d",
+    "parity/peers/README.md": "353df7f5d819e4e89572ef3880c450dc72583a2127121999e03b87b4739d5233",
+    "parity/peers/REGISTRATION.md": "b501763ffd9aba6b6bb84b25d2bdef538407a0f4bce5869faa53474b5d936f2a",
+    "parity/peers/REPORT.md": "5af20923534a381c61ec8f64a6f3472371e32d0e994ee4c084c6f06f02430c82",
+    "parity/peers/audit.json": "883d19f10126d6cd5d2bb555e5e221c093bd91b9c999180e8682c8a351e1206b",
+    "parity/peers/audit.py": "0033efd36e4a8bacd80cb8ba2e25331f1e2ef62d768ba1dba0f18ab3113c0afe",
+    "parity/peers/binding.json": "974349b5c69d2de49c7cbbc51bab0c1dd228c7abc9a90263839fa03fcd319475",
+    "parity/peers/boundary-registration.patch": "b73807658747df671a2fa342363711d2a055fe31799554a21cb8d4e883464dd5",
+    "parity/peers/build.py": "7e12226fc5def16962271dea161bc32a09055b50556d5a76e961dd4077f90ace",
+    "parity/peers/cleanup.json": "01fc4368edcbc06b0abebee159e83ac7faca0c5f3b7d2686bbdf4814f4bc1193",
+    "parity/peers/counts.jsonl": "f49bafc1592a35dccb7ec24e42213f2543e875d2cef235979e4d01e16449e36c",
+    "parity/peers/identities.json": "7e06eeb50dd5fd9e4ace0bb3d9f0965bc748f7773c551e89cde1dbe222942e65",
+    "parity/peers/inputs.json": "adfcdc83c021b8a98ac6f43f9b9ad79fb8c0298fe14746a6a79e50d0cb69606f",
+    "parity/peers/inventory.json": "f846e5605cc2520168e6646d0cf831c46bfc1e13c35de66f33da72dc4370067d",
+    "parity/peers/inventory.py": "090e422c60246ba6b4b10900c0be60d4d360c294c5bde633c6bb353e1af2001c",
+    "parity/peers/measure.py": "6fa2f5a0e8bba12522278a7ff48a05929090e0ce80e671f52b7803d5adb44db5",
+    "parity/peers/measure_stages.py": "1865f310c1c0b17b21b2514f5b599946ebe66b239e60754467456ff1456a040c",
+    "parity/peers/prepare.py": "47bd24b314aba844361f0435f05ebcff2d0582dfa0d71afe0d3a65fc1f42668d",
+    "parity/peers/receipts.py": "b13c644d61d2037d3fde342271c2c0f2079115866487df5d04256513e7b4efb6",
+    "parity/peers/report.py": "34877d2690f1a2965ce5bc3a4ea73362e15bc02d85c1546681ced9808ce9e4ae",
+    "parity/peers/src/main.rs": "6f2426ded8543fe784aa964cc7c80a37882787ac927e122440a1d8e1d49e1578",
+    "parity/peers/stage-counts.jsonl": "a06b2dc813aaf73f4f6f643d5305b6911db8f155487e2ae115c5159d7a8d2f9d",
+    "parity/peers/stage-identities.json": "6738118aabe5a63b58719f54d197d1870d1311608d7d286a5cdfa71e3c55d108",
+    "parity/peers/stage-inputs.json": "72410021f629d7ccba4a3e0482658a2a6daf9d05523d3f9f72c93360f0d3ee03",
+    "parity/peers/stage-validation.json": "bf290b05979bb0620056bc8117a30263aa8538ce86811be27f474a3b8420cdab",
+    "parity/peers/stages.py": "4c5c6cecd9cb1a9b4b7fedb66b9350c109decaa6eb7c813ae41a05bd275725a2",
+    "parity/peers/validate.py": "f585e51e7fef5c5de769fad60542cae9f5c2db6c899b2131a26de06558414b0f",
+    "parity/peers/validate_stages.py": "b9c7c473d6dfc292556aca33253c5c4375b000907cdfe30fada17dc1f855cd43",
+    "parity/peers/validation.json": "4471bc1d2c41b947e09d7e02cbf151aee51b5eecfd887a6597af39c1a33d1125"
+  },
+  "whitespace_rejected_log_sha256": "69d1f9ff4f48db5b3235403b5207bf265542a00a0dee42989ef8bb97ee56a032",
+  "integration_boundary": {
+    "status": "UNRESOLVED: new unpublished FFI consumer requires allowlist registration outside lane scope",
+    "ci_job": "https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40550436656/job/122352375158",
+    "ci_log_sha256": "eddab43e1912ca639ac86a32b4c14aeb833c80ee6a609e12737fb6f2c05f39dd",
+    "local_log_sha256": "6f2a500170147a07eb4ce1620612035d13b0cbf07baef4bdbbb3722358b503c7",
+    "unapplied_patch_sha256": "b73807658747df671a2fa342363711d2a055fe31799554a21cb8d4e883464dd5"
+  }
+}
