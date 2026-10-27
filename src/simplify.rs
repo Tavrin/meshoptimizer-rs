@@ -533,6 +533,15 @@ fn validate(
         Ok(())
     })?;
     if a.is_none() {
+        if let Some(records) = p.scale_full_records() {
+            return work.scan(records, |v| {
+                if v.iter().fold(true, |finite, x| finite & x.is_finite()) {
+                    Ok(())
+                } else {
+                    Err(Error::InvalidParameter)
+                }
+            });
+        }
         return p.for_each_counted(work, |v| {
             if !v.iter().fold(true, |finite, x| finite & x.is_finite()) {
                 Err(Error::InvalidParameter)
@@ -723,12 +732,18 @@ impl Q {
     }
     #[inline(always)]
     fn finite(self) -> bool {
+        // For either sign, finite IEEE-754 values have absolute bit patterns
+        // below infinity. The maximum tests all eleven fields without changing
+        // arithmetic or the position of the caller's numerical-error guard.
         [
             self.a00, self.a11, self.a22, self.a10, self.a20, self.a21, self.b0, self.b1, self.b2,
             self.c, self.w,
         ]
-        .iter()
-        .fold(true, |finite, x| finite & x.is_finite())
+        .into_iter()
+        .map(|x| x.to_bits() & 0x7fff_ffff)
+        .max()
+        .unwrap_or(0)
+            < 0x7f80_0000
     }
 }
 #[derive(Clone, Copy, Default)]
@@ -1275,6 +1290,7 @@ impl State {
         let n = self.vertex_count;
         let counters = &mut self.offsets.0[1..][..n];
         let remap = &self.remap.0[..if WELD { n } else { 0 }];
+        let edges = &mut self.edges[..indices.len()];
         work.scan(indices.iter().copied(), |i| {
             let v = if WELD {
                 remap[i as usize] as usize
@@ -1308,7 +1324,7 @@ impl State {
             for e in 0..3 {
                 let a = v[e];
                 let offset = &mut counters[a];
-                self.edges[*offset as usize] = Edge {
+                edges[*offset as usize] = Edge {
                     next: v[(e + 1) % 3] as u32,
                     prev: v[(e + 2) % 3] as u32,
                 };
@@ -1345,7 +1361,11 @@ impl State {
         }
         Ok(false)
     }
-    fn position_remap(&mut self, p: Positions<'_>, work: &mut Work) -> Result<(), Error> {
+    fn position_remap(
+        &mut self,
+        p: Positions<'_>,
+        work: &mut Work,
+    ) -> Result<([f32; 3], [f32; 3]), Error> {
         if let Some((values, mapping)) = p.packed_source() {
             if let Some(mapping) = mapping {
                 self.position_remap_kernel::<false>(
@@ -1356,6 +1376,12 @@ impl State {
             } else {
                 self.position_remap_kernel::<false>(values.len(), |i| Ok(values[i]), work)
             }
+        } else if let Some(mut records) = p.scale_full_records() {
+            self.position_remap_kernel::<true>(
+                p.len(),
+                |_| Ok(records.next().expect("validated position count")),
+                work,
+            )
         } else {
             self.position_remap_kernel::<true>(p.len(), |i| p.at(i), work)
         }
@@ -1363,10 +1389,24 @@ impl State {
     fn position_remap_kernel<const CACHE_POSITIONS: bool>(
         &mut self,
         count: usize,
-        read: impl Fn(usize) -> Result<[f32; 3], Error>,
+        mut read: impl FnMut(usize) -> Result<[f32; 3], Error>,
         work: &mut Work,
-    ) -> Result<(), Error> {
+    ) -> Result<([f32; 3], [f32; 3]), Error> {
         let mask = self.table.len() - 1;
+        // All three prefixes already have fallibly reserved capacity. Their
+        // scratch writes are unobservable on failure: run_state drops the local
+        // State. Fixed lengths remove growth checks from every vertex/probe.
+        self.remap.0.resize(count, 0);
+        self.wedge.0.resize(count, 0);
+        if CACHE_POSITIONS {
+            self.p.resize(count, V::default());
+        }
+        let remap = &mut self.remap.0[..count];
+        let wedge = &mut self.wedge.0[..count];
+        let positions = &mut self.p[..if CACHE_POSITIONS { count } else { 0 }];
+        let table = &mut self.table.0[..];
+        let mut lo = [f32::MAX; 3];
+        let mut hi = [-f32::MAX; 3];
         // At most table.len() probes plus the initial read per vertex.
         // Batches keep the conservative bound useful for large real meshes.
         for start in (0..count).step_by(64) {
@@ -1376,15 +1416,29 @@ impl State {
                 for i in start..end {
                     work.add(1)?;
                     let v = read(i)?;
+                    // The original bounds pass reads these same validated
+                    // coordinates in this order. Only the reduction is fused;
+                    // its charge and extent-error check remain after classify.
+                    for j in 0..3 {
+                        if lo[j] > v[j] {
+                            lo[j] = v[j];
+                        }
+                        if hi[j] < v[j] {
+                            hi[j] = v[j];
+                        }
+                    }
                     // The normalized-position allocation is already reserved. Until
                     // normalization, keep original coordinates here so hash probes do
                     // not repeatedly decode strided records. Every occupied entry was
                     // inserted by this or an earlier iteration; hash/probe order and
                     // counted visits are unchanged. Packed sources need no copy.
                     if CACHE_POSITIONS {
-                        self.p.push(V::from(v));
+                        positions[i] = V::from(v);
                     }
-                    let mut bits = v.map(|v| if v == 0.0 { 0 } else { v.to_bits() });
+                    let mut bits = v.map(|v| match v.to_bits() {
+                        0x8000_0000 => 0,
+                        bits => bits,
+                    });
                     for x in &mut bits {
                         *x ^= *x >> 17;
                     }
@@ -1394,13 +1448,13 @@ impl State {
                     let mut bucket = hash as usize & mask;
                     for probe in 0..=mask {
                         work.add(1)?;
-                        let j = self.table.get(bucket);
+                        let j = table[bucket] as usize;
                         if j == NONE {
-                            self.table.set(bucket, i);
+                            table[bucket] = i as u32;
                             break;
                         }
                         let candidate = if CACHE_POSITIONS {
-                            let p = self.p[j];
+                            let p = positions[j];
                             [p.x, p.y, p.z]
                         } else {
                             read(j)?
@@ -1410,8 +1464,8 @@ impl State {
                         }
                         bucket = (bucket + probe + 1) & mask;
                     }
-                    self.remap.0.push(self.table.get(bucket) as u32);
-                    self.wedge.0.push(i as u32);
+                    remap[i] = table[bucket];
+                    wedge[i] = i as u32;
                 }
                 Ok(())
             })())?;
@@ -1427,7 +1481,7 @@ impl State {
             }
             Ok(())
         })?;
-        Ok(())
+        Ok((lo, hi))
     }
     // Visits without PERMISSIVE: each vertex and unwelded edge, an unwelded edge
     // search of at most max_degree per edge, and at most four further vertex
@@ -1447,45 +1501,61 @@ impl State {
         work: &mut M,
     ) -> Result<(), Error> {
         let n = self.vertex_count;
-        for i in 0..n {
+        // The initial adjacency is unwelded. Borrow its disjoint tables once,
+        // and walk checked edge slices instead of reloading State for searches.
+        let offsets = &self.offsets.0[..n + 1];
+        let edges = &self.edges[..];
+        let forward = &mut self.forward.0[..n];
+        let back = &mut self.back.0[..n];
+        for (i, range) in offsets.windows(2).enumerate() {
             work.add(1)?;
-            for j in self.offsets.get(i)..self.offsets.get(i + 1) {
+            for edge in &edges[range[0] as usize..range[1] as usize] {
                 work.add(1)?;
-                let t = self.edges[j].next as usize;
+                let t = edge.next as usize;
                 if t == i {
-                    self.forward.set(i, i);
-                    self.back.set(i, i);
-                } else if !self.has_edge::<false, M>(t, i, work)? {
-                    self.back
-                        .set(t, if self.back.get(t) == NONE { i } else { t });
-                    self.forward
-                        .set(i, if self.forward.get(i) == NONE { t } else { i });
+                    forward[i] = i as u32;
+                    back[i] = i as u32;
+                } else {
+                    let mut opposite = false;
+                    for edge in &edges[offsets[t] as usize..offsets[t + 1] as usize] {
+                        work.add(1)?;
+                        if edge.next as usize == i {
+                            opposite = true;
+                            break;
+                        }
+                    }
+                    if !opposite {
+                        back[t] = if back[t] as usize == NONE { i } else { t } as u32;
+                        forward[i] = if forward[i] as usize == NONE { t } else { i } as u32;
+                    }
                 }
             }
         }
+        let remap = &self.remap.0[..n];
+        let wedge = &self.wedge.0[..n];
+        let kind = &mut self.kind[..n];
         for i in 0..n {
             work.add(1)?;
-            self.kind[i] = if self.remap.get(i) != i {
-                self.kind[self.remap.get(i)]
-            } else if self.wedge.get(i) == i {
-                let a = self.back.get(i);
-                let b = self.forward.get(i);
+            kind[i] = if remap[i] as usize != i {
+                kind[remap[i] as usize]
+            } else if wedge[i] as usize == i {
+                let a = back[i] as usize;
+                let b = forward[i] as usize;
                 if a == NONE && b == NONE {
                     MAN
-                } else if a != NONE && b != NONE && self.remap.get(a) == self.remap.get(b) && a != i
-                {
+                } else if a != NONE && b != NONE && remap[a] == remap[b] && a != i {
                     SEAM
                 } else if a != i && b != i {
                     BORDER
                 } else {
                     LOCKED
                 }
-            } else if self.wedge.get(self.wedge.get(i)) == i {
-                let w = self.wedge.get(i);
-                let a = self.back.get(i);
-                let b = self.forward.get(i);
-                let c = self.back.get(w);
-                let d = self.forward.get(w);
+            } else if wedge[wedge[i] as usize] as usize == i {
+                let w = wedge[i] as usize;
+                let a = back[i] as usize;
+                let b = forward[i] as usize;
+                let c = back[w] as usize;
+                let d = forward[w] as usize;
                 if a != NONE
                     && a != i
                     && b != NONE
@@ -1494,9 +1564,9 @@ impl State {
                     && c != w
                     && d != NONE
                     && d != w
-                    && self.remap.get(a) == self.remap.get(d)
-                    && self.remap.get(b) == self.remap.get(c)
-                    && self.remap.get(a) != self.remap.get(b)
+                    && remap[a] == remap[d]
+                    && remap[b] == remap[c]
+                    && remap[a] != remap[b]
                 {
                     SEAM
                 } else {
@@ -2178,63 +2248,88 @@ impl State {
         Ok(edges)
     }
     fn update<M: Meter>(&mut self, vertex_error: &mut f32, work: &mut M) -> Result<(), Error> {
-        for i in 0..self.p.len() {
-            work.add(1)?;
-            let t = self.cr.get(i);
-            if t == i {
-                continue;
-            }
-            let r0 = self.remap.get(i);
-            let r1 = self.remap.get(t);
-            if i == r0 {
-                let q = self.q[r0];
-                self.q[r1].add(q);
-                if !self.q[r1].finite() {
-                    return Err(Error::NumericalFailure);
+        let n = self.p.len();
+        let cr = &self.cr.0[..n];
+        let remap = &self.remap.0[..n];
+        if self.ac == 0 && self.vg.is_empty() {
+            // Positional updates need no attribute/volume tables. A shared
+            // vertex prefix keeps their bounds and bases outside the loop.
+            let quadrics = &mut self.q[..n];
+            for (i, &target) in cr.iter().enumerate() {
+                work.add(1)?;
+                let t = target as usize;
+                if t == i {
+                    continue;
                 }
-                self.q[r1].cache_inverse_weight();
-                if !self.vg.is_empty() {
-                    let g = self.vg[r0];
-                    self.vg[r1].add(g);
-                }
-            }
-            if self.ac > 0 {
+                let r0 = remap[i] as usize;
+                let r1 = remap[t] as usize;
                 if i == r0 {
-                    let e = self.q[r0].error(self.p[r1]);
-                    if *vertex_error < e {
-                        *vertex_error = e;
+                    let q = quadrics[r0];
+                    let destination = &mut quadrics[r1];
+                    destination.add(q);
+                    if !destination.finite() {
+                        return Err(Error::NumericalFailure);
+                    }
+                    destination.cache_inverse_weight();
+                }
+            }
+        } else {
+            for i in 0..self.p.len() {
+                work.add(1)?;
+                let t = self.cr.get(i);
+                if t == i {
+                    continue;
+                }
+                let r0 = self.remap.get(i);
+                let r1 = self.remap.get(t);
+                if i == r0 {
+                    let q = self.q[r0];
+                    self.q[r1].add(q);
+                    if !self.q[r1].finite() {
+                        return Err(Error::NumericalFailure);
+                    }
+                    self.q[r1].cache_inverse_weight();
+                    if !self.vg.is_empty() {
+                        let g = self.vg[r0];
+                        self.vg[r1].add(g);
                     }
                 }
-                work.add(self.ac)?;
-                let q = self.aq[i];
-                self.aq[t].add(q);
-                if !self.aq[t].finite() {
-                    return Err(Error::NumericalFailure);
-                }
-                for k in 0..self.ac {
-                    let g = self.g[i * self.ac + k];
-                    self.g[t * self.ac + k].add(g);
+                if self.ac > 0 {
+                    if i == r0 {
+                        let e = self.q[r0].error(self.p[r1]);
+                        if *vertex_error < e {
+                            *vertex_error = e;
+                        }
+                    }
+                    work.add(self.ac)?;
+                    let q = self.aq[i];
+                    self.aq[t].add(q);
+                    if !self.aq[t].finite() {
+                        return Err(Error::NumericalFailure);
+                    }
+                    for k in 0..self.ac {
+                        let g = self.g[i * self.ac + k];
+                        self.g[t * self.ac + k].add(g);
+                    }
                 }
             }
         }
-        for loops in [&mut self.forward, &mut self.back] {
-            for i in 0..loops.len() {
+        for loops in [&mut self.forward.0[..n], &mut self.back.0[..n]] {
+            for i in 0..n {
                 work.add(1)?;
-                let l = loops.get(i);
+                let l = loops[i] as usize;
                 if l != NONE {
-                    let r = self.cr.get(l);
-                    loops.set(
-                        i,
-                        if i == r {
-                            if loops.get(l) != NONE {
-                                self.cr.get(loops.get(l))
-                            } else {
-                                NONE
-                            }
+                    let r = cr[l] as usize;
+                    loops[i] = if i == r {
+                        let next = loops[l] as usize;
+                        if next != NONE {
+                            cr[next]
                         } else {
-                            r
-                        },
-                    );
+                            NONE as u32
+                        }
+                    } else {
+                        r as u32
+                    };
                 }
             }
         }
@@ -2346,16 +2441,27 @@ fn run_state(
     // One vertex reset, one index count and one edge write per corner.
     metered!(work, m.checked_mul(2).and_then(|v| v.checked_add(n)), |w| s
         .adjacency::<false>(input.as_slice(), w))?;
-    s.position_remap(positions, work)?;
+    let (lo, hi) = s.position_remap(positions, work)?;
     metered!(work, s.classify_work(m, settings.options), |w| s.classify(
         flags,
         settings.options,
         w
     ))?;
     work.add(n)?;
-    // validate() checked every coordinate before State was allocated. The
-    // immutable position view cannot change; extent overflow remains checked.
-    let (lo, extent) = bounds_impl::<true>(positions)?;
+    // Welding reduced the same validated coordinates in their original order.
+    // Keep the old bounds charge and overflow check here, after classification.
+    let mut extent = 0.0;
+    if n != 0 {
+        for j in 0..3 {
+            let d = hi[j] - lo[j];
+            if d >= extent {
+                extent = d;
+            }
+        }
+    }
+    if !extent.is_finite() {
+        return Err(Error::NumericalFailure);
+    }
     let scale = if extent == 0.0 { 0.0 } else { 1.0 / extent };
     // bounds checked finite extent; validate checked finite coordinates.
     // Each difference is in [0, extent]. If the rounded reciprocal is finite,
@@ -2363,13 +2469,16 @@ fn run_state(
     // overflow still takes the original per-vertex guard after its write.
     let finite_scale = scale.is_finite();
     let cached_positions = s.p.len() == n;
+    if !cached_positions {
+        s.p.resize(n, V::default());
+    }
     // Each vertex charges once, then each supplied attribute weight once.
     let normalize_work = weights.len().checked_add(1).and_then(|v| n.checked_mul(v));
     metered!(work, normalize_work, |work| (|| {
-        for i in 0..n {
+        for (i, destination) in s.p.iter_mut().enumerate() {
             work.add(1)?;
             let p = if cached_positions {
-                let p = s.p[i];
+                let p = *destination;
                 [p.x, p.y, p.z]
             } else {
                 positions.at(i)?
@@ -2379,13 +2488,9 @@ fn run_state(
                 y: (p[1] - lo[1]) * scale,
                 z: (p[2] - lo[2]) * scale,
             };
-            if cached_positions {
-                s.p[i] = normalized;
-            } else {
-                s.p.push(normalized);
-            }
+            *destination = normalized;
             if !finite_scale
-                && ![s.p[i].x, s.p[i].y, s.p[i].z]
+                && ![destination.x, destination.y, destination.z]
                     .iter()
                     .fold(true, |finite, x| finite & x.is_finite())
             {
@@ -2513,25 +2618,29 @@ fn run_state(
         let update_work = ac.checked_add(3).and_then(|v| n.checked_mul(v));
         metered!(work, update_work, |w| s.update(&mut vertex_error, w))?;
         let mut write = 0;
+        let cr = &s.cr.0[..n];
+        let remap = &s.remap.0[..n];
         metered!(work, Some(count), |w| (|| {
-            for i in (0..count).step_by(3) {
+            let out = &mut out[..count];
+            for i in 0..count / 3 {
                 w.add(3)?;
-                let a = s.cr.get(out[i] as usize);
-                let b = s.cr.get(out[i + 1] as usize);
-                let c = s.cr.get(out[i + 2] as usize);
-                let r0 = s.remap.get(a);
-                let r1 = s.remap.get(b);
-                let r2 = s.remap.get(c);
+                // Copy one checked triangle before writing the compacted
+                // prefix. write<=i, so no unread triangle is overwritten.
+                let [a, b, c] = out.as_chunks::<3>().0[i];
+                let a = cr[a as usize] as usize;
+                let b = cr[b as usize] as usize;
+                let c = cr[c as usize] as usize;
+                let r0 = remap[a];
+                let r1 = remap[b];
+                let r2 = remap[c];
                 if r0 != r1 && r0 != r2 && r1 != r2 {
-                    out[write] = a as u32;
-                    out[write + 1] = b as u32;
-                    out[write + 2] = c as u32;
-                    write += 3;
+                    out.as_chunks_mut::<3>().0[write] = [a as u32, b as u32, c as u32];
+                    write += 1;
                 }
             }
             Ok(())
         })())?;
-        count = write;
+        count = write * 3;
         if settings.options.contains(SimplifyOptions::PRUNE)
             && count > settings.target_index_count
             && component_next <= vertex_error

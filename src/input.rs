@@ -615,7 +615,9 @@ impl<'a> Positions<'a> {
     }
     /// Fully padded cooker records for a bounds-check-free inner iterator.
     /// Keep the original reader for short records to preserve validation order.
-    pub(crate) fn scale_full_records(self) -> Option<impl Iterator<Item = [f32; 3]> + Clone + 'a> {
+    pub(crate) fn scale_full_records(
+        self,
+    ) -> Option<impl ExactSizeIterator<Item = [f32; 3]> + Clone + 'a> {
         if self.1.is_some() {
             return None;
         }
