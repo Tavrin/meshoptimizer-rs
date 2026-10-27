@@ -1,18 +1,5 @@
 # Bounds
 
-## Cell hash work
-
-`src/simplify_extra.rs:933` `cells_kernel` charges one visit per input and one per
-probe. The probe loop in `src/simplify_extra.rs:1004` `cell_slot_unmetered` has at most `table.len()`
-iterations, including its full-table error. Thus a batch of `b` inputs costs at
-most `b * (table.len() + 1)` visits. `Work::batch` only admits a batch whose
-bound fits both remaining work and the counter width; an overflowing per-input
-bound selects the original checked path. The fast loop counts the actual
-visits, including the unsuccessful final search, before reporting the same
-error. Insertion order and output writes are unchanged. If even one complete
-search bound does not fit, the original per-visit checks preserve exhaustion
-at precisely the same charge and partial-write prefix.
-
 ## Positional quadric finite scan
 
 `src/simplify.rs:2466` normalizes each finite position only after the extent and

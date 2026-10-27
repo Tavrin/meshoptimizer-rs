@@ -939,84 +939,24 @@ fn cells_kernel<const MAPPED: bool>(
     work.add(table.len())?;
     table.fill(u32::MAX);
     let mut count = 0;
-    let mut start = 0;
-    while start < ids.len() {
-        let batch = table
-            .len()
-            .checked_add(1)
-            .map_or(Ok(0), |units| work.batch(ids.len() - start, units))?;
-        if batch == 0 {
-            for (i, &id) in ids.iter().enumerate().skip(start) {
-                work.add(1)?;
-                let key = if MAPPED { i as u32 } else { id };
-                let slot =
-                    cell_slot::<MAPPED>(table, if MAPPED { Some(ids) } else { None }, key, work)?;
-                cell_insert(table, &mut output, i, id, slot, &mut count);
+    for (i, &id) in ids.iter().enumerate() {
+        work.add(1)?;
+        let key = if MAPPED { i as u32 } else { id };
+        let slot = cell_slot::<MAPPED>(table, if MAPPED { Some(ids) } else { None }, key, work)?;
+        if let Some(ref mut out) = output {
+            if table[slot] == u32::MAX {
+                table[slot] = i as u32;
+                out[i] = count as u32;
+                count += 1;
+            } else {
+                out[i] = out[table[slot] as usize];
             }
-            break;
+        } else {
+            count += usize::from(table[slot] == u32::MAX);
+            table[slot] = id;
         }
-        let mut visits = 0;
-        let mut result = Ok(());
-        for (i, &id) in ids.iter().enumerate().skip(start).take(batch) {
-            visits += 1;
-            let key = if MAPPED { i as u32 } else { id };
-            let (slot, probes) = cell_slot_unmetered::<MAPPED>(table, ids, key);
-            visits += probes;
-            match slot {
-                Some(slot) => cell_insert(table, &mut output, i, id, slot, &mut count),
-                None => {
-                    result = Err(Error::NumericalFailure);
-                    break;
-                }
-            }
-        }
-        work.add(visits)?;
-        result?;
-        start += batch;
     }
     Ok(count)
-}
-
-#[inline(always)]
-fn cell_insert(
-    table: &mut [u32],
-    output: &mut Option<&mut [u32]>,
-    i: usize,
-    id: u32,
-    slot: usize,
-    count: &mut usize,
-) {
-    if let Some(out) = output {
-        if table[slot] == u32::MAX {
-            table[slot] = i as u32;
-            out[i] = *count as u32;
-            *count += 1;
-        } else {
-            out[i] = out[table[slot] as usize];
-        }
-    } else {
-        *count += usize::from(table[slot] == u32::MAX);
-        table[slot] = id;
-    }
-}
-
-#[inline(always)]
-fn cell_slot_unmetered<const MAPPED: bool>(
-    table: &[u32],
-    ids: &[u32],
-    key: u32,
-) -> (Option<usize>, usize) {
-    let id = if MAPPED { ids[key as usize] } else { key };
-    let mask = table.len() - 1;
-    let mut bucket = cell_hash(id) as usize & mask;
-    for probe in 0..table.len() {
-        let old = table[bucket];
-        if old == u32::MAX || (if MAPPED { ids[old as usize] } else { old }) == id {
-            return (Some(bucket), probe + 1);
-        }
-        bucket = (bucket + probe + 1) & mask;
-    }
-    (None, table.len())
 }
 #[inline(always)]
 fn interpolate(y: f32, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
@@ -1925,72 +1865,6 @@ pub fn simplify_points_into(
 mod solve_tests {
     use super::*;
     use crate::Limits;
-
-    #[test]
-    fn cell_batches_match_checked_prefixes_with_collisions_and_full_table() {
-        fn run(
-            mapped: bool,
-            fast: bool,
-            limit: u64,
-            ids: &[u32],
-        ) -> (Result<usize, Error>, Vec<u32>, Vec<u32>, u64) {
-            let mut ws = Workspace::new(Limits {
-                max_work: limit,
-                ..Limits::default()
-            });
-            let mut work = ws.begin();
-            let mut table = alloc::vec![0; 8];
-            let mut output = alloc::vec![u32::MAX; ids.len()];
-            let result = if fast {
-                cells(
-                    &mut table,
-                    ids,
-                    mapped.then_some(output.as_mut_slice()),
-                    &mut work,
-                )
-            } else {
-                (|| {
-                    work.add(table.len())?;
-                    table.fill(u32::MAX);
-                    let mut count = 0;
-                    for (i, &id) in ids.iter().enumerate() {
-                        work.add(1)?;
-                        let slot = if mapped {
-                            cell_slot_kernel::<true, true>(&table, Some(ids), i as u32, &mut work)?
-                        } else {
-                            cell_slot_kernel::<false, true>(&table, None, id, &mut work)?
-                        };
-                        cell_insert(
-                            &mut table,
-                            &mut mapped.then_some(output.as_mut_slice()),
-                            i,
-                            id,
-                            slot,
-                            &mut count,
-                        );
-                    }
-                    Ok(count)
-                })()
-            };
-            ws.finish(&work);
-            (result, table, output, ws.usage().work)
-        }
-        let ids: Vec<_> = (0..10000)
-            .filter(|&id| cell_hash(id) & 7 == 0)
-            .take(9)
-            .collect();
-        for mapped in [false, true] {
-            for n in [7, 9] {
-                for limit in 0..=100 {
-                    assert_eq!(
-                        run(mapped, true, limit, &ids[..n]),
-                        run(mapped, false, limit, &ids[..n]),
-                        "mapped={mapped} n={n} limit={limit}"
-                    );
-                }
-            }
-        }
-    }
 
     #[test]
     fn accumulated_solve_preserves_numerical_failure_work_and_position_prefix() {
