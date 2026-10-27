@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused RFC 113 harness regressions."""
+"""Focused design requirements harness regressions."""
 import sys
 import tempfile
 import unittest
@@ -14,11 +14,11 @@ import timing
 
 
 class HarnessTests(unittest.TestCase):
-    def test_moss_only_mismatch_is_a_failure(self):
+    def test_downstream_only_mismatch_is_a_failure(self):
         mismatch = run.first_mismatch(b'a' * 48, b'b' + b'a' * 47,
                                       b'a' * 48, 'reproduce')
         self.assertIsNotNone(mismatch)
-        self.assertEqual(mismatch['side'], 'moss_cpp')
+        self.assertEqual(mismatch['side'], 'downstream_cpp')
         self.assertEqual(mismatch['byte'], 0)
 
     def test_codec_creates_fresh_target_before_compiler(self):

@@ -6,7 +6,7 @@ Baseline: v0.2.9, `df7fc567b6540eb06cb583e2d323c01e5797609c`. Candidate source/b
 
 - `src/input.rs:588`: Pre-slice fully padded 64-byte records into fixed-size arrays. Short trailing records retain the original scale reader and validation-return position; mapped and other layouts retain their original paths. Preserve padding exclusion and the independent finiteness pass.
 - `src/overdraw.rs:128`: Prove the three stamp access bounds together with their maximum index.
-- `src/overdraw.rs:224`: Precharge the exact soft-cluster phase bound when all work fits and the threshold proves the target finite. A monomorphized prepaid kernel omits budget checks; tight budgets and overflow-capable thresholds retain the original per-visit path.
+- `src/overdraw.rs:224`: Precharge the exact soft-cluster release bound when all work fits and the threshold proves the target finite. A monomorphized prepaid kernel omits budget checks; tight budgets and overflow-capable thresholds retain the original per-visit path.
 - `src/overdraw.rs:265`: Iterate adjacent hard-cluster boundaries through slices rather than repeated indexed lookups.
 
 No new unsafe, API, allocation policy, SIMD, square-root backend, version, or other-family changes. The existing C++ driver is reused; no new FFI driver was added.

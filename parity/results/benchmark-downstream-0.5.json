@@ -1,7 +1,7 @@
 {
   "schema": "meshopt-p05-benchmark/2",
-  "phase": "0.5",
-  "profile": "moss",
+  "release": "0.5",
+  "profile": "downstream",
   "bar": {
     "geometric_mean": 1.25,
     "maximum": 1.5,
@@ -277,6 +277,6 @@
     "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
     "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478"
   },
-  "detail_artifact": "benchmark-0.5-moss.json",
+  "detail_artifact": "benchmark-0.5-downstream.json",
   "detail_sha256": "86bfaa918516f642e69f59132e7845cb5ddec102be4cee62371f5898d34c46cf"
 }

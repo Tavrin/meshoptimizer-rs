@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 S = Path(_public_path('<scratch>/meshopt-peer-b'))
 sys.path.insert(0, str(ROOT / 'parity'))
 import runner as r
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 reference = Path(_public_path('<refs>/meshoptimizer'))
 os.environ['MESHOPT_REFERENCE'] = str(reference)
 r.ENV['MESHOPT_REFERENCE'] = str(reference)

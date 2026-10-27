@@ -88,7 +88,7 @@ jobs:
       - name: Fast qualification harness self-tests (untimed)
         run: python3 -m unittest discover -s parity -p 'test_fast*.py'
       - run: parity/check-reference.sh
-      - run: parity/run.sh --phase 0.1
+      - run: parity/run.sh --release 0.1
       - run: parity/sweep.sh --cases-per-family 2000 --seed 20261002
       - run: parity/report.sh --execute js --require-coverage
       - name: Record qualified Linux outputs for cross-target execution

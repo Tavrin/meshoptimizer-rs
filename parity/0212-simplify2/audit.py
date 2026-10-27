@@ -17,7 +17,7 @@ def sha(path):
     with Path(path).open('rb') as stream:
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
-assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ['MOSS_HEAVY_GPU'] == '0'
+assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ['PARITY_RUNNER_GPU'] == '0'
 proof_source = json.loads((ART/'proof-source.json').read_text())
 for name, expected in proof_source.items():
     assert sha(name) == expected, ('changed after proof start', name)
@@ -84,7 +84,7 @@ files = ['tool-syntax-repair.txt','attempt1/results.json','attempt1/measurement-
 files += [str(p.relative_to(ART)) for p in ART.glob('gate-*.log')]
 files += [f'{kind}-{a}{suffix}' for a in ARMS for kind,suffix in [('driver',''),('build','.json')]]
 files += [f'harness-{a}/{f}' for a in ARMS for f in ['Cargo.toml','Cargo.lock','src/main.rs']]
-receipt = dict(exit=0, admission=os.environ['MOSS_HEAVY_ACTIVE'], scratch=str(ART),
+receipt = dict(exit=0, admission=os.environ['PARITY_RUNNER_ACTIVE'], scratch=str(ART),
                source=source, tools={p.name: sha(p) for p in LANE.iterdir() if p.suffix in ['.py','.rs','.sh']},
                samples=len(rows), observations=observations, normalization_extent_patterns=0x7f800000, cpp_comparisons=cpp,
                fuzz_seeds=len(fuzz), fuzz_cpu_seconds=fuzz[-1]['cpu_seconds'],

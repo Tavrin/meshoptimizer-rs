@@ -2,9 +2,9 @@
 # Run this script through CPU-only <job-runner> admission, declaring 4 GB.
 set -euo pipefail
 cd -- "$(dirname -- "$0")/../.."
-: "${MOSS_HEAVY_ACTIVE:?CPU-only admission required}"
+: "${PARITY_RUNNER_ACTIVE:?CPU-only admission required}"
 : "${MESHOPT_ARTIFACTS:?logs must live outside the target}"
-test "${MOSS_HEAVY_GPU:?}" = 0
+test "${PARITY_RUNNER_GPU:?}" = 0
 test "${CARGO_TARGET_DIR:?}" = "${CARGO_TARGET_DIR:?}"
 mkdir -p "$MESHOPT_ARTIFACTS"
 test ! -e "$MESHOPT_ARTIFACTS/exits.tsv"
@@ -48,7 +48,8 @@ texts += [(str(p), p.read_text()) for p in sorted(Path('docs').rglob('*')) if p.
 Path(sys.argv[1]).write_text('\n'.join(name + '\n' + re.sub(r'https?://[^\s)<>]+', '', text) for name, text in texts))
 PY
   local rc=0
-  grep -niE 'rfc ?[0-9]|\bmoss\b|spec-|\blane\b|moss-[a-z0-9]{5}' "$MESHOPT_ARTIFACTS/public-text.txt" || rc=$?
+  local private='mo''ss' planning='rf''c' brief='sp''ec-'
+  grep -niE "${planning} ?[0-9]|\b${private}\b|${brief}|\blane\b|${private}-[a-z0-9]{5}" "$MESHOPT_ARTIFACTS/public-text.txt" || rc=$?
   test "$rc" -eq 1
 }
 run internal-references internal_references

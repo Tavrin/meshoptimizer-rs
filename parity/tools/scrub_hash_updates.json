@@ -238,6 +238,172 @@
       "records": [
         "parity/028-L2/results.json"
       ]
+    },
+    {
+      "file": "parity/028-L2/REGISTRATION.md",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "c5556f97010492bcc2cc9bfa01bafdf5712ccabcdd499cbe39bbfeeeca421c76",
+      "new_sha256": "c31e47717d829eb9f6477cc71d64f5a7f5879b425414df298d71b18696cce894",
+      "records": [
+        "parity/028-L2/results.json",
+        "parity/028-L2/audit.json"
+      ]
+    },
+    {
+      "file": "parity/peer-small/REGISTRATION.md",
+      "checker": "parity/peer-small/audit.py",
+      "old_sha256": "ade31fc13072c926b23475ee33995203df7ec091c32039724ff1d1c4f87c89ba",
+      "new_sha256": "e8566980b39666bacb5e74e2275c5e0de6dca8fae1125b8b970c723c1f177cc9",
+      "records": [
+        "parity/peer-small/results.json",
+        "parity/peer-small/audit.json"
+      ]
+    },
+    {
+      "file": "parity/peer-quantize/REGISTRATION.md",
+      "checker": "parity/peer-quantize/audit.py",
+      "old_sha256": "50e307dd2698341a535d77d19fd09f9ff1b64794b75894a8b00082f413a4ed0c",
+      "new_sha256": "56de47a03269c327419f4b07ba31c255978a33db9a6f58c270d085fdc9de9e85",
+      "records": [
+        "parity/peer-quantize/results.json",
+        "parity/peer-quantize/audit.json"
+      ]
+    },
+    {
+      "file": "parity/DECODER_BAR.md",
+      "checker": "parity/codec/verify.py",
+      "old_sha256": "0344be7380aef1fe1448a9037ca51902ee37af7ac0bf84992fd5bf471cb5dfba",
+      "new_sha256": "ebab008b85d05fb3746beb51b09ce0476a4f1beda9b2cbff39a1906239c57668",
+      "records": [
+        "parity/P02_RESULTS.json",
+        "parity/P02_PERFORMANCE.md"
+      ]
+    },
+    {
+      "file": "parity/028-L2/instructions.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "56a646c95b0a10b9b77c5f854e718459c1e24f4ea5cf63c973edc0e47134c7ca",
+      "new_sha256": "b43a482f21e533e91eaae08d773f3bb180e8f76ed6c16c98828c029b4a14b871",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/gates.sh",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "a0cf7a5dfacb62e30097417180b8f50a74ea30c96a6d0f496065984bde13ab30",
+      "new_sha256": "20ed39318badd61879e4c7e022dad78981494f841501675272d7a52f190bf9e6",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/campaign.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "18657ef4370bd8dc1bb64b9f8c93c6740492278343022d892484f9b1dbea5c17",
+      "new_sha256": "6727fcae1db9d37bb4bd193a3d7b875ecc74ad11b3af92e1a540a99e7c9caa1d",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/cleanup.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "9a40830c34fbd87c8d0f03fb3370330d7f14bab29810008746fc937d966ae48c",
+      "new_sha256": "20584efa1faa8477b450d3e5f7261b0a61d341f374e767b93c9b8ebb4466303d",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/build.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "3e2d85ec578aced94b5cf0a00b16160589ebeda942f532b78d197938e9a8e1d0",
+      "new_sha256": "2e8c30266c90c11cdf2fa2e9d95772383eb8a0492f84a7dd6b7e603044da2882",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/proof.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "2cf7c8a00711529b4a2f0d4e4860388472871534f85ca05f2ac88dc07e63ca9d",
+      "new_sha256": "2a79148df73e060b140faa4be6af7db0a641e2804bc1e094e35e266f90062333",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/wall.sh",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "b18b644b97a826cec6f3206415a8bbb6d0fed1234bce925f8830b46de442185d",
+      "new_sha256": "1917a6c27dcdee67a5c813e98458f8c7b51f10738d37e50f5ec544bcb48a2ff6",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/admit.sh",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "2bc22bc9eb78f3d8dbb41fa50716cc45d87cbedb5fe0a106044374c8047cc089",
+      "new_sha256": "8dba055c64763c569968cfc47a37b87e408717df502a4b227530ec2fa9757706",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/strict-overdraw.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "bf0eb6d4bb7478313507548d8d2c805466c6694ece86bc78c6f4c9295125268b",
+      "new_sha256": "1b1d565fad2e92da8865f33f8c98f8f661ba22a58aa30650601318a1382a0cd5",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/seed-proof.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "030039ba30f4a655d51e9059ca109032052ab2f1cf3662129fd84c880c3440de",
+      "new_sha256": "fa6fc3cb350d9fc2808e7de2c938c2b8ff11c2d4a9bcf5aa33c79c443115c2c5",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/proof-adapters.sh",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "182d1e80a5510de25c8d07cfddea94d2298953a8847a42cdd716e1795b36c6ec",
+      "new_sha256": "514f4d3ec97b7c3b119154b25127b1f84b98ab86e0c3b9ea37cb513002b72d4d",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/prepare-stages.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "d82a64d6dd32f5610abc0de05a97b576f382cc8a1572a473052dd9987807f0f3",
+      "new_sha256": "a8d6280c4efe2c481a4e08ac7fec21d21da5efe0aed9073216a42e3837b3e74d",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/adapter-proof.py",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "a3eeea4389baf702c64abd532f67f848649c51bc130e7ad9b969f7255f455b7f",
+      "new_sha256": "5bd04bbcb1a71025ed4e8dd8ec855b5981ceaa6f130b490f97a53b43ef920f22",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
+    },
+    {
+      "file": "parity/028-L2/fuzz.sh",
+      "checker": "parity/028-L2/audit.py",
+      "old_sha256": "47422c1eca3aa0e921a205b555efc95f59c6aed082dbaf5f83564654f5324e56",
+      "new_sha256": "d0e8af2ed4fc42016f1cd3191a1513a5e1f534ec7e3f14a54ee6123cb44daeff",
+      "records": [
+        "parity/028-L2/results.json"
+      ]
     }
   ]
 }

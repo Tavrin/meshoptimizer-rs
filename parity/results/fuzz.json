@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "phase": "0.1",
+  "release": "0.1",
   "profile": "stable seeded mutation; no sanitizer or coverage instrumentation",
   "source_sha256": {
     "Cargo.lock": "6bc16c0e89ea2f4e99f336e3c5f1841761ab08cd5750a1604071a839099741fb",

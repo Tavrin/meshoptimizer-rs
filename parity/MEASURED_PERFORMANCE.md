@@ -12,12 +12,12 @@ verify exits1 with zero functional errors and 51 historical benchmark/profile
 errors. Full per-family source-bound status, all tried/rejected hypotheses and
 next diagnosis pointers are in [P05_PERFORMANCE.md](P05_PERFORMANCE.md) and D144
 of [DECISIONS.md](DECISIONS.md). External source/binary/proof artifacts survive;
-the exact lane Cargo target is deleted. All earlier timing tables and scheduling
+the exact job Cargo target is deleted. All earlier timing tables and scheduling
 statements below are historical and superseded by D120/D144.
 
 Rust/C++ time ratios; each value is the family geometric mean of case median paired ratios, followed by the maximum case in parentheses.
 
-| Function | Fat LTO (historical lane 3b) | a downstream engine thin LTO | Cargo release defaults |
+| Function | Fat LTO (historical job 3b) | a downstream engine thin LTO | Cargo release defaults |
 |---|---:|---:|---:|
 | vertex_cache | 1.123 (1.201) | 1.184 (1.330) | 1.231 (1.331) |
 | overdraw | 1.098 (1.417) | 1.101 (1.522) | 1.135 (1.471) |
@@ -33,7 +33,7 @@ The complete matrix has 204 allocating, caller-buffer and allocation-free cases,
 
 These are shared-load measurements. Per-case timings, dispersion, memory, load telemetry and source/executable identities are in the external records. This table does not claim quiet-host performance or a universal speedup.
 
-See results/benchmark.json, results/benchmark-moss.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.
+See results/benchmark.json, results/benchmark-downstream.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.
 
 D146 final integration: the full stage-1 matrices retain their case maxima and family bars. Seven maxima received 30 fresh pinned-core pairs each; two passed the upper 95% confidence bound and five remain documented residuals (including three inconclusive). See results/stage2-0.1.json and results/requalification-0.1.json.
 
@@ -111,7 +111,7 @@ libm and executed-WASM sweeps again match 30,000 cases each; source/API/bar and
 pair decisions are unchanged. Current timings are queued, not yet qualified.
 
 D120 supersedes the earlier admission rules: every timed burst now queues
-visibly via `MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`, with the shared
+visibly via `PARITY_RUNNER_GPU=1 <job-runner> 4 timeout 840 ...`, with the shared
 wrapper acquiring the GPU lease itself. No direct/nested GPU lease command,
 lease-free gap wait, load gate or scoreboard poll remains. The declared peak
 is 4 GB; observed completed bursts use approximately 0.5 GB. Actual receipts

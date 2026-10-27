@@ -1,11 +1,11 @@
-# SPEC-0212 simplify2
+# registered protocol simplify2
 Instruction counts only. Fresh v0.2.11 (40dbf9e), post-#39 (c396a697), candidate and scalar M7/C++ 1.3 arms; median of three for all 48 cases. Real-chain ratios use sums of six stage medians; corpus summaries use equal-case geometric means. No wall-performance claim.
 
 Gate applied verbatim: real-chain PASS when candidate/v0.2.11 <=0.80; otherwise PARTIAL when candidate/post-#39 <=0.95; otherwise NO-GAIN. Any individual candidate/post-#39 >1.01 is FAIL before aggregation.
 
 Techniques (src/simplify.rs):
 - src/simplify.rs:317: Validated-only input finite-check elimination; scale retains validation and extent overflow is checked in both paths.
-- src/simplify.rs:1268: Shared vertex-length remap/counter slices and bounded phase accounting.
+- src/simplify.rs:1268: Shared vertex-length remap/counter slices and bounded release accounting.
 - src/simplify.rs:1372: Bounded hash batches; exact visited-prefix settlement with checked fallback.
 - src/simplify.rs:1421: Iterator over remap entries and a fixed-length wedge slice.
 - src/simplify.rs:2364: Finite-reciprocal normalization proof; reciprocal overflow retains the original post-write guard.
@@ -88,7 +88,7 @@ Exact v0.2.11 comparisons: 14,170,418 paired observations under std and 14,170,4
 
 Retained attempt 1: all four arm builds and 576 samples exited 0, with all three real chains NO-GAIN. Its all-feature preflight exited 0. The queued proof admission was canceled before execution (143) to adopt environment-only tooling; no proof pass is attributed to it. A report-tool syntax preflight exited 1 and was repaired to 0 before qualification; the private repair receipt is retained. Final proof and measurement use the refined source and independent fresh samples.
 
-Protocol: attribution resident-loop harness, perf 6.17 instructions:u on CPU9, acknowledged counter enable/disable; all samples have 100% running. Scalar Rust opt3/thin-LTO/one codegen unit; scalar M7 C++ 1.3 with NDEBUG and debug symbols. Loading, warm calls, validation and serialization are outside counters. Destination allocation, required copies, scratch acquisition and destruction are inside. Every build/measurement uses `<job-runner>` with MOSS_HEAVY_GPU=0 and a 4 GB declaration.
+Protocol: attribution resident-loop harness, perf 6.17 instructions:u on CPU9, acknowledged counter enable/disable; all samples have 100% running. Scalar Rust opt3/thin-LTO/one codegen unit; scalar M7 C++ 1.3 with NDEBUG and debug symbols. Loading, warm calls, validation and serialization are outside counters. Destination allocation, required copies, scratch acquisition and destruction are inside. Every build/measurement uses `<job-runner>` with PARITY_RUNNER_GPU=0 and a 4 GB declaration.
 
 Full inputs, frozen sources, binaries, raw counters/output buffers, commands, logs and admissions are retained in `<scratch>/meshopt-0212-simplify2/`; binding.json and instructions.tsv retain independently checked hashes and compact counts. No thresholds, exhaustion charge granularity or observable error/partial-write order changed. No wall timings, API/version changes, new unsafe or sqrt changes.
 

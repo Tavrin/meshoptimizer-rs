@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One registered SPEC-027 lane B campaign. Refuses replacement or retry."""
+"""One registered registered protocol job B campaign. Refuses replacement or retry."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -95,8 +95,8 @@ def analyze(record):
 
 
 def main():
-    assert os.environ.get('MOSS_HEAVY_ACTIVE')
-    assert os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
+    assert os.environ.get('PARITY_RUNNER_ACTIVE')
+    assert os.environ.get('PARITY_RUNNER_MEASUREMENT') == '1'
     assert os.environ['CARGO_TARGET_DIR'] == _public_path('<target-dir>')
     path = S / 'wall-campaign.json'
     # Exclusive creation makes partial campaigns terminal too.
@@ -112,7 +112,7 @@ def main():
     assert all(r['exact_baseline'] and r['exact_m7'] for r in correctness)
     record = dict(started=time.time(), source_sha256=hashes, binaries=bins,
                   inputs=inputs, cpu=20, physical_core=10, sibling=21,
-                  admission_pid=os.environ['MOSS_HEAVY_ACTIVE'], rows=[], completed=False,
+                  admission_pid=os.environ['PARITY_RUNNER_ACTIVE'], rows=[], completed=False,
                   host=subprocess.check_output(['uname', '-a'], text=True).strip())
     save(path, record)
     for item in inputs:

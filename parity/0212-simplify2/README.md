@@ -10,7 +10,7 @@ Run from `<repo>`. Local paths come from the environment:
 | `MESHOPT_REFERENCE` | Pinned C++ reference checkout |
 | `MESHOPT_PERF` | perf 6.17 executable |
 | `MESHOPT_M7_SOURCE` | The pinned M7 package source directory |
-| `CARGO_TARGET_DIR` | `<target-dir>`, dedicated to this lane |
+| `CARGO_TARGET_DIR` | `<target-dir>`, dedicated to this job |
 
 The complete sequence after preparation is `bash parity/0212-simplify2/admit.sh bash parity/0212-simplify2/qualify.sh`.
 

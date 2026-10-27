@@ -16,9 +16,9 @@ Ratios are Rust/scalar C++ elapsed time. The compact mean uses all six genuinely
 
 Final large-raster instructions fall 16.4% (a downstream engine) / 21.6% (default), branches 36.2% / 34.4%. Tiny compact instructions fall 37–49% across the two state counts, including the authorized setup correction. Fault/miss subtraction noise remains visible in the raw records. These counters selected the candidate; they do not replace the elapsed-time decisions.
 
-**Timing protocol.** One selected-scope campaign, both profiles, shared 4 GB declaration, `MOSS_HEAVY_GPU=1 <job-runner> … timeout … 840`, original alternating pinned-core pairs, 5/10/20 early screens and D146 only at the borderline cap. No repeated completed timing row or profile. The campaign preserves full-matrix `passed=false` because unselected families were not retimed. Shared-machine results are not isolated-machine measurements.
+**Timing protocol.** One selected-scope campaign, both profiles, shared 4 GB declaration, `PARITY_RUNNER_GPU=1 <job-runner> … timeout … 840`, original alternating pinned-core pairs, 5/10/20 early screens and D146 only at the borderline cap. No repeated completed timing row or profile. The campaign preserves full-matrix `passed=false` because unselected families were not retimed. Shared-machine results are not isolated-machine measurements.
 
-- moss: 22 cases; early pairs {5: 22}; D146 cases []; load-1m 12.680–13.923; memory PASS.
+- downstream: 22 cases; early pairs {5: 22}; D146 cases []; load-1m 12.680–13.923; memory PASS.
 - default: 22 cases; early pairs {5: 22}; D146 cases []; load-1m 12.786–14.190; memory PASS.
 
 Artifacts: `<artifacts>/p05-last3-20261005`. Before/after counter binaries, disassembly, perf data, immutable source snapshots, timing binaries and all raw pair/lease receipts, full untimed case logs, audits, and cleanup receipt remain outside Cargo cache. `results/p05-last3.json` binds their inventory and statistics. The mandated target `<target-dir>` was deleted after verification. Source fixes and harness correction are committed separately with repository author configuration; no push or merge.
@@ -64,18 +64,18 @@ Size vocabulary: tiny ≤ 16 work items, small 17–256, medium 257–65,535, la
 
 a downstream engine used 159 five-pair cases and one twenty-pair case; default used 149 five-pair, eight ten-pair and three twenty-pair cases, plus the single D146 stream above. Each profile completed in one admitted burst (a downstream engine 3m09s, default 3m33s), checkpointing every completed row; no restart or repeated completed row. Both commands exit 1 because the performance bar fails, not because collection failed. Load-1m ranges were 9.952–10.805 and 11.270–24.786 respectively; these are shared-machine paired measurements, not an isolated-machine lower-bound claim.
 
-Entry point (run once per profile, substituting `moss` / `default`):
+Entry point (run once per profile, substituting `downstream` / `default`):
 
 ```sh
 CARGO_TARGET_DIR=<target-dir> \
 MESHOPT_ARTIFACTS=<artifacts>/p05-measure-20261005 \
 RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS= \
-python3 parity/p05/lease_run.py --lane p05-measure-PROFILE --memory-gb 4 -- \
+python3 parity/p05/lease_run.py --job p05-measure-PROFILE --memory-gb 4 -- \
   python3 parity/p05/benchmark.py --consumer-profile PROFILE --families all --mode final
 ```
 
-The existing launcher submits `MOSS_HEAVY_GPU=1 <job-runner> 4 timeout --foreground --signal=TERM --kill-after=5 840 ...`; shared admission chooses the reservation/cap and owns the lease. No direct lease acquisition or admission bypass.
+The existing launcher submits `PARITY_RUNNER_GPU=1 <job-runner> 4 timeout --foreground --signal=TERM --kill-after=5 840 ...`; shared admission chooses the reservation/cap and owns the lease. No direct lease acquisition or admission bypass.
 
-Artifacts: `<artifacts>/p05-measure-20261005`. Full `benchmark-0.5-{moss,default}.json`, binaries, scalar library, build manifest, `sources.tar.gz`, environment, logs, timing receipts, `audit.py`/`audit.json`, and cleanup receipt are retained there. Checked-in summaries are `results/benchmark-{moss,default}-0.5.json`; `results/p05-current-state.json` binds the artifact root and inventory hashes.
+Artifacts: `<artifacts>/p05-measure-20261005`. Full `benchmark-0.5-{downstream,default}.json`, binaries, scalar library, build manifest, `sources.tar.gz`, environment, logs, timing receipts, `audit.py`/`audit.json`, and cleanup receipt are retained there. Checked-in summaries are `results/benchmark-{downstream,default}-0.5.json`; `results/p05-current-state.json` binds the artifact root and inventory hashes.
 
-The audit recomputed all case inventories, medians/geomeans, early screens, D146 separation/decision, memory ratios, CPU/load receipts and shared admission coverage, and verified current source/reference and retained executable identities: PASS for both profiles. Historical functional/fuzz/WASM records and historical perf profiles were not refreshed; this measurement-only task does not claim a fresh full cross-phase release verifier pass. The mandated Cargo target was deleted after validation; retained executables remain in the artifact directory.
+The audit recomputed all case inventories, medians/geomeans, early screens, D146 separation/decision, memory ratios, CPU/load receipts and shared admission coverage, and verified current source/reference and retained executable identities: PASS for both profiles. Historical functional/fuzz/WASM records and historical perf profiles were not refreshed; this measurement-only task does not claim a fresh full cross-release release verifier pass. The mandated Cargo target was deleted after validation; retained executables remain in the artifact directory.

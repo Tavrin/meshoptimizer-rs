@@ -14,8 +14,8 @@ def emit(o):
  with (root/'execution.jsonl').open('a') as f:f.write(json.dumps(o)+'\n')
  print(json.dumps(o),flush=True)
 
-def run(case,fixture,phase,pair,label,arm):
- name=f'{case}-{phase}-{pair:02}-{label}'
+def run(case,fixture,release,pair,label,arm):
+ name=f'{case}-{release}-{pair:02}-{label}'
  d=root/name;d.mkdir()
  env=dict(os.environ)
  for k in ['MESHOPT_DIAG_RELEASE_MESH','MESHOPT_DIAG_RELEASE_CALL','MESHOPT_REPEAT_SIX']:env.pop(k,None)
@@ -44,7 +44,7 @@ def run(case,fixture,phase,pair,label,arm):
   else:
    assert b.stat().st_size==canon.stat().st_size
    b.unlink();os.link(canon,b)
- receipt={'event':'finish','name':name,'case':case,'phase':phase,'pair':pair,'label':label,'arm':arm,'wall_ns':wall,'rss_kib':rss,'exact':True,'stable_sha256':stable,'utc':time.time()}
+ receipt={'event':'finish','name':name,'case':case,'release':release,'pair':pair,'label':label,'arm':arm,'wall_ns':wall,'rss_kib':rss,'exact':True,'stable_sha256':stable,'utc':time.time()}
  (d/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');emit(receipt)
  return receipt
 
@@ -56,15 +56,15 @@ def upper(ratios,rng):
 try:
  for case,fixture in cases:
   samples[case]={}
-  for phase in ['AA','AB']:
+  for release in ['AA','AB']:
    pairs=[]
    for pair in range(11):
-    labels=['A1','A2'] if phase=='AA' else ['A','B']
+    labels=['A1','A2'] if release=='AA' else ['A','B']
     if pair%2:labels.reverse()
     got={}
-    for label in labels:got[label]=run(case,fixture,phase,pair,label,'A' if phase=='AA' else label)
+    for label in labels:got[label]=run(case,fixture,release,pair,label,'A' if release=='AA' else label)
     if pair:pairs.append(got)
-   samples[case][phase]=pairs
+   samples[case][release]=pairs
  rng=random.Random(20261027)
  for case,_ in cases:
   ps=samples[case];aa=[p['A2']['wall_ns']/p['A1']['wall_ns'] for p in ps['AA']];ab=[p['B']['wall_ns']/p['A']['wall_ns'] for p in ps['AB']]

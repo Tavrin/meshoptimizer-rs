@@ -1,31 +1,31 @@
-# Allocating encoder consumer profiles (SPEC-03)
+# Allocating encoder consumer profiles (registered protocol)
 
 This campaign extends the frozen P03 requests to Cargo defaults (O3, no LTO,
-16 codegen units) and the a downstream engine consumer (O3, thin LTO, one codegen unit). It
+16 codegen units) and the downstream engine consumer (O3, thin LTO, one codegen unit). It
 retains the original scalar-strict C++ 1.3 oracle and normal SIMD time comparator.
 The peer is meshopt 0.6.2, with bundled C++ 0.25 and its published build flags.
 Tiny Oct/Quat implementations are not retuned.
 
 Set `CARGO_TARGET_DIR=<target-dir>`
 and `CARGO_INCREMENTAL=0`. Every command below must run through
-`MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-enc03
+`PARITY_RUNNER_GPU=0 PARITY_JOB=meshopt-enc03
 <job-runner> <GB> timeout 840 <command>`.
 Declare 3 GB for these builds, preparation, parity and measurements (measured
 controller peak RSS was below 1.2 GiB).
 The wrapper waits for RAM admission; no quiet-machine wait is used.
-For this measured lane, `MOSS_HEAVY_USE_DECLARED=1` uses the 3 GB declaration
+For this measured job, `DOWNSTREAM_HEAVY_USE_DECLARED=1` uses the 3 GB declaration
 when generic interpreter history over-reserves. This is the explicit declaration
 mode documented by a downstream engine HEAVY_JOBS; queue, RAM, disk and runtime guards remain.
 
 1. `python3 parity/encoders/build_profiles.py`
 2. `python3 parity/encoders/profiles.py prepare`
-3. `python3 parity/encoders/profiles.py reproduce defaults`, then `reproduce moss`.
+3. `python3 parity/encoders/profiles.py reproduce defaults`, then `reproduce downstream`.
    This hashes and measures the exact historical owned stride-four request before
    any tuning. A non-reproducing gap stays non-reproducible, with its interval;
    it cannot be attributed to a new implementation change.
-4. `python3 parity/encoders/profiles.py parity defaults`, then `parity moss`.
-5. `python3 parity/encoders/profiles.py timing defaults`, then `timing moss`.
-6. `python3 parity/encoders/profiles.py peer defaults`, then `peer moss`.
+4. `python3 parity/encoders/profiles.py parity defaults`, then `parity downstream`.
+5. `python3 parity/encoders/profiles.py timing defaults`, then `timing downstream`.
+6. `python3 parity/encoders/profiles.py peer defaults`, then `peer downstream`.
 
 Evidence defaults to `<scratch>/meshopt-enc03`;
 `MESHOPT_ENCODER_ARTIFACTS` selects a new epoch without replacing old receipts.
@@ -69,12 +69,12 @@ before/after rows are paired in the same stream.
 
 `exp_edges.py` adds untimed scalar-oracle checks over finite exponent fields,
 all 24 precisions and four modes, six strides, zero carry and both APIs. Set
-`MESHOPT_EDGE_PROFILE=defaults` or `moss`, with the candidate artifact directory.
+`MESHOPT_EDGE_PROFILE=defaults` or `downstream`, with the candidate artifact directory.
 The unit regression compares coherent bulk quaternion rotations with the
 unchanged single-record kernel for all four selected components and every
 supported precision; the retained extra checks compare these with scalar C++.
 
-`exp_exhaustive.py defaults` (or `moss`) compares every normal mantissa and
+`exp_exhaustive.py defaults` (or `downstream`) compares every normal mantissa and
 both signs at precisions 1..22 with scalar C++ 1.3: 369,098,752 quantized
 components per profile. The normal exponent is representative of the exact
 power-of-two scaling domain; `exp_edges.py` covers the exponent guards,

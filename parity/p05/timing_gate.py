@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify phase-0.5 timing coverage by visible shared heavy admission."""
+"""Verify release-0.5 timing coverage by visible shared heavy admission."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -21,7 +21,7 @@ import time
 from zoneinfo import ZoneInfo
 
 ART = Path(os.environ.get('MESHOPT_ARTIFACTS', _public_path('<artifacts>/p05')))
-LEASE_DIR = Path(os.environ.get('MOSS_GPU_LEASE_DIR', '/tmp/downstream-gpu-lease'))
+LEASE_DIR = Path(os.environ.get('PARITY_GPU_LEASE_DIR', '/tmp/downstream-gpu-lease'))
 
 
 def cpu_ticks():
@@ -112,13 +112,13 @@ def snapshot(label):
               'load_1m': os.getloadavg()[0], 'load_average': os.getloadavg(),
               'lease_exit': lease_rc, 'lease': lease, 'lease_error': lease_error,
               'lease_key': lease_key, 'lease_fd_lock': lease_lock,
-              'heavy_pid': int(os.environ.get('MOSS_HEAVY_ACTIVE', '0')),
-              'heavy_reserved_gb': int(os.environ.get('MOSS_HEAVY_RESERVED_GB', '0')),
-              'heavy_admitted': os.environ.get('MOSS_HEAVY_ADMITTED'),
-              'dashboard_lane': os.environ.get('MOSS_LANE'),
+              'heavy_pid': int(os.environ.get('PARITY_RUNNER_ACTIVE', '0')),
+              'heavy_reserved_gb': int(os.environ.get('DOWNSTREAM_HEAVY_RESERVED_GB', '0')),
+              'heavy_admitted': os.environ.get('DOWNSTREAM_HEAVY_ADMITTED'),
+              'dashboard_lane': os.environ.get('PARITY_JOB'),
               'timing_lane': os.environ.get('MESHOPT_TIMING_LANE', ''),
-              'lease_env': os.environ.get('MOSS_GPU_LEASE'),
-              'lease_label': os.environ.get('MOSS_GPU_LEASE_LABEL', ''),
+              'lease_env': os.environ.get('PARITY_GPU_LEASE'),
+              'lease_label': os.environ.get('PARITY_GPU_LEASE_LABEL', ''),
               'holder_pid': int(match.group(2)) if match else None,
               'process_ancestors': ancestors(),
               'burst_elapsed_seconds': time.monotonic() - float(started) if started else -1}

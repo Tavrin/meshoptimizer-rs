@@ -1,10 +1,10 @@
 {
   "schema": "meshopt-p05-profile/1",
-  "phase": "0.5",
-  "profile": "moss",
+  "release": "0.5",
+  "profile": "downstream",
   "profile_complete": true,
   "benchmark_sha256": "7edbbb14a09e79ee39ddd6424dac876be4a2822dcb22dad5139778d8c4e7eec4",
-  "detail_artifact": "profiles-0.5-moss/summary.json",
+  "detail_artifact": "profiles-0.5-downstream/summary.json",
   "detail_sha256": "0c7dda93b1031cbb136e8d7566034f515f902eead5c59f28e413bac11cd2b6f8",
   "families": {
     "stripify": {

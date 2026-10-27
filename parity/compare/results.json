@@ -264,7 +264,7 @@
     },
     {
       "program": "cmp-empty",
-      "profile": "moss",
+      "profile": "downstream",
       "backend": "ours",
       "file_bytes": 332864,
       "text_bytes": 317785,
@@ -274,7 +274,7 @@
     },
     {
       "program": "cmp-decode",
-      "profile": "moss",
+      "profile": "downstream",
       "backend": "ours",
       "file_bytes": 434368,
       "text_bytes": 416999,
@@ -284,7 +284,7 @@
     },
     {
       "program": "cmp-full",
-      "profile": "moss",
+      "profile": "downstream",
       "backend": "ours",
       "file_bytes": 1828208,
       "text_bytes": 1777265,
@@ -294,7 +294,7 @@
     },
     {
       "program": "cmp-empty",
-      "profile": "moss",
+      "profile": "downstream",
       "backend": "theirs",
       "file_bytes": 332864,
       "text_bytes": 317785,
@@ -304,7 +304,7 @@
     },
     {
       "program": "cmp-decode",
-      "profile": "moss",
+      "profile": "downstream",
       "backend": "theirs",
       "file_bytes": 355400,
       "text_bytes": 339510,
@@ -314,7 +314,7 @@
     },
     {
       "program": "cmp-full",
-      "profile": "moss",
+      "profile": "downstream",
       "backend": "theirs",
       "file_bytes": 503992,
       "text_bytes": 488246,
@@ -541,7 +541,7 @@
         "free_bytes": 36383428608
       }
     ],
-    "moss/ours": [
+    "bench-release/ours": [
       {
         "kind": "clean",
         "seconds": 12.304973840713501,
@@ -554,13 +554,13 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--features",
           "ours",
           "--bin",
           "cmp-decode"
         ],
-        "log": "<scratch>/meshopt-cmp/build-moss-ours-clean.log",
+        "log": "<scratch>/meshopt-cmp/build-downstream-ours-clean.log",
         "free_bytes": 36331831296
       },
       {
@@ -575,13 +575,13 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--features",
           "ours",
           "--bin",
           "cmp-decode"
         ],
-        "log": "<scratch>/meshopt-cmp/build-moss-ours-incremental.log",
+        "log": "<scratch>/meshopt-cmp/build-downstream-ours-incremental.log",
         "free_bytes": 37079232512
       },
       {
@@ -596,7 +596,7 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--features",
           "ours",
           "--features",
@@ -608,11 +608,11 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "<scratch>/meshopt-cmp/build-moss-ours-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-downstream-ours-footprint-and-driver.log",
         "free_bytes": 36937162752
       }
     ],
-    "moss/theirs": [
+    "bench-release/theirs": [
       {
         "kind": "clean",
         "seconds": 8.373465776443481,
@@ -625,13 +625,13 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--features",
           "theirs",
           "--bin",
           "cmp-decode"
         ],
-        "log": "<scratch>/meshopt-cmp/build-moss-theirs-clean.log",
+        "log": "<scratch>/meshopt-cmp/build-downstream-theirs-clean.log",
         "free_bytes": 34656894976
       },
       {
@@ -646,13 +646,13 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--features",
           "theirs",
           "--bin",
           "cmp-decode"
         ],
-        "log": "<scratch>/meshopt-cmp/build-moss-theirs-incremental.log",
+        "log": "<scratch>/meshopt-cmp/build-downstream-theirs-incremental.log",
         "free_bytes": 34372960256
       },
       {
@@ -667,7 +667,7 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--features",
           "theirs",
           "--features",
@@ -679,7 +679,7 @@
           "--bin",
           "cmp-empty"
         ],
-        "log": "<scratch>/meshopt-cmp/build-moss-theirs-footprint-and-driver.log",
+        "log": "<scratch>/meshopt-cmp/build-downstream-theirs-footprint-and-driver.log",
         "free_bytes": 34242600960
       }
     ]
@@ -3762,7 +3762,7 @@
       },
       "pairs": 1445
     },
-    "moss": {
+    "downstream": {
       "core": {
         "cpu": 16,
         "package_id": 0,
@@ -13484,29 +13484,29 @@
     "build-exploratory-ours-clean.log": "24fa0d715c2d1121fbceade16c93bec4fe621c92b23012a7278add2d0f35f02a",
     "build-exploratory-ours-incremental.log": "ab96c309f8eb909afd10870b26760f06d0513d3fc700f7b334a17bded528ab89",
     "build-exploratory-ours.json": "a1a1b6ad443dba0add82b5a699df762781f5f242d6e2697387da7bcb852f43a8",
-    "build-moss-ours-clean.log": "72c689043ef24bc5ae2f9423c959b5229c13eff831d7ab416e8c339dd8e3c84d",
-    "build-moss-ours-footprint-and-driver.log": "0cc08d91524141c869cf7035a6ee5cf892f894b2255872ee2d31ac9ad0817bd7",
-    "build-moss-ours-incremental.log": "104acf3cea753c990df6c6f68eec96e227ed56d6501d11152917a07cff8dd651",
-    "build-moss-ours.json": "41128017fa1dec5df4b0b9c2f50f5ff293098e633356da58e8cc97ada7ac9ce9",
-    "build-moss-theirs-clean.log": "9dfe1f947f3977cafa318b52a71a6ef5e34210b83294fc4d54e22aff1a4ab1e9",
-    "build-moss-theirs-footprint-and-driver.log": "78df3d0ee1628620be8655de8c36532d91dde95702fc742251df30a9cdbf008a",
-    "build-moss-theirs-incremental.log": "1209a33e87c4c15086c6b5d044d7eed962626a3e264f061d70d0206ee350c7e9",
-    "build-moss-theirs.json": "6615d5ac49f09f00296685abc6a94a68916611a87a2a0eeca718fa3cb5a369da",
+    "build-downstream-ours-clean.log": "72c689043ef24bc5ae2f9423c959b5229c13eff831d7ab416e8c339dd8e3c84d",
+    "build-downstream-ours-footprint-and-driver.log": "0cc08d91524141c869cf7035a6ee5cf892f894b2255872ee2d31ac9ad0817bd7",
+    "build-downstream-ours-incremental.log": "104acf3cea753c990df6c6f68eec96e227ed56d6501d11152917a07cff8dd651",
+    "build-downstream-ours.json": "41128017fa1dec5df4b0b9c2f50f5ff293098e633356da58e8cc97ada7ac9ce9",
+    "build-downstream-theirs-clean.log": "9dfe1f947f3977cafa318b52a71a6ef5e34210b83294fc4d54e22aff1a4ab1e9",
+    "build-downstream-theirs-footprint-and-driver.log": "78df3d0ee1628620be8655de8c36532d91dde95702fc742251df30a9cdbf008a",
+    "build-downstream-theirs-incremental.log": "1209a33e87c4c15086c6b5d044d7eed962626a3e264f061d70d0206ee350c7e9",
+    "build-downstream-theirs.json": "6615d5ac49f09f00296685abc6a94a68916611a87a2a0eeca718fa3cb5a369da",
     "cleanup.json": "3ae1afce4f4357f57ee57cfc6789e849e2adeeb3c965357353c86bd7ea0d7187",
     "collect-audit.log": "6574431ef096b4482ad9fac2360e7ee8282507905312b0311e872d946fe000a5",
     "collect-measure-defaults-outputs.log": "95ccca04d64d18d395cec27c7a9e85cc9a715cde4514111138c89d0f1a818ee4",
     "collect-measure-defaults-timing.log": "486003ad709a38dc9a850240a348014c4a306c61d03cb6013e07fb745befeb5b",
-    "collect-measure-moss-timing.log": "171fe44f823ebec662a3afdf85b0b2e57c741193fb99d12385fac6b22686bac0",
+    "collect-measure-downstream-timing.log": "171fe44f823ebec662a3afdf85b0b2e57c741193fb99d12385fac6b22686bac0",
     "collect-platforms.log": "5fc976da6e2376de8674dff48445cc5b9747eb3cae7dfbf113ff17d04d3f3b5a",
     "crate-metadata.json": "7fed138a1fa1901383c0149a5e26f5f98daf519882a71f5d903a810f1a779075",
     "driver-final-defaults-ours.json": "9a17328737aab85b814b3940ac3c76e6ac584c4fa4a12f0f3fe032745aa5e0ef",
     "driver-final-defaults-ours.log": "ddc713753520cbd3cd70d6675d905c7f21fd94482622972d23a915c74e072638",
     "driver-final-defaults-theirs.json": "70d82236098a5df440309fc481d7b77615b1e70ba661d7898996dc1b4dc04e95",
     "driver-final-defaults-theirs.log": "2b4e79b4e4b219448d3cb47ea74b27c6e906e77fbf8e03334ba745857805554f",
-    "driver-final-moss-ours.json": "39ea6fb501bb191e3cc88e49b4421abb735ca0fb77b9d4d6a26a0c3ff2942165",
-    "driver-final-moss-ours.log": "7048c3b7c7624b760c2fc30c2ae8c96577d68bb7f80df18818d7ddd5b3c25d29",
-    "driver-final-moss-theirs.json": "28477d05f2545b2c04767c7cfb5ad1c598bb5392b3840d174610dbeb9ec51eb2",
-    "driver-final-moss-theirs.log": "fa393c5dc99046dc93d608c4aaf6b12adfe62b834f1f30a04bdac6bb61907036",
+    "driver-final-downstream-ours.json": "39ea6fb501bb191e3cc88e49b4421abb735ca0fb77b9d4d6a26a0c3ff2942165",
+    "driver-final-downstream-ours.log": "7048c3b7c7624b760c2fc30c2ae8c96577d68bb7f80df18818d7ddd5b3c25d29",
+    "driver-final-downstream-theirs.json": "28477d05f2545b2c04767c7cfb5ad1c598bb5392b3840d174610dbeb9ec51eb2",
+    "driver-final-downstream-theirs.log": "fa393c5dc99046dc93d608c4aaf6b12adfe62b834f1f30a04bdac6bb61907036",
     "footprint-superseded.json": "e1bde7a3bda614f06c09a1435c2e14da98db512b1810176582f43ff37e3280d7",
     "footprint.json": "9134433c74ffd2decae0f1d6e6dca2083a6268fae6ee607c8869591dad6e337d",
     "host.json": "387e1e3fdf1cab8e7d943ba8af5a25a0436b0980b33d69e8b8913ce82af16c3f",
@@ -13515,7 +13515,7 @@
     "intermediate-cleanup.json": "a935442db1b0c11d06cc074f625b3dbb2b5c4ac359b6671a710f7e838dedcf3d",
     "measure-defaults-outputs.json": "5750c5043bb63dad8f8026f905823459d97474fa80e88247723248981fb1ddc8",
     "measure-defaults-timing.json": "bbeb4d319fa1f9d13fa632e0d709b95cf1876fcab9e446f22a5dc002c0db4625",
-    "measure-moss-timing.json": "74e0b4f463f64f94531e699ce758addf5b837bd4cda2ffefcc78d96ea049a23a",
+    "measure-downstream-timing.json": "74e0b4f463f64f94531e699ce758addf5b837bd4cda2ffefcc78d96ea049a23a",
     "measurement-source-before-bounds-prefix.json": "01c5461f9193ddd68fcf853233b3c01e996c6582e60ac2eac537b276a02182e2",
     "measurement-source-before-final-setup.json": "9df4a33499c0b1d4e2f0a3711cfd9bbbcad9ae664c45855f7f25d60d4a5d809a",
     "measurement-source-preflight.json": "7bf50e5b33a787af0f4af961f88f80dc4cc604fea0e664818d01e7e38b990815",

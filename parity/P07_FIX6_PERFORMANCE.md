@@ -100,7 +100,7 @@ The existing valid-alpha Color proof and pinned odd-tail scalar/SIMD status
 split are reproduced unchanged. Seven test/Clippy/Miri receipts, MSRV/no-std
 portability and the 23-block single-unsafe-module/package gates pass. No new
 unsafe block or scalar-reference arithmetic. No ARM execution, dedicated-host,
-Windows/macOS, a downstream engine integration, native triangle-index or phase-0.6/release
+Windows/macOS, a downstream engine integration, native triangle-index or release-0.6/release
 qualification is claimed.
 
 ## Timing receipts

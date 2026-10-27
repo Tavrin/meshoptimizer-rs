@@ -3,8 +3,8 @@
   "passed": true,
   "implementation_commit": "e4055567f37a0735a43c6dc58ef6f1a2c23c1e3f",
   "merge_order": [
-    "parity/rfc113@9027712",
-    "phase/0.6@70686e6"
+    "parity/cluster-lod@9027712",
+    "release/0.6@70686e6"
   ],
   "package_version": "0.1.0",
   "version_bump_deferred_to_coordinator": true,
@@ -144,7 +144,7 @@
       "label": "run-0.1",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.1",
         "--profile",
         "scalar-strict"
@@ -156,7 +156,7 @@
       "label": "sweep-0.1",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.1",
         "--cases-per-family",
         "2000",
@@ -170,7 +170,7 @@
       "label": "run-0.1.x",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.1.x",
         "--profile",
         "scalar-strict",
@@ -184,7 +184,7 @@
       "label": "sweep-0.1.x",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.1.x",
         "--cases-per-family",
         "2000",
@@ -200,7 +200,7 @@
       "label": "run-0.2",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.2",
         "--profile",
         "scalar-strict"
@@ -212,7 +212,7 @@
       "label": "sweep-0.2",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.2",
         "--cases-per-family",
         "2000",
@@ -226,7 +226,7 @@
       "label": "run-0.3",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.3",
         "--profile",
         "scalar-strict"
@@ -238,7 +238,7 @@
       "label": "sweep-0.3",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.3",
         "--cases-per-family",
         "2000",
@@ -252,7 +252,7 @@
       "label": "run-0.4",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.4",
         "--profile",
         "scalar-strict"
@@ -264,7 +264,7 @@
       "label": "sweep-0.4",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.4",
         "--cases-per-family",
         "2000",
@@ -285,10 +285,10 @@
       "log_sha256": "92f6b09ad77034235296bc6824e0d460c408afc37bcd61586ad7db5518bb6407"
     },
     {
-      "label": "rfc113-layouts",
+      "label": "cluster-lod-layouts",
       "command": [
         "python3",
-        "parity/rfc113/run.py",
+        "parity/cluster-lod/run.py",
         "--pairs",
         "0"
       ],
@@ -296,10 +296,10 @@
       "log_sha256": "f08c985df793fdd90dcc4cabc648d0954345c1d8d98e2904e0a6ea54711f669c"
     },
     {
-      "label": "rfc113-codecs",
+      "label": "cluster-lod-codecs",
       "command": [
         "python3",
-        "parity/rfc113/codec.py"
+        "parity/cluster-lod/codec.py"
       ],
       "exit_code": 0,
       "log_sha256": "34058b57f1ee19dc585265606f29929d710ed95791502116823b4a1d95291645"
@@ -310,7 +310,7 @@
       "label": "run-0.1.x",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.1.x",
         "--profile",
         "scalar-strict"
@@ -325,7 +325,7 @@
   ],
   "parity": {
     "run": {
-      "phase": "0.1",
+      "release": "0.1",
       "mismatches": 0,
       "counts": {
         "vertex_cache": 50,
@@ -337,7 +337,7 @@
       "records": {}
     },
     "sweep": {
-      "phase": "0.1",
+      "release": "0.1",
       "mismatches": 0,
       "counts": {
         "vertex_cache": 2000,
@@ -349,7 +349,7 @@
       "records": {}
     },
     "p01x-run": {
-      "phase": "0.1.x",
+      "release": "0.1.x",
       "mismatches": 0,
       "counts": {
         "vertex_cache_strip": 17,
@@ -388,7 +388,7 @@
       "records": {}
     },
     "p01x-sweep": {
-      "phase": "0.1.x",
+      "release": "0.1.x",
       "mismatches": 0,
       "counts": {
         "vertex_cache_strip": 2000,
@@ -427,7 +427,7 @@
       "records": {}
     },
     "run-0.2": {
-      "phase": "0.2",
+      "release": "0.2",
       "mismatches": 0,
       "counts": {},
       "records": {
@@ -436,7 +436,7 @@
       }
     },
     "sweep-0.2": {
-      "phase": "0.2",
+      "release": "0.2",
       "mismatches": 0,
       "counts": {},
       "records": {
@@ -444,7 +444,7 @@
       }
     },
     "run-0.3": {
-      "phase": "0.3",
+      "release": "0.3",
       "mismatches": 0,
       "counts": {
         "upstream-fixtures": 47,
@@ -467,7 +467,7 @@
       "records": {}
     },
     "sweep-0.3": {
-      "phase": "0.3",
+      "release": "0.3",
       "mismatches": 0,
       "counts": {
         "build_meshlets": 2000,
@@ -489,7 +489,7 @@
       "records": {}
     },
     "run-0.4": {
-      "phase": "0.4",
+      "release": "0.4",
       "mismatches": 0,
       "counts": {},
       "records": {
@@ -498,7 +498,7 @@
       }
     },
     "sweep-0.4": {
-      "phase": "0.4",
+      "release": "0.4",
       "mismatches": 0,
       "counts": {},
       "records": {
@@ -506,7 +506,7 @@
       }
     }
   },
-  "rfc113": {
+  "cluster-lod": {
     "supported_layouts": 15,
     "invalid_stride32_setups": 2,
     "codec_comparisons": 90,
@@ -523,7 +523,7 @@
   ],
   "limitations": [
     "two invalid stride-32 S2 protect-mask setups",
-    "phase 0.5 and 0.7 not merged",
+    "release 0.5 and 0.7 not merged",
     "branch timing evidence retained without remeasurement",
     "no remote, GPU or a downstream engine runtime acceptance"
   ]

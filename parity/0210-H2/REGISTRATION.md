@@ -1,7 +1,7 @@
 # H2 instruction gate
 
 Baseline: v0.2.9 (`df7fc567b6540eb06cb583e2d323c01e5797609c`).
-Candidate: this lane, safe Rust, std, no SIMD feature. Peer: meshopt 0.7.0,
+Candidate: this job, safe Rust, std, no SIMD feature. Peer: meshopt 0.7.0,
 vendored meshoptimizer 1.3, `MESHOPTIMIZER_NO_SIMD`.
 
 Use the archived `bench/peer-screen` bet 0 harness, with the retained NAS replay

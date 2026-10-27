@@ -2,13 +2,13 @@
 
 ## Decision and scope
 
-Open a new implementation lane for full-group reconstruction and output, then
+Open a new implementation job for full-group reconstruction and output, then
 wasm batching. The dominant native vertex cost is the checked, counted scatter
 around otherwise packed SIMD math; the dominant wasm cost is inside raw decoding.
 Keep exact scalar arithmetic, malformed-stream checks and the single audited
 unsafe module. Do not substitute upstream rounding or estimates to clear the bar.
 
-Diagnosis starts from clean `phase/0.7` HEAD `002872f` (implementation `4e7eea0`).
+Diagnosis starts from clean `release/0.7` HEAD `002872f` (implementation `4e7eea0`).
 The probe CPU is 26 on an AMD Ryzen 9 7945HX; all reported PMU
 captures have 100% event scheduling, with no unsupported counters.
 No production source, tests, frozen inputs or numeric bars changed. Only this
@@ -172,7 +172,7 @@ distinct from the retired per-byte measurements above.
 | Oct8 | 0xcd50–0xce3c; 58 / 1 | 0x2ddb0–0x2df38; 92 / 2 | C++ `rsqrtps`, three `cvtps2dq`; Rust exact `sqrtps` + `divps`, zero-length error guard, sign-aware half addition + three `cvttps2dq` |
 | Oct16 | 0xcc10–0xccfc; 63 / 1 | 0x2df90–0x2e124; 96 / 2 | Both use sqrt/div; extra Rust zero-length validation, exact arithmetic association and canonical rounding/packing. Estimates cannot explain this row. |
 | Quat | 0xce80–0xcfbe; 82 / 1 | 0x2db90–0x2dd3c; 106 / 1 | Both use sqrt/div and four scalar rotations; Rust preserves scalar association, clamps with canonical compare/select, and rounds signed components with half addition + truncation instead of four nearest conversions |
-| Color8 | 0xd160–0xd251; 56 / 1 | 0x2d7b0–0x2d92a; 91 / 2 | C++ reciprocal estimate + nearest conversion; Rust division, four half additions/truncations and eight lane-wise range comparisons combined into one fallback decision |
+| Color8 | 0xd160–0xd251; 56 / 1 | 0x2d7b0–0x2d92a; 91 / 2 | C++ reciprocal estimate + nearest conversion; Rust division, four half additions/truncations and eight job-wise range comparisons combined into one fallback decision |
 | Color16 | 0xd008–0xd123; 65 / 1 | 0x2d970–0x2daec; 97 / 2 | Both divide; Rust canonical rounding/range checks and fallback still add 32 static instructions |
 
 These account for measured instruction ratios Oct8 1.587, Oct16 1.525, Quat 1.294
@@ -230,7 +230,7 @@ and 7.49% / 8.55% to memset. Thus extra Rust initialization or transport does
 **not** explain the 2.888x allocating matrix maximum. That maximum is genuine
 retained timing evidence, but its additional microarchitectural/shared-host cause
 is not identified by these counters. Do not claim a sequence rewrite will clear
-it; qualify that row under the specified admitted timing procedure in the next lane.
+it; qualify that row under the specified admitted timing procedure in the next job.
 
 ## 4. S3 inversion: classify the 49 historical comparisons and current 19
 
@@ -295,7 +295,7 @@ uses 0.7343 SIMD versus 0.7337 safe-scalar instructions/B: the scalar compiler
 already vectorizes this easy arithmetic, and the explicit vector path adds
 dispatch/tail code with a different generated loop. One current streaming
 interval is only 1.006–1.022, below this diagnosis’s approximately 5% pursuit
-threshold. Retain both S3 failures, but do not spend this lane on marginal
+threshold. Retain both S3 failures, but do not spend this job on marginal
 shared-host Exp effects or infer per-call CPUID from them.
 
 ## 5. wasm: historical scalar islands and current checked loops
@@ -339,7 +339,7 @@ Concrete side-by-side findings:
 | Historical 16-byte group | vector field extraction / masks / swizzle | historical `portable_group!` loops over 16 scalar fields, shifts/divides/indexes and builds mask; another eight-scalar-byte loop builds shuffle; only final expansion uses SIMD |
 | Current 16-byte group | inlined, unrolled four groups per header; full decode token/path selected outside work | wasm32.rs:234–277 uses vector extraction, but generic vertex.rs:109–127 still calls `simd::group` per group, reads dispatch/cache and bits table, validates 24-byte slice, branches 0/8/bits; no wasm whole `bytes`/`vertex` path in simd/mod.rs |
 | Escape tables | fixed packed SIMD configuration and escape shuffle tables | two 16-byte MASKS loads (4096-byte table), two popcounts; mask-to-popcount pointer advance still depends on vector bitmask |
-| Prefix/reconstruction | transpose first; four vector plane loads, eight interleaves, unrolled vector-record prefix and sixteen lane-32 stores; handles byte/halfword/XOR channels in SIMD | current byte prefix is performed per plane: four doubling shuffle/add stages plus previous value per component, then eight interleaves and checked scatter; halfword and rotated XOR still use scalar `decode_deltas` |
+| Prefix/reconstruction | transpose first; four vector plane loads, eight interleaves, unrolled vector-record prefix and sixteen job-32 stores; handles byte/halfword/XOR channels in SIMD | current byte prefix is performed per plane: four doubling shuffle/add stages plus previous value per component, then eight interleaves and checked scatter; halfword and rotated XOR still use scalar `decode_deltas` |
 | Checked control/code size | shipped raw vertex WAT has 37 `br_if` sites and 9 loops | Rust monolithic raw WAT has 257 `br_if` sites, 19 loops and 32 call sites; includes index/sequence alternatives and cold errors, so these are static sites, not per-group counts |
 | V8 codegen | optimized raw function 2: 10,456 instruction bytes / 197 jump sites | optimized raw function 36: 19,016 instruction bytes / 609 jump sites; includes other decoder arms. Raw V8 assembly is retained, including vector code and calls to checked error paths. |
 
@@ -375,7 +375,7 @@ remain. Historical S5 2.457/2.769 and worst 7.281 must not be described as curre
 Effect ranges are engineering targets grounded in instruction budgets or sample
 shares, not promised time results. Use them to select a bounded first experiment;
 accept only source-matched counters and the required parity/gates, then admitted
-timing under the existing frozen cases. A fresh lane must preserve malformed
+timing under the existing frozen cases. A fresh job must preserve malformed
 errors, caller-buffer tails, wrapping and arithmetic identity before claiming gain.
 
 | Rank | Change and expected effect | Exact-parity / unsafe-audit risk | Effort and first acceptance experiment |
@@ -414,5 +414,5 @@ Out-of-scope followup: explaining the extra allocating sequence maximum requires
 matched admitted timing/microarchitectural tracing beyond these structural
 counter probes (2.888x retained time maximum versus 1.300x retired work, with
 similar 7.49%/8.55% memset shares). New full-matrix, ARM/platform, exhaustive
-arithmetic, Miri or release qualification belongs to the implementation lane,
+arithmetic, Miri or release qualification belongs to the implementation job,
 not this diagnosis. No push, merge, rebase or bar/input change is authorized.

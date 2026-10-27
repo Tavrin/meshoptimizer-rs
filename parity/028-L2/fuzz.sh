@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "${MOSS_HEAVY_ACTIVE:?run under ${JOB_RUNNER:?}}"
+: "${PARITY_RUNNER_ACTIVE:?run under ${JOB_RUNNER:?}}"
 export MESHOPT_ARTIFACTS="${SCRATCH:?}"/meshopt-028-L2/fuzz-artifacts
 export MESHOPT_RESULTS="${SCRATCH:?}"/meshopt-028-L2/fuzz-results
 export MESHOPT_FUZZ_CPUS=9 CARGO_BUILD_JOBS=1

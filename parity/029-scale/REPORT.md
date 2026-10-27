@@ -1,4 +1,4 @@
-# SPEC-029 scale strided
+# registered protocol scale strided
 
 ## Layout identification (recorded before library edits)
 
@@ -13,7 +13,7 @@ Source evidence: parity/028-L2/stages.json and stage-support.rs; original
 r2 harness at <scratch>/meshopt-simplify-perf/r2/harness/.
 The specified NAS archive path was absent on first access. The original L2
 scratch is still available locally; use it read-only and copy required sources
-into this lane's scratch. Chain blobs remain read in place.
+into this job's scratch. Chain blobs remain read in place.
 
 Decision: specialize only unmapped 64-byte little-endian byte views. All other
 views, including floats, big endian, other byte strides and remapped views,
@@ -42,7 +42,7 @@ No wall timing campaign on the loaded host. No favorable-sample selection.
 Admission preparation: the generic `python3 build.py` submission inherited the
 shared Python class's 8 GiB historical reservation despite declaring 4 GiB.
 Canceled that queued submission before any build or measurement, and submitted
-the named lane job.sh instead (normal 4 GiB declaration, no class override).
+the named job job.sh instead (normal 4 GiB declaration, no class override).
 Host load average was 31.65 at 14:27 CET; omit wall runs as specified.
 
 ## Implementation and proof scope
@@ -170,6 +170,6 @@ identities are unchanged. Six 60-second shards were needed because the first
 five totaled 299.99 CPU-seconds; the 300-second threshold was not rounded down.
 
 Designated target `<target-dir>` deleted after retaining drivers, exact checkers,
-fuzz binary/corpus, logs, counters and snapshots in lane scratch.
+fuzz binary/corpus, logs, counters and snapshots in job scratch.
 `CLEANUP.json` records 712,124,546 bytes removed; CPU-only <job-runner> receipts
 are in `heavy-receipts.tsv`. No wall campaign or broader C++ parity claim.

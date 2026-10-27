@@ -19,12 +19,12 @@ POLICY = 'coordinator-cpu-only-heavy-4GB-2026-10-06'
 
 
 def admission():
-    assert not os.environ.get('MOSS_GPU_LEASE'), 'CPU timing must not own the GPU lease'
+    assert not os.environ.get('PARITY_GPU_LEASE'), 'CPU timing must not own the GPU lease'
     cpu = int(os.environ['MESHOPT_BENCH_CPU'])
     assert os.sched_getaffinity(0) == {cpu}, 'controller and inherited children must be pinned'
-    active = int(os.environ['MOSS_HEAVY_ACTIVE'])
-    assert int(os.environ['MOSS_HEAVY_RESERVED_GB']) >= 1
-    cap = int(os.environ['MOSS_CARGO_MEMORY_MAX'].removesuffix('G'))
+    active = int(os.environ['PARITY_RUNNER_ACTIVE'])
+    assert int(os.environ['DOWNSTREAM_HEAVY_RESERVED_GB']) >= 1
+    cap = int(os.environ['DOWNSTREAM_CARGO_MEMORY_MAX'].removesuffix('G'))
     assert cap >= 4
     ancestor = os.getpid()
     chain = []
@@ -36,10 +36,10 @@ def admission():
     wrapper = next(r for r in chain if r['pid'] == active)
     assert _public_path('<job-runner> 4 timeout 840 ') in wrapper['command']
     wrapper_env = dict(item.split(b'=', 1) for item in (Path('/proc') / str(active) / 'environ').read_bytes().split(b'\0') if b'=' in item)
-    assert wrapper_env.get(b'MOSS_HEAVY_GPU') == b'0', 'explicit CPU-only queue request required'
-    admitted = Path(os.environ['MOSS_HEAVY_ADMITTED'])
+    assert wrapper_env.get(b'PARITY_RUNNER_GPU') == b'0', 'explicit CPU-only queue request required'
+    admitted = Path(os.environ['DOWNSTREAM_HEAVY_ADMITTED'])
     assert admitted.resolve() == Path('/usr/bin/timeout').resolve()
-    queue = Path(os.environ.get('MOSS_HEAVY_DIR', os.environ.get('MOSS_COORD_DIR', _public_path('<local>/downstream-coord'))))
+    queue = Path(os.environ.get('DOWNSTREAM_HEAVY_DIR', os.environ.get('DOWNSTREAM_COORD_DIR', _public_path('<local>/downstream-coord'))))
     receipt_path = queue / 'heavy.reservations'
     receipt = None
     # The shared pruning writer can expose an empty reservation file briefly.
@@ -48,7 +48,7 @@ def admission():
     for attempt in range(20):
         receipt = next((line for line in receipt_path.read_text().splitlines() if line.split() and line.split()[0] == str(active)), None)
         if receipt is not None:
-            assert int(receipt.split()[1]) == int(os.environ['MOSS_HEAVY_RESERVED_GB'])
+            assert int(receipt.split()[1]) == int(os.environ['DOWNSTREAM_HEAVY_RESERVED_GB'])
             break
         time.sleep(0.01)
     # Keep the spec's scoreboard exclusion. A when-idle unit with only a
@@ -68,7 +68,7 @@ def admission():
                     measuring.append({'pid':process,'cmd':command})
     return {'admitted': not measuring and receipt is not None, 'policy': POLICY, 'gpu_lease_required': False, 'cpu': cpu, 'affinity': sorted(os.sched_getaffinity(0)),
             'units': units, 'measuring': measuring,
-            'heavy_pid': active, 'declared_gb': 4, 'memory_cap_gb': cap, 'reserved_gb': int(os.environ['MOSS_HEAVY_RESERVED_GB']),
+            'heavy_pid': active, 'declared_gb': 4, 'memory_cap_gb': cap, 'reserved_gb': int(os.environ['DOWNSTREAM_HEAVY_RESERVED_GB']),
             'queue_receipt_path': str(receipt_path), 'queue_receipt': receipt,
             'admitted_command_path': str(admitted), 'admitted_command_sha256': hashlib.sha256(admitted.read_bytes()).hexdigest(),
             'ancestors': chain, 'load': os.getloadavg(), 'unix': time.time()}

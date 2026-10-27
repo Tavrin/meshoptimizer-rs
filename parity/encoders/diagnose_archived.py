@@ -13,7 +13,7 @@ def _public_path(value):
 from pathlib import Path
 import subprocess,os
 ROOT=Path(__file__).resolve().parents[2];ART=Path(_public_path('<scratch>/meshopt-v03'));OLD=Path(_public_path('<scratch>/meshopt-cmp'));perf='/usr/lib/linux-hwe-6.17-tools-6.17.0-22/perf'
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 for op in ['vertex-encode','sequence-encode','oct-encode','quat-encode','exp-encode']:
  p=ART/f'scout-sample-{op}.data'
  subprocess.run([perf,'record','-q','-e','instructions:u','-c','100003','-o',str(p),'--','taskset','-c','26',str(OLD/'cmp-driver-defaults-ours'),op,str(OLD/'inputs/medium-smooth.bin'),str(ART/('sample-'+op+'.bin'))],input=b'10000\nstop\n',stdout=subprocess.DEVNULL,check=True)

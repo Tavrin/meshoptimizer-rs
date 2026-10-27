@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Admitted sequential builds and instruction-only diagnosis for SPEC-028 L1."""
+"""Admitted sequential builds and instruction-only diagnosis for registered protocol L1."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -21,7 +21,7 @@ CASES=['tiny-smooth','medium-smooth','medium-seams','medium-sparse','million-smo
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def save(p,x):p.write_text(json.dumps(x,indent=2)+'\n')
 def build(epoch,arms):
-    assert os.environ.get('MOSS_HEAVY_ACTIVE')
+    assert os.environ.get('PARITY_RUNNER_ACTIVE')
     assert Path(os.environ['CARGO_TARGET_DIR'])==TARGET
     prior=ART/f'build-{epoch}.json'
     receipts=json.loads(prior.read_text())if prior.exists()else[]
@@ -34,15 +34,15 @@ def build(epoch,arms):
             manifest=dst/'Cargo.toml'
         features={'ours':'ours,meshoptimizer-rs/experimental,meshoptimizer-rs/clusterlod','base':'ours,meshoptimizer-rs/experimental,meshoptimizer-rs/clusterlod','M7':'peer7','X':'optimesh'}[arm]
         env=dict(os.environ,RUSTC_WRAPPER='',RUSTC_WORKSPACE_WRAPPER='',RUSTFLAGS='',CARGO_ENCODED_RUSTFLAGS='',CARGO_INCREMENTAL='0',CARGO_BUILD_JOBS='1',CXXFLAGS='-DMESHOPTIMIZER_NO_SIMD')
-        cmd=['cargo','build','--manifest-path',str(manifest),'--locked','--offline','--profile','moss','--features',features,'--bin','cmp-driver']
+        cmd=['cargo','build','--manifest-path',str(manifest),'--locked','--offline','--profile','bench-release','--features',features,'--bin','cmp-driver']
         sources=list((ROOT/'src').rglob('*.rs'))+list((LANE/'src').glob('*.rs'))
         before={str(p.relative_to(ROOT)):sha(p)for p in sources}
         log=ART/f'build-{epoch}-{arm}.log';assert not log.exists()
         with log.open('w')as f:r=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT)
         assert before=={str(p.relative_to(ROOT)):sha(p)for p in sources},'source changed during build'
-        row={'env':{k:env.get(k,'')for k in ['CXXFLAGS','RUSTFLAGS','CARGO_ENCODED_RUSTFLAGS','CARGO_BUILD_JOBS','CARGO_PROFILE_MOSS_STRIP']},'arm':arm,'exit':r.returncode,'command':cmd,'admission':os.environ['MOSS_HEAVY_ACTIVE'],'source':{str(p.relative_to(ROOT)):sha(p)for p in list((ROOT/'src').rglob('*.rs'))+list((LANE/'src').glob('*.rs'))}}
+        row={'env':{k:env.get(k,'')for k in ['CXXFLAGS','RUSTFLAGS','CARGO_ENCODED_RUSTFLAGS','CARGO_BUILD_JOBS','CARGO_PROFILE_DOWNSTREAM_STRIP']},'arm':arm,'exit':r.returncode,'command':cmd,'admission':os.environ['PARITY_RUNNER_ACTIVE'],'source':{str(p.relative_to(ROOT)):sha(p)for p in list((ROOT/'src').rglob('*.rs'))+list((LANE/'src').glob('*.rs'))}}
         if r.returncode:print(log.read_text());raise SystemExit(r.returncode)
-        dst=ART/f'driver-{epoch}-{arm}';shutil.copy2(TARGET/'moss/cmp-driver',dst);row['binary_sha256']=sha(dst)
+        dst=ART/f'driver-{epoch}-{arm}';shutil.copy2(TARGET/'bench-release/cmp-driver',dst);row['binary_sha256']=sha(dst)
         receipts.append(row);save(ART/f'build-{epoch}.json',receipts)
         print('built',epoch,arm,flush=True)
 class Driver:
@@ -60,7 +60,7 @@ class Driver:
         self.p.stdin.write('stop\n');self.p.stdin.flush();self.p.communicate(timeout=180);assert self.p.returncode==0
 
 def counts(epoch,arms):
-    assert os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1' and os.environ.get('MOSS_HEAVY_ACTIVE')
+    assert os.environ.get('PARITY_RUNNER_MEASUREMENT')=='1' and os.environ.get('PARITY_RUNNER_ACTIVE')
     rows=[];out=ART/f'counts-{epoch}.json';assert not out.exists()
     for op in OPS:
         for case in CASES:
@@ -88,7 +88,7 @@ def counts(epoch,arms):
                 save(out,rows)
             print('counts',epoch,op,case,flush=True)
 def profile(epoch):
-    assert os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'
+    assert os.environ.get('PARITY_RUNNER_MEASUREMENT')=='1'
     for op in OPS:
         d=Driver(epoch,'ours',op,'medium-smooth')
         dst=ART/f'profile-{op}.data'

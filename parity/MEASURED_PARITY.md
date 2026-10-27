@@ -18,7 +18,7 @@ Local checks do not establish remote macOS, Windows or Linux arm64 execution. CI
 
 Overall release qualification: incomplete or blocked; see MEASURED_RESULTS.json.
 
-Phase 0.5 historical evidence is assessed separately below.
+Release 0.5 historical evidence is assessed separately below.
 
 ## 0.5 local qualification
 

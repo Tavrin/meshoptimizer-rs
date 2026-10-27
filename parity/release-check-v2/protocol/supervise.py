@@ -16,7 +16,7 @@ attempt=1;segment=0
 while True:
  segment+=1
  with (s/f'{arm}-attempt-{attempt}-segment-{segment}.log').open('x') as log:
-  p=subprocess.run([_public_path('<job-runner>'),'4',str(s/'run.sh'),arm,str(attempt)],stdout=log,stderr=subprocess.STDOUT,env={**os.environ,'MOSS_HEAVY_MEASUREMENT':'1','MOSS_LANE':'meshopt-release-v2'})
+  p=subprocess.run([_public_path('<job-runner>'),'4',str(s/'run.sh'),arm,str(attempt)],stdout=log,stderr=subprocess.STDOUT,env={**os.environ,'PARITY_RUNNER_MEASUREMENT':'1','PARITY_JOB':'meshopt-release-v2'})
  with (s/'attempts.jsonl').open('a') as f:f.write(json.dumps({'arm':arm,'attempt':attempt,'segment':segment,'exit':p.returncode,'unix':time.time()})+'\n')
  if p.returncode==0:break
  if p.returncode==75:

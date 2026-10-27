@@ -5,7 +5,7 @@ Unpublished measurement consumers; no library changes. Read
 
 Use `CARGO_TARGET_DIR=<target-dir>`.
 Every build and collection runs sequentially inside
-`MOSS_HEAVY_GPU=0 MOSS_HEAVY_DISK_FLOOR_GB=26 MOSS_LANE=meshopt-cmp
+`PARITY_RUNNER_GPU=0 DOWNSTREAM_HEAVY_DISK_FLOOR_GB=26 PARITY_JOB=meshopt-cmp
 <job-runner> 4 timeout 840 ...`.
 The wrapper uses rounded integer GiB; 26 keeps admission above 25 actual GiB.
 The scripts additionally enforce a 25 GiB byte-level floor. Pause and requeue
@@ -16,16 +16,16 @@ directory and give the helpers a new, consistent `ART` directory. Re-generating
 the existing report uses its retained source inventories and measurements.
 
 1. `python3 parity/compare/build.py defaults ours`, then `defaults theirs`,
-   `moss ours`, and `moss theirs`. Each backend/profile starts with an empty
-   lane target, builds the decode consumer once, touches that consumer once
+   `downstream ours`, and `downstream theirs`. Each backend/profile starts with an empty
+   job target, builds the decode consumer once, touches that consumer once
    for a rebuild, and builds the API-root and timing consumers. Never delete
-   another lane's cache. Build scripts retain binaries before the next clean.
+   another job's cache. Build scripts retain binaries before the next clean.
 2. `python3 parity/compare/measure.py prepare` freezes existing `runner.grid`
    / `performance.geometry` inputs and produces lossless codec/filter fixtures.
    After final driver builds, run `seal.py` once to seal the source epoch.
 3. `python3 parity/compare/measure.py defaults outputs` checks every shared
    family against both implementations, including independent validity checks.
-4. `python3 parity/compare/measure.py defaults timing`, then `moss timing`.
+4. `python3 parity/compare/measure.py defaults timing`, then `downstream timing`.
    Resident drivers share a selected physical CPU; algorithm setup, validation,
    allocating outputs, required copies, scratch and destruction are timed.
    Input parsing/generation, process launch, serialization, output normalization,

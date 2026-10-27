@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p05-profile/1",
-  "phase": "0.5",
+  "release": "0.5",
   "profile": "default",
   "profile_complete": true,
   "benchmark_sha256": "e49954994582a163d1fe5a186733b8b3d20c48713eb5ad4fb24b7730e81483df",

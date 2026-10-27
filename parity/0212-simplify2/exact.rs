@@ -184,7 +184,7 @@ fn main() {
     if args.get(1).is_some_and(|x| x == "fuzz") {
         let seed = args[2].parse().unwrap();
         let mut rng = Rng(seed);
-        // Reach every prepaid phase, hash batches and low-budget fallbacks.
+        // Reach every prepaid release, hash batches and low-budget fallbacks.
         for i in 0..64 {
             let mut c = mesh((rng.next()%6) as usize, 3+(rng.next()%96) as usize);
             c.layout = (rng.next()%3) as u8;

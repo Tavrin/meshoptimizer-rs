@@ -1400,7 +1400,7 @@
     "resume_admission": "queued behind a downstream engine train11 push priority; no bypass",
     "resume_started_utc": "2026-10-25T09:01:41.211407+00:00",
     "resume_wall_seconds": 8401,
-    "resume_command": "parity/fuzz.sh --phase 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --resume --wall-seconds 8401",
+    "resume_command": "parity/fuzz.sh --release 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --resume --wall-seconds 8401",
     "resume_exit": 0,
     "resume_outcome": "complete",
     "resume_finished_utc": "2026-10-25T09:49:54.079909+00:00",

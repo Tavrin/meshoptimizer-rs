@@ -1,11 +1,11 @@
-# SPEC-027 lane C evidence
+# registered protocol job C evidence
 
 All heavy commands run from this worktree through
 `<job-runner>`, declaring at most 4 GB,
-with `MOSS_HEAVY_GPU=0` and
+with `PARITY_RUNNER_GPU=0` and
 `CARGO_TARGET_DIR=<target-dir>`.
-Use a lane-specific `MOSS_HEAVY_CLASS` for build, instructions, proof and gates
-so unrelated Python jobs do not determine this lane's reservation history.
+Use a job-specific `DOWNSTREAM_HEAVY_CLASS` for build, instructions, proof and gates
+so unrelated Python jobs do not determine this job's reservation history.
 
 The comparator is exported unchanged from `bench/peer-screen` into
 `<scratch>/meshopt-peer-c/parity/compare`. Separate scratch
@@ -39,11 +39,11 @@ Execution order:
 5. `gates.sh` records fmt, all-feature tests, and all-target/all-feature clippy
    with warnings denied. No 10k sweep or timed fuzz campaign.
 6. `campaign.py CANDIDATE BASE X` under
-   `MOSS_HEAVY_MEASUREMENT=1` implements REGISTRATION.md. It creates its receipt
+   `PARITY_RUNNER_MEASUREMENT=1` implements REGISTRATION.md. It creates its receipt
    exclusively and refuses another campaign. All ten pairs, calibrations,
    per-case intervals, family intervals and the same-session floor are retained.
 7. Retain compact receipts in this directory, push a signed-off Tavrin commit
    and draft PR, append the spec resume, and delete the designated target.
 
 The scratch baseline and oracle sources are private proof inputs, not changes
-to another lane. This lane never writes another lane's worktree.
+to another job. This job never writes another job's worktree.

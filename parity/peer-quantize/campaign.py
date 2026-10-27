@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single registered SPEC-027 A campaign; refuse an existing result stream."""
+"""Single registered registered protocol A campaign; refuse an existing result stream."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -14,8 +14,8 @@ from pathlib import Path
 import hashlib,json,math,os,random,select,statistics,subprocess,sys,time
 S=Path(os.environ.get('PEER_SCRATCH',_public_path('<scratch>/meshopt-peer-a')))
 ROOT=Path(__file__).resolve().parents[2]
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
-assert os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_MEASUREMENT')=='1'
 assert not (S/'wall.json').exists(),'exactly one campaign; no reruns'
 sys.path.insert(0,str(ROOT/'parity'))
 import quiet

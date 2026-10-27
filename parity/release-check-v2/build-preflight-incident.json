@@ -4,7 +4,7 @@
   "cause": "CARGO_ENCODED_RUSTFLAGS empty overrides RUSTFLAGS. Corrected script was edited during execution causing terminal syntax error. All five binaries retained; Bp/Cp initial unqualified copies preserved. Rebuild only perturbation arms with immutable corrected script. Qualification queue canceled before execution.",
   "measurement_failure": false,
   "qualification_build_oom": {
-    "stage": "real-case migration checker dependency moss_runtime",
+    "stage": "real-case migration checker dependency downstream_runtime",
     "cap_GiB": 7,
     "cgroup_peak_GiB": 7,
     "retry": "<job-runner> built-in single cap-OOM retry, 11 GiB",

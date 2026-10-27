@@ -21,14 +21,14 @@ def bootstrap(pairs):
     return {'ratio':math.exp(statistics.mean(logs)),'lower95':math.exp(res[249]),'upper95':math.exp(res[9749])}
 
 def build_rfc():
-    assert os.environ.get('MOSS_HEAVY_ACTIVE')
+    assert os.environ.get('PARITY_RUNNER_ACTIVE')
     records=[]
-    cmd=['cargo','build','--locked','--offline','--manifest-path',str(LANE/'Cargo.toml'),'--profile','moss','--features','ours,full','--bin','l1-rfc113']
+    cmd=['cargo','build','--locked','--offline','--manifest-path',str(LANE/'Cargo.toml'),'--profile','bench-release','--features','ours,full','--bin','l1-cluster-lod']
     with (ART/'rfc-build.log').open('x')as f:p=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
     records.append({'command':cmd,'exit':p.returncode});save(ART/'rfc-build.json',records);assert p.returncode==0
-    shutil.copy2(TARGET/'moss/l1-rfc113',ART/'rfc-ours')
+    shutil.copy2(TARGET/'bench-release/l1-cluster-lod',ART/'rfc-ours')
     vendor=Path(_public_path('<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer'))
-    cmd=['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off','-I'+str(vendor/'src'),'-I'+str(vendor),str(LANE/'rfc113-bridge.cpp'),str(LANE/'rfc113-reference.cpp'),*[str(p)for p in sorted((vendor/'src').glob('*.cpp'))],'-o',str(ART/'rfc-cpp')]
+    cmd=['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off','-I'+str(vendor/'src'),'-I'+str(vendor),str(LANE/'cluster-lod-bridge.cpp'),str(LANE/'cluster-lod-reference.cpp'),*[str(p)for p in sorted((vendor/'src').glob('*.cpp'))],'-o',str(ART/'rfc-cpp')]
     with (ART/'rfc-cpp-build.log').open('x')as f:p=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
     records.append({'command':cmd,'exit':p.returncode});save(ART/'rfc-build.json',records);assert p.returncode==0
     old=Path(_public_path('<scratch>/meshopt-cluster-c'));cases=json.loads((old/'cases.json').read_text())
@@ -36,7 +36,7 @@ def build_rfc():
     for c in cases:
         source=Path(c['input']);assert sha(source)==c['input_sha256'];dst=folder/source.name;shutil.copy2(source,dst);c['input']=str(dst)
     save(ART/'rfc-cases.json',cases)
-    save(ART/'rfc-identity.json',{'source':{str(p):sha(p)for p in [LANE/'rfc113.rs',LANE/'rfc113-bridge.cpp',LANE/'rfc113-reference.cpp',vendor/'clusterlod.h',*sorted((vendor/'src').glob('*.cpp'))]},'binaries':{a:sha(ART/f'rfc-{a}')for a in ['ours','cpp']}})
+    save(ART/'rfc-identity.json',{'source':{str(p):sha(p)for p in [LANE/'cluster-lod.rs',LANE/'cluster-lod-bridge.cpp',LANE/'cluster-lod-reference.cpp',vendor/'clusterlod.h',*sorted((vendor/'src').glob('*.cpp'))]},'binaries':{a:sha(ART/f'rfc-{a}')for a in ['ours','cpp']}})
 class RfcDriver:
     def __init__(self,arm):self.p=subprocess.Popen(['taskset','-c',str(CORE),str(ART/f'rfc-{arm}')],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
     def run(self,data):
@@ -57,7 +57,7 @@ def preflight_rfc():
         for d in pool.values():d.close()
 
 def wall():
-    assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'
+    assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ.get('PARITY_RUNNER_MEASUREMENT')=='1'
     qualification=json.loads((ART/'QUALIFIED.json').read_text())
     assert qualification['exit']==0
     assert all(sha(ROOT/p)==h for p,h in qualification['source'].items()),'qualified source changed'

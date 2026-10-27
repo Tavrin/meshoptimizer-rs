@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build SPEC-03 consumers; invoke inside <job-runner> admission."""
+"""Build registered protocol consumers; invoke inside <job-runner> admission."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ART = Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS', _public_path('<scratch>/meshopt-enc03')))
 TARGET = Path(_public_path('<target-dir>'))
 assert Path(os.environ['CARGO_TARGET_DIR']) == TARGET
-assert os.environ.get('MOSS_HEAVY_ACTIVE'), _public_path('run through <job-runner>')
+assert os.environ.get('PARITY_RUNNER_ACTIVE'), _public_path('run through <job-runner>')
 ART.mkdir(parents=True, exist_ok=True)
 (TARGET / 'tmp').mkdir(parents=True, exist_ok=True)
 ENV = dict(os.environ, MESHOPT_REFERENCE=_public_path('<refs>/meshoptimizer'),
@@ -77,7 +77,7 @@ def existing(path):
     return True
 
 
-for profile in ('defaults', 'moss'):
+for profile in ('defaults', 'downstream'):
     ENV.update(CARGO_PROFILE_RELEASE_LTO='false' if profile == 'defaults' else 'thin',
                CARGO_PROFILE_RELEASE_CODEGEN_UNITS='16' if profile == 'defaults' else '1',
                CARGO_PROFILE_RELEASE_STRIP='symbols')
@@ -94,9 +94,9 @@ for profile in ('defaults', 'moss'):
         destination = ART / f'cmp-driver-{profile}-{backend}'
         if existing(destination):
             continue
-        run(['cargo', 'build', '--offline', '--locked', '--profile', profile,
+        run(['cargo', 'build', '--offline', '--locked', '--profile', ('bench-release' if profile == 'downstream' else profile),
              '--manifest-path', 'parity/compare/Cargo.toml', '--features', backend, '--bin', 'cmp-driver'])
-        shutil.copy2(TARGET / profile / 'cmp-driver', destination)
+        shutil.copy2(TARGET / ('bench-release' if profile == 'downstream' else profile) / 'cmp-driver', destination)
         binaries[destination.name] = sha(destination)
 
 reference = Path(ENV['MESHOPT_REFERENCE'])
@@ -117,8 +117,8 @@ manifest = {'revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cw
             'rustc': subprocess.check_output(['rustc', '-Vv'], text=True),
             'cxx': subprocess.check_output(['c++', '--version'], text=True),
             'source': source, 'consumer': consumer, 'binaries': binaries,
-            'commands': commands, 'admission': os.environ['MOSS_HEAVY_ACTIVE'],
-            'profiles': {'defaults': {'lto': False, 'codegen-units': 16}, 'moss': {'lto': 'thin', 'codegen-units': 1}}}
+            'commands': commands, 'admission': os.environ['PARITY_RUNNER_ACTIVE'],
+            'profiles': {'defaults': {'lto': False, 'codegen-units': 16}, 'downstream': {'lto': 'thin', 'codegen-units': 1}}}
 if prior:
     # Do not erase the original build receipt when checking a completed build.
     (ART / 'build-reuse.json').write_text(json.dumps(manifest, indent=2) + '\n')

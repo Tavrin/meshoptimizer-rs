@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p05-fuzz-summary/1",
-  "phase": "0.5",
+  "release": "0.5",
   "passed": true,
   "detail_artifact": "fuzz-0.5/record.json",
   "detail_sha256": "b67f55d5496ae96c2019312fd914e9515573b9ceb6af3b46b4293e8d5866e005",

@@ -1,4 +1,4 @@
-# RFC 113 S2 cluster LOD parity
+# design requirements S2 cluster LOD parity
 
 `run.py` compares the exact S2 bridge output with a safe Rust equivalent. Its
 `bridge.cpp` is a byte-for-byte copy of S2's `cluster_lod_bridge.cpp`, checked
@@ -16,7 +16,7 @@ time. All three drivers stay pinned to one CPU and samples alternate scalar
 C++, a downstream engine-style SIMD C++, and Rust order. The runner samples `/proc/stat` for
 one second and chooses the least busy allowed core unless `--core` is supplied.
 It excludes cores 0 and 1, used by concurrent benchmark lanes, by default;
-`MESHOPT_RFC113_EXCLUDE_CORES` changes that list.
+`MESHOPT_CLUSTER_LOD_EXCLUDE_CORES` changes that list.
 It records load average and selected-core utilization over the run.
 Input preparation, pipe transfer, and process launch are outside this timer;
 decoding the framed input and serializing the DAG are inside it.
@@ -31,27 +31,27 @@ payload files.
 Run from the repository root:
 
 ```sh
-python3 parity/rfc113/run.py --pairs 20
-python3 parity/rfc113/codec.py
-python3 parity/rfc113/differential.py
-python3 parity/rfc113/budget.py
-python3 parity/rfc113/profile.py --core 21
+python3 parity/cluster-lod/run.py --pairs 20
+python3 parity/cluster-lod/codec.py
+python3 parity/cluster-lod/differential.py
+python3 parity/cluster-lod/budget.py
+python3 parity/cluster-lod/profile.py --core 21
 ```
 
 Results are `result.json`, `codec.json`, `differential.json`, `budget.json`, and small perf call-graph summaries under
-`<artifacts>/rfc113`. The small handoff is
-`parity/results/rfc113-clod.md`. Pass `--case mesh:stride` to either runner
+`<artifacts>/cluster-lod`. The small handoff is
+`parity/results/cluster-lod-clod.md`. Pass `--case mesh:stride` to either runner
 for a single deterministic reproduction.
 
-Set `MESHOPT_RFC113_MOSS_DIR` to the a downstream engine cooker directory,
-`MESHOPT_RFC113_MESH_DIR` to the frozen `.mesh` directory,
-`MESHOPT_RFC113_ART_DIR` to the artifact directory, and `CARGO_TARGET_DIR`
+Set `MESHOPT_CLUSTER_LOD_DOWNSTREAM_DIR` to the downstream engine cooker directory,
+`MESHOPT_CLUSTER_LOD_MESH_DIR` to the frozen `.mesh` directory,
+`MESHOPT_CLUSTER_LOD_ART_DIR` to the artifact directory, and `CARGO_TARGET_DIR`
 to the build target. Their current paths are the defaults in `run.py`; this
-performance lane uses
+performance job uses
 `CARGO_TARGET_DIR=<target-dir>`.
 
 `differential.py` archives the exact `main` commit into the artifact directory,
-builds its phase 0.3 Rust driver, then builds the current Rust driver and the
+builds its release 0.3 Rust driver, then builds the current Rust driver and the
 vendored scalar C++ demo driver. It compares the complete cluster-LOD result,
 including post-dilation positions, on deterministic large, sparse, 32-attribute,
 compact-threshold, and near-`1e8` cases. The archive is never checked out into
@@ -62,7 +62,7 @@ old success still succeeds, and compares error kinds where both sides fail.
 The scalar C++ build uses `MESHOPTIMIZER_NO_SIMD` and strict scalar float
 flags. The second C++ build mirrors a downstream engine's release `cc` flags, including
 `-O3` and SIMD enabled; it is the adoption reference, while the scalar build
-remains this lane's performance bar.
+remains this job's performance bar.
 
 S2's own `mesh_vertex_stride_for_layout` accepts 48, 64, 72, and 88 bytes.
 The spec also requests 32-byte pos/nrm/uv coverage. S2's bit-8 protect mask
@@ -70,7 +70,7 @@ violates `clodBuild`'s `mask < 1 << (stride / 4)` assertion at stride 32 and
 reads beyond the last vertex if assertions are disabled. The runner records
 this setup as invalid and does not claim 32-byte parity or timing.
 
-## Caller-buffer S1 oracle (cluster lane A)
+## Caller-buffer reference oracle (cluster job A)
 
 `dag_oracle.rs` is an unpublished, format-specific harness for the additive
 `clusterlod::build_dag_into` API. The library owns no MCLD flags or serialization.
@@ -92,9 +92,9 @@ records their SHA-256 hashes and configuration. Through `<job-runner>`, build:
 
 ```sh
 export CARGO_TARGET_DIR=<target-dir>
-cargo build --release --manifest-path parity/rfc113/Cargo.toml --bin rfc113-dag-oracle
-python3 parity/rfc113/dag_oracle.py --milestone
-python3 parity/rfc113/dag_oracle.py
+cargo build --release --manifest-path parity/cluster-lod/Cargo.toml --bin cluster-lod-dag-oracle
+python3 parity/cluster-lod/dag_oracle.py --milestone
+python3 parity/cluster-lod/dag_oracle.py
 ```
 
 The runner checks the 695-file cooker corpus and frozen input hashes before

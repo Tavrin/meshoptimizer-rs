@@ -1,4 +1,4 @@
-# SPEC-027 lane B — overdraw peer gaps
+# registered protocol job B — overdraw peer gaps
 
 Baseline v0.2.6 at 33556c48efc13f3f36a9293aa5fbf451c0884fe3.
 Scratch: `<scratch>/meshopt-peer-b/`.
@@ -19,7 +19,7 @@ Use the retained corpus byte-for-byte, verifying every input hash.
 
 The first instruction job was queued under the machine's generic Python
 class (9 GB historical reservation); canceled before execution, then submitted
-through the lane's named shell entry with its own measured class and the same
+through the job's named shell entry with its own measured class and the same
 4 GB declaration. No samples were produced or discarded.
 The first admitted counter probe could not launch: /usr/bin/perf is a kernel
 version shim and lacks a tool for kernel 7.0.0-28. Use the installed real
@@ -95,7 +95,7 @@ sort scan batching for both. The final campaign remains unstarted.
 - `src/overdraw.rs:148`: factor the original triangle/cluster arithmetic
   without changing expressions or evaluation order.
 - `src/overdraw.rs:312`: one layout-specialized geometry scan for strided
-  storage when the complete phase fits; charge started clusters even on
+  storage when the complete release fits; charge started clusters even on
   numerical error. Packed storage and tight fuel retain per-cluster scans.
 - `src/overdraw.rs:361`: batch the three fixed sort scans with Work::scan,
   preserving exact error/fuel prefixes. No API, unsafe, encoder, SIMD or
@@ -179,7 +179,7 @@ and verifies source/binary identity. No completed pair was excluded.
 
 All-feature cargo tests: 212 passed, including the root/backend numerical
 check. Clippy covers all targets and features with -D warnings. fmt passed.
-All heavy jobs declared at most 4 GB with MOSS_HEAVY_GPU=0. Admission receipt
+All heavy jobs declared at most 4 GB with PARITY_RUNNER_GPU=0. Admission receipt
 logs, including initial setup failures, are retained. The first successful
 counter launch also exposed a CSV comment-header parsing error; its raw
 count is retained, followed by the complete pre-edit baseline-r3 record.
@@ -188,5 +188,5 @@ count is retained, followed by the complete pre-edit baseline-r3 record.
 
 The designated Cargo target was deleted after retaining both std/no_std
 checkers and all four comparison arms; CLEANUP.json verifies removal.
-Full evidence remains in lane scratch. No merge, tag, publish or version bump.
+Full evidence remains in job scratch. No merge, tag, publish or version bump.
 Stop after the draft PR and resume entry; both registered PARTIAL verdicts stand.

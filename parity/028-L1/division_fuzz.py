@@ -2,7 +2,7 @@
 """CPU-accounted property fuzzing of the production invariant divider."""
 import subprocess,resource,json,sys,time,shutil
 from control import ART,LANE,TARGET,ROOT,sha,save
-assert __import__('os').environ.get('MOSS_HEAVY_ACTIVE')
+assert __import__('os').environ.get('PARITY_RUNNER_ACTIVE')
 cmd=['cargo','build','--locked','--offline','--release','--manifest-path',str(LANE/'Cargo.toml'),'--bin','l1-division-fuzz']
 with (ART/'division-fuzz-build.log').open('x')as f:r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)
 assert r.returncode==0

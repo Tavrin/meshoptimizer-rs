@@ -7,9 +7,9 @@
 #include <stdexcept>
 #include "meshoptimizer.h"
 
-extern "C" int moss_clod_build(const float*, uint32_t, uint32_t, const uint32_t*, uint32_t,
+extern "C" int downstream_clod_build(const float*, uint32_t, uint32_t, const uint32_t*, uint32_t,
     const unsigned char*, bool, bool, void**, const unsigned char**, size_t*) noexcept;
-extern "C" void moss_clod_free(void*) noexcept;
+extern "C" void downstream_clod_free(void*) noexcept;
 
 static uint32_t u32(const unsigned char* p) {
     return uint32_t(p[0]) | uint32_t(p[1]) << 8 | uint32_t(p[2]) << 16 | uint32_t(p[3]) << 24;
@@ -48,9 +48,9 @@ int main() {
         for (size_t i=0;i<vertices.size();++i,p+=4) { uint32_t bits=u32(p); std::memcpy(&vertices[i],&bits,4); }
         for (size_t i=0;i<indices.size();++i,p+=4) indices[i]=u32(p);
         void* handle=nullptr; const unsigned char* bytes=nullptr; size_t length=0;
-        int status=moss_clod_build(vertices.data(),nv,stride,indices.data(),ni,p,u32(input.data()+16)!=0,u32(input.data()+20)!=0,&handle,&bytes,&length);
+        int status=downstream_clod_build(vertices.data(),nv,stride,indices.data(),ni,p,u32(input.data()+16)!=0,u32(input.data()+20)!=0,&handle,&bytes,&length);
         uint64_t elapsed=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-started).count();
-        if (status || !bytes || length > 256u << 20) { std::fprintf(stderr,"moss_clod_build status %d\n",status); moss_clod_free(handle); return 3; }
+        if (status || !bytes || length > 256u << 20) { std::fprintf(stderr,"downstream_clod_build status %d\n",status); downstream_clod_free(handle); return 3; }
         std::vector<unsigned char> augmented;
         if (bounds_mode) {
             augmented.assign(bytes,bytes+length);
@@ -89,7 +89,7 @@ int main() {
         unsigned char n[4]={static_cast<unsigned char>(length),static_cast<unsigned char>(length>>8),
             static_cast<unsigned char>(length>>16),static_cast<unsigned char>(length>>24)};
         bool ok=std::fwrite(n,1,4,stdout)==4 && std::fwrite(bytes,1,length,stdout)==length && std::fflush(stdout)==0;
-        moss_clod_free(handle);
+        downstream_clod_free(handle);
         if (!ok) return 4;
     }
 }

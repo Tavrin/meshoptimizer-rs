@@ -13,7 +13,7 @@ def _public_path(value):
 import hashlib, json, os, subprocess, sys
 from pathlib import Path
 ART = Path(_public_path('<scratch>/meshopt-028-L2'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 binaries=dict(zip(['candidate','base','M7','X'],sys.argv[1:]))
 def sha(p):
  h=hashlib.sha256()

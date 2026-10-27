@@ -15,7 +15,7 @@ ROOT=Path(__file__).resolve().parents[2]
 ART=Path(_public_path('<scratch>/meshopt-0210-H1'))
 REF=Path(_public_path('<refs>/meshoptimizer'))
 TARGET=Path(os.environ['CARGO_TARGET_DIR'])
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 sys.path.insert(0,str(ROOT/'parity'))
 import runner as r
 import p01x

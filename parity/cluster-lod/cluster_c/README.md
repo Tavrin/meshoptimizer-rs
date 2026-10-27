@@ -1,4 +1,4 @@
-# Cluster lane C proof adapters
+# Cluster job C proof adapters
 
 The registration and receipts are retained under
 `<scratch>/meshopt-cluster-c/`. `REGISTRATION.md` precedes

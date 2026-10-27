@@ -16,7 +16,7 @@ ROOT=Path(__file__).resolve().parents[2]
 ART=Path(_public_path('<scratch>/meshopt-029-scale'))
 OLD=Path(_public_path('<scratch>/meshopt-028-L2'))
 PERF='/usr/lib/linux-tools/6.17.0-22-generic/perf'
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 epoch=sys.argv[1]
 out=ART/('instructions-'+epoch)
 out.mkdir()  # retain every campaign, including rejected probes
@@ -69,7 +69,7 @@ for case in cases:
             instructions=int(fields[0]);assert float(fields[4])>=99.0,fields
             row=dict(case=case['case'],arm=arm,rep=rep,instructions=instructions,iterations=case['iterations'],per_call=instructions/case['iterations'],bits=bits,binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest())
             rows.append(row)
-            (out/'raw.json').write_text(json.dumps(dict(cases=cases,rows=rows,admission=os.environ['MOSS_HEAVY_ACTIVE']),indent=2)+'\n')
+            (out/'raw.json').write_text(json.dumps(dict(cases=cases,rows=rows,admission=os.environ['PARITY_RUNNER_ACTIVE']),indent=2)+'\n')
     med={arm:statistics.median(r['per_call'] for r in rows if r['case']==case['case'] and r['arm']==arm) for arm in ['base','M7','candidate']}
     print(case['case'],med,'candidate/base',med['candidate']/med['base'],'candidate/M7',med['candidate']/med['M7'],flush=True)
 summary=[]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bind retained receipts and render measured results into the lane report."""
+"""Bind retained receipts and render measured results into the job report."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):

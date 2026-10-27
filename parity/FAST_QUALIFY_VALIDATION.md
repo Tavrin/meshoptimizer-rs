@@ -10,14 +10,14 @@ kept outside the repository.
 
 Acceptance requires all ten mandatory revision/profile comparisons:
 
-| Revision label | Phase | Profiles |
+| Revision label | Release | Profiles |
 |---|---|---|
-| main | 0.1 | moss, default |
+| main | 0.1 | downstream, default |
 | main | 0.2 | default |
 | main | 0.3 | consumer, release-defaults |
-| main | 0.4 | moss, default |
-| phase/0.1.x | 0.1.x preprocessing | moss, default |
-| phase/0.1.x | 0.1 geometry | crate |
+| main | 0.4 | downstream, default |
+| release/0.1.x | 0.1.x preprocessing | downstream, default |
+| release/0.1.x | 0.1 geometry | crate |
 
 Labels alone are insufficient: each comparison must bind exact library,
 oracle, dependency, build-profile and case-input identity. If the historical
@@ -33,7 +33,7 @@ wall times and matching single-core/parallel smoke dispersion. Smoke never
 qualifies a release. All required evidence must exist before issuing a receipt.
 
 The unchanged bars are geometric mean <= 1.25, case maximum <= 1.50, memory
-ratio <= 1.25 and the exact registered phase 0.2 decoder floors. Sequential
+ratio <= 1.25 and the exact registered release 0.2 decoder floors. Sequential
 intervals assume independent stationary samples; family-mean acceptance is
 an empirical comparison, not a confidence-sequence claim. There is no 0.5
 adapter, so this method does not qualify that matrix.

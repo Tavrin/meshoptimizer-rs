@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "${MOSS_HEAVY_ACTIVE:?all builds and validation require <job-runner>}"
-[[ ${MOSS_HEAVY_GPU:-} == 0 ]]
+: "${PARITY_RUNNER_ACTIVE:?all builds and validation require <job-runner>}"
+[[ ${PARITY_RUNNER_GPU:-} == 0 ]]
 ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
 S=${MESHOPT_SCRATCH:?set the scratch directory}
 cd "$ROOT"

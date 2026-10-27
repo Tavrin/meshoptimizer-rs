@@ -1,19 +1,20 @@
 {
   "schema": "meshopt-summary/1",
   "historical": false,
-  "phase": "0.1.x",
   "command": "benchmark",
   "passed": false,
-  "mismatches": 0,
-  "detail_artifact": "benchmark-moss-integrated/p01x-benchmark-moss.json",
+  "release": "0.1",
+  "seed": null,
+  "profile": "downstream",
+  "detail_artifact": "benchmark-downstream-integrated/benchmark.json",
   "artifacts": {
-    "benchmark-moss-integrated/p01x-benchmark-moss.json": "7476a73ca679a6290e5f50ce1f1010312eb7b111c7f8945dceefa5910c4160e2",
-    "benchmark-moss-integrated/p01x-benchmark-moss-buffers.zip": "6c7b5e91cc10875bae6eb6baeafb7274b69529d174c94ad7f9b20886aed48c9b",
-    "benchmark-moss-integrated/sources.tar.gz": "958297057ca57ce6123b560376a560c3dd311e036d14fd0815d706277bd2deae",
-    "benchmark-moss-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
-    "benchmark-moss-integrated/binaries/rust": "52dab25ed6faab1a604d9d4860c5f3c2a0d1f5f75869bd2dc5fbf68bb72fef3a",
-    "benchmark-moss-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
-    "benchmark-moss-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
+    "benchmark-downstream-integrated/benchmark.json": "72e6194f9a460af5c7c07606a63d660e227bb4e16ae6bf32caf599b765d3172e",
+    "benchmark-downstream-integrated/benchmark-buffers.zip": "aa65cfc91338f53763758dc592792f18917e8f747e58f15882bea7dea3dede2b",
+    "benchmark-downstream-integrated/sources.tar.gz": "958297057ca57ce6123b560376a560c3dd311e036d14fd0815d706277bd2deae",
+    "benchmark-downstream-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
+    "benchmark-downstream-integrated/binaries/rust": "52dab25ed6faab1a604d9d4860c5f3c2a0d1f5f75869bd2dc5fbf68bb72fef3a",
+    "benchmark-downstream-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
+    "benchmark-downstream-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
   },
   "identities": {
     "source_sha256": {
@@ -488,201 +489,65 @@
       "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "1"
     }
   },
-  "profile": "moss",
-  "workload_count": 912,
-  "families": {
-    "vertex_cache_strip": {
-      "geometric_mean": 1.1596370717761513,
-      "maximum": 1.300600734813683,
+  "started_unix": 1791139869.5565765,
+  "finished_unix": 1791141547.6622953,
+  "identities_unchanged": true,
+  "functions": {
+    "vertex_cache": {
+      "cases": 24,
+      "geometric_mean": 1.1837402804554626,
+      "maximum": 1.329843803902641,
       "maximum_memory_ratio": 1.0,
       "passed": true
     },
-    "vertex_cache_fifo": {
-      "geometric_mean": 1.1802812614960725,
-      "maximum": 1.3919339153678545,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_vertex_remap": {
-      "geometric_mean": 1.0043314368151233,
-      "maximum": 1.1233847232415088,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_vertex_remap_multi": {
-      "geometric_mean": 0.9332869410979733,
-      "maximum": 1.0096157717016134,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_vertex_remap_custom": {
-      "geometric_mean": 1.0126383401068606,
-      "maximum": 1.561243763139231,
-      "maximum_memory_ratio": 1.0,
+    "overdraw": {
+      "cases": 24,
+      "geometric_mean": 1.100887049264617,
+      "maximum": 1.5221247948789323,
+      "maximum_memory_ratio": 0.9989704976937129,
       "passed": false
     },
-    "remap_vertex_buffer": {
-      "geometric_mean": 0.8628502259143781,
-      "maximum": 1.1319487435565927,
+    "simplify": {
+      "cases": 72,
+      "geometric_mean": 1.0490641777147622,
+      "maximum": 1.304301919901469,
+      "maximum_memory_ratio": 1.095090670882574,
+      "passed": true
+    },
+    "simplify_with_attributes": {
+      "cases": 72,
+      "geometric_mean": 1.071804571387151,
+      "maximum": 1.2306701715629593,
+      "maximum_memory_ratio": 1.0843286556888025,
+      "passed": true
+    },
+    "simplify_scale": {
+      "cases": 12,
+      "geometric_mean": 0.9151150960313637,
+      "maximum": 1.0674835752058778,
       "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "remap_index_buffer": {
-      "geometric_mean": 1.0814401152687374,
-      "maximum": 1.186232682597965,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "filter_index_buffer": {
-      "geometric_mean": 0.9857847210853591,
-      "maximum": 1.1775047141990682,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "filter_index_buffer_multi": {
-      "geometric_mean": 0.9122676733868187,
-      "maximum": 1.0954796187672948,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_shadow_index_buffer": {
-      "geometric_mean": 0.9919891997914853,
-      "maximum": 1.142224648469579,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_shadow_index_buffer_multi": {
-      "geometric_mean": 0.8992063364674642,
-      "maximum": 1.0643371670769493,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_position_remap": {
-      "geometric_mean": 0.8010174066841961,
-      "maximum": 0.957552268832604,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_adjacency_index_buffer": {
-      "geometric_mean": 1.1225467958265742,
-      "maximum": 1.2391612914074501,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_tessellation_index_buffer": {
-      "geometric_mean": 1.125779077792857,
-      "maximum": 1.1946906065350897,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "generate_provoking_index_buffer": {
-      "geometric_mean": 1.1989557183730322,
-      "maximum": 1.3132926868699002,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "vertex_fetch": {
-      "geometric_mean": 0.9829138194191908,
-      "maximum": 1.8145036821468046,
-      "maximum_memory_ratio": 1.0,
-      "passed": false
-    },
-    "vertex_fetch_remap": {
-      "geometric_mean": 1.0154526954802539,
-      "maximum": 1.249450003750408,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "simplify_sloppy": {
-      "geometric_mean": 1.1923922736139587,
-      "maximum": 1.4800794987156283,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "simplify_prune": {
-      "geometric_mean": 1.0114682762389076,
-      "maximum": 1.201723869273116,
-      "maximum_memory_ratio": 1.2159684443608882,
-      "passed": true
-    },
-    "simplify_points": {
-      "geometric_mean": 1.0236451160099522,
-      "maximum": 1.2976295199661625,
-      "maximum_memory_ratio": 0.9659090909090909,
-      "passed": true
-    },
-    "simplify_with_update": {
-      "geometric_mean": 0.9861861649651473,
-      "maximum": 1.358806236958332,
-      "maximum_memory_ratio": 1.1797959445089632,
-      "passed": true
-    },
-    "quantize_unorm": {
-      "geometric_mean": 0.9043733446481849,
-      "maximum": 0.9463475362395801,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "quantize_snorm": {
-      "geometric_mean": 1.1164118558154692,
-      "maximum": 1.172024624856694,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "quantize_half": {
-      "geometric_mean": 0.15629497641958956,
-      "maximum": 0.18783248115637552,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "quantize_float": {
-      "geometric_mean": 0.7252797012301214,
-      "maximum": 0.833416684561735,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "dequantize_half": {
-      "geometric_mean": 0.13494406717366814,
-      "maximum": 0.20229408926465092,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "compute_position_exponent": {
-      "geometric_mean": 0.9126977345053401,
-      "maximum": 1.0275884435651006,
-      "maximum_memory_ratio": 1.0,
-      "passed": true
-    },
-    "simplify_sparse": {
-      "geometric_mean": 0.9923266429434464,
-      "maximum": 1.3187052512824131,
-      "maximum_memory_ratio": 1.2357821167890284,
-      "passed": true
-    },
-    "simplify_prune_option": {
-      "geometric_mean": 0.9765377590835315,
-      "maximum": 1.2974740416848087,
-      "maximum_memory_ratio": 1.0704298291040912,
-      "passed": true
-    },
-    "simplify_preserve_folds": {
-      "geometric_mean": 1.0000082439499953,
-      "maximum": 1.3319044798059214,
-      "maximum_memory_ratio": 1.0723789249600852,
-      "passed": true
-    },
-    "simplify_error_clamped": {
-      "geometric_mean": 0.9705353749391752,
-      "maximum": 1.3417062498634849,
-      "maximum_memory_ratio": 1.0723789249600852,
-      "passed": true
-    },
-    "simplify_regularize_light": {
-      "geometric_mean": 0.9798223689554167,
-      "maximum": 1.4053723724114766,
-      "maximum_memory_ratio": 1.0723789249600852,
       "passed": true
     }
   },
-  "samples_minimum": 10
+  "performance_bars": {
+    "geometric_mean": 1.25,
+    "maximum": 1.5,
+    "maximum_memory_ratio": 1.25
+  },
+  "input_families": [
+    "disconnected",
+    "seam-heavy",
+    "smooth",
+    "sparse"
+  ],
+  "sizes": [
+    "medium",
+    "million",
+    "tiny"
+  ],
+  "apis": [
+    "allocating",
+    "allocation-free",
+    "caller-buffer"
+  ]
 }

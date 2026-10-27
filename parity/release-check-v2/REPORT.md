@@ -30,7 +30,7 @@ Main + A/A + replication session wall time: 40.81 minutes, including any admissi
 
 ## Alignment qualification
 
-First option qualified: **`-C llvm-args=-align-all-functions=6`**. Both Bp and Cp build; Cp passed `parity/run.sh --phase 0.1 --profile scalar-strict` and the three real-case exact hash checks against retained C++ 1.3 outputs. Parity rebuild binary is byte-identical to retained Cp. All required symbols start at 64-byte alignment:
+First option qualified: **`-C llvm-args=-align-all-functions=6`**. Both Bp and Cp build; Cp passed `parity/run.sh --release 0.1 --profile scalar-strict` and the three real-case exact hash checks against retained C++ 1.3 outputs. Parity rebuild binary is byte-identical to retained Cp. All required symbols start at 64-byte alignment:
 
 ```text
 Bp meshoptimizer_rs::cache::kernel::<false> 0x36180 mod64= 0
@@ -55,7 +55,7 @@ r2 complete frozen-final matrix: `<scratch>/meshopt-simplify-perf/r2/frozen-fina
 | simplify_with_attributes | 1.071103 | 1.225558 |
 | simplify_scale | 0.784758 | 0.915833 |
 
-Inherited candidate correctness and fuzz: r2/REPORT.md, r2/source-continuity.json, r2/parity-final/exits.tsv, r2/final-tracked-summaries/{run,sweep}.json, r2/fuzz-final/fuzz.json; bindings in ../release-check/inherited-proof-binding.json. Native/WASM/sweep/JS and ≥4 CPU hours per fuzz target, zero crashes are inherited, not rerun. Only the alignment-option phase 0.1 and three real-case checks are fresh.
+Inherited candidate correctness and fuzz: r2/REPORT.md, r2/source-continuity.json, r2/parity-final/exits.tsv, r2/final-tracked-summaries/{run,sweep}.json, r2/fuzz-final/fuzz.json; bindings in ../release-check/inherited-proof-binding.json. Native/WASM/sweep/JS and ≥4 CPU hours per fuzz target, zero crashes are inherited, not rerun. Only the alignment-option release 0.1 and three real-case checks are fresh.
 
 ## Receipts and scheduling
 
@@ -100,4 +100,4 @@ The registered family and three-part case rules were applied verbatim. No retuni
 
 Not verified: performance outside this frozen corpus, other CPUs/platforms, individual-fix causal gains, independent full fuzz/WASM rerun. Owner review and publication remain pending.
 
-Total lane wall time through evidence finalization: 97.24 minutes. Measurement session: 40.81 minutes including eleven train pauses. One measurement attempt; zero infrastructure reruns.
+Total job wall time through evidence finalization: 97.24 minutes. Measurement session: 40.81 minutes including eleven train pauses. One measurement attempt; zero infrastructure reruns.

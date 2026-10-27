@@ -2,7 +2,7 @@
   "schema": "meshopt-summary/1",
   "historical": false,
   "command": "benchmark",
-  "phase": "0.4",
+  "release": "0.4",
   "detail_artifact": "benchmark-0.4/benchmark-0.4-default.json",
   "artifacts": {
     "benchmark-0.4/benchmark-0.4-default.json": "b081df99699996209d99aaf45d72c8ef43fd63ee32df9ab210c48ca90ea80d63",
@@ -16,7 +16,7 @@
     "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
     "CARGO_PROFILE_RELEASE_DEBUG": "0"
   },
-  "bar": "per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (RFC 6.1 raw scalar codecs)",
+  "bar": "per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (design requirements raw scalar codecs)",
   "executable_sha256": {
     "rust": "6765d4dc53fddc42ee770124518cf7daed962f1f73992ed9528a1fece3013df2",
     "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",

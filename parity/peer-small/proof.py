@@ -24,7 +24,7 @@ import sys
 
 ART = Path(_public_path('<scratch>/meshopt-peer-c'))
 ROOT = Path(__file__).resolve().parents[2]
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 sys.path.insert(0, str(ROOT / 'parity'))
 import p01x
 spec = importlib.util.spec_from_file_location('p03', ROOT / 'parity/p03/runner.py')

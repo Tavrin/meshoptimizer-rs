@@ -27,7 +27,7 @@ the unpublished differential harness, not duplicated golden unit tests.
 For numerical changes, run the corpus and sweep in
 [parity/README.md](parity/README.md), preserving exact equality and the pinned
 reference. Include source identities, retained failing inputs and raw
-benchmark samples where relevant. Explicitly distinguish lane evidence from
+benchmark samples where relevant. Explicitly distinguish job evidence from
 complete release or consumer acceptance.
 
 Commits must be signed off under the

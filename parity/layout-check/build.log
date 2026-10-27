@@ -3,17 +3,17 @@ heavy: running (3G reserved, cap 7G, 17G available): bash <scratch>/meshopt-vali
    Compiling libm v0.2.16
    Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-B)
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/B-default-harness)
-    Finished `moss` profile [optimized] target(s) in 15.75s
+    Finished `downstream` profile [optimized] target(s) in 15.75s
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/B-pinned-harness)
-    Finished `moss` profile [optimized] target(s) in 6.00s
+    Finished `downstream` profile [optimized] target(s) in 6.00s
    Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-Bprime)
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/Bprime-default-harness)
-    Finished `moss` profile [optimized] target(s) in 18.00s
+    Finished `downstream` profile [optimized] target(s) in 18.00s
    Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-C)
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/C-default-harness)
-    Finished `moss` profile [optimized] target(s) in 18.92s
+    Finished `downstream` profile [optimized] target(s) in 18.92s
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/C-pinned-harness)
-    Finished `moss` profile [optimized] target(s) in 6.39s
+    Finished `downstream` profile [optimized] target(s) in 6.39s
    Compiling libm v0.2.16
    Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-C)
    Compiling probe-after-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/probe-C-src)

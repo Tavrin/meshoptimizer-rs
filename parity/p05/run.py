@@ -46,7 +46,7 @@ contracts = ['raster_into_uses_caller_storage_and_preserves_atomic_failure',
              'compact_scratch_boundaries_keep_duplicates_and_limits']
 passed = result.returncode == 0 and f'{len(fixtures) + len(budgets) + len(contracts)} passed; 0 failed' in text and all(
     f'test {name} ... ok' in text for name in fixtures + budgets + contracts)
-summary = {'schema': 'meshopt-p05-run/1', 'phase': '0.5', 'passed': passed,
+summary = {'schema': 'meshopt-p05-run/1', 'release': '0.5', 'passed': passed,
            'fixture_tests': len(fixtures), 'work_budget_tests': len(budgets),
            'contract_tests': len(contracts),
            'source_sha256': sources, 'detail_artifact': log.name, 'detail_sha256': sha(log)}

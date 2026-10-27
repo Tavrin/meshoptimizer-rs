@@ -1,9 +1,9 @@
 {
   "schema": "meshopt-release-summary/1",
-  "phase": "0.1",
+  "release": "0.1",
   "passed": false,
   "evidence_complete": false,
-  "moss_performance_accepted": false,
+  "downstream_performance_accepted": false,
   "report_exit_policy": "complete verified evidence exits zero; failed a downstream engine bars block release acceptance",
   "incomplete": [
     "current four-CPU-hour fuzz evidence"
@@ -27,16 +27,16 @@
         "benchmark-default-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
       }
     },
-    "benchmark-moss": {
+    "benchmark-downstream": {
       "summary_sha256": "76b89cbd3e6222bd62f7d4a2a9d16fadded589c0d35bee8dddd451efbe4399ee",
       "artifacts": {
-        "benchmark-moss-integrated/benchmark.json": "72e6194f9a460af5c7c07606a63d660e227bb4e16ae6bf32caf599b765d3172e",
-        "benchmark-moss-integrated/benchmark-buffers.zip": "aa65cfc91338f53763758dc592792f18917e8f747e58f15882bea7dea3dede2b",
-        "benchmark-moss-integrated/sources.tar.gz": "958297057ca57ce6123b560376a560c3dd311e036d14fd0815d706277bd2deae",
-        "benchmark-moss-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
-        "benchmark-moss-integrated/binaries/rust": "52dab25ed6faab1a604d9d4860c5f3c2a0d1f5f75869bd2dc5fbf68bb72fef3a",
-        "benchmark-moss-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
-        "benchmark-moss-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
+        "benchmark-downstream-integrated/benchmark.json": "72e6194f9a460af5c7c07606a63d660e227bb4e16ae6bf32caf599b765d3172e",
+        "benchmark-downstream-integrated/benchmark-buffers.zip": "aa65cfc91338f53763758dc592792f18917e8f747e58f15882bea7dea3dede2b",
+        "benchmark-downstream-integrated/sources.tar.gz": "958297057ca57ce6123b560376a560c3dd311e036d14fd0815d706277bd2deae",
+        "benchmark-downstream-integrated/binaries/fixture_exporter": "92750af7fda4c4b2426f4c5c49415ceb007d05b89dd566cabe311b81592c2e5c",
+        "benchmark-downstream-integrated/binaries/rust": "52dab25ed6faab1a604d9d4860c5f3c2a0d1f5f75869bd2dc5fbf68bb72fef3a",
+        "benchmark-downstream-integrated/binaries/p01x_fixture_exporter": "22b3958ac316f67c2f38b6eb08cdf43a0c52153b22cc35c5d9a39c6c3d8f89ee",
+        "benchmark-downstream-integrated/binaries/cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a"
       }
     },
     "gates": {
@@ -96,7 +96,7 @@
     }
   },
   "consumer_performance": {
-    "benchmark-moss": {
+    "benchmark-downstream": {
       "vertex_cache": {
         "cases": 24,
         "geometric_mean": 1.1837402804554626,
@@ -182,20 +182,20 @@
     "rule": "D146",
     "case_count": 7,
     "verdicts": {
-      "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone": "INCONCLUSIVE",
+      "benchmark-downstream/overdraw/million/disconnected/allocating/a0/rNone": "INCONCLUSIVE",
       "p01x-benchmark-defaults/filter_index_buffer/tiny/seam-heavy/mode-2": "PASS",
       "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1": "INCONCLUSIVE",
       "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2": "INCONCLUSIVE",
       "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1": "FAIL",
-      "p01x-benchmark-moss/generate_vertex_remap_custom/million/smooth/mode-1": "PASS",
-      "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1": "FAIL"
+      "p01x-benchmark-downstream/generate_vertex_remap_custom/million/smooth/mode-1": "PASS",
+      "p01x-benchmark-downstream/vertex_fetch/million/sparse/mode-1": "FAIL"
     },
     "residuals": [
-      "benchmark-moss/overdraw/million/disconnected/allocating/a0/rNone",
+      "benchmark-downstream/overdraw/million/disconnected/allocating/a0/rNone",
       "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-1",
       "p01x-benchmark-defaults/simplify_sloppy/million/disconnected/mode-2",
       "p01x-benchmark-defaults/vertex_fetch/million/sparse/mode-1",
-      "p01x-benchmark-moss/vertex_fetch/million/sparse/mode-1"
+      "p01x-benchmark-downstream/vertex_fetch/million/sparse/mode-1"
     ],
     "summary_sha256": "b52d17fc5a84fe10fc8023e42b91b1c7e65986fccea9cd730ba05d09b705f0db"
   },

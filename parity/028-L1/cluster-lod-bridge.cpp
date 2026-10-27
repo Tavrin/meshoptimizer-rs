@@ -112,8 +112,8 @@ static int onGroup(void* context, clodGroup group, const clodCluster* clusters, 
 
 extern "C" {
 // Inputs are owned/aligned Rust arrays, validated before this boundary. The
-// returned vector stays opaque and is always released by moss_clod_free.
-int moss_clod_build(const float* vertices, uint32_t vertex_count, uint32_t stride,
+// returned vector stays opaque and is always released by downstream_clod_free.
+int downstream_clod_build(const float* vertices, uint32_t vertex_count, uint32_t stride,
     const uint32_t* indices, uint32_t index_count, const unsigned char* locks, bool s1, bool dilated,
     void** handle, const unsigned char** bytes, size_t* size) noexcept {
     *handle = nullptr; *bytes = nullptr; *size = 0;
@@ -182,7 +182,7 @@ int moss_clod_build(const float* vertices, uint32_t vertex_count, uint32_t strid
         return 0;
     } catch (...) { return 1; }
 }
-void moss_clod_free(void* handle) noexcept {
+void downstream_clod_free(void* handle) noexcept {
     delete static_cast<std::vector<unsigned char>*>(handle);
 }
 }

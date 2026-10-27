@@ -1403,7 +1403,7 @@
       ],
       "checkpoint_signal_pid": 4121159,
       "signal_unix": 1792899135.557679,
-      "command": "python3 - --phase 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --wall-seconds 15487 ",
+      "command": "python3 - --release 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --wall-seconds 15487 ",
       "registered_real_samples_started": false
     }
   },

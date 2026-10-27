@@ -63,7 +63,7 @@ def main():
         detail = base / 'record.json'
         full = {'schema': 'meshopt-p05-fuzz/1', 'seconds_per_target': seconds, 'targets': records, 'passed': all(r['passed'] for r in records)}
         detail.write_text(json.dumps(full, indent=2) + '\n')
-        summary = {'schema': 'meshopt-p05-fuzz-summary/1', 'phase': '0.5', 'passed': full['passed'], 'detail_artifact': str(detail.relative_to(ART)), 'detail_sha256': sha(detail), 'targets': {r['target']: {'elapsed_seconds': r['elapsed_seconds'], 'executions': r['executions'], 'passed': r['passed']} for r in records}}
+        summary = {'schema': 'meshopt-p05-fuzz-summary/1', 'release': '0.5', 'passed': full['passed'], 'detail_artifact': str(detail.relative_to(ART)), 'detail_sha256': sha(detail), 'targets': {r['target']: {'elapsed_seconds': r['elapsed_seconds'], 'executions': r['executions'], 'passed': r['passed']} for r in records}}
         (ROOT / 'parity/results/fuzz-0.5.json').write_text(json.dumps(summary, indent=2) + '\n')
     raise SystemExit(0 if all(r['passed'] for r in records) else 1)
 

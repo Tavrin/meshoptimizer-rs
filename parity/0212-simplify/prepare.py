@@ -54,7 +54,7 @@ path = "{ROOT}/parity/0212-simplify/exact.rs"
 lto = "thin"
 codegen-units = 1
 ''')
-# Reuse the attribution lane's resident-loop driver, inputs and scalar M7
+# Reuse the attribution job's resident-loop driver, inputs and scalar M7
 # manifest, but build every arm afresh. No attribution counts are reused.
 shutil.copytree(ATTR / 'inputs', ART / 'inputs')
 stages = json.loads((ATTR / 'stages.json').read_text())

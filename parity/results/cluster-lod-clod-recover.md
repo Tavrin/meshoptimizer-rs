@@ -1,4 +1,4 @@
-# RFC 113 cluster-LOD performance recovery
+# design requirements cluster-LOD performance recovery
 
 Implementation: `9589e0cab7fdf8eef50654a744a6f05a20a01047`; baseline: `3db42ccc81ecc9ac5e21d181d3deac735573f711`.
 
@@ -9,7 +9,7 @@ Implementation: `9589e0cab7fdf8eef50654a744a6f05a20a01047`; baseline: `3db42ccc8
 | `grass_a_01` | 1.163× | 1.212× | 1.174× | 1.222× | 5/5 |
 | `grass_b_01` | 1.080× | 1.234× | 1.235× | 1.269× | 5/5 |
 | `modular_m4x4_03` | 1.123× | 1.178× | 1.064× | 1.145× | 5/5 |
-| `moss_01` | 1.195× | 1.315× | 1.274× | 1.388× | 5/8 |
+| `downstream_01` | 1.195× | 1.315× | 1.274× | 1.388× | 5/8 |
 | `pyramid` | 1.147× | 1.000× | 1.141× | 1.079× | 5/5 |
 | `riverforest_01_branches` | 1.269× | 1.108× | 1.144× | 1.133× | 5/5 |
 | `riverforest_01_leaves` | 1.260× | 1.228× | 1.227× | 1.219× | 5/5 |
@@ -35,7 +35,7 @@ The diagnostic perf captures preceded implementation and were repeated afterward
 
 ## Correctness and memory
 
-- All 15 supported RFC 113 layouts match scalar C++, a downstream engine-style C++ and Rust byte for byte, including bounds; all 90 codec comparisons match. The two historical stride-32 setups remain invalid under S2’s bit-8 protect mask, as documented in the original report.
+- All 15 supported design requirements layouts match scalar C++, a downstream engine-style C++ and Rust byte for byte, including bounds; all 90 codec comparisons match. The two historical stride-32 setups remain invalid under S2’s bit-8 protect mask, as documented in the original report.
 - All 12 archived-main/current/C++ differential cases match. The moving near-threshold case moves 16 vertices; threshold crossing is not claimed. Unconditional invalidation remains established directly by the unchanged source.
 - All 517 byte limits pass the old-success/no-error-kind-regression checks. Old peak 34,904 bytes; current 24,576 bytes. Removing the two allocations and replacing u8 locks with an identically sized type preserves the general heap bound; no cache/high-water allocation is introduced.
 - fmt, clippy with all features and no default features (-D warnings), and both test configurations pass. The new multi-level test compares output, mutated positions, work and exact byte boundaries across packed/padded floats and unaligned little-/big-endian bytes, with all three flag kinds, zero weights and both dilation settings.
@@ -52,7 +52,7 @@ Every pair was admitted with no GPU lease holder and no scoreboard measurement. 
 | consumer | `grass_a_01:48` | [1.145, 1.300] | PASS | not needed |
 | consumer | `grass_b_01:48` | [0.889, 1.352] | PASS | not needed |
 | consumer | `modular_m4x4_03:48` | [1.008, 1.257] | PASS | not needed |
-| consumer | `moss_01:48` | [0.973, 1.391] | PASS | not needed |
+| consumer | `downstream_01:48` | [0.973, 1.391] | PASS | not needed |
 | consumer | `pyramid:48` | [1.121, 1.184] | PASS | not needed |
 | consumer | `riverforest_01_branches:48` | [1.135, 1.308] | PASS | not needed |
 | consumer | `riverforest_01_leaves:48` | [1.068, 1.363] | PASS | not needed |
@@ -61,7 +61,7 @@ Every pair was admitted with no GPU lease holder and no scoreboard measurement. 
 | defaults | `grass_a_01:48` | [1.146, 1.412] | PASS | not needed |
 | defaults | `grass_b_01:48` | [1.142, 1.343] | PASS | not needed |
 | defaults | `modular_m4x4_03:48` | [1.093, 1.256] | PASS | not needed |
-| defaults | `moss_01:48` | [1.184, 1.500] | PASS | not needed |
+| defaults | `downstream_01:48` | [1.184, 1.500] | PASS | not needed |
 | defaults | `pyramid:48` | [0.612, 1.393] | PASS | not needed |
 | defaults | `riverforest_01_branches:48` | [1.002, 1.340] | PASS | not needed |
 | defaults | `riverforest_01_leaves:48` | [1.188, 1.326] | PASS | not needed |
@@ -80,8 +80,8 @@ Artifacts: `<artifacts>/clodrec`. Source archives, perf captures, raw pairs, pro
 
 ```sh
 export CARGO_TARGET_DIR=<target-dir>
-export MESHOPT_RFC113_ART_DIR=<artifacts>/clodrec-new
-python3 parity/rfc113/timing.py
+export MESHOPT_CLUSTER_LOD_ART_DIR=<artifacts>/clodrec-new
+python3 parity/cluster-lod/timing.py
 ```
 
 Use a fresh artifact directory for a new final pass. `--profile consumer --pairs 5 --case pyramid:48` selects a short diagnostic. The runner builds current binaries before admission. Correctness commands and exits are retained in gates.json; D153–D154 record the scoped decisions.

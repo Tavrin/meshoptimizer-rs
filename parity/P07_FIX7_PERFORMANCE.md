@@ -74,7 +74,7 @@ difference; native assertions retain byte equality. No production change.
 Exhaustive Oct8 and finite Exp/Oct16/Quat checks are scoped arithmetic proof,
 with separate native large-Exp threshold/frozen streaming checks. This does
 not requalify ARM, other platforms, the full native matrix, a downstream engine integration,
-native triangle-index, phase-0.6, or release acceptance.
+native triangle-index, release-0.6, or release acceptance.
 
 ## Final S3 significant slowdowns
 

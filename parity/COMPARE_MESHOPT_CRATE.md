@@ -43,7 +43,7 @@ Available means callable in the published crate, including its public unsafe FFI
 
 ## Build and footprint
 
-One clean and one touched-consumer rebuild were measured per backend/profile on the same host. Clean means an empty lane Cargo target with Cargo sources already cached; it does not mean cold filesystem caches. Rebuild means touching `src/decode.rs`, recompiling/relinking only the consumer, with `CARGO_INCREMENTAL=0`; it is not a warm no-op build or Rust incremental compilation. Queue waiting is excluded. No completed clean measurement was repeated to select a faster result.
+One clean and one touched-consumer rebuild were measured per backend/profile on the same host. Clean means an empty job Cargo target with Cargo sources already cached; it does not mean cold filesystem caches. Rebuild means touching `src/decode.rs`, recompiling/relinking only the consumer, with `CARGO_INCREMENTAL=0`; it is not a warm no-op build or Rust incremental compilation. Queue waiting is excluded. No completed clean measurement was repeated to select a faster result.
 
 The initial all-feature build was exploratory and excluded. Driver compile fixes and the rejected stale decoder capture are preserved in MILESTONES.md. Later footprint-only rebuilds do not replace the original time samples.
 
@@ -52,7 +52,7 @@ a downstream engine: opt-level 3, thin LTO, one codegen unit. Defaults: opt-leve
 | Decode consumer build | Ours clean / rebuild (s) | Theirs clean / rebuild (s) |
 |---|---|---|
 | defaults | 7.954 / 0.192 | 6.632 / 0.202 |
-| moss | 12.305 / 2.344 | 8.373 / 2.450 |
+| downstream | 12.305 / 2.344 | 8.373 / 2.450 |
 
 | Property | Ours | Theirs |
 |---|---|---|
@@ -81,8 +81,8 @@ Stripped executable sizes in bytes. Contribution is decode/full minus the matche
 |---|---|---|
 | defaults / decode | 470,736 / +123,600 | 369,832 / +22,696 |
 | defaults / full | 1,966,176 / +1,619,040 | 518,056 / +170,920 |
-| moss / decode | 434,368 / +101,504 | 355,400 / +22,536 |
-| moss / full | 1,828,208 / +1,495,344 | 503,992 / +171,128 |
+| downstream / decode | 434,368 / +101,504 | 355,400 / +22,536 |
+| downstream / full | 1,828,208 / +1,495,344 | 503,992 / +171,128 |
 
 ## Shared-function performance
 
@@ -228,15 +228,15 @@ Known malformed meshlet tail: [UPSTREAM_NOTES.md](UPSTREAM_NOTES.md) freezes `se
 
 ### Existing qualification ratios — not retimed
 
-The following values come from the committed 0.2.0 qualification records and retain their original source/corpus/API epochs. Family GM bar is ≤1.25, case maximum bar ≤1.50, requested output-plus-scratch memory ≤1.25; P07 uses its documented A/A resolution and interval rules. This table does not turn old complete matrices or selected later diagnostics into acceptance of this entire integrated tree. P05 `overdraw`, `coverage`, `vertex_cache` and `vertex_fetch` below are **analyzers**, not the optimization APIs in Phase 0.1/0.1.x.
+The following values come from the committed 0.2.0 qualification records and retain their original source/corpus/API epochs. Family GM bar is ≤1.25, case maximum bar ≤1.50, requested output-plus-scratch memory ≤1.25; P07 uses its documented A/A resolution and interval rules. This table does not turn old complete matrices or selected later diagnostics into acceptance of this entire integrated tree. P05 `overdraw`, `coverage`, `vertex_cache` and `vertex_fetch` below are **analyzers**, not the optimization APIs in Release 0.1/0.1.x.
 
 | Record / family | a downstream engine GM (max) | Defaults GM (max) | Status / source |
 |---|---|---|
-| 0.1 / vertex_cache | 1.184 (1.330) | 1.231 (1.331) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
-| 0.1 / overdraw | 1.101 (1.522) | 1.135 (1.471) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
-| 0.1 / simplify | 1.049 (1.304) | 1.060 (1.237) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
-| 0.1 / simplify_with_attributes | 1.072 (1.231) | 1.092 (1.315) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
-| 0.1 / simplify_scale | 0.915 (1.067) | 0.855 (1.010) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
+| 0.1 / vertex_cache | 1.184 (1.330) | 1.231 (1.331) | [records](results/benchmark-downstream.json); D146 preserves overdraw maximum INCONCLUSIVE |
+| 0.1 / overdraw | 1.101 (1.522) | 1.135 (1.471) | [records](results/benchmark-downstream.json); D146 preserves overdraw maximum INCONCLUSIVE |
+| 0.1 / simplify | 1.049 (1.304) | 1.060 (1.237) | [records](results/benchmark-downstream.json); D146 preserves overdraw maximum INCONCLUSIVE |
+| 0.1 / simplify_with_attributes | 1.072 (1.231) | 1.092 (1.315) | [records](results/benchmark-downstream.json); D146 preserves overdraw maximum INCONCLUSIVE |
+| 0.1 / simplify_scale | 0.915 (1.067) | 0.855 (1.010) | [records](results/benchmark-downstream.json); D146 preserves overdraw maximum INCONCLUSIVE |
 | 0.1.x / vertex_cache_strip | 1.157 (1.241) | 1.157 (1.299) | PASS record; [source](MEASURED_P01X.json) |
 | 0.1.x / vertex_cache_fifo | 1.235 (1.466) | 1.208 (1.398) | PASS record; [source](MEASURED_P01X.json) |
 | 0.1.x / generate_vertex_remap | 1.054 (1.195) | 1.022 (1.124) | PASS record; [source](MEASURED_P01X.json) |
@@ -284,30 +284,30 @@ The following values come from the committed 0.2.0 qualification records and ret
 | 0.3 / spatial_sort_remap | 1.031 (1.427) | 0.990 (1.302) | PASS scalar record; [source](MEASURED_P03.json) |
 | 0.3 / spatial_sort_triangles | 0.993 (1.316) | 0.896 (1.275) | PASS scalar record; [source](MEASURED_P03.json) |
 | 0.3 / spatial_cluster_points | 1.113 (1.212) | 1.159 (1.374) | PASS scalar record; [source](MEASURED_P03.json) |
-| 0.4 / vertex_encode / allocating | 0.967 (1.255) | 0.981 (1.247) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / index_encode / allocating | 1.125 (1.200) | 1.138 (1.198) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / sequence_encode / allocating | 1.217 (1.391) | 1.234 (1.378) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / oct_encode / allocating | 1.056 (1.445) | 0.914 (1.347) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / quat_encode / allocating | 0.589 (1.457) | 0.622 (1.213) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / exp_encode / allocating | 1.009 (1.284) | 1.025 (1.231) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / color_encode / allocating | 0.772 (0.801) | 0.709 (0.822) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / color_decode / allocating | 0.757 (0.960) | 0.779 (1.203) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / meshlet_encode / allocating | 1.117 (1.176) | 1.162 (1.172) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / meshlet_decode / allocating | 1.075 (1.167) | 1.169 (1.499) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / meshlet_decode_raw / allocating | 1.117 (1.157) | 1.230 (1.270) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / bounds / allocating | 0.665 (1.272) | 0.675 (1.292) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / vertex_encode / caller_buffer | 1.019 (1.288) | 1.027 (1.364) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / index_encode / caller_buffer | 1.099 (1.193) | 1.116 (1.284) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / sequence_encode / caller_buffer | 1.124 (1.387) | 1.164 (1.398) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / oct_encode / caller_buffer | 0.976 (1.248) | 0.964 (1.357) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / quat_encode / caller_buffer | 0.555 (1.105) | 0.618 (1.444) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / exp_encode / caller_buffer | 1.074 (1.276) | 1.082 (1.366) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / color_encode / caller_buffer | 0.649 (0.673) | 0.769 (0.798) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / color_decode / caller_buffer | 0.824 (1.174) | 0.756 (0.975) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / meshlet_encode / caller_buffer | 1.085 (1.115) | 1.182 (1.270) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / meshlet_decode / caller_buffer | 1.148 (1.351) | 1.085 (1.185) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / meshlet_decode_raw / caller_buffer | 1.101 (1.176) | 1.079 (1.180) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
-| 0.4 / bounds / caller_buffer | 0.665 (1.272) | 0.675 (1.292) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-moss.json) |
+| 0.4 / vertex_encode / allocating | 0.967 (1.255) | 0.981 (1.247) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / index_encode / allocating | 1.125 (1.200) | 1.138 (1.198) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / sequence_encode / allocating | 1.217 (1.391) | 1.234 (1.378) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / oct_encode / allocating | 1.056 (1.445) | 0.914 (1.347) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / quat_encode / allocating | 0.589 (1.457) | 0.622 (1.213) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / exp_encode / allocating | 1.009 (1.284) | 1.025 (1.231) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / color_encode / allocating | 0.772 (0.801) | 0.709 (0.822) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / color_decode / allocating | 0.757 (0.960) | 0.779 (1.203) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / meshlet_encode / allocating | 1.117 (1.176) | 1.162 (1.172) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / meshlet_decode / allocating | 1.075 (1.167) | 1.169 (1.499) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / meshlet_decode_raw / allocating | 1.117 (1.157) | 1.230 (1.270) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / bounds / allocating | 0.665 (1.272) | 0.675 (1.292) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / vertex_encode / caller_buffer | 1.019 (1.288) | 1.027 (1.364) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / index_encode / caller_buffer | 1.099 (1.193) | 1.116 (1.284) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / sequence_encode / caller_buffer | 1.124 (1.387) | 1.164 (1.398) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / oct_encode / caller_buffer | 0.976 (1.248) | 0.964 (1.357) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / quat_encode / caller_buffer | 0.555 (1.105) | 0.618 (1.444) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / exp_encode / caller_buffer | 1.074 (1.276) | 1.082 (1.366) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / color_encode / caller_buffer | 0.649 (0.673) | 0.769 (0.798) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / color_decode / caller_buffer | 0.824 (1.174) | 0.756 (0.975) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / meshlet_encode / caller_buffer | 1.085 (1.115) | 1.182 (1.270) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / meshlet_decode / caller_buffer | 1.148 (1.351) | 1.085 (1.185) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / meshlet_decode_raw / caller_buffer | 1.101 (1.176) | 1.079 (1.180) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
+| 0.4 / bounds / caller_buffer | 0.665 (1.272) | 0.675 (1.292) | Historical scalar record; decoders superseded by P07; [source](results/benchmark-0.4-downstream.json) |
 | 0.5 / stripify / allocating | 0.962 (1.221) | 0.989 (1.459) | Older full-matrix source-bound record; [state](P05_CURRENT_STATE.md) |
 | 0.5 / stripify / caller | 0.974 (1.183) | 0.967 (1.233) | Older full-matrix source-bound record; [state](P05_CURRENT_STATE.md) |
 | 0.5 / stripify_bound / allocating | 0.570 (0.573) | 0.556 (0.579) | Older full-matrix source-bound record; [state](P05_CURRENT_STATE.md) |
@@ -330,7 +330,7 @@ The following values come from the committed 0.2.0 qualification records and ret
 | 0.5 / remesh / allocating | 1.125 (1.256) | 1.133 (1.238) | Older full-matrix source-bound record; [state](P05_CURRENT_STATE.md) |
 | 0.5 / remesh / caller | 1.101 (1.295) | 1.124 (1.321) | Older full-matrix source-bound record; [state](P05_CURRENT_STATE.md) |
 
-P02 historical raw-decoder scalar GM/max: allocating 1.010/1.375, caller-buffer 0.973/1.266; those registered minima passed, but current SIMD/native decoder status is P07 below. [P02 record](P02_RESULTS.json). Parallel batch scaling is versus our serial implementation, not upstream C++; [P06](MEASURED_P06.json) preserves those thread-count curves. Cluster LOD/hierarchy has separate [RFC113 evidence](rfc113/README.md); no new upstream timing is claimed here.
+P02 historical raw-decoder scalar GM/max: allocating 1.010/1.375, caller-buffer 0.973/1.266; those registered minima passed, but current SIMD/native decoder status is P07 below. [P02 record](P02_RESULTS.json). Parallel batch scaling is versus our serial implementation, not upstream C++; [P06](MEASURED_P06.json) preserves those thread-count curves. Cluster LOD/hierarchy has separate [CLUSTER_LOD evidence](cluster-lod/README.md); no new upstream timing is claimed here.
 
 Latest P07 native/wasm results and unresolved A/A rows are reproduced from [P07_RELEASE_QUALIFICATION.md](P07_RELEASE_QUALIFICATION.md):
 
@@ -353,7 +353,7 @@ Latest P07 native/wasm results and unresolved A/A rows are reproduced from [P07_
 | wasm / view-filtered | 0.889 / 1.471 / PASS | 0.945 / 1.466 / PASS | 9/30 / 26/30 |
 | wasm / view-none | 0.954 / 1.311 / PASS | 0.838 / 0.963 / PASS | 6/9 / 6/9 |
 
-Cluster LOD recovery retains scalar sum-of-medians aggregate 1.196 a downstream engine / 1.090 defaults, with the distinct RFC113 aggregate bar 1.2 and per-mesh bar 1.5: [recovery record](results/rfc113-clod-recover.md). The maximum stage-one per-mesh median is 1.269 / 1.315. These aggregates are not family geometric means. The later P06 small-hierarchy fallback retains serial/batch medians 0.878/0.836/0.775/0.545/0.725 at 1/2/4/8/16 threads under its recorded shared load; it does not claim a universal parallel gain (D158 in DECISIONS.md).
+Cluster LOD recovery retains scalar sum-of-medians aggregate 1.196 a downstream engine / 1.090 defaults, with the distinct CLUSTER_LOD aggregate bar 1.2 and per-mesh bar 1.5: [recovery record](results/cluster-lod-clod-recover.md). The maximum stage-one per-mesh median is 1.269 / 1.315. These aggregates are not family geometric means. The later P06 small-hierarchy fallback retains serial/batch medians 0.878/0.836/0.775/0.545/0.725 at 1/2/4/8/16 threads under its recorded shared load; it does not claim a universal parallel gain (D158 in DECISIONS.md).
 
 Families still above the requested 0.3 target bars, or not demonstrated closed:
 

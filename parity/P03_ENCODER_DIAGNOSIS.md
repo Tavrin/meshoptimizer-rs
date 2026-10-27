@@ -30,7 +30,7 @@ read-only instruction samples and complete objdump disassembly are retained.
 | Exp separate | 926,170 | 524,499 | 1.766 | 1.526 |
 
 The default-profile consumer was compiled with generic CPU, opt-level 3,
-16 codegen units and no LTO. The lane's further counter/correctness consumers
+16 codegen units and no LTO. The job's further counter/correctness consumers
 use generic release/fat LTO/one codegen unit. Keep these separate source/build
 identities; neither compiler profile constitutes acceptance without its own
 final paired stream.
@@ -87,7 +87,7 @@ allocating and caller-buffer APIs, common vertex strides, versions/levels,
 all Exp modes, and the exact streaming exception. Fixed CPU26, ~8ms batches,
 CPU-only shared admission, each burst <=690s inside `timeout 840`.
 
-The C++ lane adapter keeps caller destination lengths at their preallocated
+The C++ job adapter keeps caller destination lengths at their preallocated
 bound during repeated calls and truncates only after the timed loop. This
 removes the legacy adapter's extra slack reinitialization per caller-buffer
 sample. Library code is unchanged. Public allocating Rust bound accounting
@@ -183,7 +183,7 @@ Baseline allocating vs caller adds237 instructions in Rust vs198 in C++:
 allocation is a contributor, but both failing APIs need dispatch/kernel fixes.
 
 Reject both scalar Oct interventions after exact parity and counters;
-READONLY-AFTER-TWO.md records diagnosis before returning to lane arithmetic.
+READONLY-AFTER-TWO.md records diagnosis before returning to job arithmetic.
 Use tiny-only direct integer repair of the existing bounded magic sum.
 For Quat, indexed cross-record gathers/packed selectors and three conversion
 chains retain dependent intermediates. Isolate one-record quantization and

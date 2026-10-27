@@ -1,4 +1,4 @@
-# SPEC-026 decode proof
+# registered protocol decode proof
 
 PASS against published 0.2.5 `bea3e04`. Candidate library source is `4f2557f`,
 checked after merging `origin/main` (`f1ca898`) as `64e5494`. No library code
@@ -43,10 +43,10 @@ Direct filter partial bytes are compared even on errors; all destination tails
 are checked. Count-zero EXT views consistently return `InvalidParameter`.
 Oct zero records consistently return `NumericalFailure`.
 
-Counts cover 0–5, 7, 8, 15–17, 63–65, 127–129. Four-record groups vary each lane;
+Counts cover 0–5, 7, 8, 15–17, 63–65, 127–129. Four-record groups vary each job;
 Oct includes both widths, repeated keys, signed extrema and a zero vector at
 every record position. Quat scale words include negative and positive values
-around the `abs(d | 3) < 256` fallback boundary, in each of four lane positions,
+around the `abs(d | 3) < 256` fallback boundary, in each of four job positions,
 plus extrema, repeated records, bulk groups and tails. Valid vertex fixtures
 also reach the wasm-only stride-48/64 reconstruction paths.
 

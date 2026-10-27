@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exact phase 0.3 evidence; unmodified pinned scalar C++ and executed WASM."""
+"""Exact release 0.3 evidence; unmodified pinned scalar C++ and executed WASM."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -94,7 +94,7 @@ def compare(clients,data,label,archive,records):
  records.write(struct.pack('<II',len(data),len(expected)));records.write(data);records.write(expected)
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('action',choices=['run','sweep','benchmark','clusterlod']);parser.add_argument('--phase',default='0.3');parser.add_argument('--profile',default='scalar-strict');parser.add_argument('--cases-per-family',type=int,default=2000);parser.add_argument('--seed',type=int,default=20261004);parser.add_argument('--enforce',action='store_true');args=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('action',choices=['run','sweep','benchmark','clusterlod']);parser.add_argument('--release',default='0.3');parser.add_argument('--profile',default='scalar-strict');parser.add_argument('--cases-per-family',type=int,default=2000);parser.add_argument('--seed',type=int,default=20261004);parser.add_argument('--enforce',action='store_true');args=parser.parse_args()
  if args.action=='benchmark':
   import sys
   os.execv(sys.executable,[sys.executable,str(ROOT/'parity/p03/benchmark.py'),*sys.argv[2:]])

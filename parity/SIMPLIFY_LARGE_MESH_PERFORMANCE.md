@@ -20,7 +20,7 @@ Rust overdraw validation adds an estimated 0.201 s. Grouped unresolved simplify 
 
 ## Implemented fixes and rejected hypotheses
 
-1. Cache original strided positions in the already-budgeted position allocation during hash probes; normalize at the original phase. Packed input keeps the existing path. Hash, probe order and counted visits are unchanged.
+1. Cache original strided positions in the already-budgeted position allocation during hash probes; normalize at the original release. Packed input keeps the existing path. Hash, probe order and counted visits are unchanged.
 2. Load checked XYZ records together, preserving mappings, endian handling and unaligned byte offsets.
 3. Dispatch sequential position scans by layout once; retain `Work::scan` and its exact failure prefix.
 4. Validate positional quadrics and refresh inverse weights in one pass, with unchanged divisions and numerical checks.
@@ -62,7 +62,7 @@ The baseline overdraw maximum is 1.512628 and the final maximum is 1.545072 at m
 
 ## Commands and exit receipts
 
-Initial fix-1 check (`check-fix1.sh`): cargo fmt --check, cargo test --locked --all-features, and parity/run.sh --phase 0.1 --profile scalar-strict: exit 0. Differential counts 50/50/65/62/52, zero mismatches.
+Initial fix-1 check (`check-fix1.sh`): cargo fmt --check, cargo test --locked --all-features, and parity/run.sh --release 0.1 --profile scalar-strict: exit 0. Differential counts 50/50/65/62/52, zero mismatches.
 
 `checks-batch/exits.tsv`:
 
@@ -117,7 +117,7 @@ Exact final gate commands:
 
 Fuzz: passed; four process CPU-hours for each of five targets, including retained checkpoint/resume budget.
 
-The aggregate report invocation used the retained historical tracked summaries against the fresh external artifact directory. It exits 1 at run/sources.tar.gz SHA binding; it does not verify the complete historical multi-phase release record set. Fresh individual gate/parity records remain separately retained. The first scratch integrity helper exits 1 because it assumed the older bare-ZIP inventory; corrected current-schema integrity is recorded separately and cannot clear either qualification failure.
+The aggregate report invocation used the retained historical tracked summaries against the fresh external artifact directory. It exits 1 at run/sources.tar.gz SHA binding; it does not verify the complete historical multi-release release record set. Fresh individual gate/parity records remain separately retained. The first scratch integrity helper exits 1 because it assumed the older bare-ZIP inventory; corrected current-schema integrity is recorded separately and cannot clear either qualification failure.
 
 ## Decision table applied
 

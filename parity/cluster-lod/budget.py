@@ -7,13 +7,13 @@ import differential as diff
 def build(kind, root):
     project = diff.ART / f'budget-{kind}'
     project.mkdir(parents=True, exist_ok=True)
-    source = diff.ROOT / 'parity/rfc113/budget.rs'
+    source = diff.ROOT / 'parity/cluster-lod/budget.rs'
     (project / 'Cargo.toml').write_text(
-        f'[package]\nname="rfc113-budget-{kind}"\nversion="0.0.0"\nedition="2021"\n'
-        f'[[bin]]\nname="rfc113-budget-{kind}"\npath="{source}"\n'
+        f'[package]\nname="cluster-lod-budget-{kind}"\nversion="0.0.0"\nedition="2021"\n'
+        f'[[bin]]\nname="cluster-lod-budget-{kind}"\npath="{source}"\n'
         f'[dependencies]\nmeshoptimizer-rs={{path="{root}",default-features=false,features=["clusterlod"]}}\n')
     diff.command(['cargo', 'build', '--offline', '--release', '--manifest-path', project / 'Cargo.toml'])
-    return diff.TARGET / 'release' / f'rfc113-budget-{kind}'
+    return diff.TARGET / 'release' / f'cluster-lod-budget-{kind}'
 
 
 def query(binary, limits):
@@ -43,10 +43,10 @@ def main():
                                and outcomes['old'][i][0] != outcomes['rust'][i][0]]
     improvements = sum(outcomes['old'][i][0] != 'Ok' and outcomes['rust'][i][0] == 'Ok'
                        for i in range(len(limits)))
-    result = {'schema': 'rfc113-budget/1', 'main_commit': (old_root / '.source-commit').read_text().strip(),
+    result = {'schema': 'cluster-lod-budget/1', 'main_commit': (old_root / '.source-commit').read_text().strip(),
               'current_commit': diff.command(['git', 'rev-parse', 'HEAD'], cwd=diff.ROOT,
                                               capture_output=True, text=True).stdout.strip(),
-              'source_sha256': diff.run.sha(diff.ROOT / 'parity/rfc113/budget.rs'),
+              'source_sha256': diff.run.sha(diff.ROOT / 'parity/cluster-lod/budget.rs'),
               'executables': {name: diff.run.sha(path) for name, path in binaries.items()},
               'unlimited': unlimited, 'limits_checked': len(limits),
               'old_fail_new_success': improvements,

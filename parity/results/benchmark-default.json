@@ -3,7 +3,7 @@
   "historical": false,
   "command": "benchmark",
   "passed": true,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": "default",
   "detail_artifact": "benchmark-default-integrated/benchmark.json",

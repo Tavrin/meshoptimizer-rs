@@ -47,7 +47,7 @@ def main():
     files = manifest['files']
     if args.milestone:
         files = [min((f for f in files if f['dilated'] == d), key=lambda f:f['size']) for d in [False, True]]
-    binary = Path(os.environ['CARGO_TARGET_DIR'])/'release/rfc113-dag-oracle'
+    binary = Path(os.environ['CARGO_TARGET_DIR'])/'release/cluster-lod-dag-oracle'
     rows = []
     for f in files:
         for path, expected in [(f['source'], f['source_sha256']), (f['oracle'], f['oracle_sha256'])]:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
-: "${MOSS_HEAVY_ACTIVE:?run under admit.sh}"
+: "${PARITY_RUNNER_ACTIVE:?run under admit.sh}"
 art="${SCRATCH:?}"/meshopt-029-scale
 export TMPDIR="$art/tmp"
 mkdir -p "$TMPDIR"
@@ -26,8 +26,8 @@ case "$1" in
   run boundary python3 parity/simd/check_boundary.py
   for mode in std no-std; do
    flags=(); if [ "$mode" = no-std ]; then flags=(--no-default-features); fi
-   run exact-build-$mode cargo build --locked --offline --manifest-path "$art/harness/Cargo.toml" --profile moss --bin scale-exact "${flags[@]}"
-   cp "$CARGO_TARGET_DIR/moss/scale-exact" "$art/exact-$mode"
+   run exact-build-$mode cargo build --locked --offline --manifest-path "$art/harness/Cargo.toml" --profile bench-release --bin scale-exact "${flags[@]}"
+   cp "$CARGO_TARGET_DIR/bench-release/scale-exact" "$art/exact-$mode"
    run exact-$mode "$art/exact-$mode"
   done
   run cpp-differential python3 parity/029-scale/differential.py

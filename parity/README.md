@@ -2,7 +2,7 @@
 
 ## Fast performance qualification (provisional)
 
-`python3 parity/fast_qualify.py --phase 0.1 --profile moss --full` runs
+`python3 parity/fast_qualify.py --release 0.1 --profile bench-release --full` runs
 alternating C++/Rust pairs on separate physical cores, leaving four physical
 cores free and excluding busy SMT groups. Set `CARGO_TARGET_DIR`,
 `MESHOPT_ARTIFACTS` and `MESHOPT_REFERENCE` to external directories first.
@@ -12,7 +12,7 @@ a free lease, no matching active unit, and one-minute load below 12. Unknown
 status fails closed. `MESHOPT_FAST_NOT_BEFORE` optionally sets a Unix deadline.
 On shared machines run timing through the site's resource-admission wrapper.
 
-Profiles are `moss`/`default` for 0.1, 0.1.x preprocessing and 0.4,
+Profiles are `downstream`/`default` for 0.1, 0.1.x preprocessing and 0.4,
 `consumer`/`release-defaults` for 0.3, `default` for 0.2, and `crate` for
 historical 0.1 geometry. There is no 0.5 adapter. All results stay provisional
 until [FAST_QUALIFY_VALIDATION.md](FAST_QUALIFY_VALIDATION.md) accepts the method.
@@ -29,13 +29,13 @@ executable hashes, stopping intervals and reuse/resume origins.
 
 Each case spends `0.05/case_count` on an anytime median interval using
 look-n error `alpha/(n(n+1))`. Codec ratios split the budget between separate
-backend medians; phase 0.2 also splits it with the registered floor. After
+backend medians; release 0.2 also splits it with the registered floor. After
 at least 12 pairs, stop when each applicable interval resolves its bar.
 Unresolved cases continue to `--max-pairs` (default 80, range 20–90), then
 retain a provisional point estimate. Coverage assumes independent stationary
 samples and does not cover nonstationary load or the family geometric mean.
 The family bar must be validated empirically against complete full matrices.
-Phase 0.2 requires `MESHOPT_DECODER_BASELINE` to name the exact registered
+Release 0.2 requires `MESHOPT_DECODER_BASELINE` to name the exact registered
 `baseline.json`; rounded display tables cannot replace it.
 
 `prepare_fast_validation.py LABEL --git-revision REV --full-record PATH`
@@ -44,7 +44,7 @@ can use retained sources. `run_fast_validation.py PLAN.json --wait --workers N`
 serializes full/fast runs and stores logs and exit receipts under the artifact
 directory. The driver requires an empty or previously owned dedicated target
 and removes only that target after validation. Plans supply source roots, archived records and codec input manifests;
-phase 0.2 also needs `registered_baseline` and `full_input_manifest`.
+release 0.2 also needs `registered_baseline` and `full_input_manifest`.
 `fast_validate.py MANIFEST.json` compares complete matrices and smoke noise
 records, writes a report, and issues a receipt only on acceptance.
 Receipts bind the runner, statistics and validator. Rejected validation exits 1.
@@ -65,13 +65,13 @@ All Cargo builds are offline and locked. The compiler is `CXX` or `c++`.
 
 ```sh
 parity/check-reference.sh
-parity/run.sh --phase 0.1 --profile scalar-strict
-parity/sweep.sh --phase 0.1 --cases-per-family 2000 --seed 20261002
-parity/js.sh --phase 0.1 --require-coverage
+parity/run.sh --release 0.1 --profile scalar-strict
+parity/sweep.sh --release 0.1 --cases-per-family 2000 --seed 20261002
+parity/js.sh --release 0.1 --require-coverage
 parity/fuzz.sh --seconds 600 --seed 20261002
-parity/benchmark.sh --phase 0.1
+parity/benchmark.sh --release 0.1
 parity/gates.sh
-parity/report.sh --phase 0.1 --verify-artifacts
+parity/report.sh --release 0.1 --verify-artifacts
 ```
 
 `run.sh` executes the corpus and a 65,543-value sqrtf bit probe against C++
@@ -88,15 +88,15 @@ parallel reduction is used. The driver checks nearest rounding and gradual
 underflow. Compiler, dependency, source, binary, runtime and hardware identities
 are captured before execution and checked afterward.
 
-`benchmark.sh` measures the full lane 3 geometry matrix described below.
+`benchmark.sh` measures the full job 3 geometry matrix described below.
 Input generation, I/O and startup are excluded; validation, required copies,
 allocation and execution are included. `--enforce` returns nonzero if any
 registered time or memory bar fails.
 
-The earlier lane 2 `report.sh` verifies current source and dependency identities, required counts
+The earlier job 2 `report.sh` verifies current source and dependency identities, required counts
 and every archived buffer hash before generating the measured reports.
-`qualify.sh` provides the same lane-specific verification; neither command
-claims complete release 0.1 or unavailable target qualification. Lane 3 keeps
+`qualify.sh` provides the same job-specific verification; neither command
+claims complete release 0.1 or unavailable target qualification. Job 3 keeps
 its narrower command evidence in `results/lane3-gates.json` and its combined
 verdict in `MEASURED_RESULTS.json`; the earlier release/package checks are
 not silently promoted to current evidence. Unimplemented
@@ -105,7 +105,7 @@ phases, profiles and command options are rejected.
 Records default to `parity/results/`; `MESHOPT_RESULTS` can override the retained
 destination. Large ZIP artifacts go to `MESHOPT_ARTIFACTS`, defaulting to
 `$CARGO_TARGET_DIR/parity-artifacts`, outside the repository. Set it to a durable
-external directory before deleting the build target; this lane uses
+external directory before deleting the build target; this job uses
 `<local>/final`. JSON records retain archive
 and member hashes, not archive contents. Hostnames are excluded from hardware
 metadata. ZIP artifacts preserve explicit little-endian input and response
@@ -144,9 +144,9 @@ checked exports without pointer reinterpretation.
 See [COVERAGE.md](COVERAGE.md) for scope and upstream fixture applicability,
 [DECISIONS.md](DECISIONS.md) for choices, and the measured reports for results.
 
-## Lane 3 performance
+## Job 3 performance
 
-`benchmark.sh --phase 0.1` measures the 204-case RFC geometry matrix and writes
+`benchmark.sh --release 0.1` measures the 204-case RFC geometry matrix and writes
 `results/benchmark.json` and `MEASURED_PERFORMANCE.md`. Add `--enforce` to return
 nonzero when the geometric-mean, per-case or memory bar fails. Each case records
 raw paired timings, dispersion, peak output-plus-scratch bytes and start/end

@@ -3,7 +3,7 @@
   "historical": true,
   "command": "lane3b-setup",
   "passed": null,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "historical/lane3b-setup.json",

@@ -1,6 +1,6 @@
-# Lane B evidence
+# Job B evidence
 
-SPEC-027 only: safe scalar overdraw changes, frozen synthetic and real corpus.
+registered protocol only: safe scalar overdraw changes, frozen synthetic and real corpus.
 Read REGISTRATION.md for the one wall campaign and REPORT.md for its results.
 `instructions.json` is diagnostic; it does not determine wall verdicts.
 

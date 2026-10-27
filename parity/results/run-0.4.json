@@ -2,7 +2,7 @@
   "schema": "meshopt-summary/1",
   "historical": false,
   "command": "run",
-  "phase": "0.4",
+  "release": "0.4",
   "profile": "scalar-strict",
   "records": {
     "fixtures": {

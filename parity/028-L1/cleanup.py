@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Retain evidence, then delete only the specified lane Cargo target."""
+"""Retain evidence, then delete only the specified job Cargo target."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):

@@ -107,29 +107,29 @@ def measure(cases,binaries,samples=12,target_seconds=0.008,adaptive=False):
                 if cv>0.15 or crosses:limit+=12
         row={'case':name,'decoded_bytes':outbytes,'iterations':iterations,'raw_seconds':raw,'statistics':{k:stats(v) for k,v in raw.items()},'output_sha256':hashes}
         row['throughput_bytes_second']={k:outbytes/v['median'] for k,v in row['statistics'].items()}
-        if 'moss' in raw:
-            row['moss_simd_throughput_ratio']=row['throughput_bytes_second']['moss']/row['throughput_bytes_second']['simd']
+        if 'downstream' in raw:
+            row['downstream_simd_throughput_ratio']=row['throughput_bytes_second']['downstream']/row['throughput_bytes_second']['simd']
             # Fixed non-regression rule, registered before candidate measurements:
             # 95% of the worst baseline sample, excluding only stated dispersion.
-            row['minimum_bytes_second']=0.95*outbytes/max(raw['moss'])
+            row['minimum_bytes_second']=0.95*outbytes/max(raw['downstream'])
         records.append(row);print(name,{k:round(v/1e6,2) for k,v in row['throughput_bytes_second'].items()},flush=True)
     for driver in drivers.values():driver.close()
     return records
 
 def baseline():
     ART.mkdir(parents=True,exist_ok=True)
-    if not (ART/'moss_codec.rs').exists():
-        moss=Path(os.environ['MESHOPT_MOSS_REFERENCE'])
-        source=subprocess.check_output(['git','--no-optional-locks','-C',moss,'show','dc4af42a5e94f8a0f22932c53977f66cd88aadc2:crates/moss_asset_loader/src/meshopt_codec.rs'])
-        (ART/'moss_codec.rs').write_bytes(source)
+    if not (ART/'downstream_codec.rs').exists():
+        downstream=Path(os.environ['MESHOPT_DOWNSTREAM_REFERENCE'])
+        source=subprocess.check_output(['git','--no-optional-locks','-C',downstream,'show','dc4af42a5e94f8a0f22932c53977f66cd88aadc2:crates/downstream_asset_loader/src/meshopt_codec.rs'])
+        (ART/'downstream_codec.rs').write_bytes(source)
     if (ROOT/'parity/DECODER_BAR.md').exists():raise ValueError('registered bar already exists; do not overwrite')
     scratch=ART/'baseline';scratch.mkdir(exist_ok=True)
-    source=(ART/'moss_codec.rs').read_text().split('#[cfg(test)]')[0]
+    source=(ART/'downstream_codec.rs').read_text().split('#[cfg(test)]')[0]
     for fn in ['decode_vertex_buffer','decode_index_buffer','decode_index_sequence','filter_octahedral','filter_quaternion','filter_exponential']:
         source=source.replace('fn '+fn+'(', 'pub fn '+fn+'(')
-    (scratch/'moss.rs').write_text(source)
+    (scratch/'downstream.rs').write_text(source)
     (scratch/'main.rs').write_bytes((ROOT/'parity/codec/baseline.rs').read_bytes())
-    (scratch/'Cargo.toml').write_text('[package]\nname="meshopt-moss-baseline"\nversion="0.0.0"\nedition="2021"\n[[bin]]\nname="downstream-baseline"\npath="main.rs"\n[profile.release]\ncodegen-units=1\nlto="fat"\n')
+    (scratch/'Cargo.toml').write_text('[package]\nname="meshopt-downstream-baseline"\nversion="0.0.0"\nedition="2021"\n[[bin]]\nname="downstream-baseline"\npath="main.rs"\n[profile.release]\ncodegen-units=1\nlto="fat"\n')
     cmd(['cargo','build','--release','--offline','--manifest-path',scratch/'Cargo.toml'])
     simd=build_cpp();scalar=build_cpp(True)
     if (ART/'benchmark-inputs.json').exists():
@@ -144,15 +144,15 @@ def baseline():
     for name,b in cases:
         p=ART/(name+'.input');p.write_bytes(b);manifest.append({'case':name,'path':str(p),'sha256':sha(p)})
     (ART/'benchmark-inputs.json').write_text(json.dumps(manifest,indent=2))
-    binaries={'moss':TARGET/'release/downstream-baseline','simd':simd,'scalar':scalar}
+    binaries={'downstream':TARGET/'release/downstream-baseline','simd':simd,'scalar':scalar}
     before={k:sha(v) for k,v in binaries.items()}
     rows=measure(cases,binaries)
     assert before=={k:sha(v) for k,v in binaries.items()}
-    record={'phase':'0.2','registered_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'source_revision':'dc4af42a5e94f8a0f22932c53977f66cd88aadc2','moss_source_sha256':sha(ART/'moss_codec.rs'),'binary_sha256':before,'cpu':min(os.sched_getaffinity(0)),'hardware':platform.machine(),'rustc':subprocess.check_output(['rustc','-Vv'],text=True),'cxx_flags':FLAGS,'scalar_flags':FLAGS+['-DMESHOPTIMIZER_NO_SIMD'],'raw':rows,'input_manifest_sha256':sha(ART/'benchmark-inputs.json'),'uncertainty_rule':'minimum = 0.95 * decoded_bytes / maximum measured a downstream engine seconds; 12 alternating paired samples; shared host load; worst sample plus 5% margin'}
+    record={'release':'0.2','registered_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'source_revision':'dc4af42a5e94f8a0f22932c53977f66cd88aadc2','downstream_source_sha256':sha(ART/'downstream_codec.rs'),'binary_sha256':before,'cpu':min(os.sched_getaffinity(0)),'hardware':platform.machine(),'rustc':subprocess.check_output(['rustc','-Vv'],text=True),'cxx_flags':FLAGS,'scalar_flags':FLAGS+['-DMESHOPTIMIZER_NO_SIMD'],'raw':rows,'input_manifest_sha256':sha(ART/'benchmark-inputs.json'),'uncertainty_rule':'minimum = 0.95 * decoded_bytes / maximum measured a downstream engine seconds; 12 alternating paired samples; shared host load; worst sample plus 5% margin'}
     (ART/'baseline.json').write_text(json.dumps(record,indent=2))
-    lines=['# P02 registered decoder bar','',f'Registered {record["registered_utc"]}, before port measurement.','',f'a downstream engine commit `{record["source_revision"]}`, source SHA-256 `{record["moss_source_sha256"]}`.','',f'Baseline evidence: `{ART}/baseline.json`, SHA-256 `{sha(ART/"baseline.json")}`.','',record['uncertainty_rule']+'. Minima apply to allocating and caller-buffer APIs on this Linux x86-64 target. Raw v1 is measured separately against scalar C++; it has no a downstream engine baseline.','', 'Optimized C++ uses enabled upstream SIMD; scalar canonical output is separate. Below 80% ships safe scalar under RFC 6.2, subject to these measured non-regression minima.','', '| Case | a downstream engine MB/s | SIMD MB/s | a downstream engine/SIMD | Minimum MB/s |','|---|---:|---:|---:|---:|']
+    lines=['# P02 registered decoder bar','',f'Registered {record["registered_utc"]}, before port measurement.','',f'a downstream engine commit `{record["source_revision"]}`, source SHA-256 `{record["downstream_source_sha256"]}`.','',f'Baseline evidence: `{ART}/baseline.json`, SHA-256 `{sha(ART/"baseline.json")}`.','',record['uncertainty_rule']+'. Minima apply to allocating and caller-buffer APIs on this Linux x86-64 target. Raw v1 is measured separately against scalar C++; it has no a downstream engine baseline.','', 'Optimized C++ uses enabled upstream SIMD; scalar canonical output is separate. Below 80% ships safe scalar under design requirements, subject to these measured non-regression minima.','', '| Case | a downstream engine MB/s | SIMD MB/s | a downstream engine/SIMD | Minimum MB/s |','|---|---:|---:|---:|---:|']
     for r in rows:
-        t=r['throughput_bytes_second'];lines.append(f'| {r["case"]} | {t["moss"]/1e6:.6f} | {t["simd"]/1e6:.6f} | {r["moss_simd_throughput_ratio"]:.6f} | {r["minimum_bytes_second"]/1e6:.6f} |')
+        t=r['throughput_bytes_second'];lines.append(f'| {r["case"]} | {t["downstream"]/1e6:.6f} | {t["simd"]/1e6:.6f} | {r["downstream_simd_throughput_ratio"]:.6f} | {r["minimum_bytes_second"]/1e6:.6f} |')
     (ROOT/'parity/DECODER_BAR.md').write_text('\n'.join(lines)+'\n')
     print('BAR REGISTERED',sha(ROOT/'parity/DECODER_BAR.md'),flush=True)
 
@@ -216,9 +216,9 @@ def candidate():
         raw_times[api]={'geometric_mean_rust_scalar_time_ratio':gm,'maximum_rust_scalar_time_ratio':maximum,'pass':gm<=1.25 and maximum<=1.50}
         verdicts[api]={'failed_registered_minima':failures,'minimum_bar_pass':not failures,'raw_scalar_bar':raw_times[api]}
     assert before==sources() and registered==sha(bar) and identities=={k:sha(v) for k,v in binaries.items()}
-    record={'phase':'0.2','candidate_measured_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'registered_bar_sha256':registered,'baseline_sha256':sha(ART/'baseline.json'),'sources':before,'executables':identities,'allocating':allocating,'caller_buffer':caller,'verdicts':verdicts,'single_thread_cpu':int(os.environ.get('MESHOPT_BENCH_CPU',min(os.sched_getaffinity(0)))),'load_after':os.getloadavg(),'stack_scratch_excluded':True,'heap_memory_bar':'raw into has zero heap scratch in Rust and C++; allocating output bytes match; retained Workspace capacity counted; no C++ global allocator used by raw decoders'}
+    record={'release':'0.2','candidate_measured_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'registered_bar_sha256':registered,'baseline_sha256':sha(ART/'baseline.json'),'sources':before,'executables':identities,'allocating':allocating,'caller_buffer':caller,'verdicts':verdicts,'single_thread_cpu':int(os.environ.get('MESHOPT_BENCH_CPU',min(os.sched_getaffinity(0)))),'load_after':os.getloadavg(),'stack_scratch_excluded':True,'heap_memory_bar':'raw into has zero heap scratch in Rust and C++; allocating output bytes match; retained Workspace capacity counted; no C++ global allocator used by raw decoders'}
     (ART/'candidate.json').write_text(json.dumps(record,indent=2))
-    lines=['# P02 measured decoder performance','',f'Bar SHA-256 `{registered}`. Evidence `{ART}/candidate.json`.','', 'At least twelve paired samples, increasing to sixty when dispersion exceeds 15% or uncertainty crosses a gate. Samples target 40 ms and rotate all backend orders. Validation, required copies and allocation timed; driver startup, I/O, generation and serialization excluded. Caller buffers are allocated before timing. Source and executable identities checked before and after. Linux x86-64 only; shared host load.','', 'Safe scalar remains the selected implementation under RFC 6.2. SIMD filter comparisons use decoded-unit conformance; canonical output follows scalar C++.','', 'Standalone Oct/Quat timing inputs contain repeated encoded directions/quaternions. Exact last-record reuse explains their throughput; these ratios do not establish throughput on varied filter data. Varied filters are covered by correctness sweeps. The registered a downstream engine minima remain unchanged. The C++ standalone filter allocation was corrected to copy-construct without redundant zeroing; the separate baseline correction record retains paired measurements and does not change any minimum.','', '| API | Case | Rust MB/s | SIMD MB/s | Rust/SIMD | Rust/scalar time | Min bar |','|---|---|---:|---:|---:|---:|---|']
+    lines=['# P02 measured decoder performance','',f'Bar SHA-256 `{registered}`. Evidence `{ART}/candidate.json`.','', 'At least twelve paired samples, increasing to sixty when dispersion exceeds 15% or uncertainty crosses a gate. Samples target 40 ms and rotate all backend orders. Validation, required copies and allocation timed; driver startup, I/O, generation and serialization excluded. Caller buffers are allocated before timing. Source and executable identities checked before and after. Linux x86-64 only; shared host load.','', 'Safe scalar remains the selected implementation under design requirements. SIMD filter comparisons use decoded-unit conformance; canonical output follows scalar C++.','', 'Standalone Oct/Quat timing inputs contain repeated encoded directions/quaternions. Exact last-record reuse explains their throughput; these ratios do not establish throughput on varied filter data. Varied filters are covered by correctness sweeps. The registered a downstream engine minima remain unchanged. The C++ standalone filter allocation was corrected to copy-construct without redundant zeroing; the separate baseline correction record retains paired measurements and does not change any minimum.','', '| API | Case | Rust MB/s | SIMD MB/s | Rust/SIMD | Rust/scalar time | Min bar |','|---|---|---:|---:|---:|---:|---|']
     for api,rows in [('allocating',allocating),('caller_buffer',caller)]:
         for row in rows:
             t=row['throughput_bytes_second'];lines.append(f'| {api} | {row["case"]} | {t["rust"]/1e6:.3f} | {t["simd"]/1e6:.3f} | {row["rust_simd_throughput_ratio"]:.3f} | {row["rust_scalar_time_ratio"]:.3f} | {row.get("bar_pass","raw v1")} |')
@@ -228,7 +228,7 @@ def candidate():
     if not all(v['minimum_bar_pass'] and v['raw_scalar_bar']['pass'] for v in verdicts.values()):raise SystemExit(1)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--phase',default='0.2');parser.add_argument('--enforce',action='store_true');parser.add_argument('--register-decoder-bars',action='store_true');args=parser.parse_args()
-    if args.phase!='0.2':raise ValueError('unsupported phase')
+    parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--release',default='0.2');parser.add_argument('--enforce',action='store_true');parser.add_argument('--register-decoder-bars',action='store_true');args=parser.parse_args()
+    if args.release!='0.2':raise ValueError('unsupported release')
     if args.baseline or args.register_decoder_bars:baseline()
     else:candidate()

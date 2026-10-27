@@ -18,7 +18,7 @@
     "<local>/medium-residual"
   ],
   "passed": null,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "historical/medium-residual-profile.json",

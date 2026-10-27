@@ -1,14 +1,14 @@
 #!/bin/bash
-# Invoke through <job-runner> (4 GiB), with the SPEC-026 target environment.
+# Invoke through <job-runner> (4 GiB), with the registered protocol target environment.
 set -euo pipefail
 s="${SCRATCH:?}"/meshopt-decode
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS= CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
 export CXXFLAGS=-DMESHOPTIMIZER_NO_SIMD
 cargo generate-lockfile --offline --manifest-path "$s/native/Cargo.toml"
-cargo build --manifest-path "$s/native/Cargo.toml" --locked --offline --profile moss --features ours --bin cmp-driver
-cp "$CARGO_TARGET_DIR/moss/cmp-driver" "$s/before"
-cargo build --manifest-path "$s/native/Cargo.toml" --locked --offline --profile moss --features peer7 --bin cmp-driver
-cp "$CARGO_TARGET_DIR/moss/cmp-driver" "$s/m7"
+cargo build --manifest-path "$s/native/Cargo.toml" --locked --offline --profile bench-release --features ours --bin cmp-driver
+cp "$CARGO_TARGET_DIR/bench-release/cmp-driver" "$s/before"
+cargo build --manifest-path "$s/native/Cargo.toml" --locked --offline --profile bench-release --features peer7 --bin cmp-driver
+cp "$CARGO_TARGET_DIR/bench-release/cmp-driver" "$s/m7"
 python3 parity/decode/instructions.py before
 python3 parity/decode/instructions.py before --codec
 cargo generate-lockfile --offline --manifest-path "$s/wasm/Cargo.toml"

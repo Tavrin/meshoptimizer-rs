@@ -1,8 +1,8 @@
-# SPEC-028 L2 cook chain
+# registered protocol L2 cook chain
 
 ## Final registered results
 
-**Lane outcome: PARTIAL.** Packed scale meets the M7 bar; cache, FIFO and
+**Job outcome: PARTIAL.** Packed scale meets the M7 bar; cache, FIFO and
 overdraw pass the baseline bars but miss M7. The real-stage disclosure does
 not establish a cook-chain speedup: 214e's candidate/C++ cache and overdraw
 ratios are higher than the v0.2.7/C++ controls in this campaign. Retain that
@@ -322,7 +322,7 @@ had completed, and no wall sample existed. Preserve that partial receipt in
 separate `proof-adapters.sh` class. The wall campaign likewise uses its own
 `wall.sh` class so the mixed short build/count duration history cannot assign
 it an unsuitable EASY deadline. Admission policy and RAM declarations remain
-unchanged; own-lane admissions are limited to one going forward.
+unchanged; own-job admissions are limited to one going forward.
 
 ## Qualification scope of the frozen real-derived case
 

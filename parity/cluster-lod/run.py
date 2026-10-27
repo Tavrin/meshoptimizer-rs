@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RFC113 S2 bridge differential and same-core interleaved cook timing."""
+"""CLUSTER_LOD S2 bridge differential and same-core interleaved cook timing."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -23,13 +23,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
-MOSS = Path(os.environ.get('MESHOPT_RFC113_MOSS_DIR',
+DOWNSTREAM = Path(os.environ.get('MESHOPT_CLUSTER_LOD_DOWNSTREAM_DIR',
     _public_path('<worktree>/crates/downstream_cooker')))
-VENDOR = MOSS / 'vendor/meshoptimizer'
-MESHES = Path(os.environ.get('MESHOPT_RFC113_MESH_DIR',
+VENDOR = DOWNSTREAM / 'vendor/meshoptimizer'
+MESHES = Path(os.environ.get('MESHOPT_CLUSTER_LOD_MESH_DIR',
     _public_path('<local>/meshes')))
-ART = Path(os.environ.get('MESHOPT_RFC113_ART_DIR',
-    _public_path('<artifacts>/rfc113')))
+ART = Path(os.environ.get('MESHOPT_CLUSTER_LOD_ART_DIR',
+    _public_path('<artifacts>/cluster-lod')))
 TARGET = Path(os.environ.get('CARGO_TARGET_DIR',
     _public_path('<target-dir>')))
 LAYOUTS = {'pos3-norm3-uv2': 32, 'pos3-norm3-uv2-tangent4': 48,
@@ -62,7 +62,7 @@ def least_busy_core():
     time.sleep(1)
     after = cpu_snapshot()
     allowed = os.sched_getaffinity(0)
-    excluded = {int(v) for v in os.environ.get('MESHOPT_RFC113_EXCLUDE_CORES','0,1').split(',') if v}
+    excluded = {int(v) for v in os.environ.get('MESHOPT_CLUSTER_LOD_EXCLUDE_CORES','0,1').split(',') if v}
     choices = allowed - excluded
     if not choices: choices = allowed
     core = min(choices, key=lambda core: (utilization(before, after, core), core))
@@ -71,27 +71,27 @@ def least_busy_core():
 
 def build(rust_profile='consumer'):
     TARGET.mkdir(parents=True, exist_ok=True); ART.mkdir(parents=True, exist_ok=True)
-    assert sha(HERE/'bridge.cpp') == sha(MOSS/'src/cluster_lod_bridge.cpp'), 'S2 bridge copy drifted'
+    assert sha(HERE/'bridge.cpp') == sha(DOWNSTREAM/'src/cluster_lod_bridge.cpp'), 'S2 bridge copy drifted'
     sources = sorted((VENDOR/'src').glob('*.cpp'))
-    cpp = TARGET/'rfc113-cpp'
+    cpp = TARGET/'cluster-lod-cpp'
     subprocess.run(['c++', '-std=c++17', '-O3', '-DNDEBUG', '-DMESHOPTIMIZER_NO_SIMD', '-fno-fast-math',
                     '-ffp-contract=off', '-I'+str(VENDOR/'src'), '-I'+str(VENDOR),
                     str(HERE/'bridge.cpp'), str(HERE/'reference.cpp'), *map(str,sources), '-o', str(cpp)],
                    check=True, env=ENV)
-    moss_cpp = TARGET/'rfc113-moss-cpp'
+    downstream_cpp = TARGET/'cluster-lod-downstream-cpp'
     subprocess.run(['c++', '-std=c++17', '-O3', '-DNDEBUG', '-fPIC',
                     '-ffunction-sections', '-fdata-sections', '-m64',
                     '-I'+str(VENDOR/'src'), '-I'+str(VENDOR),
-                    str(HERE/'bridge.cpp'), str(HERE/'reference.cpp'), *map(str,sources), '-o', str(moss_cpp)],
+                    str(HERE/'bridge.cpp'), str(HERE/'reference.cpp'), *map(str,sources), '-o', str(downstream_cpp)],
                    check=True, env=ENV)
     profile_args = ['--profile', 'consumer'] if rust_profile == 'consumer' else ['--release']
     subprocess.run(['cargo','build','--offline',*profile_args,'--manifest-path',str(HERE/'Cargo.toml')],check=True,env=ENV)
-    rust = TARGET/rust_profile/'rfc113-rust'
+    rust = TARGET/rust_profile/'cluster-lod-rust'
     inputs = [HERE/'bridge.cpp', HERE/'reference.cpp', HERE/'main.rs', HERE/'run.py',
-              ROOT/'Cargo.toml', ROOT/'Cargo.lock', MOSS/'build.rs', MOSS/'src/cluster_lod.rs',
-              MOSS/'src/cluster_lod_bridge.cpp', VENDOR/'clusterlod.h', *sources,
+              ROOT/'Cargo.toml', ROOT/'Cargo.lock', DOWNSTREAM/'build.rs', DOWNSTREAM/'src/cluster_lod.rs',
+              DOWNSTREAM/'src/cluster_lod_bridge.cpp', VENDOR/'clusterlod.h', *sources,
               *sorted((ROOT/'src').rglob('*.rs'))]
-    return {'cpp':cpp,'moss_cpp':moss_cpp,'rust':rust}, {str(p):sha(p) for p in inputs}
+    return {'cpp':cpp,'downstream_cpp':downstream_cpp,'rust':rust}, {str(p):sha(p) for p in inputs}
 
 def prepare(path, stride):
     data=path.read_bytes()
@@ -180,8 +180,8 @@ def field_at(data, offset):
                    'axis.x','axis.y','axis.z','cutoff','packed_axis'][word])
     return f'trailing byte {offset-at}'
 
-def first_mismatch(cpp, moss_cpp, rust, reproduce):
-    for side, other in (('moss_cpp', moss_cpp), ('rust', rust)):
+def first_mismatch(cpp, downstream_cpp, rust, reproduce):
+    for side, other in (('downstream_cpp', downstream_cpp), ('rust', rust)):
         if cpp != other:
             at=next((i for i,(x,y) in enumerate(zip(cpp,other)) if x!=y),min(len(cpp),len(other)))
             return {'side':side,'byte':at,'field':field_at(cpp,at),
@@ -216,39 +216,39 @@ def main():
                 records.append({'case':name,'mesh_sha256':sha(mesh),**meta,'mismatch':{
                     'field':'attribute_protect_mask bit 8','cpp':'clodBuild assert: mask must fit vertex_attributes_stride / 4 (8 floats)',
                     'rust':'InvalidParameter: mask exceeds attribute component count (5 floats)',
-                    'reproduce':f'python3 parity/rfc113/run.py --case {name} --pairs 0'},
-                    'times_s':{'cpp':[],'moss_cpp':[],'rust':[]},'median_ratio':None,'moss_ratio':None})
+                    'reproduce':f'python3 parity/cluster-lod/run.py --case {name} --pairs 0'},
+                    'times_s':{'cpp':[],'downstream_cpp':[],'rust':[]},'median_ratio':None,'downstream_ratio':None})
                 print(name,'INVALID S2 stride-32 setup: protect mask bit 8',flush=True)
                 continue
             outputs={};parity_payload=b'R11B'+payload[4:]
-            for side in ('cpp','moss_cpp','rust'):
+            for side in ('cpp','downstream_cpp','rust'):
                 outputs[side],_=drivers[side].run(parity_payload)
             cpp,rust=outputs['cpp'],outputs['rust']
-            moss_cpp=outputs['moss_cpp']
-            mismatch=first_mismatch(cpp,moss_cpp,rust,
-                f'python3 parity/rfc113/run.py --case {name} --pairs 0')
-            timing={'cpp':[],'moss_cpp':[],'rust':[]}
+            downstream_cpp=outputs['downstream_cpp']
+            mismatch=first_mismatch(cpp,downstream_cpp,rust,
+                f'python3 parity/cluster-lod/run.py --case {name} --pairs 0')
+            timing={'cpp':[],'downstream_cpp':[],'rust':[]}
             if stride==48:
                 timed_outputs={}
                 for pair in range(args.pairs):
-                    for side in (('cpp','moss_cpp','rust') if pair%2==0 else ('rust','moss_cpp','cpp')):
+                    for side in (('cpp','downstream_cpp','rust') if pair%2==0 else ('rust','downstream_cpp','cpp')):
                         result,seconds=drivers[side].run(b'R11T'+payload[4:])
                         if side in timed_outputs and result!=timed_outputs[side]:raise RuntimeError(f'{name} nondeterministic {side}')
                         timed_outputs[side]=result
                         timing[side].append(seconds)
             ratio=(statistics.median(timing['rust'])/statistics.median(timing['cpp'])) if timing['cpp'] else None
-            moss_ratio=(statistics.median(timing['rust'])/statistics.median(timing['moss_cpp'])) if timing['moss_cpp'] else None
+            downstream_ratio=(statistics.median(timing['rust'])/statistics.median(timing['downstream_cpp'])) if timing['downstream_cpp'] else None
             records.append({'case':name,'mesh_sha256':sha(mesh),**meta,
                             'cpp_sha256':hashlib.sha256(cpp).hexdigest(),
-                            'moss_cpp_sha256':hashlib.sha256(moss_cpp).hexdigest(),
-                            'moss_cpp_matches_scalar':moss_cpp==cpp,
+                            'downstream_cpp_sha256':hashlib.sha256(downstream_cpp).hexdigest(),
+                            'downstream_cpp_matches_scalar':downstream_cpp==cpp,
                             'rust_sha256':hashlib.sha256(rust).hexdigest(),
                             'bytes':len(cpp),'group_count':struct.unpack_from('<I',cpp,32)[0],
                             'dag_depth':struct.unpack_from('<I',cpp,40)[0]-1,
-                            'mismatch':mismatch,'times_s':timing,'median_ratio':ratio,'moss_ratio':moss_ratio})
-            print(name,'MATCH' if mismatch is None else f'MISMATCH {mismatch}',f'ratio={ratio}',f'moss_ratio={moss_ratio}',flush=True)
+                            'mismatch':mismatch,'times_s':timing,'median_ratio':ratio,'downstream_ratio':downstream_ratio})
+            print(name,'MATCH' if mismatch is None else f'MISMATCH {mismatch}',f'ratio={ratio}',f'downstream_ratio={downstream_ratio}',flush=True)
         total_cpp=sum(statistics.median(r['times_s']['cpp']) for r in records if r['times_s']['cpp'])
-        total_moss=sum(statistics.median(r['times_s']['moss_cpp']) for r in records if r['times_s']['moss_cpp'])
+        total_downstream=sum(statistics.median(r['times_s']['downstream_cpp']) for r in records if r['times_s']['downstream_cpp'])
         total_rust=sum(statistics.median(r['times_s']['rust']) for r in records if r['times_s']['rust'])
         identity={'sources':sources,'executables':{k:sha(v) for k,v in binaries.items()},
                   'commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
@@ -257,25 +257,25 @@ def main():
                   'load_before':load_before,'load_after':os.getloadavg(),
                   'core_utilization':utilization(cpu_before,cpu_snapshot(),args.core),
                   'cpp_flags':'-O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off',
-                  'moss_cpp_flags':'-O3 -DNDEBUG -fPIC -ffunction-sections -fdata-sections -m64; SIMD enabled, mirroring cc release defaults',
+                  'downstream_cpp_flags':'-O3 -DNDEBUG -fPIC -ffunction-sections -fdata-sections -m64; SIMD enabled, mirroring cc release defaults',
                   'rust_profile':('consumer opt-level=3 thin LTO codegen-units=1' if args.rust_profile=='consumer'
                                   else 'Cargo release defaults: opt-level=3, 16 codegen units, no LTO'),
                   'timing':'internal monotonic ns; input parse plus S2 bridge/Rust equivalent; excludes pipe transfer, process launch, detailed bounds'}
         assert sources=={p:sha(p) for p in sources} and identity['executables']=={k:sha(v) for k,v in binaries.items()}
-        result={'schema':'rfc113-clod/2','cases':records,'timing':{'cpp_sum_medians_s':total_cpp,
-                'moss_cpp_sum_medians_s':total_moss,
+        result={'schema':'cluster-lod-clod/2','cases':records,'timing':{'cpp_sum_medians_s':total_cpp,
+                'downstream_cpp_sum_medians_s':total_downstream,
                 'rust_sum_medians_s':total_rust,'ratio':total_rust/total_cpp if total_cpp else None,
-                'moss_ratio':total_rust/total_moss if total_moss else None,
+                'downstream_ratio':total_rust/total_downstream if total_downstream else None,
                 'bar':'<= approximately 1.2x'},'identity':identity}
         filename = 'result.json' if args.rust_profile=='consumer' else 'result-defaults.json'
         (ART/filename).write_text(json.dumps(result,indent=2)+'\n')
         if any(r['mismatch'] is not None and r['stride'] != 32 for r in records):
-            raise RuntimeError('RFC113 three-way byte parity failed')
+            raise RuntimeError('CLUSTER_LOD three-way byte parity failed')
         if args.pairs >= 20 and args.rust_profile == 'consumer':
             if total_cpp and (total_rust / total_cpp > 1.2 or any(
                 r['median_ratio'] is not None and r['median_ratio'] > 1.5 for r in records
             )):
-                raise RuntimeError('RFC113 scalar cook bar failed')
+                raise RuntimeError('CLUSTER_LOD scalar cook bar failed')
     finally:
         for d in drivers.values():d.close()
 

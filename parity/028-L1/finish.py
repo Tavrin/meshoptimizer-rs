@@ -40,7 +40,7 @@ existing untimed output/serialization check before the explicit warm-up.
 Paired bootstrap: 10,000 resamples, seed 20261030. Raw pairs and case intervals
 are in RESULTS.json; X is disclosure only. Ratios are candidate/comparator.
 
-RFC113 disclosure (sum of case medians, 10 pairs/case): combined
+CLUSTER_LOD disclosure (sum of case medians, 10 pairs/case): combined
 **{disclosure['all']:.6f}x C++**, S1 {disclosure['S1']:.6f}x (41 cases),
 S2 {disclosure['S2']:.6f}x (nine valid cases), maximum case
 {disclosure['max_case']:.6f}x. This is disclosure, not a bar. Scalar C++ and the
@@ -66,7 +66,7 @@ for r in gates:summary+=f"| {' '.join(r['command'])} | {r['exit']} |\n"
 summary+=f'''| Existing C++ L1 differential, 2,000 seeds/family, alloc/into plus 64 wide partition seeds | 0 |
 | v0.2.7 exact Results/work/output/caller-buffer contents, {exact['comparisons']:,} comparisons | 0 |
 | Frozen five-case corpus against M7 and v0.2.7, all six families | 0 |
-| RFC113 50-case preflight | 0 |
+| CLUSTER_LOD 50-case preflight | 0 |
 | Widened layout/topology/resource differential fuzz | 0 |
 | Full-width production-divider property fuzz | 0 |
 | Single registered wall campaign | 0 |
@@ -95,7 +95,7 @@ assert '## Final result'not in old,'do not overwrite a completed report'
 at=old.index('## Adapter diagnosis');p.write_text(old[:at]+summary+old[at:])
 # Required existing-root-file edit, measured values only; no version bump.
 p=ROOT/'CHANGELOG.md';s=p.read_text();assert '## [Unreleased]'not in s
-entry='## [Unreleased]\n\n- L1 cluster paths, a downstream engine scalar five-case GM times versus 0.2.7 / C++ 1.3: '+', '.join(f"{r['family']} {r['base']:.3f}x / {r['M7']:.3f}x"for r in rows)+f". RFC113 aggregate {disclosure['all']:.3f}x C++, S1 {disclosure['S1']:.3f}x and S2 {disclosure['S2']:.3f}x.\n\n"
+entry='## [Unreleased]\n\n- L1 cluster paths, a downstream engine scalar five-case GM times versus 0.2.7 / C++ 1.3: '+', '.join(f"{r['family']} {r['base']:.3f}x / {r['M7']:.3f}x"for r in rows)+f". CLUSTER_LOD aggregate {disclosure['all']:.3f}x C++, S1 {disclosure['S1']:.3f}x and S2 {disclosure['S2']:.3f}x.\n\n"
 s=s.replace('## [0.2.7]',entry+'## [0.2.7]',1);p.write_text(s)
 # Exact, reviewable draft PR body. No memory citations in PR content.
 body=f'''The L1 cluster path spends time clearing partition maps, publishing scan descriptors per triangle, evaluating zero-weight cone arithmetic, and dividing inside BVH pivots. This change reuses generation tags, keeps scan output state local, specializes the zero-weight search, and uses an exact invariant integer quotient. Position preparation and Morton interleave are also tightened. Public outputs, errors, work usage and APIs remain unchanged.
@@ -103,9 +103,9 @@ body=f'''The L1 cluster path spends time clearing partition maps, publishing sca
 Registered performance verdict: **{verdict}**. The single final campaign used the equalized a downstream engine scalar adapters, 1 warm-up + 10 alternating pairs, 10,000 bootstrap resamples, seed 20261030, with A/A floor {F:.6f}. X is disclosure only.
 
 {table(rows)}
-RFC113 aggregate: {disclosure['all']:.6f}x C++ (S1 {disclosure['S1']:.6f}x; S2 {disclosure['S2']:.6f}x), disclosure only. PARTIAL families have no C++ performance-parity claim; FAIL families are not performance-qualified.
+CLUSTER_LOD aggregate: {disclosure['all']:.6f}x C++ (S1 {disclosure['S1']:.6f}x; S2 {disclosure['S2']:.6f}x), disclosure only. PARTIAL families have no C++ performance-parity claim; FAIL families are not performance-qualified.
 
-Validation: both required feature-configuration tests, clippy -D warnings and formatting passed. Existing C++ differential and {exact['comparisons']:,} baseline exact comparisons passed, including Results, work accounting and caller-buffer failure contents. Both widened mesh/layout fuzz and full-width divider fuzz exceeded five target CPU-minutes with zero mismatches. All 50 RFC113 preflight cases matched.
+Validation: both required feature-configuration tests, clippy -D warnings and formatting passed. Existing C++ differential and {exact['comparisons']:,} baseline exact comparisons passed, including Results, work accounting and caller-buffer failure contents. Both widened mesh/layout fuzz and full-width divider fuzz exceeded five target CPU-minutes with zero mismatches. All 50 CLUSTER_LOD preflight cases matched.
 
 See parity/028-L1/REPORT.md, REGISTRATION.md and RESULTS.json for causes, source locations, raw pairs, intervals, exits and retained evidence. No merge, tag, publication or version bump.
 '''

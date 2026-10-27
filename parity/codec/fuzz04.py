@@ -100,7 +100,7 @@ def main():
         rows = list(pool.map(lambda pair: run(*pair), enumerate(NAMES)))
     if before != {str(p.relative_to(ROOT)): sha(p) for p in ROOT.glob('src/**/*.rs')}:
         raise ValueError('sources changed during fuzzing')
-    (ART / 'fuzz.json').write_text(json.dumps({'phase': '0.4', 'profile': 'asan-libfuzzer-300s', 'sources': before, 'targets': rows,
+    (ART / 'fuzz.json').write_text(json.dumps({'release': '0.4', 'profile': 'asan-libfuzzer-300s', 'sources': before, 'targets': rows,
                                                'release_four_cpu_hours_per_target': 'not established by this 300-second smoke'}, indent=2))
 
 
