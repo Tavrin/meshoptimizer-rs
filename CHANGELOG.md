@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Reverted partition trial, corpus instruction ratios candidate/base / scalar C++ 1.3: 1.010x / 1.426x.
+
 - `simplify` instruction ratios on the three real LOD chains (214e, a082, b6fd),
   versus 0.2.12 / scalar C++ 1.3: 0.858x / 1.354x, 0.879x / 1.283x, 0.879x / 1.287x.
 - Corpus geometric-mean instruction ratios versus 0.2.12 / scalar C++ 1.3:

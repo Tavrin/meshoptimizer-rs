@@ -1,0 +1,15 @@
+{
+  "base_commit": "bd0c891cef206784e2b3b95ddfe4fbf5fab79a5c",
+  "base_partition_sha256": "2132efcde80bebff7c47ccbe8af4e6b2c4d6f74f2840ff706d732b6ab791b6dd",
+  "candidate_partition_sha256": "98bddb45b3a8f706d70a0e4be0f37e0caa511ae79cac169d4fee1d7faf90d1e7",
+  "m7_partition_sha256": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+  "driver_sha256": {
+    "base": "8803b114744ad82807e1c152a6b248bf340e1e159bc42573ba56cf494f144015",
+    "candidate": "8f2b3a565e9c50ea5da15e18b8cfce92c2dfe8b8d9e837ab44f85c96111a769f",
+    "M7": "25f9f7d4b1f7db53b8c61c19e752ffbc0c4fcd157b259a7283221a134663b16c"
+  },
+  "driver_source_sha256": "57e7f829d6a5c4c6b6273d2f108e48db47025ceeb52b632e0c9ae3e5f268f7e5",
+  "campaign_cases_sha256": "ead7f58c0096a318e905797ccba9ac825db82e741ad188cad3a247bc67bea427",
+  "campaign_script_sha256": "e9337310aa35144b852d823f789db2a44c0ce80b5b6b0ca511c3dc97d9089857",
+  "widened_fuzz_sha256": "75d56e873eec88c43f33669fc0b922495a335805221a42ee1ed9cb80afaa8681"
+}
