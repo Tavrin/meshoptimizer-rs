@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export MESHOPT_ADMISSION_ID=$$ MESHOPT_GPU=0
+: "${CARGO_TARGET_DIR:?set the dedicated lane target directory}"
+export CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 PYTHONDONTWRITEBYTECODE=1
+export CXXFLAGS='-DMESHOPTIMIZER_NO_SIMD -g'
+export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
+: "${MESHOPT_JOB_RUNNER:?set the admission runner}"
+exec "$MESHOPT_JOB_RUNNER" 4 "$@"
