@@ -16,6 +16,8 @@ The existing five corpus meshes and three real meshes are unchanged packed XYZ/i
 
 The first build failed with exit 101 on a callback return type and was corrected. The first collection stopped with harness exit 1 / child exit 101 at the default 1 GiB Workspace cap on real-214e attribute simplification. Its 535 finished samples and failed cell remain retained and are excluded in full. The final matrix was rebuilt and recollected with the explicit 3 GiB cap; no library limit or threshold changed.
 
+Integration status: draft PR #48 has a failing repository boundary check (exit 1): the new unpublished C++ FFI executable is absent from the existing PEER_FFI_DRIVERS allowlist. The checker is outside this lane’s allowed write scope. BOUNDARY.md records the failure and boundary-registration.patch supplies an exact unapplied registration change. This remains an owner integration step; the measurement/source audit does not clear the repository boundary gate.
+
 ## Peer table
 
 | Function | Peer | Corpus ratio | real-214e | real-a082 | real-b6fd | Output vs C++ (identical/cases) | API/settings notes |

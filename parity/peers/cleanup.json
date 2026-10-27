@@ -18,5 +18,11 @@
       "features": "[\"cpp\"]",
       "rustflags": []
     }
-  ]
+  ],
+  "post_package_audit_cleanup": {
+    "exit": 0,
+    "verified_absent": true,
+    "files": 1,
+    "file_bytes": 177
+  }
 }

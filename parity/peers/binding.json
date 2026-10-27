@@ -76,7 +76,7 @@
     "parity/peers/measure_stages.py": "1865f310c1c0b17b21b2514f5b599946ebe66b239e60754467456ff1456a040c",
     "parity/peers/build.py": "7e12226fc5def16962271dea161bc32a09055b50556d5a76e961dd4077f90ace",
     "parity/peers/validate_stages.py": "b9c7c473d6dfc292556aca33253c5c4375b000907cdfe30fada17dc1f855cd43",
-    "parity/peers/report.py": "f1934a631313084d8056e013404dcece15d8eebc8db3465764035848a9f4ac19",
+    "parity/peers/report.py": "34877d2690f1a2965ce5bc3a4ea73362e15bc02d85c1546681ced9808ce9e4ae",
     "parity/peers/inventory.py": "090e422c60246ba6b4b10900c0be60d4d360c294c5bde633c6bb353e1af2001c",
     "parity/peers/prepare.py": "47bd24b314aba844361f0435f05ebcff2d0582dfa0d71afe0d3a65fc1f42668d",
     "parity/peers/stages.py": "4c5c6cecd9cb1a9b4b7fedb66b9350c109decaa6eb7c813ae41a05bd275725a2",
