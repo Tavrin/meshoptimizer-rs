@@ -147,8 +147,8 @@ def run_job(label, command, root, artifacts, wait, journal, extra_env=None, allo
 def run_fast(item, wait, journal, smoke=False, workers=None):
     root = Path(item['source_root'])
     sync_harness(root)
-    label = 'noise-' + ('single' if workers == 1 else 'parallel') if smoke else f"fast-{item['revision'].replace('/', '-')}-{item['phase']}-{item['profile']}"
-    command = [sys.executable, root / 'parity/fast_qualify.py', '--phase', item['phase'],
+    label = 'noise-' + ('single' if workers == 1 else 'parallel') if smoke else f"fast-{item['revision'].replace('/', '-')}-{item['release']}-{item['profile']}"
+    command = [sys.executable, root / 'parity/fast_qualify.py', '--release', item['release'],
                '--profile', item['profile'], '--full']
     if smoke:
         command += ['--smoke']
@@ -159,7 +159,7 @@ def run_fast(item, wait, journal, smoke=False, workers=None):
     # under the same harness; fast_qualify independently checks every source/input.
     if not previous.get('successful') and previous.get('key', {}).get('harness_sha256') == sha(ROOT / 'parity/fast_qualify.py'):
         partials = []
-        for path in ART.glob(f"fast-{item['phase']}-{item['profile']}-*/record.partial.json"):
+        for path in ART.glob(f"fast-{item['release']}-{item['profile']}-*/record.partial.json"):
             record = json.loads(path.read_text())
             if (record.get('started_unix', 0) >= previous.get('started_unix', float('inf')) and
                     record.get('source_root') == str(root) and record.get('smoke') == smoke):
@@ -169,7 +169,7 @@ def run_fast(item, wait, journal, smoke=False, workers=None):
     result = run_job(label, command, root, ART, wait, journal)
     # Recover the record from this job's final line rather than directory mtimes.
     candidates = []
-    for path in ART.glob(f"fast-{item['phase']}-{item['profile']}-*/record.json"):
+    for path in ART.glob(f"fast-{item['release']}-{item['profile']}-*/record.json"):
         record = json.loads(path.read_text())
         if (result['started_unix'] <= record['started_unix'] <= result['finished_unix'] and
                 record.get('source_root') == str(root) and record.get('smoke') == smoke and
@@ -270,7 +270,7 @@ measure.candidate()
 def full01x(item, wait, journal):
     root = Path(item['source_root'])
     folder = ART / ('full-01x-' + item['profile'])
-    profile = 'defaults' if item['profile'] == 'default' else 'moss'
+    profile = 'defaults' if item['profile'] == 'default' else 'downstream'
     code = """
 import sys, os
 from types import SimpleNamespace
@@ -349,11 +349,11 @@ def main():
             run_job(label, command, ROOT, ART / 'checks', args.wait, journal)
         for item in plan['comparisons']:
             sync_harness(Path(item['source_root']))
-            if item['phase'] == '0.2':
+            if item['release'] == '0.2':
                 full02(item, args.wait, journal)
-            if item['phase'] == '0.1.x':
+            if item['release'] == '0.1.x':
                 full01x(item, args.wait, journal)
-            if item['phase'] == '0.3':
+            if item['release'] == '0.3':
                 sync_harness(Path(item['source_root']))
                 full03(item, args.wait, journal)
             item['fast'] = run_fast(item, args.wait, journal, workers=args.workers)

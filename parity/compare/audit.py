@@ -28,7 +28,7 @@ check('vendor normalized v0.25 identity',all(r['matches_v0_25_normalized_eol'] f
 check('all 89 upstream names classified',len(read(ART/'api-inventory.json'))==89)
 for r in read(ART/'inputs.json'):
  for suffix,key in [('', 'sha256'),('-strip','strip_sha256')]:check('frozen input '+r['name']+suffix,sha(ART/'inputs'/f'{r["name"]}{suffix}.bin')==r[key])
-for prof in ['defaults','moss']:
+for prof in ['defaults','downstream']:
  for b in ['ours','theirs']:
   for program in ['cmp-decode','cmp-full','cmp-empty','cmp-driver']:
    p=ART/f'{program}-{prof}-{b}';check('retained binary '+p.name,sha(p)==Path(str(p)+'.sha256').read_text().strip())
@@ -79,7 +79,7 @@ for name,_,_ in measure.CASES:
 check('raw meshlet layout effect observed',any(not r['raw_byte_identical'] for r in out['rows'] if r['operation'].startswith('meshlets')))
 expected={(name,op) for name,_,_ in measure.CASES for op in measure.PERF}
 untimed={(r['case'],r['operation']):r for r in out['rows']}
-for prof in ['defaults','moss']:
+for prof in ['defaults','downstream']:
  j=read(ART/f'measure-{prof}-timing.json');check('complete timing corpus '+prof,j['completed'] and {(r['case'],r['operation']) for r in j['rows']}==expected and len(j['rows'])==len(expected))
  check('timing executable identities '+prof,j['binary_sha256']=={b:sha(ART/f'cmp-driver-{prof}-{b}') for b in ['ours','theirs']})
  for r in j['rows']:

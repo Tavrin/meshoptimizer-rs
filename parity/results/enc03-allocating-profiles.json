@@ -1,5 +1,5 @@
 {
-  "scope": "SPEC-03 allocating encoders, shared host, Cargo defaults and a downstream engine thin LTO",
+  "scope": "registered protocol allocating encoders, shared host, Cargo defaults and a downstream engine thin LTO",
   "evidence_directory": "<scratch>/meshopt-enc03/seen-frontier",
   "registration": {
     "source": {
@@ -119,7 +119,7 @@
         "lto": false,
         "codegen_units": 16
       },
-      "moss": {
+      "downstream": {
         "lto": "thin",
         "codegen_units": 1
       }
@@ -222,10 +222,10 @@
       "encoder-crate-oracle-defaults": "5e4201b511bcdfe0ff1cbb78ed9500ebb17e67efc75cd45ae305d999b839203a",
       "cmp-driver-defaults-ours": "354e92abd2c36875d64c092b713845a463f99d78f8807299ce5bde958da8c09b",
       "cmp-driver-defaults-theirs": "32dd943f4a9eb4895d5a791892b47c19403f0a965e697a0558121777ab8ddaf4",
-      "codec-driver-moss": "fd6cbaf5af4e468ec95d4e33c9c47d85b822e6c8997cb44e2dbe1bce305b5375",
-      "encoder-crate-oracle-moss": "86f002a114feaf0f924101a2cee4a5d9a33dd5c67cce65f0874b350f4cbe12ec",
-      "cmp-driver-moss-ours": "4ccdbe37fddc3edf0240e2f7b16b294ddeca7755dc5c643361bda1433c691285",
-      "cmp-driver-moss-theirs": "c4eb3d7a84364590e3aeda410d36d7acc168e6960b79ed6a5de4db461d87354f",
+      "codec-driver-downstream": "fd6cbaf5af4e468ec95d4e33c9c47d85b822e6c8997cb44e2dbe1bce305b5375",
+      "encoder-crate-oracle-downstream": "86f002a114feaf0f924101a2cee4a5d9a33dd5c67cce65f0874b350f4cbe12ec",
+      "cmp-driver-downstream-ours": "4ccdbe37fddc3edf0240e2f7b16b294ddeca7755dc5c643361bda1433c691285",
+      "cmp-driver-downstream-theirs": "c4eb3d7a84364590e3aeda410d36d7acc168e6960b79ed6a5de4db461d87354f",
       "cpp-scalar": "5d959822128dacd35b3c9a9c83696323d9c144144639a0f6594fa63a61714ffc",
       "cpp": "9dadcdb967ea22e5bc2f56d2ceed263fb8e9547ee325c800372e2b839bfd5bb5"
     },
@@ -335,7 +335,7 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--manifest-path",
           "parity/compare/Cargo.toml",
           "--features",
@@ -354,7 +354,7 @@
           "--offline",
           "--locked",
           "--profile",
-          "moss",
+          "downstream",
           "--manifest-path",
           "parity/compare/Cargo.toml",
           "--features",
@@ -428,7 +428,7 @@
         "lto": false,
         "codegen-units": 16
       },
-      "moss": {
+      "downstream": {
         "lto": "thin",
         "codegen-units": 1
       }
@@ -3521,7 +3521,7 @@
         }
       }
     },
-    "moss": {
+    "downstream": {
       "rows": [
         {
           "case": "vertex-tiny-s4-v0-l2",
@@ -6627,7 +6627,7 @@
         }
       ]
     },
-    "moss": {
+    "downstream": {
       "binaries": {
         "rust": "fd6cbaf5af4e468ec95d4e33c9c47d85b822e6c8997cb44e2dbe1bce305b5375",
         "cpp": "9dadcdb967ea22e5bc2f56d2ceed263fb8e9547ee325c800372e2b839bfd5bb5",
@@ -6635,7 +6635,7 @@
         "cpp-aa": "9dadcdb967ea22e5bc2f56d2ceed263fb8e9547ee325c800372e2b839bfd5bb5",
         "before": "ce73a31d83c1fb1e900b8f574f935bad08d032145c6c1ac186bf47e99a5476c6"
       },
-      "profile": "moss",
+      "profile": "downstream",
       "cpu": 26,
       "before_binding": {
         "build_sha256": "8119ecd00d2af103f85b93804384fffd1f07740d91ddc1d44a54147c8ac8408f",
@@ -6857,7 +6857,7 @@
         }
       }
     },
-    "moss": {
+    "downstream": {
       "families": {
         "vertex-encode": {
           "geometric_mean_case_medians": 0.6048686690880624,
@@ -6996,14 +6996,14 @@
       },
       "receipt_sha256": "33e6da773c46bb2a98cb50445d860b639a29695a7697d077466195204d9d7da8"
     },
-    "moss": {
+    "downstream": {
       "comparisons": 17264,
       "mismatches": 0,
       "binaries": {
         "cpp-scalar": "5d959822128dacd35b3c9a9c83696323d9c144144639a0f6594fa63a61714ffc",
         "cpp": "9dadcdb967ea22e5bc2f56d2ceed263fb8e9547ee325c800372e2b839bfd5bb5",
         "crate": "86f002a114feaf0f924101a2cee4a5d9a33dd5c67cce65f0874b350f4cbe12ec",
-        "rust-moss": "fd6cbaf5af4e468ec95d4e33c9c47d85b822e6c8997cb44e2dbe1bce305b5375"
+        "rust-downstream": "fd6cbaf5af4e468ec95d4e33c9c47d85b822e6c8997cb44e2dbe1bce305b5375"
       },
       "receipt_sha256": "ad144d5b1a217d31d10c63eac4b16dd59b51494cd0eeb10c70e46305c26249fc"
     }
@@ -7015,37 +7015,37 @@
     "controller-build.log": "7ae32d3164dfd1fa66dc4a1dc89e7cecc85d73aa0bd56350739c575ed7019bdb",
     "controller-measure.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "edge-and-capacity-defaults.json": "5e82b415f3dbf31697c8056dfc82651e942dbe34aa72b8e48860b75e21556077",
-    "edge-and-capacity-moss.json": "68bd68920b995608deb5adfe1e1f073f72752e767c7ea0a1901f946641872df5",
+    "edge-and-capacity-downstream.json": "68bd68920b995608deb5adfe1e1f073f72752e767c7ea0a1901f946641872df5",
     "exp-edges-defaults.json": "58845b90c937d3e3f6a7ae7cc1e9a8ff7fd9cb406ba25559ef6fd4e260b68fe1",
     "exp-edges-defaults.log": "343bec6edf3e73ebecba03a823c4109eee6a24b25cdd152ced46b0cdc25a9a84",
-    "exp-edges-moss.json": "7ded96ed638629483211b206f69a73393821fa7656d5b125170770d3a2d4d18e",
-    "exp-edges-moss.log": "25d4d7aa3b6a3e488d78485f1ba32aa5e531a88b93686bdb35121d2445ed4cc0",
+    "exp-edges-downstream.json": "7ded96ed638629483211b206f69a73393821fa7656d5b125170770d3a2d4d18e",
+    "exp-edges-downstream.log": "25d4d7aa3b6a3e488d78485f1ba32aa5e531a88b93686bdb35121d2445ed4cc0",
     "exp-exhaustive-defaults.json": "41a37b0db375fc195bdd1b501e7a2ed9921f6397af070649a69d220e53f88b8d",
     "exp-exhaustive-defaults.log": "46a6607b1e3f3e748acb85ceed5acc69b43c0bb35bfefae739c49fb5d0b95449",
-    "exp-exhaustive-moss.json": "a314ecf92725523a896e064d807d87db2a0608cc9cb6304c5d31e5c2aa5ca8bd",
-    "exp-exhaustive-moss.log": "5b52c4e9821f0ecccd96b94b4863b6ebf998415114947d85ec6c53d587651954",
+    "exp-exhaustive-downstream.json": "a314ecf92725523a896e064d807d87db2a0608cc9cb6304c5d31e5c2aa5ca8bd",
+    "exp-exhaustive-downstream.log": "5b52c4e9821f0ecccd96b94b4863b6ebf998415114947d85ec6c53d587651954",
     "extra-checks-defaults.json": "491908ba2171bd1a7de2881542f7872808a63c07d71db22fb6054dbf18fccc50",
     "extra-checks-defaults.log": "0a123b04b0755cbd8b2631a675091bc23462646c048b64cef0eac2d41e158a17",
-    "extra-checks-moss.json": "343b76f20cfff5d613b56eaaaf464f0c4fda7811cfe33764852d2dc435fe6fd9",
-    "extra-checks-moss.log": "8fb6cab25ed414183f134e1a4f0ba2efd38b925d61068bd31ee2231f00795cf5",
+    "extra-checks-downstream.json": "343b76f20cfff5d613b56eaaaf464f0c4fda7811cfe33764852d2dc435fe6fd9",
+    "extra-checks-downstream.log": "8fb6cab25ed414183f134e1a4f0ba2efd38b925d61068bd31ee2231f00795cf5",
     "inputs.json": "1571f2b1eb8d70aafafdf9ee75e4052751ec8c3f9bf3b9ad120169084edc03e3",
     "parity-defaults.json": "33e6da773c46bb2a98cb50445d860b639a29695a7697d077466195204d9d7da8",
     "parity-defaults.log": "36bb53c3f104b55964b1b02f0421b304d16868ca3fce92c8b0ac35f3e4b87883",
-    "parity-moss.json": "ad144d5b1a217d31d10c63eac4b16dd59b51494cd0eeb10c70e46305c26249fc",
-    "parity-moss.log": "d977d4fe833e1471b1b24ae552adc43e1da19f295450c974c9a73fde6109fd89",
+    "parity-downstream.json": "ad144d5b1a217d31d10c63eac4b16dd59b51494cd0eeb10c70e46305c26249fc",
+    "parity-downstream.log": "d977d4fe833e1471b1b24ae552adc43e1da19f295450c974c9a73fde6109fd89",
     "peer/inputs.json": "a77e99e05526ea71ae5a107d035ff2da56f380e995fde60183aa02aaaa7f6047",
     "peer/measure-defaults-timing.json": "d8d570474810dd9dea42be52a5239de294596188c6beb1f173493e9d740947ee",
-    "peer/measure-moss-timing.json": "aca325a0efcb7a96c66dcd0b61ea0becf44c284cc1ad0d068e020751b54a8208",
+    "peer/measure-downstream-timing.json": "aca325a0efcb7a96c66dcd0b61ea0becf44c284cc1ad0d068e020751b54a8208",
     "peer/measurement-source.json": "8718df019ea5f95ad3d05337ac6a91b5c361773b652fc9fe967690d6228ddcea",
     "peer-defaults-burst-1-20261024T070049Z-822175.log": "d3810c4666f65f2c1a618c976f2eea15ce0e0f131677639550f278b18a3cddb4",
-    "peer-moss-burst-1-20261024T070049Z-822175.log": "e09975706fcaba0298efb46fe28340bf9032289a10419faa7156bb2ebabb6830",
+    "peer-tracking-item-1-20261024T070049Z-822175.log": "e09975706fcaba0298efb46fe28340bf9032289a10419faa7156bb2ebabb6830",
     "prepare.log": "73b9bfc64a7055be9e4bbbc89b3cdff768f5c6ef52ecc1e5fe9b95f0e86d4c79",
     "registration.json": "bb2e15dce557a19b9ccd562cac3b22cb7f46bb92fb518f6bec368b8b7c303d02",
     "reproduce-defaults-burst-1-20261023T185258Z-2999000.log": "5ea242009d0ff2fe943d31103e0cf9b7d08b3e622df354a00a908845d96ca774",
     "reproduce-defaults-burst-1-20261023T193247Z-4093241.log": "ce8d8d89ad132b0d6ba8c78ed8d14326ed96b4bcf5b9916842e3a9239ea5b41e",
     "reproduce-defaults.json": "b9b41533947f3a8ef5bd3fd4adb2924e60b217cdb60db2fa807de4c8146a1cdd",
-    "reproduce-moss-burst-1-20261023T193247Z-4093241.log": "49d85a2d74bd491b6f0630e7b542695a6a42ad461d506a20013f383766212d05",
-    "reproduce-moss.json": "f724b716f3bd424ff2609077f2cfcffe5799d96570f97089059e2a72d20716d0",
+    "reproduce-tracking-item-1-20261023T193247Z-4093241.log": "49d85a2d74bd491b6f0630e7b542695a6a42ad461d506a20013f383766212d05",
+    "reproduce-downstream.json": "f724b716f3bd424ff2609077f2cfcffe5799d96570f97089059e2a72d20716d0",
     "timing-defaults-burst-1-20261023T193247Z-4093241.log": "c40f966cd54730b728c6029e72b78c3fe31184aa3b25c0cca69e447e6e2f7cd2",
     "timing-defaults-burst-1-20261024T070049Z-822175.log": "ad74f764b8524535ba1d0465a8cbd521cc6b0055b2be1f90951023b3d66a255f",
     "timing-defaults-burst-10-20261024T070049Z-822175.log": "478c826c2d3424f843894dcfcc85c1dc18c449e73b5fddfee28a6e42334282e2",
@@ -7066,12 +7066,12 @@
     "timing-defaults-burst-9-20261024T070049Z-822175.log": "f7157013503f6663b991514f1316e37338fbd8165261a19fbdd9db38ad085681",
     "timing-defaults.json": "4ca198361e0aea2eb2f8d5d0d2b5cbab9aa8fcceeca92ef51a90ba4065513186",
     "timing-defaults.pre-interrupt-disposition.json": "25b68088eaea6d66609df3f91d0331c674fc6e9f8a8b2dbb75071d509126ff23",
-    "timing-moss-burst-1-20261024T070049Z-822175.log": "3d994e6b1e0edbd1265cce54ed028f2db762214108ce38c6d2ff3f4d4aeaa930",
-    "timing-moss.json": "9c5d5907a40194ac2c7becad1891468f0a3b6e596c21f6bd3011c1a4576704fa",
+    "timing-tracking-item-1-20261024T070049Z-822175.log": "3d994e6b1e0edbd1265cce54ed028f2db762214108ce38c6d2ff3f4d4aeaa930",
+    "timing-downstream.json": "9c5d5907a40194ac2c7becad1891468f0a3b6e596c21f6bd3011c1a4576704fa",
     "zero-carry-defaults.json": "eefd7808addb7400f8dade8afe3b7080708a833675dfa7e1225b8300f989eb0a",
     "zero-carry-defaults.log": "1d0ac88125441aeb0e14008653cfdce2249edd1b9a09674d4839baed7ff96166",
-    "zero-carry-moss.json": "f8fc78fd73276a3b1b69ee03628bc08a09f7e89923a832295f9f79149a79d42a",
-    "zero-carry-moss.log": "89093ad023d5fb6ec2ad1d73b9f4ea775aefbc4c8a9e3bbb0df0937f683513aa"
+    "zero-carry-downstream.json": "f8fc78fd73276a3b1b69ee03628bc08a09f7e89923a832295f9f79149a79d42a",
+    "zero-carry-downstream.log": "89093ad023d5fb6ec2ad1d73b9f4ea775aefbc4c8a9e3bbb0df0937f683513aa"
   },
   "baseline_receipt_sha256": "5aaf576c1e8a2639a6498614f44d2518299c157aaf2e6b1b93edad50dede24b4",
   "native_encoder_acceptance": true,
@@ -7094,7 +7094,7 @@
       "build.json": "78a4e8c15d4b433ecaa1b849e189cc8cc8a80cbc23aa9b014e0c9358c3aac0e8"
     }
   },
-  "interrupt_disposition": "# timing-defaults burst 6 interruption (2026-10-24 08:53 CEST)\n\nBurst 6 (run 20261023T193247Z) was killed by the outer `timeout 840` in measure.sh while row 64\n(vertex-streaming-s32-v1-l0, 1 iteration, unresolved at pair 4) was at pair 81. Cause: profiles.py\nchecks its 690 s burst budget only between rows, and an unresolved row runs to pair 255.\n\nDisposition: the row moved to `interrupted[]` in timing-defaults.json with reason and the\npre-edit sha256 (copy: timing-defaults.pre-interrupt-disposition.json). The case reruns from\npair 0 under the unchanged rule. measure.sh: outer timeout 840 -> 1800 s, and completed streams\nare skipped (phase.sh asserts on a completed stream). profiles.py is untouched, so the\nsource-inventory binding holds.\n\nRejected: resuming the row at pair 81 (needs a profiles.py change and an amendment).\nKnown effect: the rerun gets a second pair-4 decisiveness check; that check stops on a decisive\npass or fail alike. Reversal cost: free (the pre-edit receipt is kept).\n",
+  "interrupt_disposition": "# timing-defaults burst 6 interruption (2026-10-24 08:53 CEST)\n\nBurst 6 (run 20261023T193247Z) was killed by the outer `timeout 840` in measure.sh while row 64\n(vertex-streaming-s32-v1-l0, 1 iteration, unresolved at pair 4) was at pair 81. Cause: profiles.py\nchecks its 690 s burst budget only between rows, and an unresolved row runs to pair 255.\n\nDisposition: the row moved to `interrupted[]` in timing-defaults.json with reason and the\npre-edit sha256 (copy: timing-defaults.pre-interrupt-disposition.json). The case reruns from\npair 0 under the unchanged rule. measure.sh: outer timeout 840 -> 1800 s, and completed streams\nare skipped (release.sh asserts on a completed stream). profiles.py is untouched, so the\nsource-inventory binding holds.\n\nRejected: resuming the row at pair 81 (needs a profiles.py change and an amendment).\nKnown effect: the rerun gets a second pair-4 decisiveness check; that check stops on a decisive\npass or fail alike. Reversal cost: free (the pre-edit receipt is kept).\n",
   "portable_raw_evidence": {
     "path": "enc03-allocating-profiles.json.gz",
     "sha256": "1e181f816bb30b9062dbe9f9e62131866c99e367316c02515d45479a9412c43c",

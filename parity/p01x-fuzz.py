@@ -21,7 +21,7 @@ def main():
     if not allowed:raise ValueError('no fuzz cores remain')
     directory=artifacts/'p01x-fuzz';directory.mkdir(exist_ok=True)
     for name,binary in binaries.items():shutil.copy2(binary,directory/name)
-    record={'schema':1,'phase':'0.1.x','budget_seconds':args.seconds,'instrumentation':'seeded mutation/determinism; no coverage or sanitizer instrumentation; elapsed smoke only, not the RFC 4 CPU-hour release gate','source_sha256':before,'executable_sha256':identities,'runs':[],'passed':False}
+    record={'schema':1,'release':'0.1.x','budget_seconds':args.seconds,'instrumentation':'seeded mutation/determinism; no coverage or sanitizer instrumentation; elapsed smoke only, not the design requirements CPU-hour release gate','source_sha256':before,'executable_sha256':identities,'runs':[],'passed':False}
     def run(item):
         op,name=item;seed=20261003+op;cpu=allowed[op%len(allowed)];started=time.time();cmd=['taskset','-c',str(cpu),str(binaries[name]),str(args.seconds),str(seed)]
         with (directory/(name+'.stdout')).open('wb')as out,(directory/(name+'.stderr')).open('wb')as err:

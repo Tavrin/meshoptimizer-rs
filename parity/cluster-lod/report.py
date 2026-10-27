@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify retained RFC113 evidence and write the small producer handoff."""
+"""Verify retained CLUSTER_LOD evidence and write the small producer handoff."""
 import hashlib
 import json
 import statistics
@@ -8,7 +8,7 @@ from pathlib import Path
 import run as clod
 
 BASELINE = {'grass_a_01':1.405,'grass_b_01':1.476,'modular_m4x4_03':3.689,
-    'moss_01':1.315,'pyramid':7.888,'riverforest_01_branches':7.911,
+    'downstream_01':1.315,'pyramid':7.888,'riverforest_01_branches':7.911,
     'riverforest_01_leaves':5.789,'riverforest_01_trunk':1.753,
     'sponza_lionhead':2.240}
 
@@ -27,16 +27,16 @@ def main():
     assert hash_file(clod.HERE/'budget.rs')==budget['source_sha256']
     for record in (dag['identity']['executables'],codec['executable_hashes']):
         for side,digest in record.items():
-            path=(clod.TARGET/({'rust':'consumer/rfc113-rust','cpp':'rfc113-cpp','moss_cpp':'rfc113-moss-cpp'}[side])) if record is dag['identity']['executables'] else (clod.TARGET/('release/codec-driver' if side=='rust' else 'rfc113-codec-cpp'))
+            path=(clod.TARGET/({'rust':'consumer/cluster-lod-rust','cpp':'cluster-lod-cpp','downstream_cpp':'cluster-lod-downstream-cpp'}[side])) if record is dag['identity']['executables'] else (clod.TARGET/('release/codec-driver' if side=='rust' else 'cluster-lod-codec-cpp'))
             if hash_file(path)!=digest:raise RuntimeError(f'binary drift: {path}')
     for side,digest in defaults['identity']['executables'].items():
-        path=clod.TARGET/({'rust':'release/rfc113-rust','cpp':'rfc113-cpp','moss_cpp':'rfc113-moss-cpp'}[side])
+        path=clod.TARGET/({'rust':'release/cluster-lod-rust','cpp':'cluster-lod-cpp','downstream_cpp':'cluster-lod-downstream-cpp'}[side])
         if hash_file(path)!=digest:raise RuntimeError(f'binary drift: {path}')
     for side,digest in differential['executables'].items():
-        path=clod.TARGET/({'old':'rfc113-pre-optimization-rust','rust':'release/meshopt-p03-driver','cpp':'rfc113-p03-cpp'}[side])
+        path=clod.TARGET/({'old':'cluster-lod-pre-optimization-rust','rust':'release/meshopt-p03-driver','cpp':'cluster-lod-p03-cpp'}[side])
         if hash_file(path)!=digest:raise RuntimeError(f'binary drift: {path}')
     for side,digest in budget['executables'].items():
-        path=clod.TARGET/({'old':'release/rfc113-budget-old','rust':'release/rfc113-budget-current'}[side])
+        path=clod.TARGET/({'old':'release/cluster-lod-budget-old','rust':'release/cluster-lod-budget-current'}[side])
         if hash_file(path)!=digest:raise RuntimeError(f'binary drift: {path}')
     valid=[r for r in dag['cases'] if r['mismatch'] is None]
     invalid=[r for r in dag['cases'] if r['mismatch'] is not None]
@@ -56,10 +56,10 @@ def main():
     default_valid=[r for r in defaults['cases'] if r['mismatch'] is None]
     default_timing=defaults['timing']
     default_bar=default_timing['ratio']<=1.2 and all(r['median_ratio'] is None or r['median_ratio']<=1.5 for r in default_valid)
-    lines=['# RFC 113 clodBuild parity against a downstream engine S2','',
+    lines=['# design requirements clodBuild parity against a downstream engine S2','',
         '**Verdict:** all 15 valid layout cases have byte-identical DAG, local indices, hierarchy, cluster and meshlet bounds. '
         f'All 90 codec payload comparisons match. The nine-mesh paired cook ratio is **{timing["ratio"]:.3f}×** scalar C++ '
-        f'and **{timing["moss_ratio"]:.3f}×** a downstream engine-style SIMD C++; the consumer scalar performance bar is {"met" if bar else "not met"}. '
+        f'and **{timing["downstream_ratio"]:.3f}×** a downstream engine-style SIMD C++; the consumer scalar performance bar is {"met" if bar else "not met"}. '
         f'Cargo-defaults scalar aggregate is **{default_timing["ratio"]:.3f}×** ({"met" if default_bar else "not met"}). '
         'Stride 32 remains invalid under the exact S2 protect mask.','',
         '## Setup and identity','',
@@ -71,7 +71,7 @@ def main():
         'stride 48 on all, plus 64/72/88 on pyramid and sponza_lionhead. Synthetic tangent/color/joints/weights are deterministic. '
         'The 72/88 layouts exercise the builder API although S2 candidate admission rejects skinned bases.',
         f'- Copied bridge SHA-256 `{hash_file(clod.HERE/"bridge.cpp")}`; vendored `clusterlod.h` SHA-256 `{hash_file(clod.VENDOR/"clusterlod.h")}`.',
-        f'- DAG driver SHA-256: scalar C++ `{dag["identity"]["executables"]["cpp"]}`, a downstream engine-style C++ `{dag["identity"]["executables"]["moss_cpp"]}`, Rust `{dag["identity"]["executables"]["rust"]}`.',
+        f'- DAG driver SHA-256: scalar C++ `{dag["identity"]["executables"]["cpp"]}`, a downstream engine-style C++ `{dag["identity"]["executables"]["downstream_cpp"]}`, Rust `{dag["identity"]["executables"]["rust"]}`.',
         f'- Codec driver SHA-256: C++ `{codec["executable_hashes"]["cpp"]}`, Rust `{codec["executable_hashes"]["rust"]}`.',
         f'- Full source and binary hashes: `{dag_path}` and `{codec_path}`. Artifacts contain hashes and timings only; no source mesh copies or large payloads.','',
         '## Review-fix differential and memory sweep','',
@@ -95,7 +95,7 @@ def main():
         'S2 specifies bit 8 even though stride 32 has only eight floats. With assertions disabled, '
         'the bit-8 scan reads outside the last vertex. The Rust API rejects the same mask as `InvalidParameter`. '
         'No byte parity or timing claim is made for stride 32. Reproduce with '
-        '`python3 parity/rfc113/run.py --case pyramid:32 --pairs 0`. Resolving this exact-setup contradiction is outside this lane.','',
+        '`python3 parity/cluster-lod/run.py --case pyramid:32 --pairs 0`. Resolving this exact-setup contradiction is outside this job.','',
         '## Codec payloads','',
         'Each of the 15 valid cases compares the vendored C++ and Rust encoded bytes for IndexBuffer, IndexSequence, '
         'VertexBuffer, FilterOct, FilterQuat, and FilterExp: **90/90 identical**, all statuses zero. '
@@ -105,7 +105,7 @@ def main():
         '## Paired cook time','',
         f'{len(valid[0]["times_s"]["cpp"])} interleaved three-way pairs per mesh on pinned CPU {dag["identity"]["core"]}; internal monotonic timers cover input conversion and DAG cooking/serialization, '
         'excluding process launch, pipe transfer, and parity-only detailed bounds. '
-        f'Scalar C++: `{dag["identity"]["cpp_flags"]}`; a downstream engine-style C++: `{dag["identity"]["moss_cpp_flags"]}`; Rust: `{dag["identity"]["rust_profile"]}`. '
+        f'Scalar C++: `{dag["identity"]["cpp_flags"]}`; a downstream engine-style C++: `{dag["identity"]["downstream_cpp_flags"]}`; Rust: `{dag["identity"]["rust_profile"]}`. '
         'The aggregate is the ratio of summed per-mesh medians.','',
         f'Load average before/after: `{dag["identity"]["load_before"]}` / `{dag["identity"]["load_after"]}`; '
         f'core utilization over run: {dag["identity"]["core_utilization"]:.1%}.','',
@@ -113,20 +113,20 @@ def main():
         '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
     for r in valid:
         if r['median_ratio'] is None:continue
-        c=statistics.median(r['times_s']['cpp'])*1000;m=statistics.median(r['times_s']['moss_cpp'])*1000;v=statistics.median(r['times_s']['rust'])*1000
-        lines.append(f'| `{r["case"]}` | {r["group_count"]} | {r["dag_depth"]} | {BASELINE[r["case"].split(":")[0]]:.3f}× | {c:.3f} | {m:.3f} | {v:.3f} | {r["median_ratio"]:.3f}× | {r["moss_ratio"]:.3f}× |')
-    lines+=['',f'**Sum of medians:** scalar C++ {timing["cpp_sum_medians_s"]:.3f} s, a downstream engine-style C++ {timing["moss_cpp_sum_medians_s"]:.3f} s, Rust {timing["rust_sum_medians_s"]:.3f} s; '
-           f'**{timing["ratio"]:.3f}×** scalar and **{timing["moss_ratio"]:.3f}×** a downstream engine-style.','',
+        c=statistics.median(r['times_s']['cpp'])*1000;m=statistics.median(r['times_s']['downstream_cpp'])*1000;v=statistics.median(r['times_s']['rust'])*1000
+        lines.append(f'| `{r["case"]}` | {r["group_count"]} | {r["dag_depth"]} | {BASELINE[r["case"].split(":")[0]]:.3f}× | {c:.3f} | {m:.3f} | {v:.3f} | {r["median_ratio"]:.3f}× | {r["downstream_ratio"]:.3f}× |')
+    lines+=['',f'**Sum of medians:** scalar C++ {timing["cpp_sum_medians_s"]:.3f} s, a downstream engine-style C++ {timing["downstream_cpp_sum_medians_s"]:.3f} s, Rust {timing["rust_sum_medians_s"]:.3f} s; '
+           f'**{timing["ratio"]:.3f}×** scalar and **{timing["downstream_ratio"]:.3f}×** a downstream engine-style.','',
            '## Cargo-defaults paired time','',
            '| Mesh (stride 48) | Rust/scalar | Rust/a downstream engine |','|---|---:|---:|']
     for r in default_valid:
         if r['median_ratio'] is not None:
-            lines.append(f'| `{r["case"]}` | {r["median_ratio"]:.3f}× | {r["moss_ratio"]:.3f}× |')
+            lines.append(f'| `{r["case"]}` | {r["median_ratio"]:.3f}× | {r["downstream_ratio"]:.3f}× |')
     lines+=['',f'Cargo-defaults aggregate: **{default_timing["ratio"]:.3f}×** scalar, '
-            f'**{default_timing["moss_ratio"]:.3f}×** a downstream engine-style; '
+            f'**{default_timing["downstream_ratio"]:.3f}×** a downstream engine-style; '
             f'bar {"met" if default_bar else "not met"}.','',
            '## Reproduction and limits','',
-           'Run `python3 parity/rfc113/run.py --pairs 20` and `python3 parity/rfc113/codec.py` from the repository root. '
+           'Run `python3 parity/cluster-lod/run.py --pairs 20` and `python3 parity/cluster-lod/codec.py` from the repository root. '
            'Use `--case mesh:stride` for one deterministic case. The comparison proves these frozen S0b inputs under the stated S2 setup; '
            'it does not qualify a a downstream engine runtime or GPU swap. The 32-byte request needs a corrected upstream setup.','',
            '## Artifact inventory','',
@@ -135,6 +135,6 @@ def main():
            f'- `{default_path}`: {default_path.stat().st_size:,} bytes; SHA-256 `{hash_file(default_path)}`.',
            f'- `{differential_path}`: {differential_path.stat().st_size:,} bytes; SHA-256 `{hash_file(differential_path)}`.',
            f'- `{budget_path}`: {budget_path.stat().st_size:,} bytes; SHA-256 `{hash_file(budget_path)}`.','']
-    out=clod.ROOT/'parity/results/rfc113-clod.md';out.write_text('\n'.join(lines)+'\n')
+    out=clod.ROOT/'parity/results/cluster-lod-clod.md';out.write_text('\n'.join(lines)+'\n')
     print(out)
 if __name__=='__main__':main()

@@ -15,7 +15,7 @@ import shutil
 spec = importlib.util.spec_from_file_location('proof', Path(__file__).with_name('decode-proof.py'))
 p = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(p)
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 assert os.environ['CARGO_TARGET_DIR'] == str(p.TARGET)
 assert (p.ART/'native-exact.json').exists(), 'original exhaustive vertex check must finish first'
 assert not (p.ART/'filter-final-summary.json').exists(), 'never overwrite completion receipts'

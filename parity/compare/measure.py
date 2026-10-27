@@ -161,7 +161,7 @@ def source_check():
  manifest=json.loads((ART/'measurement-source.json').read_text())
  assert manifest['files']=={p:sha(ROOT/p) for p in manifest['files']},'measurement source epoch changed'
 def measure(profile,group):
- assert os.environ.get('MOSS_HEAVY_ACTIVE'),'CPU shared admission required'
+ assert os.environ.get('PARITY_RUNNER_ACTIVE'),'CPU shared admission required'
  source_check()
  allowed=PERF if group=='timing' else PERF+EXTRA
  operations=os.environ['MESHOPT_COMPARE_OPERATIONS'].split(',') if 'MESHOPT_COMPARE_OPERATIONS' in os.environ else allowed
@@ -175,7 +175,7 @@ def measure(profile,group):
  else:
   result={'profile':profile,'group':group,'operations':operations,'core':quiet.physical_core(),'started':time.time(),'binary_sha256':identity,'rows':[],'completed':False,'bursts':[]}
  rows=result['rows'];cpu=result['core']['cpu'];assert cpu in os.sched_getaffinity(0)
- burst={'pid':os.getpid(),'admission_pid':os.environ['MOSS_HEAVY_ACTIVE'],'started':time.time(),'cpu':cpu};result['bursts'].append(burst)
+ burst={'pid':os.getpid(),'admission_pid':os.environ['PARITY_RUNNER_ACTIVE'],'started':time.time(),'cpu':cpu};result['bursts'].append(burst)
  def save():
   tmp=recordpath.with_suffix('.tmp');tmp.write_text(json.dumps(result,indent=2)+'\n');tmp.replace(recordpath)
  def budget():

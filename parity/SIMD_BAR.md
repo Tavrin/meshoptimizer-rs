@@ -1,6 +1,6 @@
 # P07 registered SIMD bars
 
-Registered before candidate measurements on phase/0.7, base a4b3c483e38c2484232c4f5b748bf0fbb0fff182.
+Registered before candidate measurements on release/0.7, base a4b3c483e38c2484232c4f5b748bf0fbb0fff182.
 Oracle: meshoptimizer 1.3, 4c203430ca565cb59a468a91922c76c208169536.
 
 | Bar | Cases | Geometric mean time Rust/C++ | Worst case |

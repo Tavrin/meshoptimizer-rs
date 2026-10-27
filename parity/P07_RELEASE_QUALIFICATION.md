@@ -293,7 +293,7 @@ The controller then added owned-proof admission exclusion before restarting
 the entire preregistered A/A scope. This is not selective re-timing to pass.
 No final R/C row is repeated. Initial native A/A and WASM A/A burst1 used
 the legacy heavy/GPU admission. The coordinator corrected this to CPU-only:
-all remaining bursts use MOSS_HEAVY_GPU=0 heavy4 timeout 840 taskset CPU26,
+all remaining bursts use PARITY_RUNNER_GPU=0 heavy4 timeout 840 taskset CPU26,
 checkpoint 690. The next request was canceled while queued with no timing
 child; no running burst was killed. Immutable controller/admission segments
 bind preserved samples across this policy transition. The active entrypoint

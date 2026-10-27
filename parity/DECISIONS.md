@@ -5,7 +5,7 @@
 Keep the standard cache and overdraw implementations after checking the
 upstream tables, traversal, arithmetic order and counting sort. Complete the
 missing runner, provenance, docs and CI. Do not replace sound code merely to
-restart the interrupted lane. No code from another Rust port was adopted.
+restart the interrupted job. No code from another Rust port was adopted.
 
 The bounded reuse review found no locally qualified 1.3 implementation of
 these modules. The a downstream engine decoder is a later codec reuse candidate, not an
@@ -62,11 +62,11 @@ compiler-cache temporary-directory setting initially broke MSRV compilation;
 disabling the wrapper and using the isolated target's temporary directory
 resolved it without changing the toolchain or source contract.
 
-## D6 — Lane-specific fixture and target evidence
+## D6 — Job-specific fixture and target evidence
 
 The 0.1 ledger contains all five required upstream geometry functions; two
-are implemented here and the three simplification functions belong to lane 2.
-The full later-release 89-name ledger is outside this lane's explicit scope.
+are implemented here and the three simplification functions belong to job 2.
+The full later-release 89-name ledger is outside this job's explicit scope.
 
 Run every applicable upstream native fixture (the two emptyMesh calls), plus
 17 corpus cases and 2,000 seeded cases per shipped function. Include meshes
@@ -121,7 +121,7 @@ or registry readiness; the literal default-registry offline command remains
 unavailable. `gates.sh` reproduces both D8 and D9 explicitly.
 
 The RFC's dated name check is accepted prior evidence, not a reservation.
-No external naming request was made in this lane. Repeat real registry name
+No external naming request was made in this job. Repeat real registry name
 checks before any publication, as the RFC requires.
 
 ## D10 — Record performance without enforcing a release bar
@@ -131,9 +131,9 @@ ten interleaved Rust/C++ paired samples and a warm-up. Include validation,
 scratch/output allocation and execution; exclude generation, I/O and process
 startup. Record medians, dispersion, raw samples and identities. Scalar-strict
 C++ is appropriate for these modules, which have no explicit SIMD paths.
-The lane's requested benchmark is recorded only; `--enforce` rejects an
+The job's requested benchmark is recorded only; `--enforce` rejects an
 unsupported qualification claim. Broader workloads, caller-buffer benchmarks,
-release performance bars and a downstream engine migration are deferred by lane scope.
+release performance bars and a downstream engine migration are deferred by job scope.
 
 ## D11 — Simplifier API and stable options
 
@@ -161,7 +161,7 @@ scale before calling relative mode; qualification includes those actual inputs
 without changing the consumer. Current cooker attributes are normal xyz,
 UV, tangent xyz (weights 2/2/2/1/1/1/1/1), plus optional RGBA (weight 8 each).
 Opposite tangent handedness is locked by the consumer. a downstream engine integration remains
-outside this lane.
+outside this job.
 
 ## D12 — Scratch, work and numerical contracts
 
@@ -190,7 +190,7 @@ and allocation failures intentionally differ from C++ assertions/undefined cases
 Interpret the brief's default `target/parity-artifacts` as the isolated
 `$CARGO_TARGET_DIR/parity-artifacts`; a repository-local default would contradict
 its explicit outside-repository requirement. Reject any MESHOPT_ARTIFACTS path
-inside this checkout. Retain this lane's archives at
+inside this checkout. Retain this job's archives at
 `<local>/meshopt-lane2`, independently of the
 throwaway build target. JSON contains archive/member hashes and metadata only.
 Remove the hostname field from both parity and fuzz hardware identities.
@@ -209,11 +209,11 @@ cases per entry point, and stable bounded mutation for 600 elapsed seconds per
 entry point, retaining D7's instrumentation limits. Benchmarks use the D10
 single-threaded allocating method on one million triangles at all three cooker
 target ratios, with eight weighted attributes and Permissive for the attribute
-entry point. No performance optimization is authorized in this lane.
+entry point. No performance optimization is authorized in this job.
 
 ## D14 — Package inventory with existing Git history
 
-Lane 1's D8 export comparison assumed an unborn repository. This checkout has
+Job 1's D8 export comparison assumed an unborn repository. This checkout has
 history, so Cargo additionally generates `.cargo_vcs_info.json` in the working
 repository's package inventory. The Git-free export cannot generate that file.
 Compare the exact source inventories with this one generated metadata entry
@@ -223,7 +223,7 @@ package, including Cargo's dirty VCS metadata. Do not create synthetic Git
 history, stage files, or change any Git metadata to make inventories match.
 
 Current Cargo places the dry-run archive under `package/tmp-crate/`, while
-lane 1 expected `package/`. Accept either documented observed output location,
+job 1 expected `package/`. Accept either documented observed output location,
 require exactly one candidate, and hash/copy that archive. The temporary
 registry copy was checked to have the same bytes; do not mistake it for a
 second independent package build.
@@ -262,7 +262,7 @@ mean, 1.50 case and 1.25 memory bars. `--enforce` fails when any bar fails.
 
 The expanded before run was intentionally stopped after all tiny/medium cases
 and initial million-triangle diagnostics. Retain its partial record externally;
-do not describe it as a complete baseline. The prior lane's recorded table is
+do not describe it as a complete baseline. The prior job's recorded table is
 also retained. Final acceptance requires the complete new matrix.
 
 ## D17 — Compact and bound simplifier scratch
@@ -428,7 +428,7 @@ Reject unsafe access/intrinsics, a hidden dependency kernel, reassociated
 floating-point reductions, relaxed comparisons, and a reduced workload matrix.
 The pinned software math backend remains unchanged. The corpus and complete
 seeded sweep passed after each library optimization; the final fuzz smoke is
-300 seconds per function, as requested for this lane.
+300 seconds per function, as requested for this job.
 
 The benchmark measures one warm-up and 10–30 paired samples per backend and
 attempt, with 64 calls per tiny sample. Both backends share the recorded CPU.
@@ -452,7 +452,7 @@ mutation was performed.
 | Scale | 1.33 | 0.929 | 1.063 | 1.000 | PASS |
 
 The starting column is supplied by the brief, not a controlled before/after
-measurement of this expanded matrix. The separately archived lane 2 record
+measurement of this expanded matrix. The separately archived job 2 record
 has different historical ratios: cache 1.320, overdraw 2.406, simplify
 1.553–1.675, attributes 1.467–1.750 and scale 1.334. It remains at
 `<local>/lane2-benchmark.json`.
@@ -495,7 +495,7 @@ feature-mode test runs (45 each), wasm32 build, native/C++/WASM corpus identity,
 10,000 seeded differential cases and five upstream JS suites all pass. Five
 fuzz targets ran 300 seconds each, totaling 554,090,714 executions and zero
 crashes. Stable fuzzing has no sanitizer or coverage instrumentation. This
-lane does not refresh legacy package/release gates or claim AArch64 execution.
+job does not refresh legacy package/release gates or claim AArch64 execution.
 
 Verify all current source identities, archive members, sample medians, family
 aggregates and executable hashes before retaining binaries and a source archive.
@@ -503,7 +503,7 @@ Then remove exactly `<target-dir>`.
 Large artifacts remain at
 `<local>/final`.
 
-## D29 — Require quiet admission before lane 3b measurements
+## D29 — Require quiet admission before job 3b measurements
 
 Keep the full 204-case matrix and the RFC limits: family geometric mean at
 most 1.25, every representative ratio at most 1.50, memory ratio at most 1.25.
@@ -531,7 +531,7 @@ profiler diagnostics; hardware sampling attribution is not a proof of a
 universal safe-Rust performance limit.
 
 The requested `$MESHOPT_ARTIFACTS/lane3b` is outside the session's
-writable roots. Creating it returned `Read-only file system`. Store this lane's
+writable roots. Creating it returned `Read-only file system`. Store this job's
 artifacts in `<local>/meshopt-lane3b` and record the
 substitution in `results/lane3b-setup.json`. Use exactly the requested temporary
 target `<target-dir>`, then remove it
@@ -594,13 +594,13 @@ this contract; load no longer gates measurements or triggers repeats. D29's
 quiet requirement and D31's deferral pending quiet measurement are superseded.
 
 The coordinator also reserved `<local>/downstream-capture-archive`. Move only
-this lane's `meshopt-lane3b` directory out and make no further artifact writes
+this job's `meshopt-lane3b` directory out and make no further artifact writes
 there. The requested `$MESHOPT_ARTIFACTS/lane3b` still rejects
 mkdir with `Read-only file system`; the session's writable roots have not changed.
-Preserve this lane temporarily at `/tmp/meshopt-lane3b-artifacts`, record the
+Preserve this job temporarily at `/tmp/meshopt-lane3b-artifacts`, record the
 relocation, and continue the authorized measurements. Final placement at the
 requested destination remains a filesystem blocker. D30's archive destination
-is superseded; the reserved lane directory has been removed.
+is superseded; the reserved job directory has been removed.
 
 ## D33 — Optimize the measured cache and simplifier costs
 
@@ -627,7 +627,7 @@ actual three profile configurations in executable identities. Keep generic
 targets, no contraction, panic unwinding and the pinned software math backend.
 Reject unsafe architecture kernels, changing hash probing or arithmetic order.
 
-After this batch, fmt and clippy pass. The phase-0.1 corpus and default 10,000-case
+After this batch, fmt and clippy pass. The release-0.1 corpus and default 10,000-case
 sweep have zero mismatches, including native C++ and executed WASM identity.
 Twenty-pair worst-case diagnostics improve cache 1.407 to 1.291, overdraw 1.462
 to 1.420, simplify 1.511 to 1.462 and attributes 1.495 to 1.284. These are subset
@@ -649,7 +649,7 @@ Accumulate each computed attribute gradient directly into the three triangle
 vertices instead of zeroing and returning a 32-component temporary. Components
 are independent: each component sees the same three additions in the same order,
 including when a degenerate triangle repeats a vertex. Quadric scalar accumulation
-and counted-work boundaries stay unchanged. The phase-0.1 corpus again passes
+and counted-work boundaries stay unchanged. The release-0.1 corpus again passes
 with zero mismatches, including executed WASM identity.
 
 Reject three standalone safe square-root candidates. Integer isqrt with exact
@@ -684,7 +684,7 @@ errors, consumed work and partial mutations for every budget 0 through 8 and
 every failure position in a five-record scan. Existing exact-budget API tests
 also pass. The exhaustion helper remains cold.
 
-The phase-0.1 native/C++/WASM corpus has zero mismatches after this batch. Freeze
+The release-0.1 native/C++/WASM corpus has zero mismatches after this batch. Freeze
 library and harness sources for the final gates, default 10,000-case sweep and
 complete 204-case paired timing matrix. These changes are accepted only if those
 checks and the final five 300-second fuzz smokes pass. Do not infer acceptance
@@ -723,7 +723,7 @@ table to NONE once, rather than zero followed by NONE. Those initialization
 methods are private and called once per State. Capacity accounting, hash sizing,
 probe order, failure precedence and counted-work boundaries remain unchanged.
 
-After publication, the phase-0.1 native/C++/WASM corpus and the default 10,000-case
+After publication, the release-0.1 native/C++/WASM corpus and the default 10,000-case
 sweep have zero mismatches. Both feature-mode test suites, all three clippy/fmt
 checks, the no_std WASM build and seven measurement regressions pass. Freeze this
 source for the final enforced matrix and subsequent five 300-second fuzz smokes.
@@ -762,7 +762,7 @@ attributes 1.205 and scale 0.839. These selected cases are diagnostics, not the
 full RFC gate. Update the memo regression to generate actual collisions under
 the new hash as well as its special values and 65,536 generated bit patterns.
 
-Publish this candidate, then rerun phase 0.1, the default sweep, feature-mode
+Publish this candidate, then rerun release 0.1, the default sweep, feature-mode
 and harness gates, executed WASM identity, the complete paired timing matrix
 and five final 300-second fuzz smokes. Allow explicit family selection in the
 profiler so the final maxima of previously failing families can be inspected
@@ -809,7 +809,7 @@ Maximum CVs and all outliers, raw ratios, quartiles, MAD, standard deviation,
 pair loads and selection samples remain in benchmark.json. These are shared-load
 paired measurements; no quiet qualification or universal speedup is asserted.
 
-Phase 0.1 and the default 10,000-case sweep exit 0 with zero mismatches, including
+Release 0.1 and the default 10,000-case sweep exit 0 with zero mismatches, including
 executed WASM identity and the pinned math probe. All feature-mode tests (48
 per configuration), no_std WASM build, root/parity/fuzz fmt and clippy, and seven
 measurement regressions pass. Every final seeded fuzz target runs for at least
@@ -826,7 +826,7 @@ before deleting the exact isolated build target. Verify Git metadata unchanged.
 
 All 612 original moved files have hash-preserving copies on the large volume;
 updated records retain byte-for-byte originals with a relocation map. The /tmp
-lane directory is removed and no subsequent commands write artifacts there.
+job directory is removed and no subsequent commands write artifacts there.
 The requested <artifacts>/lane3b remains outside the
 exposed writable roots and not visible; mkdir returns Read-only file system.
 Keep evidence at <target-dir>/lane3b.
@@ -843,14 +843,14 @@ all 612 original file hashes, including the closed benchmark and records whose
 original bytes are retained separately. `lane3b-cleanup.json` records removal;
 `lane3b-urgent-relocation.json` records each original file's final location.
 
-## D40 — Lane 4 scope and artifact placement
+## D40 — Job 4 scope and artifact placement
 
 The checkout starts clean on main at 8ec3b3d0ca78caedd445dfb827a9579e2b8d7fef.
 Do not change Git metadata or the parallel 0.1.x checkout. Keep implementation
 inside the named shell interfaces (run.sh, sweep.sh, benchmark.sh, fuzz.sh and
 report.sh), qualification records, CI workflow, README and CHANGELOG. Leave
 library, test, Rust harness and fuzz-target sources unchanged. The report
-interface owns the external-record adapter so this lane does not broaden its
+interface owns the external-record adapter so this job does not broaden its
 source-file ownership to runner.py or performance.py.
 
 Creating <artifacts>/lane4 fails with Read-only file
@@ -872,12 +872,12 @@ optimization level 3), with release debug disabled in both. Record these exact
 environment overrides alongside the source manifests and executable hashes.
 Run both complete 204-case paired matrices even if either fails. Keep the RFC
 1.25 family geometric mean, 1.50 maximum and 1.25 memory limits unchanged;
-report each family and do no performance work in this lane. Retain D39's
+report each family and do no performance work in this job. Retain D39's
 shared-load protocol and uncertainty limits.
 
 ## D42 — CPU-accounted long mutation fuzzing
 
-RFC 5.4 requires 24 CPU-hours per exposed target: five targets require at least
+design requirements requires 24 CPU-hours per exposed target: five targets require at least
 120 process CPU-hours. Use at most eight workers, pinned to separate physical
 cores; consumer benchmarks select among the remaining physical cores. Each
 seeded chunk records actual user plus system CPU seconds from /usr/bin/time.
@@ -909,13 +909,13 @@ architecture label from substituting for the requested execution target.
 The workflow uses macos-14, windows-2022 and ubuntu-24.04-arm, checked against
 GitHub's documented runner labels. Local actionlint is a syntax/static workflow
 gate; it is not a remote platform execution pass. Native Linux arm64 C++
-qualification required by RFC 5.3 remains distinct from the Rust cross-target
+qualification required by design requirements remains distinct from the Rust cross-target
 identity matrix and is not inferred from it. Do not advertise remote parity
 until actual execution records pass. No publishing or Git action is authorized.
 
 D43 continuation: the Linux arm64 matrix also compiles the pinned scalar-strict
 C++ driver and compares every transported input's full output against qualified
-Linux x86-64 native Rust. This implements RFC 5.3's native arm64 oracle route
+Linux x86-64 native Rust. This implements design requirements's native arm64 oracle route
 while keeping C++ Linux-only. No remote execution pass is claimed locally.
 
 D40 continuation: strengthen report verification to follow the fuzz record into
@@ -936,7 +936,7 @@ an orchestration-only update does not discard that evidence. Record the old and
 new budget explicitly. No performance bar or output-equality rule changes.
 
 The repository's five existing targets are stable seeded mutation/invariant
-programs, not cargo-fuzz targets. Retain them within this lane's source boundary
+programs, not cargo-fuzz targets. Retain them within this job's source boundary
 and identify that limit in records and README. Their seed and exact execution
 count regenerate every input; coverage is unavailable, not zero or measured.
 No sanitizer or coverage-guided qualification is claimed.
@@ -950,7 +950,7 @@ into an isolated continuation directory because the old process was still
 writing after the previous agent turn stopped. Never combine unrecorded partial
 entries with completed evidence. Resume only when the rebuilt native executable,
 oracle, dependencies, compiler and effective profile match exactly. The only
-accepted source differences are the lane-owned shell orchestration. Keep the
+accepted source differences are the job-owned shell orchestration. Keep the
 old source manifest and per-session CPU selection beside the final identities.
 Measure every remaining case and the complete Cargo-default matrix.
 
@@ -994,7 +994,7 @@ release corpus. These wrapper fixtures are not library findings.
 
 D43 continuation: fetch the pinned reference's full history and tags in both
 Linux oracle jobs. The checker compares HEAD with v1.3; a depth-one checkout
-does not provide that tag. The checker itself is outside this lane's file
+does not provide that tag. The checker itself is outside this job's file
 ownership. Its conditional currently ignores a failed git diff when the tag
 is missing, so CI must supply the tag. Record that checker hardening separately
 as an out-of-scope finding; the local oracle has the tag and the required diff
@@ -1022,7 +1022,7 @@ source-bound CPU accounting remain valid and their accumulated time counts.
 ## D48 — Verify retained attachments and distinguish a completed report
 
 The native buffer verifier expects exactly one buffer ZIP in its artifact map.
-The lane adapter also retains source and executable attachments there, so pass
+The job adapter also retains source and executable attachments there, so pass
 only the required buffer entry to that verifier after checking every attachment
 SHA-256 in the outer adapter. Require archived executable hashes to match the
 recorded build identities. Do not edit the shared Python verifier.
@@ -1040,12 +1040,12 @@ requires reporting a failed a downstream engine bar without performance work. Th
 report command's exit status describes evidence verification. Missing, changed,
 stale, incomplete or incorrect evidence remains nonzero. A fully verified
 failed a downstream engine matrix is reported explicitly with release summary passed=false
-and moss_performance_accepted=false; it blocks release acceptance but does not
+and downstream_performance_accepted=false; it blocks release acceptance but does not
 make a complete verification command fail. Benchmark --enforce remains
 nonzero for either failed consumer matrix. No acceptance bar changes, no
 performance edits, and no release-performance pass is inferred from exit zero.
 
-## D49 — Final lane 4 outcome
+## D49 — Final job 4 outcome
 
 The complete immutable a downstream engine matrix has 204 cases. Family mean (maximum)
 Rust/C++ ratios are cache 1.243 (1.315), overdraw 1.130 (1.361), plain
@@ -1056,7 +1056,7 @@ release defaults also complete 204 cases: cache 1.240 (1.310), overdraw
 1.063 (1.398), plain simplification 1.284 (1.420), attributes 1.257 (1.651),
 and scale 1.030 (1.187). The default simplification means and attribute
 maximum fail; memory passes. Keep the own-crate fat profile and all RFC bars.
-No performance or library changes are made in this lane.
+No performance or library changes are made in this job.
 
 Final fixture parity has 279 cases and a 65,543-value math probe; the release
 sweep has 10,000 cases for each of five functions. Native C++, native Rust and
@@ -1081,8 +1081,8 @@ retaining sources, executables, records and corpora. Verification after that
 cleanup exits zero and does not recreate the target. Record complete verified
 evidence separately from failed release-performance acceptance. All preexisting
 Git metadata remains byte-identical; new metadata belongs to the concurrent
-phase/0.2 and phase/0.3 worktrees. No Git state changes are performed here.
-The final status contains only lane-owned files and none over 5 MB.
+release/0.2 and release/0.3 worktrees. No Git state changes are performed here.
+The final status contains only job-owned files and none over 5 MB.
 
 D40's exact artifact-placement blocker remains: use the retained large-volume
 fallback <target-dir>/lane4 because
@@ -1093,11 +1093,11 @@ configured, not locally established. The out-of-scope checker finding remains
 parity/check-reference.sh:13: a failed git diff with an absent v1.3 tag can be
 ignored by its conditional. CI supplies full history and tags; the local
 oracle has the tag and the required empty diff. Keep the injected reproduction
-and leave that checker outside this lane's file ownership.
+and leave that checker outside this job's file ownership.
 
 ## D50 — Prepaid work accounting for plain simplification under thin LTO
 
-Lane 4 measured plain simplification at 1.258 (maximum 1.429) under the a downstream engine
+Job 4 measured plain simplification at 1.258 (maximum 1.429) under the downstream engine
 profile, failing the unchanged 1.25 mean bar. Diagnostic a downstream engine-profile builds
 (thin LTO, one codegen unit, opt-level 3) on the worst medium sparse case show
 Rust/C++ cycles 1.42 and retired instructions 1.52. Per-visit work checks
@@ -1108,7 +1108,7 @@ pinned libm sqrtf (RFC section 5) stays.
 
 Decision: give the simplifier phases a `Meter` parameter. `Work` keeps
 visit-by-visit checks. `Prepaid` counts locally and is used only when the
-remaining budget covers a proven upper bound of the phase's visits. The phase
+remaining budget covers a proven upper bound of the release's visits. The release
 then charges its exact total once, or the visited prefix on an error. No
 visit can exhaust a covered budget. Errors, consumed work, partial output
 writes and exhaustion points are therefore identical to the checked path. The
@@ -1146,27 +1146,27 @@ absent bounds.
 Final gates on this source: fmt (root, parity, fuzz) and clippy with -D warnings
 (all features, no default features, parity, fuzz). Tests passed for all
 features and for no default features, on stable and 1.88, with 49 tests each.
-The wasm32 no_std build passed. `parity/run.sh --phase 0.1` passed with zero
+The wasm32 no_std build passed. `parity/run.sh --release 0.1` passed with zero
 mismatches, including executed wasm32 identity and the math probe. So did
-`parity/sweep.sh --phase 0.1` with 10,000 cases per function.
+`parity/sweep.sh --release 0.1` with 10,000 cases per function.
 
 The complete 204-case a downstream engine matrix (`--enforce`, exit 0) used CPU 17 (physical
 core 8, 7.4% busy at selection), with at least 20 interleaved same-core pairs per
 case. One-minute load was 18.5 at the start and 21.4 at the end. Family GM
-(maximum), lane 4 -> now: cache 1.243 (1.315) -> 1.176 (1.344), overdraw 1.130
+(maximum), job 4 -> now: cache 1.243 (1.315) -> 1.176 (1.344), overdraw 1.130
 (1.361) -> 1.079 (1.422), plain simplify 1.258 (1.429) -> 1.111 (1.201),
 attributes 1.243 (1.356) -> 1.185 (1.335), scale 0.782 (0.935) -> 0.829 (1.292).
 The memory bars pass. Plain simplification clears the 1.25 bar by 0.139. Cache,
 overdraw and scale code is unchanged. Their maxima moved on tiny cases: scale's
 1.292 is tiny/smooth, whose other tiny cases are at or below 0.994. This is
 shared-load dispersion, not a regression, and every case stays below 1.50.
-Records: results/benchmark-moss.json, with details under
+Records: results/benchmark-downstream.json, with details under
 <artifacts>/simplify-perf/records.
 
 Not re-established: the Cargo-default matrix, gates.json, fuzz.json and the
 package checks are now stale against the changed simplify.rs. The Cargo-default
-column in MEASURED_PERFORMANCE.md is lane 4's. The release fuzz CPU budget must
-be rerun on this source before release qualification. This lane's spec does not
+column in MEASURED_PERFORMANCE.md is job 4's. The release fuzz CPU budget must
+be rerun on this source before release qualification. This job's spec does not
 require them.
 
 ## D51 — Release evidence refresh after the simplify optimisation (branch release/0.1-refresh)
@@ -1203,10 +1203,10 @@ column now shows the D50 numbers and the fat-LTO column is kept as historical.
 Alternative rejected: leave README untouched; it would have contradicted the
 evidence. Reversal: free. This forced a gates re-run because README is in the
 package and the gates source snapshot. (2) `run.json`, `sweep.json`, `js.json`
-and `benchmark-moss.json` were not re-run: their recorded source hashes match
+and `benchmark-downstream.json` were not re-run: their recorded source hashes match
 the current tree and `report.sh --verify-artifacts` verifies them; their
 retained buffers were copied unchanged from
-`<artifacts>/simplify-perf/records` and lane 4's
+`<artifacts>/simplify-perf/records` and job 4's
 `js-final` into the release artifact directory. Alternative rejected: re-run
 and re-record identical evidence. Reversal: free. (3) `RELEASE-0.1-CHECKLIST.md`
 added at the repository root; it is not part of the crate package or the gates
@@ -1215,7 +1215,7 @@ compact `gates.json` with a full record; it was repaired by re-running through
 `report.sh --execute gates` (and the stray `.crate` removed), not by Git.
 
 Unchanged limits: Linux arm64, macOS and Windows execution are CI-configured,
-not locally established; historical lane 3 artifacts stay absent as before.
+not locally established; historical job 3 artifacts stay absent as before.
 
 ## D52 — Baseline, provenance and artifact placement (0.2; was P02-D1)
 
@@ -1286,7 +1286,7 @@ candidate results. Raw v1, extra encoder levels and the millions-of-triangles
 case receive actual measurements and the scalar codec bar; they do not
 receive inferred a downstream engine measurements. Report allocating and caller-buffer
 results separately. Below 80 percent of optimized C++ throughput selects the
-safe scalar implementation as already decided by RFC 6.2; unsafe is excluded.
+safe scalar implementation as already decided by design requirements; unsafe is excluded.
 
 Run 2,000 seeded cases for each raw decoder, each filter and the checked
 view, on both APIs and executed WASM. Export all applicable upstream native
@@ -1299,10 +1299,10 @@ Provide thirteen cargo-fuzz targets, one per public decoder entry point.
 Run AddressSanitizer/libFuzzer instrumented 300-second smokes with retained
 corpora and source/binary identities. Use stable with RUSTC_BOOTSTRAP=1 only
 for cargo-fuzz instrumentation because this environment has no nightly
-toolchain; record that profile. These smokes meet the lane brief and do not
+toolchain; record that profile. These smokes meet the job brief and do not
 establish the separate four-CPU-hour-per-target release gate. Linux x86-64
 and executed Node WASM are the local evidence; AArch64 and other native
-release qualification remain the coordinator lane's responsibility.
+release qualification remain the coordinator job's responsibility.
 
 ## D56 — Final optimization and measurement correction (0.2; was P02-D5)
 
@@ -1441,13 +1441,13 @@ out-of-assertion parameters (D60).
 ## D62 — Color stays outside the EXT helper
 
 `decode_filter_color` is a raw filter. `Filter` and `BufferView` keep the EXT
-minimum (None/Oct/Quat/Exp), as RFC 3 states; accepting COLOR there would
+minimum (None/Oct/Quat/Exp), as design requirements states; accepting COLOR there would
 claim EXT content that EXT_meshopt_compression does not define. SIMD Color
-output is recorded as a distance only (RFC 5.1: no assumed cross-ISA identity).
+output is recorded as a distance only (design requirements: no assumed cross-ISA identity).
 
 ## D63 — Meshlet codec dependency on 0.3
 
-0.3 is not merged to main: its layout was read from `phase/0.3` in the p03
+0.3 is not merged to main: its layout was read from `release/0.3` in the p03
 worktree, read-only. That layout stores vertex references as `u32` and local
 triangles as three `u8` per triangle (`Meshlets::vertices` / `triangles`, with
 `Meshlet` offsets). The codec module (`src/codec/meshlet.rs`) depends only on
@@ -1462,7 +1462,7 @@ the 0.3/0.4 merge.
 
 ## D64 — 0.4 evidence scope
 
-`parity/report.sh --execute run|sweep --phase 0.4` runs `parity/codec/runner04.py`.
+`parity/report.sh --execute run|sweep --release 0.4` runs `parity/codec/runner04.py`.
 The run re-executes all 287 0.2 decoder fixtures and 0.2 malformed cases, plus
 563 native 0.4 invocations captured from the unchanged upstream tests (global
 versions and caller capacities included) and 19 JS vectors (17 shipped-WASM
@@ -1485,7 +1485,7 @@ assert round trips. The four-CPU-hour release gate is not claimed.
 
 ## D65 — 0.4 performance protocol
 
-The RFC 6.1 raw scalar codec bar applies unchanged per family and API: Rust /
+The design requirements raw scalar codec bar applies unchanged per family and API: Rust /
 scalar-strict C++ time ratio geometric mean <= 1.25, no case > 1.50. There is
 no a downstream engine baseline for these operations, so no minima are registered; SIMD C++
 ratios are reported. Both consumer profiles of D41 are measured on identical
@@ -1531,16 +1531,16 @@ the slim `parity/results/benchmark-0.4-*.json` summaries. The measurements
 are local Linux x86-64 evidence on a loaded host, not a release-platform or
 a downstream engine integration qualification.
 
-`parity/report.sh --phase 0.4 --verify-artifacts` exits 0 and verifies all
+`parity/report.sh --release 0.4 --verify-artifacts` exits 0 and verifies all
 recorded hashes and case buffers against the final sources. The generated
 target directory is deleted afterward; detailed evidence remains under
-`<artifacts>/p04` at 752 MB, below the 3 GB lane cap.
+`<artifacts>/p04` at 752 MB, below the 3 GB job cap.
 No Git metadata operations were performed. D63 records the unmerged 0.3
 dependency: the isolated codec accepts its `u32` vertex and
 three-`u8` triangle slices, with 256/256 codec limits, so later type
 integration is mechanical.
 
-## D67 — Phase 0.3 surface and packed layout
+## D67 — Release 0.3 surface and packed layout
 
 Implement all 15 meshlet, bounds, extraction, optimization, partition and spatial
 function names listed in the additive coverage inventory. Preserve 1.3's packed
@@ -1552,9 +1552,9 @@ atomic destructive optimization/spatial-sort variants. Scalar helpers return
 values without an artificial allocating counterpart.
 
 Keep changes local to new modules/tests and unpublished p03 harness/fuzz
-packages. Cargo's feature declaration, lib.rs module/reexport wiring, the phase
+packages. Cargo's feature declaration, lib.rs module/reexport wiring, the release
 0.3 dispatcher and additive Workspace accounting hooks are necessary wiring;
-no preexisting algorithm, shared math implementation or phase 0.1 harness path
+no preexisting algorithm, shared math implementation or release 0.1 harness path
 is changed. Own Rust contains no unsafe blocks and the core still forbids
 unsafe. C++ is only an external unpublished oracle. The original 0.3
 implementation made no Git state change; D83 records its later integration.
@@ -1634,11 +1634,11 @@ demo's dilation visible. Callback outputs may use nonsequential IDs; allocating
 build owns and accounts outputs while callback build releases transient output
 storage after the callback.
 
-The demo needs later-lane sparse/sloppy/fold/error-clamped simplification that
+The demo needs later-job sparse/sloppy/fold/error-clamped simplification that
 this checkout's stable API does not expose. Reuse a private reviewed p01x
 support snapshot, with original hashes in parity/p03/support-provenance.json,
 and redirect paths inside that private module. It adds no stable simplifier
-API and does not edit the parallel lane or this checkout's existing simplifier.
+API and does not edit the parallel job or this checkout's existing simplifier.
 Existing MIT notices cover the upstream translation; private support is safe
 Rust and uses the same pinned libm. Restrict simplify_ratio and the stopping
 threshold to [0,1), ensuring progress instead of an unsupported infinite demo
@@ -1662,7 +1662,7 @@ suppressed cargo-fuzz's injected instrumentation: supersede that run, remove
 the override, and require loaded inline counters and executed units in every
 final log. Extend extraction to high global IDs/collisions, radius fuzzing to
 arbitrary bits and the capacity helper to usize overflow boundaries. This is
-the lane smoke, not the four-CPU-hour release gate.
+the job smoke, not the four-CPU-hour release gate.
 
 The full benchmark has 624 rows: 15 functions, allocating/into forms for buffer
 outputs, three sizes and four geometry kinds, scalar and SIMD-enabled C++.
@@ -1750,7 +1750,7 @@ superseded/incomplete diagnostics, not final gates.
 
 Add the new integration test file to Cargo's package include list. The crate
 version and earlier public algorithms are unchanged because other milestones
-are concurrent. Freeze the final implementation and rerun all lane gates.
+are concurrent. Freeze the final implementation and rerun all job gates.
 
 ## D74 — Packed-field overflow and minimum paired timing
 
@@ -1764,7 +1764,7 @@ This supersedes D72's preliminary capacity cutoff.
 
 Use the RFC's minimum ten alternating paired samples, increasing to twenty and
 then thirty whenever ratio quartiles cross either timing bar. This supersedes
-D71's unconditional twenty-pair choice; D39 reported the older phase 0.1 run,
+D71's unconditional twenty-pair choice; D39 reported the older release 0.1 run,
 not a stronger p03 minimum. The 624-row coverage, same-core residency, input and
 output retention, dispersion, shared-load qualification and numeric bars remain
 unchanged. Earlier twenty-pair partial runs stay diagnostic and are superseded.
@@ -1773,7 +1773,7 @@ unambiguous failure. Record this choice before the final complete run.
 
 ## D75 — Final diagnostics and sweep admission
 
-The public phase 0.3 sweep dispatcher retains the existing harness's minimum
+The public release 0.3 sweep dispatcher retains the existing harness's minimum
 2,000 cases per function. Reject explicit zero or 1,999-case requests before
 building or comparing anything. Keep the direct unpublished transport useful
 for diagnostics; its records require the independent complete-inventory
@@ -1797,9 +1797,9 @@ proof that further safe optimization is impossible. Preserve the scalar-strict
 math backend and the original numeric bars.
 
 Retain checksum-pinned dependency package archives and their verified source
-files. The libm source hashes also match the executed earlier-phase regression
-record. Keep owned package caching under this lane's target; the artifact copies
-remain after target cleanup. Existing shared ledgers receive append-only phase
+files. The libm source hashes also match the executed earlier-release regression
+record. Keep owned package caching under this job's target; the artifact copies
+remain after target cleanup. Existing shared ledgers receive append-only release
 0.3 sections and the new summary uses its own filename.
 
 ## D76 — Preserve child work totals on 32-bit targets
@@ -1855,7 +1855,7 @@ no target executable remained active. Delete the exact required target
 cleanup.json records it. At that checkpoint no Git mutation had been performed.
 HEAD was `8ec3b3d0ca78caedd445dfb827a9579e2b8d7fef`; D83 records the later rebase.
 
-## D78 — Phase 0.3 performance: profiles, pairing and driver timing
+## D78 — Release 0.3 performance: profiles, pairing and driver timing
 
 The bar of RFC §6.1 is measured for two builds of the unpublished driver: the
 a downstream engine-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`) and
@@ -1896,7 +1896,7 @@ Every 0.3 root still equals the pinned `libm::sqrtf` bit for bit; two
 mechanisms reduce how often and how slowly it runs.
 
 `math::sqrt8` returns eight independent roots. When all eight operands are
-positive, normal and finite, each lane uses exact IEEE f64 operations only (a
+positive, normal and finite, each job uses exact IEEE f64 operations only (a
 halved-exponent estimate, three Newton steps from above, rounding to f32, and
 a one-ulp correction decided by exact f64 squares of the two rounding
 midpoints), which the compiler evaluates in vector registers; any other
@@ -1977,7 +1977,7 @@ Reversal cost: cheap while unmerged; each part is internal.
 
 ## D81 — Spatial builder, radix sort, partition, extraction and bounds
 
-The spatial builder pads boxes to four lanes (lane 3 unused), stores
+The spatial builder pads boxes to four lanes (job 3 unused), stores
 `radixFloat` keys as u32 and frees them after sorting, so peak storage is
 unchanged. Its area sweep and SAH pivot use local slices; the pivot is
 specialized on its loop-invariant choices, and where every divisibility test
@@ -1993,16 +1993,16 @@ tier. Bounds group their independent roots (D79); every failure there is
 `NumericalFailure` and work is charged first, so the grouped order of checks
 is unobservable.
 
-Rejected after measurement: flat box arrays, lane-3 duplication or liveness
+Rejected after measurement: flat box arrays, job-3 duplication or liveness
 tricks to coax wider vector code, and software touch-ahead loads in place of
 prefetch.
 
 Reversal cost: cheap (internal).
 
-## D82 — Phase 0.3 performance baseline and final qualification
+## D82 — Release 0.3 performance baseline and final qualification
 
 The coordinator resolves the 0.3 baseline ambiguity in favor of the scalar
-C++ build (`MESHOPTIMIZER_NO_SIMD`), as for 0.2. Both the a downstream engine-like consumer
+C++ build (`MESHOPTIMIZER_NO_SIMD`), as for 0.2. Both the downstream engine-like consumer
 profile and Cargo release defaults must meet the unchanged RFC §6.1 family
 bars against that build: geometric mean at most 1.25, every case at most 1.50,
 and requested output plus scratch at most 1.25. The upstream SIMD C++ ratios
@@ -2049,9 +2049,9 @@ The separately published SIMD comparison fails for spatial meshlets in both
 profiles (consumer 1.225/1.616; defaults 1.195/1.706). Defaults partition also
 measures 1.449/1.598 against SIMD. Under the coordinator's decision these do
 not add 0.3 gates. The scalar defaults partition failure alone blocks the
-phase's performance acceptance. Reversal cost: cheap while unmerged.
+release's performance acceptance. Reversal cost: cheap while unmerged.
 
-## D83 — Integrate phase 0.3 after 0.2 and 0.4
+## D83 — Integrate release 0.3 after 0.2 and 0.4
 
 Rebase the single 0.3 commit onto main in this worktree. Retain main's script
 and slim-record behavior, and route 0.3 run/sweep through `report.sh`. Keep the
@@ -2065,8 +2065,8 @@ The new 0.3 layout types could support a typed convenience wrapper, but this
 integration does not add one. All-feature tests compile and exercise the codec
 with the combined layout.
 
-The earlier phase 0.3 performance verdict in D82 remains historical; this
-integration changes no algorithm or performance bar. Phase 0.1's release report
+The earlier release 0.3 performance verdict in D82 remains historical; this
+integration changes no algorithm or performance bar. Release 0.1's release report
 remains stale until its final re-qualification, even though the 0.1 parity run
 and sweep were repeated here. The combined-tree gate outcomes are recorded in
 the slim summaries and the final integration handoff.
@@ -2083,12 +2083,12 @@ rerun on CPU 17 passes. Neither result was dropped from the handoff.
 
 ## D84 — 0.1.x inventory, profile and artifact destination
 
-Implement SPEC-p01x only in this checkout, without Git metadata changes or
-subagents. Place this lane's decisions after main's D83. The pinned
+Implement registered protocol only in this checkout, without Git metadata changes or
+subagents. Place this job's decisions after main's D83. The pinned
 header adds filterIndexBuffer, filterIndexBufferMulti, generatePositionRemap
 and generateVertexRemapCustom to the requested remapping surface. Stripification
 and analysis remain 0.5; codecs, meshlets, tangents and experimental remeshing
-remain outside this lane. Coverage lists each required upstream function.
+remain outside this job. Coverage lists each required upstream function.
 
 Expose PreserveFolds and ErrorClamped only through experimental. Stable Sparse
 and Prune apply to all edge-simplification forms; RegularizeLight already exists
@@ -2097,13 +2097,13 @@ and subset bounds. Grid sloppy accepts LOCK alone; other vertex flags are errors
 Preserve upstream comparison order, probing, callback traversal, integer wrapping,
 float operation order, and the distinct binary/numerical position equality rules.
 
-In the original 0.1.x lane, the requested destination was unavailable and
+In the original 0.1.x job, the requested destination was unavailable and
 evidence was retained on a writable sibling volume. Integration records now
 point to <artifacts>/p01x; the coordinator moves the
 historical data there. That archive is separate from the disposable build
 target. Historical hashes need verification after the move.
 
-Parallel lane 4 D41 settles two consumer profiles: a downstream engine uses opt-level 3, thin
+Parallel job 4 D41 settles two consumer profiles: a downstream engine uses opt-level 3, thin
 LTO, one codegen unit, release debug disabled; defaults uses opt-level 3, LTO
 false, sixteen codegen units, release debug disabled. Keep the local crate
 fat-LTO profile and benchmark both consumers with explicit environment overrides.
@@ -2132,7 +2132,7 @@ with workload size; single exponent helpers retain bounded scalar work.
 Use the upstream-sized bit filter and quadratic-probed sparse reverse table,
 with first-reference order unchanged. Internal indexed position/attribute views
 read original records without packed geometry copies. Release the filter and
-reverse table at the upstream phase boundaries. Preserve the maximum observed
+reverse table at the upstream release boundaries. Preserve the maximum observed
 heap request in Usage when later phases release scratch.
 
 Standalone pruning uses simplifier.cpp's numerical position equality, including
@@ -2147,7 +2147,7 @@ Replace allocating temporary results in caller-buffer remapping, filtering,
 shadow, adjacency, tessellation, provoking, sloppy, prune and point paths with
 shared kernels writing the caller's used prefix. Document late work exhaustion
 as permitting partial output. Keep tails untouched. Release temporary welding
-hash tables at upstream phase boundaries and count the maximum live storage.
+hash tables at upstream release boundaries and count the maximum live storage.
 Every preprocessing kernel has a measured exact work/heap boundary regression.
 
 Retain checked arithmetic and bounds while specializing the optional point
@@ -2215,7 +2215,7 @@ otherwise retain per-visit checks before callbacks and mutation. Searches charge
 only actual visits in either path. A regression compares result, work and callback
 prefix for every small exhaustion boundary. Inline these helpers at the hot loop.
 
-The preprocessing benchmark starts with ten alternating pairs, the RFC 6.1
+The preprocessing benchmark starts with ten alternating pairs, the design requirements
 minimum, and adds ten when the ratio interquartile range crosses a timing bar,
 up to thirty. Preserve all 888 workloads and both consumer profiles. The interrupted
 pre-refinement a downstream engine baseline remains diagnostic evidence, never qualification.
@@ -2361,7 +2361,7 @@ Keep the same arithmetic and visits; omit redundant per-quadric/per-candidate
 finite checks only in sloppy simplification. Other simplifiers retain their
 checks. Add tiny/large finite-scale and normalized-subnormal feature fixtures
 to native/C++/executed-WASM comparisons. Unsupported bounds or reciprocals
-still fail before this phase.
+still fail before this release.
 
 ## D101 — Fixed-charge scans and transport metadata
 
@@ -2485,7 +2485,7 @@ replace the first profile's driver before its record binds it. Independent
 execution can overlap after that interval. The lock affects build coordination
 only, and is released when its process exits. Run fixtures before launching
 concurrent benchmark and sweep execution, so fixture regeneration cannot race
-a reader. No Git metadata or other lane's target is involved.
+a reader. No Git metadata or other job's target is involved.
 
 ## D109 — Applicable JS and native preprocessing fixtures
 
@@ -2596,7 +2596,7 @@ defer a sentinel error until index validation finishes, and handle null indices
 by scanning the remap. Validate scalar quantization parameter domains when a
 scalar is called, and point targets, color weights and supplied colors. Existing
 finite position/attribute/weight checks remain. These correct comparable valid-
-domain validation under RFC 6.1; they do not add Rust resource limits to C++ or
+domain validation under design requirements; they do not add Rust resource limits to C++ or
 change oracle algorithms. Rebuild and rerun all gates against this adapter.
 
 ## D114 — Representative colored point reduction
@@ -2652,7 +2652,7 @@ and executes inside timing; retain all raw paired intervals and the original
 Validate point colors through the counted fallible scan, so an invalid first
 color reports one visit rather than charging unvisited records. Add a prefix
 regression. Update the smoke proof limit to the binding RFC's four CPU-hour
-release requirement; this lane's explicitly requested budget remains 300 elapsed
+release requirement; this job's explicitly requested budget remains 300 elapsed
 seconds per function. Full requalification is required on the resulting source.
 
 ## D117 — Bounded triangle-filter probes
@@ -3264,9 +3264,9 @@ summaries. Both enforced matrix commands exit 0; no fragment assembly is used.
 | `simplify_regularize_light` | 1.014921128 | 1.402286736 | 1.072378925 | 1.006067560 | 1.415860508 | 1.072378925 | pass |
 
 The coordinator-authorized residual retains the 1.5 maximum bar:
-- `moss` / `vertex_fetch/million/sparse/mode-1`: 1.725607205; failed maximum, coordinator decision pending.
+- `downstream` / `vertex_fetch/million/sparse/mode-1`: 1.725607205; failed maximum, coordinator decision pending.
 - `defaults` / `vertex_fetch/million/sparse/mode-1`: 1.852204690; failed maximum, coordinator decision pending.
-Best retained same-input `moss` ratio: 1.378806161 in `iterator-fetch-trial/records/p01x-benchmark-moss.partial.json`. Historical diagnostics are not substituted for the final source's verdict.
+Best retained same-input `downstream` ratio: 1.378806161 in `iterator-fetch-trial/records/p01x-benchmark-downstream.partial.json`. Historical diagnostics are not substituted for the final source's verdict.
 Best retained same-input `defaults` ratio: 1.852204690 in `records/p01x-benchmark-defaults.json`. Historical diagnostics are not substituted for the final source's verdict.
 
 D139 and `fetch-large-direct-profiles` retain exact-input source/binary evidence:
@@ -3306,10 +3306,10 @@ Historical failed epochs remain
 non-qualifying; any unavailable historical executable is identified separately.
 Every executable needed for the final verdict is archived and hash-verified.
 
-The scope audit confirms unchanged lane commit metadata, branch and HEAD, and an
-empty staged diff. The lane index-file hash changed during this session; no
+The scope audit confirms unchanged job commit metadata, branch and HEAD, and an
+empty staged diff. The job index-file hash changed during this session; no
 Git metadata was restored or rewritten to conceal it. Shared common-main metadata
-also changed externally during the parallel lane. README, CI and existing 0.1 records
+also changed externally during the parallel job. README, CI and existing 0.1 records
 are untouched. No changed/new checkout file exceeds 5 MB; diff checks pass.
 Delete only the named build target after retained-evidence verification. Keep
 the final cleanup receipt and review archive; do not recreate the target.
@@ -3322,7 +3322,7 @@ final executable counts and actual deletion; the target was not recreated.
 
 The owner approved this rule on 2026-10-04, as relayed by the coordinator,
 replacing clean full-profile repeats. Stage 1 is the complete 912-case 0.1.x
-and 204-case retained 0.1 matrix under each of the a downstream engine and default consumer
+and 204-case retained 0.1 matrix under each of the downstream engine and default consumer
 profiles on the rebased source. The family geometric-mean and heap bars use
 stage 1 without alteration. For **every** stage-1 case with Rust/C++ ratio
 strictly greater than 1.5, run 30 fresh interleaved Rust/C++ pairs on one
@@ -3345,7 +3345,7 @@ makes that selection explicit and conservative. The coordinator can cheaply
 reverse this acceptance decision before publication. This rule is recorded
 before stage-2 measurements begin.
 
-## D147 — RFC 113 cluster-LOD cook scaling
+## D147 — design requirements cluster-LOD cook scaling
 
 The baseline nine-mesh Rust/scalar-C++ sum-of-medians ratio was 6.391. On the
 same S2 output, the baseline ratio tracks group count strongly (Pearson 0.960
@@ -3370,7 +3370,7 @@ of a large source mesh, then maps meshlet vertices back to source indices.
 The public API and scalar byte output stay unchanged. The intermediate full
 20-pair run before group compaction retained 15/15 valid byte matches and
 measured 1.319 scalar aggregate on CPU 0; it is superseded because another
-lane also used that core. The final 20-pair consumer run on CPU 16 measures
+job also used that core. The final 20-pair consumer run on CPU 16 measures
 1.171 scalar aggregate (2.570 s C++, 3.009 s
 Rust), with every mesh at or below 1.394 and all 15 valid layout outputs
 identical. The a downstream engine-style C++ build measures 2.597 s, giving a 1.159 Rust/a downstream engine
@@ -3430,9 +3430,9 @@ archived `main` and the vendored C++ demo on the generated case. This input
 does not move an X coordinate across the threshold, so the crossing itself is
 covered by the source invariant, not claimed as observed differential evidence.
 
-## D151 — RFC 113 three-way and portable harness gates
+## D151 — design requirements three-way and portable harness gates
 
-The RFC 113 runner now fails when either a downstream engine-style or scalar C++ disagrees
+The design requirements runner now fails when either a downstream engine-style or scalar C++ disagrees
 with Rust. The codec builder creates a fresh target directory before C++
 compilation. The deterministic differential builds archived `main`, current
 Rust, and the vendored C++ demo and compares the complete result on large,
@@ -3441,7 +3441,7 @@ The bounded-memory companion compares `LimitExceeded` and success across its
 byte sweep. Full parity and paired timing require final-HEAD evidence, with
 timing admitted only below load 12 and without a GPU lease holder.
 
-## D152 — Owner-revised RFC 113 admission and bounded early stopping
+## D152 — Owner-revised design requirements admission and bounded early stopping
 
 The owner's binding 2026-10-05 directives replace the original load-average
 and no-active-scoreboard gate. Admit only when `gpu-lease.sh status` reports
@@ -3521,7 +3521,7 @@ unaligned little-/big-endian attribute layouts, with LOCK/PROTECT/PRIORITY,
 zero-weight components and both dilation settings. It passed before and after
 the source change. The existing memory/dilation regressions remain green.
 
-`parity/rfc113/timing.py` makes D152's previously external adaptive method
+`parity/cluster-lod/timing.py` makes D152's previously external adaptive method
 reproducible from the worktree. It builds and hashes the current sources and
 binaries, records process-tree admission evidence and both physical-core
 siblings, closes drivers before lease pauses, caps bursts at 840 seconds,
@@ -3568,7 +3568,7 @@ feature test/clippy configurations and fmt pass. D149's single-cluster memory
 guarantee and D150's unconditional post-dilation invalidation remain intact.
 
 Evidence is in `<artifacts>/clodrec` and the detailed
-handoff is `parity/results/rfc113-clod-recover.md`. Twenty required native/WASM
+handoff is `parity/results/cluster-lod-clod-recover.md`. Twenty required native/WASM
 executable identities were retained and hash-verified, along with baseline
 and implementation source archives, raw perf data, raw pairs and validation
 corpora. The exact named target
@@ -3578,7 +3578,7 @@ receipts. No push or integration/runtime qualification is performed.
 
 ## D155 — P06 independent batches and resource determinism
 
-Implement SPEC-p06 on phase/0.6 from published a4b3c48 only. Rayon 1.11.0 is
+Implement registered protocol on release/0.6 from published a4b3c48 only. Rayon 1.11.0 is
 optional, pinned and compatible with Rust 1.88; `parallel` enables `std`.
 Default/no_std algorithms and the unsafe prohibition are unchanged. Use ordered
 preallocated result slots, fallible allocation before execution, and an inner
@@ -3602,9 +3602,9 @@ Preserve callback order, refinement IDs and hierarchy order. Add view decoding
 alongside the requested encoding, composing the existing scalar view API for
 later SIMD integration. No per-view block split or float reduction is added.
 
-The baseline contains 0.1/0.1.x/0.2/0.3/0.4. Phase 0.5 modules, tests and a
+The baseline contains 0.1/0.1.x/0.2/0.3/0.4. Release 0.5 modules, tests and a
 0.5 dispatcher are absent; p05 is a separate unmerged worktree. Record this
-qualification limit instead of merging, copying that lane, or inventing a
+qualification limit instead of merging, copying that job, or inventing a
 0.5 pass. Run every available existing exact parity gate unchanged. A p06
 thread-count test additionally compares every meaningful byte and f32 bit at
 1, 2, 8 and available_parallelism threads, including mixed errors, limits,
@@ -3614,7 +3614,7 @@ integration; API changes would break consumers after publication.
 ## D156 — Owner's fast measurement directive for P06
 
 The binding owner directive on 2026-10-05 supersedes older unconditional
-10–30-pair/full-repeat timing rules for this lane. During iteration, measure
+10–30-pair/full-repeat timing rules for this job. During iteration, measure
 only touched cases/families at about five interleaved pairs. For a final bar
 verdict start at five, stop when clearly within/over the bar, cap at twenty;
 only borderline cases use D146's second stage. Run a full timing matrix once
@@ -3662,7 +3662,7 @@ executed WASM: geometry 279 fixtures + 10,000 seeded cases; preprocessing
 messages + 80 cluster-LOD demo cases; 0.4 869 fixtures + 7,653 malformed +
 44,000 seeded cases. Applicable upstream JS suites run in those harnesses.
 There are zero mismatches. Prior performance/fuzz/release records are unchanged
-and are not promoted to P06 acceptance. Phase 0.5 remains absent/unqualified
+and are not promoted to P06 acceptance. Release 0.5 remains absent/unqualified
 in this baseline; its integration owner must run that gate after integration.
 
 The one final curve takes 56.93 seconds and keeps all 150 alternating pairs.
@@ -3682,7 +3682,7 @@ archive/member hash, meaningful comparison and corpus inventory. Retain slim
 summary MEASURED_P06.json and reviewable method/table in parity/p06/README.md.
 Evidence stays under <artifacts>/p06, separate from the
 specified disposable target. Preserve exact binaries and sources, verify hashes,
-then delete only codex-meshopt-p06. Commit only on phase/0.6 with the authorized
+then delete only codex-meshopt-p06. Commit only on release/0.6 with the authorized
 author; no push, merge, rebase or other worktree change. The remaining 0.5
 qualification prerequisite is recorded rather than concealed or bypassed.
 
@@ -3690,7 +3690,7 @@ qualification prerequisite is recorded rather than concealed or bypassed.
 ## D158 — P06 review fixes 2–5: late mutation and small hierarchy dispatch
 
 Finding 1 is resolved by the integration owner; do not rerun or alter the 0.5
-lane here. Findings 2–5 are addressed in this checkout on phase/0.6.
+job here. Findings 2–5 are addressed in this checkout on release/0.6.
 
 Replace the unproven partial-failure coverage with an explicit 16-triangle
 curved open disk witness: dilation changes position bits before max_work=3200
@@ -3748,7 +3748,7 @@ qualification records are unchanged, not reverified or promoted by this fix.
 Document that Rayon lazily initializes its global pool on first use and panics
 inside Rayon if initialization fails, distinct from per-item Error isolation.
 Small sequential hierarchy batches need no global pool; other batches/larger
-hierarchies use the current pool. Remove phase 0.6 from README's remaining work.
+hierarchies use the current pool. Remove release 0.6 from README's remaining work.
 The lean driver now supports one-family/short-burst selection and a dispatch
 control. Exclude the dynamic CPU scaling percentage from immutable resume
 identity; loads remain observations. No API changes or new dependencies.
@@ -3766,30 +3766,30 @@ remote CI or release qualification is claimed by these focused fixes.
 
 ## D159 — Assemble the first 0.2.0 integration tranche
 
-Merge parity/rfc113 at 9027712 (including recovery 9589e0c), then phase/0.6
+Merge parity/cluster-lod at 9027712 (including recovery 9589e0c), then release/0.6
 at 70686e6 into release/0.2.0 from published main a4b3c48, only in rel020.
-Keep RFC 113 decisions D147–D154; renumber P06's D147–D150 to D155–D158
+Keep design requirements decisions D147–D154; renumber P06's D147–D150 to D155–D158
 and update their references. Preserve both branches' code and every decision.
 The package remains 0.1.0 until the coordinator bumps it at release.
 
 Re-run fmt, strict Clippy, tests and wasm32 builds in all-feature and
 no-default modes, 0.1/0.1.x/0.2/0.3/0.4 fixture runs and 2,000-case-per-family
-sweeps, the 80-case cluster-LOD demo gate, RFC 113's 15 supported layouts and
+sweeps, the 80-case cluster-LOD demo gate, design requirements's 15 supported layouts and
 90 codec comparisons, and all nine P06 thread-count determinism tests.
 Use only <target-dir> for builds
 and remove it after preserving and verifying evidence. Retain fresh records
 under <artifacts>/rel020.
 
 No timing is rerun: the source branches' measured evidence stands, with its
-recorded corpus, profiles and remaining limitations. RFC 113 runs with
+recorded corpus, profiles and remaining limitations. design requirements runs with
 --pairs 0. The two stride-32 S2 protect-mask setups remain invalid, outside
-the fifteen supported layouts. Phase 0.5 and phase 0.7 remain outside this
+the fifteen supported layouts. Release 0.5 and release 0.7 remain outside this
 first integration tranche; no remote, GPU or a downstream engine runtime acceptance is added.
 
 Final integration gates all exit 0: both strict Clippy/test/wasm32 modes,
 fmt, all nine P06 determinism tests, every registered 0.1–0.4 fixture run
 and 2,000-case-per-family sweep including 0.1.x, all 80 cluster-LOD demo
-cases, fifteen supported RFC 113 layouts and ninety codec comparisons.
+cases, fifteen supported design requirements layouts and ninety codec comparisons.
 There are zero parity mismatches. The first preprocessing invocation only
 hit the artifact directory's immutable-record guard; it was retained as a
 failed routing attempt and rerun with separate p01x-run/p01x-sweep directories.
@@ -3818,7 +3818,7 @@ the branch ownership intact. Global allocator callbacks become per-call
 filter implementation. Version/level global setters were already replaced by
 explicit per-call configuration in 0.4.
 
-The Rust-facing shape follows the prior lane: `Result` for invalid or
+The Rust-facing shape follows the prior job: `Result` for invalid or
 resource-limited inputs, `u32` topology, packed/interleaved/byte `Positions`,
 and allocating plus caller-buffer forms for functions with output arrays.
 `generate_normals` and `remesh` are gated by `experimental` independently of
@@ -3852,8 +3852,8 @@ limits remain unchanged. Ten interleaved paired samples per case under both
 a downstream engine-like and Cargo-default release profiles record raw times and byte-checked
 outputs. Each family uses three sizes and separately measures caller-buffer
 forms where exposed. These local measurements fail the time bar in 18/21
-family/API groups under the a downstream engine-like profile and 17/21 under Cargo defaults.
-Only unstripify (both forms) and overdraw pass in the a downstream engine-like record; only
+family/API groups under the downstream engine-like profile and 17/21 under Cargo defaults.
+Only unstripify (both forms) and overdraw pass in the downstream engine-like record; only
 allocating stripify, both unstripify forms and OMM compact pass under Cargo
 defaults. In particular, tangent and experimental normal generation are
 roughly 2.7–3.8 times scalar C++; remeshing is roughly 1.5–1.8 times. The existing corpus does
@@ -3877,8 +3877,8 @@ fuzz logs and the exact native, WASM and sanitizer executables remain outside
 the checkout; the retained artifact tree is 309 MB, below the 2 GB cap.
 
 Both benchmark commands exit 1 under the unchanged RFC bar, and
-`parity/report.sh --phase 0.5 --verify-artifacts` exits 1 with exactly two
-errors: `failed benchmark-moss` and `failed benchmark-default`. This lane is
+`parity/report.sh --release 0.5 --verify-artifacts` exits 1 with exactly two
+errors: `failed benchmark-downstream` and `failed benchmark-default`. This job is
 **not performance-qualified or complete under the spec's Done-when gate**.
 The measured failures are retained as reviewable records rather than converted
 to a passing summary. No Git metadata operation was performed.
@@ -3945,7 +3945,7 @@ Vertex-cache analysis now computes the three miss flags directly from the
 triangle's three indices, matching the pinned scalar C++ loop more closely
 than an iterator filter and count. This targets its 2.5x worst medium case.
 Normal and tangent generation now batch exact adjacency, per-face geometry and
-accumulation visit charges when the fuel covers the phase. Tangent accumulation
+accumulation visit charges when the fuel covers the release. Tangent accumulation
 still charges only nondegenerate faces; tight budgets use per-corner charging.
 This targets the repeated fuel branch in their hot loops.
 Remesh also batches its full-position extent scan and uses the counted view
@@ -4010,7 +4010,7 @@ The replacement records meet those evidence conditions. Eight focused P05
 tests, 30,000 native differential cases and 30,000 executed WASM identity
 cases pass with zero mismatches. The full 160-case, 20-pair matrices and
 worst-failing-family `perf stat`/`perf record` runs are source- and binary-hash
-bound. `parity/report.sh --phase 0.5 --verify-artifacts` exits 0 with
+bound. `parity/report.sh --release 0.5 --verify-artifacts` exits 0 with
 `verified: true`, no errors and `performance_qualified: false`. a downstream engine passes
 9/21 API groups and Cargo defaults pass 7/21. The same seam-heavy normal
 case fell from 1.63x to 1.34x in a downstream engine and 1.71x to 1.48x in defaults; the
@@ -4317,8 +4317,8 @@ inside `build_remap` before those allocations. It also omitted the extra
 adjacency offset and rounded tangent per-face storage (16-byte tangent,
 4-byte group, 1-byte sign) to 24 rather than 21 requested bytes.
 
-The generators now account the maximum of the remap phase and the later live
-output-plus-scratch phase, using the actual requested element sizes and extra
+The generators now account the maximum of the remap release and the later live
+output-plus-scratch release, using the actual requested element sizes and extra
 offset. Retained workspace capacity is still added by `account_codec`; caller
 buffers and allocator overhead remain excluded in both languages. A staged
 low-fuel path still includes its complete owned output. This corrects the
@@ -4328,7 +4328,7 @@ does not lower the bar, remove an allocation from the count, or use RSS.
 A focused externally visible budget test checks the pinned eight-vertex,
 four-face C++ peaks of 228 normal and 248 tangent bytes, untouched caller tails,
 and atomic rejection one byte below the tangent peak. Caller identity witnesses
-now allow the remap phase to dominate both API peaks, so they do not assume
+now allow the remap release to dominate both API peaks, so they do not assume
 every input's peak decreases by exactly the output size. Fresh feature-mode
 parity and both measured consumer memory matrices remain required.
 
@@ -4524,7 +4524,7 @@ untouched tails. Fresh exact feature-mode/WASM/corpus proof precedes a six-famil
 five-pair diagnostic. No timed D97/D98 samples are discarded or reused because
 none had been admitted during their lease waits.
 
-D99 strict Clippy in all-feature and no-default modes, all thirteen phase-0.5
+D99 strict Clippy in all-feature and no-default modes, all thirteen release-0.5
 fixture/contract/budget tests, 30,000 native, 30,000 libm and 30,000 executed
 WASM cases and all 48 distinct touched expanded shapes pass exactly. The
 six-family diagnostic again reached the admission gate without a timed sample;
@@ -4587,7 +4587,7 @@ identical; finite input validation and all fallible allocation precede this
 loop. Existing exact work-boundary/caller tests and fresh native/libm/WASM
 and expanded touched-case differential checks must pass before diagnostics.
 
-D101 strict all-feature/no-default Clippy, the thirteen phase fixtures and
+D101 strict all-feature/no-default Clippy, the thirteen release fixtures and
 contract/budget tests, 30,000 native, 30,000 libm and 30,000 executed WASM
 cases and all 48 expanded touched shapes pass exactly. The six-family,
 five-pair runner rebuilt its a downstream engine binary and is polling the GPU lease gate;
@@ -4618,7 +4618,7 @@ adds only fetch to the six already changed families (88 rows per profile),
 not a full matrix. No speedup is claimed before admitted measurements.
 
 D102 passes strict all-feature/no-default Clippy, all-feature/no-default/
-libm-experimental suites, thirteen phase fixtures/contracts/budget tests,
+libm-experimental suites, thirteen release fixtures/contracts/budget tests,
 formatting, 30,000 native, 30,000 libm and 30,000 executed WASM differential
 cases, and all 56 expanded touched shapes exactly. The existing fetch budget
 test now covers sizes 1, 12, 64, 127, 128, 255 and 256, including five-line
@@ -4694,13 +4694,13 @@ The old separate warm-up requests discard their caller buffers, so they do
 not commit the later measured request's storage. This is an identified harness
 asymmetry, not a lowered timing bar or an accepted performance result.
 
-Both phase-0.5 drivers now write opaque positive zero to one element per
+Both release-0.5 drivers now write opaque positive zero to one element per
 <=4 KiB span and the final element of the used caller-buffer type, after all
 setup and before the API timer. This commits every caller output page in both
 languages, preserves initial contents, and adds no timed instruction or heap
 request. Scratch allocations and allocating outputs remain inside the API
 measurement. Unused Rust caller types are not touched. All six caller families
-use the same policy; only phase 0.5 changes. Native, libm and WASM parity and
+use the same policy; only release 0.5 changes. Native, libm and WASM parity and
 fresh consumer binaries qualify retention.
 
 The allocating unstrip API now pre-reserves and initializes its full checked
@@ -4710,7 +4710,7 @@ and length update, matches C++'s initialized owned output, and preserves all
 quota checks, requested bytes, allocation order and exact work/failure prefixes.
 Strip's successful append-output implementation remains unchanged.
 
-The D104 resumed validation passes all thirteen phase tests, strict root
+The D104 resumed validation passes all thirteen release tests, strict root
 checks, 30,000 native, 30,000 libm and 30,000 executed WASM cases and eight
 expanded unstrip shapes exactly. No D104 timed sample had been admitted when
 its initial waiting process was stopped for the following harness refinements.
@@ -4756,7 +4756,7 @@ in native std mode, for 960 total std/libm differential comparisons.
 
 A second external prototype specializes normal accumulation's covered/tight
 work paths at compile time, retaining the original upfront/full or per-corner
-charge order. All thirteen phase contracts and 600 bit-exact owned/caller
+charge order. All thirteen release contracts and 600 bit-exact owned/caller
 comparisons pass in each std/libm mode, including caller tails, errors, usage
 and requested bytes. Like the OMM prototype, it is not production or timing
 evidence, and will only be retained if the pending focused diagnostics warrant
@@ -4786,7 +4786,7 @@ match retained values/errors/usage/storage in 960 calls.
 
 Normal accumulation specializes the covered and tight work loops at compile
 time, keeping upfront complete charging or the original exact per-corner
-prefix. Every floating operation and corner order is unchanged. All phase
+prefix. Every floating operation and corner order is unchanged. All release
 contracts and 1,200 external std/libm owned/caller comparisons pass with exact
 float bits, tails, errors, work and requested bytes. No unsafe or hand SIMD.
 
@@ -4796,7 +4796,7 @@ full matrix, five-pair diagnostics, two-minute gate and bounded early/D146
 policy remain unchanged. Rebuild and fresh native/libm/WASM proof precede
 focused timing; no D105 performance qualification is claimed yet.
 
-D105 passes fourteen phase tests, strict library/consumer Clippy in both feature
+D105 passes fourteen release tests, strict library/consumer Clippy in both feature
 modes, 79 all-feature, 74 no-default and 79 no-default-plus-experimental tests.
 Fresh standard native, libm native and executed WASM sweeps each pass 30,000
 cases. The expanded check was extended after its first eight-shape run, then
@@ -4863,7 +4863,7 @@ cannot be presented as matched algorithm-only speedups.
 The owned unstrip wrapper gains an inline hint. Its validation helper uses
 explicit typed arguments instead of a captured mutable closure, preserving
 all checked bounds, allocation/quota order, work prefixes, outputs and caller
-tails. All thirteen existing external phase contracts pass before application.
+tails. All thirteen existing external release contracts pass before application.
 Fresh production native/libm/WASM proof and focused five-pair unstrip cases
 0/7 precede the pending cache/fetch/measure/normal/tangent groups. The latter
 require fresh method-consistent observations; the earlier cache row is kept
@@ -4879,7 +4879,7 @@ zero samples before restart.
 
 After the integration-test layout correction, D106 passes both consumer cache
 tests in std/libm mode and strict consumer Clippy with all features/no defaults.
-Production's fourteen phase tests, 79/74/79 complete feature-mode tests,
+Production's fourteen release tests, 79/74/79 complete feature-mode tests,
 30,000 native, 30,000 libm and 30,000 executed WASM cases all pass; eight expanded
 decoder shapes remain exact. The 0/7 focused timing source is frozen and the
 archive/pending-path chain has explicit success/identity guards. No fresh D106
@@ -4888,7 +4888,7 @@ sample has been admitted yet; only the binding lease/measurement gate applies.
 While D106 remains gated, an external raster candidate mirrors scalar C++'s
 `rasterizeOpacityRec<2>/<4>` dispatch: specialize validated state format once
 alongside covered/tight charging, retaining every floating operation, sample,
-bit emission and work prefix. All external phase contracts and 2,400 std/libm
+bit emission and work prefix. All external release contracts and 2,400 std/libm
 owned/caller differential comparisons pass for levels 0–4, varied UVs, padded
 texture strides, tight fuel and untouched tails, with identical requested
 storage. It remains outside production and unmeasured, to be considered only
@@ -4900,7 +4900,7 @@ a const-generic uncharged loop only when all visits fit remaining work. That
 loop totals actual visits (including degenerate triangles) and charges once;
 the tight path retains the original triangle/sample exhaustion prefixes.
 There is no new allocation, floating operation, or public API. All thirteen
-external phase contracts pass, followed by 3,600 comparisons per feature mode
+external release contracts pass, followed by 3,600 comparisons per feature mode
 (7,200 std/libm total) covering bound/allocating/caller outputs, zero/short/full
 destinations, degeneracies, all four options, four resolutions and exact fuel
 boundaries. Values, tails, errors, work and requested bytes match production.
@@ -4945,7 +4945,7 @@ acceptance requires all complete family/API means and memory ratios to pass
 under both profiles and D100/D146 maximum decisions.
 
 D107 production refresh passes both consumer resident tests in each feature
-mode, consumer formatting and strict Clippy, fourteen phase contracts, and
+mode, consumer formatting and strict Clippy, fourteen release contracts, and
 30,000 native, 30,000 libm and 30,000 executed WASM cases exactly. The frozen
 D106 default profile completes from its original retained binaries: tiny owned
 decoder instruction ratio 1.373, with 63.4% of Rust samples in unstripify and
@@ -4967,7 +4967,7 @@ not complete family means or final maximum decisions.
 D106/D107 default assembly retains reserve_output as an opaque call, and the
 owned wrapper performs vector-length/capacity dispatch plus dynamic workspace
 accounting despite the consuming benchmark creating a fresh default workspace.
-The external inline-helper prototype passes fourteen phase contracts in both
+The external inline-helper prototype passes fourteen release contracts in both
 standard/libm modes. Its generated code removes the helper call, but a plain
 inline hint still leaves the owned wrapper out of line. Require inlining for
 the small fallible allocation helper and the owned unstrip wrapper so consumer
@@ -4990,7 +4990,7 @@ while repeated two-minute polls find an occupied lease. A manual receipt at
 seconds after the runner's blocked receipt. This demonstrates that the fixed
 long cadence misses available windows; machine load is not the blocker.
 
-Stop only the own zero-sample waiting queue/driver and change phase-0.5 gate
+Stop only the own zero-sample waiting queue/driver and change release-0.5 gate
 polling to fifteen seconds. The owner explicitly requires admission whenever
 no lease holder or actively measuring scoreboard is present; polling cadence
 is orchestration, not a measurement threshold. Every admitted boundary still
@@ -5088,7 +5088,7 @@ successful Vec length is their count. Larger outputs retain the initialized
 whole-chunk path that passes the million case. Both paths make the same single
 fallible full-bound reservation and enforce identical checked bounds, quota/
 allocation order, charging, failure usage and exact output. Caller decoding
-is unchanged. External standard/libm runs each pass fourteen phase contracts,
+is unchanged. External standard/libm runs each pass fourteen release contracts,
 including every existing tight-fuel owned/caller prefix and tail witness.
 
 The old-method complete a downstream engine fetch diagnostic misses the family mean at
@@ -5115,7 +5115,7 @@ ceil division; consumer checks had passed. Add a scoped lint allowance to that
 single let statement, with the existing non-overflow proof and codegen reason.
 No API or timing sample had run. Restart strict/full parity validation after
 this source-only annotation. The external no-restart adjacent-window decoder
-candidate also passes fourteen standard/libm phase contracts, including first/
+candidate also passes fourteen standard/libm release contracts, including first/
 second input exhaustion; it remains unapplied pending the small-append timing.
 
 ## D113 — retain output storage directly and specialize common decoder/fetch loops
@@ -5143,7 +5143,7 @@ The no-restart decoder selects adjacent three-element windows once, with
 winding parity equal to the original input index (window index plus two).
 The tight path charges its first two input visits separately, preserving
 first/second exhaustion and every subsequent emission prefix. Restarted strips
-retain the original decoder. Fourteen standard/libm phase contracts pass in
+retain the original decoder. Fourteen standard/libm release contracts pass in
 both modes before application; caller tails and every tight-fuel prefix remain
 covered. The small append/full large chunk output split is unchanged.
 
@@ -5166,19 +5166,19 @@ and D100/D146 sampling/maximum decisions remain unchanged.
 
 D113 complete validation passes 79/74/79 feature-mode tests, strict root Clippy
 in all three modes, both consumer Clippy/resident modes, and 30,000 native,
-30,000 libm and 30,000 executed WASM cases. HEAD remains 11a2b5a on phase/0.5;
+30,000 libm and 30,000 executed WASM cases. HEAD remains 11a2b5a on release/0.5;
 the clean scalar reference remains 4c203430ca565cb59a468a91922c76c208169536.
 No D113 sample is admitted during the initial occupied a downstream engine lease wait.
 
 ## D114 — owner schedules timing through the shared lease queue
 
 The owner supersedes the lease-free/scoreboard gate: captures hand the lease
-back to back, so gap waiting starves this lane. Stop the zero-sample D113
+back to back, so gap waiting starves this job. Stop the zero-sample D113
 waiter at its blocked boundary. The complete worktree/source/binary checkpoint
 and prior validation remain externally retained; no measurements are discarded.
 
 Every benchmark/profile command now enters the shared gpu-lease.sh queue with
-MOSS_GPU_LEASE_TIMEOUT=3600 and a meshopt-timing:p05-* label. Admission verifies
+PARITY_GPU_LEASE_TIMEOUT=3600 and a meshopt-timing:p05-* label. Admission verifies
 the wrapper's lease environment, matching held label/PID and ancestor chain.
 The scoreboard check is removed because the shared lease serializes its work.
 Unknown/wrong/uncovered ownership fails immediately; it never times outside
@@ -5207,7 +5207,7 @@ share that group and terminate under group TERM; the retained receipt explicitly
 contains no API timing. Fresh D114 native/libm/executed-WASM sweeps each match
 30,000 cases after this process-control refinement. No Rust/C++/Cargo source
 changes or production test repetition is needed. Submit the focused diagnostics
-as meshopt-timing:p05-{moss,default}-focus, with separate leased worst-case profiles.
+as meshopt-timing:p05-{downstream,default}-focus, with separate leased worst-case profiles.
 
 ## D115 — inline the checked decoder into its already inlined owned wrapper
 
@@ -5235,7 +5235,7 @@ new source's final matrix. The final matrix still has not started.
 
 ## D116 — expose the emitting decoder loop instead of its mutable Vec boundary
 
-D115's checked helper is now absent from the a downstream engine symbol table, but the next
+D115's checked helper is now absent from the downstream engine symbol table, but the next
 emitting unstripify_loop<false,Vec<u32>> remains out of line. Tiny owned a downstream engine
 still clearly fails at 2.229 (41.67ns versus 18.93ns); default maximum passes
 at 1.090. Both caller edge maxima and million owned pass; memory is 1.0.
@@ -5257,7 +5257,7 @@ owned remains above the bar (maximum 1.555; 42.39ns versus 28.53ns medians),
 while default maximum 1.226, all caller maxima and million owned pass. Neither
 the partial mean nor borderline diagnostic maximum establishes acceptance.
 
-Inlining the emitting loop removes its symbols but does not remove the a downstream engine/
+Inlining the emitting loop removes its symbols but does not remove the downstream engine/
 default owned gap. Inspect generated timer/dispatcher boundaries: most timed
 loops merge into the benchmark/command machinery; only one monomorph remains
 separate. Test matched non-inlined timed_iterations functions in Rust and C++.
@@ -5319,12 +5319,12 @@ only decoder shapes 0/7 receive the next five-pair diagnostic probe.
 ## D120 — visible shared admission replaces direct lease submission
 
 The owner supersedes D114 scheduling: every next timed burst enters
-MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840, with its meshopt-timing:p05-*
-dashboard lane. Four GB is the declared peak, adjustable explicitly if needed.
+PARITY_RUNNER_GPU=1 <job-runner> 4 timeout 840, with its meshopt-timing:p05-*
+dashboard job. Four GB is the declared peak, adjustable explicitly if needed.
 The shared wrapper reserves memory, queues visibly, and obtains/releases the
-GPU lease itself. No direct or nested gpu-lease.sh call remains in this lane.
+GPU lease itself. No direct or nested gpu-lease.sh call remains in this job.
 Timing receipts verify the admitted timeout, reserved memory, heavy ancestor,
-matching dashboard lane, own lease ancestor and the kernel flock in holder
+matching dashboard job, own lease ancestor and the kernel flock in holder
 fdinfo/200 for the shared lock inode. This rejects advisory stale metadata.
 
 The foreground 840-second timeout plus five-second kill grace retains the
@@ -5372,7 +5372,7 @@ order, initialization, outputs and requested capacity remain. This removes an
 ownership transfer through the private result representation without moving
 any allocation or API work outside timing. No public API, unsafe or SIMD change.
 
-An external same-driver prototype passes fourteen existing phase contracts in
+An external same-driver prototype passes fourteen existing release contracts in
 both std and libm and strict Clippy. Its a downstream engine assembly eliminates those three
 overlapping accesses (474 to 457 static assembly lines); this is code-generation
 evidence, not measured speedup. Full root/consumer/native/libm/executed-WASM
@@ -5552,7 +5552,7 @@ covered groups of at most 32 corners. Pair/union order, outputs, error/work
 prefixes, quotas, heap requests and floating operations remain exact; tight
 budgets and larger tangent groups retain the existing loops. No unsafe/SIMD/API
 or timing-boundary change. Native/libm/executed-WASM each match 30,000 cases;
-format, strict Clippy, required tests and fourteen phase contracts all pass.
+format, strict Clippy, required tests and fourteen release contracts all pass.
 
 The immediately following visible admission completes 50 five-pair rows per
 profile and fresh profiles; archive in D128-proof/baseline-D128-focused. a downstream engine
@@ -5682,7 +5682,7 @@ Queue sixteen five-pair rows per profile immediately behind D133; the external
 worker releases/requeues while its predecessor is unfinished and skips timing
 if D133 already clears every diagnostic group. No redundant measurement is
 performed in that case. Root sources remain frozen; no lease/disk gate bypass.
-Remove only this lane's completed debug incremental compiler cache to reduce
+Remove only this job's completed debug incremental compiler cache to reduce
 disk pressure, retaining every source/binary/parity/profiling receipt. Future
 prototype debug proof disables incremental caching in the same required target.
 
@@ -5812,7 +5812,7 @@ API, bar or corpus change. Full final matrices remain unrun.
 
 D139 completes both profiles in 192 seconds (D139-proof/baseline-D139-grid).
 a downstream engine means1.406/1.256 and default1.388/1.357 fail. D140 finishes in88 seconds:
-Moss1.419/1.328, default1.468/1.396, with failing maxima too. Reject both grid
+the downstream engine1.419/1.328, default1.468/1.396, with failing maxima too. Reject both grid
 conversion candidates. Exact native/WASM scalar proofs establish semantics,
 not speed; no failing mean can become a residual. Heap ratios remain1.0.
 
@@ -5872,14 +5872,14 @@ not a measured rejection or a retained production optimization.
 The owner explicitly replaces the continue-to-qualification task with immediate
 wrap-up: no new timing; validated code only; logical commits using repo author
 configuration and no AI trailers; complete status/rejection record; delete this
-lane's exact Cargo target. This authorizes commits despite the original edit-only
+job's exact Cargo target. This authorizes commits despite the original edit-only
 spec, and does not authorize rebase. All own timing controllers have ended.
 
 Promote only D131 raster/strip and restore D128 remesh over rejected D129 sample
 extraction. Other validated D129 files remain. Remesh default owned mean 1.2641
 fails; every family still lacks a current complete final matrix. No residual or
 unreachable claim. Fresh combined-tree fmt/strict Clippy,79/74/79 root feature-mode
-tests, two consumer resident tests per mode, fourteen phase contracts and native/
+tests, two consumer resident tests per mode, fourteen release contracts and native/
 libm/executed-WASM 30,000-case identity sweeps pass. Expanded selected-family parity
 covers 38 shapes per std/libm mode. `D144-functional-preflight.json` has zero functional
 errors and 51 historical benchmark/profile errors; full verify remains exit1.
@@ -5931,10 +5931,10 @@ semantic equivalence never establish a wall-time pass.
 | D107: matched conditional caller buffers | Retained correction. Discarded its first draft's unrelated untimed OMM parity branch edit. Does not alone clear tiny owned decoding. |
 | D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive a downstream engine tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
 | D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny a downstream engine maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
-| D111: static API selection outside both loops | Retained method fix. Tiny owned Moss2.883 still fails. Wider dispatcher asymmetry is insufficient. |
+| D111: static API selection outside both loops | Retained method fix. Tiny owned the downstream engine2.883 still fails. Wider dispatcher asymmetry is insufficient. |
 | D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 a downstream engine still fails; D114 matched method subsequently clears fetch. |
-| D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned Moss2.145 still fails. |
-| D117: matched standalone timer functions | Retained method correction; tiny owned Moss2.056 still fails. |
+| D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned the downstream engine2.145 still fails. |
+| D117: matched standalone timer functions | Retained method correction; tiny owned the downstream engine2.056 still fails. |
 | D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny a downstream engine maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
 | D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny a downstream engine maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
 | D122: keep Vec ownership local to fallible reservation | Retained. Decoder edge subsets finally pass both profiles; full family remains unqualified. |
@@ -5967,7 +5967,7 @@ semantic equivalence never establish a wall-time pass.
 
 The operative rejection is failure against the unchanged bar; none of these
 means is classified as a residual or as unreachable in safe Rust. D142/D143
-remain usable hypotheses for the next diagnosis lane. D139/D140/D141 independent
+remain usable hypotheses for the next diagnosis job. D139/D140/D141 independent
 native and executed-WASM conversion proofs each match134,615,444 cases; D132
 native proof matches134,615,444 and D137 native cast proof33,558,016. These proofs
 say nothing about speed. Source-extracted float/coordinate proof artifacts and
@@ -5978,10 +5978,10 @@ host, periodic free-lease gaps, scoreboard polling, and direct lease submission
 are obsolete. D114 introduced fair lease scheduling; D120 supersedes it with
 visible shared heavy admission. None authorizes a new burst after this owner stop.
 
-## D160 — P05 diagfix Phase 0: integrate rewritten release history
+## D160 — P05 diagfix Release 0: integrate rewritten release history
 
-SPEC-p05-diagfix explicitly authorizes its one initial rebase in this worktree;
-its later no-rebase rule applies after Phase 0. Rebase the four 0.5 commits from
+registered protocol explicitly authorizes its one initial rebase in this worktree;
+its later no-rebase rule applies after Release 0. Rebase the four 0.5 commits from
 80663a8 onto origin/release/0.2.0 at 419dc7a, preserving release preprocessing,
 meshlets, cluster LOD and parallel APIs together with all 0.5 modules/evidence.
 Keep release package/version/features and include both sets of tests. Preserve
@@ -5989,22 +5989,22 @@ Workspace's value-initialized cache reservations and later retained simplifier
 accounting, adding the 0.5 timestamp seam and index validation fast path. Keep
 both decision histories; label the old 0.5 excluded-branch coverage as historical.
 No other branch is changed; the backup remains at 80663a8. Never push or rebase
-again in this lane. Refresh the two 0.5 consumer/fuzz lockfiles to version 0.2.0.
+again in this job. Refresh the two 0.5 consumer/fuzz lockfiles to version 0.2.0.
 
-All Phase 0 functional gates pass before diagnosis: fmt; strict root Clippy and
+All Release 0 functional gates pass before diagnosis: fmt; strict root Clippy and
 149/123/128 tests in all/no-default/no-default+experimental modes; both consumer
 Clippy/test modes; full 0.1/0.1.x/0.2/0.3/0.4 fixtures and seeded strict C++/WASM
 sweeps (including 50,000 0.1 and 64,000 0.1.x comparisons); upstream JS suites;
-80 cluster-LOD cases; all 15 supported RFC113 layouts and 90 codec comparisons
+80 cluster-LOD cases; all 15 supported CLUSTER_LOD layouts and 90 codec comparisons
 with zero timing pairs. P05 native/libm/executed-WASM each match 30,000 cases.
 No corpus/bar changes, unsafe or SIMD. Receipts, exact sources and proof binaries
 are under <artifacts>/p05-diagfix/phase0; the slim record is
 parity/results/p05-diagfix-phase0.json. Historical performance/fuzz records are
-not promoted to current evidence. This closes Phase 0, not performance acceptance.
+not promoted to current evidence. This closes Release 0, not performance acceptance.
 
 ## D161 — P05 all-family instruction diagnosis before batch fixes
 
-Complete Phase 1 without timing. Every 0.5 family and both API forms where
+Complete Release 1 without timing. Every 0.5 family and both API forms where
 available have fresh instruction/branch counts on frozen shapes 0/2 (remesh
 0/4) under both consumers. Retain immutable source/binary/assembly/sample
 identities in <artifacts>/p05-diagfix/before. Counts
@@ -6016,7 +6016,7 @@ accumulation dominate. Implement the unfinished D142/D143 representation idea,
 redundant raster-clear removal, packed raster readers and small compact-hash
 inlining together, each in a separate validated commit. Do not repeat rejected
 D127–D141 candidates or infer time acceptance from counts. Add lean touched-family
-screening/D146 support before the single Phase 3 campaign; preserve the final
+screening/D146 support before the single Release 3 campaign; preserve the final
 matrix gate and frozen shapes. Abandoned families remain unqualified.
 
 ## D162 — Constant-pitch small-grid marking
@@ -6099,7 +6099,7 @@ geometry/usage to a materialized equivalent. The older 0.5 packed helper alone
 does not check the release's mapping field, so it is not used by this new path.
 
 151/125/130 root tests (all/no-default/experimental), strict Clippy, fourteen
-phase contracts and native/libm/executed-WASM 30,000 cases each pass. Receipts
+release contracts and native/libm/executed-WASM 30,000 cases each pass. Receipts
 are raster-reader-mapped-proof; earlier reader-only proof/counts remain historical.
 Final counts/assembly are raster-reader-mapped-counts: most observed cases are
 instruction-neutral; default medium overdraw improves slightly (~0.2%). This
@@ -6136,7 +6136,7 @@ visible shared heavy/GPU admission, timeout 840 and its 600-second checkpoints.
 
 ## D169 — Close diagfix with the observed failures and bounded evidence
 
-Phase 0 rebase/integration and full strict functional suite pass before diagnosis.
+Release 0 rebase/integration and full strict functional suite pass before diagnosis.
 D161 diagnoses all fifteen families and abandons unsupported further edits;
 D162–D167 implement every ranked library fix without interim timing. D168 enables
 a complete touched-family campaign, preserving full-matrix passed=false.
@@ -6198,17 +6198,17 @@ receipts remain required; this source change alone is not acceptance evidence.
 
 ## D172 — Port the measured early empty-box guard; reject forced inlining
 
-Use the safe `early-empty` source ordering from the cost-budget lane at
+Use the safe `early-empty` source ordering from the cost-budget job at
 `diag/p05-ablate` commit 281ad41. Move the existing visits/covers/precharge and
 empty-box return ahead of half-edge/fill/CY/ZY setup, preserving all arithmetic
 and actual work accounting. Empty rectangles still take the same zero charge.
 Retain D171's direct initialized transform fill, but remove its forced raster
-inlining and unmeasured const-axis split: the diagnostic lane rejects forced
+inlining and unmeasured const-axis split: the diagnostic job rejects forced
 inlining, and the measured guard is the stronger candidate. No no-fuel,
 no-validation or unchecked-access diagnostic code is shipped.
 
 Add a literal all-empty three-view regression with two triangles and unused
-finite extent vertices. It checks statistics/extent, every phase boundary and
+finite extent vertices. It checks statistics/extent, every release boundary and
 final scan exhaustion, preserving triangle and pixel-scan charges. Root tests
 and strict Clippy pass in all/all-no-default/experimental modes. Full sweeps and
 final counter/timing receipts will complete this decision's evidence.
@@ -6249,7 +6249,7 @@ Retain binaries, sources, logs, counters, pair/admission receipts and audits in
 validation; cleanup.json confirms removal. Commit closure with repository author,
 no AI trailer, push or merge.
 
-# Preserved phase/0.7 decision records
+# Preserved release/0.7 decision records
 
 These records are retained verbatim from c52ac6e. Repeated decision numbers
 refer to separate branch histories; their original identifiers remain intact.
@@ -6258,7 +6258,7 @@ refer to separate branch histories; their original identifiers remain intact.
 
 The owner approved this rule on 2026-10-04, as relayed by the coordinator,
 replacing clean full-profile repeats. Stage 1 is the complete 912-case 0.1.x
-and 204-case retained 0.1 matrix under each of the a downstream engine and default consumer
+and 204-case retained 0.1 matrix under each of the downstream engine and default consumer
 profiles on the rebased source. The family geometric-mean and heap bars use
 stage 1 without alteration. For **every** stage-1 case with Rust/C++ ratio
 strictly greater than 1.5, run 30 fresh interleaved Rust/C++ pairs on one
@@ -6314,7 +6314,7 @@ C++ on the Color sweep. The new harness initially applied EXT's one-unit
 allowance to random raw Color words and failed seed 20261005 op18 case 3.
 The inherited P04 harness explicitly records Color SIMD distance without
 assuming cross-ISA identity (runner04.py:174); Color is outside EXT and the
-amendment does not change RFC 5.1's selected scalar Color contract. Upstream
+amendment does not change design requirements's selected scalar Color contract. Upstream
 SIMD saturates decoded channels where scalar integer output wraps; arbitrary
 raw words can therefore differ by more than one output unit. Preserve that
 failed attempt, compare Rust paths exactly on every raw word, retain exact
@@ -6344,7 +6344,7 @@ hashes both the original controller and the exact executed controller text.
 Pair order, calibration, confidence intervals, 5–20 stopping, thirty fresh
 D146 pairs, numeric bars and production binaries are unchanged. The adapter
 preserves completed API/case keys if a bootstrap checkpoint exists. A watcher
-stops only this lane's controller and children after the complete native
+stops only this job's controller and children after the complete native
 checkpoint, allowing the reporting handoff before continuing Node timing.
 The watcher and handoff receipt are retained with the artifacts.
 
@@ -6377,16 +6377,16 @@ S1, S2, S3 and S5 fail. Publish all gaps and keep the implementation explicitly
 unqualified for release or an upstream-parity claim. Native SIMD driver builds
 include lowering diagnostics; consumer builds without them are not timed here.
 Do not tune code after this once-only final matrix or relabel a failed bar.
-The next optimization lane may use these recorded failures for focused work.
+The next optimization job may use these recorded failures for focused work.
 Native/wasm local exact parity, arithmetic checks, Miri and bounded ASan smokes
 pass; ARM execution, platform identity, release sweeps/fuzz budgets, dedicated
-ARM timing and phase-0.6 composition remain the records listed in SIMD_RESULTS.
+ARM timing and release-0.6 composition remain the records listed in SIMD_RESULTS.
 Retain the source/binary artifacts and manifest outside the prescribed Cargo
 target, then delete that target as the brief requires.
 
 ## P07-P1 — Profile before the performance changes
 
-The perf lane starts at implementation `2feefb2`, bars `179ba52`, and the
+The perf job starts at implementation `2feefb2`, bars `179ba52`, and the
 unchanged upstream `4c203430`. Retained binaries, framed caller-buffer inputs,
 four hardware counters, disassembly and cycle reports are in
 `<artifacts>/p07perf/profiles-before`. Counters include
@@ -6412,7 +6412,7 @@ estimate, FMA, tolerance, workload or bar change is authorized.
 
 ## P07-P2 — Packed kernels and decoder-level dispatch
 
-Replace x86/wasm Oct and Quat's generic component gathering with packed lane
+Replace x86/wasm Oct and Quat's generic component gathering with packed job
 loads, sign extension, vector rounding and packed wrapping output. Quat keeps
 the scalar subtraction order, exact sqrt/div, sign-dependent half-unit bias,
 and the saved rotation selector. Oct retains zero-length rejection. The NEON
@@ -6519,13 +6519,13 @@ both failing index inputs. No performance matrix or supplement is repeated.
 
 Done-when is satisfied by implementation plus residual profile/best-ratio
 evidence. Do not claim that the SIMD bars, full release gates, ARM execution,
-Windows/macOS identity, dedicated-host timing, a downstream engine integration or phase-0.6
+Windows/macOS identity, dedicated-host timing, a downstream engine integration or release-0.6
 composition are qualified. Retain all receipts/binaries/source archives
 outside the exact target, delete that target, and never push this branch.
 
 ## P07-R3 — Third performance round: vertex and meshlet structure
 
-Start `e6eac35` on `phase/0.7`; upstream remains
+Start `e6eac35` on `release/0.7`; upstream remains
 `4c203430ca565cb59a468a91922c76c208169536`. Only vertex reconstruction,
 byte-group decoding and meshlet decoding are optimized. Filters, index/sequence,
 encoders, bars and frozen inputs are unchanged. This owner's explicit target
@@ -6534,7 +6534,7 @@ is retained at `<artifacts>/p07r3` outside that target.
 No subagents or push are authorized. The first two diagnostics used the owner's
 `gpu-lease.sh run meshopt-timing:p07 -- ...`. The coordinator then requires
 visible shared admission: from diagnostic three onward, every timed burst uses
-`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`,
+`PARITY_RUNNER_GPU=1 <job-runner> 4 timeout 840 ...`,
 without nesting a lease command. Cancel the still-queued third direct request
 before it measures anything. The admission receipts check both wrapper and
 lease ancestry, queue telemetry and the declared four-GB peak. Five paired
@@ -6589,7 +6589,7 @@ The starting binary in the same probe confirms vertex improvements: new/old
 0.753–0.775 for resident stride four and 0.919–0.971 for stride twelve. The
 probe is diagnostic only and does not replace complete-family means.
 
-The first visible-admission adapter misinterprets `MOSS_HEAVY_ADMITTED` as a
+The first visible-admission adapter misinterprets `DOWNSTREAM_HEAVY_ADMITTED` as a
 text receipt: it is the resolved command executable. It exits before any pair
 in `diagnostic3-adapter-rejected.log`. Read the live `heavy.reservations` row
 instead, check its wrapper PID/reserved GB and the ancestor's four-GB timeout
@@ -6690,7 +6690,7 @@ source/binary/golden/archive identities, helper-version proofs and static/Miri
 receipts. It passes. S1/S2 and S5 still fail both APIs; S3 has nineteen
 significant case/ceiling regressions. S4 passes caller-buffer and all frozen
 minima; allocating fails three maxima. Preserve these outcomes rather than
-claiming full bar, release/platform, a downstream engine or phase-0.6 acceptance.
+claiming full bar, release/platform, a downstream engine or release-0.6 acceptance.
 
 ## P07-F4 — execution from e41f4bb
 
@@ -6941,8 +6941,8 @@ disk receipts. No foreign target, artifact, cache or lease is removed.
 
 ## P07 fix-five — scope and Color conversion proof
 
-Start f5bdb698afd879668d4959261ab3e519e9cdbfc5, clean phase/0.7 worktree.
-Follow SPEC-p07-fix5 and the fix-four development-first/admission/cleanup rules.
+Start f5bdb698afd879668d4959261ab3e519e9cdbfc5, clean release/0.7 worktree.
+Follow registered protocol and the fix-four development-first/admission/cleanup rules.
 No subagents or integration actions. Registered SIMD_BAR.md and all 138
 benchmark requests stay byte-identical. S1 is 1.10/1.30, S2 1.25/1.50,
 S4 1.25/1.50 plus frozen minima, S5 1.25/1.60; filtered views belong to S2.
@@ -7111,7 +7111,7 @@ words >=128 imply scale 255; all 16-bit alpha words in 2048..4095 imply
 scale 4095; all >=32768 imply scale 65535. Fixed-scale f32 division rounds
 identically to the existing generic calculation. Mixed depths still propagate
 bits and divide, and the sufficient conversion guard/scalar fallback stays.
-No approximate arithmetic or input restrictions. Boundary/mixed-lane/tail
+No approximate arithmetic or input restrictions. Boundary/mixed-job/tail
 regressions cover 127/128, 2047/2048, 4095/4096 and 32767/32768. An archived
 untimed proof checks all valid alpha depths with extreme channels across
 native levels and actual wasm scalar/SIMD. Frozen proofs and Node preflight
@@ -7266,7 +7266,7 @@ typed/raw meshlets); exclude unchanged Color and scalar sequence. WASM scope
 retains round-five's 73 eligible vertex/view/sequence cases: the allocating
 preflight and changed module lowering affect this decoder module. New controllers
 use the same admitted pairs to resolve both maximum thresholds (native registered
-1.30 or 1.50 plus RFC 1.50; WASM registered 1.60 plus RFC 1.50). Five to twenty
+1.30 or 1.50 plus design requirements; WASM registered 1.60 plus design requirements). Five to twenty
 pairs, then thirty fresh D146 pairs only if either applicable interval remains
 borderline; unresolved fails. This supersedes the earlier paragraph's proposal
 to stop solely at the registered maximum. S3 remains an independent per-family
@@ -7334,7 +7334,7 @@ Oct8 plus finite Oct16/Quat and edge proofs on native/actual SIMD wasm, unchange
 valid-alpha Color and upstream odd-tail reproduction, seven test/Clippy/Miri
 receipts, MSRV/no-std portability and the 23-block unsafe boundary/package audit.
 No ARM execution, dedicated-host, other-platform, full native matrix, native
-triangle-index, phase-0.6, a downstream engine integration or release qualification.
+triangle-index, release-0.6, a downstream engine integration or release qualification.
 
 Delete only <target-dir> after checks
 and timings have closed. Preserve every retained artifact outside the target
@@ -7345,7 +7345,7 @@ source archive and every artifact hash. No push, merge, rebase or subagent.
 
 ### Fix-seven scope, retained control and meshlet decision
 
-Start clean at c87431d in phase/0.7. SPEC-p07-fix7 selects the owner RFC
+Start clean at c87431d in release/0.7. registered protocol selects the owner RFC
 mean <=1.25 / maximum <=1.50 only; stricter registration is deferred to 0.3.
 Do not edit SIMD_BAR.md or frozen inputs. No subagents/push/merge/rebase.
 Target codex-p07-fix7; artifacts <artifacts>/p07-fix7.
@@ -7530,7 +7530,7 @@ not a release qualification.
 
 ### Fix-eight first counter analysis and kill decisions
 
-Start clean at 3f58dda (phase/0.7). Full fix8/fix7/fix4 and RUN-RULES read;
+Start clean at 3f58dda (release/0.7). Full fix8/fix7/fix4 and RUN-RULES read;
 no subagents, no push/merge/rebase. Read-only map and first cheap pinned
 CPU26 N/2N measurement recorded in downstream-scratch/p07-fix8 within 20 minutes.
 Artifacts: <artifacts>/p07-fix8. Frozen inputs and
@@ -7592,7 +7592,7 @@ RFC/S3 remain pending; the disk floor forbids builds. No timing has started.
 ### Fix-eight terminal disk block
 
 Bounded 600-second disk wait exits 75 before Cargo. Final free 16603815936 bytes
-versus 26843545600 required; no resource-floor bypass or another lane deletion.
+versus 26843545600 required; no resource-floor bypass or another job deletion.
 The wait process exited, and codex-p07-fix8 was never created: absence verified.
 Source candidates 5b9da67/513340c are preserved with authored regression;
 post-change instruction effect, compilation, runtime parity, ordinary/Miri/MSRV
@@ -7607,7 +7607,7 @@ The user voided disk-derived abandonments and reopened native vertex A,
 native filtered-view A, WASM filtered A/C and unfiltered A, plus S3. The old
 terminal disk receipt is historical. Continuation obeyed the 25-GiB gate:
 120-second checks with a 5400-second bound; the gate opened at the first retry.
-No other lane artifacts were deleted. All Cargo invocations are sequential,
+No other job artifacts were deleted. All Cargo invocations are sequential,
 -j4, with the exact fix8 target and incremental compilation disabled.
 
 Exp/Oct candidates 5b9da67/513340c now compile. Fresh native N/2N confirms
@@ -7703,10 +7703,10 @@ Baseline is clean 6035fc3 with all retained fix8 build source hashes verified.
 First counters and emitted native/WASM hot functions are retained under
 <artifacts>/p07-fix9; read-only file map and milestones
 under <scratch>/p07-fix9. Builds paused below 25 GiB, then
-resumed when the gate reopened. Never borrow another lane's target or delete it.
+resumed when the gate reopened. Never borrow another job's target or delete it.
 
 The suspected wider-store problem is rejected: upstream and our generic WASM
-scatter both emit 32-bit lane stores. Actual cause: generic stride-derived
+scatter both emit 32-bit job stores. Actual cause: generic stride-derived
 addresses, checks and branches. WASM raw resident32 work is 14.7/14.9/13.9
 instructions per byte for v0/v1/varied Exp versus C++ 5.7-5.9; public copying
 adds <0.06/byte. Native generic reconstruction accounts for 40.74% of sampled
@@ -7831,7 +7831,7 @@ recorded in final-source-binding.json. Below25GiB shared free disk closes
 further builds. Existing matching binaries can run parity and measurements.
 
 Coordinator correction during the A/A epoch: meshopt is CPU/WASM only.
-Remaining bursts use MOSS_HEAVY_GPU=0 <job-runner> 4 timeout840 with
+Remaining bursts use PARITY_RUNNER_GPU=0 <job-runner> 4 timeout840 with
 taskset CPU26 and the unchanged interleaved slots. Original controller and
 GPU receipts remain immutable for completed bursts; new CPU controller/admission
 segments retain accepted pairs without remeasuring a completed row. WASM A/A
@@ -7869,15 +7869,15 @@ All final timing is CPU-only after coordinator correction. Artifacts and
 cleanup receipts remain outside the deleted owned target. No release or
 integration, Vec-returning WASM allocation-speed, or unavailable-host claim.
 
-## D175 — Integrate phase 0.7 SIMD into release 0.2.0
+## D175 — Integrate release 0.7 SIMD into release 0.2.0
 
-SPEC-integrate-07 owns only the `rel020` worktree and local `release/0.2.0`
+registered protocol owns only the `rel020` worktree and local `release/0.2.0`
 Git state. Merge release parent `d5ee8ce` with SIMD parent `c52ac6e` using
 common base `a4b3c48`, retaining a two-parent merge commit. No push, timing,
 subagents or other-worktree mutations are authorized.
 
-Keep phase 0.5 scalar APIs, phase 0.6 parallel APIs and Rayon, cluster-LOD,
-release version 0.2.0, and phase 0.7 SIMD/runtime dispatch. SIMD remains in
+Keep release 0.5 scalar APIs, release 0.6 parallel APIs and Rayon, cluster-LOD,
+release version 0.2.0, and release 0.7 SIMD/runtime dispatch. SIMD remains in
 the incoming default feature set; disabling it retains `forbid(unsafe_code)`.
 With SIMD enabled, the crate denies unsafe code except for the one audited
 private SIMD module, retaining the incoming unsafe-operation and Clippy lints.
@@ -7911,7 +7911,7 @@ Execute local gates serially through the shared CPU-only heavy wrapper, bounded
 to 840 seconds per admitted command, using the specified disposable target and
 25 GiB admission floor. The generic Cargo workspace-test estimator requested
 13 GB based on unrelated jobs; the supported explicit 4 GB declaration follows
-this lane's observed foundation peaks (2.0990 GiB initially, 3.1126 GiB
+this job's observed foundation peaks (2.0990 GiB initially, 3.1126 GiB
 on the final tree). Targeted Miri declares 2 GB after three completed checks
 peaked at 0.2474–0.6055 GiB. Geometry also declares 2 GB after the complete
 fixture/build receipt peaked at 0.5147 GiB. Comparable geometry/codec/Miri
@@ -7921,36 +7921,36 @@ estimated at 2 GB. Broad root tests, subcrate checks and SIMD build/corpus keep
 Scope limits and admission remain active. Record
 cancelled pre-execution queue attempts separately from tests.
 
-When disk space dropped below 25 GiB, stop this lane's job and retain its
+When disk space dropped below 25 GiB, stop this job's job and retain its
 interruption receipt. Clear only its idle disposable incremental cache. Use
 an exact-byte monitor to enforce the 25 GiB floor during execution; no other
 targets are cleaned. A second disk interruption retains the incomplete geometry
 sweep prefix separately (not a pass), clears completed owned debug/Miri caches,
 and requires 28 GiB launch headroom via the wrapper's rounded 29 GiB threshold.
 Restart the full unchanged case count and seed; no partial prefix is accepted.
-A later combined attempt completes phase 0.1.x (all 32 families, 2,000 each,
+A later combined attempt completes release 0.1.x (all 32 families, 2,000 each,
 64,000 comparisons) before disk pressure interrupts the separate five-family
-phase 0.1 sweep. Retain and independently verify the completed extended record,
+release 0.1 sweep. Retain and independently verify the completed extended record,
 including every source/dependency/oracle/binary hash and every archived buffer.
 Ordinary fixture/driver steps and read-only identity work use 26 GiB launch
 headroom; SIMD corpus/build and broad subcrate compilation keep 28 GiB. The exact-byte 25 GiB stop always
 applies. Codec cached sweep declares 2 GB after its build/fixture receipt
 peaked at 0.4169 GiB; geometry identity work uses its observed 0.5147 GiB peak.
-Rerun only the unfinished phase 0.1 at its full count/seed. Complete phases may
+Rerun only the unfinished release 0.1 at its full count/seed. Complete phases may
 be accepted separately; interrupted prefixes never count as passes.
 
 The broad subcrate Clippy pass exposes five warnings in the pre-existing
-RFC113 driver. Replace range comparisons, divisibility checks and fixed-size
+CLUSTER_LOD driver. Replace range comparisons, divisibility checks and fixed-size
 byte chunks with the equivalent Rust 1.88-supported methods. The next pass
 also exposes a codec fuzz checkpoint modulo warning; use the equivalent
 `is_multiple_of(1024)` without changing its cadence. Retain both failed
-lint receipt, then require broad strict Clippy, an RFC113 MSRV check and
+lint receipt, then require broad strict Clippy, an CLUSTER_LOD MSRV check and
 `--pairs 0` byte parity. Its edited driver was included in geometry’s broad
 source snapshot despite being unrelated to those binaries: retain prior
-geometry receipts under `before-rfc113-lint` and refresh all full geometry
+geometry receipts under `before-cluster-lod-lint` and refresh all full geometry
 fixtures/sweeps and native identity at their unchanged budgets. No stale
 broad snapshot is promoted to final-tree proof. Library sources and the
-other phase/ISA evidence remain unchanged.
+other release/ISA evidence remain unchanged.
 
 Final local gate results and source/artifact identities are recorded in
 `parity/results/integration-07.json`; the durable detailed receipt directory is
@@ -7962,14 +7962,14 @@ run and no historical performance verdict is promoted by this integration.
 The final tree passes 33 named integration gates plus independent evidence
 verification: all 12 locks are current; 17 foundation commands pass; the
 23-block unsafe boundary, 18 focused Miri tests, all strict native/libm/WASM
-phases, four native ISA replays of 30,660 cases each and 15 supported RFC113
+phases, four native ISA replays of 30,660 cases each and 15 supported CLUSTER_LOD
 layouts pass. The final verifier checks 42 archive/binary retention entries.
 All interrupted prefixes and prior lint failures remain separate from passes.
 Delete only the specified owned build target after evidence retention.
 
 ## V03-1 — Encoder diagnosis and immutable final timing
 
-Execute SPEC-p03-encoders in the owned perf/0.3-encoders worktree; never push.
+Execute registered protocol in the owned perf/0.3-encoders worktree; never push.
 Retain eb5b1a2 sources and source-matched archived instruction probes before
 changing any production loop. Use disposable valid-input bounds/validation
 knockouts and existing caller-buffer APIs for the cost budget. All production
@@ -8175,7 +8175,7 @@ downstream engine integration are not acceptance from this focused campaign.
 
 ## V03-16 — Diagnose tiny fixed cost without weakening checks
 
-SPEC-p03-tiny binds worktree v03 at a14cbc1. Hash-check the archived matched
+registered protocol binds worktree v03 at a14cbc1. Hash-check the archived matched
 consumer before fresh PMU/disassembly. Preserve CPU26, frozen corpus, C++1.3
 pin, generic release/fat-LTO profile, 5–20-pair nominal CI/A/A rules and 1.5
 upper95 bar. Specialize internal Oct/Quat kernel closures using the same
@@ -8234,11 +8234,11 @@ Rebased the harness-only commit onto origin/main 6c035c18635c97ffb232da466e9f28a
 retained main's library and decision history. On this revision cargo fmt --check,
 cargo clippy --all-targets -- -D warnings and cargo test --locked each exited 0.
 The 27 untimed Python self-tests also exit 0 and run in Linux parity CI.
-No timed validation, wall-time target, phase 0.5 adapter, cross-platform run,
+No timed validation, wall-time target, release 0.5 adapter, cross-platform run,
 GPU acceptance or downstream integration is established by these checks.
 
 Cached report jobs bind the contents of their referenced evidence records.
-The phase 0.3 fast and fresh full adapters additionally hash installed
+The release 0.3 fast and fresh full adapters additionally hash installed
 dependency bytes before and after building/sampling; historical full records
 without that evidence require a fresh matched full run. These identity checks
 do not authorize any unrun timing campaign.
@@ -8267,7 +8267,7 @@ The extra independent retained-buffer rehash was not a named spec gate. It remai
 
 Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LARGE_MESH_R2_RESULTS.json. Evidence: <scratch>/meshopt-simplify-perf/r2/. Reversal cost for the unmerged fixes is cheap; the registered decision and retained samples must not be rewritten. Owner performs the one review and any release decision. No merge/tag/publish.
 
-## Cluster lane A: caller-buffer DAGs (2026-10-25)
+## Cluster job A: caller-buffer DAGs (2026-10-25)
 
 - Extend canonical emission with an internal position view; keep all existing
   public callback/build signatures and arithmetic. One context carries scratch
@@ -8285,7 +8285,7 @@ Result docs: parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md and parity/SIMPLIFY_LA
   errors without cancellation. No mesh Copy bound or aggregate memory guarantee.
 - The unpublished S1 harness owns MCLD v1 and its ceiling policy. The two-file
   fail-fast milestone passed byte-exact with zero collisions before batch work.
-  Lane C owns performance/release proof, and lane B owns the a downstream engine writer.
+  Job C owns performance/release proof, and job B owns the downstream engine writer.
 - Reversal cost before publication: revert additive exports/callers and harness;
   no payload version, dependency, algorithm pin or existing API migration changes.
 
@@ -8302,9 +8302,9 @@ fuzz run before their first release.
 
 ## Bounds layout check — post-fix1 methodology disclosure
 
-2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the a downstream engine coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through SPEC-bounds-layout-check.md. This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.
+2026-10-25T23:34:19.339193+00:00: This fresh rule was written after a97301e fix1 registered FAIL and approved by the downstream engine coordinator on 2026-10-26. Old API walls 1.082/1.071 failed 1.043 despite instructions 1.000/1.001; apply the v2 LAYOUT rule through registered protocol This is a disclosed post-result rule revision, not a replacement of fix1 history. New API results 1.244/0.994 against M7 stand without remeasurement. The fresh registration is parity/layout-check/REGISTRATION.md, written with this disclosure before any sample. Apply its verdict verbatim; no retuning or value reruns.
 
-## 2026-10-26 — SPEC-026 decode (0.2.6 bet 2): PARTIAL
+## 2026-10-26 — registered protocol decode (0.2.6 bet 2): PARTIAL
 
 Cause named before decoder edits: software libm roots and non-vectorizing checked
 filter loops; scalar WASM instruction sampling then isolated four reconstruction
@@ -8328,7 +8328,7 @@ Stop with a draft PR and retained receipts; no verdict-driven tuning/rerun,
 release acceptance, merge/tag/publish or a downstream engine adoption. See
 `parity/decode/REPORT.md` and `<scratch>/meshopt-decode/`.
 
-## 2026-10-26 — SPEC-027 memory opt-in
+## 2026-10-26 — registered protocol memory opt-in
 
 The previous default candidate's registered timing FAIL remains valid. Expose
 that mechanism only through `Workspace::set_retention(Retention::Lean)`;

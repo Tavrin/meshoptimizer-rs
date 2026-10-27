@@ -70,14 +70,14 @@ Coordinator steer recorded in STATE.md and coordinator-hold.json: train 11 neede
 
 ## Proof commands and exits
 
-All builds/tests/benchmarks use `<job-runner>` and the prescribed isolated target. Measurement jobs set MOSS_HEAVY_MEASUREMENT=1.
+All builds/tests/benchmarks use `<job-runner>` and the prescribed isolated target. Measurement jobs set PARITY_RUNNER_MEASUREMENT=1.
 
 - `parity/gates.sh`: exit 0.
-- `parity/run.sh --phase 0.1 --profile scalar-strict`: exit 0.
-- `parity/sweep.sh --phase 0.1 --cases-per-family 2000 --seed 20261002`: exit 0.
-- `parity/js.sh --phase 0.1 --require-coverage`: exit 0.
-- Initial `parity/fuzz.sh --phase 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --wall-seconds 16268`: wrapper exit 2 after coordinator scope stop; NOT a fuzz failure. Completed shards had zero crashes. Interrupted accounting files and checkpoint are retained separately.
-- Authorized `parity/fuzz.sh --phase 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --resume --wall-seconds 8401`: exit 0; passed; cumulative four CPU-hours per target. Same artifact directory, source, binaries, seed and eight cores; this is part of the plan, not an infrastructure rerun.
+- `parity/run.sh --release 0.1 --profile scalar-strict`: exit 0.
+- `parity/sweep.sh --release 0.1 --cases-per-family 2000 --seed 20261002`: exit 0.
+- `parity/js.sh --release 0.1 --require-coverage`: exit 0.
+- Initial `parity/fuzz.sh --release 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --wall-seconds 16268`: wrapper exit 2 after coordinator scope stop; NOT a fuzz failure. Completed shards had zero crashes. Interrupted accounting files and checkpoint are retained separately.
+- Authorized `parity/fuzz.sh --release 0.1 --cpu-hours-per-target 4 --jobs 8 --seed 20261002 --resume --wall-seconds 8401`: exit 0; passed; cumulative four CPU-hours per target. Same artifact directory, source, binaries, seed and eight cores; this is part of the plan, not an infrastructure rerun.
 - Logical fuzz gate: exit 0; passed; cumulative four CPU-hours per target.
 - `r2/real-hash-checks.py`: exit 0.
 - `r2/verify-retained.py`: NOT RUN: Deferred for train 11 RAM priority; optional audit never started.

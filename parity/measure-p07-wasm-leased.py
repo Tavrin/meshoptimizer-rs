@@ -10,8 +10,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'simd'))
 import qualify as q
 
-assert os.environ.get('MOSS_GPU_LEASE') == '1'
-assert os.environ.get('MOSS_GPU_LEASE_LABEL') == 'heavy:timeout'
+assert os.environ.get('PARITY_GPU_LEASE') == '1'
+assert os.environ.get('PARITY_GPU_LEASE_LABEL') == 'heavy:timeout'
 path = q.ART / 'wasm-performance.json'
 previous = json.loads(path.read_text()) if path.exists() else None
 assert not previous or not previous.get('complete', False)

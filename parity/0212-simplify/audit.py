@@ -21,7 +21,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[2]
 ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
 LANE = ROOT / 'parity/0212-simplify'
-assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ['MOSS_HEAVY_GPU'] == '0'
+assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ['PARITY_RUNNER_GPU'] == '0'
 
 def sha(path):
     with Path(path).open('rb') as stream:
@@ -90,7 +90,7 @@ selected += [f'build-{arm}.json' for arm in ['base', 'candidate', 'M7']]
 selected += ['exact-std', 'exact-no-std', 'cpp-reference', 'rust-protocol', 'proof/Cargo.toml', 'proof/Cargo.lock']
 selected += [str(p.relative_to(ART)) for p in ART.glob('gate-*.log')]
 selected += [f'harness-{arm}/{name}' for arm in ['base', 'candidate', 'M7'] for name in ['Cargo.toml', 'Cargo.lock', 'src/main.rs']]
-receipt = dict(exit=0, admission=os.environ['MOSS_HEAVY_ACTIVE'], scratch=str(ART),
+receipt = dict(exit=0, admission=os.environ['PARITY_RUNNER_ACTIVE'], scratch=str(ART),
                baseline_commit=entry['baseline_commit'], candidate_source=source,
                lane_tools={p.name: sha(p) for p in sorted(LANE.iterdir()) if p.suffix in ['.py', '.sh', '.rs']},
                samples=len(rows), exact_observations=observations,

@@ -1,4 +1,4 @@
-# SPEC-028 L1 registration
+# registered protocol L1 registration
 
 Registered 2026-10-26 before any wall samples. Exactly one final wall campaign;
 no reruns to change verdicts. Earlier instruction-only calls discard timer values.
@@ -29,11 +29,11 @@ no reruns to change verdicts. Earlier instruction-only calls discard timer value
   every case's upper95 <=1.10+F against v0.2.7. Missing M7 while passing v0.2.7
   gives PARTIAL, a speedup with no performance parity claim. Failing either
   v0.2.7 condition gives FAIL. Proof failures block shipping independently.
-- Lane disclosure only: RFC113 S1 41 and valid S2 nine cases, a downstream engine scalar;
+- Job disclosure only: CLUSTER_LOD S1 41 and valid S2 nine cases, a downstream engine scalar;
   one warm-up plus ten alternating candidate/C++ pairs per case, one DAG per
   sample, using retained cluster-C inputs/configurations and original timer
   boundary. Aggregate = sum of candidate case medians / sum of C++ medians,
   separately S1/S2. No threshold, no reruns, invalid stride32 excluded as before.
-- All heavy work admitted with MOSS_HEAVY_GPU=0, declaration at most 4 GiB (2 GiB for serial preparation); measurements
-  additionally MOSS_HEAVY_MEASUREMENT=1. Target meshopt-L1 deleted after retaining
+- All heavy work admitted with PARITY_RUNNER_GPU=0, declaration at most 4 GiB (2 GiB for serial preparation); measurements
+  additionally PARITY_RUNNER_MEASUREMENT=1. Target meshopt-L1 deleted after retaining
   binaries. Scratch retained at <scratch>/meshopt-028-L1.

@@ -1,4 +1,4 @@
-# SPEC-026 decode: PARTIAL
+# registered protocol decode: PARTIAL
 
 Cause: native filters pay for software `libm::sqrtf` (its architecture backend is disabled), repeated stride/bounds checks, memoization branches and safe float-to-int conversion. Those loop dependencies inhibit auto-vectorization. Scalar WASM pays for four strided reconstruction walks and a literal bounds check for each escape. An instructions-sampled WASM profile attributes 59.33% to byte-delta reconstruction and 37.84% to byte-group parsing.
 
@@ -30,7 +30,7 @@ WASM instruction probes use Node/V8 fixed-call adapters with matched copies; the
 
 ## Registered native result
 
-One final campaign, same-session A/A first, five frozen bet-0 inputs, a downstream engine scalar profile, CPU 2. Five alternating pairs extend once to twenty only when the five-pair nominal paired log Student-t interval straddles equality. No native timing rerun. Symbols were retained for instruction profiling; the a downstream engine optimization settings are unchanged. Post-strip checks verify identical .text, .rodata, .data, .eh_frame and program headers for all three measured binaries (`STRIP-EQUIVALENCE.json`).
+One final campaign, same-session A/A first, five frozen bet-0 inputs, a downstream engine scalar profile, CPU 2. Five alternating pairs extend once to twenty only when the five-pair nominal paired log Student-t interval straddles equality. No native timing rerun. Symbols were retained for instruction profiling; the downstream engine optimization settings are unchanged. Post-strip checks verify identical .text, .rodata, .data, .eh_frame and program headers for all three measured binaries (`STRIP-EQUIVALENCE.json`).
 
 | Family | ours / comparator GM | Bar | Verdict |
 |---|---:|---:|---|

@@ -13,7 +13,7 @@ stable options. PreserveFolds and ErrorClamped require `experimental`. Unknown
 bits remain checked errors. Codecs, meshlets, stripification and analysis retain
 their later RFC milestones. Qualification records below are separate from the
 existing 0.1 records.
-Phase 0.5 additionally exposes experimental normals and remeshing.
+Release 0.5 additionally exposes experimental normals and remeshing.
 
 ## 0.1 fixture applicability (historical records)
 
@@ -108,17 +108,17 @@ qualification limits.
 | meshopt_decodeMeshletRaw | decode_meshlet_raw / decode_meshlet_raw_into | u32 references and packed triangles |
 
 Evidence: `parity/results/run-0.4.json`, `sweep-0.4.json`,
-`benchmark-0.4-moss.json`, `benchmark-0.4-default.json` and `fuzz-0.4.json`,
-verified by `parity/report.sh --phase 0.4 --verify-artifacts`. Decisions
+`benchmark-0.4-downstream.json`, `benchmark-0.4-default.json` and `fuzz-0.4.json`,
+verified by `parity/report.sh --release 0.4 --verify-artifacts`. Decisions
 D59-D66 record the domains, undefined-reference cases and the meshlet layout
 dependency.
 
-## Phase 0.3 inventory (p03, pinned C++ 1.3)
+## Release 0.3 inventory (p03, pinned C++ 1.3)
 
 This additive section supersedes the earlier statement that meshlets are
 scheduled. The exact inventory below was checked against `src/meshoptimizer.h`
 at `4c203430ca565cb59a468a91922c76c208169536`; its `src` tree matches v1.3.
-Meshlet codecs remain phase 0.4. No earlier phase's status is changed here.
+Meshlet codecs remain release 0.4. No earlier release's status is changed here.
 
 | Upstream function | Rust API | Meaningful parity fields |
 |---|---|---|
@@ -152,7 +152,7 @@ forms separately. Native Rust and executed wasm32 Rust both compare with the
 unmodified scalar-strict C++ implementation. Invalid inputs, exact limits,
 strided and byte-position layouts, hash collisions, wrapping valence and atomic
 errors are checked on the Rust boundary without invoking undefined C++ behavior.
-Actual run status is recorded in the phase 0.3 measured-result additions.
+Actual run status is recorded in the release 0.3 measured-result additions.
 
 The optional `clusterlod` feature contains the demo builder, configuration
 presets, callback and allocating outputs, bound optimization, cluster
@@ -162,7 +162,7 @@ attribute widths 1/2/8/12/32, protects/flags, shared and split geometry, dilatio
 optimization levels, hierarchy sizes and empty input. This reproduces the
 pinned demo; it is not a stable upstream library-output contract.
 
-Every listed function has its own cargo-fuzz target. Five-minute lane smokes
+Every listed function has its own cargo-fuzz target. Five-minute job smokes
 use coverage instrumentation and no sanitizer; they do not establish the
 amended four-CPU-hour release gate, nightly/weekly sustained fuzzing, 10,000-case
 release sweeps, AArch64 execution or non-Linux platform acceptance.
@@ -246,7 +246,7 @@ not establish other native-platform execution, release fuzz, GPU or a downstream
 integration acceptance. D84 records the earlier artifact placement limitation;
 integration pointers use the requested destination pending the coordinator's move.
 
-## Historical pinned-header ledger before Phase 0 rebase (0.5)
+## Historical pinned-header ledger before Release 0 rebase (0.5)
 
 The pinned header has 87 exported C functions plus two public C++ inline quantizers: **89 names**. This ledger records the pre-rebase 0.5 checkout; the integrated inventories above supersede its excluded branch entries. The separate 0.1.x and 0.3 branches are not merged here; their entries are excluded from this checkout pending integration, not claimed as qualified ports. The older milestone sections above remain historical.
 
@@ -342,4 +342,4 @@ The pinned header has 87 exported C functions plus two public C++ inline quantiz
 | `meshopt_quantizeUnorm` | Excluded intentionally | C++-only inline helper; no exported C API; private filter quantization exists |
 | `meshopt_quantizeSnorm` | Excluded intentionally | C++-only inline helper; no exported C API; private filter quantization exists |
 
-Counts: **46/89 ported in this checkout**, 40 in unmerged 0.1.x/0.3 branches, and 3 intentionally replaced/excluded. All 89 names are classified. The 0.5 exact sweep and executed WASM identity each cover 2,000 seeded cases per new upstream function; see the phase-0.5 summaries and their external per-case artifacts.
+Counts: **46/89 ported in this checkout**, 40 in unmerged 0.1.x/0.3 branches, and 3 intentionally replaced/excluded. All 89 names are classified. The 0.5 exact sweep and executed WASM identity each cover 2,000 seeded cases per new upstream function; see the release-0.5 summaries and their external per-case artifacts.

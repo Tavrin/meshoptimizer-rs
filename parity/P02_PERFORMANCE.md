@@ -1,10 +1,10 @@
 # P02 measured decoder performance
 
-Bar SHA-256 `0344be7380aef1fe1448a9037ca51902ee37af7ac0bf84992fd5bf471cb5dfba`. Evidence `<target-dir>/p02/candidate.json`.
+Bar SHA-256 `ebab008b85d05fb3746beb51b09ce0476a4f1beda9b2cbff39a1906239c57668`. Evidence `<target-dir>/p02/candidate.json`.
 
 At least twelve paired samples, increasing to sixty when dispersion exceeds 15% or uncertainty crosses a gate. Samples target 40 ms and rotate all backend orders. Validation, required copies and allocation timed; driver startup, I/O, generation and serialization excluded. Caller buffers are allocated before timing. Source and executable identities checked before and after. Linux x86-64 only; shared host load.
 
-Safe scalar remains the selected implementation under RFC 6.2. SIMD filter comparisons use decoded-unit conformance; canonical output follows scalar C++.
+Safe scalar remains the selected implementation under design requirements. SIMD filter comparisons use decoded-unit conformance; canonical output follows scalar C++.
 
 Standalone Oct/Quat timing inputs contain repeated encoded directions/quaternions. Exact last-record reuse explains their throughput; these ratios do not establish throughput on varied filter data. Varied filters are covered by correctness sweeps. The registered a downstream engine minima remain unchanged. The C++ standalone filter allocation was corrected to copy-construct without redundant zeroing; the separate baseline correction record retains paired measurements and does not change any minimum.
 

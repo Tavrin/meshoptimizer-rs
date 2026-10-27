@@ -17,8 +17,8 @@ import runner as r
 ROOT = Path(__file__).resolve().parent.parent
 T_CRITICAL_29 = 2.045229642132703
 BAR = 1.5
-STAGE1 = ('p01x-benchmark-moss', 'p01x-benchmark-defaults',
-          'benchmark-moss', 'benchmark-default')
+STAGE1 = ('p01x-benchmark-downstream', 'p01x-benchmark-defaults',
+          'benchmark-downstream', 'benchmark-default')
 
 
 def sha(path):
@@ -93,7 +93,7 @@ def measure(artifacts, cpu):
         raise ValueError('stage-2 process must be pinned to exactly the measured core')
     r.benchmark_cpu = cpu
     source_hash = sha(Path(__file__))
-    detail = {'schema': 'meshopt-stage2/1', 'phase': '0.1', 'rule': 'D146',
+    detail = {'schema': 'meshopt-stage2/1', 'release': '0.1', 'rule': 'D146',
               'rule_sha256': rule_hash(), 'driver_sha256': source_hash,
               'started_unix': time.time(), 'core_selection': selection,
               'stage1': records, 'cases': {}, 'bar': BAR,
@@ -157,7 +157,7 @@ def measure(artifacts, cpu):
     detail['output_archive_sha256'] = sha(output_zip)
     detail_path = outdir / 'record.json'
     write(detail_path, detail)
-    summary = {'schema': 'meshopt-stage2-summary/1', 'phase': '0.1',
+    summary = {'schema': 'meshopt-stage2-summary/1', 'release': '0.1',
                'detail_artifact': str(detail_path.relative_to(artifacts)),
                'artifacts': {str(detail_path.relative_to(artifacts)): sha(detail_path),
                              str(output_zip.relative_to(artifacts)): sha(output_zip)},

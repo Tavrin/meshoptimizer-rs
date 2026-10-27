@@ -194,7 +194,7 @@
       "label": "0.1-run",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.1"
       ],
       "exit": 0,
@@ -204,7 +204,7 @@
       "label": "0.1-sweep",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.1"
       ],
       "exit": 0,
@@ -214,7 +214,7 @@
       "label": "0.2-run",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.2"
       ],
       "exit": 0,
@@ -224,7 +224,7 @@
       "label": "0.2-sweep",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.2"
       ],
       "exit": 0,
@@ -234,7 +234,7 @@
       "label": "0.3-run",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.3"
       ],
       "exit": 0,
@@ -244,7 +244,7 @@
       "label": "0.3-sweep",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.3"
       ],
       "exit": 0,
@@ -254,7 +254,7 @@
       "label": "0.4-run",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.4"
       ],
       "exit": 0,
@@ -264,7 +264,7 @@
       "label": "0.4-sweep",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.4"
       ],
       "exit": 0,
@@ -284,7 +284,7 @@
       "label": "p05-run",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.5"
       ],
       "exit": 0,
@@ -323,7 +323,7 @@
       "label": "p01x-run",
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.1.x",
         "--record-directory",
         "p01x-run"
@@ -334,7 +334,7 @@
       "label": "p01x-sweep",
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.1.x",
         "--cases-per-family",
         "2000",
@@ -414,9 +414,9 @@
       "exit": 0
     }
   ],
-  "rfc113_supported_layouts": 15,
-  "rfc113_codec_comparisons": 90,
-  "rfc113_timing_pairs": 0,
+  "cluster-lod_supported_layouts": 15,
+  "cluster-lod_codec_comparisons": 90,
+  "cluster-lod_timing_pairs": 0,
   "root_tests": {
     "all": 149,
     "no_default": 123,
@@ -482,14 +482,14 @@
     "parity/p05/Cargo.lock": "aa36e7a2d23c94764fc12d8b6e8fd37681357025f1b750e90548d153336877a3"
   },
   "proof_sha256": {
-    "rfc113-cpp": "9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f",
+    "cluster-lod-cpp": "9164100f3fd853cb46ffa0079bcdfae9fc3b3382ec07209c366ee7467161136f",
     "sources.tar.gz": "56a56e9c28b285957fdb4422e26444c54c20ec7a77a5c703cf27df8b294de8f4",
-    "rfc113-rust": "2802542351adc9417f3336950bc120fda15ac2799d3a10d4d40d3c46f8d9ff1b",
-    "rfc113-codec-cpp": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
+    "cluster-lod-rust": "2802542351adc9417f3336950bc120fda15ac2799d3a10d4d40d3c46f8d9ff1b",
+    "cluster-lod-codec-cpp": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",
     "meshopt_p03_parity.wasm": "e7e8bdf2cbaf7b29fe0fdd4c36c3f8fdc3684976b2c53cf5fdccb5256f7fdce8",
     "meshopt-p03-driver": "304f27790e7fd4de4e6176938f3787ae31323e79251dfd5688f523442617390a",
     "p03-reference": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
-    "rfc113-moss-cpp": "16aab10d502e76cd35b2e7d2c6037c407726a06a935e577a7d39d74fa9189395"
+    "cluster-lod-downstream-cpp": "16aab10d502e76cd35b2e7d2c6037c407726a06a935e577a7d39d74fa9189395"
   },
-  "limits": "Functional Phase 0 only; historical benchmarks/fuzz identities do not qualify this source for performance or release."
+  "limits": "Functional Release 0 only; historical benchmarks/fuzz identities do not qualify this source for performance or release."
 }

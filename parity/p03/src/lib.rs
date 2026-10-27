@@ -1,4 +1,4 @@
-//! Phase 0.3 binary protocol and safe WASM adapter.
+//! Release 0.3 binary protocol and safe WASM adapter.
 use meshoptimizer_rs::*;
 use std::sync::Mutex;
 use std::time::Instant;
@@ -33,7 +33,7 @@ fn bounds(o: &mut Vec<u8>, b: Bounds) {
         o.push(v as u8);
     }
 }
-/// Execute a checked phase 0.3 request. Timing excludes protocol serialization.
+/// Execute a checked release 0.3 request. Timing excludes protocol serialization.
 pub fn execute(b: &[u8]) -> Result<Vec<u8>, String> {
     if b.get(..4) != Some(b"MO03") {
         return Err("version".into());

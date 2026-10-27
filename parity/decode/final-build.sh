@@ -4,8 +4,8 @@ s="${SCRATCH:?}"/meshopt-decode
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS= CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
 cargo fmt
 sed -i 's|path = "../baseline"|path = "'"${REPO:?}"'"|' "$s/native/Cargo.toml" "$s/wasm/Cargo.toml"
-cargo build --manifest-path "$s/native/Cargo.toml" --locked --offline --profile moss --features ours --bin cmp-driver
-cp "$CARGO_TARGET_DIR/moss/cmp-driver" "$s/after"
+cargo build --manifest-path "$s/native/Cargo.toml" --locked --offline --profile bench-release --features ours --bin cmp-driver
+cp "$CARGO_TARGET_DIR/bench-release/cmp-driver" "$s/after"
 python3 parity/decode/instructions.py after
 python3 parity/decode/instructions.py after --codec
 cargo build --manifest-path "$s/wasm/Cargo.toml" --locked --offline --release --target wasm32-unknown-unknown

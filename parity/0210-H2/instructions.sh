@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "${MOSS_HEAVY_ACTIVE:?admission required}"
+: "${PARITY_RUNNER_ACTIVE:?admission required}"
 export CXXFLAGS=-DMESHOPTIMIZER_NO_SIMD
 if [ "${H2_BUILD:-0}" = 1 ]; then bash parity/0210-H2/build.sh; fi
 python3 parity/0210-H2/instructions.py

@@ -1,8 +1,8 @@
-# SPEC-0212 simplify — registration and continuation record
+# registered protocol simplify — registration and continuation record
 
 Historical status at initial registration: implementation and scripts written,
 UNQUALIFIED. The operations hold was active. No <job-runner> admission, build, test, fuzz run, sqrt sweep, C++ build or
-instruction measurement has been launched in this lane. Only source inspection,
+instruction measurement has been launched in this job. Only source inspection,
 code/script writes and a read-only Git diff review have been performed.
 
 Branch: `perf/simplify-hot`. Entry HEAD:
@@ -50,7 +50,7 @@ No subagents. No Git commit, push, PR, version bump, tag or publication during h
   triangles, including every budget up to unrestricted work+1.
 - Keep all finite guards. Finite inputs do not prove finite intermediate
   subtraction, cross products, quadrics or error accumulation. No ablation from
-  the attribution lane is treated as a shippable finite-guard proof.
+  the attribution job is treated as a shippable finite-guard proof.
 - Defer new welding/hash algorithms and attribute-rank accounting bounds: the
   available evidence does not establish their error/read/work equivalence.
 
@@ -58,7 +58,7 @@ No subagents. No Git commit, push, PR, version bump, tag or publication during h
 
 Arms: base (v0.2.11), candidate, and M7. Workloads: the frozen corpus simplify
 families (simplify, attributes, update, sloppy, prune, points) and the 18
-real-chain simplify stages. Use the harness of the attribution lane. Take the
+real-chain simplify stages. Use the harness of the attribution job. Take the
 median of 3 per arm.
 
 - **Real chains:** PASS if candidate/base ≤0.85; PARTIAL if ≤0.95; NO-GAIN otherwise.
@@ -112,7 +112,7 @@ freshly archived, source-identical v0.2.11 renamed only for Cargo coexistence.
 ## Registered release sequence — unexecuted at registration
 
 Only after explicit coordinator steering that train 17 has landed, acknowledge
-that steering in the environment and invoke each phase through the wrapper:
+that steering in the environment and invoke each release through the wrapper:
 
 ```sh
 export MESHOPT_SIMPLIFY_TRAIN17_RELEASED=yes
@@ -123,7 +123,7 @@ bash parity/0212-simplify/admit.sh bash parity/0212-simplify/job.sh measure
 bash parity/0212-simplify/admit.sh bash parity/0212-simplify/job.sh report
 ```
 
-Every admission declares 4 GB, MOSS_HEAVY_GPU=0, one Cargo job and the dedicated
+Every admission declares 4 GB, PARITY_RUNNER_GPU=0, one Cargo job and the dedicated
 `<target-dir>` target. Artifacts go
 only under `<scratch>/meshopt-0212-simplify/`. Preparation
 refuses to overwrite that directory. Scripts retain failed exits and stop;
@@ -132,7 +132,7 @@ retain any failed campaign before separately registering a repair/rerun.
 After gates and instruction review: fix/revert every >1.01 regression; record
 all ratios/verdicts/exits in REPORT.md; update CHANGELOG [Unreleased] with
 instruction ratios only; append the measured result under "0.2.12 simplify" in
-`~/dev/specs/meshopt/RESUME-2026-10-24.md`; delete only this lane's designated
+`~/dev/specs/meshopt/RESUME-2026-10-24.md`; delete only this job's designated
 Cargo target. Commit as Tavrin with no AI trailer and push a draft PR. Never
 merge, tag or publish. Stop at about five hours active work excluding the hold.
 The hold does not authorize inventing ratios, claiming passed proof, or pushing
@@ -143,7 +143,7 @@ an unqualified candidate as a finished result.
 Instruction ratios/verdicts: NOT RUN / UNQUALIFIED for every case.
 Build/test/proof/fuzz/measurement exit codes: NOT RUN (not zero).
 PR URL: none; deferred under the code/scripts/registration-only hold.
-No Cargo target was created by this turn, so there is no lane build target to
+No Cargo target was created by this turn, so there is no job build target to
 clean up now. The next dependency is coordinator release, followed by validating
 and repairing this unbuilt candidate and its scripts.
 
@@ -159,7 +159,7 @@ preparation, then the unchanged frozen gate and proof sequence.
 
 ## Repair 2: test-only Result context
 
-The initial proof phase exited 101 at test-all compilation. The picker test
+The initial proof release exited 101 at test-all compilation. The picker test
 expanded `metered!` inside a tuple-returning helper, but its `?` operators need
 a Result-returning context. Wrapped that invocation in a Result closure. No
 production code changed. Retained initial three successful arm builds, source

@@ -130,7 +130,7 @@ def differential(frozen=True, epoch='final'):
     for c in clients.values():c.close()
     stats.update(corpus_sha256=sha(corpus),extra_generation_wrap_cases=512,exit=0);save(ART/(prefix+'exact-proof.json'),stats)
 if __name__=='__main__':
-    assert os.environ.get('MOSS_HEAVY_ACTIVE')
+    assert os.environ.get('PARITY_RUNNER_ACTIVE')
     if sys.argv[1]=='build':build_proof()
     elif sys.argv[1]=='cpp':existing_cpp()
     else:differential(sys.argv[1]=='final',sys.argv[1])

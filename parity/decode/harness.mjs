@@ -50,13 +50,13 @@ class RustArm {
         this.target = new Uint8Array(outLen);
         this.srcLen = src.length;
         this.outLen = outLen;
-        this.srcPtr = this.exports.moss_alloc(src.length);
-        this.outPtr = this.exports.moss_alloc(outLen);
+        this.srcPtr = this.exports.downstream_alloc(src.length);
+        this.outPtr = this.exports.downstream_alloc(outLen);
         new Uint8Array(this.exports.memory.buffer).set(src, this.srcPtr);
     }
     call(count, stride, mode, filter) {
         new Uint8Array(this.exports.memory.buffer).set(this.source, this.srcPtr);
-        const result = this.exports.moss_decode(
+        const result = this.exports.downstream_decode(
             this.srcPtr,
             this.srcLen,
             count,
@@ -73,8 +73,8 @@ class RustArm {
         return this.target;
     }
     release() {
-        if (this.srcPtr) this.exports.moss_free(this.srcPtr, this.srcLen);
-        if (this.outPtr) this.exports.moss_free(this.outPtr, this.outLen);
+        if (this.srcPtr) this.exports.downstream_free(this.srcPtr, this.srcLen);
+        if (this.outPtr) this.exports.downstream_free(this.outPtr, this.outLen);
         this.srcPtr = 0;
         this.outPtr = 0;
     }

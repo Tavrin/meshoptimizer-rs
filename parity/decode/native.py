@@ -14,7 +14,7 @@ import hashlib, json, math, os, pathlib, select, statistics, subprocess, time
 ART = pathlib.Path(_public_path('<scratch>/meshopt-decode'))
 INPUT = pathlib.Path(_public_path('<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs'))
 CASES = ['tiny-smooth', 'medium-smooth', 'medium-seams', 'medium-sparse', 'million-smooth']
-assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
+assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ.get('PARITY_RUNNER_MEASUREMENT') == '1'
 OUT = ART / 'native-timing.json'
 assert not OUT.exists(), 'do not rerun a verdict'
 
@@ -44,16 +44,16 @@ class Driver:
         assert self.p.returncode == 0
 rows = []
 identity = {a: sha(ART/a) for a in ['before', 'after', 'm7']}
-for phase, ops, arms in [('AA', ['oct-decode','quat-decode','vertex-decode'], ['before','before']),
+for release, ops, arms in [('AA', ['oct-decode','quat-decode','vertex-decode'], ['before','before']),
                          ('M7', ['oct-decode','quat-decode'], ['after','m7']),
                          ('old', ['vertex-decode'], ['after','before'])]:
     for case in CASES:
         for op in ops:
-            ds = [Driver(a, op, case, f'{phase}-{i}') for i,a in enumerate(arms)]
-            assert ds[0].out.read_bytes() == ds[1].out.read_bytes(), (phase,case,op,'byte mismatch')
+            ds = [Driver(a, op, case, f'{release}-{i}') for i,a in enumerate(arms)]
+            assert ds[0].out.read_bytes() == ds[1].out.read_bytes(), (release,case,op,'byte mismatch')
             cal = [d.sample(1) for d in ds]
             iterations = max(1, min(1000000, math.ceil(25000000/min(cal))))
-            row = dict(phase=phase, case=case, operation=op, arms=arms, cpu=2, samples=[], calibration_ns=cal,
+            row = dict(release=release, case=case, operation=op, arms=arms, cpu=2, samples=[], calibration_ns=cal,
                        iterations=iterations, input_sha256=sha(INPUT/(case+'.bin')), output_sha256=sha(ds[0].out), binaries=identity)
             rows.append(row)
             for pair in range(20):
@@ -68,4 +68,4 @@ for phase, ops, arms in [('AA', ['oct-decode','quat-decode','vertex-decode'], ['
             ratios=[s['ratio'] for s in row['samples']]
             row.update(gm=math.exp(statistics.mean(map(math.log,ratios))), ci95=interval(ratios), completed=True)
             OUT.write_text(json.dumps(rows, indent=2)+'\n')
-            print(phase, case, op, row['gm'], row['ci95'], flush=True)
+            print(release, case, op, row['gm'], row['ci95'], flush=True)

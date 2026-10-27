@@ -61,7 +61,7 @@ required = {'test-all', 'test-no-default', 'clippy', 'fmt', 'boundary', 'sqrt', 
 assert required <= exits.keys() and all(code == '0' for code in exits.values()), exits
 # Filter matching zero tests is not proof of exhaustive identity.
 assert '1 passed' in (ART / 'gate-sqrt.log').read_text()
-report = ['# SPEC-0212 simplify\n',
+report = ['# registered protocol simplify\n',
           'Fresh user-instruction counts only. Median of three per arm. Real chains use the sum of six stage medians; corpus summaries use the equal-case geometric mean. Per-case regression rejection is applied before aggregation.\n',
           'Techniques: simplify-local std sqrt for nonnegative finite operands, portable special-value/no_std fallback; std memo removal; shared-length picker/quadric slices; bounded prepaid picker with original low-budget fallback. All arithmetic finite guards remain.\n',
           'Source locations:\n']

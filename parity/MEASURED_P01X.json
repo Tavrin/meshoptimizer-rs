@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "phase": "0.1.x",
+  "release": "0.1.x",
   "passed": false,
   "acceptance_complete": true,
   "recorded_residuals": [
@@ -8,7 +8,7 @@
       "case": "vertex_fetch/million/sparse/mode-1",
       "ratio": 1.7256072046242377,
       "bar": 1.5,
-      "profile": "moss",
+      "profile": "downstream",
       "status": "recorded_residual_coordinator_decision_pending"
     },
     {
@@ -32,7 +32,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.156608174826893,
           "maximum": 1.2409299686486563,
           "maximum_memory_ratio": 1.0,
@@ -60,7 +60,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.2346504152496387,
           "maximum": 1.46594307476245,
           "maximum_memory_ratio": 1.0,
@@ -88,7 +88,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0544214110700418,
           "maximum": 1.1945981458521455,
           "maximum_memory_ratio": 1.0,
@@ -116,7 +116,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9608489465361526,
           "maximum": 1.0743888125848402,
           "maximum_memory_ratio": 1.0,
@@ -144,7 +144,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9779887936141916,
           "maximum": 1.1786493033229812,
           "maximum_memory_ratio": 1.0,
@@ -172,7 +172,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.8434684115421259,
           "maximum": 1.1248420472375344,
           "maximum_memory_ratio": 1.0,
@@ -200,7 +200,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.009119886481559,
           "maximum": 1.169866746666404,
           "maximum_memory_ratio": 1.0,
@@ -228,7 +228,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9690290114780195,
           "maximum": 1.0911273275145559,
           "maximum_memory_ratio": 1.0,
@@ -256,7 +256,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.918424594611275,
           "maximum": 1.1146662993464922,
           "maximum_memory_ratio": 1.0,
@@ -284,7 +284,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0765213683786028,
           "maximum": 1.2235205235515656,
           "maximum_memory_ratio": 1.0,
@@ -312,7 +312,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9950084929617894,
           "maximum": 1.145689377153453,
           "maximum_memory_ratio": 1.0,
@@ -340,7 +340,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.7915645287834396,
           "maximum": 0.9404212377957324,
           "maximum_memory_ratio": 1.0,
@@ -368,7 +368,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.127062084622213,
           "maximum": 1.238053535867858,
           "maximum_memory_ratio": 1.0,
@@ -396,7 +396,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.129629321037567,
           "maximum": 1.246140134709572,
           "maximum_memory_ratio": 1.0,
@@ -424,7 +424,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0996362746302075,
           "maximum": 1.2145458968031844,
           "maximum_memory_ratio": 1.0,
@@ -452,7 +452,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9739308925683723,
           "maximum": 1.7256072046242377,
           "maximum_memory_ratio": 1.0,
@@ -480,7 +480,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9361729431650407,
           "maximum": 1.173748780748398,
           "maximum_memory_ratio": 1.0,
@@ -508,7 +508,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.1998637249287563,
           "maximum": 1.481215355171404,
           "maximum_memory_ratio": 1.0,
@@ -536,7 +536,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0559693084683632,
           "maximum": 1.312070699965194,
           "maximum_memory_ratio": 1.2159684443608882,
@@ -564,7 +564,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.026971321436804,
           "maximum": 1.2744724059809736,
           "maximum_memory_ratio": 0.9659090909090909,
@@ -592,7 +592,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.025463929128979,
           "maximum": 1.4011711426568505,
           "maximum_memory_ratio": 1.1797959445089632,
@@ -620,7 +620,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.8992029662155905,
           "maximum": 0.9462295546457702,
           "maximum_memory_ratio": 1.0,
@@ -648,7 +648,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.1247215562506574,
           "maximum": 1.1848525062697364,
           "maximum_memory_ratio": 1.0,
@@ -676,7 +676,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.16937806591575688,
           "maximum": 0.1976517992711802,
           "maximum_memory_ratio": 1.0,
@@ -704,7 +704,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.7171459460148781,
           "maximum": 0.751098303963396,
           "maximum_memory_ratio": 1.0,
@@ -732,7 +732,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.14954516506239235,
           "maximum": 0.191424053900887,
           "maximum_memory_ratio": 1.0,
@@ -760,7 +760,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9645425365150126,
           "maximum": 1.0974891212741873,
           "maximum_memory_ratio": 1.0,
@@ -788,7 +788,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0298783105255052,
           "maximum": 1.3403271358509246,
           "maximum_memory_ratio": 1.2357821167890284,
@@ -816,7 +816,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0064282695733646,
           "maximum": 1.2715988612512281,
           "maximum_memory_ratio": 1.0704298291040912,
@@ -844,7 +844,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.0426003043123087,
           "maximum": 1.3291899116292414,
           "maximum_memory_ratio": 1.0723789249600852,
@@ -872,7 +872,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 0.9942380309210842,
           "maximum": 1.34061044407715,
           "maximum_memory_ratio": 1.0723789249600852,
@@ -900,7 +900,7 @@
       "mismatches": 0,
       "native_wasm_identity": true,
       "benchmarks": {
-        "moss": {
+        "downstream": {
           "geometric_mean": 1.01492112828284,
           "maximum": 1.4022867358930537,
           "maximum_memory_ratio": 1.0723789249600852,
@@ -925,7 +925,7 @@
   },
   "benchmark_workloads_per_profile": 912,
   "benchmark_batch_repetitions": {
-    "moss": {
+    "downstream": {
       "position_exponent": 262144,
       "index_count_below_3000": 32768,
       "index_count_below_300000": 16,
@@ -939,7 +939,7 @@
     }
   },
   "profile_overrides": {
-    "moss": {
+    "downstream": {
       "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
       "CARGO_PROFILE_RELEASE_DEBUG": "0",
       "CARGO_PROFILE_RELEASE_LTO": "thin",
@@ -953,7 +953,7 @@
     }
   },
   "benchmark_exit_receipts": {
-    "moss": {
+    "downstream": {
       "exit": 0,
       "enforced": true,
       "seconds": 2421.5345590114594,
@@ -966,7 +966,7 @@
           "case": "vertex_fetch/million/sparse/mode-1",
           "ratio": 1.7256072046242377,
           "bar": 1.5,
-          "profile": "moss",
+          "profile": "downstream",
           "status": "recorded_residual_coordinator_decision_pending"
         }
       ]
@@ -991,7 +991,7 @@
     }
   },
   "executable_sha256": {
-    "moss": {
+    "downstream": {
       "cpp": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
       "rust": "7513d5facf337d13bcd3b5f068fb0b35eca43e8471663b31432ff8bf642b9167",
       "fixture_exporter": "d750a1d50112b916e6ddce6491f14eb0324b59f29ee0d34bc6ed7d187e949e6e",
@@ -1036,7 +1036,7 @@
     "command": "python3 <artifacts>/p01x/complete_direct_profiles.py",
     "policy": "D144 one complete 912-case matrix per profile; million first and fetch/sloppy/remap across all shapes first; no fragment assembly",
     "orchestration": {
-      "moss": {
+      "downstream": {
         "policy": "D144 complete matrix; million, tiny, medium; fetch/sloppy/remap across all shapes first; all prescribed cases and samples retained",
         "orchestrator_sha256": "1b1f582c35a53872c6282020740db7da90e25ba98a3cd0189faa92ff68202768",
         "generated_benchmark_sha256": "fa452f26a5886b7393f8d81254a257abd99a8bf1a681df2a37c8263d5b017788",
@@ -1064,7 +1064,7 @@
     "p01x-run-buffers.zip": "a3dd5624708c2ef08379c5eb0c0c52ca597fdd74c33d6e668ce35a143ef277c0",
     "sweep-buffers.zip": "ee038e3ca852ed6f96b83ea9b4d899a1180ab99062ce94ee23c69fb0c8bdc71f",
     "p01x-sweep-buffers.zip": "a24f15ba070947ba646b3916fda01816a756c3bba3c5622a2207252167ced28c",
-    "p01x-benchmark-moss-buffers.zip": "a8c89618244cb1280c299c582a900cc8990dda8e1a070b1dc1f3411c053b05d8",
+    "p01x-benchmark-downstream-buffers.zip": "a8c89618244cb1280c299c582a900cc8990dda8e1a070b1dc1f3411c053b05d8",
     "p01x-benchmark-defaults-buffers.zip": "139ac3ab89ed5d09e54bfbaa4bcff5d193a623d0afd94b727f23d295564af6ac"
   }
 }

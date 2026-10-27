@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
-: "${MOSS_HEAVY_ACTIVE:?run under ${JOB_RUNNER:?}}"
+: "${PARITY_RUNNER_ACTIVE:?run under ${JOB_RUNNER:?}}"
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
 export CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
 art="${SCRATCH:?}"/meshopt-peer-c

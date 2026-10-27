@@ -3,7 +3,7 @@
   "historical": true,
   "command": "profiles",
   "passed": null,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "historical/profiles.json",

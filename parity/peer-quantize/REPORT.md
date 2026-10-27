@@ -1,6 +1,6 @@
-# SPEC-027 lane A
+# registered protocol job A
 
-Baseline: clean perf/quantize at 33556c4 (v0.2.6). Only lane A is owned.
+Baseline: clean perf/quantize at 33556c4 (v0.2.6). Only job A is owned.
 Scratch: <scratch>/meshopt-peer-a.
 
 ## Causes (milestone, recorded before implementation)
@@ -93,24 +93,24 @@ No 10k sweeps or long fuzz runs; those remain nightly.
   dependencies. All frozen input hashes match its results.json.
 - Upstream C++ oracle is clean at 4c203430ca565cb59a468a91922c76c208169536,
   identical to v1.3; existing check-reference.sh exits 0.
-- Every heavy job declares 4 GB through <job-runner>, MOSS_HEAVY_GPU=0. Generic
+- Every heavy job declares 4 GB through <job-runner>, PARITY_RUNNER_GPU=0. Generic
   python admission initially inherited a 9 GB historical reservation; that
   queued attempt was canceled before execution and requeued with the documented
-  lane-specific MOSS_HEAVY_CLASS=meshopt-peer-a. No admission gate was disabled.
+  job-specific DOWNSTREAM_HEAVY_CLASS=meshopt-peer-a. No admission gate was disabled.
 - Initial scratch build exited 1 because exported lockfile path identity needed
   updating; --offline regenerated scratch lockfiles only. All final builds exit
   0. Initial perf launcher failed before executing the driver; the installed
   6.17 perf tool collected all final instruction diagnostics successfully.
 - All raw logs, inputs, fuzz messages, source snapshots, binaries, intermediate
-  instruction candidates and sole wall stream are retained in lane scratch.
+  instruction candidates and sole wall stream are retained in job scratch.
   Compact results and SHA-256 manifest are committed under parity/peer-quantize.
 - Commit/push as Tavrin; draft PR only. No merge, tag, publication or version bump.
 
-The lane Cargo target was deleted after all builds/checks/collection finished;
+The job Cargo target was deleted after all builds/checks/collection finished;
 parity/peer-quantize/cleanup.json records the path and bytes removed. Raw scratch
-receipts and executables remain. Scope is lane A only; no other worktree touched.
+receipts and executables remain. Scope is job A only; no other worktree touched.
 
-## SPEC-027 quantize finish — half only
+## registered protocol quantize finish — half only
 
 The failed quantize-float optimization is reverted verbatim to v0.2.6.
 `git diff v0.2.6 -- src/quantize.rs` now contains only quantize_half lines.
@@ -145,7 +145,7 @@ startup and binary-layout effects; its library source is identical.
 ### Final proof, gates and retention
 
 All exits are 0: diagnostic builds, protocol/C++ builds and source-pin check,
-existing lane A exactness proof (717 cases, 660 C++ checks), direct Rust
+existing job A exactness proof (717 cases, 660 C++ checks), direct Rust
 Result/Error/output-bit proof (1,575,007 values, 34 widths),
 `cargo test --all-features`,
 `cargo clippy --all-targets --all-features -- -D warnings`, and

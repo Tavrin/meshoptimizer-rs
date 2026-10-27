@@ -6,7 +6,7 @@
     "--manifest-path",
     "<scratch>/meshopt-peer-a/O/parity/compare/Cargo.toml",
     "--profile",
-    "moss",
+    "downstream",
     "--features",
     "ours",
     "--bin",

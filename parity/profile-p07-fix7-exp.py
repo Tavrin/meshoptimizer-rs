@@ -12,7 +12,7 @@ import os,json,struct,subprocess,hashlib
 from pathlib import Path
 ROOT=Path(_public_path('<local>/p07')); ART=Path(os.environ['MESHOPT_ARTIFACTS']); OLD=ART.parent/'p07-fix6'
 sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
-import sys;sys.path.insert(0,str(ROOT/'parity/simd'));import qualify as q;build={'sources':q.sources()};phase=os.environ.get('FIX7_PHASE','baseline')
+import sys;sys.path.insert(0,str(ROOT/'parity/simd'));import qualify as q;build={'sources':q.sources()};release=os.environ.get('FIX7_PHASE','baseline')
 inputs={r['case']:r for r in json.loads((ART/'inputs.json').read_text())}
 perf='/usr/lib/linux-hwe-6.17-tools-6.17.0-22/perf'
 names=[]
@@ -34,7 +34,7 @@ for name in names:
     probe=bytearray(b)
     if api=='caller-buffer':struct.pack_into('<I',probe,16,struct.unpack_from('<I',probe,16)[0]|128)
     struct.pack_into('<I',probe,32,1);struct.pack_into('<I',probe,36,repeats)
-    framed=struct.pack('<I',len(probe))+probe;label=f'{phase}-{name}-{api}-{backend}-{repeats}';(ART/(label+'.input')).write_bytes(framed)
+    framed=struct.pack('<I',len(probe))+probe;label=f'{release}-{name}-{api}-{backend}-{repeats}';(ART/(label+'.input')).write_bytes(framed)
     cmd=['taskset','-c','26',perf,'stat','-e','instructions:u,cycles:u,branches:u,branch-misses:u','-x',',','-o',str(ART/(label+'.stat')),'--',str(binary),*(['scalar'] if backend=='canonical' else [])]
     r=subprocess.run(cmd,input=framed,stdout=subprocess.PIPE,stderr=subprocess.PIPE);assert r.returncode==0,(label,r.stderr)
     (ART/(label+'.response')).write_bytes(r.stdout);out=r.stdout[4:];status,size,samples=struct.unpack_from('<iII',out,4);assert status==0
@@ -50,7 +50,7 @@ for name in names:
    if name.startswith('meshlet'):
     tc,ts=struct.unpack_from('<II',b,24);decoded=(count+tc)*4 if name.startswith('meshlet-raw') else count*stride+tc*ts
    row={'case':name,'api':api,'backend':backend,'binary_sha256':sha(binary),'n':n,'decoded_bytes':decoded,'runs':runs,'per_byte':{k:(runs[1]['counts'][k]-runs[0]['counts'][k])/(n*decoded) for k in runs[0]['counts']}}
-   result['rows'].append(row);(ART/(phase+'-counters.json')).write_text(json.dumps(result,indent=2)+'\n');print(name,api,backend,{k:round(v,3) for k,v in row['per_byte'].items()},flush=True)
+   result['rows'].append(row);(ART/(release+'-counters.json')).write_text(json.dumps(result,indent=2)+'\n');print(name,api,backend,{k:round(v,3) for k,v in row['per_byte'].items()},flush=True)
 # Color C++ is a different arithmetic contract; canonical after/before/scalar
 # still must agree, including the terminal tail byte.
 for name in names:
@@ -58,4 +58,4 @@ for name in names:
   rows=[r for r in result['rows'] if r['case']==name and r['api']==api and r['backend']!='cpp']
   assert len({r['runs'][0]['output_sha256'] for r in rows})==1
 assert all(sha(ROOT/k)==v for k,v in build['sources'].items())
-result['complete']=True;(ART/(phase+'-counters.json')).write_text(json.dumps(result,indent=2)+'\n')
+result['complete']=True;(ART/(release+'-counters.json')).write_text(json.dumps(result,indent=2)+'\n')

@@ -1,12 +1,12 @@
 {
   "schema": "meshopt-p06-summary/1",
   "base": "a4b3c48",
-  "branch": "phase/0.6",
+  "branch": "release/0.6",
   "oracle": "4c203430ca565cb59a468a91922c76c208169536",
   "implemented": true,
   "available_baseline_gates_passed": true,
   "phase_0_5_qualified": false,
-  "phase_0_5_reason": "absent from published baseline; separate unmerged lane",
+  "phase_0_5_reason": "absent from published baseline; separate unmerged job",
   "safety": "crate still forbids unsafe; Rayon optional",
   "determinism_threads": [
     1,

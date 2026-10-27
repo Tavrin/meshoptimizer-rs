@@ -1,7 +1,7 @@
 # P05 diagfix: instruction diagnosis and ranked batch plan
 
-Phase 0 closes at `74b7d16`, rebased onto `419dc7a`. All strict functional
-gates passed before this diagnosis. No timing run occurred in Phase 1.
+Release 0 closes at `74b7d16`, rebased onto `419dc7a`. All strict functional
+gates passed before this diagnosis. No timing run occurred in Release 1.
 The old D127–D141 rejected candidates and D144 dead-hypothesis ledger were
 read first. D142/D143 are unfinished hypotheses, not measured rejections.
 
@@ -172,7 +172,7 @@ only at borderline cap. No all-family matrix, lower bars, unsafe or SIMD.
 D168 adds scoped `lean` mode using the unchanged final screening/D146 policy.
 It retains full-matrix `passed=false` with missing families and separately reports
 selected-scope completeness/verdict. Historical before times are explicitly
-unmatched diagnostics; only Phase 3's new stream decides the touched-family bar.
+unmatched diagnostics; only Release 3's new stream decides the touched-family bar.
 
 
 ## Batch outcomes and terminal dispositions (D162–D169)

@@ -1,8 +1,8 @@
-# SPEC-028 lane L1
+# registered protocol job L1
 
 Read REGISTRATION.md before the final wall campaign and REPORT.md for results.
 All preparation, proof and measurements run through the installed <job-runner>
-wrapper with MOSS_HEAVY_GPU=0, at most 4 GiB declared, and the exclusive
+wrapper with PARITY_RUNNER_GPU=0, at most 4 GiB declared, and the exclusive
 CARGO_TARGET_DIR=<target-dir>. The retained
 scratch directory is <scratch>/meshopt-028-L1.
 
@@ -26,22 +26,22 @@ cases are always included.
 `proof.py build` builds the baseline and candidate exact witnesses. `proof.py
 final` compares frozen peer outputs and the existing 2,000 seeds/family, including
 Result values, work usage and caller-buffer contents on success and failure.
-The lane witness additionally varies strided float and little/big-endian byte
-storage. `proof.py cpp` reuses the existing phase-0.3 differential protocol and
+The job witness additionally varies strided float and little/big-endian byte
+storage. `proof.py cpp` reuses the existing release-0.3 differential protocol and
 seed generator against the pinned upstream C++ reference for L1 only. `fuzz.py`
 runs the widened generator until the two differential target processes consume
 at least 300 CPU seconds; its JSON retains seed, count, hashes and replay command.
 
 `gates.py` runs the required two feature configurations, clippy and formatting.
-`campaign.py build-rfc` and `preflight-rfc` build/check the unchanged RFC113
+`campaign.py build-rfc` and `preflight-rfc` build/check the unchanged CLUSTER_LOD
 cluster-C adapters with retained S1/S2 inputs. `campaign.py wall` is the single
 registered campaign, with an exclusive marker and per-pair append-only receipts;
-it includes A/A, O/M7, O/v0.2.7, X disclosure and RFC113 disclosure. No verdict
+it includes A/A, O/M7, O/v0.2.7, X disclosure and CLUSTER_LOD disclosure. No verdict
 reruns or load-based exclusions are implemented.
 
 `job.sh run COMMAND...` supplies the common serial-build environment inside an
 admission. The actual submission logs and exact commands remain in scratch.
-Retain binaries and receipts before deleting only this lane's Cargo target.
+Retain binaries and receipts before deleting only this job's Cargo target.
 
 The spatial BVH's full-width invariant divider is additionally exercised by
 `division_fuzz.py 300`. That generator includes the actual production helper
@@ -56,4 +56,4 @@ QUALIFIED.json only after all proof exits are zero. The wall campaign checks
 that source seal before and after sampling. `finish.py` exports compact raw
 pairs, case intervals, verdicts and gate receipts to RESULTS.json and writes
 the final report and measured-only changelog entry. `cleanup.py` verifies the
-retained binaries before deleting exactly the lane's designated Cargo target.
+retained binaries before deleting exactly the job's designated Cargo target.

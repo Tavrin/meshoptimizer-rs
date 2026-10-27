@@ -11,7 +11,7 @@ import os
 import sys
 import run as lane
 
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 profile = sys.argv[1]
 A = lane.ART
 source = array.array('I', (sign | 0x3f800000 | mantissa

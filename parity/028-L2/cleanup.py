@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Retain the qualified source/binaries and delete only this lane's target."""
+"""Retain the qualified source/binaries and delete only this job's target."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):

@@ -1,4 +1,4 @@
-# SPEC-027 registered check
+# registered protocol registered check
 
 Written before any timing sample or candidate-library edit. Diagnostic RSS /
 allocation probes are excluded from timing evidence. No reruns to change the
@@ -29,9 +29,9 @@ output SHA256, index count and error bits for each call.
 
 ## Sampling and estimator
 
-One admitted CPU-only <job-runner> job, declared 4 GB, MOSS_HEAVY_MEASUREMENT=1,
+One admitted CPU-only <job-runner> job, declared 4 GB, PARITY_RUNNER_MEASUREMENT=1,
 core 8 affinity inherited by all children, sequential processes. Same compiler,
-inputs, host session and environment. No background measurements in this lane.
+inputs, host session and environment. No background measurements in this job.
 Workload order: 214e, b6fd, a082, micro. For each workload:
 
 1. A/A floor: one warm-up pair excluded, then ten pairs using the A binary.

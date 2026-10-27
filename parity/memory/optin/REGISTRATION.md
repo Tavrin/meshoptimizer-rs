@@ -1,4 +1,4 @@
-# SPEC-027 memory opt-in targeted proof
+# registered protocol memory opt-in targeted proof
 
 Baseline A: v0.2.6, peeled commit 33556c48efc13f3f36a9293aa5fbf451c0884fe3.
 B: opt-in patch after merge 839c31c, bound by SOURCE.json.

@@ -1,7 +1,7 @@
 {
   "fuzz": {
     "schema": 2,
-    "phase": "0.1",
+    "release": "0.1",
     "profile": "stable seeded mutation; no sanitizer or coverage instrumentation",
     "source_sha256": {
       "Cargo.lock": "af7535c4d2a799606911d94bd57134136a6321248b84b4efbfe604f263553c5e",

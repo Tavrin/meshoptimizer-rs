@@ -47,7 +47,7 @@ def text_command(args):
 
 def paths():
     if sys.platform != "linux" or platform.machine() != "x86_64":
-        raise ValueError("this lane qualifies Linux x86-64 and wasm32 only")
+        raise ValueError("this job qualifies Linux x86-64 and wasm32 only")
     reference = Path(os.environ["MESHOPT_REFERENCE"]).resolve()
     target = Path(os.environ["CARGO_TARGET_DIR"]).resolve()
     if target == ROOT or ROOT in target.parents or target == reference or reference in target.parents:
@@ -348,7 +348,7 @@ def retain(archive, name, data):
 def differential(args):
     reference, target, results = paths()
     binaries, identities = build(reference, target)
-    record = {"schema": 1, "command": args.action, "phase": "0.1-lane1", "profile": "scalar-strict",
+    record = {"schema": 1, "command": args.action, "release": "0.1-lane1", "profile": "scalar-strict",
               "seed": args.seed, "started_unix": time.time(), "identities": identities, "cases": [],
               "mismatches": 0, "counts": {name: 0 for name in FAMILIES.values()},
               "required_cases_per_family": args.cases_per_family if args.action == "sweep" else None,
@@ -581,7 +581,7 @@ def report(args):
         raise ValueError("package artifact identity failure")
     records["fuzz"] = fuzz
     records["gates"] = gates
-    summary = {"schema": 1, "scope": "lane 2 geometry; Linux x86-64 and wasm32 qualification", "passed": True,
+    summary = {"schema": 1, "scope": "job 2 geometry; Linux x86-64 and wasm32 qualification", "passed": True,
                "counts": {n: records[n]["counts"] for n in ["run", "sweep"]}, "mismatches": 0,
                "record_sha256": {n + ".json": sha(results / (n + ".json")) for n in records},
                "targets": ["linux-x86_64", "wasm32 (native Rust identity)"], "benchmark": records["benchmark"]["workloads"]}
@@ -594,7 +594,7 @@ def report(args):
               f'Square-root probe: {records["run"]["math_probe"]["count"]} exact f32 results, including signed zero and subnormals.', "",
               "All five upstream JS suites passed unchanged; their applicable-input inventory is in COVERAGE.md.", "",
               "Stable fuzz smoke ran 600 seconds per module. See results/fuzz.json for executions and the instrumentation limits.", "",
-              "These are Linux x86-64 and wasm32 lane records. AArch64 and the release fuzz/performance gates remain outside this lane.", "",
+              "These are Linux x86-64 and wasm32 job records. AArch64 and the release fuzz/performance gates remain outside this job.", "",
               "The records and external compressed input/output buffers retain SHA-256 identities. report.sh rejects stale source and missing or changed artifacts."]
     (ROOT / "parity/MEASURED_PARITY.md").write_text("\n".join(lines) + "\n")
     if records["benchmark"].get("schema") in {2, 3, 4}:
@@ -608,7 +608,7 @@ def report(args):
     for family, work in records["benchmark"]["workloads"].items():
         lines.append(f'| {family} | {work["stats"]["rust"]["median_seconds"] * 1000:.3f} | {work["stats"]["cpp"]["median_seconds"] * 1000:.3f} | {work["rust_cpp_ratio"]:.3f} |')
     lines += ["", "Allocating APIs against scalar-strict C++. These modules have no explicit upstream SIMD paths. Raw samples, dispersion, hardware and executable identities are in results/benchmark.json.", "",
-              "Recorded only: this lane does not enforce the RFC's later release performance bars or qualify all workload sizes and API variants."]
+              "Recorded only: this job does not enforce the RFC's later release performance bars or qualify all workload sizes and API variants."]
     (ROOT / "parity/MEASURED_PERFORMANCE.md").write_text("\n".join(lines) + "\n")
     print("verified source identities, required counts and retained artifacts; generated measured reports")
 
@@ -616,29 +616,29 @@ def report(args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["run", "sweep", "benchmark", "js", "report", "qualify"])
-    parser.add_argument("--phase", choices=["0.1", "0.1.x", "all"], default="all")
+    parser.add_argument("--release", choices=["0.1", "0.1.x", "all"], default="all")
     parser.add_argument("--profile", choices=["scalar-strict"], default="scalar-strict")
     parser.add_argument("--seed", type=int, default=20261002)
     parser.add_argument("--cases-per-family", type=int, default=2000)
     parser.add_argument("--require-coverage", action="store_true")
     parser.add_argument("--verify-artifacts", action="store_true")
     parser.add_argument("--enforce", action="store_true")
-    parser.add_argument("--consumer-profile", choices=["moss", "defaults", "local"], default="moss")
+    parser.add_argument("--consumer-profile", choices=["downstream", "defaults", "local"], default="downstream")
     args = parser.parse_args()
     if args.cases_per_family < 2000:
         parser.error("at least 2000 cases per family are required")
-    if args.phase in {"0.1.x", "all"} and args.action in {"run", "sweep", "benchmark"}:
+    if args.release in {"0.1.x", "all"} and args.action in {"run", "sweep", "benchmark"}:
         import p01x
         if args.action == "benchmark": p01x.benchmark(args)
         else:
             cases = args.cases_per_family
-            if args.action == "sweep" and args.phase == "all":
+            if args.action == "sweep" and args.release == "all":
                 args.cases_per_family = 2000
             try:
                 p01x.differential(args)
             finally:
                 args.cases_per_family = cases
-        if args.phase == "0.1.x": return
+        if args.release == "0.1.x": return
     if args.action in {"run", "sweep"}:
         differential(args)
     elif args.action == "benchmark":
@@ -652,7 +652,7 @@ def main():
 
 
 if __name__ == "__main__":
-    if "--phase" in sys.argv and sys.argv[sys.argv.index("--phase") + 1] == "0.3":
+    if "--release" in sys.argv and sys.argv[sys.argv.index("--release") + 1] == "0.3":
         if sys.argv[1] == "sweep" and "--cases-per-family" in sys.argv:
             count = int(sys.argv[sys.argv.index("--cases-per-family") + 1])
             if count < 2000:

@@ -1,6 +1,6 @@
 [
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "tiny-smooth",
     "operation": "oct-decode",
     "arms": [
@@ -394,7 +394,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "tiny-smooth",
     "operation": "quat-decode",
     "arms": [
@@ -788,7 +788,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "tiny-smooth",
     "operation": "vertex-decode",
     "arms": [
@@ -1182,7 +1182,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-smooth",
     "operation": "oct-decode",
     "arms": [
@@ -1576,7 +1576,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-smooth",
     "operation": "quat-decode",
     "arms": [
@@ -1970,7 +1970,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-smooth",
     "operation": "vertex-decode",
     "arms": [
@@ -2364,7 +2364,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-seams",
     "operation": "oct-decode",
     "arms": [
@@ -2758,7 +2758,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-seams",
     "operation": "quat-decode",
     "arms": [
@@ -3152,7 +3152,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-seams",
     "operation": "vertex-decode",
     "arms": [
@@ -3546,7 +3546,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-sparse",
     "operation": "oct-decode",
     "arms": [
@@ -3940,7 +3940,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-sparse",
     "operation": "quat-decode",
     "arms": [
@@ -4334,7 +4334,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "medium-sparse",
     "operation": "vertex-decode",
     "arms": [
@@ -4728,7 +4728,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "million-smooth",
     "operation": "oct-decode",
     "arms": [
@@ -5122,7 +5122,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "million-smooth",
     "operation": "quat-decode",
     "arms": [
@@ -5516,7 +5516,7 @@
     "completed": true
   },
   {
-    "phase": "AA",
+    "release": "AA",
     "case": "million-smooth",
     "operation": "vertex-decode",
     "arms": [
@@ -5910,7 +5910,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "tiny-smooth",
     "operation": "oct-decode",
     "arms": [
@@ -6034,7 +6034,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "tiny-smooth",
     "operation": "quat-decode",
     "arms": [
@@ -6158,7 +6158,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "medium-smooth",
     "operation": "oct-decode",
     "arms": [
@@ -6282,7 +6282,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "medium-smooth",
     "operation": "quat-decode",
     "arms": [
@@ -6406,7 +6406,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "medium-seams",
     "operation": "oct-decode",
     "arms": [
@@ -6530,7 +6530,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "medium-seams",
     "operation": "quat-decode",
     "arms": [
@@ -6654,7 +6654,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "medium-sparse",
     "operation": "oct-decode",
     "arms": [
@@ -6778,7 +6778,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "medium-sparse",
     "operation": "quat-decode",
     "arms": [
@@ -6902,7 +6902,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "million-smooth",
     "operation": "oct-decode",
     "arms": [
@@ -7026,7 +7026,7 @@
     "completed": true
   },
   {
-    "phase": "M7",
+    "release": "M7",
     "case": "million-smooth",
     "operation": "quat-decode",
     "arms": [
@@ -7150,7 +7150,7 @@
     "completed": true
   },
   {
-    "phase": "old",
+    "release": "old",
     "case": "tiny-smooth",
     "operation": "vertex-decode",
     "arms": [
@@ -7544,7 +7544,7 @@
     "completed": true
   },
   {
-    "phase": "old",
+    "release": "old",
     "case": "medium-smooth",
     "operation": "vertex-decode",
     "arms": [
@@ -7938,7 +7938,7 @@
     "completed": true
   },
   {
-    "phase": "old",
+    "release": "old",
     "case": "medium-seams",
     "operation": "vertex-decode",
     "arms": [
@@ -8062,7 +8062,7 @@
     "completed": true
   },
   {
-    "phase": "old",
+    "release": "old",
     "case": "medium-sparse",
     "operation": "vertex-decode",
     "arms": [
@@ -8186,7 +8186,7 @@
     "completed": true
   },
   {
-    "phase": "old",
+    "release": "old",
     "case": "million-smooth",
     "operation": "vertex-decode",
     "arms": [

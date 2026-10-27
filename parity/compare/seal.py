@@ -22,7 +22,7 @@ files += [ROOT/'parity'/q for q in ['runner.py','performance.py','quiet.py']]
 files += [ROOT/'parity/compare'/q for q in ['Cargo.toml','Cargo.lock','build.py','build_drivers.py','measure.py']]
 files += sorted((ROOT/'parity/compare/src').glob('*.rs'))
 def sha(q):return hashlib.sha256(q.read_bytes()).hexdigest()
-for profile in ['defaults','moss']:
+for profile in ['defaults','downstream']:
  for backend in ['ours','theirs']:
   q=ART/f'cmp-driver-{profile}-{backend}'
   assert sha(q)==Path(str(q)+'.sha256').read_text().strip()

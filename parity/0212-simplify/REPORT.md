@@ -1,4 +1,4 @@
-# SPEC-0212 simplify
+# registered protocol simplify
 Fresh user-instruction counts only. Median of three per arm. Real chains use the sum of six stage medians; corpus summaries use the equal-case geometric mean. Per-case regression rejection is applied before aggregation.
 Techniques: simplify-local std sqrt for nonnegative finite operands, portable special-value/no_std fallback; std memo removal; shared-length picker/quadric slices; bounded prepaid picker with original low-budget fallback. All arithmetic finite guards remain.
 Source locations:

@@ -10,7 +10,7 @@ if [[ "${1:-}" == "--execute" && "${4:-}" == "0.5" ]]; then
     benchmark) exec "${MESHOPT_PYTHON:-python3}" parity/p05/benchmark.py "${@:5}" ;;
   esac
 fi
-if [[ "${1:-}" == "--phase" && "${2:-}" == "0.5" ]]; then
+if [[ "${1:-}" == "--release" && "${2:-}" == "0.5" ]]; then
   exec "${MESHOPT_PYTHON:-python3}" parity/p05/report.py
 fi
 exec "${MESHOPT_PYTHON:-python3}" - "$@" <<'PY'
@@ -100,7 +100,7 @@ def compact(path, destination, historical=False, profile=None):
         package = path.parent / item['name']
         manifest[str(package.relative_to(artifacts()))] = item['sha256']
     summary = {'schema': 'meshopt-summary/1', 'historical': historical, 'command': full.get('command', path.stem),
-               'passed': full.get('passed'), 'phase': full.get('phase', '0.1') if historical else '0.1', 'seed': full.get('seed'),
+               'passed': full.get('passed'), 'release': full.get('release', '0.1') if historical else '0.1', 'seed': full.get('seed'),
                'profile': profile or full.get('profile'), 'detail_artifact': relative, 'artifacts': manifest}
     if 'identities' in full:
         summary['identities'] = full['identities']
@@ -130,7 +130,7 @@ def compact(path, destination, historical=False, profile=None):
 
 def compact_p01x(path, destination):
     full = json.loads(path.read_text())
-    if full.get('phase') != '0.1.x' or not full.get('identities'):
+    if full.get('release') != '0.1.x' or not full.get('identities'):
         raise ValueError('invalid 0.1.x detailed record')
     raw = path.parent
     linked = {str(path.relative_to(artifacts())): sha(path)}
@@ -143,7 +143,7 @@ def compact_p01x(path, destination):
         if attachment.is_file():
             linked[str(attachment.relative_to(artifacts()))] = sha(attachment)
     action = full.get('action', 'benchmark')
-    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'phase': '0.1.x',
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'release': '0.1.x',
                'command': action, 'passed': full['passed'], 'mismatches': full.get('mismatches', 0),
                'detail_artifact': str(path.relative_to(artifacts())), 'artifacts': linked,
                'identities': full['identities']}
@@ -159,33 +159,33 @@ def compact_p01x(path, destination):
 CODEC_RECORDS = {'run': ['fixtures', 'malformed'], 'sweep': ['sweep']}
 
 CODEC_PHASES = ['0.2', '0.4']
-# Phase 0.4 adds codec completion and re-runs every 0.2 decoder fixture and sweep family.
+# Release 0.4 adds codec completion and re-runs every 0.2 decoder fixture and sweep family.
 CODEC_RUNNERS = {'0.2': 'runner.py', '0.4': 'runner04.py'}
 
 def phase03(argv):
     for i, argument in enumerate(argv):
-        if argument == '--phase' and argv[i + 1:i + 2] == ['0.3']:
+        if argument == '--release' and argv[i + 1:i + 2] == ['0.3']:
             return argv[:i] + argv[i + 2:]
-        if argument == '--phase=0.3':
+        if argument == '--release=0.3':
             return argv[:i] + argv[i + 1:]
     return None
 
 def execute03(action, argv):
     if action not in ('run', 'sweep'):
-        raise SystemExit('phase 0.3 supports run and sweep')
+        raise SystemExit('release 0.3 supports run and sweep')
     root = artifacts()
     env = {**os.environ, 'MESHOPT_ARTIFACTS': str(root)}
     code = subprocess.run([sys.executable, str(ROOT / 'parity/p03/runner.py'), action,
-                           '--phase', '0.3', *argv], env=env).returncode
+                           '--release', '0.3', *argv], env=env).returncode
     detail = root / action / 'record.json'
     corpus = root / action / 'corpus.bin'
     if code or not detail.is_file() or not corpus.is_file():
         raise SystemExit(code or 1)
     full = json.loads(detail.read_text())
     if full.get('schema') != 'meshopt-p03/1' or full.get('action') != action or full.get('mismatches') != 0 or sha(corpus) != full.get('corpus_sha256'):
-        raise SystemExit('phase 0.3 record verification failed')
+        raise SystemExit('release 0.3 record verification failed')
     summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action,
-               'phase': '0.3', 'passed': True, 'mismatches': 0, 'seed': full['seed'],
+               'release': '0.3', 'passed': True, 'mismatches': 0, 'seed': full['seed'],
                'cases': full['cases'], 'fixture_count': len(full['fixtures']),
                'detail_artifact': f'{action}/record.json',
                'artifacts': {f'{action}/record.json': sha(detail), f'{action}/corpus.bin': sha(corpus)}}
@@ -195,38 +195,38 @@ def report03(verify):
     for action in ('run', 'sweep'):
         path = ROOT / 'parity/results' / f'{action}-0.3.json'
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') != '0.3' or summary.get('command') != action or summary.get('passed') is not True or summary.get('mismatches') != 0:
-            raise ValueError('invalid phase 0.3 summary: ' + path.name)
+        if summary.get('schema') != 'meshopt-summary/1' or summary.get('release') != '0.3' or summary.get('command') != action or summary.get('passed') is not True or summary.get('mismatches') != 0:
+            raise ValueError('invalid release 0.3 summary: ' + path.name)
         if summary['cases'] != {name: 2000 if action == 'sweep' else 25 for name in p03_names()} | ({'upstream-fixtures': 47} if action == 'run' else {}):
-            raise ValueError('phase 0.3 case inventory changed: ' + path.name)
+            raise ValueError('release 0.3 case inventory changed: ' + path.name)
         if not verify:
             continue
         for relative, digest in summary['artifacts'].items():
             if sha(artifacts() / relative) != digest:
-                raise ValueError('phase 0.3 artifact hash changed: ' + relative)
+                raise ValueError('release 0.3 artifact hash changed: ' + relative)
         full = json.loads((artifacts() / summary['detail_artifact']).read_text())
         if full['cases'] != summary['cases'] or full['mismatches'] != 0 or full['corpus_sha256'] != summary['artifacts'][f'{action}/corpus.bin'] or len(full['fixtures']) != summary['fixture_count']:
-            raise ValueError('phase 0.3 detailed record differs: ' + action)
+            raise ValueError('release 0.3 detailed record differs: ' + action)
         corpus = artifacts() / action / 'corpus.bin'
         frames = 0
         with corpus.open('rb') as stream:
             while header := stream.read(8):
                 if len(header) != 8:
-                    raise ValueError('truncated phase 0.3 corpus: ' + action)
+                    raise ValueError('truncated release 0.3 corpus: ' + action)
                 input_length, output_length = struct.unpack('<II', header)
                 stream.seek(input_length + output_length, 1)
                 frames += 1
             if stream.tell() != corpus.stat().st_size:
-                raise ValueError('truncated phase 0.3 frame: ' + action)
+                raise ValueError('truncated release 0.3 frame: ' + action)
         expected = sum(summary['cases'].values()) + sum(summary['cases'][name] for name in p03_names() if name not in ('build_meshlets_bound', 'compute_cluster_bounds', 'compute_meshlet_bounds', 'compute_sphere_bounds'))
         if frames != expected:
-            raise ValueError('phase 0.3 message inventory differs: ' + action)
+            raise ValueError('release 0.3 message inventory differs: ' + action)
         import importlib.util
         spec = importlib.util.spec_from_file_location('p03_runner', ROOT / 'parity/p03/runner.py')
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         if full['identity']['sources'] != module.snapshot():
-            raise ValueError('stale phase 0.3 source identity: ' + action)
+            raise ValueError('stale release 0.3 source identity: ' + action)
     print('0.3 exact parity records pass: 47 fixtures, 25 generated and 2000 seeded cases per family; zero mismatches.')
 
 def p03_names():
@@ -237,36 +237,36 @@ def p03_names():
             'spatial_sort_triangles', 'spatial_cluster_points')
 
 def codec_phase(argv):
-    """(phase, arguments without the selection) for a codec phase, or None for phase 0.1."""
+    """(release, arguments without the selection) for a codec release, or None for release 0.1."""
     for i, argument in enumerate(argv):
-        for phase in CODEC_PHASES:
-            if argument == '--phase' and argv[i + 1:i + 2] == [phase]:
-                return phase, argv[:i] + argv[i + 2:]
-            if argument == '--phase=' + phase or (phase == '0.2' and argument == '0.2'):
-                return phase, argv[:i] + argv[i + 1:]
+        for release in CODEC_PHASES:
+            if argument == '--release' and argv[i + 1:i + 2] == [release]:
+                return release, argv[:i] + argv[i + 2:]
+            if argument == '--release=' + release or (release == '0.2' and argument == '0.2'):
+                return release, argv[:i] + argv[i + 1:]
     return None
 
-def codec_module(phase='0.2'):
+def codec_module(release='0.2'):
     os.environ.setdefault('MESHOPT_ARTIFACTS', str(artifacts()))
     sys.path.insert(0, str(ROOT / 'parity/codec'))
     import importlib.util
     # The 0.1 report imports parity/runner.py as "runner" above. runner04.py
     # imports its 0.2 sibling under that same name, so temporarily let that
     # import resolve in the codec directory and restore the report's module.
-    previous = sys.modules.pop('runner', None) if phase == '0.4' else None
+    previous = sys.modules.pop('runner', None) if release == '0.4' else None
     try:
-        spec = importlib.util.spec_from_file_location('codec_runner_' + phase.replace('.', ''), ROOT / 'parity/codec' / CODEC_RUNNERS[phase])
+        spec = importlib.util.spec_from_file_location('codec_runner_' + release.replace('.', ''), ROOT / 'parity/codec' / CODEC_RUNNERS[release])
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
     finally:
-        if phase == '0.4':
+        if release == '0.4':
             sys.modules.pop('runner', None)
             if previous is not None:
                 sys.modules['runner'] = previous
 
 def execute_codec04_extra(action, argv):
-    """Phase 0.4 benchmark and fuzz smokes: detailed records in a fresh artifact
+    """Release 0.4 benchmark and fuzz smokes: detailed records in a fresh artifact
     subdirectory, compact summaries under parity/results."""
     base = artifacts()
     raw = base / (action + '-0.4')
@@ -274,12 +274,12 @@ def execute_codec04_extra(action, argv):
     env = {**os.environ, 'MESHOPT_ARTIFACTS': str(raw)}
     if action == 'benchmark':
         if '--consumer-profile' not in argv:
-            raise SystemExit('phase 0.4 benchmark requires --consumer-profile moss|default')
+            raise SystemExit('release 0.4 benchmark requires --consumer-profile downstream|default')
         profile = argv[argv.index('--consumer-profile') + 1]
         script = 'measure04.py'
         detail = raw / f'benchmark-0.4-{profile}.json'
         destination = ROOT / 'parity/results' / f'benchmark-0.4-{profile}.json'
-        command = [sys.executable, str(ROOT / 'parity/codec' / script), '--phase', '0.4', *argv]
+        command = [sys.executable, str(ROOT / 'parity/codec' / script), '--release', '0.4', *argv]
     else:
         detail = raw / 'fuzz.json'
         destination = ROOT / 'parity/results/fuzz-0.4.json'
@@ -289,7 +289,7 @@ def execute_codec04_extra(action, argv):
         raise SystemExit(code or 1)
     full = json.loads(detail.read_text())
     relative = str(detail.relative_to(base))
-    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'phase': '0.4',
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'release': '0.4',
                'detail_artifact': relative, 'artifacts': {relative: sha(detail)}, 'mismatches': 0}
     if action == 'benchmark':
         manifest = raw / 'benchmark04-inputs.json'
@@ -308,17 +308,17 @@ def execute_codec04_extra(action, argv):
     write(destination, summary)
     raise SystemExit(code)
 
-def execute_codec(action, argv, phase):
+def execute_codec(action, argv, release):
     """Phases 0.2 and 0.4: detailed codec records under MESHOPT_ARTIFACTS, slim summaries in git."""
-    if phase == '0.4' and action in ('benchmark', 'fuzz'):
+    if release == '0.4' and action in ('benchmark', 'fuzz'):
         return execute_codec04_extra(action, argv)
     if action == 'benchmark':
         # The pre-registered decoder measurement protocol owns its records.
-        command = [sys.executable, str(ROOT / 'parity/codec/measure.py'), '--phase', '0.2', *argv]
+        command = [sys.executable, str(ROOT / 'parity/codec/measure.py'), '--release', '0.2', *argv]
         raise SystemExit(subprocess.run(command).returncode)
     if action not in CODEC_RECORDS:
-        raise SystemExit(f'phase {phase} supports run, sweep and benchmark')
-    directory = action + '-' + phase
+        raise SystemExit(f'release {release} supports run, sweep and benchmark')
+    directory = action + '-' + release
     if '--record-directory' in argv:
         i = argv.index('--record-directory')
         directory = argv[i + 1]
@@ -331,11 +331,11 @@ def execute_codec(action, argv, phase):
     if any((raw / (name + '.json')).exists() for name in names):
         raise SystemExit('immutable record exists; select a fresh MESHOPT_ARTIFACTS')
     raw.mkdir(parents=True, exist_ok=True)
-    command = [sys.executable, str(ROOT / 'parity/codec' / CODEC_RUNNERS[phase]), action, '--phase', phase, *argv]
+    command = [sys.executable, str(ROOT / 'parity/codec' / CODEC_RUNNERS[release]), action, '--release', release, *argv]
     code = subprocess.run(command, env={**os.environ, 'MESHOPT_ARTIFACTS': str(raw)}).returncode
     if code or not all((raw / (name + '.json')).is_file() for name in names):
         raise SystemExit(code or 1)
-    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'phase': phase,
+    summary = {'schema': 'meshopt-summary/1', 'historical': False, 'command': action, 'release': release,
                'profile': 'scalar-strict', 'records': {}, 'artifacts': {}}
     for name in names:
         detail = raw / (name + '.json')
@@ -358,19 +358,19 @@ def execute_codec(action, argv, phase):
                 summary['records'][name][key] = full[key]
     summary['mismatches'] = sum(v['mismatches'] for v in summary['records'].values())
     summary['passed'] = summary['mismatches'] == 0
-    write(ROOT / 'parity/results' / (action + '-' + phase + '.json'), summary)
+    write(ROOT / 'parity/results' / (action + '-' + release + '.json'), summary)
 
-def report_codec(verify, phase='0.2'):
+def report_codec(verify, release='0.2'):
     records = {}
     missing = []
     for path in sorted((ROOT / 'parity/results').glob('*.json')):
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1' or summary['historical'] or summary.get('phase') != phase:
+        if summary.get('schema') != 'meshopt-summary/1' or summary['historical'] or summary.get('release') != release:
             continue
-        key = summary['command'] + ('-' + summary['profile'] if summary['command'] == 'benchmark' and phase == '0.4' else '')
+        key = summary['command'] + ('-' + summary['profile'] if summary['command'] == 'benchmark' and release == '0.4' else '')
         records[key] = summary
         if summary['passed'] is not True or summary['mismatches'] != 0:
-            raise SystemExit(f'{phase} gate failed: ' + path.name)
+            raise SystemExit(f'{release} gate failed: ' + path.name)
         if not verify:
             continue
         absent = []
@@ -378,7 +378,7 @@ def report_codec(verify, phase='0.2'):
         missing += absent
         if absent:
             continue
-        current = codec_module(phase).sources()
+        current = codec_module(release).sources()
         if summary['command'] in ('benchmark', 'fuzz'):
             if summary['command'] == 'benchmark' and (full['sources'] != current or not all(full['family_pass'].values())):
                 raise ValueError('stale or failing 0.4 benchmark record: ' + path.name)
@@ -390,35 +390,35 @@ def report_codec(verify, phase='0.2'):
         for name, item in summary['records'].items():
             full = json.loads((artifacts() / item['detail_artifact']).read_text())
             if full['mismatches'] != 0 or full['counts'] != item['counts'] or len(full['cases']) != item['cases']:
-                raise ValueError(f'{phase} summary differs from detailed record: ' + name)
+                raise ValueError(f'{release} summary differs from detailed record: ' + name)
             if full['sources'] != current:
-                raise ValueError(f'stale {phase} record: ' + name)
+                raise ValueError(f'stale {release} record: ' + name)
             with zipfile.ZipFile(artifacts() / item['archive_artifact']) as archive:
                 for case in full['cases']:
                     for value in case['files'].values():
                         if hashlib.sha256(archive.read(value['member'])).hexdigest() != value['sha256']:
-                            raise ValueError(f'{phase} case buffer identity mismatch: ' + case['case'])
+                            raise ValueError(f'{release} case buffer identity mismatch: ' + case['case'])
     incomplete = set(CODEC_RECORDS) - records.keys()
-    fixtures = 287 if phase == '0.2' else 287 + 563 + 19
-    operations = list(range(1, 8)) + (list(range(11, 26)) if phase == '0.4' else [])
+    fixtures = 287 if release == '0.2' else 287 + 563 + 19
+    operations = list(range(1, 8)) + (list(range(11, 26)) if release == '0.4' else [])
     if 'run' in records and records['run']['records']['fixtures']['cases'] != fixtures:
         incomplete.add(f'{fixtures} pinned fixtures')
     if 'sweep' in records and any(int(records['sweep']['records']['sweep']['counts'].get(str(op), 0)) < 2000 for op in operations):
         incomplete.add('2000 seeded cases per codec operation')
-    if phase == '0.4':
-        incomplete |= {'benchmark-moss', 'benchmark-default', 'fuzz'} - records.keys()
+    if release == '0.4':
+        incomplete |= {'benchmark-downstream', 'benchmark-default', 'fuzz'} - records.keys()
     if missing:
         print('ABSENT artifacts (hashes cannot be verified):\n' + '\n'.join(sorted(set(missing))))
     else:
-        print(f'All recorded {phase} artifact SHA-256 hashes and case buffers verified.' if verify else 'Artifact hashes not requested.')
+        print(f'All recorded {release} artifact SHA-256 hashes and case buffers verified.' if verify else 'Artifact hashes not requested.')
     if incomplete:
-        print(f'{phase} qualification incomplete:', ', '.join(sorted(incomplete)))
+        print(f'{release} qualification incomplete:', ', '.join(sorted(incomplete)))
         raise SystemExit(1)
     if missing:
         raise SystemExit(1)
-    print(f'{phase} exact codec parity records pass:', {name: item['cases'] for v in records.values() for name, item in v.get('records', {}).items()})
-    if phase == '0.4':
-        for key in ['benchmark-moss', 'benchmark-default']:
+    print(f'{release} exact codec parity records pass:', {name: item['cases'] for v in records.values() for name, item in v.get('records', {}).items()})
+    if release == '0.4':
+        for key in ['benchmark-downstream', 'benchmark-default']:
             print(key, 'family verdicts:', records[key]['family_pass'])
         print('fuzz smokes:', {k: v['executions'] for k, v in records['fuzz']['targets'].items()})
 
@@ -440,8 +440,8 @@ def execute(argv):
         i = argv.index('--consumer-profile')
         profile = argv[i + 1]
         del argv[i:i + 2]
-    if profile not in ['crate', 'moss', 'default']:
-        raise SystemExit('consumer profile must be crate, moss or default')
+    if profile not in ['crate', 'downstream', 'default']:
+        raise SystemExit('consumer profile must be crate, downstream or default')
     base = artifacts()
     label = action + ('-' + profile if action == 'benchmark' else '')
     directory = label
@@ -461,7 +461,7 @@ def execute(argv):
     # Environment overrides apply to the harness workspace, which is the root
     # of the dependent build. The library's own release profile is not inherited.
     configuration = {'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0'}
-    configuration.update({'CARGO_PROFILE_RELEASE_LTO': 'thin', 'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1'} if profile == 'moss'
+    configuration.update({'CARGO_PROFILE_RELEASE_LTO': 'thin', 'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1'} if profile == 'downstream'
                          else {'CARGO_PROFILE_RELEASE_LTO': 'false', 'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '16'} if profile == 'default' else {})
     if action == 'benchmark':
         r.ENV.update(configuration)
@@ -529,7 +529,7 @@ def execute(argv):
                 saved['identities'] = identities
                 return binaries, identities
             r.build = resumed_build
-        # Keep the measured protocol in its lane-owned module unchanged. This
+        # Keep the measured protocol in its job-owned module unchanged. This
         # shell adapter adds resumability and per-session CPU metadata only.
         source = (ROOT / 'parity/performance.py').read_text()
         replacements = {
@@ -683,12 +683,12 @@ def identity_check(directory):
 def render(records, fuzz, missing, incomplete):
     family_names = list(r.FAMILIES.values())
     passed = not missing and not incomplete and fuzz.get('passed', False) and all(
-        n in records and records[n][0]['passed'] for n in ['run', 'sweep', 'benchmark-moss', 'gates', 'js'])
+        n in records and records[n][0]['passed'] for n in ['run', 'sweep', 'benchmark-downstream', 'gates', 'js'])
     evidence_complete = not missing and not incomplete and fuzz.get('passed', False) and all(
         n in records and records[n][0]['passed'] for n in ['run', 'sweep', 'gates', 'js'])
-    summary = {'schema': 'meshopt-release-summary/1', 'phase': '0.1', 'passed': passed,
+    summary = {'schema': 'meshopt-release-summary/1', 'release': '0.1', 'passed': passed,
                'evidence_complete': evidence_complete,
-               'moss_performance_accepted': 'benchmark-moss' in records and records['benchmark-moss'][0]['passed'],
+               'downstream_performance_accepted': 'benchmark-downstream' in records and records['benchmark-downstream'][0]['passed'],
                'report_exit_policy': 'complete verified evidence exits zero; failed a downstream engine bars block release acceptance',
                'incomplete': sorted(incomplete), 'absent_current_artifacts': sorted(set(missing)),
                'local_execution_targets': ['linux-x86_64', 'wasm32 (qualified native Rust reference)'],
@@ -696,7 +696,7 @@ def render(records, fuzz, missing, incomplete):
                'records': {name: {'summary_sha256': sha(ROOT / 'parity/results' / (name + '.json')),
                                    'artifacts': value[0]['artifacts']} for name, value in records.items()},
                'counts': {name: records[name][0]['counts'] for name in ['run', 'sweep'] if name in records},
-               'consumer_performance': {name: records[name][0]['functions'] for name in ['benchmark-moss', 'benchmark-default'] if name in records},
+               'consumer_performance': {name: records[name][0]['functions'] for name in ['benchmark-downstream', 'benchmark-default'] if name in records},
                'fuzz': {'passed': fuzz.get('passed', False), 'required_cpu_seconds_per_target': 14400,
                         'runs': fuzz.get('runs', []), 'artifacts': fuzz.get('artifacts', {})}}
     write(ROOT / 'parity/MEASURED_RESULTS.json', summary)
@@ -713,16 +713,16 @@ def render(records, fuzz, missing, incomplete):
     (ROOT / 'parity/MEASURED_PARITY.md').write_text('\n'.join(lines) + '\n')
     fat = json.loads((ROOT / 'parity/results/benchmark.json').read_text()).get('functions', {})
     lines = ['# Measured release performance', '', 'Rust/C++ time ratios; each value is the family geometric mean of case median paired ratios, followed by the maximum case in parentheses.', '',
-             '| Function | Fat LTO (historical lane 3b) | a downstream engine thin LTO | Cargo release defaults |', '|---|---:|---:|---:|']
+             '| Function | Fat LTO (historical job 3b) | a downstream engine thin LTO | Cargo release defaults |', '|---|---:|---:|---:|']
     for family in family_names:
-        values = [fat.get(family)] + [records[n][0]['functions'].get(family) if n in records else None for n in ['benchmark-moss', 'benchmark-default']]
+        values = [fat.get(family)] + [records[n][0]['functions'].get(family) if n in records else None for n in ['benchmark-downstream', 'benchmark-default']]
         cells = [f"{v['geometric_mean']:.3f} ({v['maximum']:.3f})" if v else 'Pending' for v in values]
         lines.append('| ' + family + ' | ' + ' | '.join(cells) + ' |')
     lines += ['', 'RFC bars are unchanged: family geometric mean <= 1.25, maximum case <= 1.50, and requested output-plus-scratch memory <= 1.25 times C++.', '',
               'a downstream engine uses thin LTO, one codegen unit and opt-level 3. Cargo defaults use LTO disabled, 16 codegen units and opt-level 3. Both consumer records disable release debug. The crate retains its own fat-LTO profile; dependents do not inherit it.', '',
               'The complete matrix has 204 allocating, caller-buffer and allocation-free cases, covering tiny, medium and million-triangle smooth, seam-heavy and sparse meshes. The single-thread resident drivers share one physical core, one warm-up each and 20 or 30 alternating pairs. Validation, required copies, allocation and scratch are timed.', '',
               'These are shared-load measurements. Per-case timings, dispersion, memory, load telemetry and source/executable identities are in the external records. This table does not claim quiet-host performance or a universal speedup.', '',
-              'See results/benchmark.json, results/benchmark-moss.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.']
+              'See results/benchmark.json, results/benchmark-downstream.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.']
     text = '\n'.join(lines) + '\n'
     (ROOT / 'parity/MEASURED_PERFORMANCE.md').write_text(text)
     (ROOT / 'parity/results/MEASURED_PERFORMANCE.md').write_text(text)
@@ -803,10 +803,10 @@ def report(verify):
     p01x_records = {}
     for path in sorted((ROOT / 'parity/results').glob('*.json')):
         summary = json.loads(path.read_text())
-        if summary.get('schema') != 'meshopt-summary/1' or summary.get('phase') in (*CODEC_PHASES, '0.3'):
+        if summary.get('schema') != 'meshopt-summary/1' or summary.get('release') in (*CODEC_PHASES, '0.3'):
             continue
-        if summary.get('phase') == '0.1.x':
-            if path.stem in {'p01x-run', 'p01x-sweep', 'p01x-benchmark-moss', 'p01x-benchmark-defaults'}:
+        if summary.get('release') == '0.1.x':
+            if path.stem in {'p01x-run', 'p01x-sweep', 'p01x-benchmark-downstream', 'p01x-benchmark-defaults'}:
                 p01x_records[path.stem] = (summary, full_record(summary, missing) if verify else None)
             continue
         full = full_record(summary, historical_missing if summary['historical'] else missing) if verify else None
@@ -841,8 +841,8 @@ def report(verify):
             if not compatible_stage1_snapshot(full['identities']['source_sha256']):
                 raise ValueError('stale benchmark')
             expected_profile = {'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0',
-                                'CARGO_PROFILE_RELEASE_LTO': 'thin' if path.stem == 'benchmark-moss' else 'false',
-                                'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1' if path.stem == 'benchmark-moss' else '16'}
+                                'CARGO_PROFILE_RELEASE_LTO': 'thin' if path.stem == 'benchmark-downstream' else 'false',
+                                'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1' if path.stem == 'benchmark-downstream' else '16'}
             if full['identities']['effective_profile_overrides'] != expected_profile:
                 raise ValueError('wrong consumer profile')
             if len(full['workloads']) != 204:
@@ -897,9 +897,9 @@ def report(verify):
         print('All recorded artifact SHA-256 hashes verified.' if verify else 'Artifact hashes not requested.')
     if historical_missing:
         print('ABSENT historical artifacts (hashes cannot be verified; historical evidence is not current qualification):\n' + '\n'.join(sorted(set(historical_missing))))
-    required = {'run', 'sweep', 'benchmark-moss', 'benchmark-default', 'gates', 'js'}
+    required = {'run', 'sweep', 'benchmark-downstream', 'benchmark-default', 'gates', 'js'}
     incomplete = required - records.keys()
-    required_p01x = {'p01x-run', 'p01x-sweep', 'p01x-benchmark-moss', 'p01x-benchmark-defaults'}
+    required_p01x = {'p01x-run', 'p01x-sweep', 'p01x-benchmark-downstream', 'p01x-benchmark-defaults'}
     incomplete |= required_p01x - p01x_records.keys()
     if verify:
         verify_p01x(p01x_records)
@@ -921,8 +921,8 @@ def report(verify):
             raise SystemExit('D146 stage-2 adjudication requires --verify-artifacts')
         import stage2
         stage2_summary = stage2.verify(artifacts())
-        for name, pair in [*[(n, p01x_records[n]) for n in ('p01x-benchmark-moss', 'p01x-benchmark-defaults')],
-                           *[(n, records[n]) for n in ('benchmark-moss', 'benchmark-default')]]:
+        for name, pair in [*[(n, p01x_records[n]) for n in ('p01x-benchmark-downstream', 'p01x-benchmark-defaults')],
+                           *[(n, records[n]) for n in ('benchmark-downstream', 'benchmark-default')]]:
             full = pair[1]
             if full is None:
                 raise SystemExit('benchmark artifact unavailable: ' + name)
@@ -933,7 +933,7 @@ def report(verify):
         render(records, {'passed': False}, missing, release_incomplete)
         record_names = sorted(required | required_p01x)
         write(ROOT / 'parity/results/requalification-0.1.json', {
-            'schema': 'meshopt-requalification/1', 'phase': '0.1',
+            'schema': 'meshopt-requalification/1', 'release': '0.1',
             'artifact_verification': verify, 'parity_mismatches': 0,
             'records': {name: sha(ROOT / 'parity/results' / (name + '.json')) for name in record_names},
             'stage2_summary_sha256': sha(ROOT / 'parity/results/stage2-0.1.json'),
@@ -1036,7 +1036,7 @@ def report(verify):
     if missing:
         print('Summary available; release artifact verification incomplete.')
         raise SystemExit(1)
-    if not records['benchmark-moss'][0]['passed']:
+    if not records['benchmark-downstream'][0]['passed']:
         print('Release evidence verified. a downstream engine-profile RFC performance gate failed; release acceptance is blocked, bars unchanged.')
     else:
         print('Release parity, a downstream engine-profile performance and long fuzz records pass.')
@@ -1052,13 +1052,13 @@ elif len(argv) == 2 and argv[0] == '--identity-check':
     identity_check(argv[1])
 else:
     p = argparse.ArgumentParser()
-    p.add_argument('--phase', choices=['0.1', '0.3', *CODEC_PHASES], default='0.1')
+    p.add_argument('--release', choices=['0.1', '0.3', *CODEC_PHASES], default='0.1')
     p.add_argument('--verify-artifacts', action='store_true')
     args = p.parse_args(argv)
-    if args.phase == '0.3':
+    if args.release == '0.3':
         report03(args.verify_artifacts)
-    elif args.phase in CODEC_PHASES:
-        report_codec(args.verify_artifacts, args.phase)
+    elif args.release in CODEC_PHASES:
+        report_codec(args.verify_artifacts, args.release)
     else:
         report(args.verify_artifacts)
 PY

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "${MOSS_HEAVY_ACTIVE:?all builds and validation require ${JOB_RUNNER:?}}"
-[[ ${MOSS_HEAVY_GPU:-} == 0 ]]
+: "${PARITY_RUNNER_ACTIVE:?all builds and validation require ${JOB_RUNNER:?}}"
+[[ ${PARITY_RUNNER_GPU:-} == 0 ]]
 ROOT=$(cd -- "$(dirname -- "$0")/../.." && pwd)
 S="${SCRATCH:?}"/meshopt-0212-simplify
 cd "$ROOT"

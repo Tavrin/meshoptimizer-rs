@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the exported, frozen comparator under lane C admission."""
+"""Build the exported, frozen comparator under job C admission."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -20,7 +20,7 @@ import sys
 
 ART = Path(_public_path('<scratch>/meshopt-peer-c'))
 TARGET = Path(_public_path('<target-dir>'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 assert Path(os.environ['CARGO_TARGET_DIR']) == TARGET
 for arm in sys.argv[1:]:
     feature = {'base': 'ours', 'candidate': 'ours', 'X': 'optimesh', 'M7': 'peer7'}[arm]
@@ -32,15 +32,15 @@ for arm in sys.argv[1:]:
                CARGO_BUILD_JOBS='4', CXXFLAGS='-DMESHOPTIMIZER_NO_SIMD')
     subprocess.run(['cargo', 'generate-lockfile', '--offline', '--manifest-path', str(manifest)], env=env, check=True)
     cmd = ['cargo', 'build', '--locked', '--offline', '--manifest-path', str(manifest),
-           '--profile', 'moss', '--features', feature, '--bin', 'cmp-driver']
+           '--profile', 'bench-release', '--features', feature, '--bin', 'cmp-driver']
     number = len(list(ART.glob(f'build-{arm}-*.json')))
     stem = ART / f'build-{arm}-{number}'
     with stem.with_suffix('.log').open('w') as log:
         result = subprocess.run(cmd, env=env, stdout=log, stderr=subprocess.STDOUT)
-    receipt = {'command': cmd, 'exit': result.returncode, 'admission': os.environ['MOSS_HEAVY_ACTIVE']}
+    receipt = {'command': cmd, 'exit': result.returncode, 'admission': os.environ['PARITY_RUNNER_ACTIVE']}
     if result.returncode == 0:
         dst = ART / f'driver-{arm}-{number}'
-        shutil.copy2(TARGET / 'moss/cmp-driver', dst)
+        shutil.copy2(TARGET / 'bench-release/cmp-driver', dst)
         receipt['binary'] = str(dst)
         receipt['sha256'] = hashlib.sha256(dst.read_bytes()).hexdigest()
         source = ART / 'baseline' if arm == 'base' else Path(__file__).resolve().parents[2]

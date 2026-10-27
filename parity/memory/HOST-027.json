@@ -9,8 +9,8 @@
     8
   ],
   "declared_GB": 4,
-  "MOSS_HEAVY_GPU": "0",
-  "MOSS_HEAVY_MEASUREMENT": "1",
+  "PARITY_RUNNER_GPU": "0",
+  "PARITY_RUNNER_MEASUREMENT": "1",
   "source_baseline": "bea3e04bf22063988a80db4764e80c3dd422a634",
   "scripts": {
     "campaign.py": "f2f5e8e8b81da747077b475ed6e9ec0aeb8c10b77972909d5b73fa4c5fafa35a",

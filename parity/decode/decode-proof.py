@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SPEC-026 proof only: exact Rust Result/bytes, no clocks or library edits.
+"""registered protocol proof only: exact Rust Result/bytes, no clocks or library edits.
 
 Run with decode-proof.sh through <job-runner>. Sources, corpus, executables,
 compiler logs, counters and comparison receipts are retained in fresh scratch.
@@ -252,7 +252,7 @@ def fixtures():
                         name=f'vertex-v{version}-s{stride}-n{count}-k{shape}'
                         assert hashlib.sha256(encoded).hexdigest()==original[name]['input_sha256'],name
                         add(name,0,count,stride,encoded,version=version,shape=shape); vertex+=1
-        # Small groups, 64-record bulk chunks and tails; vary every lane.
+        # Small groups, 64-record bulk chunks and tails; vary every job.
         counts=[0,1,2,3,4,5,7,8,15,16,17,63,64,65,127,128,129]
         for kind,stride in [(1,4),(1,8),(2,8)]:
             limit=128 if stride==4 else 32768
@@ -352,7 +352,7 @@ def compare(a,b,label,wasm=False,probe=False,suite=None):
 
 
 def main():
-    assert os.environ.get('MOSS_HEAVY_ACTIVE'), _public_path('<job-runner> required')
+    assert os.environ.get('PARITY_RUNNER_ACTIVE'), _public_path('<job-runner> required')
     assert os.environ['CARGO_TARGET_DIR']==str(TARGET)
     assert not ART.exists(), 'fresh scratch required; never overwrite receipts'
     ART.mkdir(parents=True)

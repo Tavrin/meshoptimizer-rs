@@ -3,7 +3,7 @@
   "historical": true,
   "command": "benchmark",
   "passed": false,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "historical/benchmark-lane3-high-load.json",

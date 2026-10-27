@@ -48,5 +48,5 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(NAMES)) as pool:
         rows=list(pool.map(lambda pair:run(*pair),enumerate(NAMES)))
     assert before=={str(p.relative_to(ROOT)):sha(p) for p in ROOT.glob('src/**/*.rs')}
-    (ART/'fuzz.json').write_text(json.dumps({'phase':'0.2','sources':before,'targets':rows,'release_four_cpu_hours_per_target':'not established by this 300-second lane smoke'},indent=2))
+    (ART/'fuzz.json').write_text(json.dumps({'release':'0.2','sources':before,'targets':rows,'release_four_cpu_hours_per_target':'not established by this 300-second job smoke'},indent=2))
 if __name__=='__main__':main()

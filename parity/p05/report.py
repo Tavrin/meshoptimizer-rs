@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify complete phase-0.5 summaries and retained case artifacts."""
+"""Verify complete release-0.5 summaries and retained case artifacts."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -22,7 +22,7 @@ from benchmark import REF, SHAPES, SCREEN_T, shape_group, early_screen, stage2_s
 
 ROOT = Path(__file__).resolve().parents[2]
 ART = Path(os.environ.get('MESHOPT_ARTIFACTS', _public_path('<artifacts>/p05')))
-REQUIRED = ['run', 'sweep', 'no-default', 'wasm', 'fuzz', 'benchmark-moss', 'benchmark-default']
+REQUIRED = ['run', 'sweep', 'no-default', 'wasm', 'fuzz', 'benchmark-downstream', 'benchmark-default']
 FAMILIES = ['stripify', 'stripify_bound', 'unstripify', 'unstripify_bound', 'vertex_cache', 'vertex_fetch', 'overdraw', 'coverage', 'omm_measure', 'omm_rasterize', 'omm_entry_size', 'omm_compact', 'tangents', 'normals', 'remesh']
 
 
@@ -146,8 +146,8 @@ def verify():
                 or set(detail.get('selected_families', [])) != set(FAMILIES) or detail.get('case_filters') != {}):
                 errors.append('benchmark final inventory/protocol ' + profile)
             expected_overrides = {'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0',
-                                  'CARGO_PROFILE_RELEASE_LTO': 'thin' if profile == 'moss' else 'false',
-                                  'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1' if profile == 'moss' else '16'}
+                                  'CARGO_PROFILE_RELEASE_LTO': 'thin' if profile == 'downstream' else 'false',
+                                  'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1' if profile == 'downstream' else '16'}
             if detail['effective_profile_overrides'] != expected_overrides or record['effective_profile_overrides'] != expected_overrides:
                 errors.append('benchmark consumer profile ' + profile)
             for family, verdict in detail['families'].items():
@@ -270,8 +270,8 @@ def verify():
             for name, expected in record['source_sha256'].items():
                 if sha(ROOT / name) != expected: errors.append('stale fixture source ' + name)
     benchmarks = [json.loads((ROOT / f'parity/results/benchmark-{profile}-0.5.json').read_text())
-                  for profile in ('moss', 'default')]
-    print(json.dumps({'phase': '0.5', 'verified': not errors,
+                  for profile in ('downstream', 'default')]
+    print(json.dumps({'release': '0.5', 'verified': not errors,
                       'performance_qualified': all(record['passed'] for record in benchmarks),
                       'errors': errors}, indent=2))
     raise SystemExit(0 if not errors else 1)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-: "${MOSS_HEAVY_ACTIVE:?invoke through admit.sh}"
-[[ ${MOSS_HEAVY_GPU:-} == 0 ]]
+: "${PARITY_RUNNER_ACTIVE:?invoke through admit.sh}"
+[[ ${PARITY_RUNNER_GPU:-} == 0 ]]
 cargo fmt
 bash parity/0212-simplify2/gates.sh
 python3 parity/0212-simplify2/build.py

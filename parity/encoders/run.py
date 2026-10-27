@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Encoder lane: immutable epochs, untimed parity/counters, one final paired campaign."""
+"""Encoder job: immutable epochs, untimed parity/counters, one final paired campaign."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -24,7 +24,7 @@ PERF=Path('/usr/lib/linux-hwe-6.17-tools-6.17.0-22/perf')
 def save(name,obj): (ART/(name+'.json')).write_text(json.dumps(obj,indent=2)+'\n')
 def run(args): subprocess.run(list(map(str,args)),cwd=ROOT,env=ENV,check=True)
 def build(epoch):
- assert os.environ.get('MOSS_HEAVY_ACTIVE')
+ assert os.environ.get('PARITY_RUNNER_ACTIVE')
  assert shutil.disk_usage(ART).free>=25*1024**3,'build floor 25 GiB'
  TARGET.mkdir(parents=True,exist_ok=True);(TARGET/'tmp').mkdir(exist_ok=True)
  src={str(p.relative_to(ROOT)):sha(p) for p in (ROOT/'src').rglob('*.rs')}
@@ -38,7 +38,7 @@ def build(epoch):
   run(['cargo','build','--offline','--locked','--release','--manifest-path',ROOT/'parity/encoders/Cargo.toml'])
   shutil.copy2(TARGET/'release/encoder-crate-oracle',ART/'crate')
  assert src=={str(p.relative_to(ROOT)):sha(p) for p in (ROOT/'src').rglob('*.rs')}
- save('build-'+epoch,{'source':src,'revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'binary':sha(ART/f'rust-{epoch}'),'reference':'4c203430ca565cb59a468a91922c76c208169536','compiler':subprocess.check_output(['rustc','-Vv'],text=True),'admission':os.environ['MOSS_HEAVY_ACTIVE']})
+ save('build-'+epoch,{'source':src,'revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'binary':sha(ART/f'rust-{epoch}'),'reference':'4c203430ca565cb59a468a91922c76c208169536','compiler':subprocess.check_output(['rustc','-Vv'],text=True),'admission':os.environ['PARITY_RUNNER_ACTIVE']})
  print('built',epoch,flush=True)
 def prepare():
  rng=random.Random(20261006);cases=[];directory=ART/'inputs';directory.mkdir(exist_ok=True)
@@ -105,7 +105,7 @@ def parity(epoch):
  for d in ds.values():d.close()
  save('parity-'+epoch,{'binaries':{k:sha(ART/k) for k in ds},'cases':records,'mismatches':0});print('parity PASS',len(records),flush=True)
 def counters(epoch):
- assert os.environ.get('MOSS_HEAVY_ACTIVE')
+ assert os.environ.get('PARITY_RUNNER_ACTIVE')
  rows=json.loads((ART/'inputs.json').read_text());records=[]
  selected=[r for r in rows if ('resident' in r['name'] and ('-l2' in r['name'] or not r['name'].startswith('vertex'))) or r['name']=='vertex-v1-streaming-s4']
  family=os.environ.get('MESHOPT_COUNTER_FAMILY')

@@ -2,7 +2,7 @@
 
 Rust/C++ time ratios; each value is the family geometric mean of case median paired ratios, followed by the maximum case in parentheses.
 
-| Function | Fat LTO (historical lane 3b) | a downstream engine thin LTO | Cargo release defaults |
+| Function | Fat LTO (historical job 3b) | a downstream engine thin LTO | Cargo release defaults |
 |---|---:|---:|---:|
 | vertex_cache | 1.123 (1.201) | 1.184 (1.330) | 1.231 (1.331) |
 | overdraw | 1.098 (1.417) | 1.101 (1.522) | 1.135 (1.471) |
@@ -18,6 +18,6 @@ The complete matrix has 204 allocating, caller-buffer and allocation-free cases,
 
 These are shared-load measurements. Per-case timings, dispersion, memory, load telemetry and source/executable identities are in the external records. This table does not claim quiet-host performance or a universal speedup.
 
-See results/benchmark.json, results/benchmark-moss.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.
+See results/benchmark.json, results/benchmark-downstream.json and results/benchmark-default.json for per-function summaries and SHA-256 identities. report.sh --verify-artifacts verifies available data and identifies absent historical artifacts.
 
 D146 final integration: the full stage-1 matrices retain their case maxima and family bars. Seven maxima received 30 fresh pinned-core pairs each; two passed the upper 95% confidence bound and five remain documented residuals (including three inconclusive). See results/stage2-0.1.json and results/requalification-0.1.json.

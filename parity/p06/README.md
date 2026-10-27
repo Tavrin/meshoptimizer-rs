@@ -20,10 +20,10 @@ python3 parity/p06/measure.py
 python3 parity/p06/measure.py --resume
 ```
 
-The existing phase 0.1/0.1.x, codec 0.2/0.4 and meshlet/cluster-LOD 0.3
+The existing release 0.1/0.1.x, codec 0.2/0.4 and meshlet/cluster-LOD 0.3
 harnesses run unchanged, with records isolated under the external p06 directory.
-Phase 0.5 is not in the published 0.1.0 baseline or its dispatcher; this lane
-cannot establish that unmerged phase's parity. It does not alter p05.
+Release 0.5 is not in the published 0.1.0 baseline or its dispatcher; this job
+cannot establish that unmerged release's parity. It does not alter p05.
 
 The nine integration tests compare every meaningful output byte and float
 bit at 1, 2, 8 and N threads (N = 32 on this host). They cover both simplifiers,
@@ -92,7 +92,7 @@ also pass. Every available legacy exact fixture/sweep gate is green, including
 C++ and executed WASM. The external verifier checks current source/dependency
 hashes, every ZIP buffer/member, full corpus inventories and the timing curve.
 The slim [MEASURED_P06.json](../MEASURED_P06.json) points to its retained records.
-Phase 0.5 remains the explicit missing integration prerequisite; no 0.5, release
+Release 0.5 remains the explicit missing integration prerequisite; no 0.5, release
 fuzz, historical performance-bar, remote CI or a downstream engine integration pass is implied.
 
 

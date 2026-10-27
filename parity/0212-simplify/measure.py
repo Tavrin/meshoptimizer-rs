@@ -62,7 +62,7 @@ def run(cell, arm, rep, rows):
                '-D', '-1', '--control', f'fd:{cr},{aw}', '--', 'taskset', '-c', str(CPU),
                str(ART / f'driver-{arm}'), op, cell['input'], str(dst)]
     row = dict(cell, arm=arm, rep=rep, repetitions=n, command=command,
-               admission=os.environ['MOSS_HEAVY_ACTIVE'], input_sha256=sha(cell['input']),
+               admission=os.environ['PARITY_RUNNER_ACTIVE'], input_sha256=sha(cell['input']),
                binary_sha256=sha(ART / f'driver-{arm}'))
     try:
         result = subprocess.run(command, env=dict(os.environ, PROBE_CTL=str(cw), PROBE_ACK=str(ar)),
@@ -95,7 +95,7 @@ def run(cell, arm, rep, rows):
     rows.append(row)
 
 if __name__ == '__main__':
-    assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ['MOSS_HEAVY_GPU'] == '0'
+    assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ['PARITY_RUNNER_GPU'] == '0'
     for filename, expected in json.loads((ART / 'candidate-source.json').read_text()).items():
         assert sha(filename) == expected, ('source changed after build', filename)
     for filename, expected in json.loads((ART / 'ENTRY.json').read_text())['inputs'].items():

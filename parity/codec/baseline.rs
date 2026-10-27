@@ -1,6 +1,6 @@
-// Scratch benchmark entry point. moss.rs is an exact pinned copy, with only
+// Scratch benchmark entry point. downstream.rs is an exact pinned copy, with only
 // private decoder/filter functions made visible to this sibling module.
-mod moss;
+mod downstream;
 use std::io::{Read, Write};
 fn word(b: &[u8], i: usize) -> u32 { u32::from_le_bytes(b[i..i+4].try_into().unwrap()) }
 fn main() {
@@ -13,12 +13,12 @@ fn main() {
         let src=&b[44..];
         let once=|| -> Result<Vec<u8>,String> {
             match op {
-                1=>moss::decode_vertex_buffer(count,stride,src),
-                2=>moss::decode_index_buffer(count,stride,src),
-                3=>moss::decode_index_sequence(count,stride,src),
-                4..=6=>{let mut v=src.to_vec();match op {4=>moss::filter_octahedral(&mut v,stride)?,5=>moss::filter_quaternion(&mut v,stride)?,_=>moss::filter_exponential(&mut v,stride)?};Ok(v)},
-                7=>moss::decode([moss::Mode::Attributes,moss::Mode::Triangles,moss::Mode::Indices][mode as usize],
-                    [moss::Filter::None,moss::Filter::Octahedral,moss::Filter::Quaternion,moss::Filter::Exponential][filter as usize],count,stride,src),
+                1=>downstream::decode_vertex_buffer(count,stride,src),
+                2=>downstream::decode_index_buffer(count,stride,src),
+                3=>downstream::decode_index_sequence(count,stride,src),
+                4..=6=>{let mut v=src.to_vec();match op {4=>downstream::filter_octahedral(&mut v,stride)?,5=>downstream::filter_quaternion(&mut v,stride)?,_=>downstream::filter_exponential(&mut v,stride)?};Ok(v)},
+                7=>downstream::decode([downstream::Mode::Attributes,downstream::Mode::Triangles,downstream::Mode::Indices][mode as usize],
+                    [downstream::Filter::None,downstream::Filter::Octahedral,downstream::Filter::Quaternion,downstream::Filter::Exponential][filter as usize],count,stride,src),
                 _=>Err("operation".into())
             }
         };

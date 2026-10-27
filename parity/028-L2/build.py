@@ -15,7 +15,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 ART = pathlib.Path(_public_path('<scratch>/meshopt-028-L2'))
 TARGET = pathlib.Path(_public_path('<target-dir>'))
 BASE = 'e5168983067a5decfc5bf15605c7dae7113dba49'
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 assert pathlib.Path(os.environ['CARGO_TARGET_DIR']) == TARGET
 if not (ART / 'baseline').exists():
     (ART / 'baseline').mkdir()
@@ -48,7 +48,7 @@ for arm in sys.argv[1:]:
         xp.write_text(xp.read_text().replace('s::simplify_scale(positions,n,12)', 's::simplify_scale(positions,n,stride)'))
     # Real L2 calls never consume synthetic attributes or codec transport.
     # Omit that untimed preparation equally in every arm so paired resident
-    # real drivers fit the lane's 4 GiB envelope.
+    # real drivers fit the job's 4 GiB envelope.
     source = source.replace('        let floats: Vec<f32> = (0..n)',
                             '        let floats: Vec<f32> = (0..if replay.is_some() { 0 } else { n })')
     source = source.replace('        let raw = p\n            .iter()',
@@ -67,13 +67,13 @@ for arm in sys.argv[1:]:
     subprocess.run(['cargo','generate-lockfile','--offline','--manifest-path',str(harness/'Cargo.toml')], env=env, check=True)
     index = len(list(ART.glob(f'build-{arm}-*.json')))
     stem = ART / f'build-{arm}-{index}'
-    command = ['cargo','build','--offline','--locked','--manifest-path',str(harness/'Cargo.toml'),'--profile','moss','--features',feature,'--bin','cmp-driver']
+    command = ['cargo','build','--offline','--locked','--manifest-path',str(harness/'Cargo.toml'),'--profile','bench-release','--features',feature,'--bin','cmp-driver']
     with stem.with_suffix('.log').open('w') as log:
         r = subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT)
-    receipt = dict(command=command, exit=r.returncode, admission=os.environ['MOSS_HEAVY_ACTIVE'], source={str(p.relative_to(lib)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (lib/'src').rglob('*.rs')}, harness={str(p.relative_to(harness)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [harness/'Cargo.toml', harness/'Cargo.lock', *sorted((harness/'src').glob('*.rs'))]})
+    receipt = dict(command=command, exit=r.returncode, admission=os.environ['PARITY_RUNNER_ACTIVE'], source={str(p.relative_to(lib)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (lib/'src').rglob('*.rs')}, harness={str(p.relative_to(harness)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [harness/'Cargo.toml', harness/'Cargo.lock', *sorted((harness/'src').glob('*.rs'))]})
     if r.returncode == 0:
         binary = ART / f'driver-{arm}-{index}'
-        shutil.copy2(TARGET/'moss/cmp-driver', binary)
+        shutil.copy2(TARGET/'bench-release/cmp-driver', binary)
         receipt.update(binary=str(binary), sha256=hashlib.sha256(binary.read_bytes()).hexdigest())
     stem.with_suffix('.json').write_text(json.dumps(receipt, indent=2)+'\n')
     if r.returncode:

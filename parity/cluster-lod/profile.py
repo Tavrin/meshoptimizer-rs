@@ -15,9 +15,9 @@ def main():
     parser.add_argument('--perf', default='/usr/lib/linux-tools/6.17.0-22-generic/perf')
     args = parser.parse_args()
     assert args.core in os.sched_getaffinity(0)
-    binaries = {'cpp': run.TARGET / 'rfc113-cpp',
-                'moss_cpp': run.TARGET / 'rfc113-moss-cpp',
-                'rust': run.TARGET / 'consumer/rfc113-rust'}
+    binaries = {'cpp': run.TARGET / 'cluster-lod-cpp',
+                'downstream_cpp': run.TARGET / 'cluster-lod-downstream-cpp',
+                'rust': run.TARGET / 'consumer/cluster-lod-rust'}
     assert all(path.is_file() for path in binaries.values())
     run.ART.mkdir(parents=True, exist_ok=True)
     records = []

@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 ART=Path(_public_path('<scratch>/meshopt-0210-H2'))
 REF=Path(_public_path('<refs>/meshoptimizer'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 sys.path.insert(0,str(ROOT/'parity'))
 import runner as r
 os.environ['MESHOPT_REFERENCE']=str(REF)

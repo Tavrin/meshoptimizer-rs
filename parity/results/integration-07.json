@@ -1,7 +1,7 @@
 {
   "schema": "meshopt-integrate-07/1",
   "passed": true,
-  "scope": "local CPU integration of phase/0.7 into release/0.2.0; no performance or release qualification",
+  "scope": "local CPU integration of release/0.7 into release/0.2.0; no performance or release qualification",
   "worktree": "<local>/rel020",
   "branch": "release/0.2.0",
   "release_parent": "d5ee8ce",
@@ -16,7 +16,7 @@
       "all_retained_verbatim": true,
       "sha256": "04d4bf5b88d24f703ad8d489891d3273e3d3018c9f4abd8dd6c67154138a609a"
     },
-    "phase/0.7": {
+    "release/0.7": {
       "blocks": 146,
       "all_retained_verbatim": true,
       "sha256": "805a091a1d90b2d796be9d25301a7cbe12e4d94003f1a9502fae257236861ac2"
@@ -41,7 +41,7 @@
     "Refresh the SIMD subcrate lockfile to root version 0.2.0.",
     "Add default-feature tests to CI and foundation checks; recursively fingerprint all Rust source modules.",
     "Refresh stale merged coverage and safety documentation.",
-    "Resolve RFC113 range/divisibility/fixed-byte-chunk and codec fuzz checkpoint Clippy warnings with Rust 1.88-supported methods; refresh broad geometry snapshots and retain prior receipts."
+    "Resolve CLUSTER_LOD range/divisibility/fixed-byte-chunk and codec fuzz checkpoint Clippy warnings with Rust 1.88-supported methods; refresh broad geometry snapshots and retain prior receipts."
   ],
   "gate_count": 33,
   "foundation_commands": 17,
@@ -59,7 +59,7 @@
       "command": [
         "bash",
         "-c",
-        "set -e; for manifest in Cargo.toml parity/Cargo.toml parity/codec/Cargo.toml parity/p03/Cargo.toml parity/p05/Cargo.toml parity/p06/Cargo.toml parity/rfc113/Cargo.toml parity/simd/Cargo.toml fuzz/Cargo.toml fuzz/codec/Cargo.toml fuzz/p03/Cargo.toml fuzz/p05/Cargo.toml; do cargo metadata --offline --format-version 1 --manifest-path \"$manifest\" >/dev/null; cargo metadata --offline --locked --all-features --format-version 1 --manifest-path \"$manifest\" >/dev/null; done"
+        "set -e; for manifest in Cargo.toml parity/Cargo.toml parity/codec/Cargo.toml parity/p03/Cargo.toml parity/p05/Cargo.toml parity/p06/Cargo.toml parity/cluster-lod/Cargo.toml parity/simd/Cargo.toml fuzz/Cargo.toml fuzz/codec/Cargo.toml fuzz/p03/Cargo.toml fuzz/p05/Cargo.toml; do cargo metadata --offline --format-version 1 --manifest-path \"$manifest\" >/dev/null; cargo metadata --offline --locked --all-features --format-version 1 --manifest-path \"$manifest\" >/dev/null; done"
       ],
       "exit": 0,
       "log": "<scratch>/meshopt-integ-07/locks.log",
@@ -79,23 +79,23 @@
       "command": [
         "bash",
         "-c",
-        "set -e; failed=0; for m in parity/codec/Cargo.toml parity/p03/Cargo.toml parity/p05/Cargo.toml parity/p06/Cargo.toml parity/rfc113/Cargo.toml parity/simd/Cargo.toml fuzz/codec/Cargo.toml fuzz/p03/Cargo.toml fuzz/p05/Cargo.toml; do cargo clippy --offline --locked --manifest-path \"$m\" --all-targets --all-features -- -D warnings || failed=1; done; test \"$failed\" = 0; cargo package --offline --locked --list --allow-dirty > \"$MESHOPT_ARTIFACTS/package-list.txt\"; python3 parity/simd/check_package.py < \"$MESHOPT_ARTIFACTS/package-list.txt\"; test -n \"$(rg src/codec/simd/SAFETY.md \"$MESHOPT_ARTIFACTS/package-list.txt\")\""
+        "set -e; failed=0; for m in parity/codec/Cargo.toml parity/p03/Cargo.toml parity/p05/Cargo.toml parity/p06/Cargo.toml parity/cluster-lod/Cargo.toml parity/simd/Cargo.toml fuzz/codec/Cargo.toml fuzz/p03/Cargo.toml fuzz/p05/Cargo.toml; do cargo clippy --offline --locked --manifest-path \"$m\" --all-targets --all-features -- -D warnings || failed=1; done; test \"$failed\" = 0; cargo package --offline --locked --list --allow-dirty > \"$MESHOPT_ARTIFACTS/package-list.txt\"; python3 parity/simd/check_package.py < \"$MESHOPT_ARTIFACTS/package-list.txt\"; test -n \"$(rg src/codec/simd/SAFETY.md \"$MESHOPT_ARTIFACTS/package-list.txt\")\""
       ],
       "exit": 0,
       "log": "<scratch>/meshopt-integ-07/subcrates.log",
       "declared_gb": 4,
       "artifact": "<scratch>/meshopt-integ-07/artifacts/subcrates"
     },
-    "rfc113": {
+    "cluster-lod": {
       "command": [
         "bash",
         "-c",
-        "set -e; cargo +1.88 check --offline --locked --manifest-path parity/rfc113/Cargo.toml; python3 parity/rfc113/run.py --pairs 0"
+        "set -e; cargo +1.88 check --offline --locked --manifest-path parity/cluster-lod/Cargo.toml; python3 parity/cluster-lod/run.py --pairs 0"
       ],
       "exit": 0,
-      "log": "<scratch>/meshopt-integ-07/rfc113.log",
+      "log": "<scratch>/meshopt-integ-07/cluster-lod.log",
       "declared_gb": 4,
-      "artifact": "<scratch>/meshopt-integ-07/artifacts/rfc113"
+      "artifact": "<scratch>/meshopt-integ-07/artifacts/cluster-lod"
     },
     "boundary": {
       "command": [
@@ -210,7 +210,7 @@
     "geometry-run": {
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "all"
       ],
       "exit": 0,
@@ -221,7 +221,7 @@
     "geometry-extended-refresh": {
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.1.x",
         "--cases-per-family",
         "2000",
@@ -246,7 +246,7 @@
     "geometry-sweep": {
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.1",
         "--cases-per-family",
         "2000",
@@ -295,7 +295,7 @@
     "codec-run": {
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.2"
       ],
       "exit": 0,
@@ -306,7 +306,7 @@
     "codec-sweep": {
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.2",
         "--cases-per-family",
         "2000",
@@ -321,7 +321,7 @@
     "meshlets-run": {
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.3"
       ],
       "exit": 0,
@@ -332,7 +332,7 @@
     "meshlets-sweep": {
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.3",
         "--cases-per-family",
         "2000",
@@ -358,7 +358,7 @@
     "encoders-run": {
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.4"
       ],
       "exit": 0,
@@ -369,7 +369,7 @@
     "encoders-sweep": {
       "command": [
         "parity/sweep.sh",
-        "--phase",
+        "--release",
         "0.4",
         "--cases-per-family",
         "2000",
@@ -384,7 +384,7 @@
     "scalar-run": {
       "command": [
         "parity/run.sh",
-        "--phase",
+        "--release",
         "0.5"
       ],
       "exit": 0,
@@ -516,7 +516,7 @@
       "three_way_cases": 80,
       "mismatches": 0
     },
-    "rfc113_harness": {
+    "cluster-lod_harness": {
       "supported_layout_cases": 15,
       "unsupported_stride_32_cases": 2,
       "timing_pairs": 0,
@@ -653,7 +653,7 @@
       "finished": 1791251291.0257542
     },
     {
-      "name": "rfc113",
+      "name": "cluster-lod",
       "exit": 143,
       "started": 1791251354.4127827,
       "finished": 1791251459.5515275
@@ -661,19 +661,19 @@
   ],
   "interrupted_attempt_policy": "Retain interruption logs/artifact directories, rerun unfinished phases at unchanged count/seed; no interrupted prefix receives pass credit. Completed extended sweep independently verified after combined job interruption.",
   "retained_prior_attempt_logs": [
-    "before-rfc113-lint/geometry-extended-verify.log",
-    "before-rfc113-lint/geometry-run.log",
-    "before-rfc113-lint/geometry-sweep.log",
-    "before-rfc113-lint/native-identity-check.log",
-    "before-rfc113-lint/native-identity-export.log",
+    "before-cluster-lod-lint/geometry-extended-verify.log",
+    "before-cluster-lod-lint/geometry-run.log",
+    "before-cluster-lod-lint/geometry-sweep.log",
+    "before-cluster-lod-lint/native-identity-check.log",
+    "before-cluster-lod-lint/native-identity-export.log",
     "geometry-sweep-disk-pause.log",
     "geometry-sweep-second-disk-pause.log",
     "meshlets-run-disk-pause.log",
     "miri-meshlet-disk-pause.log",
-    "rfc113-disk-pause.log",
+    "cluster-lod-disk-pause.log",
     "simd-identity-disk-pause.log",
     "subcrates-before-codec-lint.log",
-    "subcrates-before-rfc113-lint.log"
+    "subcrates-before-cluster-lod-lint.log"
   ],
   "timing_runs": 0,
   "pushes": 0,
@@ -750,7 +750,7 @@
     "parity/p03/Cargo.lock": "a6647915f9c32b3ba9a52cd2d28e2c20efc70b6f002b34a4f644749c01ec7232",
     "parity/p05/Cargo.lock": "aa36e7a2d23c94764fc12d8b6e8fd37681357025f1b750e90548d153336877a3",
     "parity/p06/Cargo.lock": "f606833a078d3abc8638335f7d95ba7f06012a9da7924641eff5e30f376ae1c5",
-    "parity/rfc113/Cargo.lock": "162506920de2577d3322ee4bdce0a0e627acfe5cd685e440ea9507b4ecfecb7d",
+    "parity/cluster-lod/Cargo.lock": "162506920de2577d3322ee4bdce0a0e627acfe5cd685e440ea9507b4ecfecb7d",
     "parity/simd/Cargo.lock": "d4050402547d8f85778937f38a84c4095eea08e0d1a6c07fdc671526afd9b8b3"
   },
   "verification_sha256": "94c28184fbd4689f6fc8356dae941fdc5e035f42b7ae162b7a65dd7030be7886",
@@ -759,7 +759,7 @@
     "locks": "e38901af0a82d83fad91c2dea60471a267b2f96d0a6cdbf5c9e54e4b40d8e655",
     "foundation-final": "76286608262c4b648993a7bf05baf8c144b78375a0ce3c8af0fee8e845a72c58",
     "subcrates": "f5b5e7e5169241e6ef33af5d92747ca03e8db44175cb8c78a068568f5b22a0b6",
-    "rfc113": "4060b450dcd74f522438383cddefa422401b5ac8d867ff2846483f85362b4d5e",
+    "cluster-lod": "4060b450dcd74f522438383cddefa422401b5ac8d867ff2846483f85362b4d5e",
     "boundary": "0cb0f297a2de9587ed2a2dbf4754acc138280045888ddfacac7167ac57eb2f91",
     "wasm": "4b1dc7729685d9375f261f9490083772a9bc54be9045ddfa324b704d3fa21e1a",
     "miri-lib": "c63d7fa12f44431eb3d64d8b0562c6d2a96d66c57e4d082e9663daa63ae5edf9",

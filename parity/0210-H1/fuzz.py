@@ -12,7 +12,7 @@ def _public_path(value):
 from pathlib import Path
 import json,os,resource,subprocess
 S=Path(_public_path('<scratch>/meshopt-0210-H1'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 def cpu():
  u=resource.getrusage(resource.RUSAGE_CHILDREN);return u.ru_utime+u.ru_stime
 start=cpu();rows=[];seed=20261026

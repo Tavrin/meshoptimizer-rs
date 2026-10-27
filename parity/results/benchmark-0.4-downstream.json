@@ -2,21 +2,21 @@
   "schema": "meshopt-summary/1",
   "historical": false,
   "command": "benchmark",
-  "phase": "0.4",
-  "detail_artifact": "benchmark-0.4/benchmark-0.4-moss.json",
+  "release": "0.4",
+  "detail_artifact": "benchmark-0.4/benchmark-0.4-downstream.json",
   "artifacts": {
-    "benchmark-0.4/benchmark-0.4-moss.json": "826179b468396a522f441514bce8465e54228c4678f941a139d55461bd7d0c62",
+    "benchmark-0.4/benchmark-0.4-downstream.json": "826179b468396a522f441514bce8465e54228c4678f941a139d55461bd7d0c62",
     "benchmark-0.4/benchmark04-inputs.json": "0d7215403787297b8a3b3d550d18447dbe260d83728ef55dd0b469fb3812704f"
   },
   "mismatches": 0,
-  "profile": "moss",
+  "profile": "downstream",
   "effective_profile_overrides": {
     "CARGO_PROFILE_RELEASE_LTO": "thin",
     "CARGO_PROFILE_RELEASE_CODEGEN_UNITS": "1",
     "CARGO_PROFILE_RELEASE_OPT_LEVEL": "3",
     "CARGO_PROFILE_RELEASE_DEBUG": "0"
   },
-  "bar": "per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (RFC 6.1 raw scalar codecs)",
+  "bar": "per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (design requirements raw scalar codecs)",
   "executable_sha256": {
     "rust": "9984a51edc029e631c1e8a647ce9db3e5a21d2b03a8bfa01cf44090209fbe370",
     "scalar": "f0807f35418821a03c3139f1741962c21e4f2e202f17d55455a77ec6daf5b2b6",

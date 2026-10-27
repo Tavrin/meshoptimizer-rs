@@ -3,7 +3,7 @@
   "historical": true,
   "command": "perf-profiles",
   "passed": true,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "historical/perf-profiles.json",

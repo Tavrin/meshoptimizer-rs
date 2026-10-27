@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""0.4 performance against the RFC 6.1 raw scalar codec bar, per function family.
+"""0.4 performance against the design requirements raw scalar codec bar, per function family.
 
 Rust (built with an explicit consumer profile) is timed against scalar-strict
 C++ 1.3 on identical inputs; optimized SIMD C++ is reported alongside. The bar
@@ -22,7 +22,7 @@ from runner import sources as sources02
 import runner04
 
 PROFILES = {
-    'moss': {'CARGO_PROFILE_RELEASE_LTO': 'thin', 'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1',
+    'downstream': {'CARGO_PROFILE_RELEASE_LTO': 'thin', 'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1',
              'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0'},
     'default': {'CARGO_PROFILE_RELEASE_LTO': 'false', 'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '16',
                 'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0'},
@@ -179,12 +179,12 @@ def verdict(rows, families):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--phase', default='0.4')
+    p.add_argument('--release', default='0.4')
     p.add_argument('--consumer-profile', choices=sorted(PROFILES), required=True)
     p.add_argument('--enforce', action='store_true')
     args = p.parse_args()
-    if args.phase != '0.4':
-        raise ValueError('unsupported phase')
+    if args.release != '0.4':
+        raise ValueError('unsupported release')
     profile = args.consumer_profile
     record_path = ART / f'benchmark-0.4-{profile}.json'
     if record_path.exists():
@@ -230,11 +230,11 @@ def main():
     families = {f: all(verdicts[api][f]['pass'] for api in verdicts) for f in FAMILIES}
     if before != runner04.sources() or identities != {k: sha(v) for k, v in binaries.items()}:
         raise ValueError('sources or executables changed during measurement')
-    record = {'phase': '0.4', 'consumer_profile': profile, 'effective_profile_overrides': PROFILES[profile],
+    record = {'release': '0.4', 'consumer_profile': profile, 'effective_profile_overrides': PROFILES[profile],
               'started_utc': started, 'finished_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
               'load_before': load_before, 'load_after': os.getloadavg(),
               'cpu': int(os.environ.get('MESHOPT_BENCH_CPU', min(os.sched_getaffinity(0)))),
-              'bar': 'per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (RFC 6.1 raw scalar codecs)',
+              'bar': 'per family and API: geometric mean Rust/scalar-C++ time ratio <= 1.25, maximum <= 1.50 (design requirements raw scalar codecs)',
               'protocol': 'one warm-up; >= 12 paired samples targeting 40 ms, rotating backend order, extended to 60 when CV > 15% or the 1.50 gate is within the 95% interval',
               'input_manifest_sha256': manifest_sha, 'sources': before, 'executable_sha256': identities,
               'cxx_scalar_flags': FLAGS + ['-DMESHOPTIMIZER_NO_SIMD'], 'cxx_simd_flags': FLAGS,

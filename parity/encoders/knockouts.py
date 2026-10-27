@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil,sys,os,json,subprocess
 sys.path.insert(0,str(Path(__file__).resolve().parent));import run as lane
 R,A,T=lane.ROOT,lane.ART,lane.TARGET
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 for name in ['bounds','validation']:
  assert shutil.disk_usage(A).free>=25*1024**3,'build floor'
  dst=A/('knockout-'+name)
@@ -51,5 +51,5 @@ pub(crate) fn diag_span(s: &mut [u8], start: usize, end: usize) -> &mut [u8] {
   p=dst/'src/codec/filter_encode.rs';s=p.read_text().replace('valid &= (-2147483648.0..2147483648.0).contains(&f);','let _ = f;');p.write_text(s)
  lane.run(['cargo','build','--offline','--locked','--release','--features','simd','--manifest-path',dst/'parity/codec/Cargo.toml'])
  shutil.copy2(T/'release/codec-driver',A/('rust-'+name))
- lane.save('build-'+name,{'source':{str(p.relative_to(dst)):lane.sha(p) for p in dst.rglob('*.rs')},'binary':lane.sha(A/('rust-'+name)),'disposable':True,'admission':os.environ['MOSS_HEAVY_ACTIVE']})
+ lane.save('build-'+name,{'source':{str(p.relative_to(dst)):lane.sha(p) for p in dst.rglob('*.rs')},'binary':lane.sha(A/('rust-'+name)),'disposable':True,'admission':os.environ['PARITY_RUNNER_ACTIVE']})
  print('knockout built',name,flush=True)

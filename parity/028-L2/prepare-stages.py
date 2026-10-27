@@ -15,7 +15,7 @@ from stage_vertices import recover
 from pathlib import Path
 ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 R2 = Path(_public_path('<scratch>/meshopt-simplify-perf/r2'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 rows = []
 def sha(path):
     h = hashlib.sha256()

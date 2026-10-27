@@ -1,5 +1,5 @@
 [package]
-name = "meshopt-rfc113-parity"
+name = "meshopt-cluster-lod-parity"
 version = "0.0.0"
 edition = "2021"
 publish = false
@@ -8,7 +8,7 @@ publish = false
 meshoptimizer-rs = { path = "../..", default-features = false, features = ["clusterlod"] }
 
 [[bin]]
-name = "rfc113-rust"
+name = "cluster-lod-rust"
 path = "main.rs"
 
 [profile.consumer]
@@ -18,9 +18,9 @@ codegen-units = 1
 lto = "thin"
 
 [[bin]]
-name = "rfc113-dag-oracle"
+name = "cluster-lod-dag-oracle"
 path = "dag_oracle.rs"
 
 [[bin]]
-name = "rfc113-cluster-c"
+name = "cluster-lod-cluster-c"
 path = "cluster_c/main.rs"

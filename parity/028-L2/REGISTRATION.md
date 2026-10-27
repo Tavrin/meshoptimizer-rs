@@ -1,4 +1,4 @@
-# SPEC-028 L2 — single wall campaign registration
+# registered protocol L2 — single wall campaign registration
 
 Registered before any L2 wall sample. Baseline v0.2.7 =
 `e5168983067a5decfc5bf15605c7dae7113dba49`; comparator exported from
@@ -32,7 +32,7 @@ Registered before any L2 wall sample. Baseline v0.2.7 =
   AND each case's upper95 against v0.2.7 <= 1.10 + F.
   PARTIAL: M7 bar missed but both baseline bars met. FAIL: any baseline bar
   missed. Apply these literally, including results near equality. X is not a bar.
-- Lane disclosure: replay all scale_raw, simplify, cache and overdraw calls in
+- Job disclosure: replay all scale_raw, simplify, cache and overdraw calls in
   the three retained r2 real-mesh chains (214e, b6fd, a082), with their captured
   stride-64 vertices, input indices and parameters. For pruned packaging,
   recover the rescaled vertex buffer by inverting the captured compacted

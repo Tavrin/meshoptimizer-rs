@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Paired scalar/production timing and requested-heap matrix for phase 0.3."""
+"""Paired scalar/production timing and requested-heap matrix for release 0.3."""
 import argparse,json,math,os,statistics,struct,time
 from pathlib import Path
 import runner as r
@@ -53,7 +53,7 @@ def summary(values):
  s=sorted(values);return {'median':statistics.median(s),'mean':statistics.mean(s),'min':s[0],'max':s[-1],'quartiles':statistics.quantiles(s,n=4),'stdev':statistics.stdev(s),'cv':statistics.stdev(s)/statistics.mean(s)}
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--phase',default='0.3');parser.add_argument('--profile',default='scalar-strict');parser.add_argument('--enforce',action='store_true');parser.add_argument('--quick',action='store_true');parser.add_argument('--families',nargs='*',choices=r.NAMES);a=parser.parse_args()
+ parser=argparse.ArgumentParser();parser.add_argument('--release',default='0.3');parser.add_argument('--profile',default='scalar-strict');parser.add_argument('--enforce',action='store_true');parser.add_argument('--quick',action='store_true');parser.add_argument('--families',nargs='*',choices=r.NAMES);a=parser.parse_args()
  bins,identity=r.build(False);folder=r.ART/('benchmark' if r.PROFILE=='release' else f'benchmark-{r.PROFILE}');folder.mkdir(exist_ok=True);cpu=select_cpu(folder);os.sched_setaffinity(0,{cpu['cpu']});clients={name:r.Client(name,p) for name,p in bins.items()};rows=[];start=time.time();finished=False
  record={'schema':'meshopt-p03-performance/2','identity':identity,'cpu':cpu,'method':'single thread; paired same-core resident drivers; validation, allocation, copies and operation timed; serialization, generation, I/O, startup excluded; output+scratch requested heap measured at untimed warm-up; fixed stack excluded on both sides','baselines':{'cpp':'scalar strict','cpp-simd':'same ISA availability, upstream SSE paths enabled; f32 contraction disabled'},'rows':rows,'quick':a.quick,'families':a.families,'rust_profile':r.PROFILE,'load_start':os.getloadavg()}
  def save():

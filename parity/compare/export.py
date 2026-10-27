@@ -28,7 +28,7 @@ result={'schema':1,'measured_revision':read('measurement-source.json')['revision
  'Full retained API footprint covers a broader Rust surface.'],
  'audit':{'passed':read('audit.json')['passed'],'checks':len(read('audit.json')['checks'])},
  'evidence_sha256':{}}
-for prof in ['defaults','moss']:
+for prof in ['defaults','downstream']:
  for backend in ['ours','theirs']:
   result['builds'][f'{prof}/{backend}']=read(f'build-{prof}-{backend}.json')
  j=read(f'measure-{prof}-timing.json');assert j['completed']

@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p05-wasm/1",
-  "phase": "0.5",
+  "release": "0.5",
   "counts": {
     "stripify": 2000,
     "stripify_bound": 2000,

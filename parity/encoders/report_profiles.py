@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export the sealed SPEC-03 epoch without replacing historical P03 results."""
+"""Export the sealed registered protocol epoch without replacing historical P03 results."""
 import json
 import os
 from pathlib import Path
@@ -23,10 +23,10 @@ def gm(values):
     return statistics.geometric_mean(values)
 
 
-result = {'scope': 'SPEC-03 allocating encoders, shared host, Cargo defaults and a downstream engine thin LTO',
+result = {'scope': 'registered protocol allocating encoders, shared host, Cargo defaults and a downstream engine thin LTO',
           'evidence_directory': str(A), 'registration': registration, 'build': read('build.json'),
           'native': {}, 'historical_request': {}, 'peer': {}, 'parity': {}, 'evidence_sha256': {}}
-lines = ['## SPEC-03 consumer-profile qualification', '',
+lines = ['## registered protocol consumer-profile qualification', '',
          ('Before is the retained initial source epoch; after is the candidate epoch.' if baseline else 'No library implementation change was made in this initial source epoch.'),
          'Ratios are Rust/comparator elapsed time. Policy epochs and every sample are retained.', '',
          '| Profile | Family | Before → after GM / C++ 1.3 | Case CI envelope | Max upper95 | Verdict |',

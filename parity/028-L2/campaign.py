@@ -17,7 +17,7 @@ ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 OPS = ['cache','cache-fifo','simplify-scale','overdraw']
 CASES = ['tiny-smooth','medium-smooth','medium-seams','medium-sparse','million-smooth']
 CPU = 9
-assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
+assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ.get('PARITY_RUNNER_MEASUREMENT') == '1'
 assert json.loads((ART/'proof.json').read_text())['passed']
 frozen = json.loads((ART/'parity/compare/results.json').read_text())['outputs']
 inputs = json.loads((ART/'inputs-sha256.json').read_text())

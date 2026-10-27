@@ -15,7 +15,7 @@ the frozen-only population is 1.318×. No new measurements were run.
 
 `checks.sh` ran as one job through
 `<job-runner> 4 bash parity/release-0210/checks.sh`,
-with `MOSS_HEAVY_GPU=0`, `CARGO_BUILD_JOBS=2`, and
+with `PARITY_RUNNER_GPU=0`, `CARGO_BUILD_JOBS=2`, and
 `CARGO_TARGET_DIR=<target-dir>`.
 The job exited 0.
 

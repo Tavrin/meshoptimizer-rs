@@ -22,7 +22,7 @@ optimesh = { version = "=1.1.0", optional = true }
 [[bin]]
 name = "cmp-driver"
 path = "src/main.rs"
-[profile.moss]
+[profile.bench-release]
 inherits = "release"
 opt-level = 3
 lto = "thin"
@@ -42,8 +42,8 @@ path = "proof.rs"
 required-features = ["ours"]
 
 [[bin]]
-name = "l1-rfc113"
-path = "rfc113.rs"
+name = "l1-cluster-lod"
+path = "cluster-lod.rs"
 required-features = ["ours"]
 
 [[bin]]

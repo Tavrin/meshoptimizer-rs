@@ -78,7 +78,7 @@ def geometries():
 
 def differential(args):
     reference,target,results=r.paths();binaries,identity=r.build(reference,target);artifacts=r.artifacts_path()
-    action=args.action;record={'schema':1,'phase':'0.1.x','action':action,'seed':args.seed,'identities':identity,'counts':{f:0 for f in FAMILIES.values()},'cases':[],'mismatches':0,'passed':False}
+    action=args.action;record={'schema':1,'release':'0.1.x','action':action,'seed':args.seed,'identities':identity,'counts':{f:0 for f in FAMILIES.values()},'cases':[],'mismatches':0,'passed':False}
     record['upstream_fixture_inventory']=[];record['intentional_deviations']=[]
     started=time.time();wasm=r.Wasm(binaries['wasm'])
     try:
@@ -158,8 +158,8 @@ def benchmark(args):
     import quiet
     profile=args.consumer_profile
     overrides={'CARGO_PROFILE_RELEASE_OPT_LEVEL':'3','CARGO_PROFILE_RELEASE_DEBUG':'0',
-               'CARGO_PROFILE_RELEASE_LTO':'thin'if profile=='moss'else'false',
-               'CARGO_PROFILE_RELEASE_CODEGEN_UNITS':'1'if profile=='moss'else'16'}if profile!='local'else{}
+               'CARGO_PROFILE_RELEASE_LTO':'thin'if profile=='downstream'else'false',
+               'CARGO_PROFILE_RELEASE_CODEGEN_UNITS':'1'if profile=='downstream'else'16'}if profile!='local'else{}
     r.ENV.update(overrides)
     reference,target,results=r.paths();binaries,identity=r.build(reference,target,False);artifacts=r.artifacts_path()
     selection=quiet.physical_core();
@@ -169,7 +169,7 @@ def benchmark(args):
         selection['override']='reuse measured physical core and exclude both siblings from fuzz affinity'
         if selection['cpu']not in selection['allowed_cpus']:raise ValueError('unavailable benchmark core')
     r.benchmark_cpu=selection['cpu']
-    record={'schema':1,'phase':'0.1.x','profile':'scalar-strict','consumer_profile':profile,'profile_overrides':overrides,'identities':identity,'cpu_selection':selection,'samples_minimum':10,'samples_maximum':30,'batch_repetitions':{'position_exponent':262144,'index_count_below_3000':32768,'index_count_below_300000':16,'otherwise':1},'timing':'validation, required copies, allocating output, scratch and execution; excludes input generation, transport output, serialization, I/O and startup','workloads':{},'families':{},'passed':False}
+    record={'schema':1,'release':'0.1.x','profile':'scalar-strict','consumer_profile':profile,'profile_overrides':overrides,'identities':identity,'cpu_selection':selection,'samples_minimum':10,'samples_maximum':30,'batch_repetitions':{'position_exponent':262144,'index_count_below_3000':32768,'index_count_below_300000':16,'otherwise':1},'timing':'validation, required copies, allocating output, scratch and execution; excludes input generation, transport output, serialization, I/O and startup','workloads':{},'families':{},'passed':False}
     with zipfile.ZipFile(artifacts/f'p01x-benchmark-{profile}-buffers.zip','w',compression=zipfile.ZIP_DEFLATED,compresslevel=1)as archive:
         for size,n in [('million',1000000),('tiny',32),('medium',8192)]:
             geometries={shape:performance.geometry(r,n,shape) for shape in ['smooth','seam-heavy','disconnected','sparse']}

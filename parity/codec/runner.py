@@ -123,7 +123,7 @@ def compare(cases,binaries,label,seed=None):
             if len(records)%500==0:print(label,len(records),'zero mismatches',flush=True)
     for d in [cpp,simd,rust,wasm]:d.close()
     assert before==sources();assert identities=={k:sha(v) for k,v in binaries.items()}
-    record={'phase':'0.2','seed':seed,'counts':counts,'mismatches':0,'simd_filter_conformance_cases':conformance,'sources':before,'executable_sha256':identities,'archive':str(archive),'archive_sha256':sha(archive),'cases':records,'node':subprocess.check_output(['node','--version'],text=True).strip(),'rustc':subprocess.check_output(['rustc','-Vv'],text=True),'cxx':subprocess.check_output(['c++','--version'],text=True),'cxx_scalar_flags':FLAGS+['-DMESHOPTIMIZER_NO_SIMD'],'cxx_simd_flags':FLAGS,'rust_flags':'empty; generic target; release; fat LTO; one codegen unit; no_std core','reference_revision':'4c203430ca565cb59a468a91922c76c208169536'}
+    record={'release':'0.2','seed':seed,'counts':counts,'mismatches':0,'simd_filter_conformance_cases':conformance,'sources':before,'executable_sha256':identities,'archive':str(archive),'archive_sha256':sha(archive),'cases':records,'node':subprocess.check_output(['node','--version'],text=True).strip(),'rustc':subprocess.check_output(['rustc','-Vv'],text=True),'cxx':subprocess.check_output(['c++','--version'],text=True),'cxx_scalar_flags':FLAGS+['-DMESHOPTIMIZER_NO_SIMD'],'cxx_simd_flags':FLAGS,'rust_flags':'empty; generic target; release; fat LTO; one codegen unit; no_std core','reference_revision':'4c203430ca565cb59a468a91922c76c208169536'}
     (ART/(label+'.json')).write_text(json.dumps(record,indent=2))
     print(label,len(records),'PASS',counts,flush=True)
 
@@ -143,8 +143,8 @@ def malformed(fixtures):
     return result
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('action',choices=['run','sweep']);p.add_argument('--phase',default='0.2');p.add_argument('--profile',default='scalar-strict');p.add_argument('--cases-per-family',type=int,default=2000);p.add_argument('--seed',type=int,default=20261004);args=p.parse_args()
-    if args.phase!='0.2' or args.profile!='scalar-strict' or args.cases_per_family<2000:raise ValueError('unsupported phase/profile/count')
+    p=argparse.ArgumentParser();p.add_argument('action',choices=['run','sweep']);p.add_argument('--release',default='0.2');p.add_argument('--profile',default='scalar-strict');p.add_argument('--cases-per-family',type=int,default=2000);p.add_argument('--seed',type=int,default=20261004);args=p.parse_args()
+    if args.release!='0.2' or args.profile!='scalar-strict' or args.cases_per_family<2000:raise ValueError('unsupported release/profile/count')
     binaries=build()
     if args.action=='run':
         fixed=fixtures();compare(fixed,binaries,'fixtures');compare(malformed(fixed),binaries,'malformed')

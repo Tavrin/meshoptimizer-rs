@@ -45,7 +45,7 @@ in `checks-initial/6.log`; no receipt was overwritten. The final complete
 script passed using `--allow-dirty` for the listing. The six other commands
 also passed in both script runs. No real upload occurred.
 
-All 13 lockfile entries pin 0.2.7. The moved lane-C files are byte-identical
+All 13 lockfile entries pin 0.2.7. The moved job-C files are byte-identical
 to their root originals. README changes are limited to the Lean usage line
 and v0.2.7 links. Formatting and whitespace checks pass.
 

@@ -82,7 +82,7 @@ API/case keys. Both controller hashes and the pre-resume record are retained
 (P07-D4). The binaries and numeric protocol remained unchanged.
 
 Native completes all 276 rows and validates source/binary identities before
-the handoff watcher stops this lane's controller. Its original parent exits
+the handoff watcher stops this job's controller. Its original parent exits
 143 deliberately during Node bootstrap, with zero completed Node rows; this
 is recorded in `native-handoff.json`. The Node reporting adapter retains every
 discarded pair and stage-2 admission/load record, hashes the exact executed
@@ -197,7 +197,7 @@ bursts of at most ten minutes. wasm needs 10^7 seeded differential cases; the st
 requests the full budget;
 release sweeps need 10,000 cases per family. Neither budget is claimed here.
 AArch64 timing needs a dedicated named host to gate, or shared-CI ratios for
-reporting only. P1 is unestablished: the phase 0.6 parallel APIs are absent in
+reporting only. P1 is unestablished: the release 0.6 parallel APIs are absent in
 this checkout; inventing them would exceed P07's scope. There is no thread-count
 or wasm-worker composition qualification in this record.
 
@@ -230,7 +230,7 @@ The final combined ASan smoke exits 0 after 573,532 executions in 301.288 wall
 seconds and 289.093 process CPU seconds, with no crash artifacts. Checkpoint
 lower bounds are 567,296 calls each at scalar/SSE2/SSSE3/SSE4.1. This is a
 bounded smoke, not fulfillment of the per-target release CPU-hour budgets.
-The remaining platform, release sweep/fuzz and phase-0.6 composition records
+The remaining platform, release sweep/fuzz and release-0.6 composition records
 listed above remain unestablished by this local refresh.
 
 ### Final performance and queue policy
@@ -288,7 +288,7 @@ bar. S3 splits into 33 allocating and 34 caller-buffer comparisons; both the
 default and SSE2 ceilings are assessed independently. These failures remain
 failures. The current individual record is [SIMD_PERFORMANCE.md](SIMD_PERFORMANCE.md).
 P07-P3 in DECISIONS records profile evidence and the best observed ratios for
-the remaining gaps. The lane meets the brief's residual-evidence Done-when;
+the remaining gaps. The job meets the brief's residual-evidence Done-when;
 it does not qualify an upstream-parity or release claim.
 
 ## P07-R3 refresh — 2026-10-05
@@ -354,7 +354,7 @@ Checked/counting loops and three-byte pair output also remain in meshlets.
 DECISIONS gives the per-input counters, branch counts and upstream comparison.
 
 The owner moves all new timing to the visible shared admission wrapper,
-`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`.
+`PARITY_RUNNER_GPU=1 <job-runner> 4 timeout 840 ...`.
 No lease wrapper is nested. Actual reservation, four-GB declaration, scope cap,
 ancestor wrapper and owned GPU holder are recorded separately. The scoreboard
 exclusion remains active; a sleeping when-idle service is eligible. New helper
@@ -377,7 +377,7 @@ full current tables, including failures. No failed case is rerun for selection.
 
 Done-when is satisfied by the two optimized kernels, exact proof and documented
 residual profiles/best ratios. This is not SIMD release, ARM execution,
-Windows/macOS, dedicated-host, a downstream engine integration or phase-0.6 qualification.
+Windows/macOS, dedicated-host, a downstream engine integration or release-0.6 qualification.
 Retain source/binary archives and receipts outside the exact target; delete
 `<target-dir>` at completion. No push.
 
@@ -469,7 +469,7 @@ without proof. No late unmeasured threshold or revert is introduced.
 All six fixes are implemented; sequence cause attribution is the explicit
 unresolved subgoal. Scoped timing and result recording satisfy the stop
 condition. This does not qualify SIMD release, ARM execution, dedicated-host,
-Windows/macOS, a downstream engine integration or phase-0.6 acceptance. Binaries/evidence
+Windows/macOS, a downstream engine integration or release-0.6 acceptance. Binaries/evidence
 are archived outside the exact build target. The prescribed
 `<target-dir>` (1.1 GB) is deleted;
 cleanup.json confirms absence and disk receipts.
@@ -652,7 +652,7 @@ audit/package receipts pass. Source/binary provenance and independent CI,
 new/old, S3, means/resolution/verdict recomputation are retained.
 
 Coordinator CPU-only correction applies to every remaining burst; all final
-timing uses MOSS_HEAVY_GPU=0 heavy 4 timeout 840 with CPU26 pinning and rotating
+timing uses PARITY_RUNNER_GPU=0 heavy 4 timeout 840 with CPU26 pinning and rotating
 interleaved slots. Previous completed GPU A/A receipts stay immutable; the
 unstarted queued GPU request was canceled, no running burst killed. Native
 final bursts 693.3/451.7s, JS final 450.4s, all wrapper exits 0. Artifact directory:

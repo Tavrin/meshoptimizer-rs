@@ -42,7 +42,7 @@ S4 sequence-only:
 - caller-buffer: scalar-C++ geomean 1.073, 0 maximum failures, 0 frozen minimum failures: **pass**.
 
 Triangle-index S4 is not requalified. No release, ARM execution, dedicated
-host, Windows/macOS, a downstream engine integration or phase-0.6 qualification is claimed.
+host, Windows/macOS, a downstream engine integration or release-0.6 qualification is claimed.
 
 ## Sequence allocation investigation
 

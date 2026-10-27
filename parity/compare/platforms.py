@@ -13,7 +13,7 @@ def _public_path(value):
 from pathlib import Path
 import os,subprocess,json,time,shutil
 ROOT=Path(__file__).resolve().parents[2];ART=Path(_public_path('<scratch>/meshopt-cmp'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 env=dict(os.environ,RUSTC_WRAPPER='',RUSTC_WORKSPACE_WRAPPER='',RUSTFLAGS='',CARGO_ENCODED_RUSTFLAGS='',CARGO_BUILD_JOBS='4')
 checks=[
  ('ours-no-std-wasm-no-c', ['cargo','check','--manifest-path',str(ROOT/'Cargo.toml'),'--offline','--locked','--no-default-features','--target','wasm32-unknown-unknown'], {'CC':'/nonexistent-meshopt-cmp-cc','CXX':'/nonexistent-meshopt-cmp-cxx'}),
