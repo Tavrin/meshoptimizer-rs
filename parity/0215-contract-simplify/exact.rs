@@ -18,6 +18,7 @@ struct Case {
     target: usize,
     flags: bool,
     layout: u8,
+    attr_layout: u8,
 }
 macro_rules! observe {
     ($lib:ident, $c:expr, $family:expr, $api:expr, $options:expr, $fuel:expr, $bytes:expr, $lean:expr) => {{
@@ -33,6 +34,13 @@ macro_rules! observe {
         let mut observations = Vec::new();
         for _ in 0..2 {
             let mut p = c.p.clone();
+            let mut pf = vec![f32::NAN; 1 + p.len() * 4];
+            for (v, dst) in p.iter().zip(pf[1..].chunks_exact_mut(4)) {
+                dst[..3].copy_from_slice(v);
+            }
+            if c.layout == 7 && !p.is_empty() {
+                pf.pop();
+            }
             let offset = usize::from(c.layout == 4);
             let mut pb = vec![0xa5u8; offset + p.len() * 64];
             for (v, row) in p.iter().zip(pb[offset..].chunks_exact_mut(64)) {
@@ -57,6 +65,21 @@ macro_rules! observe {
             let mut a: Vec<f32> = (0..p.len() * c.ac)
                 .map(|i| (i % 7) as f32 * 0.125)
                 .collect();
+            let astride = c.ac + 1;
+            let mut ab = vec![0xa5; 1 + p.len() * astride * 4];
+            for (i, x) in a.iter().enumerate() {
+                let offset = 1 + (i / c.ac * astride + i % c.ac) * 4;
+                ab[offset..offset + 4].copy_from_slice(&if c.attr_layout == 2 {
+                    x.to_be_bytes()
+                } else {
+                    x.to_le_bytes()
+                });
+            }
+            let aorder = if c.attr_layout == 2 {
+                m::ByteOrder::BigEndian
+            } else {
+                m::ByteOrder::LittleEndian
+            };
             let weights = vec![c.weight; c.ac];
             let flags: Vec<_> = (0..p.len())
                 .map(|i| m::VertexFlags::from_bits((i % 8) as u8).unwrap())
@@ -89,11 +112,23 @@ macro_rules! observe {
                 if $family == 2 {
                     let mut pv = if c.layout == 0 {
                         m::PositionsMut::from_packed(&mut p)
+                    } else if c.layout >= 6 {
+                        m::PositionsMut::from_interleaved(&mut pf, c.p.len(), 4, 1)?
                     } else {
                         m::PositionsMut::from_bytes(&mut pb, c.p.len(), 64, offset, order)?
                     };
-                    let mut av =
-                        m::AttributesMut::from_interleaved(&mut a, c.p.len(), c.ac, c.ac, 0)?;
+                    let mut av = if c.attr_layout == 0 {
+                        m::AttributesMut::from_interleaved(&mut a, c.p.len(), c.ac, c.ac, 0)?
+                    } else {
+                        m::AttributesMut::from_bytes(
+                            &mut ab,
+                            c.p.len(),
+                            c.ac,
+                            astride * 4,
+                            1,
+                            aorder,
+                        )?
+                    };
                     let r = m::simplify_with_update(
                         &mut output,
                         &mut pv,
@@ -107,10 +142,16 @@ macro_rules! observe {
                 }
                 let positions = if c.layout == 0 {
                     m::Positions::from_packed(&p)
+                } else if c.layout >= 6 {
+                    m::Positions::from_interleaved(&pf, p.len(), 4, 1)?
                 } else {
                     m::Positions::from_bytes(&pb, p.len(), 64, offset, order)?
                 };
-                let attributes = m::Attributes::from_interleaved(&a, p.len(), c.ac, c.ac, 0)?;
+                let attributes = if c.attr_layout == 0 {
+                    m::Attributes::from_interleaved(&a, p.len(), c.ac, c.ac, 0)?
+                } else {
+                    m::Attributes::from_bytes(&ab, p.len(), c.ac, astride * 4, 1, aorder)?
+                };
                 if $api == 0 {
                     match $family {
                         0 | 1 | 3 => {
@@ -199,10 +240,16 @@ macro_rules! observe {
                 output,
                 positions: if c.layout == 0 {
                     p.iter().flatten().map(|x| x.to_bits()).collect()
+                } else if c.layout >= 6 {
+                    pf.iter().map(|x| x.to_bits()).collect()
                 } else {
                     pb.iter().map(|&b| u32::from(b)).collect()
                 },
-                attributes: a.iter().map(|x| x.to_bits()).collect(),
+                attributes: if c.attr_layout == 0 {
+                    a.iter().map(|x| x.to_bits()).collect()
+                } else {
+                    ab.iter().map(|&x| u32::from(x)).collect()
+                },
                 usage: (ws.usage().work, ws.usage().bytes),
             });
         }
@@ -294,6 +341,7 @@ fn mesh(kind: usize, n: usize) -> Case {
         target: 0,
         flags: kind == 3,
         layout: 0,
+        attr_layout: 0,
     }
 }
 struct Rng(u64);
@@ -328,8 +376,9 @@ fn main() {
         // Reach every prepaid release, hash batches and low-budget fallbacks.
         for i in 0..64 {
             let mut c = mesh((rng.next() % 6) as usize, 3 + (rng.next() % 96) as usize);
-            c.layout = (rng.next() % 6) as u8;
+            c.layout = (rng.next() % 8) as u8;
             c.ac = [0, 1, 3, 32][(rng.next() % 4) as usize];
+            c.attr_layout = (rng.next() % 3) as u8;
             c.target = (rng.next() as usize) % (c.ix.len() + 1);
             c.error = [0.0, 0.01, 1.0, f32::MAX, f32::NAN][(rng.next() % 5) as usize];
             c.weight = [0.0, 1.0, f32::MAX, f32::INFINITY][(rng.next() % 4) as usize];
@@ -371,6 +420,24 @@ fn main() {
         return;
     }
     finite_normalization_extent_bound();
+    // Cross every option mask with each represented position layout, lock
+    // configuration, and attribute width on the same small nontrivial mesh.
+    for layout in 0..8 {
+        for flags in [false, true] {
+            for ac in [0, 1, 3, 32] {
+                for attr_layout in 0..3 {
+                    let mut c = mesh(2, 5);
+                    c.layout = layout;
+                    c.flags = flags;
+                    c.ac = ac;
+                    c.attr_layout = attr_layout;
+                    for options in 0..512 {
+                        checks += compare(&c, options, true, 1 << 26, false);
+                    }
+                }
+            }
+        }
+    }
     for kind in 0..4 {
         let c = mesh(kind, 5);
         for options in 0..512 {
