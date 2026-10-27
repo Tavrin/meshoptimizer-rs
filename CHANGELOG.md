@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Three-real-mesh instruction ratios versus 0.2.13: `build_meshlets`
+  0.864–0.870×; cluster LOD 0.924×. `build_meshlets` versus optimesh
+  0.943–0.960×.
+
 ## [0.2.13] - 2026-10-27
 
 - `simplify` uses 0.86–0.88× the instructions of 0.2.12 and 1.28–1.35×

@@ -515,12 +515,38 @@ fn nearest<const CHECK: bool>(
     roots: &mut SqrtCache,
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
-    ctx.tick(1)?;
+    let covered = nodes
+        .len()
+        .checked_mul(2)
+        .is_some_and(|bound| ctx.work.covers(bound).unwrap_or(false));
+    if covered {
+        nearest_inner::<CHECK, true>(nodes, root, cones, emitted, p, result, limit, roots, ctx)
+    } else {
+        nearest_inner::<CHECK, false>(nodes, root, cones, emitted, p, result, limit, roots, ctx)
+    }
+}
+
+fn nearest_inner<const CHECK: bool, const COVERED: bool>(
+    nodes: &mut [Node],
+    root: usize,
+    cones: &[Cone],
+    emitted: &[u8],
+    p: [f32; 3],
+    result: &mut u32,
+    limit: &mut f32,
+    roots: &mut SqrtCache,
+    ctx: &mut Context<'_>,
+) -> Result<(), Error> {
+    if COVERED {
+        ctx.work.add_covered(1);
+    } else {
+        ctx.tick(1)?;
+    }
     let node = nodes[root];
     if node.children() == 0 {
         return Ok(());
     }
-    if node.axis() == 3 && !CHECK && ctx.work.covers(node.children())? {
+    if node.axis() == 3 && !CHECK && (COVERED || ctx.work.covers(node.children())?) {
         // Moderate leaves cannot fail: one inline loop, charged once.
         let count = node.children();
         let mut inactive = true;
@@ -535,13 +561,17 @@ fn nearest<const CHECK: bool>(
             if lower_distance(d) >= *limit || root_at_least(square, *limit) {
                 continue;
             }
-            let distance = roots.sqrt(square);
+            let distance = moderate_root(square, roots);
             if distance < *limit {
                 *result = v as u32;
                 *limit = distance;
             }
         }
-        ctx.tick(count)?;
+        if COVERED {
+            ctx.work.add_covered(count);
+        } else {
+            ctx.tick(count)?;
+        }
         if inactive {
             nodes[root].set(3, 0)?;
         }
@@ -574,7 +604,7 @@ fn nearest<const CHECK: bool>(
         if nodes[root + 1 + first].children() | nodes[root + 1 + second].children() == 0 {
             nodes[root].set(node.axis(), 0)?;
         }
-        nearest::<CHECK>(
+        nearest_inner::<CHECK, COVERED>(
             nodes,
             root + 1 + first,
             cones,
@@ -586,7 +616,7 @@ fn nearest<const CHECK: bool>(
             ctx,
         )?;
         if delta.abs() <= *limit {
-            nearest::<CHECK>(
+            nearest_inner::<CHECK, COVERED>(
                 nodes,
                 root + 1 + second,
                 cones,
@@ -600,6 +630,19 @@ fn nearest<const CHECK: bool>(
         }
     }
     Ok(())
+}
+// The moderate meshlet envelope proves this squared distance finite and nonnegative.
+#[inline(always)]
+fn moderate_root(value: f32, roots: &mut SqrtCache) -> f32 {
+    #[cfg(feature = "std")]
+    {
+        let _ = roots;
+        value.sqrt()
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        roots.sqrt(value)
+    }
 }
 // Each absolute component is a conservative lower bound on the correctly
 // rounded Euclidean distance. Use only after the finite-coordinate envelope.

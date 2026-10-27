@@ -50,6 +50,40 @@ fn check_bounds(b: Bounds) {
 /// Exercise one checked boundary with valid and malformed, finite and nonfinite data.
 pub fn exercise(op: u8, data: &[u8]) {
     let byte = |i: usize| data.get(i).copied().unwrap_or(0);
+    if matches!(op, 1 | 3) && byte(2) & 128 != 0 {
+        // Disconnected triangles force repeated KD searches, including covered
+        // and exhausted work budgets, instead of only dense random adjacency.
+        let count = usize::from(byte(0) % 64) + 1;
+        let mut positions = Vec::with_capacity(count * 3);
+        let mut indices = Vec::with_capacity(count * 3);
+        for i in 0..count {
+            let x = i as f32 * (1.0 + f32::from(byte(8)));
+            positions.extend([[x, 0., 0.], [x + 1., 0., 0.], [x, 1., 0.]]);
+            indices.extend([(3 * i) as u32, (3 * i + 1) as u32, (3 * i + 2) as u32]);
+        }
+        let mut ws = Workspace::new(Limits {
+            max_work: if byte(3) & 2 != 0 {
+                u64::from(byte(4)) * 4
+            } else {
+                1 << 24
+            },
+            ..Limits::default()
+        });
+        let settings = MeshletSettings {
+            max_vertices: 16,
+            max_triangles: 8,
+        };
+        let p = Positions::from_packed(&positions);
+        let result = if op == 1 {
+            build_meshlets(&indices, p, settings, 0., &mut ws)
+        } else {
+            build_meshlets_flex(&indices, p, settings, 2, 0., 2., &mut ws)
+        };
+        if let Ok(meshlets) = result {
+            check_meshlets(meshlets, &indices, settings);
+        }
+        return;
+    }
     let n = byte(0) as usize;
     let nt = byte(1) as usize;
     let mut p = Vec::with_capacity(n);
