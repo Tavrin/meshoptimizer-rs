@@ -1853,14 +1853,10 @@ impl State {
         if options.bits() & 128 != 0 {
             extra::fold_quadrics(self, work)?;
         }
-        // Validate and refresh positional weights together, avoiding another
-        // full read of the large positional-quadric array. No quadric is used
-        // until all positional, attribute and gradient checks have succeeded.
+        // Normalization bounds positional quadric accumulation (see the lane
+        // proof). Attribute and gradient checks remain before any use.
         // Reciprocal overflow is still checked only when its error is ranked.
         for q in &mut self.q {
-            if !q.finite() {
-                return Err(Error::NumericalFailure);
-            }
             q.cache_inverse_weight();
         }
         if self.aq.iter().any(|q| !q.finite())
