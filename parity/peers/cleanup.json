@@ -1,0 +1,22 @@
+{
+  "exit": 0,
+  "target": "<target-dir>",
+  "deleted": true,
+  "verified_absent": true,
+  "file_bytes": 64658509,
+  "files": 279,
+  "cargo_feature_arms": [
+    {
+      "features": "[\"rust\"]",
+      "rustflags": []
+    },
+    {
+      "features": "[\"ours\"]",
+      "rustflags": []
+    },
+    {
+      "features": "[\"cpp\"]",
+      "rustflags": []
+    }
+  ]
+}

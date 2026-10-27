@@ -1,0 +1,1686 @@
+{
+  "exit": 0,
+  "checks": [
+    {
+      "case": "tiny-smooth",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-seams",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "million-smooth",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-214e",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-a082",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-attributes",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-attributes",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-attributes",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-sloppy",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-sloppy",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-sloppy",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cache",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cache",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cache",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "overdraw",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "overdraw",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "overdraw",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "fetch",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "fetch",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "fetch",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-encode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-encode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-encode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "arm": "cpp",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "arm": "rust",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cluster-lod",
+      "arm": "ours",
+      "valid": true
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cluster-lod",
+      "arm": "cpp",
+      "valid": true
+    }
+  ],
+  "encoder_cross_decodes": 144
+}
