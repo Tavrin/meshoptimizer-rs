@@ -1,7 +1,7 @@
 #!/bin/bash
-# Invoke through moss-heavy (4 GiB), with the SPEC-026 target environment.
+# Invoke through <job-runner> (4 GiB), with the SPEC-026 target environment.
 set -euo pipefail
-s=/mnt/linux-extra/moss-scratch/meshopt-decode
+s="${SCRATCH:?}"/meshopt-decode
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS= CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
 export CXXFLAGS=-DMESHOPTIMIZER_NO_SIMD
 cargo generate-lockfile --offline --manifest-path "$s/native/Cargo.toml"

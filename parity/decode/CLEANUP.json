@@ -1,5 +1,5 @@
 {
-  "target": "/mnt/linux-extra/moss-cargo-targets/meshopt-decode",
+  "target": "<target-dir>",
   "removed": true,
   "absent": true,
   "bytes_removed": 123560369,

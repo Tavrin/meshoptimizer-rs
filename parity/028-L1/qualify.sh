@@ -10,9 +10,19 @@ python3 parity/028-L1/campaign.py preflight-rfc
 python3 parity/028-L1/fuzz.py
 python3 parity/028-L1/division_fuzz.py 300
 python3 - <<'PY'
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json,hashlib
-A=Path('/mnt/linux-extra/moss-scratch/meshopt-028-L1');R=Path.cwd()
+A=Path(_public_path('<scratch>/meshopt-028-L1'));R=Path.cwd()
 load=lambda p:json.loads((A/p).read_text())
 assert all(x['exit']==0 for x in load('gates.json'))
 assert load('exact-proof.json')['exit']==0

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare RFC113 mesh codec payloads against Moss's vendored C++ sources."""
+"""Compare RFC113 mesh codec payloads against a downstream engine's vendored C++ sources."""
 import argparse
 import hashlib
 import json

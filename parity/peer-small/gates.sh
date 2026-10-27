@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -uo pipefail
-: "${MOSS_HEAVY_ACTIVE:?run under moss-heavy}"
+: "${MOSS_HEAVY_ACTIVE:?run under ${JOB_RUNNER:?}}"
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS= CARGO_ENCODED_RUSTFLAGS=
 export CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
-art=/mnt/linux-extra/moss-scratch/meshopt-peer-c
+art="${SCRATCH:?}"/meshopt-peer-c
 overall=0
 run_gate() {
     local name=$1

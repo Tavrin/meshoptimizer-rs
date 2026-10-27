@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import sys,os,json,subprocess,hashlib,time,math,statistics,select
 from pathlib import Path
-A=Path('/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check');R=Path('/home/etienne/dev/meshoptimizer-rs-wt/validate-once')
+A=Path(_public_path('<scratch>/meshopt-validate-once/layout-check'));R=Path(_public_path('<repo>'))
 sys.path.insert(0,str(R/'parity'));import quiet
 case,op,comparison=sys.argv[1:];stem=f'{case}-{op}-{comparison}';D=A/'timing';D.mkdir(exist_ok=True)
 assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'

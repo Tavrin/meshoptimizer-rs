@@ -2,16 +2,16 @@
   {
     "id": "jungle-scoreboard-214e85c568a64e8a-entity",
     "sha256": "70cf8451981167c50cd1b8d296a062ca99517f679aad492e2e19f4e8711bcbf8",
-    "path": "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/214e85c568a64e8a.mesh"
+    "path": "<local>/214e85c568a64e8a.mesh"
   },
   {
     "id": "jungle-scoreboard-b6fdb93d8a1709e2-entity",
     "sha256": "4c195317e5e93bb4ccb469dd1ac37d0667ee89560bc9e134cd4d5e1e7f2b3076",
-    "path": "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/b6fdb93d8a1709e2.mesh"
+    "path": "<local>/b6fdb93d8a1709e2.mesh"
   },
   {
     "id": "jungle-scoreboard-a082ca1fd19bb86a-entity",
     "sha256": "8b9c8adce7bdca361abbf4166b5f217e73849508b40a90ee830e286e56a313e8",
-    "path": "/mnt/linux-extra/moss-lane-projects/scoreboard/assets/a082ca1fd19bb86a.mesh"
+    "path": "<local>/a082ca1fd19bb86a.mesh"
   }
 ]

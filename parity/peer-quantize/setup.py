@@ -1,6 +1,16 @@
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import subprocess, shutil
-s=Path('/mnt/linux-extra/moss-scratch/meshopt-peer-a'); repo=Path.cwd()
+s=Path(_public_path('<scratch>/meshopt-peer-a')); repo=Path.cwd()
 assert not (s/'wall.json').exists(), 'completed evidence is immutable; use fresh scratch'
 (s/'baseline').mkdir(exist_ok=True)
 p=subprocess.Popen(['git','archive','33556c4','src','Cargo.toml','Cargo.lock'],stdout=subprocess.PIPE)

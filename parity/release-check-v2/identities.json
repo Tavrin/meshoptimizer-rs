@@ -1,7 +1,7 @@
 {
   "B": {
     "revision": "afe803bbf60796a7af6b5001594a979af009cfac",
-    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/driver-B",
+    "binary": "<scratch>/meshopt-simplify-perf/release-v2/driver-B",
     "sha256": "dec652261c13a1eba35433bfe9ee3ea968785b90152008bb346734f4a3d04cc2",
     "src_manifest": {
       "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
@@ -68,11 +68,11 @@
       "rustflags": "",
       "encoded_rustflags": "unset"
     },
-    "build_log": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/build-B.log"
+    "build_log": "<scratch>/meshopt-simplify-perf/release-v2/build-B.log"
   },
   "Bprime": {
     "revision": "afe803bbf60796a7af6b5001594a979af009cfac",
-    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/driver-Bprime",
+    "binary": "<scratch>/meshopt-simplify-perf/release-v2/driver-Bprime",
     "sha256": "d6fe02e8ad1d88987b839a54a8090f53b8d9376eeb6bf0f013154401691cfef8",
     "src_manifest": {
       "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
@@ -139,11 +139,11 @@
       "rustflags": "",
       "encoded_rustflags": "unset"
     },
-    "build_log": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/build-Bprime.log"
+    "build_log": "<scratch>/meshopt-simplify-perf/release-v2/build-Bprime.log"
   },
   "C": {
     "revision": "f40f5af32e7283d1a2b59ea7358a81fe2ecaa982",
-    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/driver-C",
+    "binary": "<scratch>/meshopt-simplify-perf/release-v2/driver-C",
     "sha256": "140491a8d8c635cdcf095e39b0e40e4dff5a6e1cae9f7329631aea516c390a77",
     "src_manifest": {
       "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
@@ -210,11 +210,11 @@
       "rustflags": "",
       "encoded_rustflags": "unset"
     },
-    "build_log": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/build-C.log"
+    "build_log": "<scratch>/meshopt-simplify-perf/release-v2/build-C.log"
   },
   "Bp": {
     "revision": "afe803bbf60796a7af6b5001594a979af009cfac",
-    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/driver-Bp",
+    "binary": "<scratch>/meshopt-simplify-perf/release-v2/driver-Bp",
     "sha256": "eb481a94cddd5375df406a725057ebec2831d0a75fac487d80762be4a0ad4c70",
     "src_manifest": {
       "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
@@ -281,11 +281,11 @@
       "rustflags": "-C llvm-args=-align-all-functions=6",
       "encoded_rustflags": "unset"
     },
-    "build_log": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/build-Bp-qualified.log"
+    "build_log": "<scratch>/meshopt-simplify-perf/release-v2/build-Bp-qualified.log"
   },
   "Cp": {
     "revision": "f40f5af32e7283d1a2b59ea7358a81fe2ecaa982",
-    "binary": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/driver-Cp",
+    "binary": "<scratch>/meshopt-simplify-perf/release-v2/driver-Cp",
     "sha256": "b4892213b0d6af3fe41aad9f6fff2de835a39e62357aef468f3d1283b61b68a5",
     "src_manifest": {
       "src/analyze.rs": "e78a072d2384105f66d3593802c794b656caf205c029d762e12d3cb2b7d8ea1f",
@@ -352,6 +352,6 @@
       "rustflags": "-C llvm-args=-align-all-functions=6",
       "encoded_rustflags": "unset"
     },
-    "build_log": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/release-v2/build-Cp-qualified.log"
+    "build_log": "<scratch>/meshopt-simplify-perf/release-v2/build-Cp-qualified.log"
   }
 }

@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Build retained scalar comparators; run only within 4 GiB CPU admission."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, os, pathlib, shutil, subprocess, sys
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-ART = pathlib.Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
-TARGET = pathlib.Path('/mnt/linux-extra/moss-cargo-targets/meshopt-L2')
+ART = pathlib.Path(_public_path('<scratch>/meshopt-028-L2'))
+TARGET = pathlib.Path(_public_path('<target-dir>'))
 BASE = 'e5168983067a5decfc5bf15605c7dae7113dba49'
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 assert pathlib.Path(os.environ['CARGO_TARGET_DIR']) == TARGET
@@ -12,7 +22,7 @@ if not (ART / 'baseline').exists():
     archive = subprocess.check_output(['git', 'archive', BASE])
     subprocess.run(['tar', '-x', '-C', str(ART / 'baseline')], input=archive, check=True)
 if not (ART / 'inputs').exists():
-    shutil.copytree('/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs', ART / 'inputs')
+    shutil.copytree(_public_path('<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs'), ART / 'inputs')
     (ART / 'inputs-sha256.json').write_text(json.dumps({p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (ART / 'inputs').glob('*.bin')}, indent=2)+'\n')
 for arm in sys.argv[1:]:
     harness = ART / ('harness-' + arm)

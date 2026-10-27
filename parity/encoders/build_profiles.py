@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Build SPEC-03 consumers; invoke inside moss-heavy admission."""
+"""Build SPEC-03 consumers; invoke inside <job-runner> admission."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import json
 import os
@@ -9,13 +19,13 @@ import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS', '/mnt/linux-extra/moss-scratch/meshopt-enc03'))
-TARGET = Path('/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03')
+ART = Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS', _public_path('<scratch>/meshopt-enc03')))
+TARGET = Path(_public_path('<target-dir>'))
 assert Path(os.environ['CARGO_TARGET_DIR']) == TARGET
-assert os.environ.get('MOSS_HEAVY_ACTIVE'), 'run through moss-heavy.sh'
+assert os.environ.get('MOSS_HEAVY_ACTIVE'), _public_path('run through <job-runner>')
 ART.mkdir(parents=True, exist_ok=True)
 (TARGET / 'tmp').mkdir(parents=True, exist_ok=True)
-ENV = dict(os.environ, MESHOPT_REFERENCE='/home/etienne/dev/refs/meshoptimizer',
+ENV = dict(os.environ, MESHOPT_REFERENCE=_public_path('<refs>/meshoptimizer'),
            CARGO_INCREMENTAL='0', CARGO_BUILD_JOBS='4', RUSTFLAGS='',
            CARGO_ENCODED_RUSTFLAGS='', RUSTC_WRAPPER='', RUSTC_WORKSPACE_WRAPPER='',
            TMPDIR=str(TARGET / 'tmp'))

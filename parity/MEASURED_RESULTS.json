@@ -4,7 +4,7 @@
   "passed": false,
   "evidence_complete": false,
   "moss_performance_accepted": false,
-  "report_exit_policy": "complete verified evidence exits zero; failed Moss bars block release acceptance",
+  "report_exit_policy": "complete verified evidence exits zero; failed a downstream engine bars block release acceptance",
   "incomplete": [
     "current four-CPU-hour fuzz evidence"
   ],

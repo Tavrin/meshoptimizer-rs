@@ -14,7 +14,7 @@
     "P06 D149": "D157",
     "P06 D150": "D158"
   },
-  "artifact_directory": "/mnt/linux-extra/meshopt-artifacts/rel020",
+  "artifact_directory": "<artifacts>/rel020",
   "artifacts": {
     "gates.json": "5b42c6b04e9fb9d2f7b97cc810829fe4d8af8bd06ce387e49b530b15f3eab127",
     "audit.json": "25efb698180c78fe1b6f8f12932e44d0d0ee8027f0c4a0d2d4d45dc4c0bc35e9",
@@ -525,6 +525,6 @@
     "two invalid stride-32 S2 protect-mask setups",
     "phase 0.5 and 0.7 not merged",
     "branch timing evidence retained without remeasurement",
-    "no remote, GPU or Moss runtime acceptance"
+    "no remote, GPU or a downstream engine runtime acceptance"
   ]
 }

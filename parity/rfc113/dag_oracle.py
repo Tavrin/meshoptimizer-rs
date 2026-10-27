@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Replay the frozen S1 manifest; never write oracle inputs or references."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import argparse
 import hashlib
 import json
@@ -8,7 +18,7 @@ from pathlib import Path
 import struct
 import subprocess
 
-SCRATCH = Path('/mnt/linux-extra/moss-scratch/meshopt-cluster-dag')
+SCRATCH = Path(_public_path('<scratch>/meshopt-cluster-dag'))
 
 def field(data, offset):
     names = ['magic','version','source_vertex_count','source_index_count','flags','vertices','indices','clusters','groups','nodes','level_count','bvh_depth']

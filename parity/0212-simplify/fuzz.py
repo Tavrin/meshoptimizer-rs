@@ -1,11 +1,21 @@
 """Widened exact differential fuzzing for at least five child CPU minutes."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import json
 import os
 import resource
 import subprocess
 
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-0212-simplify')
+ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 # CPU accounting, not a performance timing. No wall durations are measured.
 def cpu():

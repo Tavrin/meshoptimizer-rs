@@ -8,9 +8,9 @@ a97301e (draft PR #14). You are a fresh agent.
 - No source changes under src/.
 - You may commit only parity/DECISIONS.md and records under parity/, with author Tavrin and no AI
   trailers, and push.
-- moss-heavy with MOSS_HEAVY_GPU=0 and MOSS_HEAVY_MEASUREMENT=1 on timing jobs, declaring ≤4 GB.
-- CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-bounds-layout, deleted at the end.
-- Scratch goes under /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/.
+- <job-runner> with MOSS_HEAVY_GPU=0 and MOSS_HEAVY_MEASUREMENT=1 on timing jobs, declaring ≤4 GB.
+- CARGO_TARGET_DIR=<target-dir>, deleted at the end.
+- Scratch goes under <scratch>/meshopt-validate-once/layout-check/.
 - Train-first yield between cases. No waits on other meshopt lanes. Do not spawn subagents.
 
 ## Why (disclosure)
@@ -21,7 +21,7 @@ Fix1 (a97301e) gave a registered FAIL (fix1/REPORT.md):
 
 That pattern is the LAYOUT class defined by the release-check v2 methodology
 (SPEC-qx5g3-release-check-v2.md). The old-API check never had that rule. This check applies it. It
-was written after the a97301e result and approved by the Moss coordinator on 2026-10-26, and it is
+was written after the a97301e result and approved by the a downstream engine coordinator on 2026-10-26, and it is
 disclosed as such in parity/DECISIONS.md before any sample. The new-API result stands and is not
 re-measured.
 

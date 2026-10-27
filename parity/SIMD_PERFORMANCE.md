@@ -1,6 +1,6 @@
 # P07 individual SIMD performance
 
-Raw native evidence: `/mnt/linux-extra/meshopt-artifacts/p07r3/performance.json`; raw Node evidence: `/mnt/linux-extra/meshopt-artifacts/p07r3/wasm-performance.json`.
+Raw native evidence: `<artifacts>/p07r3/performance.json`; raw Node evidence: `<artifacts>/p07r3/wasm-performance.json`.
 
 Time ratios: lower is faster. Family means use stage 1; only borderline case maxima use fresh D146 intervals. Repeated standalone filters are reported separately, outside the SIMD filter bar. See SIMD_RESULTS.md for shared-host and release limits.
 

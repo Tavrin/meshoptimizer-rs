@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """No-clock proof of the final exported adapters and every real stage arm."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, os, subprocess, sys
 from pathlib import Path
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
+ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 binaries=dict(zip(['candidate','base','M7','X'],sys.argv[1:]))
 def sha(p):

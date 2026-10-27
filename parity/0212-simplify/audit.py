@@ -1,4 +1,14 @@
 """Audit retained final evidence without compiling or measuring new work."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib
 import io
@@ -9,7 +19,7 @@ import tarfile
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-0212-simplify')
+ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
 LANE = ROOT / 'parity/0212-simplify'
 assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ['MOSS_HEAVY_GPU'] == '0'
 
@@ -39,7 +49,7 @@ for arm in ['base', 'candidate', 'M7']:
 # The new scalar M7 executable is bit-identical to the attribution executable;
 # independently verify every registry source file against that retained binding.
 old = json.loads((ART / 'attribution-binding.json').read_text())
-m7 = Path('/home/etienne/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/meshopt-0.7.0')
+m7 = Path(_public_path('~/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/meshopt-0.7.0'))
 for relative, expected in old['M7_source'].items():
     assert sha(m7 / relative) == expected, relative
 assert sha(ART / 'driver-M7') == old['binary']['M7']

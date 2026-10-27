@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Prepare SPEC-026 scratch from retained bet-0/REPORT-3 inputs; no timings."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 from pathlib import Path
 import hashlib, json, shutil, subprocess
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-decode')
-PEER = Path('/home/etienne/dev/meshoptimizer-rs-wt/peer-screen/parity/compare')
-SPEED = Path('/mnt/linux-extra/moss-scratch/meshopt-web-decode/speed')
+ART = Path(_public_path('<scratch>/meshopt-decode'))
+PEER = Path(_public_path('<repo>/parity/compare'))
+SPEED = Path(_public_path('<scratch>/meshopt-web-decode/speed'))
 BASE = 'bea3e04bf22063988a80db4764e80c3dd422a634'
 assert not ART.exists(), 'retain completed attempts; never overwrite scratch'
 ART.mkdir(parents=True)

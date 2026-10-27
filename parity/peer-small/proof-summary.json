@@ -11,11 +11,11 @@
   "proof_sha256": "757fa1ffc5bf720e34207d9e82d0c70a7e57c2f7e2b62ebc1c035d42f1c5b266",
   "proof_build": {
     "binaries": {
-      "/mnt/linux-extra/moss-scratch/meshopt-peer-c/proof-base.bin": "0c1707111b5edb1084ba73de2a599848bcdfccf0e902ce6e67b46ae36ccfc06c",
-      "/mnt/linux-extra/moss-scratch/meshopt-peer-c/proof-candidate.bin": "271e1f8a7a0052c7d2c0488bfe46c9de225f9933c76b62bc48e8f7cd0a9ef696",
-      "/mnt/linux-extra/moss-scratch/meshopt-peer-c/cpp-p01x": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
-      "/mnt/linux-extra/moss-scratch/meshopt-peer-c/cpp-p03": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
-      "/mnt/linux-extra/moss-scratch/meshopt-peer-c/fuzz-generator.rs": "de494a988358272312cfabbb4957b5d2c3b2a2cd1991c7a091083d04192b2412"
+      "<scratch>/meshopt-peer-c/proof-base.bin": "0c1707111b5edb1084ba73de2a599848bcdfccf0e902ce6e67b46ae36ccfc06c",
+      "<scratch>/meshopt-peer-c/proof-candidate.bin": "271e1f8a7a0052c7d2c0488bfe46c9de225f9933c76b62bc48e8f7cd0a9ef696",
+      "<scratch>/meshopt-peer-c/cpp-p01x": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+      "<scratch>/meshopt-peer-c/cpp-p03": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
+      "<scratch>/meshopt-peer-c/fuzz-generator.rs": "de494a988358272312cfabbb4957b5d2c3b2a2cd1991c7a091083d04192b2412"
     },
     "source": {
       "src/quantize.rs": "85074bc3e649c126859036241b484f54e292c78435317be068c076b61721db0e",

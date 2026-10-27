@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import { writeFileSync, readFileSync } from "node:fs";
 import { setTimeout as delay } from "node:timers/promises";
 
-const root = "/mnt/linux-extra/moss-scratch/meshopt-decode/browser";
+const root = "<scratch>/meshopt-decode/browser";
 const port = 9349;
 const httpPort = 8789;
 const profile = root + "/chrome-profile";

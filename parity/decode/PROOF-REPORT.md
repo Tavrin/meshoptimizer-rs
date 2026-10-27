@@ -81,7 +81,7 @@ The corrected native counter comparison reaches all ten native functions;
 
 Full frozen sources, both driver revisions, corpus/metadata, build logs,
 executables, counter output and transcript hashes remain at
-`/mnt/linux-extra/moss-scratch/meshopt-decode-proof/`. Compact outcomes are in
+`<scratch>/meshopt-decode-proof/`. Compact outcomes are in
 `PROOF-SUMMARY.json`; final gate and cleanup receipts accompany this report.
 
 The first filter driver used vertex version 1 for EXT views. Both revisions
@@ -95,7 +95,7 @@ run exits 0. No library output/error mismatch or library change occurred.
 
 `decode-proof.py`/`.sh` are the fresh-scratch driver/recipe;
 `decode-proof-filters.py`/`.sh` retain the explicit completion of the initial
-harness gap. Both recipes use CPU-only moss-heavy, declaration 4 GB, and the
+harness gap. Both recipes use CPU-only <job-runner>, declaration 4 GB, and the
 exact designated target. They contain no timing calls. The completion preserves
 all initial receipts and uses fresh package/binary/log names.
 

@@ -1,4 +1,4 @@
-// Moss-owned C ABI. Vendor sources remain unmodified (MIT, see vendor README).
+// a downstream engine-owned C ABI. Vendor sources remain unmodified (MIT, see vendor README).
 #include <array>
 #include <map>
 #include <vector>

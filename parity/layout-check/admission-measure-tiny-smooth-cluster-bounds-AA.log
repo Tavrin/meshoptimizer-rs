@@ -1,4 +1,4 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, no history yet): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh tiny-smooth cluster-bounds AA
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, no history yet): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh tiny-smooth cluster-bounds AA
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=12708764 - margin_kb=2097152 = free_kb=-14805916; need_kb=2097152; normal_slots=1/6; lane_slots=0/2]
-heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh tiny-smooth cluster-bounds AA
+heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh tiny-smooth cluster-bounds AA
 tiny-smooth-cluster-bounds-AA 1.010961728090429

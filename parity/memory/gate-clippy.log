@@ -5,5 +5,5 @@
     Checking crossbeam-deque v0.8.8
     Checking rayon-core v1.13.0
     Checking rayon v1.11.0
-    Checking meshoptimizer-rs v0.2.5 (/home/etienne/dev/meshoptimizer-rs-wt/memory)
+    Checking meshoptimizer-rs v0.2.5 (<repo>)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.74s

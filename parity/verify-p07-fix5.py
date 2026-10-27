@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Independently verify the scoped fix-five archives and numeric verdicts."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, math, os, re, statistics, struct, zipfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
@@ -173,7 +183,7 @@ for receipt in bursts['rows']:
     log=ART/receipt['log'];assert sha(log)==receipt['log_sha256']
     match=re.search(r"gpu-lease: 'heavy:timeout' released after (\d+)m(\d+)s \(exit 0\)",log.read_text());assert match
     seconds=int(match[1])*60+int(match[2]);assert seconds==receipt['wrapper_reported_seconds'] and seconds+1<840
-    assert 'moss-heavy.sh' not in receipt.get('nested_wrapper','')
+    assert _public_path('<job-runner>') not in receipt.get('nested_wrapper','')
     if receipt['kind']=='native':record=native
     else:record=wasm
     assert receipt['executed_controller_path'] in {x['executed_controller_path'] for x in record['controller_segments']}

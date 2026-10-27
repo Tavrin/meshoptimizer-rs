@@ -3,7 +3,7 @@
 The library API is `meshoptimizer_rs::codec`. Raw vertex, triangle and sequence
 decoders accept versions 0 and 1. `BufferView` checks EXT mode/filter/count/stride
 and optional parent metadata. EXT attribute streams retain version 0. The
-index helper retains Moss's version 0/1 domain. Output uses little-endian bytes
+index helper retains a downstream engine's version 0/1 domain. Output uses little-endian bytes
 for both index widths. Version inspection checks the header only.
 
 Each allocating and caller-buffer operation takes `Workspace`, preserving
@@ -20,13 +20,13 @@ rounding sign for negative scale words. Exp follows scalar bit construction
 and multiplication; upstream-defined exceptional results are not clamped.
 
 Set `CARGO_TARGET_DIR` to
-`/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p02` and `MESHOPT_REFERENCE`
+`<target-dir>` and `MESHOPT_REFERENCE`
 to the clean pinned upstream checkout. The specified artifact directory was
 read-only in this environment; `MESHOPT_ARTIFACTS` was set to
-`/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02`. All generated
+`<target-dir>/p02`. All generated
 messages, output bytes, raw samples, logs, corpora and executable copies live
 there. Source fixtures are exported from the pinned oracle without editing it.
-Bar registration also needs `MESHOPT_MOSS_REFERENCE`, a Moss checkout.
+Bar registration also needs `MESHOPT_MOSS_REFERENCE`, a a downstream engine checkout.
 
 `run.sh` and `sweep.sh` with `--phase 0.2` write their per-case records and
 buffer archives to `$MESHOPT_ARTIFACTS/run-0.2` and `$MESHOPT_ARTIFACTS/sweep-0.2`
@@ -71,7 +71,7 @@ uses stable with `RUSTC_BOOTSTRAP=1` for the instrumentation flags. Each smoke
 runs for at least 300 seconds, with corpus, crash directory, executions,
 elapsed time, CPU, logs and binary/source hashes retained. Smoke evidence
 does not establish the RFC's separate four-CPU-hour release fuzz gate or other
-native target qualification. No package is published and Moss is not migrated.
+native target qualification. No package is published and a downstream engine is not migrated.
 
 ## 0.4 codec completion
 
@@ -83,7 +83,7 @@ The C++ driver refuses parameters outside each reference assertion and inputs
 whose reference behaviour is undefined (status -3: no oracle, see D60).
 
 ```sh
-export MESHOPT_ARTIFACTS=/mnt/linux-extra/meshopt-artifacts/p04
+export MESHOPT_ARTIFACTS=<artifacts>/p04
 parity/run.sh --phase 0.4 --profile scalar-strict
 parity/sweep.sh --phase 0.4 --cases-per-family 2000 --seed 20261004
 parity/report.sh --execute fuzz --phase 0.4
@@ -99,7 +99,7 @@ outputs as expected bytes and the decoder suite's COLOR vectors
 (`js-fixtures04.mjs`), malformed meshlet/Color/capacity/parameter cases and
 2,000 seeded cases per operation. Encoded outputs are decoded by C++ and Rust
 in both directions. `measure04.py` applies the RFC 6.1 raw scalar codec bar
-per family and API under the Moss (thin LTO, one codegen unit) and Cargo
+per family and API under the a downstream engine (thin LTO, one codegen unit) and Cargo
 default (no LTO, sixteen codegen units) profiles. `fuzz04.py` runs nineteen
 300-second ASan smokes; it expects `tools/bin/cargo-fuzz` and an offline
 `cargo-home` in the parent of its artifact directory.
@@ -110,6 +110,6 @@ including native/WASM identity. All nineteen 300-second ASan fuzz smokes
 pass. Both enforced benchmark profiles pass all twelve families for
 allocating and caller-buffer APIs, including the rewritten bounds and the
 small meshlet decode. Detailed records are under
-`/mnt/linux-extra/meshopt-artifacts/p04`; slim summaries are in
+`<artifacts>/p04`; slim summaries are in
 `parity/results/*-0.4*.json`. Local records do not establish the separate
-release-platform, four-CPU-hour fuzz or Moss integration gates.
+release-platform, four-CPU-hour fuzz or a downstream engine integration gates.

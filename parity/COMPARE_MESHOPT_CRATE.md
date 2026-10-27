@@ -47,7 +47,7 @@ One clean and one touched-consumer rebuild were measured per backend/profile on 
 
 The initial all-feature build was exploratory and excluded. Driver compile fixes and the rejected stale decoder capture are preserved in MILESTONES.md. Later footprint-only rebuilds do not replace the original time samples.
 
-Moss: opt-level 3, thin LTO, one codegen unit. Defaults: opt-level 3, LTO off, sixteen codegen units. Both strip symbols. Rust flags/wrappers are empty. The C++ crate uses its published `cc` build configuration at O3, with no added C++ LTO or CPU-tuning flags. Its dependency profile does not inherit the crate-local release profile.
+a downstream engine: opt-level 3, thin LTO, one codegen unit. Defaults: opt-level 3, LTO off, sixteen codegen units. Both strip symbols. Rust flags/wrappers are empty. The C++ crate uses its published `cc` build configuration at O3, with no added C++ LTO or CPU-tuning flags. Its dependency profile does not inherit the crate-local release profile.
 
 | Decode consumer build | Ours clean / rebuild (s) | Theirs clean / rebuild (s) |
 |---|---|---|
@@ -100,7 +100,7 @@ Complete timing corpus: 29 operations × five inputs × two profiles = 290 cases
 
 Operation summary: geometric mean of five case medians; bracketed range is the **envelope of case 95% intervals**, not an interval for the aggregate. Individual case intervals follow in the appendix.
 
-| Operation | Defaults GM [case CI envelope] | Moss GM [case CI envelope] |
+| Operation | Defaults GM [case CI envelope] | a downstream engine GM [case CI envelope] |
 |---|---|---|
 | vertex-decode | 1.368 [1.024, 2.488] | 1.267 [0.850, 2.065] |
 | vertex-encode | 0.937 [0.830, 1.070] | 0.923 [0.754, 1.091] |
@@ -230,7 +230,7 @@ Known malformed meshlet tail: [UPSTREAM_NOTES.md](UPSTREAM_NOTES.md) freezes `se
 
 The following values come from the committed 0.2.0 qualification records and retain their original source/corpus/API epochs. Family GM bar is ≤1.25, case maximum bar ≤1.50, requested output-plus-scratch memory ≤1.25; P07 uses its documented A/A resolution and interval rules. This table does not turn old complete matrices or selected later diagnostics into acceptance of this entire integrated tree. P05 `overdraw`, `coverage`, `vertex_cache` and `vertex_fetch` below are **analyzers**, not the optimization APIs in Phase 0.1/0.1.x.
 
-| Record / family | Moss GM (max) | Defaults GM (max) | Status / source |
+| Record / family | a downstream engine GM (max) | Defaults GM (max) | Status / source |
 |---|---|---|
 | 0.1 / vertex_cache | 1.184 (1.330) | 1.231 (1.331) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
 | 0.1 / overdraw | 1.101 (1.522) | 1.135 (1.471) | [records](results/benchmark-moss.json); D146 preserves overdraw maximum INCONCLUSIVE |
@@ -353,13 +353,13 @@ Latest P07 native/wasm results and unresolved A/A rows are reproduced from [P07_
 | wasm / view-filtered | 0.889 / 1.471 / PASS | 0.945 / 1.466 / PASS | 9/30 / 26/30 |
 | wasm / view-none | 0.954 / 1.311 / PASS | 0.838 / 0.963 / PASS | 6/9 / 6/9 |
 
-Cluster LOD recovery retains scalar sum-of-medians aggregate 1.196 Moss / 1.090 defaults, with the distinct RFC113 aggregate bar 1.2 and per-mesh bar 1.5: [recovery record](results/rfc113-clod-recover.md). The maximum stage-one per-mesh median is 1.269 / 1.315. These aggregates are not family geometric means. The later P06 small-hierarchy fallback retains serial/batch medians 0.878/0.836/0.775/0.545/0.725 at 1/2/4/8/16 threads under its recorded shared load; it does not claim a universal parallel gain (D158 in DECISIONS.md).
+Cluster LOD recovery retains scalar sum-of-medians aggregate 1.196 a downstream engine / 1.090 defaults, with the distinct RFC113 aggregate bar 1.2 and per-mesh bar 1.5: [recovery record](results/rfc113-clod-recover.md). The maximum stage-one per-mesh median is 1.269 / 1.315. These aggregates are not family geometric means. The later P06 small-hierarchy fallback retains serial/batch medians 0.878/0.836/0.775/0.545/0.725 at 1/2/4/8/16 threads under its recorded shared load; it does not claim a universal parallel gain (D158 in DECISIONS.md).
 
 Families still above the requested 0.3 target bars, or not demonstrated closed:
 
-- **Cluster partitioning, Cargo defaults:** GM 1.450, maximum 1.778; Moss GM 1.229/maximum 1.367 passes that record.
+- **Cluster partitioning, Cargo defaults:** GM 1.450, maximum 1.778; a downstream engine GM 1.229/maximum 1.367 passes that record.
 - **Native allocating index, vertex and filtered-view decode:** P07 resolved maximum upper bounds 3.625, 2.118 and 1.636 respectively. Family means pass, caller-buffer rows pass under the registered resolution rule. Allocating varied filtered-view stride-32 streaming remains unresolvable, interval 1.619–2.590.
-- **Older 0.1.x allocating fetch maximum:** sparse-million medians 1.726 Moss / 1.852 defaults; both D146 streams FAIL. **Sloppy simplify, defaults** and **overdraw optimization, Moss** retain D146 INCONCLUSIVE maxima. These older records are not cleared by unrelated selected P05 analyzer fixes.
+- **Older 0.1.x allocating fetch maximum:** sparse-million medians 1.726 a downstream engine / 1.852 defaults; both D146 streams FAIL. **Sloppy simplify, defaults** and **overdraw optimization, a downstream engine** retain D146 INCONCLUSIVE maxima. These older records are not cleared by unrelated selected P05 analyzer fixes.
 - **Whole P05 integrated performance acceptance:** latest compact/coverage/raster-overdraw selected scope passes; the full all-family matrix was not refreshed after that candidate. The prior failing compact/raster rows are historical, not current proven failures.
 
 ### Where the Rust port provides different capabilities
@@ -388,11 +388,11 @@ Initialized checked slices and typed errors provide a memory-safe public boundar
 
 ## Evidence and reproduction
 
-All raw evidence is in `/mnt/linux-extra/moss-scratch/meshopt-cmp`, including MILESTONES.md, source/scout inventories, vendor hashes, input/output hashes, retained executables, build/target logs, host metadata, samples and admission receipts. Reproduce with [compare/README.md](compare/README.md). The specified comparison Cargo target is disposable and is deleted after final audit. No library changes, subagents, push, or upstream C++ re-timing.
+All raw evidence is in `<scratch>/meshopt-cmp`, including MILESTONES.md, source/scout inventories, vendor hashes, input/output hashes, retained executables, build/target logs, host metadata, samples and admission receipts. Reproduce with [compare/README.md](compare/README.md). The specified comparison Cargo target is disposable and is deleted after final audit. No library changes, subagents, push, or upstream C++ re-timing.
 
 ## Appendix: per-case ratios and intervals
 
-| Frozen case / operation | Defaults median [nominal log-mean CI] | Moss median [nominal log-mean CI] |
+| Frozen case / operation | Defaults median [nominal log-mean CI] | a downstream engine median [nominal log-mean CI] |
 |---|---|---|
 | tiny-smooth / vertex-decode | 1.747 [1.474, 2.488] (n=5) | 1.661 [1.325, 2.065] (n=5) |
 | tiny-smooth / vertex-encode | 0.842 [0.830, 0.893] (n=20) | 0.847 [0.754, 0.886] (n=20) |

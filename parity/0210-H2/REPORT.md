@@ -1,6 +1,6 @@
 # H2 safe hot loops
 
-Baseline: v0.2.9, `df7fc567b6540eb06cb583e2d323c01e5797609c`. Candidate source/binary/input hashes and all raw counter samples are retained under `/mnt/linux-extra/moss-scratch/meshopt-0210-H2/`. No wall timings were taken.
+Baseline: v0.2.9, `df7fc567b6540eb06cb583e2d323c01e5797609c`. Candidate source/binary/input hashes and all raw counter samples are retained under `<scratch>/meshopt-0210-H2/`. No wall timings were taken.
 
 ## Techniques
 

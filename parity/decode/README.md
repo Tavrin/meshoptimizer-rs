@@ -6,7 +6,7 @@ code; it does not add ISA intrinsics, change codec contracts, or touch encoders.
 
 Full receipts, binaries, optimized assembly, instruction profiles, frozen source,
 inputs and Chromium results remain in
-`/mnt/linux-extra/moss-scratch/meshopt-decode/`. `EVIDENCE-SHA256SUMS.json` binds
+`<scratch>/meshopt-decode/`. `EVIDENCE-SHA256SUMS.json` binds
 retained evidence. The designated Cargo target is removed after retention.
 
 The native driver is copied from `bench/peer-screen`'s `parity/compare/src/main.rs`.
@@ -29,8 +29,8 @@ built explicitly and optimized with the original `wasm-opt -Oz` policy.
 peer-screen harness and REPORT-3 assets. It refuses existing scratch. The build,
 proof, bytecheck and final measurement recipes are retained here for inspection;
 each is invoked with `MOSS_HEAVY_GPU=0`, `MOSS_LANE=meshopt-decode`,
-`CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/meshopt-decode` and
-`/mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 bash <recipe>`. Measurement also
+`CARGO_TARGET_DIR=<target-dir>` and
+`<job-runner> 4 bash <recipe>`. Measurement also
 sets `MOSS_HEAVY_MEASUREMENT=1`. Completed measurements must not be overwritten or
 rerun to change a verdict. Historical iteration recipes and intermediate source
 snapshots remain in scratch, outside the final implementation.

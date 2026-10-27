@@ -1,7 +1,7 @@
 {
   "phase": "0.2",
   "local_verdict": "PASS",
-  "registered_bar_sha256": "b08c268e32baf1311fcac33ac19552c9a75185fb8cf5fa379d6e65d07e0dfccd",
+  "registered_bar_sha256": "0344be7380aef1fe1448a9037ca51902ee37af7ac0bf84992fd5bf471cb5dfba",
   "baseline_sha256": "8ab17783c4237b52d9b6ce157dd5f7ae696dd126611d860692ec5c8a8fec5d13",
   "candidate_sha256": "8a81061f3822b10df965574302336851c9cb9a4e37ff8a0eb691b15fb4124253",
   "fixtures": 287,
@@ -33,7 +33,7 @@
       }
     }
   },
-  "artifacts": "/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02",
+  "artifacts": "<target-dir>/p02",
   "exact_artifact_path": "read-only; placement residual",
   "native_scope": "Linux x86-64",
   "wasm_scope": "executed Node, exact native/scalar output",

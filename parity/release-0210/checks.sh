@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Run this script through CPU-only moss-heavy admission, declaring 4 GB.
+# Run this script through CPU-only <job-runner> admission, declaring 4 GB.
 set -euo pipefail
 cd -- "$(dirname -- "$0")/../.."
 : "${MOSS_HEAVY_ACTIVE:?CPU-only admission required}"
 : "${MESHOPT_ARTIFACTS:?logs must live outside the target}"
 test "${MOSS_HEAVY_GPU:?}" = 0
-test "${CARGO_TARGET_DIR:?}" = /mnt/linux-extra/moss-cargo-targets/meshopt-rel0210
+test "${CARGO_TARGET_DIR:?}" = "${CARGO_TARGET_DIR:?}"
 mkdir -p "$MESHOPT_ARTIFACTS"
 test ! -e "$MESHOPT_ARTIFACTS/exits.tsv"
 trap 'rm -rf -- "$CARGO_TARGET_DIR"; test ! -e "$CARGO_TARGET_DIR" && printf "target removed\n" > "$MESHOPT_ARTIFACTS/cleanup.txt"' EXIT

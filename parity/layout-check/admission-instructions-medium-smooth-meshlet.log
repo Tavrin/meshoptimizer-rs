@@ -1,4 +1,4 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/instructions.sh, reserving 2G, cap 7G, declared 2G, no history yet): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/instructions.sh medium-smooth meshlet
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/instructions.sh, reserving 2G, cap 7G, declared 2G, no history yet): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/instructions.sh medium-smooth meshlet
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — needs 2G RAM, 1G admissible, 16G reserved for running jobs; will start automatically [capacity: available_kb=19054432 - unused_kb=15835332 - margin_kb=2097152 = free_kb=1121948; need_kb=2097152; normal_slots=3/6; lane_slots=0/2]
 heavy: waiting — needs 2G RAM, -2G admissible, 20G reserved for running jobs; will start automatically [capacity: available_kb=18261284 - unused_kb=18865960 - margin_kb=2097152 = free_kb=-2701828; need_kb=2097152; normal_slots=4/6; lane_slots=0/2]
@@ -9,4 +9,4 @@ heavy: waiting — needs 2G RAM, 0G admissible, 21G reserved for running jobs; w
 heavy: waiting — needs 2G RAM, 0G admissible, 20G reserved for running jobs; will start automatically [capacity: available_kb=14218832 - unused_kb=11788660 - margin_kb=2097152 = free_kb=333020; need_kb=2097152; normal_slots=3/6; lane_slots=0/2]
 heavy: waiting — queued behind a push job (pid 3078620) — waiting for 4 GB RAM [capacity: available_kb=12642708 - unused_kb=10718276 - margin_kb=2097152 = free_kb=-172720; need_kb=2097152; normal_slots=3/6; lane_slots=0/2]
 heavy: waiting — needs 2G RAM, 0G admissible, 16G reserved for running jobs; will start automatically [capacity: available_kb=18861596 - unused_kb=16398599 - margin_kb=2097152 = free_kb=365845; need_kb=2097152; normal_slots=3/6; lane_slots=0/2]
-heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/instructions.sh medium-smooth meshlet
+heavy: running (2G reserved, cap 7G, 16G available): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/instructions.sh medium-smooth meshlet

@@ -1162,8 +1162,8 @@
   "real_case_hash_preflight": {
     "214e85c568a64e8a": {
       "passed": true,
-      "oracle": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/profiles-v2/cpp",
-      "candidate": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/real-final/214e85c568a64e8a",
+      "oracle": "<scratch>/meshopt-simplify-perf/profiles-v2/cpp",
+      "candidate": "<scratch>/meshopt-simplify-perf/real-final/214e85c568a64e8a",
       "algorithm_call_counts": {
         "scale_raw": 2,
         "simplify": 6,
@@ -1173,8 +1173,8 @@
     },
     "b6fdb93d8a1709e2": {
       "passed": true,
-      "oracle": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/oracle-holdouts/b6fdb93d8a1709e2",
-      "candidate": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/real-final/b6fdb93d8a1709e2",
+      "oracle": "<scratch>/meshopt-simplify-perf/oracle-holdouts/b6fdb93d8a1709e2",
+      "candidate": "<scratch>/meshopt-simplify-perf/real-final/b6fdb93d8a1709e2",
       "algorithm_call_counts": {
         "scale_raw": 2,
         "simplify": 6,
@@ -1184,8 +1184,8 @@
     },
     "a082ca1fd19bb86a": {
       "passed": true,
-      "oracle": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/oracle-holdouts/a082ca1fd19bb86a",
-      "candidate": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/real-final/a082ca1fd19bb86a",
+      "oracle": "<scratch>/meshopt-simplify-perf/oracle-holdouts/a082ca1fd19bb86a",
+      "candidate": "<scratch>/meshopt-simplify-perf/real-final/a082ca1fd19bb86a",
       "algorithm_call_counts": {
         "scale_raw": 2,
         "simplify": 6,
@@ -1407,7 +1407,7 @@
       "registered_real_samples_started": false
     }
   },
-  "external_artifact_root": "/mnt/linux-extra/moss-scratch/meshopt-simplify-perf",
+  "external_artifact_root": "<scratch>/meshopt-simplify-perf",
   "evidence_sha256": {
     "DIAGNOSIS.md": "156398b3f8a451f5d07432dd0d738ace8343158f742d48873d33b2852391609e",
     "profile-groups.json": "12cf0d4c66f3315700f1332f5c445c6254c4fd2bca56f95d332221565ed13d9c",

@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 """One final campaign using bet-0 resident driver/inputs and pairing rules."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, math, os, pathlib, select, statistics, subprocess, time
-ART = pathlib.Path('/mnt/linux-extra/moss-scratch/meshopt-decode')
-INPUT = pathlib.Path('/mnt/linux-extra/moss-scratch/meshopt-peer-screen/campaign-20261025T150615Z/inputs')
+ART = pathlib.Path(_public_path('<scratch>/meshopt-decode'))
+INPUT = pathlib.Path(_public_path('<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs'))
 CASES = ['tiny-smooth', 'medium-smooth', 'medium-seams', 'medium-sparse', 'million-smooth']
 assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
 OUT = ART / 'native-timing.json'

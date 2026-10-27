@@ -1,7 +1,7 @@
 # Cluster lane C proof adapters
 
 The registration and receipts are retained under
-`/mnt/linux-extra/moss-scratch/meshopt-cluster-c/`. `REGISTRATION.md` precedes
+`<scratch>/meshopt-cluster-c/`. `REGISTRATION.md` precedes
 all verdict samples. `campaign.py` imports the unmodified statistics, physical
 core selection and admission functions from `../timing.py`.
 

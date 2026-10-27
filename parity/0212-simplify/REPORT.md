@@ -83,7 +83,7 @@ Proof: exact baseline comparisons passed 10,058,846 paired observations under st
 
 Retained failed attempts: launcher parse=2 before preparation; initial picker test compilation=101; second proof fmt=1 after test-all/test-no-default/clippy=0. The latter two attempts and their successful arm builds are retained in attempt1-test-compile/ and attempt2-test-format/. Repairs affect launcher/tests only. The final complete proof passed on the final source; every accepted instruction sample comes from that source. No failed attempt is relabeled as passing.
 
-Raw counters, output buffers, commands, source/binary hashes and admission identities remain in `/mnt/linux-extra/moss-scratch/meshopt-0212-simplify/`. Compact per-case counts, results, proof exits and an independently checked hash binding are retained beside this report. No wall-time or production-performance claim is made. No new unsafe, API, version or shared-math changes.
+Raw counters, output buffers, commands, source/binary hashes and admission identities remain in `<scratch>/meshopt-0212-simplify/`. Compact per-case counts, results, proof exits and an independently checked hash binding are retained beside this report. No wall-time or production-performance claim is made. No new unsafe, API, version or shared-math changes.
 
 Final evidence audit=0; target cleanup=0, verified absent. `binding.json` binds all 432 raw samples and their outputs, final library/tool sources, arm manifests/locks, proof binaries and proof logs. M7 source files and the fresh executable match the attribution binding independently. `cleanup.json` and `heavy-receipts.tsv` retain the cleanup and admission records.
 

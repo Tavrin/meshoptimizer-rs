@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Run the existing pinned C++ scale differential, fixtures plus 128 seed cases."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import array, hashlib, json, os, random, shutil, subprocess, sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
-ART=Path('/mnt/linux-extra/moss-scratch/meshopt-029-scale')
-REF=Path('/home/etienne/dev/refs/meshoptimizer')
+ART=Path(_public_path('<scratch>/meshopt-029-scale'))
+REF=Path(_public_path('<refs>/meshoptimizer'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 sys.path.insert(0,str(ROOT/'parity'))
 import runner as r

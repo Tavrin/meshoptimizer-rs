@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """Build cargo-fuzz targets and run one 300-second coverage smoke per function."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import concurrent.futures,hashlib,json,os,platform,re,subprocess,time
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[2];TARGET=Path(os.environ['CARGO_TARGET_DIR']);ART=Path(os.environ.get('MESHOPT_ARTIFACTS','/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p03'));ART.mkdir(parents=True,exist_ok=True)
-TOOL=Path('/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p02/tools/bin/cargo-fuzz')
+ROOT=Path(__file__).resolve().parents[2];TARGET=Path(os.environ['CARGO_TARGET_DIR']);ART=Path(os.environ.get('MESHOPT_ARTIFACTS',_public_path('<target-dir>/p03')));ART.mkdir(parents=True,exist_ok=True)
+TOOL=Path(_public_path('<target-dir>/p02/tools/bin/cargo-fuzz'))
 ENV={**os.environ,'CARGO_HOME':str(TARGET/'cargo-home'),'CARGO_NET_OFFLINE':'true','RUSTC_BOOTSTRAP':'1','RUSTC_WRAPPER':'','RUSTC_WORKSPACE_WRAPPER':'','RUSTFLAGS':'','CARGO_ENCODED_RUSTFLAGS':''}
 ENV.pop("CARGO_ENCODED_RUSTFLAGS",None)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()

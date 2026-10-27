@@ -1,9 +1,9 @@
---- /mnt/linux-extra/moss-scratch/meshopt-a082-diag/harness/src/backend.rs
-+++ /mnt/linux-extra/moss-scratch/meshopt-memory/harness/src/backend.rs
+--- <scratch>/meshopt-a082-diag/harness/src/backend.rs
++++ <scratch>/meshopt-memory/harness/src/backend.rs
 @@ -1,4 +1,4 @@
 -use meshopt::{simplify::SimplifyOptions, utilities::VertexDataAdapter};
-+use moss_cooker::{SimplifyOptions, MeshPositions};
- use moss_cooker::MeshLodBackend;
++use downstream_cooker::{SimplifyOptions, MeshPositions};
+ use downstream_cooker::MeshLodBackend;
  use serde_json::{json, Value};
  use sha2::{Digest, Sha256};
 @@ -137,15 +137,18 @@

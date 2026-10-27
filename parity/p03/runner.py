@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Exact phase 0.3 evidence; unmodified pinned scalar C++ and executed WASM."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import argparse,base64,hashlib,json,math,os,platform,random,statistics,struct,subprocess,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 REF=Path(os.environ['MESHOPT_REFERENCE'])
-TARGET=Path(os.environ.get('CARGO_TARGET_DIR','/mnt/linux-extra/moss-cargo-targets/codex-meshopt-p03'))
-ART=Path(os.environ.get('MESHOPT_ARTIFACTS','/mnt/linux-extra/moss-cargo-targets/meshopt-artifacts/p03'))
+TARGET=Path(os.environ.get('CARGO_TARGET_DIR',_public_path('<target-dir>')))
+ART=Path(os.environ.get('MESHOPT_ARTIFACTS',_public_path('<target-dir>/p03')))
 ENV={**os.environ,'MESHOPT_REFERENCE':str(REF),'CARGO_TARGET_DIR':str(TARGET),'RUSTC_WRAPPER':'','RUSTC_WORKSPACE_WRAPPER':'','RUSTFLAGS':'','CARGO_ENCODED_RUSTFLAGS':'','CARGO_NET_OFFLINE':'true','GIT_OPTIONAL_LOCKS':'0'}
 NAMES=['build_meshlets','build_meshlets_scan','build_meshlets_flex','build_meshlets_spatial','build_meshlets_bound','compute_cluster_bounds','compute_meshlet_bounds','compute_sphere_bounds','optimize_meshlet','optimize_meshlet_level','extract_meshlet_indices','partition_clusters','spatial_sort_remap','spatial_sort_triangles','spatial_cluster_points']
 FIXTURES=['js-clusterizer-1-0.input', 'js-clusterizer-1-7.input', 'js-clusterizer-6-1.input', 'js-clusterizer-6-2.input', 'js-clusterizer-6-3.input', 'js-clusterizer-6-4.input', 'js-clusterizer-6-5.input', 'js-clusterizer-6-6.input', 'js-clusterizer-7-10.input', 'js-clusterizer-7-11.input', 'js-clusterizer-7-12.input', 'js-clusterizer-7-13.input', 'js-clusterizer-7-8.input', 'js-clusterizer-7-9.input', 'js-clusterizer-8-14.input', 'js-clusterizer-8-15.input', 'native-clusterBoundsDegenerate-0.input', 'native-clusterBoundsDegenerate-1.input', 'native-clusterBoundsDegenerate-2.input', 'native-clusterBoundsDegenerate-3.input', 'native-extractMeshlet-17.input', 'native-meshletsDense-7.input', 'native-meshletsEmpty-6.input', 'native-meshletsFlex-10.input', 'native-meshletsFlex-11.input', 'native-meshletsFlex-12.input', 'native-meshletsFlex-13.input', 'native-meshletsFlex-14.input', 'native-meshletsFlex-9.input', 'native-meshletsMax-15.input', 'native-meshletsMax-16.input', 'native-meshletsSparse-8.input', 'native-meshletsSpatial-18.input', 'native-meshletsSpatial-19.input', 'native-meshletsSpatial-20.input', 'native-meshletsSpatial-21.input', 'native-meshletsSpatialDeep-22.input', 'native-meshletsSpatialDeep-23.input', 'native-partitionBasic-24.input', 'native-partitionBasic-25.input', 'native-partitionBasic-26.input', 'native-partitionSpatial-27.input', 'native-partitionSpatial-28.input', 'native-partitionSpatialMerge-29.input', 'native-partitionSpatialMerge-30.input', 'native-sphereBounds-4.input', 'native-sphereBounds-5.input']

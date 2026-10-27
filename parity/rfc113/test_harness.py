@@ -46,7 +46,7 @@ class TimingTests(unittest.TestCase):
                 if args[-1] == 'status':
                     out = lease
                 elif 'list-units' in args:
-                    out = 'moss-scoreboard-test.service loaded active running'
+                    out = 'downstream-scoreboard-test.service loaded active running'
                 else:
                     out = '100'
                 return SimpleNamespace(returncode=0, stdout=out)

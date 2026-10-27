@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Verify complete phase-0.5 summaries and retained case artifacts."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import gzip
 import hashlib
 import json
@@ -11,7 +21,7 @@ from timing_gate import covered
 from benchmark import REF, SHAPES, SCREEN_T, shape_group, early_screen, stage2_screen
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path(os.environ.get('MESHOPT_ARTIFACTS', '/mnt/linux-extra/meshopt-artifacts/p05'))
+ART = Path(os.environ.get('MESHOPT_ARTIFACTS', _public_path('<artifacts>/p05')))
 REQUIRED = ['run', 'sweep', 'no-default', 'wasm', 'fuzz', 'benchmark-moss', 'benchmark-default']
 FAMILIES = ['stripify', 'stripify_bound', 'unstripify', 'unstripify_bound', 'vertex_cache', 'vertex_fetch', 'overdraw', 'coverage', 'omm_measure', 'omm_rasterize', 'omm_entry_size', 'omm_compact', 'tangents', 'normals', 'remesh']
 

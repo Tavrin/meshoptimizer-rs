@@ -1,7 +1,7 @@
 {
   "instructions-candidate0.json": [
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -11,7 +11,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -21,7 +21,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -31,7 +31,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -41,7 +41,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -51,7 +51,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -61,7 +61,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -71,7 +71,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -81,7 +81,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -91,7 +91,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -101,7 +101,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -111,7 +111,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -121,7 +121,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -131,7 +131,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -141,7 +141,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -151,7 +151,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -161,7 +161,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -171,7 +171,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -181,7 +181,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -191,7 +191,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-0",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -203,7 +203,7 @@
   ],
   "instructions-baseline-control-fixed.json": [
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -213,7 +213,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -223,7 +223,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -233,7 +233,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -243,7 +243,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -253,7 +253,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -263,7 +263,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -273,7 +273,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -283,7 +283,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -293,7 +293,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -303,7 +303,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -313,7 +313,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -323,7 +323,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -333,7 +333,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -343,7 +343,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -353,7 +353,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -363,7 +363,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -373,7 +373,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -383,7 +383,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -393,7 +393,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-base-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-base-1",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -403,7 +403,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -413,7 +413,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -423,7 +423,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -433,7 +433,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -443,7 +443,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -453,7 +453,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -463,7 +463,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -473,7 +473,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -483,7 +483,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -493,7 +493,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -503,7 +503,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -513,7 +513,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -523,7 +523,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -533,7 +533,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -543,7 +543,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -553,7 +553,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -563,7 +563,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -573,7 +573,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -583,7 +583,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -593,7 +593,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-X-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-X-0",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -603,7 +603,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -613,7 +613,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -623,7 +623,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -633,7 +633,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -643,7 +643,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -653,7 +653,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -663,7 +663,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -673,7 +673,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -683,7 +683,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -693,7 +693,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -703,7 +703,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -713,7 +713,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -723,7 +723,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -733,7 +733,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -743,7 +743,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -753,7 +753,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -763,7 +763,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -773,7 +773,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -783,7 +783,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -793,7 +793,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-M7-0",
+      "binary": "<scratch>/meshopt-peer-c/driver-M7-0",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -805,7 +805,7 @@
   ],
   "instructions-candidate3.json": [
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -815,7 +815,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -825,7 +825,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -835,7 +835,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -845,7 +845,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -855,7 +855,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -865,7 +865,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -875,7 +875,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -885,7 +885,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -895,7 +895,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -905,7 +905,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -915,7 +915,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -925,7 +925,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -935,7 +935,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -945,7 +945,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -955,7 +955,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -965,7 +965,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -975,7 +975,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -985,7 +985,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -995,7 +995,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-3",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-3",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -1007,7 +1007,7 @@
   ],
   "instructions-candidate4.json": [
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1017,7 +1017,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1027,7 +1027,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -1037,7 +1037,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1047,7 +1047,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -1057,7 +1057,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1067,7 +1067,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -1077,7 +1077,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -1087,7 +1087,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -1097,7 +1097,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -1107,7 +1107,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1117,7 +1117,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1127,7 +1127,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -1137,7 +1137,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1147,7 +1147,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -1157,7 +1157,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1167,7 +1167,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1177,7 +1177,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -1187,7 +1187,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1197,7 +1197,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-4",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-4",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -1209,7 +1209,7 @@
   ],
   "instructions-candidate2.json": [
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1219,7 +1219,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1229,7 +1229,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -1239,7 +1239,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1249,7 +1249,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -1259,7 +1259,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1269,7 +1269,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -1279,7 +1279,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -1289,7 +1289,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -1299,7 +1299,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -1309,7 +1309,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1319,7 +1319,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1329,7 +1329,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -1339,7 +1339,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1349,7 +1349,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -1359,7 +1359,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1369,7 +1369,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1379,7 +1379,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -1389,7 +1389,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1399,7 +1399,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-2",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-2",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,
@@ -1411,7 +1411,7 @@
   ],
   "instructions-candidate1.json": [
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "adjacency",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1421,7 +1421,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "adjacency",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1431,7 +1431,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "adjacency",
       "case": "medium-seams",
       "iterations": 100,
@@ -1441,7 +1441,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "adjacency",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1451,7 +1451,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "adjacency",
       "case": "million-smooth",
       "iterations": 2,
@@ -1461,7 +1461,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "optimize-meshlet",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1471,7 +1471,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "optimize-meshlet",
       "case": "medium-smooth",
       "iterations": 100000,
@@ -1481,7 +1481,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "optimize-meshlet",
       "case": "medium-seams",
       "iterations": 100000,
@@ -1491,7 +1491,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "optimize-meshlet",
       "case": "medium-sparse",
       "iterations": 100000,
@@ -1501,7 +1501,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "optimize-meshlet",
       "case": "million-smooth",
       "iterations": 100000,
@@ -1511,7 +1511,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "fetch",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1521,7 +1521,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "fetch",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1531,7 +1531,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "fetch",
       "case": "medium-seams",
       "iterations": 100,
@@ -1541,7 +1541,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "fetch",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1551,7 +1551,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "fetch",
       "case": "million-smooth",
       "iterations": 2,
@@ -1561,7 +1561,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "remap-indices",
       "case": "tiny-smooth",
       "iterations": 100000,
@@ -1571,7 +1571,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "remap-indices",
       "case": "medium-smooth",
       "iterations": 100,
@@ -1581,7 +1581,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "remap-indices",
       "case": "medium-seams",
       "iterations": 100,
@@ -1591,7 +1591,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "remap-indices",
       "case": "medium-sparse",
       "iterations": 100,
@@ -1601,7 +1601,7 @@
       "cpu": 7
     },
     {
-      "binary": "/mnt/linux-extra/moss-scratch/meshopt-peer-c/driver-candidate-1",
+      "binary": "<scratch>/meshopt-peer-c/driver-candidate-1",
       "operation": "remap-indices",
       "case": "million-smooth",
       "iterations": 2,

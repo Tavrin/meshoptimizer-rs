@@ -2613,7 +2613,7 @@ mod tests {
         ));
     }
 
-    // Run explicitly in release mode under moss-heavy. Compare all bit patterns,
+    // Run explicitly in release mode under <job-runner>. Compare all bit patterns,
     // including signed zero, subnormals, infinities and every NaN payload.
     #[test]
     #[ignore = "exhaustive 2^32-pattern backend identity gate"]

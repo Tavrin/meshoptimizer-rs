@@ -3,10 +3,10 @@
 Unpublished measurement consumers; no library changes. Read
 `../../parity/COMPARE_MESHOPT_CRATE.md` for results and scope.
 
-Use `CARGO_TARGET_DIR=/mnt/linux-extra/moss-cargo-targets/codex-meshopt-cmp`.
+Use `CARGO_TARGET_DIR=<target-dir>`.
 Every build and collection runs sequentially inside
 `MOSS_HEAVY_GPU=0 MOSS_HEAVY_DISK_FLOOR_GB=26 MOSS_LANE=meshopt-cmp
-/mnt/linux-extra/moss-coord/bin/moss-heavy.sh 4 timeout 840 ...`.
+<job-runner> 4 timeout 840 ...`.
 The wrapper uses rounded integer GiB; 26 keeps admission above 25 actual GiB.
 The scripts additionally enforce a 25 GiB byte-level floor. Pause and requeue
 when the floor holds; never rerun completed streams or discard pairs.
@@ -56,7 +56,7 @@ system libraries. Decode-only uses default crate features. Footprint is the
 stripped executable size and ELF section deltas from a matched empty consumer.
 
 Raw sources, inputs, outputs, binaries, host metadata, build logs and paired
-samples live in `/mnt/linux-extra/moss-scratch/meshopt-cmp`; MILESTONES.md records
+samples live in `<scratch>/meshopt-cmp`; MILESTONES.md records
 progress and rejected measurements. Timing results are Linux x86-64 measurements
 on a shared host. Historical upstream 1.3 qualification is not rerun here.
 `measurement-source.json` seals the drivers, helper code and library source;

@@ -19,7 +19,7 @@ boundary generation and stable counting sort. The original algorithms and
 upstream fixtures keep the MIT notice in LICENSE. The Rust code written for
 this crate is also MIT. No code from meshopt-rs or optimesh was used, and no
 locally qualified, reusable implementation of these 1.3 modules was
-available. The existing Moss decoder belongs to the later codec work and does
+available. The existing a downstream engine decoder belongs to the later codec work and does
 not implement these optimizers.
 
 The API differs from upstream on purpose in these ways:

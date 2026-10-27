@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Freeze all calls from the retained r2 real-mesh stage harness, without timing."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, os
 from stage_vertices import recover
 from pathlib import Path
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
-R2 = Path('/mnt/linux-extra/moss-scratch/meshopt-simplify-perf/r2')
+ART = Path(_public_path('<scratch>/meshopt-028-L2'))
+R2 = Path(_public_path('<scratch>/meshopt-simplify-perf/r2'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 rows = []
 def sha(path):

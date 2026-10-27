@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 """Build existing protocol oracles and exact Result transport, never timing."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib
 import json
 import os
@@ -7,12 +17,12 @@ from pathlib import Path
 import shutil
 import subprocess
 
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-peer-c')
+ART = Path(_public_path('<scratch>/meshopt-peer-c'))
 ROOT = Path(__file__).resolve().parents[2]
-REF = Path('/home/etienne/dev/refs/meshoptimizer')
+REF = Path(_public_path('<refs>/meshoptimizer'))
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
-assert TARGET == Path('/mnt/linux-extra/moss-cargo-targets/meshopt-peer-c')
+assert TARGET == Path(_public_path('<target-dir>'))
 env = dict(os.environ, RUSTC_WRAPPER='', RUSTC_WORKSPACE_WRAPPER='', RUSTFLAGS='',
            CARGO_ENCODED_RUSTFLAGS='', CARGO_BUILD_JOBS='4', CARGO_INCREMENTAL='0')
 def snapshot():
@@ -70,8 +80,8 @@ source = (ROOT / 'fuzz/src/p01x_main.rs').read_text()
 source = source.replace('while start.elapsed() < Duration::from_secs(seconds)', 'while executions < 256')
 a = source.index('        let result = meshoptimizer_parity::execute(&input);')
 b = source.index('        executions += 1;', a)
-source = source[:a] + '''        std::fs::write(format!("/mnt/linux-extra/moss-scratch/meshopt-peer-c/fuzz-inputs/{name}-{executions}.input"), &input)?;
-''' + source[b:]
+source = source[:a] + _public_path('''        std::fs::write(format!("<scratch>/meshopt-peer-c/fuzz-inputs/{name}-{executions}.input"), &input)?;
+''') + source[b:]
 source += '\nfn main() { run(&std::env::var("PEER_FAMILY").unwrap()).unwrap(); }\n'
 generator = ART / 'fuzz-generator.rs'
 generator.write_text(source)

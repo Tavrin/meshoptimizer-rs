@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """SPEC-03 consumer-profile qualification, preserving the original P03 epochs.
 
-Run build, prepare, reproduce, parity, timing and peer through moss-heavy.sh.
+Run build, prepare, reproduce, parity, timing and peer through <job-runner>.
 All evidence is append-only; a completed stream cannot be measured again.
 See README.md for the admission commands and the registered stopping rule.
 """
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import argparse
 import hashlib
 import importlib.util
@@ -20,8 +30,8 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS', '/mnt/linux-extra/moss-scratch/meshopt-enc03'))
-TARGET = Path('/mnt/linux-extra/moss-cargo-targets/codex-meshopt-enc03')
+ART = Path(os.environ.get('MESHOPT_ENCODER_ARTIFACTS', _public_path('<scratch>/meshopt-enc03')))
+TARGET = Path(_public_path('<target-dir>'))
 assert Path(os.environ['CARGO_TARGET_DIR']) == TARGET
 os.environ['MESHOPT_ENCODER_ARTIFACTS'] = str(ART)
 import run as lane
@@ -229,7 +239,7 @@ if __name__ == '__main__':
     parser.add_argument('action', choices=('prepare', 'reproduce', 'timing', 'parity', 'peer'))
     parser.add_argument('profile', nargs='?', choices=PROFILES)
     args = parser.parse_args()
-    assert os.environ.get('MOSS_HEAVY_ACTIVE'), 'run through moss-heavy.sh'
+    assert os.environ.get('MOSS_HEAVY_ACTIVE'), _public_path('run through <job-runner>')
     ART.mkdir(parents=True, exist_ok=True)
     if args.action == 'prepare':
         prepare()

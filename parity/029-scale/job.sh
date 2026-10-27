@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 : "${MOSS_HEAVY_ACTIVE:?run under admit.sh}"
-art=/mnt/linux-extra/moss-scratch/meshopt-029-scale
+art="${SCRATCH:?}"/meshopt-029-scale
 export TMPDIR="$art/tmp"
 mkdir -p "$TMPDIR"
 case "$1" in

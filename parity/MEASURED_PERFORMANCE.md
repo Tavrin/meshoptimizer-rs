@@ -6,7 +6,7 @@ The validated combined tree retains D131 raster/strip, D128 remesh and the other
 D129 changes. Strict root/consumer checks,79/74/79 feature-mode tests, fourteen
 contracts and 90,000 native/libm/executed-WASM cases pass exactly. No new timing
 is authorized at this stop. Remesh default owned diagnostic mean 1.264 still fails;
-no failing mean or maximum is accepted as a residual. D142 is Moss-only/abandoned,
+no failing mean or maximum is accepted as a residual. D142 is a downstream engine-only/abandoned,
 D143 untimed/abandoned. The fresh full320-row final matrix never ran. Current
 verify exits1 with zero functional errors and 51 historical benchmark/profile
 errors. Full per-family source-bound status, all tried/rejected hypotheses and
@@ -17,7 +17,7 @@ statements below are historical and superseded by D120/D144.
 
 Rust/C++ time ratios; each value is the family geometric mean of case median paired ratios, followed by the maximum case in parentheses.
 
-| Function | Fat LTO (historical lane 3b) | Moss thin LTO | Cargo release defaults |
+| Function | Fat LTO (historical lane 3b) | a downstream engine thin LTO | Cargo release defaults |
 |---|---:|---:|---:|
 | vertex_cache | 1.123 (1.201) | 1.184 (1.330) | 1.231 (1.331) |
 | overdraw | 1.098 (1.417) | 1.101 (1.522) | 1.135 (1.471) |
@@ -27,7 +27,7 @@ Rust/C++ time ratios; each value is the family geometric mean of case median pai
 
 RFC bars are unchanged: family geometric mean <= 1.25, maximum case <= 1.50, and requested output-plus-scratch memory <= 1.25 times C++.
 
-Moss uses thin LTO, one codegen unit and opt-level 3. Cargo defaults use LTO disabled, 16 codegen units and opt-level 3. Both consumer records disable release debug. The crate retains its own fat-LTO profile; dependents do not inherit it.
+a downstream engine uses thin LTO, one codegen unit and opt-level 3. Cargo defaults use LTO disabled, 16 codegen units and opt-level 3. Both consumer records disable release debug. The crate retains its own fat-LTO profile; dependents do not inherit it.
 
 The complete matrix has 204 allocating, caller-buffer and allocation-free cases, covering tiny, medium and million-triangle smooth, seam-heavy and sparse meshes. The single-thread resident drivers share one physical core, one warm-up each and 20 or 30 alternating pairs. Validation, required copies, allocation and scratch are timed.
 
@@ -41,7 +41,7 @@ D146 final integration: the full stage-1 matrices retain their case maxima and f
 
 Time ratio is Rust/scalar-strict C++ family geometric mean, with the largest representative case in parentheses. The unchanged RFC limits are 1.25 and 1.50. Each case has ten interleaved paired samples and exact output checks.
 
-| Family and API | Moss-like | Cargo defaults |
+| Family and API | a downstream engine-like | Cargo defaults |
 |---|---:|---:|
 | `stripify:allocating` | 1.346 (1.527) fail | 1.108 (1.363) pass |
 | `stripify:caller` | 1.303 (1.712) fail | 1.266 (1.358) fail |
@@ -65,16 +65,16 @@ Time ratio is Rust/scalar-strict C++ family geometric mean, with the largest rep
 | `remesh:allocating` | 1.613 (1.694) fail | 1.732 (1.833) fail |
 | `remesh:caller` | 1.527 (1.602) fail | 1.528 (1.629) fail |
 
-The time bar fails in 18/21 Moss-like and 17/21 Cargo-default groups. Comparable C++ peak output-plus-scratch storage and the RFC million-triangle/geometry-variety corpus are absent, so the overall benchmark gate remains failed even if an individual time row passes. Raw paired samples and binary hashes are in the external artifacts linked by `results/benchmark-*-0.5.json`.
+The time bar fails in 18/21 a downstream engine-like and 17/21 Cargo-default groups. Comparable C++ peak output-plus-scratch storage and the RFC million-triangle/geometry-variety corpus are absent, so the overall benchmark gate remains failed even if an individual time row passes. Raw paired samples and binary hashes are in the external artifacts linked by `results/benchmark-*-0.5.json`.
 
 ## 0.5 performance follow-up
 
-The expanded, 20-pair, same-core D73 benchmark completed both 160-case profiles and comparable memory accounting. The unchanged combined bar fails in 12/21 Moss and 14/21 Cargo-default family/API groups; caller-buffer OMM rasterize, tangents and normals exceed the memory bar. See [P05_PERFORMANCE.md](P05_PERFORMANCE.md) for every family before/after, largest case, memory ratio and worst-case profile evidence. The result is evidence-complete with documented shortfalls, not performance-qualified. The measured source passes 30,000 native differential cases and 30,000 executed WASM identity cases with zero mismatches.
+The expanded, 20-pair, same-core D73 benchmark completed both 160-case profiles and comparable memory accounting. The unchanged combined bar fails in 12/21 a downstream engine and 14/21 Cargo-default family/API groups; caller-buffer OMM rasterize, tangents and normals exceed the memory bar. See [P05_PERFORMANCE.md](P05_PERFORMANCE.md) for every family before/after, largest case, memory ratio and worst-case profile evidence. The result is evidence-complete with documented shortfalls, not performance-qualified. The measured source passes 30,000 native differential cases and 30,000 executed WASM identity cases with zero mismatches.
 
 D74–D92 source changes pass native, no-default/libm and WASM differential
 checks, plus all 114 expanded-corpus shapes. Their replacement timings wait
 for all four coordinator conditions: after 02:30 Paris, load below 12, no GPU
-lease holder and no active `moss-scoreboard-*` user unit. The D73 figures above
+lease holder and no active `downstream-scoreboard-*` user unit. The D73 figures above
 remain historical until both admitted matrices and their profiles finish.
 
 The 2026-10-05 owner amendment (D94/D95) requires every 0.5 family mean to
@@ -111,7 +111,7 @@ libm and executed-WASM sweeps again match 30,000 cases each; source/API/bar and
 pair decisions are unchanged. Current timings are queued, not yet qualified.
 
 D120 supersedes the earlier admission rules: every timed burst now queues
-visibly via `MOSS_HEAVY_GPU=1 moss-heavy.sh 4 timeout 840 ...`, with the shared
+visibly via `MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`, with the shared
 wrapper acquiring the GPU lease itself. No direct/nested GPU lease command,
 lease-free gap wait, load gate or scoreboard poll remains. The declared peak
 is 4 GB; observed completed bursts use approximately 0.5 GB. Actual receipts
@@ -121,7 +121,7 @@ D122 strip/decoder edge subsets pass all eight API/profile groups, with memory
 1.0, in a 78-second admission. D122 OMM measure full-family diagnostics pass
 means/maxima/memory in both consumers. D123 normals pass all four API/profile
 groups (largest mean 1.189, maximum 1.318, memory 1.0); three tangent groups
-pass, but Moss tangent caller mean 1.275 fails. D123 cache changes regress and
+pass, but a downstream engine tangent caller mean 1.275 fails. D123 cache changes regress and
 are rejected. D124 restores the D122 cache kernel and specializes its unchanged
 workspace preparation; tangents get proven bounded hash charging. Strict
 Clippy and 30,000 native, 30,000 libm and 30,000 executed WASM cases pass.
@@ -133,7 +133,7 @@ D73 final tables still do not qualify D124. Final full matrices remain unrun.
 D127 completes two-family diagnostics but its remesh whole-input work dispatch
 regresses and is rejected (baseline-D127-focus). Artifact-side D128 passes all
 strict/native/libm/executed-WASM proof and both 50-row diagnostics. Tangents
-pass both profiles; raster Moss maxima <=1.246. Default strip/cache/raster/
+pass both profiles; raster a downstream engine maxima <=1.246. Default strip/cache/raster/
 remesh retain diagnostic failures (D128-proof/baseline-D128-focused). D129
 promotes D128 and targets those four families with private helper inlining and
 per-triangle remesh charging specialization. D129 strict root/consumer checks,

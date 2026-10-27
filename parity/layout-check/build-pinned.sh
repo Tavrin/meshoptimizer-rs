@@ -2,7 +2,7 @@
 set -eu
 unset CARGO_ENCODED_RUSTFLAGS
 export RUSTC_WRAPPER= RUSTC_WORKSPACE_WRAPPER= RUSTFLAGS='-C llvm-args=-align-all-functions=6'
-A=/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check
+A="${SCRATCH:?}"/meshopt-validate-once/layout-check
 for arm in B C; do
  cp "$A/$arm-pinned.map" "$A/$arm-pinned-preflight.map"
  cp "$A/$arm-pinned" "$A/$arm-pinned-preflight"

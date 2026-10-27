@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ART = Path(os.environ['MESHOPT_ARTIFACTS']) / 'parallel'
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
 REF = Path(os.environ['MESHOPT_REFERENCE'])
-LEASE = Path.home() / 'Documents/automation_game/assets_toolings/Moss/scripts/gpu-lease.sh'
+LEASE = Path.home() / 'Documents/projects/assets_toolings/a downstream engine/scripts/gpu-lease.sh'
 FAMILIES = ['lod', 'encode', 'decode', 'meshlets', 'cluster_lod', 'hierarchy']
 THREADS = [1, 2, 4, 8, 16]
 
@@ -41,7 +41,7 @@ def sources():
 
 def admission():
     status = command([str(LEASE), 'status'])
-    units = command(['systemctl', '--user', 'list-units', 'moss-scoreboard-*', '--state=running',
+    units = command(['systemctl', '--user', 'list-units', 'downstream-scoreboard-*', '--state=running',
                      '--plain', '--no-pager', '--no-legend'])
     observations = []
     for line in units.splitlines():

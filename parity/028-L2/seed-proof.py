@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Exact existing FIFO seed replay and native/JS fixtures, no timed calls."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import hashlib, json, os, shutil, struct, subprocess
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
-ART = Path('/mnt/linux-extra/moss-scratch/meshopt-028-L2')
+ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
-REF = Path('/home/etienne/dev/refs/meshoptimizer')
+REF = Path(_public_path('<refs>/meshoptimizer'))
 assert os.environ.get('MOSS_HEAVY_ACTIVE')
 env = dict(os.environ,RUSTC_WRAPPER='',RUSTC_WORKSPACE_WRAPPER='',RUSTFLAGS='',CARGO_ENCODED_RUSTFLAGS='',CARGO_BUILD_JOBS='1')
 source = (ROOT/'fuzz/src/p01x_main.rs').read_text()

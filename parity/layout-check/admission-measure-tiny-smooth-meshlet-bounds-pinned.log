@@ -1,5 +1,5 @@
-heavy: waiting (class script:/mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, p95 0.6 GB over 18 runs x 1.15): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds pinned
+heavy: waiting (class script:<scratch>/meshopt-validate-once/layout-check/measure.sh, reserving 2G, cap 7G, declared 2G, p95 0.6 GB over 18 runs x 1.15): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds pinned
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=2097152; normal_slots=0/6; lane_slots=0/2]
 heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=13394880 - margin_kb=2097152 = free_kb=-15492032; need_kb=2097152; normal_slots=1/6; lane_slots=0/2]
-heavy: running (2G reserved, cap 7G, 17G available): timeout 840 bash /mnt/linux-extra/moss-scratch/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds pinned
+heavy: running (2G reserved, cap 7G, 17G available): timeout 840 bash <scratch>/meshopt-validate-once/layout-check/measure.sh tiny-smooth meshlet-bounds pinned
 tiny-smooth-meshlet-bounds-pinned 0.9482954950630372

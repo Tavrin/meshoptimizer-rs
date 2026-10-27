@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 """Read-only counters from the exact archived 0.2.0 comparison binary."""
+
+# Public path placeholders are supplied by the caller's environment.
+def _public_path(value):
+    import os as _os
+    for _name, _env in {'repo': 'REPO', 'scratch': 'SCRATCH', 'target-dir': 'CARGO_TARGET_DIR', 'worktree': 'WORKTREE', 'artifacts': 'MESHOPT_ARTIFACTS', 'refs': 'REFS', 'local': 'LOCAL', 'job-runner': 'JOB_RUNNER'}.items():
+        _marker = '<' + _name + '>'
+        if _marker in value:
+            value = value.replace(_marker, _os.environ[_env])
+    return _os.path.expanduser(value)
+
 import sys,os,json,struct,subprocess,hashlib,ctypes
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[2];ART=Path('/mnt/linux-extra/moss-scratch/meshopt-v03');OLD=Path('/mnt/linux-extra/moss-scratch/meshopt-cmp');REF=Path('/home/etienne/dev/refs/meshoptimizer')
+ROOT=Path(__file__).resolve().parents[2];ART=Path(_public_path('<scratch>/meshopt-v03'));OLD=Path(_public_path('<scratch>/meshopt-cmp'));REF=Path(_public_path('<refs>/meshoptimizer'))
 manifest=json.loads((OLD/'measurement-source.json').read_text())
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 files=[p for p in manifest['files'] if p.startswith('src/') or p in ['Cargo.toml','Cargo.lock','parity/compare/src/main.rs','parity/compare/Cargo.toml','parity/compare/Cargo.lock']]
 assert all(sha(ROOT/f)==manifest['files'][f] for f in files),'archived source mismatch'
 os.environ.update(MESHOPT_REFERENCE=str(REF),CARGO_TARGET_DIR=str(ART),MESHOPT_ARTIFACTS=str(ART),MESHOPT_BENCH_CPU='26')
 sys.path.insert(0,str(ROOT/'parity/codec'));from measure import Driver,request
-cpp=Path('/mnt/linux-extra/meshopt-artifacts/rel020/binaries/2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58');assert sha(cpp)==cpp.name
+cpp=Path(_public_path('<artifacts>/rel020/binaries/2ae0a9f7cf2485919968f388e1ed3913366ab78b1f003458801ad37657ec3e58'));assert sha(cpp)==cpp.name
 runbin=OLD/'cmp-driver-defaults-ours';assert sha(runbin)==(OLD/'cmp-driver-defaults-ours.sha256').read_text().strip()
 input=OLD/'inputs/medium-smooth.bin';b=input.read_bytes();n,ni=struct.unpack_from('<II',b);raw=b[8:8+n*12];ix=b[8+n*12:8+n*12+ni*4]
 f32=lambda x:struct.unpack('<f',struct.pack('<f',x))[0]

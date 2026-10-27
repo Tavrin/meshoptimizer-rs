@@ -13,7 +13,7 @@ passed every family bar; all 19 current-source fuzz smokes ran at least 300
 seconds and the 0.4 report verified their artifacts.
 
 Stage 1 retained the complete 912-case 0.1.x and 204-case retained 0.1
-matrices under both Moss and default profiles. Every family geometric mean and
+matrices under both a downstream engine and default profiles. Every family geometric mean and
 heap bar passed. Seven profile-specific case maxima exceeded 1.5. D146 was
 recorded before stage 2, which ran 30 new alternating pairs per flagged case
 on pinned CPU 21 of physical core 20-21. The table gives the two-sided 95%
@@ -23,13 +23,13 @@ above 1.5; INCONCLUSIVE counts as failure.
 
 | Profile and case | Stage 1 | Stage-2 95% ratio interval | Verdict |
 |---|---:|---:|---|
-| Moss retained 0.1 overdraw/million/disconnected/allocating | 1.522 | 1.475-1.582 | INCONCLUSIVE, residual |
+| a downstream engine retained 0.1 overdraw/million/disconnected/allocating | 1.522 | 1.475-1.582 | INCONCLUSIVE, residual |
 | Default 0.1.x filter_index_buffer/tiny/seam-heavy/mode-2 | 1.509 | 0.963-0.995 | PASS |
 | Default 0.1.x simplify_sloppy/million/disconnected/mode-1 | 1.507 | 1.444-1.509 | INCONCLUSIVE, residual |
 | Default 0.1.x simplify_sloppy/million/disconnected/mode-2 | 1.508 | 1.386-1.516 | INCONCLUSIVE, residual |
 | Default 0.1.x vertex_fetch/million/sparse/mode-1 | 1.543 | 1.542-2.088 | FAIL, residual |
-| Moss 0.1.x generate_vertex_remap_custom/million/smooth/mode-1 | 1.561 | 1.019-1.142 | PASS |
-| Moss 0.1.x vertex_fetch/million/sparse/mode-1 | 1.815 | 1.546-2.073 | FAIL, residual |
+| a downstream engine 0.1.x generate_vertex_remap_custom/million/smooth/mode-1 | 1.561 | 1.019-1.142 | PASS |
+| a downstream engine 0.1.x vertex_fetch/million/sparse/mode-1 | 1.815 | 1.546-2.073 | FAIL, residual |
 
 The complete per-pair samples, input/output bytes and hashes, source and
 executable identities, core selection and load observations are in
