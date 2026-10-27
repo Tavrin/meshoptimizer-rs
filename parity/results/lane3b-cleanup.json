@@ -3,7 +3,7 @@
   "historical": true,
   "command": "lane3b-cleanup",
   "passed": null,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "historical/lane3b-cleanup.json",

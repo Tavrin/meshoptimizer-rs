@@ -1,4 +1,4 @@
-"""Linux load telemetry and measured physical-core selection for lane 3b."""
+"""Linux load telemetry and measured physical-core selection for job 3b."""
 import json
 import os
 from pathlib import Path

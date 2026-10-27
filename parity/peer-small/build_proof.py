@@ -21,7 +21,7 @@ ART = Path(_public_path('<scratch>/meshopt-peer-c'))
 ROOT = Path(__file__).resolve().parents[2]
 REF = Path(_public_path('<refs>/meshoptimizer'))
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 assert TARGET == Path(_public_path('<target-dir>'))
 env = dict(os.environ, RUSTC_WRAPPER='', RUSTC_WORKSPACE_WRAPPER='', RUSTFLAGS='',
            CARGO_ENCODED_RUSTFLAGS='', CARGO_BUILD_JOBS='4', CARGO_INCREMENTAL='0')
@@ -61,17 +61,17 @@ def cpp(source, names, output, extra=()):
 
 cpp(ROOT / 'parity/reference.cpp', ['vcacheoptimizer', 'overdrawoptimizer', 'allocator', 'simplifier', 'indexgenerator', 'vfetchoptimizer', 'quantization'], ART / 'cpp-p01x', ['-DNDEBUG'])
 cpp(ROOT / 'parity/p03/reference.cpp', ['clusterizer', 'meshletutils', 'spatialorder', 'partition', 'allocator', 'simplifier', 'indexgenerator'], ART / 'cpp-p03', ['-I', str(REF / 'demo')])
-for phase, generator, names in [
+for release, generator, names in [
     ('p01x', ROOT / 'parity/p01x-native-fixtures.py', ['simplifier', 'indexgenerator', 'quantization', 'allocator', 'vcacheoptimizer', 'vfetchoptimizer', 'overdrawoptimizer', 'meshletutils']),
     ('p03', ROOT / 'parity/p03/native-fixtures.py', ['clusterizer', 'meshletutils', 'spatialorder', 'partition', 'allocator', 'simplifier', 'indexgenerator'])]:
-    generated = ART / f'{phase}-fixtures.cpp'
+    generated = ART / f'{release}-fixtures.cpp'
     subprocess.run(['python3', str(generator), str(REF), str(generated)], check=True)
-    binary = ART / f'{phase}-fixtures'
+    binary = ART / f'{release}-fixtures'
     cpp(generated, names, binary)
-    dest = ART / f'{phase}-inputs'
+    dest = ART / f'{release}-inputs'
     dest.mkdir(exist_ok=True)
     subprocess.run([str(binary), str(dest)], check=True)
-    js = ROOT / ('parity/p01x-js-fixtures.cjs' if phase == 'p01x' else 'parity/p03/js-fixtures.mjs')
+    js = ROOT / ('parity/p01x-js-fixtures.cjs' if release == 'p01x' else 'parity/p03/js-fixtures.mjs')
     subprocess.run(['node', str(js), str(REF), str(dest)], check=True)
 
 # Export exact inputs from the existing stable fuzz generator, retaining its

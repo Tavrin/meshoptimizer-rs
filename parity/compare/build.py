@@ -16,23 +16,24 @@ ROOT=Path(__file__).resolve().parents[2]
 ART=Path(_public_path('<scratch>/meshopt-cmp'))
 TARGET=Path(_public_path('<target-dir>'))
 assert Path(os.environ['CARGO_TARGET_DIR'])==TARGET
-assert os.environ.get('MOSS_HEAVY_ACTIVE'), 'shared admission required'
+assert os.environ.get('PARITY_RUNNER_ACTIVE'), 'shared admission required'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def disk():
  free=shutil.disk_usage(TARGET.parent).free
  if free<25*1024**3:raise SystemExit('PAUSED: disk below 25 GiB')
  return free
 profile,backend=sys.argv[1:3]
+cargo_profile = 'bench-release' if profile == 'downstream' else profile
 refresh="--refresh" in sys.argv[3:]
 env=dict(os.environ,RUSTC_WRAPPER='',RUSTC_WORKSPACE_WRAPPER='',RUSTFLAGS='',CARGO_ENCODED_RUSTFLAGS='',CARGO_BUILD_JOBS='4',CARGO_INCREMENTAL='0')
-# The named target is exclusively this lane's disposable compilation cache.
+# The named target is exclusively this job's disposable compilation cache.
 disk()
 prior=ART/f'build-{profile}-{backend}.json'
 records=json.loads(prior.read_text()) if prior.exists() else []
 if not records:
  if TARGET.exists():shutil.rmtree(TARGET)
  TARGET.mkdir(parents=True)
-base=['cargo','build','--manifest-path',str(ROOT/'parity/compare/Cargo.toml'),'--offline','--locked','--profile',profile,'--features',backend]
+base=['cargo','build','--manifest-path',str(ROOT/'parity/compare/Cargo.toml'),'--offline','--locked','--profile',cargo_profile,'--features',backend]
 for kind,bins in [('clean',['cmp-decode']),('incremental',['cmp-decode']),('decode-footprint',['cmp-decode']),('footprint-and-driver',['cmp-full','cmp-driver','cmp-empty'])]:
  if any(r['kind']==kind and r['exit']==0 for r in records) and not (refresh and kind in ['decode-footprint','footprint-and-driver']):continue
  free=disk()
@@ -46,5 +47,5 @@ for kind,bins in [('clean',['cmp-decode']),('incremental',['cmp-decode']),('deco
  print(profile,backend,kind,records[-1]['seconds'],'exit',r.returncode,flush=True)
  if r.returncode:print(log.read_text());sys.exit(r.returncode)
  for name in bins:
-  src=TARGET/profile/name;dst=ART/f'{name}-{profile}-{backend}';shutil.copy2(src,dst)
+  src=TARGET/cargo_profile/name;dst=ART/f'{name}-{profile}-{backend}';shutil.copy2(src,dst)
   (ART/f'{name}-{profile}-{backend}.sha256').write_text(sha(dst)+'\n')

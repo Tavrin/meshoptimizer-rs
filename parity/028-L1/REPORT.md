@@ -1,4 +1,4 @@
-# SPEC-028 L1 — cluster LOD paths
+# registered protocol L1 — cluster LOD paths
 
 Base e516898 (v0.2.7), branch perf/clod-path. Scope is the six L1 families only.
 
@@ -26,7 +26,7 @@ existing untimed output/serialization check before the explicit warm-up.
 Paired bootstrap: 10,000 resamples, seed 20261030. Raw pairs and case intervals
 are in RESULTS.json; X is disclosure only. Ratios are candidate/comparator.
 
-RFC113 disclosure (sum of case medians, 10 pairs/case): combined
+CLUSTER_LOD disclosure (sum of case medians, 10 pairs/case): combined
 **1.040298x C++**, S1 1.037887x (41 cases),
 S2 1.053315x (nine valid cases), maximum case
 1.188750x. This is disclosure, not a bar. Scalar C++ and the
@@ -59,7 +59,7 @@ no Workspace allocations and retain the original Result/work/byte accounting.
 | Existing C++ L1 differential, 2,000 seeds/family, alloc/into plus 64 wide partition seeds | 0 |
 | v0.2.7 exact Results/work/output/caller-buffer contents, 34,172 comparisons | 0 |
 | Frozen five-case corpus against M7 and v0.2.7, all six families | 0 |
-| RFC113 50-case preflight | 0 |
+| CLUSTER_LOD 50-case preflight | 0 |
 | Widened layout/topology/resource differential fuzz | 0 |
 | Full-width production-divider property fuzz | 0 |
 | Single registered wall campaign | 0 |
@@ -77,7 +77,7 @@ identities are retained in the exported receipts and scratch.
 Measurements are native Linux x86-64 on a shared host, pinned to CPU 2 for the
 interleaved wall campaign; all load observations are retained. Claims are limited
 to the registered corpus/profile. No a downstream engine runtime/GPU acceptance, other-platform
-performance, release, merge, tag or publication is claimed. All lane additions
+performance, release, merge, tag or publication is claimed. All job additions
 are under parity/028-L1; only required library edits and the existing changelog
 are outside it. Scratch and binaries are retained at `<scratch>/meshopt-028-L1`. The designated
 Cargo target is deleted only after retention; cleanup is a separate receipt.
@@ -104,14 +104,14 @@ No library edits until equalized counts and named causes are recorded here.
   4 GiB declaration; canceled while queued and used the explicit declared-size
   mode supported by <job-runner>. The first admitted compile failed before codegen
   because the frozen comparator lock still named its historical library version.
-  Regenerated only the lane/scratch lockfiles offline, then kept --locked builds.
+  Regenerated only the job/scratch lockfiles offline, then kept --locked builds.
 - Switched the preparation batch to one Cargo worker and a 2 GiB declaration
   (within the spec's <=4 GiB cap); measurements are separately marked with
-  MOSS_HEAVY_MEASUREMENT=1. Earlier queued jobs were canceled and logs retained.
+  PARITY_RUNNER_MEASUREMENT=1. Earlier queued jobs were canceled and logs retained.
 - Existing CHANGELOG.md will receive the specifically required measured-only
-  Unreleased entry. The no-root-files rule is applied to newly created lane
+  Unreleased entry. The no-root-files rule is applied to newly created job
   artifacts; this required edit of the existing changelog is not a new root file.
-- No subagents, no other lane worktree reads/writes, no SIMD/encoder/a downstream engine/version
+- No subagents, no other job worktree reads/writes, no SIMD/encoder/a downstream engine/version
   edits. Existing comparator FFI code is reused for trusted frozen inputs; no new
   unsafe library code or optimesh implementation is introduced.
 
@@ -183,7 +183,7 @@ its descriptor local and zips sequential triangle outputs. Bounded flex searches
 with zero cone weight use the exact constant cone factor 1, avoiding irrelevant
 normal interval arithmetic; nonbounded/NaN behavior stays on the old path.
 
-The lane seed generator is widened to packed XYZ, offset/stride floats and both
+The job seed generator is widened to packed XYZ, offset/stride floats and both
 byte orders so the new storage dispatch arms are reachable. A five CPU-minute
 seeded differential campaign is required and will retain seed/count replay,
 executable/source identities and exact Result/work/output witnesses.

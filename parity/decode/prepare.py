@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare SPEC-026 scratch from retained bet-0/REPORT-3 inputs; no timings."""
+"""Prepare registered protocol scratch from retained bet-0/REPORT-3 inputs; no timings."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -42,7 +42,7 @@ t+='''
 [[bin]]
 name = "cmp-driver"
 path = "src/main.rs"
-[profile.moss]
+[profile.bench-release]
 inherits = "release"
 opt-level = 3
 lto = "thin"

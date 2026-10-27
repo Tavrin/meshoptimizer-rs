@@ -1,9 +1,9 @@
-# SPEC-026-decode registration
+# registered protocol registration
 
 Frozen before any new wall-clock sample. Baseline: bea3e04bf22063988a80db4764e80c3dd422a634 (v0.2.5).
 Source: <repo>/parity/compare from bench/peer-screen.
 Scratch: <scratch>/meshopt-decode. Target: <target-dir>; delete at completion.
-All builds/probes/measurements use <job-runner>, MOSS_HEAVY_GPU=0, declaration 4 GiB. Headless Chromium only. No agents.
+All builds/probes/measurements use <job-runner>, PARITY_RUNNER_GPU=0, declaration 4 GiB. Headless Chromium only. No agents.
 
 ## Required policy (verbatim)
 - **Native:** the bet 0 harness (parity/compare from `bench/peer-screen`), a downstream engine scalar profile,

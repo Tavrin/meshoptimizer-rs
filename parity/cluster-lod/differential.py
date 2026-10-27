@@ -42,11 +42,11 @@ def build():
         (old_root / '.source-commit').write_text(baseline + '\n')
     manifest = Path('parity/p03/Cargo.toml')
     command(['cargo', 'build', '--offline', '--release', '--manifest-path', old_root / manifest])
-    old_bin = TARGET / 'rfc113-pre-optimization-rust'
+    old_bin = TARGET / 'cluster-lod-pre-optimization-rust'
     shutil.copy2(TARGET / 'release/meshopt-p03-driver', old_bin)
     command(['cargo', 'build', '--offline', '--release', '--manifest-path', ROOT / manifest])
     new_bin = TARGET / 'release/meshopt-p03-driver'
-    cpp = TARGET / 'rfc113-p03-cpp'
+    cpp = TARGET / 'cluster-lod-p03-cpp'
     sources = sorted((VENDOR / 'src').glob('*.cpp'))
     command(['c++', '-std=c++17', '-O3', '-DMESHOPTIMIZER_NO_SIMD',
              '-fno-fast-math', '-ffp-contract=off', '-I' + str(VENDOR / 'src'),
@@ -144,9 +144,9 @@ def main():
     if args.reuse_binaries:
         baseline = command(['git', 'rev-parse', 'main'], cwd=ROOT,
                            capture_output=True, text=True).stdout.strip()
-        bins = {'old': TARGET / 'rfc113-pre-optimization-rust',
+        bins = {'old': TARGET / 'cluster-lod-pre-optimization-rust',
                 'rust': TARGET / 'release/meshopt-p03-driver',
-                'cpp': TARGET / 'rfc113-p03-cpp'}
+                'cpp': TARGET / 'cluster-lod-p03-cpp'}
         if not all(path.is_file() for path in bins.values()):
             raise SystemExit('missing binaries; run without --reuse-binaries')
     else:
@@ -162,13 +162,13 @@ def main():
             row['moved_vertices'], row['crossed_threshold'] = movement(values['rust'], data)
         records.append(row)
         print(label, 'MATCH' if row['match'] else 'MISMATCH', flush=True)
-    result = {'schema': 'rfc113-three-way/1', 'main_commit': baseline,
+    result = {'schema': 'cluster-lod-three-way/1', 'main_commit': baseline,
               'current_commit': command(['git', 'rev-parse', 'HEAD'], cwd=ROOT,
                                         capture_output=True, text=True).stdout.strip(),
               'source_hashes': {str(path): run.sha(path) for path in
                                 [ROOT / 'Cargo.toml', ROOT / 'Cargo.lock',
                                  ROOT / 'parity/p03/src/lib.rs', ROOT / 'parity/p03/src/main.rs',
-                                 ROOT / 'parity/p03/reference.cpp', ROOT / 'parity/rfc113/differential.py',
+                                 ROOT / 'parity/p03/reference.cpp', ROOT / 'parity/cluster-lod/differential.py',
                                  VENDOR / 'clusterlod.h',
                                  *sorted((ROOT / 'src').rglob('*.rs'))]},
               'executables': {name: run.sha(path) for name, path in bins.items()},

@@ -9,7 +9,7 @@ T95={5:2.776,6:2.571,7:2.447,8:2.365,9:2.306,10:2.262,11:2.228,12:2.201,13:2.179
 def interval(xs):
  logs=[math.log(x) for x in xs];mean=statistics.mean(logs);r=T95[len(xs)]*statistics.stdev(logs)/math.sqrt(len(xs));return [math.exp(mean-r),math.exp(mean+r)]
 def main():
- assert os.environ.get('MOSS_HEAVY_ACTIVE')
+ assert os.environ.get('PARITY_RUNNER_ACTIVE')
  manifest=json.loads((A/'build-after.json').read_text());assert manifest['source']=={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in (lane.ROOT/'src').rglob('*.rs')}
  consumer={str(p.relative_to(lane.ROOT)):lane.sha(p) for p in (lane.ROOT/'parity/codec').rglob('*') if p.is_file() and '__pycache__' not in p.parts}
  assert consumer==json.loads((A/'build-before-fair.json').read_text())['consumer']
@@ -63,7 +63,7 @@ def main():
   result['rows'].append(out);lane.save('timing',result);print(j+1,total,row['name'],out['api'],'ratio',round(out['after_cpp'],3),'resolves',out['resolvable'],flush=True)
   if time.monotonic()-start>690:break
  for d in ds.values():d.close()
- result['completed']=len(result['rows'])==total;result['bursts'].append({'seconds':time.monotonic()-start,'admission':os.environ['MOSS_HEAVY_ACTIVE'],'load':os.getloadavg()});lane.save('timing',result)
+ result['completed']=len(result['rows'])==total;result['bursts'].append({'seconds':time.monotonic()-start,'admission':os.environ['PARITY_RUNNER_ACTIVE'],'load':os.getloadavg()});lane.save('timing',result)
  if result['completed']:
   groups={}
   for api in ['allocating','caller']:

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
 REF = Path(_public_path('<refs>/meshoptimizer'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 env = dict(os.environ,RUSTC_WRAPPER='',RUSTC_WORKSPACE_WRAPPER='',RUSTFLAGS='',CARGO_ENCODED_RUSTFLAGS='',CARGO_BUILD_JOBS='1')
 source = (ROOT/'fuzz/src/p01x_main.rs').read_text()
 source = source.replace('while start.elapsed() < Duration::from_secs(seconds) && executions < count {','while executions < 4096 {')

@@ -11,7 +11,7 @@ Kind: proof
 Effort: medium
 Heavy: yes
 Status: APPROVED by the coordinator on 2026-10-25, before the downstream-z9kkq repro result was known.
-Registered when the lane writes release-v2/REGISTRATION.md, before any sample.
+Registered when the job writes release-v2/REGISTRATION.md, before any sample.
 
 Repo: meshoptimizer-rs worktree ~/dev/meshoptimizer-rs-wt/simplify-perf (branch
 perf/simplify-large-mesh, draft PR #10). You are a fresh agent. You may commit records under
@@ -21,7 +21,7 @@ change src/. Build variants from `git archive` copies under
 <scratch>/meshopt-simplify-perf/release-v2/src-*, each with its own target dir
 under <target-dir>. Delete those target dirs at the end,
 after saving the binaries. Heavy work goes through <job-runner>;
-measurement jobs set MOSS_HEAVY_MEASUREMENT=1. **Train first:** between cases, never mid-pair,
+measurement jobs set PARITY_RUNNER_MEASUREMENT=1. **Train first:** between cases, never mid-pair,
 yield to any waiting <worktree> job and record a PAUSE. Do not
 spawn subagents. Never delete evidence.
 
@@ -87,7 +87,7 @@ Try these options in order. The first that qualifies is used, and it applies to 
 
 An option qualifies if all of these hold:
 - both C and B build with it;
-- `parity/run.sh --phase 0.1 --profile scalar-strict` and the three real-case hash checks pass on
+- `parity/run.sh --release 0.1 --profile scalar-strict` and the three real-case hash checks pass on
   the C build;
 - the cache kernel and the overdraw kernel start on the alignment the option promises, in both
   arms, checked in the symbol table.
@@ -135,7 +135,7 @@ Never end on a question.
 
 UTC: 2026-10-25T11:56:19.951665+00:00
 
-Selected first option: `-C llvm-args=-align-all-functions=6`. Both arms built; phase 0.1 scalar-strict parity and all three real-case exact hash checks passed on Cp. `cmp` verified the parity qualification executable equals the retained Cp driver. The scratch-only runner preserves RUSTFLAGS and removes the empty encoded-flags override. Its inherited descriptive rust_profile sentence still says flags are empty; the retained Cargo fingerprints, explicit build flags and symbol checks establish the actual alignment flag; no algorithm or driver changes. Real-case checker is the retained r2 exact checker with archive dependency/output paths adapted. Initial unqualified perturbation binaries and build incidents retained in build-preflight-incident.json. The real-case checker dependency build hit its 7 GiB cap and <job-runner> queued a retry at 11 GiB, which refused to overwrite the immutable completed parity receipt. The unfinished real-checker build was resumed alone at 11 GiB; the original OOM log is retained; no measurement occurred.
+Selected first option: `-C llvm-args=-align-all-functions=6`. Both arms built; release 0.1 scalar-strict parity and all three real-case exact hash checks passed on Cp. `cmp` verified the parity qualification executable equals the retained Cp driver. The scratch-only runner preserves RUSTFLAGS and removes the empty encoded-flags override. Its inherited descriptive rust_profile sentence still says flags are empty; the retained Cargo fingerprints, explicit build flags and symbol checks establish the actual alignment flag; no algorithm or driver changes. Real-case checker is the retained r2 exact checker with archive dependency/output paths adapted. Initial unqualified perturbation binaries and build incidents retained in build-preflight-incident.json. The real-case checker dependency build hit its 7 GiB cap and <job-runner> queued a retry at 11 GiB, which refused to overwrite the immutable completed parity receipt. The unfinished real-checker build was resumed alone at 11 GiB; the original OOM log is retained; no measurement occurred.
 
 Raw kernel symbol table checks (every required address mod 64 = 0):
 

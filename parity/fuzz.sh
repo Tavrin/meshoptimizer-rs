@@ -26,7 +26,7 @@ sys.path.insert(0, str(ROOT / 'fuzz'))
 import smoke
 
 p = argparse.ArgumentParser()
-p.add_argument('--phase', choices=['0.1'], default='0.1')
+p.add_argument('--release', choices=['0.1'], default='0.1')
 p.add_argument('--target', action='append', choices=['vertex_cache', 'overdraw', 'simplify', 'simplify_with_attributes', 'simplify_scale', 'build_dag_into'])
 p.add_argument('--cpu-hours-per-target', type=float, default=4)
 p.add_argument('--jobs', '--cores', type=int, default=8)
@@ -121,7 +121,7 @@ if a.resume or a.continuous and record_path.exists():
 else:
     if record_path.exists():
         raise SystemExit('fuzz record already exists; use --resume or a new artifact directory')
-    record = {'schema': 2, 'phase': a.phase, 'profile': 'stable seeded mutation; no sanitizer or coverage instrumentation',
+    record = {'schema': 2, 'release': a.release, 'profile': 'stable seeded mutation; no sanitizer or coverage instrumentation',
               'source_sha256': before, 'dependency_sha256': dependencies, 'executable_sha256': identities,
               'rustc': subprocess.check_output(['rustc', '-Vv'], text=True),
               'hardware': {k: v for k, v in platform.uname()._asdict().items() if k != 'node'},

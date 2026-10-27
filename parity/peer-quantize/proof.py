@@ -13,7 +13,7 @@ def _public_path(value):
 import hashlib,json,os,struct,subprocess,sys
 from pathlib import Path
 S=Path(os.environ.get('PEER_SCRATCH',_public_path('<scratch>/meshopt-peer-a')))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 sys.path.insert(0,str(S/'helpers'))
 import p01x
 rows=[]

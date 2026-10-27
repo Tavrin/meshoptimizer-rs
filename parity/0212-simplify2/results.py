@@ -1,5 +1,5 @@
 import os
-"""Apply SPEC-0212-simplify2's registered four-arm instruction gate."""
+"""Apply registered protocol's registered four-arm instruction gate."""
 from pathlib import Path
 import collections
 import json

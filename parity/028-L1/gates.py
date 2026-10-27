@@ -3,13 +3,13 @@
 from pathlib import Path
 import subprocess,os,json,sys
 from control import ROOT,ART,LANE,save
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 commands=[
  ('all-features',['cargo','test','--locked','--all-features']),
  ('no-default-features',['cargo','test','--locked','--no-default-features']),
  ('clippy',['cargo','clippy','--locked','--all-features','--all-targets','--','-D','warnings']),
  ('fmt',['cargo','fmt','--all','--','--check']),
- ('lane-fmt',['cargo','fmt','--manifest-path',str(LANE/'Cargo.toml'),'--','--check']),
+ ('job-fmt',['cargo','fmt','--manifest-path',str(LANE/'Cargo.toml'),'--','--check']),
 ]
 rows=[]
 for name,cmd in commands:

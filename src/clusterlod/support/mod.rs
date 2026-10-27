@@ -1,4 +1,4 @@
-// Private snapshot of lane p01x; see parity/p03/support-provenance.json.
+// Private snapshot of preprocessing implementation; see parity/p03/support-provenance.json.
 #![allow(dead_code, unused_imports)]
 mod budget;
 mod input;

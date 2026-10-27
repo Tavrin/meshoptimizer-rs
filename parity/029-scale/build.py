@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ART = Path(_public_path('<scratch>/meshopt-029-scale'))
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
 REF = Path(_public_path('<refs>/meshoptimizer'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 assert TARGET == Path(_public_path('<target-dir>'))
 assert subprocess.check_output(['git', '-C', str(REF), 'rev-parse', 'HEAD'], text=True).strip() == '4c203430ca565cb59a468a91922c76c208169536'
 base = ART/'baseline'
@@ -42,7 +42,7 @@ path = "{ROOT}/parity/029-scale/driver.rs"
 [[bin]]
 name = "scale-exact"
 path = "{ROOT}/parity/029-scale/exact.rs"
-[profile.moss]
+[profile.bench-release]
 inherits = "release"
 opt-level = 3
 lto = "thin"
@@ -51,9 +51,9 @@ strip = "symbols"
 ''')
 subprocess.run(['cargo','generate-lockfile','--offline','--manifest-path',str(h/'Cargo.toml')],check=True)
 for arm in ['base','candidate']:
-    cmd=['cargo','build','--offline','--locked','--manifest-path',str(h/'Cargo.toml'),'--profile','moss','--bin','scale-driver']
+    cmd=['cargo','build','--offline','--locked','--manifest-path',str(h/'Cargo.toml'),'--profile','bench-release','--bin','scale-driver']
     if arm=='base':cmd += ['--features','base-arm']
     subprocess.run(cmd,check=True)
-    shutil.copy2(TARGET/'moss/scale-driver',ART/f'driver-{arm}')
+    shutil.copy2(TARGET/'bench-release/scale-driver',ART/f'driver-{arm}')
 subprocess.run(['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off','-I',str(REF/'src'),str(ROOT/'parity/029-scale/driver.cpp'),str(REF/'src/simplifier.cpp'),str(REF/'src/allocator.cpp'),'-o',str(ART/'driver-M7')],check=True)
-(ART/'build.json').write_text(json.dumps(dict(baseline=subprocess.check_output(['git','rev-parse','v0.2.8'],text=True).strip(), oracle='4c203430ca565cb59a468a91922c76c208169536', admission=os.environ['MOSS_HEAVY_ACTIVE'],sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'src').rglob('*.rs')}, binaries={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in ART.glob('driver-*')}),indent=2)+'\n')
+(ART/'build.json').write_text(json.dumps(dict(baseline=subprocess.check_output(['git','rev-parse','v0.2.8'],text=True).strip(), oracle='4c203430ca565cb59a468a91922c76c208169536', admission=os.environ['PARITY_RUNNER_ACTIVE'],sources={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'src').rglob('*.rs')}, binaries={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in ART.glob('driver-*')}),indent=2)+'\n')

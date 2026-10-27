@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p05-benchmark/2",
-  "phase": "0.5",
+  "release": "0.5",
   "profile": "default",
   "bar": {
     "geometric_mean": 1.25,

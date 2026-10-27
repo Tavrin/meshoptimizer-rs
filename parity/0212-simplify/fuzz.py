@@ -16,7 +16,7 @@ import resource
 import subprocess
 
 ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 # CPU accounting, not a performance timing. No wall durations are measured.
 def cpu():
     r = resource.getrusage(resource.RUSAGE_CHILDREN)

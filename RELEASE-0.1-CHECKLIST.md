@@ -1,15 +1,15 @@
 # Release 0.1 checklist
 
-Status values: **pass** (evidence verified by `parity/report.sh --phase 0.1
+Status values: **pass** (evidence verified by `parity/report.sh --release 0.1
 --verify-artifacts`, exit 0), **pending human** (owner action), **pending a downstream engine
-migration proof** (RFC section 7; needs the a downstream engine-side harness). Evidence paths
+migration proof** (RFC section 7; needs the downstream engine-side harness). Evidence paths
 are relative to the repository; large per-case records live in
 `$MESHOPT_ARTIFACTS` and are identified by SHA-256 in the JSON summaries.
 Source baseline: `src/simplify.rs` after d1230c3. Decisions: `parity/DECISIONS.md` D50, D51.
 
-| # | RFC 0.1 requirement | Evidence | Status |
+| # | design requirements requirement | Evidence | Status |
 |---|---|---|---|
-| 1 | Scope: simplify, simplify_with_attributes (flags, Permissive), simplify_scale, vertex cache, overdraw (RFC 3) | `parity/COVERAGE.md`, `tests/api.rs` | pass |
+| 1 | Scope: simplify, simplify_with_attributes (flags, Permissive), simplify_scale, vertex cache, overdraw (design requirements) | `parity/COVERAGE.md`, `tests/api.rs` | pass |
 | 2 | Pinned oracle (meshoptimizer 1.3, unmodified) is verified (5.4) | `parity/check-reference.sh` | pass |
 | 3 | Exact native C++ / native Rust / wasm32 parity on fixtures and differential cases (5.3) | `parity/results/run.json` (279 cases, 0 mismatches) | pass |
 | 4 | Exact math (`sqrtf` probe, 65,543 values) and no-FMA arithmetic (5.2) | `parity/results/run.json` (math probe) | pass |
@@ -21,11 +21,11 @@ Source baseline: `src/simplify.rs` after d1230c3. Decisions: `parity/DECISIONS.m
 | 10 | Flags, errors, limits (1 GiB, 2^34 work), failure-side guarantees (4.3, 4.4) | `tests/api.rs`, unit tests via `parity/results/gates.json` | pass |
 | 11 | No `unsafe`, `no_std` + wasm32 build, MSRV 1.88, both feature modes (4.5) | `parity/results/gates.json` (16 commands exit 0) | pass |
 | 12 | fmt, clippy `-D warnings`, rustdoc warnings denied | `parity/results/gates.json` | pass |
-| 13 | Fuzz robustness, 4 CPU-hours per target (RFC 14); 5 targets | `parity/results/fuzz.json`: 4.111-4.242 CPU-h, 0 findings, on an earlier revision. The final source passed the 0.4 and 0.1.x smoke runs (19 + 32 targets, at least 300 s each). The full run on the release revision is the nightly robustness timer of 2026-10-05 01:00; any crash means yanking 0.1.0 and releasing 0.1.1 | pass (earlier revision); release-revision run scheduled (coordinator decision 2026-10-04, owner veto stands) |
-| 14 | Weekly/nightly background fuzzing; any crash blocks the next release (RFC 14) | `.github/workflows/fuzz.yml`, `parity/fuzz-continuous.sh` | pass (configured) |
-| 15 | Performance: family GM <= 1.25, case max <= 1.50, memory <= 1.25 (6.1), a downstream engine thin-LTO profile | `parity/results/benchmark-moss.json` (204 cases, all families pass) | pass |
+| 13 | Fuzz robustness, 4 CPU-hours per target (design requirements); 5 targets | `parity/results/fuzz.json`: 4.111-4.242 CPU-h, 0 findings, on an earlier revision. The final source passed the 0.4 and 0.1.x smoke runs (19 + 32 targets, at least 300 s each). The full run on the release revision is the nightly robustness timer of 2026-10-05 01:00; any crash means yanking 0.1.0 and releasing 0.1.1 | pass (earlier revision); release-revision run scheduled (coordinator decision 2026-10-04, owner veto stands) |
+| 14 | Weekly/nightly background fuzzing; any crash blocks the next release (design requirements) | `.github/workflows/fuzz.yml`, `parity/fuzz-continuous.sh` | pass (configured) |
+| 15 | Performance: family GM <= 1.25, case max <= 1.50, memory <= 1.25 (6.1), a downstream engine thin-LTO profile | `parity/results/benchmark-downstream.json` (204 cases, all families pass) | pass |
 | 16 | Same bars under Cargo release defaults | `parity/results/benchmark-default.json` (204 cases, all families pass) | pass |
-| 17 | a downstream engine integration: cook time <= 1.10x, mesh stage <= 1.25x baseline (6.1) | runs overnight; it gates the a downstream engine production switch, not this release (owner decision 2026-10-04) | pending |
+| 17 | a downstream engine integration: cook time <= 1.10x, mesh stage <= 1.25x baseline (6.1) | runs overnight; it gates the downstream engine production switch, not this release (owner decision 2026-10-04) | pending |
 | 18 | Three-way output proof (cpp 0.25, cpp 1.3, Rust) and intentional-deviation records (7.2) | none yet | pending a downstream engine migration proof |
 | 19 | Package contents and publish dry run | `parity/results/gates.json` (`cargo package --list`, `cargo publish --dry-run --allow-dirty`; offline loopback registry, D9) | pass |
 | 20 | Licence and upstream notices, `UPSTREAM.md`, README scope/limits/alternatives (8) | `LICENSE`, `UPSTREAM.md`, `README.md` | pass |
@@ -36,5 +36,5 @@ Source baseline: `src/simplify.rs` after d1230c3. Decisions: `parity/DECISIONS.m
 
 Not established: coverage-guided or sanitizer fuzzing (coverage unavailable);
 quiet-host performance (measurements are shared-host with retained load
-telemetry); any C++ wasm32 oracle (not claimed); absent historical lane 3
+telemetry); any C++ wasm32 oracle (not claimed); absent historical job 3
 buffers (listed as such by the report).

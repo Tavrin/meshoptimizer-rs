@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the frozen SPEC-026 rules without filtering cases or rerunning."""
+"""Apply the frozen registered protocol rules without filtering cases or rerunning."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -16,10 +16,10 @@ def gm(xs): return math.exp(statistics.mean(map(math.log,xs)))
 native=json.loads((ART/'native-timing.json').read_text())
 assert len(native)==30 and all(r.get('completed') for r in native)
 summary={}
-for phase in ['AA','M7','old']:
-    for op in sorted({r['operation']for r in native if r['phase']==phase}):
-        rs=[r for r in native if r['phase']==phase and r['operation']==op]
-        summary[phase+'/'+op]=dict(gm=gm([r['gm']for r in rs]), cases=len(rs), worst=max(r['gm']for r in rs))
+for release in ['AA','M7','old']:
+    for op in sorted({r['operation']for r in native if r['release']==release}):
+        rs=[r for r in native if r['release']==release and r['operation']==op]
+        summary[release+'/'+op]=dict(gm=gm([r['gm']for r in rs]), cases=len(rs), worst=max(r['gm']for r in rs))
 floor=max(abs(v['gm']-1)for k,v in summary.items()if k.startswith('AA/'))
 old=summary['old/vertex-decode']['gm']<=1.02+floor
 for k,v in summary.items():

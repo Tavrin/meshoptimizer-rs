@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Existing comparator, untimed exact output check for all frozen lane B cases."""
+"""Existing comparator, untimed exact output check for all frozen job B cases."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -16,7 +16,7 @@ import json
 import os
 import subprocess
 S = Path(_public_path('<scratch>/meshopt-peer-b'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 rows = []
 for item in json.loads((S / 'frozen-inputs.json').read_text()):
     case = Path(item['name']).stem

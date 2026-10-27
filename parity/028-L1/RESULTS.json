@@ -92,7 +92,7 @@
       "exit": 0
     },
     {
-      "gate": "lane-fmt",
+      "gate": "job-fmt",
       "command": [
         "cargo",
         "fmt",
@@ -780,7 +780,7 @@
     },
     {
       "set": "S2",
-      "case": "moss_01",
+      "case": "downstream_01",
       "sha256": "7c7163029163f72ada031c7b5013529fdc8feebe2defbe69ad8cef6d66572850"
     },
     {
@@ -811,9 +811,9 @@
   ],
   "rfc-identity.json": {
     "source": {
-      "<repo>/parity/028-L1/rfc113.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
-      "<repo>/parity/028-L1/rfc113-bridge.cpp": "4160b264979ce236417133a77052efe5189443f02dc8bb3e47c5ce2f4e9559de",
-      "<repo>/parity/028-L1/rfc113-reference.cpp": "e5de9c6f92ffee23671629dc8bbe1f159a0af0d2ff7209dd5ace1327da67a10a",
+      "<repo>/parity/028-L1/cluster-lod.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
+      "<repo>/parity/028-L1/cluster-lod-bridge.cpp": "4160b264979ce236417133a77052efe5189443f02dc8bb3e47c5ce2f4e9559de",
+      "<repo>/parity/028-L1/cluster-lod-reference.cpp": "e5de9c6f92ffee23671629dc8bbe1f159a0af0d2ff7209dd5ace1327da67a10a",
       "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/clusterlod.h": "71f95c1f97ef567235540c038b41906091fcef1ef68046f2933cd5989f94ea93",
       "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
       "<scratch>/meshopt-cluster-dag/reference-adapter/vendor/meshoptimizer/src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
@@ -951,7 +951,7 @@
       "src/workspace.rs": "05fb35225f52bf7fcd42955f18750e840ba30cc19a8fb71246adca3c95237da9",
       "parity/028-L1/division_fuzz.rs": "4dcc5971c5320f5838399846700691ae728dfb1e848ba9a43a7669efd22e8c51",
       "parity/028-L1/proof.rs": "ab28b8aa932be1a3c0531b65c6afbdcdb0ff652c21163f91b89252ad0f39fe3f",
-      "parity/028-L1/rfc113.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
+      "parity/028-L1/cluster-lod.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
       "parity/028-L1/src/main.rs": "8b4819aecd3810d5112e8f8f4774c14568089a7bd55a5b5475173077a6c3134f",
       "parity/028-L1/src/peer_x.rs": "2f520abeab6bf7d1a036e5b70e49bc41cc2f293609a2a7a625f6dd51373179ec",
       "Cargo.toml": "373bb600edc66ed3bdb2c3602a6ecf21cfe9fcc99efb725fc8e402ad3ea631ee",
@@ -1025,7 +1025,7 @@
       "src/clusterlod/support/budget.rs": "f3f6be238183afecf59a1541b91e3c9d7a3d3594293cc6de4ccd8066ca31aa46",
       "parity/028-L1/division_fuzz.rs": "4dcc5971c5320f5838399846700691ae728dfb1e848ba9a43a7669efd22e8c51",
       "parity/028-L1/proof.rs": "ab28b8aa932be1a3c0531b65c6afbdcdb0ff652c21163f91b89252ad0f39fe3f",
-      "parity/028-L1/rfc113.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
+      "parity/028-L1/cluster-lod.rs": "31bd7401d291238384759853187c0ba88b145a176bc8c05b44fd255d7b8daf51",
       "parity/028-L1/src/main.rs": "8b4819aecd3810d5112e8f8f4774c14568089a7bd55a5b5475173077a6c3134f",
       "parity/028-L1/src/peer_x.rs": "2f520abeab6bf7d1a036e5b70e49bc41cc2f293609a2a7a625f6dd51373179ec",
       "parity/028-L1/campaign.py": "e08143ad10bbf086b71ae4ad2371b0fa3106d49824ed6e4ebd10b758e12246dd",
@@ -9336,7 +9336,7 @@
     },
     {
       "set": "S2",
-      "case": "moss_01",
+      "case": "downstream_01",
       "pairs": [
         [
           186151,

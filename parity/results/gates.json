@@ -3,7 +3,7 @@
   "historical": false,
   "command": "gates",
   "passed": true,
-  "phase": "0.1",
+  "release": "0.1",
   "seed": null,
   "profile": null,
   "detail_artifact": "gates/gates.json",

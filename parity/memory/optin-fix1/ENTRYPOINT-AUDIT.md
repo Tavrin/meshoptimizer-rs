@@ -1,4 +1,4 @@
-# SPEC-027 memory opt-in fix1 entry-point audit
+# registered protocol memory opt-in fix1 entry-point audit
 
 - simplify and simplify_with_attributes: allocating validates then acquires Simplify before reservations, then run -> run_state -> State::retain.
 - simplify_into and simplify_with_attributes_into: into validates then acquires Simplify before run -> run_state -> State::retain.

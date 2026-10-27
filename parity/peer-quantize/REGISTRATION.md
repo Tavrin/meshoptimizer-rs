@@ -1,4 +1,4 @@
-# SPEC-027 lane A registration
+# registered protocol job A registration
 
 Registered before collection of wall-clock samples. Exactly one final campaign;
 no reruns, replacement pairs, adaptive stopping, or removal of outliers.
@@ -29,4 +29,4 @@ no reruns, replacement pairs, adaptive stopping, or removal of outliers.
   pass; no parity claim. FAIL if either baseline bar fails. Verdicts retained
   verbatim irrespective of noise. No second campaign to change a verdict.
 - All build, instruction, proof, and timing jobs use <job-runner> 4,
-  MOSS_HEAVY_GPU=0, lane-local target and scratch. No SIMD paths or API changes.
+  PARITY_RUNNER_GPU=0, job-local target and scratch. No SIMD paths or API changes.

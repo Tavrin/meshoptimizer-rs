@@ -1,4 +1,4 @@
-campaign,phase,case,pair,order,arm_seconds,baseline_seconds,ratio,before_unix,after_unix
+campaign,release,case,pair,order,arm_seconds,baseline_seconds,ratio,before_unix,after_unix
 C,main,vertex_cache/tiny/smooth/allocating/a0/rNone,0,C B,1.42909375e-06,1.38540625e-06,1.0315340716847496,1792929556.344434,1792929556.3446877
 C,main,vertex_cache/tiny/smooth/allocating/a0/rNone,1,B C,1.379e-06,1.38025e-06,0.9990943669625068,1792929556.3448036,1792929556.3450172
 C,main,vertex_cache/tiny/smooth/allocating/a0/rNone,2,C B,1.35725e-06,1.3445625e-06,1.009436154883094,1792929556.3450668,1792929556.3452706

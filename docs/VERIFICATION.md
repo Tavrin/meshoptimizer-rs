@@ -35,7 +35,7 @@ and 32-bit ARM SIMD are not implemented; index/sequence decoding remains scalar.
 
 ## Cluster DAGs
 
-`clusterlod::build_dag_into` reproduces the S1 oracle 41/41 files byte for byte, including
+`clusterlod::build_dag_into` reproduces the reference oracle 41/41 files byte for byte, including
 emission-time position snapshots and dilation; zero distinct vertex tuples collide under the S1
 hash. Position snapshots retain their emission-time bits when dilation moves source positions
 later.

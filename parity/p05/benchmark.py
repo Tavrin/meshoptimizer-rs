@@ -102,7 +102,7 @@ def scope_complete(rows, requested):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--consumer-profile', choices=('moss', 'default'), required=True)
+    parser.add_argument('--consumer-profile', choices=('downstream', 'default'), required=True)
     parser.add_argument('--families', required=True, help='comma-separated touched families; all only for final')
     parser.add_argument('--mode', choices=('diagnostic', 'lean', 'final'), default='diagnostic')
     parser.add_argument('--cases', help='diagnostic family:shape filters; other selected families remain complete')
@@ -134,8 +134,8 @@ def main():
     source_sha256 = source_identity()
     reference_sha256 = reference_identity()
     env = {**os.environ, 'CARGO_PROFILE_RELEASE_OPT_LEVEL': '3', 'CARGO_PROFILE_RELEASE_DEBUG': '0',
-           'CARGO_PROFILE_RELEASE_LTO': 'thin' if profile == 'moss' else 'false',
-           'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1' if profile == 'moss' else '16'}
+           'CARGO_PROFILE_RELEASE_LTO': 'thin' if profile == 'downstream' else 'false',
+           'CARGO_PROFILE_RELEASE_CODEGEN_UNITS': '1' if profile == 'downstream' else '16'}
     subprocess.run(['cargo', 'build', '--offline', '--locked', '--release', '--manifest-path', 'parity/p05/Cargo.toml'], cwd=ROOT, env=env, check=True)
     rust = ART / f'{purpose}-0.5-{profile}-rust'
     shutil.copyfile(RUST, rust)
@@ -369,9 +369,9 @@ def main():
     if source_identity() != source_sha256 or reference_identity() != reference_sha256:
         raise RuntimeError('source changed during benchmark; records cannot be qualified')
     selected_complete = scope_complete(rows, requested)
-    full = {'scope_complete': selected_complete, 'scope_passed': time_passed and memory_passed and selected_complete, 'schema': 'meshopt-p05-benchmark/2', 'phase': '0.5', 'profile': profile, 'bar': {'geometric_mean': 1.25, 'maximum': 1.5, 'maximum_memory_ratio': 1.25}, 'rows': rows, 'families': families, 'time_passed': time_passed, 'memory_passed': memory_passed, 'corpus_complete': corpus_complete, 'passed': time_passed and memory_passed and corpus_complete, 'physical_core': core, 'core_selections': core_selections, 'mode': args.mode, 'selected_families': sorted(requested), 'case_filters': case_filters, 'load_start': load_start, 'rust_sha256': sha(rust), 'cpp_sha256': sha(CPP), 'effective_profile_overrides': {k: env[k] for k in env if k.startswith('CARGO_PROFILE_RELEASE_')}, 'source_sha256': source_sha256, 'reference_sha256': reference_sha256}
+    full = {'scope_complete': selected_complete, 'scope_passed': time_passed and memory_passed and selected_complete, 'schema': 'meshopt-p05-benchmark/2', 'release': '0.5', 'profile': profile, 'bar': {'geometric_mean': 1.25, 'maximum': 1.5, 'maximum_memory_ratio': 1.25}, 'rows': rows, 'families': families, 'time_passed': time_passed, 'memory_passed': memory_passed, 'corpus_complete': corpus_complete, 'passed': time_passed and memory_passed and corpus_complete, 'physical_core': core, 'core_selections': core_selections, 'mode': args.mode, 'selected_families': sorted(requested), 'case_filters': case_filters, 'load_start': load_start, 'rust_sha256': sha(rust), 'cpp_sha256': sha(CPP), 'effective_profile_overrides': {k: env[k] for k in env if k.startswith('CARGO_PROFILE_RELEASE_')}, 'source_sha256': source_sha256, 'reference_sha256': reference_sha256}
     detail.write_text(json.dumps(full, indent=2, allow_nan=False) + '\n')
-    summary = {k: full[k] for k in ['schema', 'phase', 'profile', 'bar', 'families', 'time_passed', 'memory_passed', 'corpus_complete', 'passed', 'rust_sha256', 'cpp_sha256', 'effective_profile_overrides', 'source_sha256', 'reference_sha256']}
+    summary = {k: full[k] for k in ['schema', 'release', 'profile', 'bar', 'families', 'time_passed', 'memory_passed', 'corpus_complete', 'passed', 'rust_sha256', 'cpp_sha256', 'effective_profile_overrides', 'source_sha256', 'reference_sha256']}
     summary.update({'detail_artifact': detail.name, 'detail_sha256': sha(detail)})
     if args.mode == 'final':
         (ROOT / f'parity/results/benchmark-{profile}-0.5.json').write_text(json.dumps(summary, indent=2, allow_nan=False) + '\n')

@@ -1,4 +1,4 @@
-# SPEC-027 lane C
+# registered protocol job C
 
 Baseline: v0.2.6, `33556c4`; branch `perf/small-gaps`, clean at entry.
 Scratch: `<scratch>/meshopt-peer-c`.

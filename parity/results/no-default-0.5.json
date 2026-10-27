@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p05-sweep/1",
-  "phase": "0.5",
+  "release": "0.5",
   "upstream": "4c203430ca565cb59a468a91922c76c208169536",
   "seed_range": [
     0,

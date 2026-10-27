@@ -123,7 +123,7 @@ portability checks and 23-block single
 unsafe-module/package gates pass. Node preflight matches 292 golden hashes.
 
 No ARM execution, dedicated host, broader release, Windows/macOS, a downstream engine
-integration, triangle-index S4 or phase-0.6 performance qualification is claimed.
+integration, triangle-index S4 or release-0.6 performance qualification is claimed.
 
 ## Timing receipts
 

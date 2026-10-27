@@ -1,4 +1,4 @@
-# SPEC-027 lane C: single final wall-clock campaign
+# registered protocol job C: single final wall-clock campaign
 
 Written before any wall-clock sample. Instruction experiments discard the
 resident driver's elapsed-time replies and use only `instructions:u`.
@@ -38,6 +38,6 @@ v0.2.6 is PARTIAL. Any baseline GM or per-case bar failure is FAIL. Any missing
 measurement is UNMEASURED. Retain and report the first verdict; no reruns to
 change it. Proof failures block shipping independently of performance verdicts.
 
-All execution uses <job-runner>, MOSS_HEAVY_GPU=0, declaration <=4 GB; target
+All execution uses <job-runner>, PARITY_RUNNER_GPU=0, declaration <=4 GB; target
 `<target-dir>` is deleted after retaining
 executables and receipts. Scratch: `<scratch>/meshopt-peer-c`.

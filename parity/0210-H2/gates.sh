@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
-: "${MOSS_HEAVY_ACTIVE:?admission required}"
+: "${PARITY_RUNNER_ACTIVE:?admission required}"
 S="${SCRATCH:?}"/meshopt-0210-H2
 export TMPDIR="$S/tmp"
 mkdir -p "$TMPDIR"
@@ -15,9 +15,9 @@ run boundary python3 parity/simd/check_boundary.py
 cargo generate-lockfile --offline --manifest-path "$S/proof/Cargo.toml" > "$S/proof-lock.log" 2>&1
 for mode in std no-std; do
  flags=(); if [ "$mode" = no-std ]; then flags=(--no-default-features); fi
- run exact-build-$mode cargo build --locked --offline --manifest-path "$S/proof/Cargo.toml" --profile moss "${flags[@]}"
+ run exact-build-$mode cargo build --locked --offline --manifest-path "$S/proof/Cargo.toml" --profile bench-release "${flags[@]}"
  for family in scale overdraw; do
-  cp "$CARGO_TARGET_DIR/moss/$family-exact" "$S/$family-exact-$mode"
+  cp "$CARGO_TARGET_DIR/bench-release/$family-exact" "$S/$family-exact-$mode"
   run exact-$family-$mode "$S/$family-exact-$mode" "$S/inputs"
  done
 done

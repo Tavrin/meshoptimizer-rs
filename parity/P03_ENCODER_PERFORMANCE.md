@@ -1,12 +1,12 @@
 # Encoder performance
 
-## SPEC-03 final qualification
+## registered protocol final qualification
 
 Final measured source revision: `8319f7d3624694f7f71f2fe1f45ff977c10e17d9`. The documentation-only final commit preserves all measured source and consumer hashes. PR [#6](https://github.com/Tavrin/meshoptimizer-rs/pull/6) was merged as `f20a177` and released in 0.2.2. Earlier `a6fc95f` numbers and diagnostic scouts are **superseded for final acceptance** and retained below and in the portable archive.
 
 Native allocating acceptance: **PASS in defaults and a downstream engine**. All 111 cases per profile resolve; every family GM ≤1.25 and every case upper95 ≤1.50. The separate shared-peer family GM ≤1.00 target and exact historical owned request both **PASS in both profiles**. Historical non-reproduction does not establish a causal decoder fix.
 
-## SPEC-03 consumer-profile qualification
+## registered protocol consumer-profile qualification
 
 Before is the retained initial source epoch; after is the candidate epoch.
 Ratios are Rust/comparator elapsed time. Policy epochs and every sample are retained.
@@ -19,12 +19,12 @@ Ratios are Rust/comparator elapsed time. Policy epochs and every sample are reta
 | defaults | oct | 0.591 → 0.585 | 0.189–1.371 | 1.371 | PASS |
 | defaults | quat | 1.055 → 0.700 | 0.221–1.467 | 1.467 | PASS |
 | defaults | exp | 0.609 → 0.621 | 0.299–1.227 | 1.227 | PASS |
-| moss | vertex | 0.660 → 0.657 | 0.498–0.906 | 0.906 | PASS |
-| moss | index | 1.016 → 0.764 | 0.520–0.965 | 0.965 | PASS |
-| moss | sequence | 0.986 → 0.940 | 0.807–1.055 | 1.055 | PASS |
-| moss | oct | 0.565 → 0.563 | 0.161–1.467 | 1.467 | PASS |
-| moss | quat | 0.681 → 0.669 | 0.187–1.393 | 1.393 | PASS |
-| moss | exp | 0.588 → 0.590 | 0.259–1.030 | 1.030 | PASS |
+| downstream | vertex | 0.660 → 0.657 | 0.498–0.906 | 0.906 | PASS |
+| downstream | index | 1.016 → 0.764 | 0.520–0.965 | 0.965 | PASS |
+| downstream | sequence | 0.986 → 0.940 | 0.807–1.055 | 1.055 | PASS |
+| downstream | oct | 0.565 → 0.563 | 0.161–1.467 | 1.467 | PASS |
+| downstream | quat | 0.681 → 0.669 | 0.187–1.393 | 1.393 | PASS |
+| downstream | exp | 0.588 → 0.590 | 0.259–1.030 | 1.030 | PASS |
 
 The CI envelope is the minimum lower and maximum upper bound across cases;
 it is not a confidence interval for the family geometric mean.
@@ -32,7 +32,7 @@ it is not a confidence interval for the family geometric mean.
 | Historical exact owned request | Ratio | Nominal 95% CI | A/A resolves |
 |---|---:|---:|---|
 | defaults | 1.000 | 0.850–1.206 | True |
-| moss | 1.058 | 0.959–1.171 | True |
+| downstream | 1.058 | 0.959–1.171 | True |
 
 | Profile | Shared family | GM / meshopt 0.6.2 | Case CI envelope | Target <=1.0 |
 |---|---|---:|---:|---|
@@ -43,15 +43,15 @@ it is not a confidence interval for the family geometric mean.
 | defaults | quat | 0.868 | 0.737–1.298 | PASS |
 | defaults | exp | 0.575 | 0.509–0.753 | PASS |
 | defaults | color | 0.825 | 0.754–0.907 | PASS |
-| moss | vertex | 0.733 | 0.561–0.985 | PASS |
-| moss | index | 0.858 | 0.650–0.979 | PASS |
-| moss | sequence | 0.952 | 0.912–0.986 | PASS |
-| moss | oct | 0.868 | 0.744–1.086 | PASS |
-| moss | quat | 0.868 | 0.793–1.180 | PASS |
-| moss | exp | 0.579 | 0.526–0.763 | PASS |
-| moss | color | 0.825 | 0.758–0.877 | PASS |
+| downstream | vertex | 0.733 | 0.561–0.985 | PASS |
+| downstream | index | 0.858 | 0.650–0.979 | PASS |
+| downstream | sequence | 0.952 | 0.912–0.986 | PASS |
+| downstream | oct | 0.868 | 0.744–1.086 | PASS |
+| downstream | quat | 0.868 | 0.793–1.180 | PASS |
+| downstream | exp | 0.579 | 0.526–0.763 | PASS |
+| downstream | color | 0.825 | 0.758–0.877 | PASS |
 
-Parity: defaults: 17,264 comparisons, 0 mismatches, moss: 17,264 comparisons, 0 mismatches.
+Parity: defaults: 17,264 comparisons, 0 mismatches, downstream: 17,264 comparisons, 0 mismatches.
 
 The defaults `vertex-streaming-s32-v1-l0` row was interrupted by the outer timeout and rerun from pair 0 under the unchanged rule; the interrupted samples and pre-disposition receipt are retained. The rerun received a second pair-4 decisiveness check, which stops on a decisive pass or fail alike; see `INTERRUPT-DISPOSITION.md`.
 
@@ -67,9 +67,9 @@ Final receipts: `<scratch>/meshopt-enc03/seen-frontier`; prior guarded epoch: `s
 
 The following snapshot records the previous handoff and its earlier numbers. Its work-mode and pending-status statements describe that earlier handoff, not the completed qualification above.
 
-## SPEC-03: allocating encoder candidate; final timings pending
+## registered protocol: allocating encoder candidate; final timings pending
 
-**Final-source performance acceptance: PENDING.** Work mode was enabled before this candidate’s full native and peer confirmation streams began. No further performance run was started. Correctness work is complete. The four-lane-day cap was not exhausted; the spec’s performance done-when condition has not been established. This branch is a draft handoff, not a qualified release.
+**Final-source performance acceptance: PENDING.** Work mode was enabled before this candidate’s full native and peer confirmation streams began. No further performance run was started. Correctness work is complete. The four-job-day cap was not exhausted; the spec’s performance done-when condition has not been established. This branch is a draft handoff, not a qualified release.
 
 Ratios below are Rust elapsed time / comparator elapsed time; lower is faster. Cargo defaults means O3, no LTO, 16 codegen units; a downstream engine means O3, thin LTO, one codegen unit. Native target: each allocating family GM ≤1.25 and every case upper95 ≤1.50 in both profiles, with all A/A controls resolved. Shared peer target is separately registered at each family GM ≤1.00.
 
@@ -85,12 +85,12 @@ The following paired before/after stream belongs to `qualified2`, source `a6fc95
 | defaults | oct | 0.583 → 0.583 | 0.172–1.482 | 0.171–1.497 | pending |
 | defaults | quat | 1.057 → 0.705 | 0.210–4.931 | 0.211–1.467 | pending |
 | defaults | exp | 0.601 → 0.617 | 0.278–1.094 | 0.278–1.152 | pending |
-| moss | vertex | 0.661 → 0.664 | 0.449–0.904 | 0.502–0.926 | pending |
-| moss | index | 1.020 → 1.039 | 0.855–1.207 | 0.833–1.253 | pending |
-| moss | sequence | 0.985 → 0.925 | 0.911–1.094 | 0.860–1.052 | pending |
-| moss | oct | 0.570 → 0.567 | 0.155–1.455 | 0.157–1.428 | pending |
-| moss | quat | 0.673 → 0.674 | 0.183–1.498 | 0.185–1.411 | pending |
-| moss | exp | 0.589 → 0.593 | 0.278–1.033 | 0.279–1.065 | pending |
+| downstream | vertex | 0.661 → 0.664 | 0.449–0.904 | 0.502–0.926 | pending |
+| downstream | index | 1.020 → 1.039 | 0.855–1.207 | 0.833–1.253 | pending |
+| downstream | sequence | 0.985 → 0.925 | 0.911–1.094 | 0.860–1.052 | pending |
+| downstream | oct | 0.570 → 0.567 | 0.155–1.455 | 0.157–1.428 | pending |
+| downstream | quat | 0.673 → 0.674 | 0.183–1.498 | 0.185–1.411 | pending |
+| downstream | exp | 0.589 → 0.593 | 0.278–1.033 | 0.279–1.065 | pending |
 
 Intervals in family tables are envelopes of individual nominal paired-log 95% intervals, **not family-GM confidence intervals**. Case points are medians; case intervals estimate mean log ratios. Every frozen case is included.
 
@@ -102,8 +102,8 @@ The final `seen-frontier` candidate completed a preplanned two-operation scout b
 |---|---|---:|---:|---:|
 | defaults | index | 1.107 | 0.852 | 0.547–1.152 |
 | defaults | exp | 2.711 | 0.548 | 0.218–0.730 |
-| moss | index | 1.072 | 0.853 | 0.651–0.984 |
-| moss | exp | 2.682 | 0.576 | 0.516–0.749 |
+| downstream | index | 1.072 | 0.853 | 0.651–0.984 |
+| downstream | exp | 2.682 | 0.576 | 0.516–0.749 |
 
 Peer before and scout are separate refreshes, not paired intervention intervals. Each scout family has five frozen geometry cases; all output bytes match. Peer meshopt 0.6.2 bundles C++ 0.25, not the canonical C++ 1.3 oracle. The existing peer adapter, allocation and known-vertex-count workload are unchanged.
 
@@ -118,13 +118,13 @@ For completeness, the last full peer refresh also belongs to earlier source `a6f
 | defaults | quat | 1.904 → 0.884 | 0.801–1.276 | pending |
 | defaults | exp | 2.711 → 1.304 | 1.253–1.344 | pending |
 | defaults | color | 0.821 → 0.829 | 0.791–0.936 | pending |
-| moss | vertex | 0.741 → 0.739 | 0.577–0.955 | pending |
-| moss | index | 1.072 → 1.125 | 0.941–1.267 | pending |
-| moss | sequence | 1.012 → 0.949 | 0.901–0.993 | pending |
-| moss | oct | 0.872 → 0.874 | 0.812–1.096 | pending |
-| moss | quat | 1.523 → 0.883 | 0.797–1.265 | pending |
-| moss | exp | 2.682 → 1.297 | 1.262–1.326 | pending |
-| moss | color | 0.828 → 0.828 | 0.782–0.874 | pending |
+| downstream | vertex | 0.741 → 0.739 | 0.577–0.955 | pending |
+| downstream | index | 1.072 → 1.125 | 0.941–1.267 | pending |
+| downstream | sequence | 1.012 → 0.949 | 0.901–0.993 | pending |
+| downstream | oct | 0.872 → 0.874 | 0.812–1.096 | pending |
+| downstream | quat | 1.523 → 0.883 | 0.797–1.265 | pending |
+| downstream | exp | 2.682 → 1.297 | 1.262–1.326 | pending |
+| downstream | color | 0.828 → 0.828 | 0.782–0.874 | pending |
 
 Vertex combines matched v0/v1 rows without double-weighting the family. Color is an additional shared encoder outside the six native families. Per-family misses cannot be hidden by a cross-family aggregate.
 
@@ -135,7 +135,7 @@ Exact `vertex-v1-streaming-s4` request SHA-256 `13413c1e2c69f3de2f28a32005650fb4
 | Profile | Pre-staging median / C++ | Nominal 95% CI | Released median / C++ | Nominal 95% CI |
 |---|---:|---:|---:|---:|
 | defaults | 0.868 | 0.814–1.038 | 0.868 | 0.792–1.044 |
-| moss | 0.869 | 0.805–1.020 | 0.865 | 0.810–0.994 |
+| downstream | 0.869 | 0.805–1.020 | 0.865 | 0.810–0.994 |
 
 This is non-reproduction on the current toolchain, not evidence that staging or these encoder changes caused a fix. The decoder implementation is unchanged. Initial asymmetric-calibration A/A failures remain inconclusive and retained. Final-source repeat of the request is pending with the final native matrix.
 
@@ -312,7 +312,7 @@ Next diagnosis: reduce tiny Oct/Quat setup cost and reproduce the historical
 streaming consumer profile. No further implementation edit or elapsed rerun
 is part of this completed stream.
 
-## Round 2 — SPEC-p03-tiny (2026-10-06)
+## Round 2 — registered protocol (2026-10-06)
 
 **Tiny maximum acceptance: PASS.** All four required rows pass the registered upper95 <=1.5 rule, then all 18 Oct/Quat confirmation rows pass with both independent A/A intervals inside [0.8,1.25]. The earlier round 1 results and the failed round 2 attempt remain retained. Other encoder verdicts remain the round 1 verdicts; their elapsed rows were outside this spec and were not rerun.
 
@@ -356,6 +356,6 @@ The first elapsed attempt passes Oct but fails Quat allocating 1.657 (1.653–1.
 
 [Machine receipt](results/p03-tiny-round2.json), [controller](encoders/tiny.py). Durable artifacts: `<scratch>/meshopt-v03-tiny`; baseline and C++ copies are hash-checked against the retained round 1 build/stream. It contains all candidate binaries, PMU/disassembly, parity receipts, failed/final samples, final source copy and admission receipts. The JSON binds 703 raw files by SHA-256.
 
-Commands used `MOSS_HEAVY_GPU=0 MOSS_LANE=meshopt-tiny-* <job-runner> <2 or 4> timeout 840 python3 parity/encoders/tiny.py <action> <epoch>`. Final actions: `build record16`, `parity record16`, `counters record16`, `verify`, `MESHOPT_TINY_FINAL=record16 ... freeze`, `measure tiny-record16`, then `measure confirmation`. Every admitted run finished in <15min. All Cargo work used `<target-dir>`, CARGO_INCREMENTAL=0 and CARGO_PROFILE_DEV_DEBUG=0; its final 86,792,129-byte footprint was <5GB and was deleted after all owned jobs ended.
+Commands used `PARITY_RUNNER_GPU=0 PARITY_JOB=meshopt-tiny-* <job-runner> <2 or 4> timeout 840 python3 parity/encoders/tiny.py <action> <epoch>`. Final actions: `build record16`, `parity record16`, `counters record16`, `verify`, `MESHOPT_TINY_FINAL=record16 ... freeze`, `measure tiny-record16`, then `measure confirmation`. Every admitted run finished in <15min. All Cargo work used `<target-dir>`, CARGO_INCREMENTAL=0 and CARGO_PROFILE_DEV_DEBUG=0; its final 86,792,129-byte footprint was <5GB and was deleted after all owned jobs ended.
 
 Not run: other encoder elapsed rows, historical/default/a downstream engine-profile streaming reproduction, GPU/downstream runtime, executed WASM, remote architectures or release qualification. Round 1 evidence for those separate boundaries is preserved.

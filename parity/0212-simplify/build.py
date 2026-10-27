@@ -17,8 +17,8 @@ import shutil
 import subprocess
 
 ART = Path(_public_path('<scratch>/meshopt-0212-simplify'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
-assert os.environ['MOSS_HEAVY_GPU'] == '0'
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
+assert os.environ['PARITY_RUNNER_GPU'] == '0'
 assert os.environ['CARGO_TARGET_DIR'] == _public_path('<target-dir>')
 ROOT = Path(__file__).resolve().parents[2]
 source_files = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -33,7 +33,7 @@ for arm in ['base', 'candidate', 'M7']:
     log = ART / f'build-{arm}.log'
     assert not log.exists()
     command = ['cargo', 'build', '--offline', '--locked', '--manifest-path',
-               str(ART / f'harness-{arm}/Cargo.toml'), '--profile', 'moss',
+               str(ART / f'harness-{arm}/Cargo.toml'), '--profile', 'bench-release',
                '--bin', 'cmp-driver', '--features', 'peer7' if arm == 'M7'
                else 'ours,meshoptimizer-rs/experimental,meshoptimizer-rs/clusterlod']
     if arm == 'M7':
@@ -41,10 +41,10 @@ for arm in ['base', 'candidate', 'M7']:
     with log.open('x') as stream:
         result = subprocess.run(command, env=dict(os.environ, CC_ENABLE_DEBUG_OUTPUT="1"), stdout=stream, stderr=subprocess.STDOUT)
     receipt = {'arm': arm, 'command': command, 'exit': result.returncode,
-               'admission': os.environ['MOSS_HEAVY_ACTIVE']}
+               'admission': os.environ['PARITY_RUNNER_ACTIVE']}
     if result.returncode == 0:
         binary = ART / f'driver-{arm}'
-        shutil.copy2(Path(os.environ['CARGO_TARGET_DIR']) / 'moss/cmp-driver', binary)
+        shutil.copy2(Path(os.environ['CARGO_TARGET_DIR']) / 'bench-release/cmp-driver', binary)
         receipt['sha256'] = hashlib.sha256(binary.read_bytes()).hexdigest()
     (ART / f'build-{arm}.json').write_text(json.dumps(receipt, indent=2) + '\n')
     if result.returncode:

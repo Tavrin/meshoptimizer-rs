@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p03-summary/2",
-  "spec": "SPEC-p03.md",
+  "spec": "registered protocol",
   "reference": "4c203430ca565cb59a468a91922c76c208169536",
   "scope": "fifteen meshlet/partition/spatial functions; optional complete clusterlod demo",
   "spec_acceptance": "FAIL: Cargo-default partition_clusters timing",
@@ -340,13 +340,13 @@
   },
   "previous_benchmark_native_identical_to_previous_final": true,
   "artifact_root": "<artifacts>/p03/perf/final4",
-  "artifact_path_decision": "The earlier 0.3 lane used the D71 fallback; this performance follow-up wrote the requested <artifacts>/p03 location.",
+  "artifact_path_decision": "The earlier 0.3 job used the D71 fallback; this performance follow-up wrote the requested <artifacts>/p03 location.",
   "target": "<target-dir>",
   "target_cleanup": "removed after final verification; path absent",
   "git_changes": "No Git commands or Git state mutations in this performance follow-up; source edits remain unstaged.",
   "proof_limits": [
     "Consumer passes all 15 scalar timing and memory families; Cargo defaults fails partition_clusters timing.",
-    "SIMD C++ ratios are published comparisons, not phase 0.3 acceptance gates under D82.",
+    "SIMD C++ ratios are published comparisons, not release 0.3 acceptance gates under D82.",
     "Shared-machine load is recorded per pair; no quiet-machine timing claim.",
     "The partition profile documents a residual, not a universal safe-Rust limit.",
     "Earlier fuzz evidence predates the final performance source and was not rerun in this follow-up."
@@ -379,7 +379,7 @@
     "build-gates.json": "2b9857bb37162437b5738c6b67768c40e97ffdc7476d91cedd2f0d0e2b5f35fd",
     "wasm-unit-execution.json": "4df75282eb9cd1958bdbe99874d37a4266598ae35cc1729fc483b07f338ff3e8"
   },
-  "performance_spec": "SPEC-p03-perf.md",
+  "performance_spec": "registered protocol",
   "previous_artifact_root": "<target-dir>/p03",
   "previous_target": "<target-dir>",
   "performance_followup": {

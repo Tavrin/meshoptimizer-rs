@@ -11,7 +11,7 @@ def cpu():
 
 def proc_cpu(pid):
     s=open(f'/proc/{pid}/stat').read().rsplit(')',1)[1].split();return (int(s[11])+int(s[12]))/os.sysconf('SC_CLK_TCK')
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 seed=20261030;max_count=int(sys.argv[1])if len(sys.argv)>1 else None
 rng=random.Random(seed);clients={a:Client(ART/f'proof-{a}')for a in ['base','ours']}
 start=cpu();child_start=sum(proc_cpu(c.p.pid)for c in clients.values());wall=time.time();count=0;layouts=[0]*4;ops={n:0 for n in FAMILIES.values()};results={};digest=hashlib.sha256()

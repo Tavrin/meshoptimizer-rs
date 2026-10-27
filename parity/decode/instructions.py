@@ -13,11 +13,11 @@ def _public_path(value):
 import hashlib, json, os, pathlib, subprocess, sys
 ART = pathlib.Path(_public_path('<scratch>/meshopt-decode'))
 INPUT = pathlib.Path(_public_path('<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs'))
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
-phase = sys.argv[1]
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
+release = sys.argv[1]
 codec = '--codec' in sys.argv
 rows = []
-for arm in (['before', 'm7'] if phase == 'before' else [phase]):
+for arm in (['before', 'm7'] if release == 'before' else [release]):
     binary = ART / arm
     for case in ['medium-smooth', 'medium-seams', 'medium-sparse']:
         for op in (['vertex-decode', 'index-decode'] if codec else ['oct-decode', 'quat-decode']):
@@ -39,5 +39,5 @@ for arm in (['before', 'm7'] if phase == 'before' else [phase]):
                 row['raw'] = values
                 row['instructions_per_call'] = (values[100] - values[0]) / 100
             rows.append(row)
-            (ART / f'instructions-{phase}{"-codec" if codec else ""}.json').write_text(json.dumps(rows, indent=2) + '\n')
+            (ART / f'instructions-{release}{"-codec" if codec else ""}.json').write_text(json.dumps(rows, indent=2) + '\n')
             print(row, flush=True)

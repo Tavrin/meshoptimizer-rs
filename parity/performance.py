@@ -1,4 +1,4 @@
-"""RFC 6.1 geometry matrix; imported by runner.py, no external packages."""
+"""design requirements geometry matrix; imported by runner.py, no external packages."""
 import array
 import contextlib
 import select
@@ -261,8 +261,8 @@ def write_report(r, record, results):
         if results == r.ROOT/'parity/results': (r.ROOT/'parity/MEASURED_PERFORMANCE.md').write_text(report)
         return
     lines = ['# Measured geometry performance', '',
-             'Single-thread RFC 6.1 matrix. One warm-up and at least twenty alternating same-core paired samples per case.' if record.get('schema') == 4 else
-             'Single-thread RFC 6.1 matrix. One warm-up and at least ten alternating paired samples per attempt.',
+             'Single-thread design requirements matrix. One warm-up and at least twenty alternating same-core paired samples per case.' if record.get('schema') == 4 else
+             'Single-thread design requirements matrix. One warm-up and at least ten alternating paired samples per attempt.',
              'Coordinator correction: measure immediately on a core selected from three one-second /proc/stat intervals. Ratios are medians of paired Rust/C++ samples; load does not gate or repeat measurements.' if record.get('schema') == 4 else
              'Lane 3b admits each attempt below one-minute load 1.5, polling /proc/loadavg every 30 seconds for up to 60 minutes. Nonquiet attempts repeat once; all attempts are retained.' if record.get('schema') == 3 else
              'High-load cases are repeated once; both attempts and all raw samples are retained. Persistent load above 4 limits timing confidence.', '',

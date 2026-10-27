@@ -1,4 +1,4 @@
-# P02 local lane result
+# P02 local job result
 
 PASS: the complete P02 local done-when gates exit 0. The published core remains safe Rust with optional std and pinned libm. No package is published and a downstream engine is not migrated.
 
@@ -19,7 +19,7 @@ PASS: the complete P02 local done-when gates exit 0. The published core remains 
 
 Raw scalar limits remain 1.25 geometric mean and 1.50 maximum. The decoder bar was registered before the first candidate measurement; its numeric minima and byte hash remain unchanged. The failed 1.542310 triangle timing and all its samples remain in before-triangle-chunks. The final bounded triangle record writes resolve that miss.
 
-Keep the safe scalar implementation under RFC 6.2. P02_PERFORMANCE.md publishes every absolute throughput, Rust/SIMD ratio and scalar ratio. Oct/Quat timing uses repeated encoded records and exact last-record reuse; varied-filter throughput is not established. Shared-host timings do not establish a quiet-host result or a downstream engine integration performance.
+Keep the safe scalar implementation under design requirements. P02_PERFORMANCE.md publishes every absolute throughput, Rust/SIMD ratio and scalar ratio. Oct/Quat timing uses repeated encoded records and exact last-record reuse; varied-filter throughput is not established. Shared-host timings do not establish a quiet-host result or a downstream engine integration performance.
 
 Raw vertex/index/sequence v0/v1 support is separate from the EXT attribute v0 boundary. Parent metadata checks are explicit. Zero Oct normals return a typed numerical error; canonical filters follow strict scalar 1.3, with SIMD conformance checked separately. Raw caller-buffer operations use no heap scratch; output and retained Workspace storage are accounted.
 

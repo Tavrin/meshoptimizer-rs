@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SPEC-03 consumer-profile qualification, preserving the original P03 epochs.
+"""registered protocol consumer-profile qualification, preserving the original P03 epochs.
 
 Run build, prepare, reproduce, parity, timing and peer through <job-runner>.
 All evidence is append-only; a completed stream cannot be measured again.
@@ -37,7 +37,7 @@ os.environ['MESHOPT_ENCODER_ARTIFACTS'] = str(ART)
 import run as lane
 
 HISTORICAL = '13413c1e2c69f3de2f28a32005650fb46dfac1f92621cce393acefb3929040e9'
-PROFILES = ('defaults', 'moss')
+PROFILES = ('defaults', 'downstream')
 FAMILIES = ('vertex', 'index', 'sequence', 'oct', 'quat', 'exp')
 PEER_OPS = ('vertex-encode', 'vertex-encode-v0', 'index-encode', 'sequence-encode',
             'oct-encode', 'quat-encode', 'exp-encode', 'color-encode')
@@ -119,7 +119,7 @@ def prepare():
     save(ART / 'inputs.json', rows)
     save(ART / 'registration.json', {
         'source': inventory(), 'reference': '4c203430ca565cb59a468a91922c76c208169536',
-        'profiles': {'defaults': {'lto': False, 'codegen_units': 16}, 'moss': {'lto': 'thin', 'codegen_units': 1}},
+        'profiles': {'defaults': {'lto': False, 'codegen_units': 16}, 'downstream': {'lto': 'thin', 'codegen_units': 1}},
         'cpu': 26, 'pairs': [5, 256], 'target_seconds': .025,
         'family_gm_limit': 1.25, 'case_upper95_limit': 1.5, 'peer_family_gm_limit': 1.0,
         'aa_interval_bounds': [.8, 1.25], 'historical_request': HISTORICAL,
@@ -159,7 +159,7 @@ def measure(profile, group):
     ds = {k: lane.Driver(ART / v) for k, v in names.items()}
     scalar = lane.Driver(ART / 'cpp-scalar')
     started = time.monotonic()
-    burst = {'admission': os.environ['MOSS_HEAVY_ACTIVE'], 'start': time.time()}
+    burst = {'admission': os.environ['PARITY_RUNNER_ACTIVE'], 'start': time.time()}
     result['bursts'].append(burst)
     try:
         for case in cases[len(result['rows']):]:
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     parser.add_argument('action', choices=('prepare', 'reproduce', 'timing', 'parity', 'peer'))
     parser.add_argument('profile', nargs='?', choices=PROFILES)
     args = parser.parse_args()
-    assert os.environ.get('MOSS_HEAVY_ACTIVE'), _public_path('run through <job-runner>')
+    assert os.environ.get('PARITY_RUNNER_ACTIVE'), _public_path('run through <job-runner>')
     ART.mkdir(parents=True, exist_ok=True)
     if args.action == 'prepare':
         prepare()

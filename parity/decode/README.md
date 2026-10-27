@@ -1,7 +1,7 @@
-# SPEC-026 decode evidence
+# registered protocol decode evidence
 
 `REGISTRATION.md` is the applied, pre-sample policy. `REPORT.md` and `ANALYSIS.json`
-contain the terminal verdicts. This lane changes safe scalar filter/reconstruction
+contain the terminal verdicts. This job changes safe scalar filter/reconstruction
 code; it does not add ISA intrinsics, change codec contracts, or touch encoders.
 
 Full receipts, binaries, optimized assembly, instruction profiles, frozen source,
@@ -28,10 +28,10 @@ built explicitly and optimized with the original `wasm-opt -Oz` policy.
 `prepare.py` reconstructs a fresh scratch setup from pinned v0.2.5, the retained
 peer-screen harness and REPORT-3 assets. It refuses existing scratch. The build,
 proof, bytecheck and final measurement recipes are retained here for inspection;
-each is invoked with `MOSS_HEAVY_GPU=0`, `MOSS_LANE=meshopt-decode`,
+each is invoked with `PARITY_RUNNER_GPU=0`, `PARITY_JOB=meshopt-decode`,
 `CARGO_TARGET_DIR=<target-dir>` and
 `<job-runner> 4 bash <recipe>`. Measurement also
-sets `MOSS_HEAVY_MEASUREMENT=1`. Completed measurements must not be overwritten or
+sets `PARITY_RUNNER_MEASUREMENT=1`. Completed measurements must not be overwritten or
 rerun to change a verdict. Historical iteration recipes and intermediate source
 snapshots remain in scratch, outside the final implementation.
 

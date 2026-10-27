@@ -11,7 +11,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 ART = Path(os.environ['MESHOPT_SCRATCH'])
 REF = Path(os.environ['MESHOPT_REFERENCE'])
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 sys.path.insert(0, str(ROOT / 'parity'))
 import runner as r
 os.environ['MESHOPT_REFERENCE'] = str(REF)

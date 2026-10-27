@@ -193,7 +193,7 @@ def compare04(cases, binaries, label, seed=None):
     wasm.close()
     if before != sources() or identities != {k: sha(v) for k, v in binaries.items()}:
         raise ValueError('sources or executables changed during the run')
-    record = {'phase': '0.4', 'seed': seed, 'counts': counts, 'mismatches': 0, 'cpp_undefined_cases': undefined,
+    record = {'release': '0.4', 'seed': seed, 'counts': counts, 'mismatches': 0, 'cpp_undefined_cases': undefined,
               'cross_decoded_cases': sum(1 for x in records if x['cross_decoding']),
               'simd_filter_conformance_cases': conformance, 'color_simd_max_unit_difference': color_simd_max,
               'sources': before, 'executable_sha256': identities, 'archive': str(archive), 'archive_sha256': sha(archive),
@@ -328,17 +328,17 @@ def vertex_stream(rng, count, stride, kind):
         return rng.randbytes(stride) * count
     words = stride // 4
     types = [rng.randrange(6) for _ in range(words)]
-    phase = [rng.uniform(0, 6.283) for _ in range(words)]
+    release = [rng.uniform(0, 6.283) for _ in range(words)]
     out = bytearray()
     for i in range(count):
         t = i / max(count, 1)
         for w, kind_w in enumerate(types):
             if kind_w == 0:  # smooth float position/UV
-                out += struct.pack('<f', math.sin(t * 17 + phase[w]) * 3.5 + i * 0.001)
+                out += struct.pack('<f', math.sin(t * 17 + release[w]) * 3.5 + i * 0.001)
             elif kind_w == 1:  # quantized u16 pair
-                out += struct.pack('<2H', int((math.sin(t * 9 + phase[w]) + 1) * 30000) & 0xffff, (i * 7) & 0xffff)
+                out += struct.pack('<2H', int((math.sin(t * 9 + release[w]) + 1) * 30000) & 0xffff, (i * 7) & 0xffff)
             elif kind_w == 2:  # 8-bit normal-like
-                out += struct.pack('<4b', int(math.cos(t * 13 + phase[w]) * 127), int(math.sin(t * 13) * 127), 127, 0)
+                out += struct.pack('<4b', int(math.cos(t * 13 + release[w]) * 127), int(math.sin(t * 13) * 127), 127, 0)
             elif kind_w == 3:  # counters
                 out += struct.pack('<I', (i * 3 + w) & 0xffffffff)
             elif kind_w == 4:  # sparse changes
@@ -602,13 +602,13 @@ def generated04(cpp, seed, cases):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('action', choices=['run', 'sweep'])
-    p.add_argument('--phase', default='0.4')
+    p.add_argument('--release', default='0.4')
     p.add_argument('--profile', default='scalar-strict')
     p.add_argument('--cases-per-family', type=int, default=2000)
     p.add_argument('--seed', type=int, default=20261004)
     args = p.parse_args()
-    if args.phase != '0.4' or args.profile != 'scalar-strict' or args.cases_per_family < 2000:
-        raise ValueError('unsupported phase/profile/count')
+    if args.release != '0.4' or args.profile != 'scalar-strict' or args.cases_per_family < 2000:
+        raise ValueError('unsupported release/profile/count')
     binaries = r02.build()
     if args.action == 'run':
         old = r02.fixtures()

@@ -1,4 +1,4 @@
-# Phase 0.3
+# Release 0.3
 
 Pure safe Rust translations of the pinned meshoptimizer 1.3 meshlet, partition
 and spatial APIs. See the additive inventory in ../COVERAGE.md, decisions
@@ -9,15 +9,15 @@ pinned demo rather than a stable upstream output contract.
 export CARGO_TARGET_DIR=<target-dir>
 export MESHOPT_ARTIFACTS=<artifacts>/p03
 export MESHOPT_REFERENCE=/path/to/pinned/meshoptimizer
-parity/run.sh --phase 0.3
-parity/sweep.sh --phase 0.3 --cases-per-family 2000
+parity/run.sh --release 0.3
+parity/sweep.sh --release 0.3 --cases-per-family 2000
 python3 parity/p03/runner.py clusterlod
 python3 parity/p03/benchmark.py --enforce
 python3 fuzz/p03/smoke.py
 ```
 
 The performance bar is enforced for two Rust profiles of the driver (D78):
-the a downstream engine-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`)
+the downstream engine-like consumer profile (thin LTO, `codegen-units = 1`, `opt-level = 3`)
 and Cargo's release defaults. Select one with `MESHOPT_RUST_PROFILE`
 (`consumer`, `release-defaults`, or `release` for the historical fat-LTO
 build); each writes its own `benchmark-<profile>` record:
@@ -29,7 +29,7 @@ MESHOPT_RUST_PROFILE=release-defaults python3 parity/p03/benchmark.py --enforce
 
 The combined-tree integration records detailed parity data in
 `<artifacts>/p03`. Run
-`parity/report.sh --phase 0.3 --verify-artifacts` to verify the slim summaries.
+`parity/report.sh --release 0.3 --verify-artifacts` to verify the slim summaries.
 Build and compare jobs share the exact target: run them sequentially so active
 reference drivers cannot be overwritten. Fuzz uses its native target subdirectory
 and excludes both siblings of the benchmark core.

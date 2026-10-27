@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lane C adapters; reuse the registered RFC113 statistics and admission code."""
+"""Lane C adapters; reuse the registered CLUSTER_LOD statistics and admission code."""
 
 # Public path placeholders are supplied by the caller's environment.
 def _public_path(value):
@@ -26,7 +26,7 @@ HERE = Path(__file__).resolve().parent
 ART = Path(_public_path('<scratch>/meshopt-cluster-c'))
 TARGET = Path(_public_path('<target-dir>'))
 os.environ['CARGO_TARGET_DIR'] = str(TARGET)
-os.environ['MESHOPT_RFC113_ART_DIR'] = str(ART)
+os.environ['MESHOPT_CLUSTER_LOD_ART_DIR'] = str(ART)
 sys.path.insert(0, str(HERE.parent))
 import run as clod
 import timing as protocol
@@ -44,7 +44,7 @@ def event(kind, **kw):
 
 
 def paths(profile):
-    return {'cpp': TARGET/'cluster-c-cpp', 'rust': TARGET/profile/'rfc113-cluster-c'}
+    return {'cpp': TARGET/'cluster-c-cpp', 'rust': TARGET/profile/'cluster-lod-cluster-c'}
 
 
 def prepare():
@@ -144,7 +144,7 @@ def train_blockers():
                 pid=int(words[0]);proc=Path('/proc')/str(pid)
                 cmd=(proc/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
                 cwd=str((proc/'cwd').resolve())
-                if '/downstream-lane-worktrees/train-' in cmd or '/downstream-lane-worktrees/train-' in cwd or any(w.startswith('train') for w in words[1:]):
+                if '/downstream-job-worktrees/train-' in cmd or '/downstream-job-worktrees/train-' in cwd or any(w.startswith('train') for w in words[1:]):
                     blockers.append(dict(queue=filename,line=line,cwd=cwd,cmd=cmd))
             except (OSError,ValueError):pass
     return blockers

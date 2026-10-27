@@ -1,4 +1,4 @@
-# SPEC-027 opt-in lean scratch retention
+# registered protocol opt-in lean scratch retention
 
 Targeted opt-in verdict: **PASS**. The historical default candidate's registered
 **FAIL** below is preserved. `Retention::Reuse` is the default; opt in per
@@ -14,7 +14,7 @@ selects family eviction, quadric release on return and deferred initialization.
 Other families, algorithm output, validation and checked resource gates are
 unchanged. Resource usage values reflect the selected retained capacity.
 
-SPEC-027-memory-optin-fix1: accepted review finding fixed by acquiring Simplify immediately after update validation, before scratch/reservations; focused cache → update → cache Lean/Reuse equality test and entry-point audit pass (no other omission); tests (213), clippy, fmt, focused test, build and instruction rerun exit 0; six-simplify/v0.2.6 **1.000000071×**, 214e/v0.2.6 **1.000000148×**, both ≤1.01 with exact outputs; [fix1 receipts and audit](optin-fix1/), target deleted.
+registered protocol: accepted review finding fixed by acquiring Simplify immediately after update validation, before scratch/reservations; focused cache → update → cache Lean/Reuse equality test and entry-point audit pass (no other omission); tests (213), clippy, fmt, focused test, build and instruction rerun exit 0; six-simplify/v0.2.6 **1.000000071×**, 214e/v0.2.6 **1.000000148×**, both ≤1.01 with exact outputs; [fix1 receipts and audit](optin-fix1/), target deleted.
 
 ## Targeted default-path proof
 
@@ -59,8 +59,8 @@ exit 0. The test also covers same-family reuse, FIFO switching, validation
 error equality, preserving limits, and clear/set_limits/policy transitions.
 Builds and the instruction/capacity/RSS proof exit 0.
 
-CPU-only <job-runner>, MOSS_HEAVY_GPU=0, 4 GB declaration; measurements also set
-MOSS_HEAVY_MEASUREMENT=1. The first Python submission inherited the shared
+CPU-only <job-runner>, PARITY_RUNNER_GPU=0, 4 GB declaration; measurements also set
+PARITY_RUNNER_MEASUREMENT=1. The first Python submission inherited the shared
 Python executable's 9 GB reservation and was canceled before admission (143,
 no samples). Resubmission used the normal named shell script class and 4 GB
 reservation; queue/admission logs are retained. No policy overrides.
@@ -109,7 +109,7 @@ This identifies cross-algorithm retention as the mechanism. The diagnostic
 allocator probe will check the possible residual contribution from realloc
 and allocator retention; neither is needed to explain the large difference
 between the two independently maximized metrics. No timing claim is drawn
-from diagnostic probes. The original SPEC-026 report is in STEP1-026.md and
+from diagnostic probes. The original registered protocol report is in STEP1-026.md and
 its receipts remain unchanged.
 
 Decision: release scratch belonging to the other chain families when simplify,

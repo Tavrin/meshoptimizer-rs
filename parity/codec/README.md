@@ -26,22 +26,22 @@ read-only in this environment; `MESHOPT_ARTIFACTS` was set to
 `<target-dir>/p02`. All generated
 messages, output bytes, raw samples, logs, corpora and executable copies live
 there. Source fixtures are exported from the pinned oracle without editing it.
-Bar registration also needs `MESHOPT_MOSS_REFERENCE`, a a downstream engine checkout.
+Bar registration also needs `MESHOPT_DOWNSTREAM_REFERENCE`, a a downstream engine checkout.
 
-`run.sh` and `sweep.sh` with `--phase 0.2` write their per-case records and
+`run.sh` and `sweep.sh` with `--release 0.2` write their per-case records and
 buffer archives to `$MESHOPT_ARTIFACTS/run-0.2` and `$MESHOPT_ARTIFACTS/sweep-0.2`
 (or `--record-directory NAME`), and only slim SHA-256 summaries to
 `parity/results/run-0.2.json` and `parity/results/sweep-0.2.json`.
-`parity/report.sh --phase 0.2 --verify-artifacts` re-checks those identities,
+`parity/report.sh --release 0.2 --verify-artifacts` re-checks those identities,
 every case buffer, and that the recorded sources are current.
 
 ```sh
-parity/benchmark.sh --phase 0.2 --register-decoder-bars
-parity/run.sh --phase 0.2 --profile scalar-strict
-parity/sweep.sh --phase 0.2 --cases-per-family 2000 --seed 20261004
+parity/benchmark.sh --release 0.2 --register-decoder-bars
+parity/run.sh --release 0.2 --profile scalar-strict
+parity/sweep.sh --release 0.2 --cases-per-family 2000 --seed 20261004
 python3 parity/codec/gates.py
 python3 parity/codec/fuzz.py
-parity/benchmark.sh --phase 0.2 --enforce
+parity/benchmark.sh --release 0.2 --enforce
 python3 parity/codec/verify.py
 ```
 
@@ -84,12 +84,12 @@ whose reference behaviour is undefined (status -3: no oracle, see D60).
 
 ```sh
 export MESHOPT_ARTIFACTS=<artifacts>/p04
-parity/run.sh --phase 0.4 --profile scalar-strict
-parity/sweep.sh --phase 0.4 --cases-per-family 2000 --seed 20261004
-parity/report.sh --execute fuzz --phase 0.4
-MESHOPT_BENCH_CPU=3 parity/benchmark.sh --phase 0.4 --consumer-profile moss --enforce
-MESHOPT_BENCH_CPU=3 parity/benchmark.sh --phase 0.4 --consumer-profile default --enforce
-parity/report.sh --phase 0.4 --verify-artifacts
+parity/run.sh --release 0.4 --profile scalar-strict
+parity/sweep.sh --release 0.4 --cases-per-family 2000 --seed 20261004
+parity/report.sh --execute fuzz --release 0.4
+MESHOPT_BENCH_CPU=3 parity/benchmark.sh --release 0.4 --consumer-profile downstream --enforce
+MESHOPT_BENCH_CPU=3 parity/benchmark.sh --release 0.4 --consumer-profile default --enforce
+parity/report.sh --release 0.4 --verify-artifacts
 ```
 
 `runner04.py` re-runs every 0.2 fixture, malformed case and sweep family, then
@@ -98,8 +98,8 @@ adds native fixtures captured from the unchanged upstream tests
 outputs as expected bytes and the decoder suite's COLOR vectors
 (`js-fixtures04.mjs`), malformed meshlet/Color/capacity/parameter cases and
 2,000 seeded cases per operation. Encoded outputs are decoded by C++ and Rust
-in both directions. `measure04.py` applies the RFC 6.1 raw scalar codec bar
-per family and API under the a downstream engine (thin LTO, one codegen unit) and Cargo
+in both directions. `measure04.py` applies the design requirements raw scalar codec bar
+per family and API under the downstream engine (thin LTO, one codegen unit) and Cargo
 default (no LTO, sixteen codegen units) profiles. `fuzz04.py` runs nineteen
 300-second ASan smokes; it expects `tools/bin/cargo-fuzz` and an offline
 `cargo-home` in the parent of its artifact directory.

@@ -1020,7 +1020,7 @@
           "bytes": 13185680
         },
         {
-          "original": "<target-dir>/release/deps/libmoss_ecs_derive-6fef22f865935b98.so",
+          "original": "<target-dir>/release/deps/libdownstream_ecs_derive-6fef22f865935b98.so",
           "retained": "<scratch>/meshopt-simplify-perf/release-v2/retained-target-binaries/28550f7b818451986abff5a1dc8c18f51d8f397d47a8dd3c3049955adf31aafe",
           "sha256": "28550f7b818451986abff5a1dc8c18f51d8f397d47a8dd3c3049955adf31aafe",
           "bytes": 8223792

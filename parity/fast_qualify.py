@@ -122,7 +122,7 @@ def dependency_files():
     return result
 
 
-def setup(phase, profile, artifact_dir):
+def setup(release, profile, artifact_dir):
     for key in list(os.environ):
         if key.startswith('CARGO_PROFILE_'):
             del os.environ[key]
@@ -134,21 +134,21 @@ def setup(phase, profile, artifact_dir):
     TARGET.mkdir(parents=True, exist_ok=True)
     (TARGET / 'tmp').mkdir(exist_ok=True)
     os.environ['TMPDIR'] = str(TARGET / 'tmp')
-    if phase in ('0.1', '0.1.x'):
+    if release in ('0.1', '0.1.x'):
         import runner as r
         r.ENV.update(os.environ)
         for key in list(r.ENV):
             if key.startswith('CARGO_PROFILE_'):
                 del r.ENV[key]
         r.ENV['CARGO_PROFILE_DEV_DEBUG'] = '0'
-        if profile == 'moss':
+        if profile == 'downstream':
             r.ENV.update(CARGO_PROFILE_RELEASE_OPT_LEVEL='3', CARGO_PROFILE_RELEASE_DEBUG='0',
                          CARGO_PROFILE_RELEASE_LTO='thin', CARGO_PROFILE_RELEASE_CODEGEN_UNITS='1')
         elif profile == 'default':
             r.ENV.update(CARGO_PROFILE_RELEASE_OPT_LEVEL='3', CARGO_PROFILE_RELEASE_DEBUG='0',
                          CARGO_PROFILE_RELEASE_LTO='false', CARGO_PROFILE_RELEASE_CODEGEN_UNITS='16')
         elif profile != 'crate':
-            raise ValueError('0.1 profile must be crate, moss or default')
+            raise ValueError('0.1 profile must be crate, downstream or default')
         reference, target, _ = r.paths()
         binaries, identity = r.build(reference, target, wasm=False)
         identity['effective_profile_overrides'] = {
@@ -156,8 +156,8 @@ def setup(phase, profile, artifact_dir):
             if key.startswith('CARGO_PROFILE_RELEASE_')
         }
         return {k: str(v) for k, v in binaries.items() if k in ('cpp', 'rust')}, identity
-    sys.path.insert(0, str(ROOT / 'parity' / ('p03' if phase == '0.3' else 'codec')))
-    if phase == '0.3':
+    sys.path.insert(0, str(ROOT / 'parity' / ('p03' if release == '0.3' else 'codec')))
+    if release == '0.3':
         os.environ['MESHOPT_RUST_PROFILE'] = profile
         r = module('fast_p03_runner', ROOT / 'parity/p03/runner.py')
         dependencies = dependency_files()
@@ -166,7 +166,7 @@ def setup(phase, profile, artifact_dir):
             raise ValueError('dependency changed during build')
         identity['dependencies'] = dependencies
         return {k: str(v) for k, v in binaries.items()}, identity
-    if phase == '0.4':
+    if release == '0.4':
         m = module('fast_codec_measure', ROOT / 'parity/codec/measure.py')
         m04 = module('fast_codec_measure04', ROOT / 'parity/codec/measure04.py')
         before = m04.runner04.sources()
@@ -178,14 +178,14 @@ def setup(phase, profile, artifact_dir):
                     'executables': {k: sha(v) for k, v in binaries.items()},
                     'profile': m04.PROFILES[profile]}
         return {k: str(v) for k, v in binaries.items()}, identity
-    if phase == '0.2':
+    if release == '0.2':
         m = module('fast_codec_measure', ROOT / 'parity/codec/measure.py')
         r = module('fast_codec_runner', ROOT / 'parity/codec/runner.py')
         binaries = r.build()
         identity = {'sources': r.sources(),
                     'executables': {k: sha(v) for k, v in binaries.items()}}
         return {k: str(v) for k, v in binaries.items() if k != 'wasm'}, identity
-    raise ValueError('unsupported phase')
+    raise ValueError('unsupported release')
 
 
 def case_file(directory, name, data, family, **extra):
@@ -338,7 +338,7 @@ def cases02(directory, binaries, smoke):
     return out
 
 
-def fingerprint(phase, profile, identity, family):
+def fingerprint(release, profile, identity, family):
     """Conservative whole-source reuse, including nested harness/build inputs."""
     paths = [ROOT / 'Cargo.toml', ROOT / 'Cargo.lock']
     for name in ('src', 'tests', 'parity', 'fuzz'):
@@ -350,21 +350,21 @@ def fingerprint(phase, profile, identity, family):
     oracle = {str(p.relative_to(REFERENCE)): sha(p)
               for directory in ('src', 'js', 'demo')
               for p in sorted((REFERENCE / directory).rglob('*')) if p.is_file()}
-    payload = {'phase': phase, 'profile': profile, 'family': family,
+    payload = {'release': release, 'profile': profile, 'family': family,
                'sources': files, 'oracle': oracle, 'identity': identity}
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
 
-def source_unchanged(phase, identity):
+def source_unchanged(release, identity):
     """Re-read the build's complete source/dependency snapshot after sampling."""
-    if phase in ('0.1', '0.1.x'):
+    if release in ('0.1', '0.1.x'):
         import runner as r
         return r.snapshot(REFERENCE) == identity['source_sha256']
-    if phase == '0.3':
+    if release == '0.3':
         r = module('fast_p03_runner', ROOT / 'parity/p03/runner.py')
         return (r.snapshot() == identity['sources'] and
                 dependency_files() == identity['dependencies'])
-    if phase == '0.4':
+    if release == '0.4':
         r = module('fast_codec_runner04', ROOT / 'parity/codec/runner04.py')
     else:
         r = module('fast_codec_runner', ROOT / 'parity/codec/runner.py')
@@ -419,7 +419,7 @@ def init_worker(cores):
     os.environ['MESHOPT_FAST_CORE'] = json.dumps(core)
 
 
-def measure_task(phase, task, binaries, alpha, max_pairs):
+def measure_task(release, task, binaries, alpha, max_pairs):
     core = json.loads(os.environ['MESHOPT_FAST_CORE'])
     cpu = core['cpu']
     before = fs.core_load(cpu)
@@ -431,7 +431,7 @@ def measure_task(phase, task, binaries, alpha, max_pairs):
     outputs = {}
     memory = {}
     repeats = None
-    if phase in ('0.1', '0.1.x'):
+    if release in ('0.1', '0.1.x'):
         import runner as r
         import performance as p
         r.benchmark_cpu = cpu
@@ -467,7 +467,7 @@ def measure_task(phase, task, binaries, alpha, max_pairs):
             raise ValueError('benchmark output mismatch: ' + task['case'])
         ratio = statistics.median(a/b for a, b in zip(samples['rust'], samples['scalar']))
         mem_ratio = memory['rust']/memory['cpp'] if memory['cpp'] else (1.0 if memory['rust'] == 0 else math.inf)
-    elif phase == '0.3':
+    elif release == '0.3':
         r = module('fast_p03_runner', ROOT / 'parity/p03/runner.py')
         clients = {k: r.Client(k, v) for k, v in binaries.items()}
         try:
@@ -525,9 +525,9 @@ def measure_task(phase, task, binaries, alpha, max_pairs):
                     samples[backend].append(elapsed)
                 per_pair.append(fs.add_core_delta(telemetry, fs.core_load(cpu)))
                 decision = fs.stop(samples['rust'], samples['scalar'],
-                                   alpha / 2 if phase == '0.2' else alpha,
+                                   alpha / 2 if release == '0.2' else alpha,
                                    paired=False, maximum=max_pairs)
-                if phase == '0.2':
+                if release == '0.2':
                     # The registered throughput floor is a separate, unchanged gate.
                     # Raw scalar timing applies only to vertex/index decoders.
                     decision = fs.codec_stop(decision, samples['rust'], alpha / 2,
@@ -542,7 +542,7 @@ def measure_task(phase, task, binaries, alpha, max_pairs):
         mem_ratio = 1.0
     after = fs.core_load(cpu)
     case_pass = ratio <= BAR_CASE and mem_ratio <= BAR_MEMORY
-    if phase == '0.2':
+    if release == '0.2':
         case_pass = (not task['raw_scalar'] or ratio <= BAR_CASE) and (
             task['registered_minimum'] is None or
             task['decoded_bytes']/statistics.median(samples['rust']) >= task['registered_minimum'])
@@ -555,16 +555,16 @@ def measure_task(phase, task, binaries, alpha, max_pairs):
             'finished_unix': time.time()}
 
 
-def family_verdict(rows, phase):
-    ratios = [r['ratio'] for r in rows if phase != '0.2' or r['raw_scalar']]
+def family_verdict(rows, release):
+    ratios = [r['ratio'] for r in rows if release != '0.2' or r['raw_scalar']]
     gm = math.exp(statistics.mean(math.log(x) for x in ratios))
     maximum = max(ratios)
     memory = max(r['memory_ratio'] for r in rows)
-    result = {'cases': len(ratios) if phase == '0.2' else len(rows),
+    result = {'cases': len(ratios) if release == '0.2' else len(rows),
               'geometric_mean': gm, 'maximum': maximum,
               'maximum_memory_ratio': memory,
               'pass': gm <= BAR_GM and maximum <= BAR_CASE and memory <= BAR_MEMORY}
-    if phase == '0.2':
+    if release == '0.2':
         minimum_fail = [r['case'] for r in rows if r['registered_minimum'] is not None
                         and r['decoded_bytes']/statistics.median(r['samples_seconds']['rust']) < r['registered_minimum']]
         result['failed_registered_minima'] = minimum_fail
@@ -575,8 +575,8 @@ def family_verdict(rows, phase):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--phase', choices=['0.1', '0.1.x', '0.2', '0.3', '0.4'], required=True)
-    parser.add_argument('--profile', choices=['crate', 'moss', 'default', 'consumer', 'release-defaults'], required=True)
+    parser.add_argument('--release', choices=['0.1', '0.1.x', '0.2', '0.3', '0.4'], required=True)
+    parser.add_argument('--profile', choices=['crate', 'downstream', 'default', 'consumer', 'release-defaults'], required=True)
     parser.add_argument('--workers', type=int)
     parser.add_argument('--full', action='store_true', help='disable change-scoped reuse')
     parser.add_argument('--smoke', action='store_true', help='small iteration subset; never qualification')
@@ -586,32 +586,32 @@ def main():
     args = parser.parse_args()
     if args.workers is not None and args.workers < 1 or args.max_pairs < 20 or args.max_pairs > 90:
         parser.error('workers must be positive and max-pairs must be 20..90')
-    if args.phase == '0.1' and args.profile not in ('crate', 'moss', 'default') or args.phase in ('0.1.x', '0.4') and args.profile not in ('moss', 'default') or args.phase == '0.3' and args.profile not in ('consumer', 'release-defaults') or args.phase == '0.2' and args.profile != 'default':
-        parser.error('invalid phase/profile combination')
+    if args.release == '0.1' and args.profile not in ('crate', 'downstream', 'default') or args.release in ('0.1.x', '0.4') and args.profile not in ('downstream', 'default') or args.release == '0.3' and args.profile not in ('consumer', 'release-defaults') or args.release == '0.2' and args.profile != 'default':
+        parser.error('invalid release/profile combination')
     require_paths()
     admission = timing_admission()
-    if args.phase == '0.1.x' and not (ROOT / 'parity/p01x.py').is_file():
+    if args.release == '0.1.x' and not (ROOT / 'parity/p01x.py').is_file():
         parser.error('0.1.x requires a source export containing the final preprocessing harness')
-    if args.phase == '0.2':
+    if args.release == '0.2':
         registered_minima()
     started = time.time()
     ART.mkdir(parents=True, exist_ok=True)
-    directory = ART / f'fast-{args.phase}-{args.profile}-{int(started)}'
+    directory = ART / f'fast-{args.release}-{args.profile}-{int(started)}'
     directory.mkdir()
-    binaries, identity = setup(args.phase, args.profile, directory)
-    inputs = ART / 'case-inputs' / args.phase
-    if args.phase == '0.1':
+    binaries, identity = setup(args.release, args.profile, directory)
+    inputs = ART / 'case-inputs' / args.release
+    if args.release == '0.1':
         cases = cases01(inputs, binaries, args.smoke)
-    elif args.phase == '0.1.x':
+    elif args.release == '0.1.x':
         cases = cases01x(inputs, args.smoke)
-    elif args.phase == '0.2':
+    elif args.release == '0.2':
         cases = cases02(inputs, binaries, args.smoke)
-    elif args.phase == '0.3':
+    elif args.release == '0.3':
         cases = cases03(inputs, args.smoke)
     else:
         cases = cases04(inputs, args.smoke)
     families = sorted({c['family'] for c in cases})
-    fingerprints = {f: fingerprint(args.phase, args.profile, identity, f) for f in families}
+    fingerprints = {f: fingerprint(args.release, args.profile, identity, f) for f in families}
     receipt = validation_receipt()
     if receipt and receipt['maximum_pairs'] != args.max_pairs:
         receipt = None
@@ -624,7 +624,7 @@ def main():
     if args.resume:
         old = json.loads(args.resume.read_text())
         if (old.get('schema') != 'meshopt-fast-qualify/1' or old.get('complete') or
-                old.get('phase') != args.phase or old.get('profile') != args.profile or
+                old.get('release') != args.release or old.get('profile') != args.profile or
                 old.get('smoke') != args.smoke or old.get('full') != args.full or
                 old.get('fingerprints') != fingerprints or
                 old.get('binary_sha256') != {k: sha(v) for k, v in binaries.items()} or
@@ -670,7 +670,7 @@ def main():
     cores = selection['selected']
     measurement_admission = timing_admission()
     alpha = .05 / max(1, len(cases))
-    record = {'schema': 'meshopt-fast-qualify/1', 'phase': args.phase, 'profile': args.profile,
+    record = {'schema': 'meshopt-fast-qualify/1', 'release': args.release, 'profile': args.profile,
               'source_root': str(ROOT),
               'harness_sha256': sha(ROOT / 'parity/fast_qualify.py'),
               'statistics_sha256': sha(ROOT / 'parity/fast_stats.py'),
@@ -691,7 +691,7 @@ def main():
     try:
         with ProcessPoolExecutor(max_workers=len(cores), initializer=init_worker,
                                  initargs=(cores,)) as pool:
-            futures = [pool.submit(measure_task, args.phase, c, binaries, alpha, args.max_pairs) for c in pending]
+            futures = [pool.submit(measure_task, args.release, c, binaries, alpha, args.max_pairs) for c in pending]
             for future in as_completed(futures):
                 try:
                     row = future.result()
@@ -704,10 +704,10 @@ def main():
                 write(directory / 'record.partial.json', record)
                 print(f"{row['case']}: {row['ratio']:.3f}, {row['sequential']['pairs']} pairs on CPU {row['cpu']}", flush=True)
         record['rows'].sort(key=lambda row: row['case'])
-        record['families'] = {f: family_verdict([r for r in record['rows'] if r['family'] == f], args.phase) for f in families}
+        record['families'] = {f: family_verdict([r for r in record['rows'] if r['family'] == f], args.release) for f in families}
         record['complete'] = len(record['rows']) == len(cases) and all(sha(c['input']) == c['input_sha256'] for c in cases)
-        record['source_unchanged'] = (source_unchanged(args.phase, identity) and
-                                      all(fingerprint(args.phase, args.profile, identity, f) == fingerprints[f] for f in families))
+        record['source_unchanged'] = (source_unchanged(args.release, identity) and
+                                      all(fingerprint(args.release, args.profile, identity, f) == fingerprints[f] for f in families))
         record['binary_unchanged'] = {k: sha(v) for k, v in binaries.items()} == record['binary_sha256']
         record['passed'] = record['complete'] and record['source_unchanged'] and record['binary_unchanged'] and all(v['pass'] for v in record['families'].values())
         record['release_grade'] = bool(receipt and args.full and record['complete'] and
@@ -721,7 +721,7 @@ def main():
         write(directory / 'record.json', record)
         (directory / 'record.partial.json').unlink()
         label = 'SMOKE (NOT A QUALIFICATION)' if args.smoke else 'FAST'
-        print(f"{label} {args.phase}/{args.profile}: {len(cases)} cases, {record['wall_seconds']:.1f}s, PASS={record['passed']}", flush=True)
+        print(f"{label} {args.release}/{args.profile}: {len(cases)} cases, {record['wall_seconds']:.1f}s, PASS={record['passed']}", flush=True)
     except BaseException:
         record['failed_unix'] = time.time()
         record['checkpoint_unix'] = record['failed_unix']

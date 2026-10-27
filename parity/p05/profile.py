@@ -24,7 +24,7 @@ def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def main():
-    profile = sys.argv[1] if len(sys.argv) > 1 else 'moss'
+    profile = sys.argv[1] if len(sys.argv) > 1 else 'downstream'
     diagnostic = '--diagnostic' in sys.argv[2:]
     purpose = 'diagnostic' if diagnostic else 'benchmark'
     detail = json.loads((ART / f'{purpose}-0.5-{profile}.json').read_text())
@@ -131,7 +131,7 @@ def main():
     complete = set(records) == failing and all(
         all(v['stat_exit'] == 0 and v['record_exit'] == 0 and v['instructions'] and v['perf_data_sha256']
             for v in item['backends'].values()) for item in records.values())
-    result = {'schema': 'meshopt-p05-profile/1', 'phase': '0.5', 'profile': profile, 'profile_complete': complete,
+    result = {'schema': 'meshopt-p05-profile/1', 'release': '0.5', 'profile': profile, 'profile_complete': complete,
               'benchmark_sha256': sha(ART / f'{purpose}-0.5-{profile}.json'),
               'detail_artifact': str(detail_path.relative_to(ART)), 'detail_sha256': sha(detail_path),
               'families': {f: {'cpp_instructions': item['backends']['cpp']['instructions'],

@@ -20,7 +20,7 @@ def record():
            'samples_seconds': {'rust': rust, 'scalar': scalar},
            'ratio': 1.0, 'memory_ratio': 1.0, 'sequential': decision,
            'case_pass': True, 'reused': False}
-    return {'schema': 'meshopt-fast-qualify/1', 'phase': '0.1', 'profile': 'moss',
+    return {'schema': 'meshopt-fast-qualify/1', 'release': '0.1', 'profile': 'downstream',
             'complete': True, 'source_unchanged': True, 'binary_unchanged': True,
             'smoke': False, 'full': True, 'wall_seconds': 1,
             'source_root': '/example/source',
@@ -48,7 +48,7 @@ class RecordTests(unittest.TestCase):
             q.write(fast_path, fast)
             q.write(full_path, full)
             result = v.compare({'fast': str(fast_path), 'full': str(full_path),
-                                'phase': '0.1', 'profile': 'moss', 'revision': 'main'})
+                                'release': '0.1', 'profile': 'downstream', 'revision': 'main'})
         self.assertEqual((result['case_agreements'], result['family_agreements']), (1, 1))
 
     def test_stored_verdict_and_duplicates_cannot_replace_raw_evidence(self):

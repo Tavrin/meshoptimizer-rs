@@ -1,5 +1,5 @@
 {
-  "scope": "SPEC-p03-encoders round1; generic x86-64 native release fat LTO 1CGU; both APIs",
+  "scope": "registered protocol round1; generic x86-64 native release fat LTO 1CGU; both APIs",
   "library_revision": "3c0ec280e880f95c8a4586768bd35e9508bbf443",
   "harness_revision": "b82191392e11ad84c4ee439be34f93c3cd57e62c",
   "artifact_directory": "<scratch>/meshopt-v03",
@@ -22,7 +22,7 @@
     "old-peer-source-identity.json": "25f3f239a059302dac669ee14eabe1e0b6b90513e6b18ff7e75362b36b30e09c",
     "timing-policy-identity.json": "2fdad6d14b3d50c1907067327616b0bdd583fa1fba3435e701569cb7b32da9ff",
     "admission-receipts.tsv": "8b2426a3299833e1bd48be0964faf9af5114f0a444f689542dce545636fe863a",
-    "SPEC-p03-encoders.md": "58a8a0c8bce6047a0dd078f79704eef7a2bf8ab8e86f0d1b14a85028232786fa",
+    "registered protocol": "58a8a0c8bce6047a0dd078f79704eef7a2bf8ab8e86f0d1b14a85028232786fa",
     "RUN-RULES.md": "ceeca8f76b1c54d5c36a6ee2f0beb238c36d841c0ec1bcb7367e2c20f415f187",
     "crate-build-script-output.txt": "e3501ae9100f2988e1be42c24cbc5612a43cc6b652c3b53f50d04d9b0e006e5a",
     "cleanup.json": "9059a42b2470085bd06d4140cc0b75425f5c362922fbb51f21d33307b7663f9e"

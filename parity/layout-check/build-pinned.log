@@ -19,7 +19,7 @@ heavy: running (3G reserved, cap 7G, 16G available): bash <scratch>/meshopt-vali
    Compiling libm v0.2.16
    Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-B)
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/B-pinned-harness)
-    Finished `moss` profile [optimized] target(s) in 17.44s
+    Finished `downstream` profile [optimized] target(s) in 17.44s
    Compiling meshoptimizer-rs v0.2.4 (<scratch>/meshopt-validate-once/layout-check/lib-C)
    Compiling meshopt-fix1-old v0.0.0 (<scratch>/meshopt-validate-once/layout-check/C-pinned-harness)
-    Finished `moss` profile [optimized] target(s) in 16.90s
+    Finished `downstream` profile [optimized] target(s) in 16.90s

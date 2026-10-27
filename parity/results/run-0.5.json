@@ -1,6 +1,6 @@
 {
   "schema": "meshopt-p05-run/1",
-  "phase": "0.5",
+  "release": "0.5",
   "passed": true,
   "fixture_tests": 6,
   "work_budget_tests": 3,

@@ -3,9 +3,9 @@
   "done_when_passed": true,
   "evidence_complete": true,
   "release_performance_accepted": false,
-  "moss_performance_accepted": false,
+  "downstream_performance_accepted": false,
   "consumer_performance": {
-    "benchmark-moss": {
+    "benchmark-downstream": {
       "vertex_cache": {
         "cases": 24,
         "geometric_mean": 1.2433795037066138,

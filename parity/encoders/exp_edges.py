@@ -6,7 +6,7 @@ from pathlib import Path
 import struct
 import run as lane
 
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 A = lane.ART
 profile = os.environ['MESHOPT_EDGE_PROFILE']
 ds = {'rust': lane.Driver(A / f'codec-driver-{profile}'),

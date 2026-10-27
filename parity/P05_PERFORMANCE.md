@@ -1,6 +1,6 @@
-# Phase 0.5 diagfix — completed scoped campaign, performance still unqualified
+# Release 0.5 diagfix — completed scoped campaign, performance still unqualified
 
-The SPEC-p05-diagfix scope is complete: rebase and strict integration gates,
+The registered protocol scope is complete: rebase and strict integration gates,
 all-family instruction diagnosis, six separately committed library fixes, and
 one admitted timing campaign over the four touched families. **Remesh, overdraw
 and coverage pass both profiles; OMM compact fails both means. Full P05 performance
@@ -19,13 +19,13 @@ Only the after stream decides this candidate's scoped performance verdict.
 
 | Family | Profile | Before, historical unmatched GM (max) | After GM (max) | Verdict |
 |---|---|---:|---:|---|
-| remesh | moss | 1.248 (1.377) | 1.130 (1.270) | PASS |
+| remesh | downstream | 1.248 (1.377) | 1.130 (1.270) | PASS |
 | remesh | default | 1.264 (1.348) | 1.144 (1.265) | PASS |
-| overdraw | moss | 0.935 (1.096) | 0.945 (1.081) | PASS |
+| overdraw | downstream | 0.935 (1.096) | 0.945 (1.081) | PASS |
 | overdraw | default | 1.005 (1.393) | 1.006 (1.183) | PASS |
-| coverage | moss | 0.940 (1.140) | 0.957 (1.139) | PASS |
+| coverage | downstream | 0.940 (1.140) | 0.957 (1.139) | PASS |
 | coverage | default | 0.964 (1.205) | 1.037 (1.361) | PASS |
-| omm_compact | moss | 1.246 (1.319) | 1.325 (1.331) | FAIL mean; abandoned |
+| omm_compact | downstream | 1.246 (1.319) | 1.325 (1.331) | FAIL mean; abandoned |
 | omm_compact | default | 1.115 (1.181) | 1.296 (1.335) | FAIL mean; abandoned |
 
 Fresh remesh caller means/maxima are 1.106/1.259 a downstream engine and 1.101/1.231 default.
@@ -48,7 +48,7 @@ empty Rust flags. The scalar reference is pinned at 4c203430ca565cb59a468a91922c
 O3/NO_SIMD/no-fast-math/no-FMA. Frozen shapes, allocating/caller storage,
 allocation/sink semantics and bars are unchanged. No unsafe or explicit SIMD.
 
-A single lease_run.py campaign declares 4 GB through MOSS_HEAVY_GPU=1 and shared
+A single lease_run.py campaign declares 4 GB through PARITY_RUNNER_GPU=1 and shared
 <job-runner>, which dynamically reserves 2 GB, visibly waits for admission and
 holds heavy:timeout's kernel GPU flock. One 840-second bounded burst completes
 in 96 seconds including compilation. Complete inventory: 38 cases/profile,
@@ -59,18 +59,18 @@ All 759 admission snapshots pass holder/ancestor/flock/reservation checks.
 Calibration, warmups and all measured pairs occur within that admission.
 
 Final library gates: 151/125/130 root tests in all/no-default/experimental modes,
-strict Clippy all three, formatting, fourteen phase contracts, 30,000 exact cases
+strict Clippy all three, formatting, fourteen release contracts, 30,000 exact cases
 each native/libm/executed-WASM (90,000 total), plus all 30 touched frozen shapes
 in std and libm (60 comparisons). Consumer tests and strict Clippy pass std/libm;
-five lean-policy tests pass. Phase 0 separately closes all earlier-phase strict
-functional gates, preserved 0.6/cluster-LOD APIs and the supported RFC113 layouts.
+five lean-policy tests pass. Release 0 separately closes all earlier-release strict
+functional gates, preserved 0.6/cluster-LOD APIs and the supported CLUSTER_LOD layouts.
 Historical fuzz and all-family timing records are not promoted to this source.
 
 Entry points outside the deleted target cache:
 `<artifacts>/p05-diagfix/audit.json`, `final-manifest.json`,
 `final-sources.tar.gz`, `frozen-proof/record.json`, `final-counts/counts.json`,
 `compact-hash-proof/receipts.json`, `final-gates/receipts.json` and
-`timing/lean-0.5-{moss,default}.json`. Sources, proof executables/libraries/WASM,
+`timing/lean-0.5-{downstream,default}.json`. Sources, proof executables/libraries/WASM,
 full output digests, paired raw timings, CPU/load metadata and assembly are
 retained. The audit recomputes inventories, ratios, every early interval,
 family statistics, profile/source/binary identities and gate flags; audit success
@@ -86,7 +86,7 @@ matrix. Commits retain the repository author and no AI trailers.
 # Historical owner-stop / diagnosis handoff (superseded by D160–D169 above)
 
 **Historical D144 verdict: functionally validated; performance NOT qualified.** The owner
-stopped this lane before a new final matrix. No further timing is queued. This is
+stopped this job before a new final matrix. No further timing is queued. This is
 not an unreachable-family verdict, residual approval or release acceptance.
 
 The retained tree (D144) combines D131 `opacity.rs`/`strip.rs`, D128 `remesh.rs`,
@@ -97,7 +97,7 @@ and requested-heap contracts remain intact. No unsafe, explicit SIMD or new API.
 
 Fresh D144 validation exits0: root/consumer fmt and strict Clippy; root all-feature,
 no-default and no-default+experimental tests 79/74/79; two resident consumer tests
-per mode; fourteen phase fixture/fuel/storage contracts; native, libm and executed
+per mode; fourteen release fixture/fuel/storage contracts; native, libm and executed
 WASM differential identity 30,000 cases each with zero mismatches. Expanded selected
 family parity checks cover 38 shapes per std/libm mode. Receipts and immutable
 proof binaries live outside the deleted build cache in
@@ -105,7 +105,7 @@ proof binaries live outside the deleted build cache in
 `D144-functional-preflight.json` and `D144-per-family-status.json` are the entry points.
 Historical fuzz receipts are preserved; fuzz was not rerun against D144.
 
-`report.sh --phase 0.5 --verify-artifacts` still exits1: zero functional errors,
+`report.sh --release 0.5 --verify-artifacts` still exits1: zero functional errors,
 51 expected benchmark/profile identity/protocol errors from historical D73 final
 summaries. Those summaries are intentionally not rewritten as current success.
 The complete current 320 rows (160/profile,21 API groups) and final 5/10/20 screens /
@@ -146,7 +146,7 @@ it with a full mean. D131 clears the prior a downstream engine raster case aroun
 its largest a downstream engine owned/caller maxima are1.274/1.286. Strip/decoder edge evidence
 covers shapes 0/7 only and leaves the six other shapes unmeasured for this method.
 
-## Next diagnosis lane
+## Next diagnosis job
 
 Start with D128/D138 remesh perf evidence to identify the specific overhead.
 D138's default worst case is seed 4, 256 vertices/512 triangles/style2: whole-driver
@@ -166,7 +166,7 @@ basename handling or restrict package renaming before any separately authorized
 future timing; source identity will require a fresh stream after harness edits.
 
 For future authorized timing, use only `parity/p05/lease_run.py` (which invokes
-`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`).
+`PARITY_RUNNER_GPU=1 <job-runner> 4 timeout 840 ...`).
 It verifies shared admission/holder ancestry and kernel flock; no nested/direct
 lease, scoreboard or quiet-host gate. Grant soft checkpoint 600s, hard 840s,
 retry 75/resume 76; touched rows/five pairs while iterating. Selected complete final
@@ -200,10 +200,10 @@ semantic equivalence never establish a wall-time pass.
 | D107: matched conditional caller buffers | Retained correction. Discarded its first draft's unrelated untimed OMM parity branch edit. Does not alone clear tiny owned decoding. |
 | D108/D115/D116: inline allocation, checked wrapper and emitting loop | Retained hints; successive a downstream engine tiny maxima1.849/2.229/1.555 still fail. Removing opaque symbols alone is insufficient. |
 | D110: warmed equal-batch calibration | Retained fix for concrete sub-ms batches. Corrected tiny a downstream engine maximum2.889 still fails, rejecting undersized batches as the whole explanation. |
-| D111: static API selection outside both loops | Retained method fix. Tiny owned Moss2.883 still fails. Wider dispatcher asymmetry is insufficient. |
+| D111: static API selection outside both loops | Retained method fix. Tiny owned the downstream engine2.883 still fails. Wider dispatcher asymmetry is insufficient. |
 | D112/D113: proven add/shift fetch arithmetic, no-restart decoder and <=64 fetch specialization | Retained semantics. D112 fetch mean1.290 a downstream engine still fails; D114 matched method subsequently clears fetch. |
-| D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned Moss2.145 still fails. |
-| D117: matched standalone timer functions | Retained method correction; tiny owned Moss2.056 still fails. |
+| D113: retain output pointer/count instead of making Vec ownership opaque | Retained matched correction; D114 tiny owned the downstream engine2.145 still fails. |
+| D117: matched standalone timer functions | Retained method correction; tiny owned the downstream engine2.056 still fails. |
 | D118: initialize all owned decoder bounds and emit fixed chunks | Retained; tiny a downstream engine maximum1.551 still misses. Separate allocation-count experiment proves one108-byte malloc/free per owned call in both languages; extra allocation hypothesis rejected. Instrumented times excluded. |
 | D119/D121: select owned/caller mode and prepare equal slice metadata outside timers | Retained matching corrections; tiny a downstream engine maxima1.550/1.561 still fail. D121 default/profiles were not collected. |
 | D122: keep Vec ownership local to fallible reservation | Retained. Decoder edge subsets finally pass both profiles; full family remains unqualified. |
@@ -236,7 +236,7 @@ semantic equivalence never establish a wall-time pass.
 
 The operative rejection is failure against the unchanged bar; none of these
 means is classified as a residual or as unreachable in safe Rust. D142/D143
-remain usable hypotheses for the next diagnosis lane. D139/D140/D141 independent
+remain usable hypotheses for the next diagnosis job. D139/D140/D141 independent
 native and executed-WASM conversion proofs each match134,615,444 cases; D132
 native proof matches134,615,444 and D137 native cast proof33,558,016. These proofs
 say nothing about speed. Source-extracted float/coordinate proof artifacts and
@@ -261,7 +261,7 @@ drivers. D110 calibrates equal warmed batches for the unchanged 20ms target.
 D113 retains data pointers/counts and adds safe no-restart decoding and narrow
 fetch-line simplification. D115/D116 expose existing decoder helpers to inlining.
 D122 keeps Vec ownership local to fallible exact reservation, removing a private
-Result<Vec> ownership boundary. All fourteen phase contracts retain std/libm
+Result<Vec> ownership boundary. All fourteen release contracts retain std/libm
 values, errors, work and tails. D118 replaces tiny owned Vec append emission with initialized checked chunks,
 as large owned outputs already use. D117 uses matched standalone timer functions;
 D119 selects owned/caller before timing; D121 borrows prepared strip metadata
@@ -341,15 +341,15 @@ profile was stopped before admission. No live burst was interrupted.
 D119's focused five-pair decoder probes remain separately source-bound in
 `baseline-D119-focused`: tiny owned a downstream engine maximum 1.550, default maximum 1.102;
 caller and million-owned probes pass. The two-case decoder mean is incomplete,
-and the a downstream engine maximum still fails. No residual is accepted. Prior D106-D119
+and the downstream engine maximum still fails. No residual is accepted. Prior D106-D119
 streams retain their matching sources, binaries and failing-family profiles.
 
 D120 supersedes direct lease submission with visible shared admission:
-`MOSS_HEAVY_GPU=1 <job-runner> 4 timeout 840 ...`, dashboard lane
+`PARITY_RUNNER_GPU=1 <job-runner> 4 timeout 840 ...`, dashboard job
 `meshopt-timing:p05-*`. The 4 GB declaration is adjustable if the measured peak
-requires it. The shared wrapper obtains/releases the GPU lease; this lane never
+requires it. The shared wrapper obtains/releases the GPU lease; this job never
 calls or nests gpu-lease.sh. Receipts verify the admitted timeout, memory
-reservation, heavy/lease ancestor PIDs, lane, and the holder's kernel flock for
+reservation, heavy/lease ancestor PIDs, job, and the holder's kernel flock for
 the shared inode. No lease-free gap or scoreboard polling remains. Commands
 checkpoint complete cases/families after ten minutes, release and requeue;
 foreground 840-second timeout plus five-second kill grace bounds each grant.
@@ -390,11 +390,11 @@ Memory is peak requested output plus scratch, excluding caller buffers. The C++ 
 | `normals` | 3.530 -> 1.317 | 3.214 -> 1.311 | 1.438 / 1.479 | 1.909 |
 | `remesh` | 1.613 -> 1.293 | 1.732 -> 1.294 | 1.454 / 1.380 | 1.000 |
 
-The old and final geometric means use different corpora; these arrows show the lane outcome, not a matched-case speedup. The detail JSONs retain per-API groups, raw samples, memory bytes, load, input hashes and binary SHA-256 identities. `parity/results/benchmark-{moss,default}-0.5.json` are the compact summaries.
+The old and final geometric means use different corpora; these arrows show the job outcome, not a matched-case speedup. The detail JSONs retain per-API groups, raw samples, memory bytes, load, input hashes and binary SHA-256 identities. `parity/results/benchmark-{downstream,default}-0.5.json` are the compact summaries.
 
 ## Profile evidence
 
-`perf stat` instruction ratios below compare whole profiling drivers at the selected worst benchmark case. They include input setup, so they are diagnostic rather than per-call instruction counts. `perf record` identifies the Rust hot path. Every failing family in each profile has a retained stat log, record data file and report under `<artifacts>/p05/profiles-0.5-{moss,default}`.
+`perf stat` instruction ratios below compare whole profiling drivers at the selected worst benchmark case. They include input setup, so they are diagnostic rather than per-call instruction counts. `perf record` identifies the Rust hot path. Every failing family in each profile has a retained stat log, record data file and report under `<artifacts>/p05/profiles-0.5-{downstream,default}`.
 
 | Failing family | a downstream engine instructions Rust/C++ | Default instructions Rust/C++ |
 |---|---:|---:|
@@ -415,4 +415,4 @@ a downstream engine `perf record` places the largest Rust samples in `unstripify
 
 The safe-Rust changes removed repeated position reads in tangent/normal accumulation, used a direct scalar square root in standard builds while preserving the `libm` path for `no_std`, simplified checked bounds, batched exact work charges, and reduced OMM UV mapping and cache analyzer work accounting. The three tiny helper gaps were measurement artifacts: the final harness varies valid inputs, batches at least 100,000 calls, dispatches outside both loops, and matches the result compiler barriers. D73 caller-buffer OMM rasterization, tangents and normals preserved the destination on any error by staging a complete result. D81/D87 subsequently removed this staging when a conservative work bound proves completion after all fallible setup. The other D73 failing rows retain their historical measured ratios and worst-case profiles; no exception to the bar is claimed. Fresh measurements of the resumed candidate remain pending admission.
 
-At D73, `parity/report.sh --phase 0.5 --verify-artifacts` verified those historical records and reported `performance_qualified: false`. The current verifier exits1 for obsolete benchmark/profile identities and protocol; the owner no longer accepts whole-family shortfalls.
+At D73, `parity/report.sh --release 0.5 --verify-artifacts` verified those historical records and reported `performance_qualified: false`. The current verifier exits1 for obsolete benchmark/profile identities and protocol; the owner no longer accepts whole-family shortfalls.

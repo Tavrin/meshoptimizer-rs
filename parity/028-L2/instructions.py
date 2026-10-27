@@ -22,7 +22,7 @@ ART = Path(_public_path('<scratch>/meshopt-028-L2'))
 PERF = '/usr/lib/linux-tools/6.17.0-22-generic/perf'
 OPS = ['cache', 'cache-fifo', 'simplify-scale', 'overdraw']
 CASES = ['tiny-smooth', 'medium-smooth', 'medium-seams', 'medium-sparse', 'million-smooth']
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 epoch = sys.argv[1]
 rows = []
 for binary in sys.argv[2:]:

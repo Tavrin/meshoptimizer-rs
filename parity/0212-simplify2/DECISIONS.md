@@ -1,11 +1,11 @@
 # Decisions and proof boundaries
 
 The entry is c396a697, treated as post-#39 main. The v0.2.11 tag peels to
-40dbf9e. Sqrt is explicitly outside this lane; its #39 implementation is kept.
+40dbf9e. Sqrt is explicitly outside this job; its #39 implementation is kept.
 No API, version, shared-math, unsafe, SIMD implementation or unrelated family
 changes are included.
 
-Attempt 1 adds adjacency/quadric/normalization/update phase bounds, bounded
+Attempt 1 adds adjacency/quadric/normalization/update release bounds, bounded
 hash batches, fixed-length remap/counter/wedge slices and the validated bounds
 scan. It is retained in full under `<scratch>/meshopt-0212-simplify2/attempt1/`.
 Its completed 214e stages do not meet the registered PARTIAL threshold. This
@@ -42,7 +42,7 @@ remain unchanged. No finite-input assumption is used to drop quadric, gradient,
 ranked-error or update guards.
 
 All bounds use checked arithmetic. Overflow declines the covered path. A
-covered phase tallies and settles the actual visited prefix on success/error;
+covered release tallies and settles the actual visited prefix on success/error;
 the original low-budget path remains responsible for exact exhaustion and
 partial writes. No reservation is converted into consumed work.
 

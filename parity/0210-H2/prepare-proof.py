@@ -32,7 +32,7 @@ path="{R}/parity/0210-H2/overdraw-exact.rs"
 [[bin]]
 name="scale-exact"
 path="{R}/parity/0210-H2/scale-exact.rs"
-[profile.moss]
+[profile.bench-release]
 inherits="release"
 opt-level=3
 lto="thin"

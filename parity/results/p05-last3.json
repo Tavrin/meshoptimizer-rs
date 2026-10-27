@@ -100,7 +100,7 @@
     {
       "family": "omm_compact",
       "metric": "geomean",
-      "moss": {
+      "downstream": {
         "before": 1.2944276630372131,
         "after": 0.5566087914419117,
         "passed": true
@@ -114,7 +114,7 @@
     {
       "family": "overdraw",
       "metric": "s7 median",
-      "moss": {
+      "downstream": {
         "before": 1.4285975985767687,
         "after": 0.8872962153943454,
         "passed": true
@@ -128,7 +128,7 @@
     {
       "family": "coverage",
       "metric": "s7 median",
-      "moss": {
+      "downstream": {
         "before": 1.463044546846786,
         "after": 0.9547563288462567,
         "passed": true
@@ -141,7 +141,7 @@
     }
   ],
   "profiles": {
-    "moss": {
+    "downstream": {
       "cases": 22,
       "scope_passed": true,
       "families": {
@@ -170,7 +170,7 @@
           "passed": true
         }
       },
-      "detail_artifact": "timing/lean-0.5-moss.json",
+      "detail_artifact": "timing/lean-0.5-downstream.json",
       "detail_sha256": "d9a937658af79ef3c4077de979f424fe5b960bce98fe70cafc9eecf0c73dde40",
       "early_pair_counts": {
         "5": 22

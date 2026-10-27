@@ -260,7 +260,7 @@ def main():
         raise RuntimeError('source changed during differential sweep')
     shutil.copyfile(RUST, ART / f'{label}-rust')
     shutil.copyfile(CPP, ART / f'{label}-cpp.so')
-    summary = {'schema': 'meshopt-p05-sweep/1', 'phase': '0.5', 'upstream': '4c203430ca565cb59a468a91922c76c208169536', 'seed_range': [0, 1999], 'counts': counts, 'mismatches': mismatches, 'passed': not mismatches and process.returncode == 0, 'detail_artifact': detail.name, 'detail_sha256': hashlib.sha256(detail.read_bytes()).hexdigest(), 'rust_sha256': hashlib.sha256(RUST.read_bytes()).hexdigest(), 'cpp_sha256': hashlib.sha256(CPP.read_bytes()).hexdigest()}
+    summary = {'schema': 'meshopt-p05-sweep/1', 'release': '0.5', 'upstream': '4c203430ca565cb59a468a91922c76c208169536', 'seed_range': [0, 1999], 'counts': counts, 'mismatches': mismatches, 'passed': not mismatches and process.returncode == 0, 'detail_artifact': detail.name, 'detail_sha256': hashlib.sha256(detail.read_bytes()).hexdigest(), 'rust_sha256': hashlib.sha256(RUST.read_bytes()).hexdigest(), 'cpp_sha256': hashlib.sha256(CPP.read_bytes()).hexdigest()}
     summary['source_sha256'] = identity
     (ROOT / f'parity/results/{label}.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps({'passed': summary['passed'], 'counts': counts, 'mismatches': mismatches}, indent=2))
@@ -302,7 +302,7 @@ def wasm_identity():
     if rust_identity() != identity:
         raise RuntimeError('source changed during WASM identity')
     shutil.copyfile(wasm, ART / 'wasm-0.5.wasm')
-    summary = {'schema': 'meshopt-p05-wasm/1', 'phase': '0.5', 'counts': counts, 'mismatches': mismatches, 'passed': not mismatches and process.returncode == 0, 'detail_artifact': detail.name, 'detail_sha256': hashlib.sha256(detail.read_bytes()).hexdigest(), 'wasm_sha256': hashlib.sha256(wasm.read_bytes()).hexdigest()}
+    summary = {'schema': 'meshopt-p05-wasm/1', 'release': '0.5', 'counts': counts, 'mismatches': mismatches, 'passed': not mismatches and process.returncode == 0, 'detail_artifact': detail.name, 'detail_sha256': hashlib.sha256(detail.read_bytes()).hexdigest(), 'wasm_sha256': hashlib.sha256(wasm.read_bytes()).hexdigest()}
     summary['source_sha256'] = identity
     (ROOT / 'parity/results/wasm-0.5.json').write_text(json.dumps(summary, indent=2) + '\n')
     print(json.dumps({'passed': summary['passed'], 'mismatches': mismatches}, indent=2))

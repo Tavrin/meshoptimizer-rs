@@ -12,7 +12,7 @@ from pathlib import Path
 import subprocess,json,os,hashlib
 s=Path(os.environ.get('PEER_SCRATCH',_public_path('<scratch>/meshopt-peer-a')))
 assert not (s/'wall.json').exists(), 'completed evidence is immutable; use fresh scratch'
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 inputs=s/'inputs';inputs.mkdir(exist_ok=True)
 frozen=Path(_public_path('<scratch>/meshopt-peer-screen/campaign-20261025T150615Z/inputs'))
 names=['tiny-smooth','medium-smooth','medium-seams','medium-sparse','million-smooth']

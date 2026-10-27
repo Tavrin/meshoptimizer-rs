@@ -24,7 +24,7 @@ if __name__=='__main__':
     archive('bench/peer-screen',['parity/compare'],ART)
     archive('v0.2.7',['src','Cargo.toml','Cargo.lock'],ART/'baseline')
     source=ART/'parity/compare'
-    # The committed lane adapters already include the equalization. Preserve them.
+    # The committed job adapters already include the equalization. Preserve them.
     original=ART/'original-adapter'
     shutil.copytree(source/'src',original/'src')
     for f in ['Cargo.toml','Cargo.lock']:shutil.copy2(source/f,original/f)

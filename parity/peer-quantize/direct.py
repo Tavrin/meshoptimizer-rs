@@ -13,7 +13,7 @@ def _public_path(value):
 from pathlib import Path
 import os,subprocess
 S=Path(os.environ.get('PEER_SCRATCH',_public_path('<scratch>/meshopt-peer-a')));R=Path(__file__).resolve().parents[2]
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 d=S/'direct';(d/'src').mkdir(parents=True,exist_ok=True)
 (d/'Cargo.toml').write_text(f'''[package]
 name="peer-direct"

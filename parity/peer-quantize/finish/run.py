@@ -1,7 +1,7 @@
 from pathlib import Path
 import subprocess,os,json,hashlib,shutil
 s=Path(__file__).resolve().parent
-assert os.environ['MOSS_HEAVY_ACTIVE']
+assert os.environ['PARITY_RUNNER_ACTIVE']
 rows={}
 def run(name,cmd):
  with (s/(name+'.log')).open('w') as f:r=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT)

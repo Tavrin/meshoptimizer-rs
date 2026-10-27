@@ -2,10 +2,10 @@
 
 ## Phases
 
-Crate 0.2.x includes the following development phases. Phase numbers label stages of the port, not
+Crate 0.2.x includes the following development phases. Release numbers label stages of the port, not
 published crate versions.
 
-| Phase | Included APIs |
+| Release | Included APIs |
 |---|---|
 | 0.1 / 0.1.x core | Checked views, errors, workspaces and limits; remapping, vertex cache/fetch and overdraw optimization, simplification and quantization. |
 | 0.2 glTF decoding | Vertex/index decoding and checked `EXT_meshopt_compression` buffer views, including filters. |
@@ -24,7 +24,7 @@ published crate versions.
    successful prefixes only; late failures may write prefixes and mutate dilated positions.
 2. Add bounded native codec cursors after exact legacy output/error and checkpoint qualification.
    Existing whole-buffer decoders remain supported.
-3. Use qualified scratch control at mesh/phase boundaries; retain existing `Workspace::clear` and
+3. Use qualified scratch control at mesh/release boundaries; retain existing `Workspace::clear` and
    limits semantics.
 4. Reproduce codec, partition/fetch/sloppy/overdraw and SIMD residuals, then refresh integrated
    qualification. Existing unresolved rows remain unresolved. Performance and platform/release

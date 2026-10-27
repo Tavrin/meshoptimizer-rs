@@ -1,5 +1,5 @@
 {
-  "source": "phase 0.1.x source snapshot (content hashes below)",
+  "source": "release 0.1.x source snapshot (content hashes below)",
   "sha256": {
     "budget.rs": "476b43a94c0c12384e662b5aeee08b96e6f63c1c8d178156112aab74112b3fb3",
     "input.rs": "59f34511d39c904236b65c3200482fbd041c39d7b781be93e5579d9af9f3add6",

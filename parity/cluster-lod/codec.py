@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare RFC113 mesh codec payloads against a downstream engine's vendored C++ sources."""
+"""Compare CLUSTER_LOD mesh codec payloads against a downstream engine's vendored C++ sources."""
 import argparse
 import hashlib
 import json
@@ -34,7 +34,7 @@ class Driver:
         if self.proc.returncode:raise RuntimeError(f'codec driver exit {self.proc.returncode}')
 
 def build():
-    src=clod.VENDOR/'src';out=clod.TARGET/'rfc113-codec-cpp'
+    src=clod.VENDOR/'src';out=clod.TARGET/'cluster-lod-codec-cpp'
     clod.TARGET.mkdir(parents=True,exist_ok=True)
     sources=[src/n for n in ('vertexcodec.cpp','indexcodec.cpp','vertexfilter.cpp','meshletcodec.cpp','allocator.cpp')]
     cmd=['c++','-std=c++17','-O3','-DNDEBUG','-DMESHOPTIMIZER_NO_SIMD','-fno-fast-math','-ffp-contract=off',
@@ -80,20 +80,20 @@ def main():
                          'cpp_sha256':sha(cpp[1]),'rust_sha256':sha(rust[1]),'cpp_bytes':len(cpp[1]),'rust_bytes':len(rust[1])}
                     if cpp[0]!=rust[0] or cpp[1]!=rust[1]:
                         at=next((i for i,(x,y) in enumerate(zip(cpp[1],rust[1])) if x!=y),min(len(cpp[1]),len(rust[1])))
-                        rec['mismatch']={'field':f'{label}.encoded[{at}]','reproduce':f'python3 parity/rfc113/codec.py --case {name}'}
+                        rec['mismatch']={'field':f'{label}.encoded[{at}]','reproduce':f'python3 parity/cluster-lod/codec.py --case {name}'}
                         row['mismatches'].append(rec['mismatch'])
                     if cpp[0]==0 and rust[0]==0:
                         if label in ('vertex','index','sequence'):
                             version_op=8 if label=='vertex' else 9
                             vr={side:d.call(request(version_op,0,0,cpp[1])) for side,d in drivers.items()}
                             if vr['cpp']!=vr['rust'] or vr['cpp']!=(0,struct.pack('<I',version)):
-                                row['mismatches'].append({'field':f'{label}.version','reproduce':f'python3 parity/rfc113/codec.py --case {name}'})
+                                row['mismatches'].append({'field':f'{label}.version','reproduce':f'python3 parity/cluster-lod/codec.py --case {name}'})
                             bound_op={'vertex':22,'index':23,'sequence':24}[label]
                             bound_data=b'' if label=='vertex' else struct.pack('<Q',nv)
                             bound={side:d.call(request(bound_op,count,s,bound_data)) for side,d in drivers.items()}
                             rec['bound_sha256']=sha(bound['cpp'][1])
                             if bound['cpp']!=bound['rust'] or bound['cpp'][0]!=0 or struct.unpack('<Q',bound['cpp'][1])[0]<len(cpp[1]):
-                                row['mismatches'].append({'field':f'{label}.bound','reproduce':f'python3 parity/rfc113/codec.py --case {name}'})
+                                row['mismatches'].append({'field':f'{label}.bound','reproduce':f'python3 parity/cluster-lod/codec.py --case {name}'})
                         decode_op={'vertex':1,'index':2,'sequence':3,'oct':4,'quat':5,'exp':6}[label]
                         ds=(4 if label in ('index','sequence') else s)
                         decoded={}
@@ -101,11 +101,11 @@ def main():
                             q=request(decode_op,count,ds,encoded)
                             decoded[origin]={side:d.call(q) for side,d in drivers.items()}
                         if len({v for m in decoded.values() for v in m.values()})!=1:
-                            row['mismatches'].append({'field':f'{label}.decode','reproduce':f'python3 parity/rfc113/codec.py --case {name}'})
+                            row['mismatches'].append({'field':f'{label}.decode','reproduce':f'python3 parity/cluster-lod/codec.py --case {name}'})
                         rec['decode_status']=decoded['cpp']['cpp'][0]
                         rec['decode_sha256']=sha(decoded['cpp']['cpp'][1])
                         if label in ('vertex','sequence') and decoded['cpp']['cpp']!=(0,data):
-                            row['mismatches'].append({'field':f'{label}.round_trip','reproduce':f'python3 parity/rfc113/codec.py --case {name}'})
+                            row['mismatches'].append({'field':f'{label}.round_trip','reproduce':f'python3 parity/cluster-lod/codec.py --case {name}'})
                         if label=='index':
                             result=decoded['cpp']['cpp'][1]
                             same=len(result)==len(data)
@@ -116,13 +116,13 @@ def main():
                                     if (x,y,z) not in ((a,b,c),(b,c,a),(c,a,b)):
                                         same=False;break
                             if not same:
-                                row['mismatches'].append({'field':'index.round_trip_rotation','reproduce':f'python3 parity/rfc113/codec.py --case {name}'})
+                                row['mismatches'].append({'field':'index.round_trip_rotation','reproduce':f'python3 parity/cluster-lod/codec.py --case {name}'})
                     row['payloads'][label]=rec
                 records.append(row)
                 print(name,'MATCH' if not row['mismatches'] else row['mismatches'],flush=True)
         assert sources=={p:clod.sha(p) for p in sources}
         clod.ART.mkdir(parents=True,exist_ok=True)
-        result={'schema':'rfc113-codec/1','cases':records,'source_hashes':sources,
+        result={'schema':'cluster-lod-codec/1','cases':records,'source_hashes':sources,
                 'executable_hashes':{k:clod.sha(v) for k,v in binaries.items()},'core':args.core}
         (clod.ART/'codec.json').write_text(json.dumps(result,indent=2)+'\n')
     finally:

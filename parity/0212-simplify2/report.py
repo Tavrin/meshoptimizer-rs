@@ -10,14 +10,14 @@ r = json.loads((ART/'results.json').read_text())
 audit = json.loads((ART/'audit.json').read_text())
 assert audit['exit'] == 0 and not r['regression_fail']
 exits = dict(l.split('\t') for l in (ART/'gate-exits.tsv').read_text().splitlines())
-s = ['# SPEC-0212 simplify2\n',
+s = ['# registered protocol simplify2\n',
      'Instruction counts only. Fresh v0.2.11 (40dbf9e), post-#39 (c396a697), candidate and scalar M7/C++ 1.3 arms; median of three for all 48 cases. Real-chain ratios use sums of six stage medians; corpus summaries use equal-case geometric means. No wall-performance claim.\n',
      '\nGate applied verbatim: real-chain PASS when candidate/v0.2.11 <=0.80; otherwise PARTIAL when candidate/post-#39 <=0.95; otherwise NO-GAIN. Any individual candidate/post-#39 >1.01 is FAIL before aggregation.\n',
      '\nTechniques (src/simplify.rs):\n']
 lines = (ROOT/'src/simplify.rs').read_text().splitlines()
 for needle, explanation in [
     ('fn bounds_impl<', 'Validated-only input finite-check elimination; scale retains validation and extent overflow is checked in both paths.'),
-    ('fn adjacency<', 'Shared vertex-length remap/counter slices and bounded phase accounting.'),
+    ('fn adjacency<', 'Shared vertex-length remap/counter slices and bounded release accounting.'),
     ('for start in (0..count).step_by(64)', 'Bounded hash batches; exact visited-prefix settlement with checked fallback.'),
     ('let wedge = &mut self.wedge.0[..count]', 'Iterator over remap entries and a fixed-length wedge slice.'),
     ('let finite_scale =', 'Finite-reciprocal normalization proof; reciprocal overflow retains the original post-write guard.'),
@@ -43,6 +43,6 @@ for c in r['cells']:
 s += ['\nExit codes: '+', '.join(f'{k}={v}' for k,v in sorted(exits.items()))+'; four arm builds=0; 576 stat samples=0; instruction gate=0; evidence audit=0.\n',
       f"\nExact v0.2.11 comparisons: {audit['observations']['std']:,} paired observations under std and {audit['observations']['no-std']:,} under no_std, including Result/error bits, full outputs and unused tails, partial writes, mutable positions/attributes and both Usage fields. Cold/warm workspaces, all 512 option masks, every small-mesh work limit 0..success+1, both retention modes, deliberate hash collisions, >64-vertex batches, high valence, duplicate/degenerate faces, welded wedges, 32 attributes, byte limits, little/big endian byte readers, sparse mappings and finite overflow/special values. Finite-reciprocal bound sweep: {audit['normalization_extent_patterns']:,} nonnegative finite extent bit patterns in each exact mode, zero violations. Pinned C++ differential: {audit['cpp_comparisons']} comparisons. Widened differential fuzz: {audit['fuzz_seeds']:,} seeds / {audit['fuzz_seeds']*64:,} generated cases, {audit['fuzz_cpu_seconds']:.6f} child CPU-seconds, zero mismatches. Fuzz CPU accounting is a work budget only.\n",
       '\nRetained attempt 1: all four arm builds and 576 samples exited 0, with all three real chains NO-GAIN. Its all-feature preflight exited 0. The queued proof admission was canceled before execution (143) to adopt environment-only tooling; no proof pass is attributed to it. A report-tool syntax preflight exited 1 and was repaired to 0 before qualification; the private repair receipt is retained. Final proof and measurement use the refined source and independent fresh samples.\n',
-      '\nProtocol: attribution resident-loop harness, perf 6.17 instructions:u on CPU9, acknowledged counter enable/disable; all samples have 100% running. Scalar Rust opt3/thin-LTO/one codegen unit; scalar M7 C++ 1.3 with NDEBUG and debug symbols. Loading, warm calls, validation and serialization are outside counters. Destination allocation, required copies, scratch acquisition and destruction are inside. Every build/measurement uses <job-runner> with MOSS_HEAVY_GPU=0 and a 4 GB declaration.\n',
+      '\nProtocol: attribution resident-loop harness, perf 6.17 instructions:u on CPU9, acknowledged counter enable/disable; all samples have 100% running. Scalar Rust opt3/thin-LTO/one codegen unit; scalar M7 C++ 1.3 with NDEBUG and debug symbols. Loading, warm calls, validation and serialization are outside counters. Destination allocation, required copies, scratch acquisition and destruction are inside. Every build/measurement uses <job-runner> with PARITY_RUNNER_GPU=0 and a 4 GB declaration.\n',
       '\nFull inputs, frozen sources, binaries, raw counters/output buffers, commands, logs and admissions are retained in `<scratch>/meshopt-0212-simplify2/`; binding.json and instructions.tsv retain independently checked hashes and compact counts. No thresholds, exhaustion charge granularity or observable error/partial-write order changed. No wall timings, API/version changes, new unsafe or sqrt changes.\n']
 (LANE/'REPORT.md').write_text(''.join(s))

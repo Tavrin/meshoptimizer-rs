@@ -36,7 +36,7 @@ files+=[A/'measure.sh',A/'instructions.sh']
 files+=list(A.glob('*harness/Cargo.toml'))+list(A.glob('*harness/Cargo.lock'))+list(A.glob('*harness/src/*.rs'))+list(A.glob('lib-*/Cargo.toml'))+list(A.glob('lib-*/Cargo.lock'))+[A/'build.sh',A/'build-pinned.sh',A/'ALIGNMENT.json']
 identity=dict(cpu=11,files={str(p):sha(p) for p in files},started=datetime.datetime.now(datetime.timezone.utc).isoformat())
 (A/'MEASUREMENT-IDENTITY.json').write_text(json.dumps(identity,indent=2))
-env=dict(os.environ,MOSS_HEAVY_GPU='0',MOSS_HEAVY_MEASUREMENT='1',MOSS_LANE='meshopt-bounds-layout',CARGO_TARGET_DIR=_public_path('<target-dir>'))
+env=dict(os.environ,PARITY_RUNNER_GPU='0',PARITY_RUNNER_MEASUREMENT='1',PARITY_JOB='meshopt-bounds-layout',CARGO_TARGET_DIR=_public_path('<target-dir>'))
 cases=['tiny-smooth','medium-smooth','medium-seams','medium-sparse','million-smooth'];ops=['meshlet-bounds','cluster-bounds']
 for comparison in ['AA','default','pinned']:
  for case in cases:

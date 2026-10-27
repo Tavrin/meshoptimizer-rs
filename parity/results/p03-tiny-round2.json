@@ -1,5 +1,5 @@
 {
-  "spec": "SPEC-p03-tiny.md",
+  "spec": "registered protocol",
   "baseline_revision": "a14cbc1",
   "durable_directory": "<scratch>/meshopt-v03-tiny",
   "tiny": {

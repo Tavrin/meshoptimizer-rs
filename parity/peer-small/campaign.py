@@ -24,7 +24,7 @@ ART = Path(_public_path("<scratch>/meshopt-peer-c"))
 OPS = ["adjacency", "optimize-meshlet", "fetch", "remap-indices"]
 CASES = ["tiny-smooth", "medium-smooth", "medium-seams", "medium-sparse", "million-smooth"]
 
-assert os.environ.get('MOSS_HEAVY_MEASUREMENT') == '1'
+assert os.environ.get('PARITY_RUNNER_MEASUREMENT') == '1'
 OUT = ART / 'campaign.json'
 OUT.open('x').close()
 candidate, base, peer = sys.argv[1:]

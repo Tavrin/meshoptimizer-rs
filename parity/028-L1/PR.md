@@ -11,8 +11,8 @@ Registered performance verdict: **PARTIAL**. The single final campaign used the 
 | meshlets-flex | 1.007063 | 0.933526 | 0.876291 | 0.987662 | PARTIAL |
 | spatial-triangles | 1.026324 | 0.928209 | 0.925812 | 1.024605 | PARTIAL |
 
-RFC113 aggregate: 1.040298x C++ (S1 1.037887x; S2 1.053315x), disclosure only. PARTIAL families have no C++ performance-parity claim; FAIL families are not performance-qualified.
+CLUSTER_LOD aggregate: 1.040298x C++ (S1 1.037887x; S2 1.053315x), disclosure only. PARTIAL families have no C++ performance-parity claim; FAIL families are not performance-qualified.
 
-Validation: both required feature-configuration tests, clippy -D warnings and formatting passed. Existing C++ differential and 34,172 baseline exact comparisons passed, including Results, work accounting and caller-buffer failure contents. Both widened mesh/layout fuzz and full-width divider fuzz exceeded five target CPU-minutes with zero mismatches. All 50 RFC113 preflight cases matched.
+Validation: both required feature-configuration tests, clippy -D warnings and formatting passed. Existing C++ differential and 34,172 baseline exact comparisons passed, including Results, work accounting and caller-buffer failure contents. Both widened mesh/layout fuzz and full-width divider fuzz exceeded five target CPU-minutes with zero mismatches. All 50 CLUSTER_LOD preflight cases matched.
 
 See parity/028-L1/REPORT.md, REGISTRATION.md and RESULTS.json for causes, source locations, raw pairs, intervals, exits and retained evidence. No merge, tag, publication or version bump.

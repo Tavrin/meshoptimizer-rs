@@ -1,4 +1,4 @@
-# SPEC-0212 public-text scrub
+# registered protocol public-text scrub
 
 Implemented as uncommitted file edits on `chore/scrub-paths`, based on
 `23221072b44aef940f0512cbd0de67e4d2e8270f`. The coordinator owns committing.
@@ -26,15 +26,15 @@ and untracked, nonignored text and excludes only its own source. Exit 1 from
 Other private tool/directory prefixes become `downstream-`; the old storage
 volume name becomes `storage`, and the private projects directory becomes
 `projects`. The bare engine name becomes `a downstream engine`, preserving
-codec license attribution. Existing archive filenames remain available.
+codec license attribution. Evidence files remain available under neutral names; all committed references follow the renames.
 
 Set the required environment variables before running an archived script.
 `CARGO_TARGET_DIR`, `WORKTREE`, and `REPO` designate the selected directory,
 while `SCRATCH`, `REFS`, `LOCAL`, and `MESHOPT_ARTIFACTS` designate placeholder
 roots. Shell replacements preserve quoting; Python replacements expand only
 referenced placeholders and expand the registry's home prefix. Python heredocs
-use the same expansion. Admission environment variable names remain compatible
-with the external job runner.
+use the same expansion. Archived scripts use the public admission environment below. A caller using
+an external runner must export these names in its payload.
 
 ## Evidence and hashes
 
@@ -70,3 +70,36 @@ was 0; six existing exhaustive/migration tests were ignored by the normal suite.
 The dedicated target directory was removed after the test. Package-list
 comparison used a temporary base archive with read-only repository metadata so
 both lists included Cargo's generated VCS metadata entry.
+
+## Public admission environment
+
+| Public name | Meaning |
+| --- | --- |
+| `PARITY_RUNNER_ACTIVE` | Active admission identity; required by admitted scripts |
+| `PARITY_RUNNER_GPU` | `0` for CPU-only work, `1` for GPU work |
+| `PARITY_RUNNER_MEASUREMENT` | Measurement scheduling indicator |
+| `PARITY_GPU_LEASE` | Held GPU lease indicator |
+| `PARITY_GPU_LEASE_LABEL` | Lease attribution label |
+| `PARITY_GPU_LEASE_DIR` | Lease state directory, when required |
+| `PARITY_JOB` | Job attribution identity |
+
+Other archived runner settings retain their suffix under `DOWNSTREAM_`.
+`python3 parity/tools/scrub_names.py` rewrites tracked project and planning
+names and performs evidence-preserving renames. Consumer labels and result
+keys use `downstream`; Cargo's thin-LTO custom profile is `bench-release`.
+Dynamic consumer builds map the consumer label to that Cargo profile.
+Release selection uses `--release` throughout the archived parity CLI.
+The public guard checks case-insensitively and exempts only the two exact
+codec licence attribution lines and its own source.
+
+The additional scrub leaves measurement values and historical input, binary,
+output and archive hashes intact. New current-file hash refreshes are appended
+to `scrub_hash_updates.json`; earlier refresh entries remain historical.
+No historical performance qualification is renewed.
+
+Additional scrub checks: shell/Python syntax, the all-features Cargo test,
+the SIMD boundary check, and both package inventories exited 0. The package
+inventories are identical (73 entries). Untimed fast-qualification tests pass
+(27 tests). The cluster-LOD harness passes (4 tests) with its vendor source
+configured; the initial unconfigured invocation reported a missing vendor
+file. These mocked harness tests do not remeasure or renew qualification.

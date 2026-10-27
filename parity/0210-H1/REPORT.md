@@ -1,4 +1,4 @@
-# SPEC-0210 lane H1: cache/strip and FIFO hot loops
+# registered protocol job H1: cache/strip and FIFO hot loops
 Status: standard cache PARTIAL (kept); FIFO NO-GAIN (reverted to 0.2.9 source).
 Base v0.2.9 df7fc56. Safe Rust; no new unsafe, no get_unchecked, no API change.
 

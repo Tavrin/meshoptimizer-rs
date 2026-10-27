@@ -1,8 +1,8 @@
-# SPEC-0212 simplify2 registration
+# registered protocol simplify2 registration
 
 Entry: clean c396a697 (post-#39 main), perf/simplify-2. No subagents.
 No sqrt changes. Every build/check/measurement uses admit.sh: <job-runner> 4 GB,
-MOSS_HEAVY_GPU=0, dedicated target meshopt-simplify-2, one compiler job.
+PARITY_RUNNER_GPU=0, dedicated target meshopt-simplify-2, one compiler job.
 Scratch: <scratch>/meshopt-0212-simplify2/.
 
 Four fresh arms: v0.2.11, post39 c396a697, candidate, scalar M7 C++ 1.3.

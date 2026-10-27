@@ -2,7 +2,7 @@
 """Instruction/cycle diagnostics only. No wall values are retained or used."""
 import os,subprocess,select,signal,json,math,statistics
 from control import ART,Driver,PERF,CASES,save,sha
-assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'
+assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ.get('PARITY_RUNNER_MEASUREMENT')=='1'
 def count(d,n,stem):
     cr,cw=os.pipe();ar,aw=os.pipe();stat=ART/(stem+'.stat')
     with (ART/(stem+'.stderr')).open('x')as err:

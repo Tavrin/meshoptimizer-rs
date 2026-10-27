@@ -2,7 +2,7 @@
   "schema": "meshopt-summary/1",
   "historical": false,
   "command": "fuzz",
-  "phase": "0.4",
+  "release": "0.4",
   "detail_artifact": "fuzz-0.4/fuzz.json",
   "artifacts": {
     "fuzz-0.4/fuzz.json": "ebdd7ee71648d3bfe14f351406c7393b3a5670bae4b5905841dd30c3b7668cb8",

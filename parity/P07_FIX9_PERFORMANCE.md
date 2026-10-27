@@ -54,7 +54,7 @@ Applicable significant slowdowns: 1.
 
 ## Diagnosis and retained fixes
 
-Four-byte lane stores already match upstream; widening stores would overwrite other components. Generic stride32 addresses, checks, dynamic stride branches and spilled native addresses account for the proven instruction work. Constant32 propagation retains checked slices and exact arithmetic. Native target instructions 6.7338 ->6.2174/byte; WASM resident v0/v1/varied Exp ~14.7/14.9/13.9 ->8.58/8.74/7.76, both APIs, with exact frozen hashes. The native A/C counters are equal and do not independently explain the historical allocating-only elapsed maximum.
+Four-byte job stores already match upstream; widening stores would overwrite other components. Generic stride32 addresses, checks, dynamic stride branches and spilled native addresses account for the proven instruction work. Constant32 propagation retains checked slices and exact arithmetic. Native target instructions 6.7338 ->6.2174/byte; WASM resident v0/v1/varied Exp ~14.7/14.9/13.9 ->8.58/8.74/7.76, both APIs, with exact frozen hashes. The native A/C counters are equal and do not independently explain the historical allocating-only elapsed maximum.
 
 Oct retains correctly rounded sqrt/div and canonical operation order. Integer-derived components have +0 for every zero, so sign-bit rounding bias removes three redundant comparisons. Native Oct4 instructions 4.9847 ->4.7348/byte. Native Exp already uses canonical scalar at every size; no redundant size threshold was added. Its public filter wrapper now specializes the filter kind before validation/apply, reducing tiny caller instructions 1.1912 ->1.0809/byte.
 

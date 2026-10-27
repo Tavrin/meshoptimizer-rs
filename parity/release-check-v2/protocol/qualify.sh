@@ -6,7 +6,7 @@ unset CARGO_ENCODED_RUSTFLAGS
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:?}"
 export MESHOPT_REFERENCE="${REFS:?}"/meshoptimizer MESHOPT_ARTIFACTS="$s/parity-artifacts" MESHOPT_RESULTS="$s/parity-results"
 cd "$s/src-Cp"
-parity/run.sh --phase 0.1 --profile scalar-strict > "$s/parity-qualification.log" 2>&1
+parity/run.sh --release 0.1 --profile scalar-strict > "$s/parity-qualification.log" 2>&1
 cmp "$CARGO_TARGET_DIR/release/meshopt-driver" "$s/driver-Cp"
 cd "$s/real-harness"
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:?}"

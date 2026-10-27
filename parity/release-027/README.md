@@ -17,7 +17,7 @@ least 300 CPU-seconds. Seeds, execution counts, source archives, binaries,
 libFuzzer corpora, crash artifacts and stdout/stderr remain in scratch.
 Stable targets have no coverage instrumentation; the meshlet target uses
 libFuzzer coverage without a sanitizer. A finding stops new chunks and fails
-the run. Library code must not be repaired in this release lane.
+the run. Library code must not be repaired in this release job.
 
 The retention target keeps one Reuse workspace and one Lean workspace across
 random sequences of simplify, attribute simplify, update, sloppy, prune,

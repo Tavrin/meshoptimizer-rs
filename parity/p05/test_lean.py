@@ -46,7 +46,7 @@ class LeanTests(unittest.TestCase):
             (['--families', 'remesh', '--mode', 'final'], 'final requires every family'),
             (['--families', 'remesh', '--mode', 'lean', '--cases', 'remesh:0'], 'do not permit case filtering'),
         ]:
-            result = subprocess.run([sys.executable, str(script), '--consumer-profile', 'moss', *options],
+            result = subprocess.run([sys.executable, str(script), '--consumer-profile', 'downstream', *options],
                                     text=True, capture_output=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(message, result.stderr)

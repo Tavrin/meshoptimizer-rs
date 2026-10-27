@@ -11,7 +11,7 @@ def _public_path(value):
 from pathlib import Path
 import hashlib,json,os,statistics,subprocess,struct,select,math
 S=Path(_public_path('<scratch>/meshopt-0210-H2'));O=S/'meshopt-028-L2';OUT=S/os.environ.get('H2_SAMPLES','samples');OUT.mkdir(exist_ok=True)
-assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ.get('MOSS_HEAVY_MEASUREMENT')=='1'
+assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ.get('PARITY_RUNNER_MEASUREMENT')=='1'
 PERF='/usr/lib/linux-tools/6.17.0-22-generic/perf'
 ARMS=['base','candidate','M7'];FAMILIES=['simplify-scale','cache','cache-fifo','overdraw','partition','meshlets-spatial']
 def sha(p):
@@ -38,7 +38,7 @@ for case in cases:
    assert sha(fields[1])==case['index_sha256']
    referenced[fields[1]]=sha(fields[1])
 source={str(p):sha(p) for p in Path.cwd().joinpath('src').rglob('*.rs')}
-save(OUT/'binding.json',dict(sources=source,inputs=referenced,binaries={a:sha(S/f'driver-{a}') for a in ARMS},cases_sha256=sha(S/'cases.json'),admission=os.environ['MOSS_HEAVY_ACTIVE'],perf=subprocess.check_output([PERF,'--version'],text=True).strip()))
+save(OUT/'binding.json',dict(sources=source,inputs=referenced,binaries={a:sha(S/f'driver-{a}') for a in ARMS},cases_sha256=sha(S/'cases.json'),admission=os.environ['PARITY_RUNNER_ACTIVE'],perf=subprocess.check_output([PERF,'--version'],text=True).strip()))
 rows=[];summary=[];exits=[]
 for case in cases:
  baseline=None

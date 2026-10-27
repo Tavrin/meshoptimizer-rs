@@ -33,7 +33,7 @@ def prepare():
  (A/'SCOUT.md').write_text('Tiny path: src/codec/encode.rs:319 layout; :369 caller accounting; :390 allocating accounting. src/codec/filter_encode.rs:92 Oct4-lane prologue and scalar tail; :187 Quat4-lane prologue and scalar tail. Frozen tiny inputs contain 17 records: four vector groups plus one scalar tail. No elapsed campaign yet.\n')
  save('registration',{'baseline_revision':'a14cbc1','target':str(TARGET),'before_source':sources(),'cpp_pin':'4c203430ca565cb59a468a91922c76c208169536','pairs':[5,20],'batch_seconds':.008,'max_upper95':1.5,'aa_bounds':[.8,1.25],'cpu':26,'scope':'four tiny rows first, then full Oct/Quat confirmation; no completed stream repeated'})
 def counters(epoch):
- assert os.environ.get('MOSS_HEAVY_ACTIVE')
+ assert os.environ.get('PARITY_RUNNER_ACTIVE')
  rows=[r for r in json.loads((A/'inputs.json').read_text()) if r['name'] in ['oct-tiny-s8','quat-tiny']];records=[]
  setup=os.environ.get('MESHOPT_TINY_SETUP')=='1'
  if setup:
@@ -65,11 +65,11 @@ def counters(epoch):
  with (A/'assembly-cpp.txt').open('w') as f:subprocess.run(['objdump','-d','-C',str(A/'cpp')],stdout=f,check=True)
  print(json.dumps(records,indent=2),flush=True)
 def measure(stage):
- assert os.environ.get('MOSS_HEAVY_ACTIVE');assert sources()==json.loads((A/'build-after.json').read_text())['source']
+ assert os.environ.get('PARITY_RUNNER_ACTIVE');assert sources()==json.loads((A/'build-after.json').read_text())['source']
  path=A/('timing-'+stage+'.json');assert not path.exists(),'immutable stream'
  cases=[r for r in json.loads((A/'inputs.json').read_text()) if r['name'] in ['oct-tiny-s8','quat-tiny']] if stage.startswith('tiny') else [r for r in json.loads((A/'inputs.json').read_text()) if r['name'].startswith(('oct-','quat-'))]
  ds={k:lane.Driver(A/v) for k,v in {'before':'rust-before','after':'rust-after','cpp':'cpp','rust-aa':'rust-after','cpp-aa':'cpp'}.items()}
- result={'stage':stage,'policy_sha256':lane.sha(Path(__file__)),'source':sources(),'binaries':{k:lane.sha(A/v) for k,v in {'before':'rust-before','after':'rust-after','cpp':'cpp'}.items()},'rows':[],'completed':False,'admission':os.environ['MOSS_HEAVY_ACTIVE']};start=time.monotonic()
+ result={'stage':stage,'policy_sha256':lane.sha(Path(__file__)),'source':sources(),'binaries':{k:lane.sha(A/v) for k,v in {'before':'rust-before','after':'rust-after','cpp':'cpp'}.items()},'rows':[],'completed':False,'admission':os.environ['PARITY_RUNNER_ACTIVE']};start=time.monotonic()
  for row in cases:
   for api in [0,1]:
    b=bytearray(Path(row['path']).read_bytes());assert hashlib.sha256(b).hexdigest()==row['sha256']
@@ -91,7 +91,7 @@ def measure(stage):
  for d in ds.values():d.close()
  result.update(completed=True,seconds=time.monotonic()-start);save('timing-'+stage,result)
 def verify():
- assert os.environ.get('MOSS_HEAVY_ACTIVE')
+ assert os.environ.get('PARITY_RUNNER_ACTIVE')
  before=sources();results=[]
  commands=[['cargo','test','--offline','--locked'],['cargo','test','--offline','--locked','--no-default-features','--test','codec'],['cargo','clippy','--offline','--locked','--lib','--all-features','--','-D','warnings'],['cargo','fmt','--all','--','--check'],[str(lane.ROOT/'parity/check-reference.sh')]]
  for i,cmd in enumerate(commands):

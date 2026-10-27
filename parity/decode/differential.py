@@ -6,7 +6,7 @@ sys.path.insert(0, str(ROOT/'parity/codec'))
 from measure import Driver, request
 from runner import filter_floats
 ART = pathlib.Path(os.environ['MESHOPT_ARTIFACTS'])
-assert os.environ.get('MOSS_HEAVY_ACTIVE')
+assert os.environ.get('PARITY_RUNNER_ACTIVE')
 cpp = Driver(ART/'cpp-scalar')
 rs = Driver(ART/'codec-scalar-std')
 no_std = Driver(ART/'codec-scalar-nostd')

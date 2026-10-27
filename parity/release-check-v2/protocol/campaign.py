@@ -42,14 +42,14 @@ for a in [arm,'B','Bprime',arm+'p','Bp']:
  assert r.sha(Path(ids[a]['binary']))==ids[a]['sha256']
 save()
 with zipfile.ZipFile(s.parent/'r2/frozen-final-1-artifacts/benchmark-buffers.zip') as archive:
- for phase,a,b in [('main',arm,'B'),('AA','Bprime','B'),('replication',arm+'p','Bp')]:
-  if phase=='replication':
+ for release,a,b in [('main',arm,'B'),('AA','Bprime','B'),('replication',arm+'p','Bp')]:
+  if release=='replication':
    main=analyze(record['main']);aa=analyze(record['AA']);F=max(abs(v['median']-1) for v in aa['cases'].values());T=math.ceil((1+F+.02)*1000)/1000
    flagged=[n for n,c in main['cases'].items() if c['interval'][0]>T]
    record.update(F=F,T=T,flagged=flagged,main_analysis=main,AA_analysis=aa);save()
   else:flagged=None
   for name,w in frozen['workloads'].items():
-   if name in record[phase] or (flagged is not None and name not in flagged):continue
+   if name in record[release] or (flagged is not None and name not in flagged):continue
    boundary()
    data=archive.read(w['input']['member']);assert r.digest(data)==w['input']['sha256']==base['workloads'][name]['input']['sha256']
    path=out/'case.input';path.write_bytes(data)
@@ -62,13 +62,13 @@ with zipfile.ZipFile(s.parent/'r2/frozen-final-1-artifacts/benchmark-buffers.zip
      for v in order:
       t=ps[v].sample();assert math.isfinite(t) and t>0,(name,pair,v,t);sample['seconds'][v]=t
      sample.update(ratio=sample['seconds'][a]/sample['seconds'][b],after_unix=time.time());work['samples'].append(sample)
-     with (out/'samples.jsonl').open('a') as f:f.write(json.dumps({'phase':phase,'case':name,**sample})+'\n')
+     with (out/'samples.jsonl').open('a') as f:f.write(json.dumps({'release':release,'case':name,**sample})+'\n')
     outputs=[]
     for v in [a,b]:
      raw=ps[v].finish();count=struct.unpack_from('<I',raw,12)[0];assert count==12;output,times=r.response(raw[:-8],samples=count);assert times==[p['seconds'][v] for p in work['samples']]
-     (out/(phase+'-'+hashlib.sha256(name.encode()).hexdigest()+'-'+v+'.output')).write_bytes(raw);outputs.append(output)
-    assert outputs[0]==outputs[1],('output mismatch',phase,name)
-   record[phase][name]=work;save();print(f'{arm} {phase} {len(record[phase])} {name}',flush=True)
+     (out/(release+'-'+hashlib.sha256(name.encode()).hexdigest()+'-'+v+'.output')).write_bytes(raw);outputs.append(output)
+    assert outputs[0]==outputs[1],('output mismatch',release,name)
+   record[release][name]=work;save();print(f'{arm} {release} {len(record[release])} {name}',flush=True)
 record.update(completed=True,finished_unix=time.time(),replication_analysis=analyze(record['replication']));save()
 for a in [arm,'B','Bprime',arm+'p','Bp']:assert r.sha(Path(ids[a]['binary']))==ids[a]['sha256']
 print('COMPLETE',arm,'F',record['F'],'T',record['T'],'flagged',record['flagged'],flush=True)

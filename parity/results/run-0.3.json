@@ -2,7 +2,7 @@
   "schema": "meshopt-summary/1",
   "historical": false,
   "command": "run",
-  "phase": "0.3",
+  "release": "0.3",
   "passed": true,
   "mismatches": 0,
   "seed": 20261004,

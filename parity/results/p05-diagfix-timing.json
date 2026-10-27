@@ -14,7 +14,7 @@
   },
   "worst_api_by_family_profile": {
     "remesh": {
-      "moss": {
+      "downstream": {
         "before_historical_unmatched": {
           "geometric_mean": 1.2484,
           "maximum": 1.377
@@ -36,7 +36,7 @@
       }
     },
     "overdraw": {
-      "moss": {
+      "downstream": {
         "before_historical_unmatched": {
           "geometric_mean": 0.935,
           "maximum": 1.096
@@ -58,7 +58,7 @@
       }
     },
     "coverage": {
-      "moss": {
+      "downstream": {
         "before_historical_unmatched": {
           "geometric_mean": 0.94,
           "maximum": 1.14
@@ -80,7 +80,7 @@
       }
     },
     "omm_compact": {
-      "moss": {
+      "downstream": {
         "before_historical_unmatched": {
           "geometric_mean": 1.246,
           "maximum": 1.319
@@ -103,7 +103,7 @@
     }
   },
   "profiles": {
-    "moss": {
+    "downstream": {
       "rows": 38,
       "pairs": 190,
       "scope_passed": false,
@@ -300,19 +300,19 @@
     },
     "remesh": {
       "disposition": "fixed; selected frozen family passes both profiles",
-      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json"
+      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{downstream,default}.json"
     },
     "overdraw": {
       "disposition": "fixed; selected frozen family passes both profiles",
-      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json"
+      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{downstream,default}.json"
     },
     "coverage": {
       "disposition": "fixed; selected frozen family passes both profiles",
-      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json"
+      "evidence": "D162-D169; final-counts/counts.json; timing/lean-0.5-{downstream,default}.json"
     },
     "omm_compact": {
       "disposition": "abandoned further optimization after both-profile mean failure",
-      "evidence": "D167/D169; final-counts/counts.json; timing/lean-0.5-{moss,default}.json",
+      "evidence": "D167/D169; final-counts/counts.json; timing/lean-0.5-{downstream,default}.json",
       "performance": "FAIL in both profiles; not accepted as residual"
     }
   },

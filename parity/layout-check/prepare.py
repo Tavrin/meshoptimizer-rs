@@ -37,7 +37,7 @@ for name in ['B','Bprime','C']:
  for v in (['default','pinned'] if name!='Bprime' else ['default']):
   # linker map records symbols without changing codegen flags
   flags='' if v=='default' else '-C llvm-args=-align-all-functions=6'
-  b+=f'export RUSTFLAGS="{flags}"\ncargo rustc --manifest-path "$A/{name}-{v}-harness/Cargo.toml" --offline --profile moss --features ours,meshoptimizer-rs/experimental,meshoptimizer-rs/clusterlod --bin cmp-driver -- -C link-arg=-Wl,-Map,$A/{name}-{v}.map\ncp "$CARGO_TARGET_DIR/moss/cmp-driver" "$A/{name}-{v}"\n'
+  b+=f'export RUSTFLAGS="{flags}"\ncargo rustc --manifest-path "$A/{name}-{v}-harness/Cargo.toml" --offline --profile bench-release --features ours,meshoptimizer-rs/experimental,meshoptimizer-rs/clusterlod --bin cmp-driver -- -C link-arg=-Wl,-Map,$A/{name}-{v}.map\ncp "$CARGO_TARGET_DIR/bench-release/cmp-driver" "$A/{name}-{v}"\n'
 for name,binname in [('C','probe-after-old'),('B','probe-v024')]:
  b+=f'export RUSTFLAGS=\ncargo build --manifest-path "$A/probe-{name}-src/Cargo.toml" --offline --release\ncp "$CARGO_TARGET_DIR/release/{binname}" "$A/probe-{name}"\n'
 (A/'build.sh').write_text(b)
