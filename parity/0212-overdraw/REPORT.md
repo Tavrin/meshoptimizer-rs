@@ -8,6 +8,8 @@ campaign is authorized. No accepted performance claim or CHANGELOG entry.
 
 Baseline v0.2.11: 40dbf9e42efc34d9292e439633e9ef52bc2248df.
 The pending original-path repair was built after integrating main 4068c7a.
+After the campaign, main 59349d6 (public naming migration) was merged; the
+strengthened whole-repository public-text guard passed (0).
 No library code was edited after observing results except the required revert.
 Coordinator-authorized public script naming changes follow the archived run;
 they do not change or replace its receipts. PREVIOUS-REPORT.md is a superseded
