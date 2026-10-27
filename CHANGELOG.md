@@ -8,16 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Real-chain `simplify` instruction ratios versus 0.2.11 / scalar C++ 1.3:
-  214e 0.892071× / 1.670312×;
-  a082 0.867441× / 1.549117×;
-  b6fd 0.864697× / 1.554694×.
+  214e 0.843240× / 1.578882×;
+  a082 0.816931× / 1.458915×;
+  b6fd 0.814288× / 1.464061×.
 - Corpus instruction geometric-mean ratios versus 0.2.11 / scalar C++ 1.3:
-  `simplify` 0.944439× / 1.153435×;
-  `simplify-attributes` 0.966132× / 1.171960×;
-  `simplify-update` 0.919039× / 1.175510×;
-  `simplify-sloppy` 0.942416× / 1.383386×;
-  `simplify-prune` 1.000000× / 1.504012×;
-  `simplify-points` 0.998950× / 1.548028×.
+  `simplify` 0.915211× / 1.117740×;
+  `simplify-attributes` 0.943160× / 1.144094×;
+  `simplify-points` 0.998949× / 1.548023×;
+  `simplify-prune` 1.000000× / 1.504011×;
+  `simplify-sloppy` 0.942415× / 1.383384×;
+  `simplify-update` 0.895131× / 1.144930×.
 
 ## [0.2.11] - 2026-10-26
 

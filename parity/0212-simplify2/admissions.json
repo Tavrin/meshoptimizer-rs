@@ -1,0 +1,29 @@
+{
+  "admissions": [
+    {
+      "id": "871950",
+      "exit": 0,
+      "declared_GB": 4,
+      "reserved_GB": 2,
+      "process_tree_PSS_GB": 0.5,
+      "cgroup_peak_GB_including_cache": 1.5337
+    },
+    {
+      "id": "887901",
+      "exit": 0,
+      "declared_GB": 4,
+      "reserved_GB": 8,
+      "process_tree_PSS_GB": 1.4,
+      "cgroup_peak_GB_including_cache": 3.1818
+    },
+    {
+      "id": "1173295",
+      "exit": 0,
+      "declared_GB": 4,
+      "reserved_GB": 4,
+      "process_tree_PSS_GB": 1.4,
+      "cgroup_peak_GB_including_cache": 6.0
+    }
+  ],
+  "gpu": false
+}
