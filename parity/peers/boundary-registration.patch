@@ -1,12 +1,12 @@
 diff --git a/parity/simd/check_boundary.py b/parity/simd/check_boundary.py
 --- a/parity/simd/check_boundary.py
 +++ b/parity/simd/check_boundary.py
-@@ -5,7 +5,7 @@ ROOT = Path(__file__).resolve().parents[2]
+@@ -6,7 +6,7 @@
  MODULE = ROOT / 'src/codec/simd'
  # These unpublished oracle drivers call the peer meshopt crate's C++ FFI.
  # Neither is part of our library; the independent package audit stays strict.
 -PEER_FFI_DRIVERS = {ROOT / 'parity/compare/src/main.rs', ROOT / 'parity/encoders/src/main.rs', ROOT / 'parity/028-L1/src/main.rs'}
 +PEER_FFI_DRIVERS = {ROOT / 'parity/compare/src/main.rs', ROOT / 'parity/encoders/src/main.rs', ROOT / 'parity/028-L1/src/main.rs', ROOT / 'parity/peers/src/main.rs'}
- 
+
  def code(source):
      chars = list(source); i = 0

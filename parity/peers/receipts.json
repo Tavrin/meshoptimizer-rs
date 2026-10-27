@@ -20,7 +20,8 @@
     "repository_boundary_local": 1,
     "independent_package_audit": 0,
     "unapplied_patch_check": 0,
-    "integration_proof": 0
+    "integration_proof": 0,
+    "patch_context_trial": 1
   },
   "admissions": [
     {
@@ -104,7 +105,7 @@
     "parity/peers/audit.json": "883d19f10126d6cd5d2bb555e5e221c093bd91b9c999180e8682c8a351e1206b",
     "parity/peers/audit.py": "0033efd36e4a8bacd80cb8ba2e25331f1e2ef62d768ba1dba0f18ab3113c0afe",
     "parity/peers/binding.json": "974349b5c69d2de49c7cbbc51bab0c1dd228c7abc9a90263839fa03fcd319475",
-    "parity/peers/boundary-registration.patch": "00fce518a1a2ddb628491505f7871a90aa7d24d4f858e9e73f8b98ddeee5072c",
+    "parity/peers/boundary-registration.patch": "b73807658747df671a2fa342363711d2a055fe31799554a21cb8d4e883464dd5",
     "parity/peers/build.py": "7e12226fc5def16962271dea161bc32a09055b50556d5a76e961dd4077f90ace",
     "parity/peers/cleanup.json": "01fc4368edcbc06b0abebee159e83ac7faca0c5f3b7d2686bbdf4814f4bc1193",
     "parity/peers/counts.jsonl": "f49bafc1592a35dccb7ec24e42213f2543e875d2cef235979e4d01e16449e36c",
@@ -127,12 +128,12 @@
     "parity/peers/validate_stages.py": "b9c7c473d6dfc292556aca33253c5c4375b000907cdfe30fada17dc1f855cd43",
     "parity/peers/validation.json": "4471bc1d2c41b947e09d7e02cbf151aee51b5eecfd887a6597af39c1a33d1125"
   },
-  "whitespace_rejected_log_sha256": "76699bc17d9e7ce0646c6b677128200723dc59f3a0b7a1632215da78b11c6e4d",
+  "whitespace_rejected_log_sha256": "69d1f9ff4f48db5b3235403b5207bf265542a00a0dee42989ef8bb97ee56a032",
   "integration_boundary": {
     "status": "UNRESOLVED: new unpublished FFI consumer requires allowlist registration outside lane scope",
     "ci_job": "https://github.com/Tavrin/meshoptimizer-rs/actions/runs/40550436656/job/122352375158",
     "ci_log_sha256": "eddab43e1912ca639ac86a32b4c14aeb833c80ee6a609e12737fb6f2c05f39dd",
     "local_log_sha256": "6f2a500170147a07eb4ce1620612035d13b0cbf07baef4bdbbb3722358b503c7",
-    "unapplied_patch_sha256": "00fce518a1a2ddb628491505f7871a90aa7d24d4f858e9e73f8b98ddeee5072c"
+    "unapplied_patch_sha256": "b73807658747df671a2fa342363711d2a055fe31799554a21cb8d4e883464dd5"
   }
 }
