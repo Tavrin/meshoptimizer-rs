@@ -1,0 +1,294 @@
+{
+  "verdict": "NO-GAIN",
+  "regressions": [],
+  "rows": [
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets",
+      "base": 62228.875,
+      "candidate": 62236.872,
+      "cpp": 44951.155,
+      "optimesh": 62095.754,
+      "candidate_over_base": 1.0001285094740986
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-flex",
+      "base": 62254.873,
+      "candidate": 62269.89,
+      "cpp": 44933.086,
+      "optimesh": 62064.754,
+      "candidate_over_base": 1.0002412180649698
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-spatial",
+      "base": 46942.997,
+      "candidate": 46949.977,
+      "cpp": 47718.027,
+      "optimesh": 46368.764,
+      "candidate_over_base": 1.0001486909751416
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cluster-lod",
+      "base": 101544.9,
+      "candidate": 101548.6,
+      "cpp": 75720.5,
+      "optimesh": null,
+      "candidate_over_base": 1.000036437083497
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets",
+      "base": 28410532.333333332,
+      "candidate": 28412363.666666668,
+      "cpp": 26953694.0,
+      "optimesh": 36763486.666666664,
+      "candidate_over_base": 1.0000644596627704
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-flex",
+      "base": 28410557.666666668,
+      "candidate": 28412363.0,
+      "cpp": 26953656.666666668,
+      "optimesh": 36763474.666666664,
+      "candidate_over_base": 1.0000635444525416
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-spatial",
+      "base": 32145795.0,
+      "candidate": 32145792.0,
+      "cpp": 22807093.333333332,
+      "optimesh": 27068019.0,
+      "candidate_over_base": 0.9999999066751966
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cluster-lod",
+      "base": 118868218.0,
+      "candidate": 118872673.0,
+      "cpp": 99770102.0,
+      "optimesh": null,
+      "candidate_over_base": 1.0000374784788983
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets",
+      "base": 21809476.666666668,
+      "candidate": 21811018.666666668,
+      "cpp": 20692190.0,
+      "optimesh": 29322084.666666668,
+      "candidate_over_base": 1.0000707032095986
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-flex",
+      "base": 21809496.0,
+      "candidate": 21811035.0,
+      "cpp": 20692240.333333332,
+      "optimesh": 29322173.666666668,
+      "candidate_over_base": 1.0000705655921622
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-spatial",
+      "base": 32188471.0,
+      "candidate": 32188456.666666668,
+      "cpp": 22828680.0,
+      "optimesh": 27104502.333333332,
+      "candidate_over_base": 0.9999995547059899
+    },
+    {
+      "case": "medium-seams",
+      "op": "cluster-lod",
+      "base": 117578555.0,
+      "candidate": 117577610.0,
+      "cpp": 94524817.0,
+      "optimesh": null,
+      "candidate_over_base": 0.9999919628200908
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets",
+      "base": 28522934.666666668,
+      "candidate": 28524739.333333332,
+      "cpp": 26981532.333333332,
+      "optimesh": 36778655.666666664,
+      "candidate_over_base": 1.000063270721886
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-flex",
+      "base": 28522959.0,
+      "candidate": 28524830.0,
+      "cpp": 26981486.333333332,
+      "optimesh": 36778641.666666664,
+      "candidate_over_base": 1.000065596279825
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-spatial",
+      "base": 32219040.666666668,
+      "candidate": 32219040.666666668,
+      "cpp": 22806312.333333332,
+      "optimesh": 27067002.666666668,
+      "candidate_over_base": 1.0
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cluster-lod",
+      "base": 120684982.0,
+      "candidate": 120689511.0,
+      "cpp": 100759896.0,
+      "optimesh": null,
+      "candidate_over_base": 1.0000375274530844
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets",
+      "base": 4131410647.0,
+      "candidate": 4131676460.0,
+      "cpp": 3870334273.0,
+      "optimesh": 5200509411.0,
+      "candidate_over_base": 1.000064339525337
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-flex",
+      "base": 4131410359.0,
+      "candidate": 4131676489.0,
+      "cpp": 3870334256.0,
+      "optimesh": 5200509438.0,
+      "candidate_over_base": 1.0000644162590677
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-spatial",
+      "base": 7258308765.0,
+      "candidate": 7258308865.0,
+      "cpp": 4936081652.0,
+      "optimesh": 5801504219.0,
+      "candidate_over_base": 1.0000000137773142
+    },
+    {
+      "case": "million-smooth",
+      "op": "cluster-lod",
+      "base": 15711233957.0,
+      "candidate": 15711867529.0,
+      "cpp": 13010265424.0,
+      "optimesh": null,
+      "candidate_over_base": 1.000040326049611
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets",
+      "base": 18710574129.0,
+      "candidate": 18620482516.0,
+      "cpp": 13285982322.0,
+      "optimesh": 16849026339.0,
+      "candidate_over_base": 0.9951849893873451
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-flex",
+      "base": 18710574291.0,
+      "candidate": 18620481653.0,
+      "cpp": 13285982519.0,
+      "optimesh": 16849026373.0,
+      "candidate_over_base": 0.9951849346471778
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-spatial",
+      "base": 26777281483.0,
+      "candidate": 26777282369.0,
+      "cpp": 18353485901.0,
+      "optimesh": 21861417773.0,
+      "candidate_over_base": 1.00000003308775
+    },
+    {
+      "case": "real-214e",
+      "op": "cluster-lod",
+      "base": 93214282633.0,
+      "candidate": 93158231338.0,
+      "cpp": 65734150043.0,
+      "optimesh": null,
+      "candidate_over_base": 0.9993986834054103
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets",
+      "base": 19807726761.0,
+      "candidate": 19720464856.0,
+      "cpp": 14278104179.0,
+      "optimesh": 18265294373.0,
+      "candidate_over_base": 0.9955945522647348
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-flex",
+      "base": 19807726753.0,
+      "candidate": 19720464754.0,
+      "cpp": 14278103692.0,
+      "optimesh": 18265294186.0,
+      "candidate_over_base": 0.9955945475173327
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-spatial",
+      "base": 31172047902.0,
+      "candidate": 31172046707.0,
+      "cpp": 21356275303.0,
+      "optimesh": 25434475741.0,
+      "candidate_over_base": 0.999999961664373
+    },
+    {
+      "case": "real-a082",
+      "op": "cluster-lod",
+      "base": 105108798823.0,
+      "candidate": 105062496369.0,
+      "cpp": 74324030057.0,
+      "optimesh": null,
+      "candidate_over_base": 0.9995594807045796
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets",
+      "base": 4785506514.0,
+      "candidate": 4762527191.0,
+      "cpp": 3427779204.0,
+      "optimesh": 4407735859.0,
+      "candidate_over_base": 0.9951981419453146
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-flex",
+      "base": 4785506534.0,
+      "candidate": 4762527133.0,
+      "cpp": 3427779218.0,
+      "optimesh": 4407735777.0,
+      "candidate_over_base": 0.9951981256661679
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-spatial",
+      "base": 6906013305.0,
+      "candidate": 6906013123.0,
+      "cpp": 4761859121.0,
+      "optimesh": 5678538592.0,
+      "candidate_over_base": 0.9999999736461556
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cluster-lod",
+      "base": 26039268608.0,
+      "candidate": 26026541725.0,
+      "cpp": 18418152343.0,
+      "optimesh": null,
+      "candidate_over_base": 0.9995112426853614
+    }
+  ]
+}

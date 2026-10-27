@@ -1,0 +1,12 @@
+[package]
+name = "meshlets-exact-witness"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["std", "clusterlod"] }
+
+[[bin]]
+name = "meshlets-exact-witness"
+path = "proof.rs"

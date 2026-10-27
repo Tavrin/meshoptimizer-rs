@@ -387,6 +387,19 @@ mod packed_tests {
         }
         assert_eq!(small_divide(usize::MAX, 7), usize::MAX / 7);
     }
+    #[test]
+    fn nearest_bound_never_rejects_a_winning_root() {
+        let mut bits = 0x9e37_79b9u32;
+        for _ in 0..1_000_000 {
+            bits = bits.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+            let square = f32::from_bits(bits & 0x7fff_ffff);
+            bits = bits.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+            let limit = f32::from_bits(bits & 0x7fff_ffff);
+            if nearest_root_at_least(square, limit) {
+                assert!(crate::math::sqrt(square) >= limit, "{square:?} {limit:?}");
+            }
+        }
+    }
 }
 // Split statistics of one kd range: Welford mean and variance per axis.
 #[derive(Clone, Copy, Default)]
@@ -532,7 +545,7 @@ fn nearest<const CHECK: bool>(
             inactive = false;
             let d = sub(cones[v].p, p);
             let square = dot(d, d);
-            if lower_distance(d) >= *limit || root_at_least(square, *limit) {
+            if lower_distance(d) >= *limit || nearest_root_at_least(square, *limit) {
                 continue;
             }
             let distance = roots.sqrt(square);
@@ -554,7 +567,7 @@ fn nearest<const CHECK: bool>(
             }
             inactive = false;
             let d = sub(cones[v].p, p);
-            if !CHECK && (lower_distance(d) >= *limit || root_at_least(dot(d, d), *limit)) {
+            if !CHECK && (lower_distance(d) >= *limit || nearest_root_at_least(dot(d, d), *limit)) {
                 return Ok(());
             }
             let distance = roots.sqrt(number::<CHECK>(dot(d, d))?);
@@ -600,6 +613,20 @@ fn nearest<const CHECK: bool>(
         }
     }
     Ok(())
+}
+// A rounded nonnegative square root cannot be below `limit` when its input is
+// strictly above the square of the midpoint between limit and its predecessor.
+// Both midpoint and square are exact in f64 for finite positive f32 limits.
+// Leave equality and exceptional values to the pinned square-root backend.
+#[inline(always)]
+fn nearest_root_at_least(square: f32, limit: f32) -> bool {
+    if limit > 0. && limit.is_finite() && square >= 0. {
+        let previous = f32::from_bits(limit.to_bits() - 1);
+        let midpoint = (f64::from(limit) + f64::from(previous)) * 0.5;
+        f64::from(square) > midpoint * midpoint
+    } else {
+        false
+    }
 }
 // Each absolute component is a conservative lower bound on the correctly
 // rounded Euclidean distance. Use only after the finite-coordinate envelope.

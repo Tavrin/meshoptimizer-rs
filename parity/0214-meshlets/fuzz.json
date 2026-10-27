@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "cpu_seconds": 300.11,
+  "executions": 209920,
+  "counts": {
+    "1": 70044,
+    "3": 70053,
+    "4": 69823
+  },
+  "stream_sha256": "9c51382d40d0ef85b409790eaa162c803a3913170abfd8967372c17f3f23caab"
+}
