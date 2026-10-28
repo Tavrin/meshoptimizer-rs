@@ -8,7 +8,9 @@
 
 A pure-Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3. Its output is
 byte-identical to the C++ library: index order, error values and encoded bytes match. It needs no
-C++ toolchain and supports `no_std` with `alloc`.
+C++ toolchain, so `cargo build --target wasm32-unknown-unknown` works with only the Rust target
+installed; the `meshopt` crate compiles C++ and needs a C++ compiler for that target. It also
+supports `no_std` with `alloc`.
 
 ```toml
 [dependencies]
