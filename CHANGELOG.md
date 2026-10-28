@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Opt-in typed vertex layouts and initialized field snapshots for position and attribute views.
+- On three production LOD-chain meshes, `simplify_prune` uses 0.620× the
+  instructions of 0.2.14, 0.763× those of optimesh 1.1.0 and 0.995× those
+  of C++ meshoptimizer 1.3; `simplify_points` uses 0.606× / 0.637× / 1.022×,
+  respectively (geometric means of per-mesh instruction ratios).
 
 ## [0.2.14] - 2026-10-28
 
