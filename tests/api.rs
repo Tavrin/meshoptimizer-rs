@@ -978,3 +978,172 @@ fn overdraw_centroid_overflow_keeps_validation_and_reservation_precedence() {
         Err(Error::LimitExceeded)
     );
 }
+#[test]
+fn vertex_score_table_validation() {
+    let defaults = VertexScoreTable::default();
+    assert_eq!(
+        VertexScoreTable::new(defaults.cache_scores(), defaults.live_scores()),
+        Ok(defaults.clone())
+    );
+    for length in [0, 1, 16, 18, 32] {
+        assert_eq!(
+            VertexScoreTable::new(&vec![0.; length], &[0.; 9]),
+            Err(Error::InvalidParameter)
+        );
+    }
+    for length in [0, 1, 8, 10, 32] {
+        assert_eq!(
+            VertexScoreTable::new(&[0.; 17], &vec![0.; length]),
+            Err(Error::InvalidParameter)
+        );
+    }
+    for invalid in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+        for i in 0..26 {
+            let mut cache = [0.; 17];
+            let mut live = [0.; 9];
+            if i < 17 {
+                cache[i] = invalid;
+            } else {
+                live[i - 17] = invalid;
+            }
+            assert_eq!(
+                VertexScoreTable::new(&cache, &live),
+                Err(Error::InvalidParameter)
+            );
+        }
+    }
+    assert!(VertexScoreTable::new(&[-f32::MAX; 17], &[f32::MAX; 9]).is_ok());
+}
+
+#[test]
+fn custom_vertex_score_table_changes_order_deterministically() {
+    let input = [0, 1, 2, 3, 4, 5, 2, 1, 6];
+    let table = VertexScoreTable::new(&[0.; 17], &[0.; 9]).unwrap();
+    let mut ws = Workspace::default();
+    let standard = optimize_vertex_cache(&input, 7, &mut ws).unwrap();
+    assert_ne!(standard, input);
+    for _ in 0..3 {
+        assert_eq!(
+            optimize_vertex_cache_with_table(&input, 7, &table, &mut ws).unwrap(),
+            input
+        );
+        let mut out = [99; 12];
+        optimize_vertex_cache_with_table_into(&mut out, &input, 7, &table, &mut ws).unwrap();
+        assert_eq!(&out[..9], input);
+        assert_eq!(&out[9..], [99; 3]);
+    }
+}
+
+#[test]
+fn table_selection_follows_the_incremental_procedure_not_the_final_maximum() {
+    // After emitting triangle 0 (0,1,2) the cache is [0,1,2] with position
+    // scores 10, -10, 2, and every live score is 1. Vertices are rescored in
+    // cache order: vertex 0 lifts triangle 1 (0,1,3) from 3 to 13, which becomes
+    // the running best; vertex 1 then drops it back to 3, and vertex 2 lifts
+    // triangle 2 (2,4,5) from 3 to 5, which does not beat 13. Triangle 1 wins on
+    // its transient maximum although triangle 2 has the higher final score, so
+    // the order stays as the input. This is upstream's incremental procedure and
+    // is what keeps the default table identical to C++; comparing final triangle
+    // scores would give [0,1,2, 2,4,5, 0,1,3] instead.
+    let input = [0, 1, 2, 0, 1, 3, 2, 4, 5];
+    let mut cache = [0.; 17];
+    cache[..4].copy_from_slice(&[0., 10., -10., 2.]);
+    let table = VertexScoreTable::new(&cache, &[1.; 9]).unwrap();
+    let result =
+        optimize_vertex_cache_with_table(&input, 6, &table, &mut Workspace::default()).unwrap();
+    assert_eq!(result, input);
+}
+
+#[test]
+fn default_vertex_score_table_matches_every_work_prefix_and_errors() {
+    let table = VertexScoreTable::default();
+    for (indices, count) in [
+        (vec![], 0),
+        (vec![0, 1], 2),
+        (vec![0, 1, 2], 2),
+        (vec![0, 1, 2, 3, 4, 5, 2, 1, 6, 6, 6, 6], 7),
+    ] {
+        let mut measured = Workspace::default();
+        let _ = optimize_vertex_cache(&indices, count, &mut measured);
+        let work = measured.usage().work;
+        for max_work in 0..=work + 1 {
+            for max_bytes in [
+                0,
+                measured.usage().bytes.saturating_sub(1),
+                measured.usage().bytes,
+                usize::MAX,
+            ] {
+                let limits = Limits {
+                    max_work,
+                    max_bytes,
+                };
+                let mut a = Workspace::new(limits);
+                let mut b = Workspace::new(limits);
+                assert_eq!(
+                    optimize_vertex_cache(&indices, count, &mut a),
+                    optimize_vertex_cache_with_table(&indices, count, &table, &mut b)
+                );
+                assert_eq!(a.usage(), b.usage());
+                for len in [indices.len().saturating_sub(1), indices.len() + 3] {
+                    let mut x = vec![99; len];
+                    let mut y = x.clone();
+                    // Reuse scratch to exercise retention as well as fresh allocation.
+                    assert_eq!(
+                        optimize_vertex_cache_into(&mut x, &indices, count, &mut a),
+                        optimize_vertex_cache_with_table_into(
+                            &mut y, &indices, count, &table, &mut b
+                        )
+                    );
+                    assert_eq!(x, y);
+                    assert_eq!(a.usage(), b.usage());
+                }
+            }
+        }
+    }
+}
+
+#[test]
+#[ignore = "requires frozen corpus directory in MESHOPT_CACHE_CORPUS"]
+fn default_vertex_score_table_identity_on_corpus() {
+    let dir = std::env::var_os("MESHOPT_CACHE_CORPUS").expect("set MESHOPT_CACHE_CORPUS");
+    let table = VertexScoreTable::default();
+    for name in [
+        "tiny-smooth",
+        "medium-smooth",
+        "medium-seams",
+        "medium-sparse",
+        "million-smooth",
+        "real-214e",
+        "real-a082",
+        "real-b6fd",
+    ] {
+        let filename = if name.starts_with("real-") {
+            format!("{name}-simplify.bin")
+        } else {
+            format!("{name}.bin")
+        };
+        let raw = std::fs::read(std::path::Path::new(&dir).join(filename)).unwrap();
+        let vertex_count = u32::from_le_bytes(raw[..4].try_into().unwrap()) as usize;
+        let index_count = u32::from_le_bytes(raw[4..8].try_into().unwrap()) as usize;
+        let start = 8 + vertex_count * 12;
+        let indices: Vec<u32> = raw[start..start + index_count * 4]
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|b| u32::from_le_bytes(*b))
+            .collect();
+        let mut a = Workspace::default();
+        let mut b = Workspace::default();
+        let expected = optimize_vertex_cache(&indices, vertex_count, &mut a).unwrap();
+        let actual =
+            optimize_vertex_cache_with_table(&indices, vertex_count, &table, &mut b).unwrap();
+        assert_eq!(actual, expected, "{name}");
+        assert_eq!(a.usage(), b.usage(), "{name}");
+        let mut out = vec![u32::MAX; index_count + 3];
+        optimize_vertex_cache_with_table_into(&mut out, &indices, vertex_count, &table, &mut b)
+            .unwrap();
+        assert_eq!(&out[..index_count], expected, "{name}");
+        assert_eq!(&out[index_count..], [u32::MAX; 3]);
+        eprintln!("PASS {name}: {vertex_count} vertices, {index_count} indices");
+    }
+}
