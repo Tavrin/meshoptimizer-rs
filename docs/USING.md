@@ -5,6 +5,22 @@ These recipes use triangle lists of `u32` indices and borrowed vertex views.
 floats, strides and offsets count `f32` components; for byte views they count
 bytes and the byte order is explicit. Indices refer to the full position array.
 
+## Tuning for a specific GPU cache
+
+`VertexScoreTable` and `optimize_vertex_cache_with_table` are opt-in extensions
+not in C++ meshoptimizer. Start from `VertexScoreTable::default()`, copy its
+`cache_scores()` and `live_scores()`, adjust the scores, and validate them with
+`VertexScoreTable::new(&cache, &live)?`. Pass the table before the workspace to
+`optimize_vertex_cache_with_table`, or use `optimize_vertex_cache_with_table_into`
+with a caller-owned destination. The constructor requires exactly 17 finite
+cache scores and 9 finite live-valence scores; it does not change cache capacity.
+
+Cache entry zero scores vertices outside the cache, entries 1–16 score cache
+positions, and live entry eight also scores all higher valences. Tuned tables
+must be validated on the target hardware using representative meshes; a changed
+ordering does not establish a GPU performance gain. The existing standard and
+strip APIs retain their upstream presets.
+
 ## Non-packed positions
 
 ```text

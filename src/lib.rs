@@ -192,7 +192,8 @@ pub use cache::{
     optimize_vertex_cache, optimize_vertex_cache_fifo, optimize_vertex_cache_fifo_in_place,
     optimize_vertex_cache_fifo_into, optimize_vertex_cache_in_place, optimize_vertex_cache_into,
     optimize_vertex_cache_strip, optimize_vertex_cache_strip_in_place,
-    optimize_vertex_cache_strip_into,
+    optimize_vertex_cache_strip_into, optimize_vertex_cache_with_table,
+    optimize_vertex_cache_with_table_into, VertexScoreTable,
 };
 pub use error::Error;
 pub use input::{
