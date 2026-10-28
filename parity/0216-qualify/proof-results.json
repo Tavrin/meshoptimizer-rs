@@ -1,0 +1,95 @@
+{
+  "status": "unqualified: exact proof is not exhaustive",
+  "checks": {
+    "all_features_test": 0,
+    "no_default_test": 0,
+    "clippy": 0,
+    "fmt": 0,
+    "boundary": 0,
+    "initial_public_text": 0,
+    "later_public_text_initial": 1,
+    "later_public_text_retry": 0
+  },
+  "supervisor_failures": [
+    {
+      "exit": 101,
+      "reason": "overdraw driver missing directory argument"
+    },
+    {
+      "exit": 101,
+      "reason": "no-default simplify driver unwrapped an unsupported option mask"
+    }
+  ],
+  "finite_exact": {
+    "simplify_all_features": {
+      "exit": 0,
+      "observations": 1200243710
+    },
+    "simplify_no_default_corrected": {
+      "exit": 0,
+      "observations": 273906930
+    },
+    "overdraw_all_features_corrected": {
+      "exit": 0,
+      "observations": 20558564
+    },
+    "overdraw_no_default": {
+      "exit": 0,
+      "observations": 20558564
+    },
+    "meshlets_clusterlod_all_features": {
+      "exit": 0,
+      "observations": 154590
+    },
+    "meshlets_clusterlod_no_default": {
+      "exit": 0,
+      "observations": 154590
+    }
+  },
+  "cpp": {
+    "meshlets_clusterlod_cases_per_mode": 1280,
+    "modes": [
+      "std",
+      "no_std"
+    ],
+    "exit": 0,
+    "simplify_overdraw_cases": 1246,
+    "simplify_overdraw_exit": 0
+  },
+  "fuzz": {
+    "meshlets": {
+      "exit": 0,
+      "cases": 41302000,
+      "cpu_seconds": 300.020247
+    },
+    "simplify": {
+      "exit": 0,
+      "seeds": 1325,
+      "cpu_seconds": 300.013
+    },
+    "cluster_lod": {
+      "exit": 0,
+      "cases": 1449000,
+      "candidate_cpu_seconds": 300.01
+    }
+  },
+  "artifacts_sha256": {
+    "exact-all.log": "96466f928857d137d399a7e1c9917776bce271a8e399ade1f87e736489d4b087",
+    "overdraw-all.log": "75ca8e2022042b79f52b55b26764588fdffff99c4c1152ba88975c142cf06ca1",
+    "overdraw-all-retry.log": "5c9b47e030c84ab32a3ef123b1c61dff8a699e013f962c0e88a4edb87ebe4af1",
+    "exact-none.log": "66974f8811336bb4b6a783dad9d75877f8ca3a23f8d55f3fb4b87fc6590a955a",
+    "exact-none-corrected.log": "e3a85c3142ded3b6dc6ce8d2c487194bf4ae12200eae05758755a289051aaad4",
+    "overdraw-none.log": "5c9b47e030c84ab32a3ef123b1c61dff8a699e013f962c0e88a4edb87ebe4af1",
+    "fuzz-run.log": "71a81b7d8137d3c4dc4da397dcaad212a02ec48a23071e9e9862a45350226051",
+    "fuzz-exit.json": "e946b3e78f9f53b0769f8524454290edf62b6b4edf3adcd968842c231f6e2b37",
+    "meshlet-cpp/cpp-differential/result.json": "e7d6dcdd2c8ba1cbf28d899c53f67a3328487885be57b30eb2b655014dbd230e",
+    "meshlet-cpp/clod-fuzz-exit.json": "f8a7832f7e8fc79a8a5b8d30e34993fb4559b6feb257c6fc5b8d2ee186af2b9d",
+    "meshlet-exact/exits.txt": "6aa17932335947a5a1abeb86c975795165c9d1a58e3ec05f1efc5d9accd19d32",
+    "meshlet-exact/count-all.txt": "8d4a9377e55c58270803a60944ed8f563b54c004e5ade23ac9b90992dadc0f6e",
+    "meshlet-exact/count-none.txt": "2ad34c6e93139aeaa95da003327bb37d4d6a54a1e74f9b8191541d3b22d45f3f",
+    "meshlet-exact/output-all-base.txt": "c620b08a9ef025771c3ecf42389721e7ad8f5fa1c7870bf4899be59dd5451426",
+    "meshlet-exact/output-all-candidate.txt": "c620b08a9ef025771c3ecf42389721e7ad8f5fa1c7870bf4899be59dd5451426",
+    "meshlet-exact/output-none-base.txt": "c620b08a9ef025771c3ecf42389721e7ad8f5fa1c7870bf4899be59dd5451426",
+    "meshlet-exact/output-none-candidate.txt": "c620b08a9ef025771c3ecf42389721e7ad8f5fa1c7870bf4899be59dd5451426"
+  }
+}
