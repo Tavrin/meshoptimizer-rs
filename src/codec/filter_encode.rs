@@ -110,7 +110,7 @@ fn snorm_mode<const TINY: bool>(v: f32, n: u32) -> i32 {
 }
 
 pub(super) fn oct(out: &mut [u8], stride: usize, bits: u32, data: &[f32]) {
-    // Small calls keep the lane arithmetic but use a shorter bounded
+    // Small calls keep the component arithmetic but use a shorter bounded
     // quantizer. Separate kernels keep their setup out of generic dispatch.
     if data.len() <= 32 * 4 {
         if stride == 4 {
