@@ -49,3 +49,23 @@ src/codec/simd/SAFETY.md and parity/SIMD_RESULTS.md.
 The published package contains only Rust code and documentation. The only C++
 is in the parity harness, which is not published. See parity/COVERAGE.md for future API
 milestones and parity/DECISIONS.md for foundation choices.
+
+## Watching upstream
+
+`parity/tools/upstream_watch.py` (Python 3 standard library plus `git`; not
+part of the published package) compares the pinned commit above with the
+latest zeux/meshoptimizer release tag and `master`:
+
+```sh
+python3 parity/tools/upstream_watch.py --cache ~/.cache/meshopt-upstream \
+    [--since v1.2] [--json report.json]
+```
+
+The cache directory (or `MESHOPT_UPSTREAM_CACHE`) holds a bare clone and must
+be outside this repository. The Markdown checklist on stdout lists new, changed
+and removed functions, struct types and option constants in
+`src/meshoptimizer.h` (signature level), changed files under `src/` and
+`demo/` with line counts, the commit subjects, and the release notes of tags
+newer than the base. `--since <tag>` compares from that tag instead of the
+pin. Upstream text is quoted as data only. Unit test:
+`python3 -m unittest parity/tools/test_upstream_watch.py` from `parity/tools`.
