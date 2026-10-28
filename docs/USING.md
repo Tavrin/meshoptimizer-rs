@@ -16,7 +16,10 @@ with a caller-owned destination. The constructor requires exactly 17 finite
 cache scores and 9 finite live-valence scores; it does not change cache capacity.
 
 Cache entry zero scores vertices outside the cache, entries 1–16 score cache
-positions, and live entry eight also scores all higher valences. Tuned tables
+positions, and live entry eight also scores all higher valences. Only triangles
+whose summed score is positive are picked by score; otherwise the next unemitted
+triangle in input order follows, so keep the scores you want to favour positive.
+Tuned tables
 must be validated on the target hardware using representative meshes; a changed
 ordering does not establish a GPU performance gain. The existing standard and
 strip APIs retain their upstream presets.

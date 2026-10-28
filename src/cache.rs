@@ -90,7 +90,14 @@ impl Scores for VertexScoreTable {
 /// Uses the same workspace limits, topology validation and triangle preservation
 /// as [`optimize_vertex_cache`]. The default table gives identical output.
 /// Tuned tables must be validated on the target hardware; no improvement is
-/// guaranteed. Extreme finite scores can overflow intermediate score arithmetic.
+/// guaranteed.
+///
+/// A triangle score is the sum of its three vertex scores. After each emitted
+/// triangle, the next one is the highest positive-scoring triangle adjacent to
+/// the cache; when none scores above zero, the next unemitted triangle in input
+/// order follows. A table whose sums are never positive therefore keeps the
+/// input order. Extreme finite scores can overflow the summed scores, which
+/// degrades the ordering but never drops or duplicates a triangle.
 ///
 /// ```
 /// use meshoptimizer_rs::{optimize_vertex_cache_with_table, VertexScoreTable, Workspace};

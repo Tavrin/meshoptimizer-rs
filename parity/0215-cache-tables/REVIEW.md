@@ -30,3 +30,26 @@ the lane prohibits subagents.
 Verdict: no blocking source finding. Independent review, GPU tuning, performance
 qualification, cross-target testing and a fresh C++ differential remain outside
 this lane's executed proof.
+
+## Second-agent check
+
+A separate agent re-read the commit against the specification and reran the
+driver. Dispositions:
+
+- Spec items (API, `_into`, validation, default identity over the corpus,
+  doctest, guide recipe, changelog and README lines, three test classes): all
+  present. Corpus files were re-hashed against `corpus.sha256` before the run.
+- Selection semantics were undocumented (accepted, fixed in docs): the kernel
+  only picks a triangle by score when its sum is positive, as upstream does, so
+  non-positive tables fall back to input order. Rustdoc and the guide now say
+  so, and the overflow note states its consequence (ordering degrades,
+  triangles are never dropped or duplicated).
+- Magnitude bound on finite scores (refuted as a blocker): rounding drift in
+  the incremental triangle sums has no cheap provable bound, and overflow only
+  yields infinite or NaN sums. Those change which candidate wins or route
+  through the existing input-order fallback; emission still tracks every
+  triangle exactly once. Finite-only validation matches the spec.
+
+The rerun includes the documentation fix: all 13 driver checks exit 0
+(`proof-exits.tsv`), the corpus test passes all eight meshes in both feature
+modes, and `source.sha256` is refreshed for the edited files.
