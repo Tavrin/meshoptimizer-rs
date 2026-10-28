@@ -32,6 +32,7 @@
 //! - [Untrusted input with Limits](guide#untrusted-input-with-limits).
 //! - [Parallel workers](guide#parallel-workers).
 //! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
+//! - [Mesh repair](guide#mesh-repair) (an extension, not in C++ meshoptimizer).
 //!
 //! # Simplify a mesh
 //!
@@ -170,6 +171,7 @@ mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
+mod sanitize;
 
 mod raster;
 #[cfg(feature = "experimental")]
@@ -205,6 +207,9 @@ pub use quantize::{
     quantize_unorm,
 };
 pub use remap::*;
+pub use sanitize::{
+    sanitize, sanitize_bound, sanitize_into, SanitizeOptions, SanitizeReport, SanitizedMesh,
+};
 
 #[cfg(feature = "experimental")]
 pub use normal::{generate_normals, generate_normals_into};

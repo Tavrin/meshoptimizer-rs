@@ -162,6 +162,12 @@ over a limit returns `Error::LimitExceeded`, and `Workspace::usage` reports the 
 and work.
 Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long simplify chains at some time cost.
 
+### Beyond upstream
+
+These opt-in functions are not in C++ meshoptimizer. They leave every ported function unchanged.
+
+- `sanitize` removes out-of-range, non-finite, degenerate and duplicate triangles and reports counts by reason.
+
 ## Features
 
 | Feature | Default | Enables |

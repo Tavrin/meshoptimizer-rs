@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `sanitize` and `sanitize_into` remove triangles with out-of-range indices,
+  non-finite positions, repeated indices or duplicate faces, and report counts
+  by reason. They are not in C++ meshoptimizer. On three production
+  LOD-chain meshes, `sanitize` with default options uses 0.82–0.89× the
+  instructions of `filter_index_buffer`, and 2.37–2.45× with all options set.
+
 ## [0.2.14] - 2026-10-28
 
 - `simplify`, `simplify_with_update` and `simplify_with_attributes` skip a
