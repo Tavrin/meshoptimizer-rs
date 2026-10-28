@@ -40,7 +40,8 @@ The pre-registered three-real-mesh geometric-mean gate is candidate/optimesh
 at most 0.99 and candidate/base at most 0.97 for SHIPS; only the second for
 IMPROVES; otherwise NO-GAIN. Any individual case above 1.01 candidate/base
 requires a revert. There are at most two campaigns, and no optimization edits
-after the first begins. Development screens inherited from interrupted work
+after the first begins; the owner lifted that rule once for the check-and-finish
+pass, whose candidate is campaign 2 and the last. Development screens inherited from interrupted work
 are retained separately and are not substituted for campaign samples.
 
 Run the normal test matrix, clippy with warnings denied, formatting, both

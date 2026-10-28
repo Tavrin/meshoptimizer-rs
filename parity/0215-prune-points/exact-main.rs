@@ -74,5 +74,24 @@ fn main() {
             }
         }
     }
+    // Signed zeros as extreme coordinates on both sides of the four-vertex
+    // blocks of the packed bounds pass, with and without point colors.
+    for kind in [0, 2] {
+        for n in [4, 5, 8, 13, 16] {
+            for sign in [1.0f32, -1.0] {
+                for layout in [0, 1] {
+                    let mut c = mesh(kind, n);
+                    c.layout = layout;
+                    c.target = n / 2;
+                    for (i, p) in c.p.iter_mut().enumerate() {
+                        for (j, v) in p.iter_mut().enumerate() {
+                            *v = sign * [0.0, -0.0, 0.25, 0.5, 1.0][(i * 7 + j * 3) % 5];
+                        }
+                    }
+                    checks += compare(&c, 8, true, 1 << 26, false);
+                }
+            }
+        }
+    }
     println!("PASS observations={checks}");
 }

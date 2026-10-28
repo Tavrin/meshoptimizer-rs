@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- On three production LOD-chain meshes, `simplify_prune` uses 0.688× the
-  instructions of 0.2.14, 0.846× those of optimesh 1.1.0 and 1.104× those
-  of C++ meshoptimizer 1.3; `simplify_points` uses 0.812× / 0.854× / 1.370×,
+- On three production LOD-chain meshes, `simplify_prune` uses 0.620× the
+  instructions of 0.2.14, 0.763× those of optimesh 1.1.0 and 0.995× those
+  of C++ meshoptimizer 1.3; `simplify_points` uses 0.606× / 0.637× / 1.022×,
   respectively (geometric means of per-mesh instruction ratios).
 
 ## [0.2.14] - 2026-10-28

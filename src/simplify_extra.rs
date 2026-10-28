@@ -6,31 +6,17 @@ fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3]
     let mut lo = [f32::MAX; 3];
     let mut hi = [-f32::MAX; 3];
     // Packed positions that are all finite and fit the budget take one pass
-    // without per-vertex error exits; the same selects give the same bounds
-    // and the scan's charge is one visit per vertex. Otherwise the checked
-    // scan below reports the first non-finite value at the original charge.
+    // without per-vertex error exits; it yields the bounds of the ordered
+    // selects below and the scan's charge is one visit per vertex. Otherwise
+    // the checked scan reports the first non-finite value at the original charge.
     let packed = positions
         .packed_values()
         .filter(|values| work.covers(values.len()).unwrap_or(false));
     if let Some(values) = packed {
-        let mut finite = true;
-        for v in values {
-            for j in 0..3 {
-                finite &= v[j].is_finite();
-                if lo[j] > v[j] {
-                    lo[j] = v[j];
-                }
-                if hi[j] < v[j] {
-                    hi[j] = v[j];
-                }
-            }
-        }
-        if finite {
+        if let Some((lo, hi)) = packed_bounds(values) {
             work.add(values.len())?;
             return bounds_extent(positions, lo, hi);
         }
-        lo = [f32::MAX; 3];
-        hi = [-f32::MAX; 3];
     }
     positions.for_each_counted(work, |v| {
         for j in 0..3 {
@@ -68,6 +54,88 @@ fn bounds_extent(
         return Err(Error::NumericalFailure);
     }
     Ok((lo, extent))
+}
+/// Bounds that the ordered selects `if lo > v { lo = v }` and
+/// `if hi < v { hi = v }` give over finite packed positions, or `None` if a
+/// value is not finite. The flattened coordinates are read in blocks of four
+/// vertices: lane `l` of accumulator `k` holds component `(4 * k + l) % 3`.
+/// For finite values the selects compute the numerical minimum and maximum,
+/// so lane order changes only the sign of a zero result; the ordered selects
+/// keep the first zero of that component (every earlier value lies strictly on
+/// the other side of it), which the final pass restores.
+#[inline(always)]
+#[allow(clippy::eq_op)] // `v - v` is the finiteness probe, not a zero.
+fn packed_bounds(values: &[[f32; 3]]) -> Option<([f32; 3], [f32; 3])> {
+    let (blocks, tail) = values.as_flattened().as_chunks::<12>();
+    let [lo0, lo1, lo2, hi0, hi1, hi2, nan0, nan1, nan2] = bounds_lanes(blocks);
+    let mut lo = [f32::MAX; 3];
+    let mut hi = [-f32::MAX; 3];
+    let mut nan = 0.0f32;
+    for (k, (lanes_lo, lanes_hi, lanes_nan)) in
+        [(lo0, hi0, nan0), (lo1, hi1, nan1), (lo2, hi2, nan2)]
+            .into_iter()
+            .enumerate()
+    {
+        for l in 0..4 {
+            let j = (4 * k + l) % 3;
+            if lo[j] > lanes_lo[l] {
+                lo[j] = lanes_lo[l];
+            }
+            if hi[j] < lanes_hi[l] {
+                hi[j] = lanes_hi[l];
+            }
+            nan += lanes_nan[l];
+        }
+    }
+    for (i, &v) in tail.iter().enumerate() {
+        let j = i % 3;
+        if lo[j] > v {
+            lo[j] = v;
+        }
+        if hi[j] < v {
+            hi[j] = v;
+        }
+        nan += v - v;
+    }
+    if nan != 0.0 {
+        return None;
+    }
+    for j in 0..3 {
+        for bound in [&mut lo[j], &mut hi[j]] {
+            if *bound == 0.0 {
+                if let Some(v) = values.iter().find(|v| v[j] == 0.0) {
+                    *bound = v[j];
+                }
+            }
+        }
+    }
+    Some((lo, hi))
+}
+/// Lane accumulators of [`packed_bounds`]: minima, maxima and finiteness
+/// sums for the three quads of each twelve-value block. Kept out of line so
+/// the lane-to-component combination is not folded into the loop as shuffles.
+#[inline(never)]
+#[allow(clippy::eq_op)] // `v - v` is the finiteness probe, not a zero.
+fn bounds_lanes(blocks: &[[f32; 12]]) -> [[f32; 4]; 9] {
+    // `v - v` is +0 for finite `v` and NaN otherwise; NaN persists in a sum.
+    #[inline(always)]
+    fn quad(lo: &mut [f32; 4], hi: &mut [f32; 4], nan: &mut [f32; 4], v: &[f32; 4]) {
+        for l in 0..4 {
+            lo[l] = if lo[l] > v[l] { v[l] } else { lo[l] };
+            hi[l] = if hi[l] < v[l] { v[l] } else { hi[l] };
+            nan[l] += v[l] - v[l];
+        }
+    }
+    let (mut lo0, mut lo1, mut lo2) = ([f32::MAX; 4], [f32::MAX; 4], [f32::MAX; 4]);
+    let (mut hi0, mut hi1, mut hi2) = ([-f32::MAX; 4], [-f32::MAX; 4], [-f32::MAX; 4]);
+    let (mut nan0, mut nan1, mut nan2) = ([0.0f32; 4], [0.0f32; 4], [0.0f32; 4]);
+    for block in blocks {
+        let q = block.as_chunks::<4>().0;
+        quad(&mut lo0, &mut hi0, &mut nan0, &q[0]);
+        quad(&mut lo1, &mut hi1, &mut nan1, &q[1]);
+        quad(&mut lo2, &mut hi2, &mut nan2, &q[2]);
+    }
+    [lo0, lo1, lo2, hi0, hi1, hi2, nan0, nan1, nan2]
 }
 fn scaled(
     positions: Positions<'_>,
@@ -2043,20 +2111,32 @@ fn simplify_points_kernel_impl<const COLORS: bool, const RESERVOIR: usize>(
         let (reservoir_data, errors) = rest.split_at_mut(nc * RESERVOIR);
         let reservoirs = reservoir_data.as_chunks_mut::<RESERVOIR>().0;
         reservoirs.fill([0.0; RESERVOIR]);
-        work.scan(p.iter().enumerate(), |(i, v)| {
-            let r = &mut reservoirs[vc[i] as usize];
-            let color = if COLORS { color(i)? } else { [0.0; 3] };
-            r[0] += v[0];
-            r[1] += v[1];
-            r[2] += v[2];
-            if COLORS {
+        if COLORS {
+            work.scan(p.iter().enumerate(), |(i, v)| {
+                let r = &mut reservoirs[vc[i] as usize];
+                let color = color(i)?;
+                r[0] += v[0];
+                r[1] += v[1];
+                r[2] += v[2];
                 r[3] += color[0];
                 r[4] += color[1];
                 r[5] += color[2];
-            }
-            r[RESERVOIR - 1] += 1.0;
-            Ok(())
-        })?;
+                r[RESERVOIR - 1] += 1.0;
+                Ok(())
+            })?;
+        } else {
+            // Without colors no visit can fail, so a fitting scan is prepaid.
+            units!(&mut work, p.len(), |m| {
+                for (v, &c) in p.iter().zip(&vc[..p.len()]) {
+                    m.add(1)?;
+                    let r = &mut reservoirs[c as usize];
+                    r[0] += v[0];
+                    r[1] += v[1];
+                    r[2] += v[2];
+                    r[RESERVOIR - 1] += 1.0;
+                }
+            });
+        }
         work.scan(reservoirs.iter_mut(), |r| {
             let iw = if r[RESERVOIR - 1] == 0.0 {
                 0.0
@@ -2077,30 +2157,46 @@ fn simplify_points_kernel_impl<const COLORS: bool, const RESERVOIR: usize>(
         if !COLORS && !weight.is_finite() {
             return Err(Error::NumericalFailure);
         }
-        work.scan(p.iter().enumerate(), |(i, v)| {
-            let c = vc[i] as usize;
-            let r = reservoirs[c];
-            let color = if COLORS { color(i)? } else { [0.0; 3] };
-            let pe = (v[0] - r[0]) * (v[0] - r[0])
-                + (v[1] - r[1]) * (v[1] - r[1])
-                + (v[2] - r[2]) * (v[2] - r[2]);
-            let ce = if COLORS {
-                (color[0] - r[3]) * (color[0] - r[3])
+        if COLORS {
+            work.scan(p.iter().enumerate(), |(i, v)| {
+                let c = vc[i] as usize;
+                let r = reservoirs[c];
+                let color = color(i)?;
+                let pe = (v[0] - r[0]) * (v[0] - r[0])
+                    + (v[1] - r[1]) * (v[1] - r[1])
+                    + (v[2] - r[2]) * (v[2] - r[2]);
+                let ce = (color[0] - r[3]) * (color[0] - r[3])
                     + (color[1] - r[4]) * (color[1] - r[4])
-                    + (color[2] - r[5]) * (color[2] - r[5])
-            } else {
-                0.0
-            };
-            let e = if COLORS { pe + weight * ce } else { pe };
-            if !e.is_finite() {
-                return Err(Error::NumericalFailure);
-            }
-            if remap[c] == u32::MAX || errors[c] > e {
-                remap[c] = i as u32;
-                errors[c] = e;
-            }
-            Ok(())
-        })?;
+                    + (color[2] - r[5]) * (color[2] - r[5]);
+                let e = pe + weight * ce;
+                if !e.is_finite() {
+                    return Err(Error::NumericalFailure);
+                }
+                if remap[c] == u32::MAX || errors[c] > e {
+                    remap[c] = i as u32;
+                    errors[c] = e;
+                }
+                Ok(())
+            })?;
+        } else {
+            // Normalized coordinates and their cell means are finite and
+            // bounded (PROOFS.md, "Uncolored point errors"), so `e` is finite
+            // and no visit can fail: a fitting scan is prepaid.
+            units!(&mut work, p.len(), |m| {
+                for (i, (v, &c)) in p.iter().zip(&vc[..p.len()]).enumerate() {
+                    m.add(1)?;
+                    let c = c as usize;
+                    let r = reservoirs[c];
+                    let e = (v[0] - r[0]) * (v[0] - r[0])
+                        + (v[1] - r[1]) * (v[1] - r[1])
+                        + (v[2] - r[2]) * (v[2] - r[2]);
+                    if remap[c] == u32::MAX || errors[c] > e {
+                        remap[c] = i as u32;
+                        errors[c] = e;
+                    }
+                }
+            });
+        }
         Ok((owned, nc))
     })();
     workspace.finish(&work);
@@ -2226,6 +2322,60 @@ mod solve_tests {
             assert_eq!(expected.0, Err(Error::NumericalFailure));
             assert_eq!(expected.2, (fail + 1) as u64);
             assert_eq!(run::<false>(fail), expected);
+        }
+    }
+}
+#[cfg(test)]
+mod bounds_tests {
+    use super::*;
+
+    #[test]
+    fn packed_bounds_match_ordered_selects_including_zero_signs() {
+        fn ordered(values: &[[f32; 3]]) -> Option<([u32; 3], [u32; 3])> {
+            let mut lo = [f32::MAX; 3];
+            let mut hi = [-f32::MAX; 3];
+            for v in values {
+                for j in 0..3 {
+                    if !v[j].is_finite() {
+                        return None;
+                    }
+                    if lo[j] > v[j] {
+                        lo[j] = v[j];
+                    }
+                    if hi[j] < v[j] {
+                        hi[j] = v[j];
+                    }
+                }
+            }
+            Some((lo.map(f32::to_bits), hi.map(f32::to_bits)))
+        }
+        // Single-sign pools make a signed zero the extreme; the last pool
+        // reaches the non-finite exit.
+        let pools: [&[f32]; 5] = [
+            &[0.0, -0.0, 0.5, 1.0],
+            &[0.0, -0.0, -0.5, -1.0],
+            &[0.0, -0.0],
+            &[0.0, -0.0, 0.5, -0.5, f32::MAX, -f32::MAX, f32::MIN_POSITIVE],
+            &[0.0, -0.0, 1.0, f32::INFINITY, f32::NEG_INFINITY, f32::NAN],
+        ];
+        let mut state = 0x9e37_79b9u32;
+        for n in 0..30 {
+            for round in 0..250 {
+                let pool = pools[round % pools.len()];
+                let values: Vec<[f32; 3]> = (0..n)
+                    .map(|_| {
+                        core::array::from_fn(|_| {
+                            state ^= state << 13;
+                            state ^= state >> 17;
+                            state ^= state << 5;
+                            pool[state as usize % pool.len()]
+                        })
+                    })
+                    .collect();
+                let got = packed_bounds(&values)
+                    .map(|(lo, hi)| (lo.map(f32::to_bits), hi.map(f32::to_bits)));
+                assert_eq!(got, ordered(&values), "{values:?}");
+            }
         }
     }
 }

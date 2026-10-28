@@ -58,7 +58,7 @@
     "base/parity/peers/Cargo.lock": "181a2b6447286966a193e4c2325b6fa28df262bdd1415497fb01cda7d8eaa1dd",
     "candidate/src/raster.rs": "7c824e99965b0f555a0d27644b0a1bce1d94fb14c443264779e1f09b36204cd8",
     "candidate/src/meshlet_spatial.rs": "ed2ce5110bf96ccea3406f77f843b3f0f6f8ccb03a8cb5dfc72e611061cf7444",
-    "candidate/src/simplify_extra.rs": "6488755498425d629ce1142930dad04fbb6584ac9d1bd8cb4bd7c3269a23b13e",
+    "candidate/src/simplify_extra.rs": "3997b146848362e54b27ab0bb0e1debcca60650220d3c55310caa5b2c95fc632",
     "candidate/src/meshlet.rs": "edcd4853282c5ee5c24aa0278fdf9bbba97f1050931db74eea73945784f02ceb",
     "candidate/src/meshlet_division.rs": "903688e37ab712c997a2061fa18fe13cb4312a7b41cfa77ed001cd0dcac9ebc6",
     "candidate/src/strip.rs": "c5e4ea7b82dabe6c6a5a57e8fd2dedeb5e840c4e827d0de0da6172aa4e1ac451",
@@ -114,8 +114,8 @@
     "candidate/parity/peers/Cargo.lock": "181a2b6447286966a193e4c2325b6fa28df262bdd1415497fb01cda7d8eaa1dd"
   },
   "binaries": {
-    "base": "3ceb877333e51d155872bc7edf4454855d84a4bdeaa95e53ed5592056a804d32",
-    "candidate": "7b8db96f657dedc46c331f7e16689a0038bbc676f9a6a5971658a3d5ed8ed639",
+    "base": "e7300588360726ab6d40383df29473dfb831457a981d824513f797b83fa98bb2",
+    "candidate": "67d470f39ec5f5e738cbd6ffffb1806a091ca2c73a3e536a537fd880b6db8e77",
     "cpp": "1c96e2dd84bf3aaad71730582641739ef945e9e2eb3656b1d58be69268223800",
     "rust": "b79483a33c932fb6858086ee9d3664f3a36550f3186be238c8a0fd5a1a986064"
   }
