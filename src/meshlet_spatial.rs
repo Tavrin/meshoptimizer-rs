@@ -6,7 +6,7 @@ use alloc::vec::Vec;
 #[path = "meshlet_division.rs"]
 mod division;
 use division::Divisor;
-// Boxes padded to four lanes (lane 3 is ignored), so each merge loads
+// Boxes padded to four lanes (component 3 is ignored), so each merge loads
 // whole aligned records. Lanes 0-2 use upstream's ordered selects and area
 // expression, so results are identical.
 #[derive(Clone, Copy, Default)]

@@ -3,7 +3,7 @@
 // Every capacity check follows the reference in the same order, so a caller
 // buffer is rejected exactly where meshopt_encodeVertexBufferLevel returns 0.
 // Deltas for the four bytes of one channel group are computed together; the
-// reference computes the same bytes one lane at a time, in the same order.
+// reference computes the same bytes one component at a time, in the same order.
 use crate::Error;
 
 const GROUP: usize = 16;
@@ -396,7 +396,7 @@ fn encode_block(
 ) -> Result<(), Error> {
     let aligned = count.div_ceil(GROUP) * GROUP;
     // The reference zeroes its block buffer; only the first count bytes of a
-    // lane are written, so the aligned tail of every lane encodes as zero.
+    // component are written, so the aligned tail of every component encodes as zero.
     for lane in lanes.iter_mut() {
         lane[count..aligned].fill(0);
     }

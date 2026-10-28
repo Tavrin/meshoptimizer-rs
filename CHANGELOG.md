@@ -5,6 +5,35 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.14] - 2026-10-28
+
+- `simplify`, `simplify_with_update` and `simplify_with_attributes` skip a
+  positional-quadric finite check after input validation. On three production
+  LOD-chain meshes, they use 0.93×, 0.94× and 0.96× the instructions of
+  0.2.13, respectively, and 1.24×, 1.37× and 1.39× those of scalar C++ 1.3.
+  The respective ranges versus 0.2.13 / scalar C++ 1.3 are
+  0.91–0.94× / 1.22–1.26×, 0.93–0.95× / 1.34–1.43× and
+  0.95–0.97× / 1.36–1.45×.
+  Across the benchmark corpus, instruction ratios versus 0.2.13 / scalar C++ 1.3
+  are `simplify` 0.98× / 1.06×, `simplify_with_attributes` 0.99× / 1.12×,
+  `simplify_with_update` 0.99× / 1.10×, `simplify_sloppy` 1.00× / 1.38×,
+  `simplify_prune` 1.00× / 1.51× and `simplify_points` 1.00× / 1.55×.
+- `build_meshlets` and `build_meshlets_flex` charge a precomputed KD-tree
+  search work bound in one step when it fits the remaining budget. On three
+  production LOD-chain meshes, both use 0.87× the instructions of 0.2.13
+  and 1.21× those of scalar C++ 1.3. Both ranges are
+  0.86–0.87× versus 0.2.13 and 1.21–1.22× versus scalar C++ 1.3.
+- `clusterlod::build_with_output` uses hardware square root for finite non-negative
+  operands with `std`; `no_std` keeps the portable square root. On three
+  production LOD-chain meshes, it uses 0.92× the instructions of 0.2.13
+  and 1.31× those of scalar C++ 1.3.
+
+Lower instruction ratios are better. All performance numbers are instruction counts.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/docs/PERFORMANCE.md) for method.
+
 ## [0.2.13] - 2026-10-27
 
 - `simplify` uses 0.86–0.88× the instructions of 0.2.12 and 1.28–1.35×
@@ -444,6 +473,7 @@ wasm32 run.
 - The `clusterlod` build path is not yet competitive with C++.
 - Codecs are scalar; upstream's SIMD decoders are faster.
 
+[0.2.14]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.13...v0.2.14
 [0.2.13]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.12...v0.2.13
 [0.2.12]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.10...v0.2.11

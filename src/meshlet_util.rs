@@ -118,7 +118,7 @@ impl SphereSource for NormalSource<'_> {
         ([p[0], p[1], p[2]], 0.)
     }
 }
-// The scalar fallback in sqrt8 computes every lane, including unused 1.0
+// The scalar fallback in sqrt8 computes every component, including unused 1.0
 // padding. For one-triangle bounds, omit those unused fallback calls while
 // keeping the used operands, backend and evaluation order identical.
 #[inline(always)]

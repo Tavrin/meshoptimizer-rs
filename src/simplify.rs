@@ -1853,8 +1853,8 @@ impl State {
         if options.bits() & 128 != 0 {
             extra::fold_quadrics(self, work)?;
         }
-        // Normalization bounds positional quadric accumulation (see the lane
-        // proof). Attribute and gradient checks remain before any use.
+        // Normalization bounds positional quadric accumulation (see
+        // parity/0215-contract-simplify/PROOFS.md). Attribute and gradient checks remain before any use.
         // Reciprocal overflow is still checked only when its error is ranked.
         for q in &mut self.q {
             q.cache_inverse_weight();
