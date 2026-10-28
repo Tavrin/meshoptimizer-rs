@@ -751,6 +751,48 @@ pub fn generate_position_remap(
     )?
     .remap)
 }
+/// Hash table length for [`weld_position`] over `vertices` vertices.
+pub(crate) fn weld_table_len(vertices: usize) -> Result<usize, Error> {
+    buckets(vertices)
+}
+/// Exact-position weld of one referenced vertex for `sanitize`, using the
+/// [`generate_position_remap`] hash and equality: signed zeros weld, NaNs do
+/// not. `remap` and `table` start filled with the unused sentinel, `index` is
+/// in range and `table` has [`weld_table_len`] entries. Returns the first
+/// visited vertex whose position equals this vertex's position. Every
+/// hash-table visit is charged to `work`.
+pub(crate) fn weld_position(
+    index: u32,
+    remap: &mut [u32],
+    table: &mut [u32],
+    positions: Positions<'_>,
+    work: &mut Work,
+) -> Result<u32, Error> {
+    let mut next = 0;
+    let mut visits = 0;
+    if let Some(p) = positions.packed_values() {
+        generate_record::<true, true, false>(
+            index,
+            remap,
+            table,
+            &|i| position_value_hash(p[i as usize]),
+            &mut |a, b| p[a as usize] == p[b as usize],
+            &mut next,
+            (work, &mut visits),
+        )?;
+    } else {
+        generate_record::<true, true, false>(
+            index,
+            remap,
+            table,
+            &|i| position_hash(positions, i),
+            &mut |a, b| positions.get(a as usize) == positions.get(b as usize),
+            &mut next,
+            (work, &mut visits),
+        )?;
+    }
+    Ok(remap[index as usize])
+}
 /// Generate compact numbering into caller storage. The tail is untouched;
 /// work exhaustion may leave the used prefix partially modified.
 ///

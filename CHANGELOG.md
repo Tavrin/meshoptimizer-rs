@@ -25,6 +25,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   optimesh 1.1.0 (0.92–0.93×) and 1.09× those of scalar C++ 1.3
   (1.07–1.11×). Across the benchmark corpus the ratio versus 0.2.14 is
   0.92–0.97×.
+### Added
+
+- `sanitize` and `sanitize_into` remove triangles with out-of-range indices,
+  non-finite positions, repeated indices or duplicate faces, and report counts
+  by reason. They are not in C++ meshoptimizer. Options: `REJECT_INVALID`,
+  `COINCIDENT_CORNERS` (two corners at bit-identical positions; collinear
+  triangles are kept), `WELD_POSITIONS` and `IGNORE_ORIENTATION`. Duplicates
+  are found by sorting, so work is `O(n log n)` for any input, and scratch is
+  sized by the triangles that pass the per-triangle checks, not by the
+  position count.
 
 ## [0.2.14] - 2026-10-28
 

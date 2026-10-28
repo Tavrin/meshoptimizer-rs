@@ -422,6 +422,51 @@ Returns the same simplification result and errors as the first recipe. Lean is
 opt-in: it lowers peak memory, but later calls reallocate scratch and run slower.
 See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/PERFORMANCE.md).
 
+## Mesh repair
+
+`sanitize` is an extension; it is not in C++ meshoptimizer.
+
+```text
+pub fn sanitize(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: SanitizeOptions,
+    workspace: &mut Workspace,
+) -> Result<SanitizedMesh, Error>
+```
+
+Use it on uploaded or generated meshes before simplification or meshlet
+building. It only removes triangles: out-of-range indices, non-finite positions,
+repeated indices and later copies of the same face. Kept triangles stay in input
+order with their original indices and winding, so vertex streams need no change.
+`SanitizeOptions::COINCIDENT_CORNERS` also drops triangles with two corners at
+bit-identical positions (collinear triangles are kept; no area is computed),
+`WELD_POSITIONS` compares duplicate faces by position instead of by
+index, `IGNORE_ORIENTATION` also drops reverse-wound copies, and `REJECT_INVALID`
+returns an error instead of dropping invalid triangles.
+
+```rust
+use meshoptimizer_rs::{sanitize, Positions, SanitizeOptions, Workspace};
+
+let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 1., 0.]];
+// A face, its rotated copy, its reverse-wound copy, and a face whose
+// corners 2 and 3 share a position.
+let indices = [0, 1, 2, 1, 2, 0, 0, 2, 1, 0, 2, 3];
+let mut workspace = Workspace::default();
+let options = SanitizeOptions::COINCIDENT_CORNERS | SanitizeOptions::IGNORE_ORIENTATION;
+let mesh = sanitize(&indices, Positions::from_packed(&positions), options, &mut workspace)?;
+assert_eq!(mesh.indices, [0, 1, 2]);
+let report = mesh.report;
+assert_eq!((report.duplicate, report.reversed_duplicate, report.coincident_corners), (1, 1, 1));
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+Returns the kept indices and a `SanitizeReport` with one count per removal
+reason. `sanitize_into` writes to a caller buffer of at least
+`sanitize_bound(indices.len())` indices and leaves it unchanged on any error.
+Sanitation does not weld vertices, fill holes or fix orientation; the result is
+not guaranteed to be manifold or closed.
+
 ## Resource errors
 
 Workspace operations can return `SizeOverflow` when size arithmetic or platform
