@@ -47,6 +47,8 @@ impl SqrtCache {
 // total (or, on an error, the visited prefix) once. Errors, consumed work and
 // partial side effects are identical to visit-by-visit checking.
 trait Meter {
+    /// Whether `add` cannot fail: the enclosing phase's bound was prepaid.
+    const PREPAID: bool;
     fn add(&mut self, count: usize) -> Result<(), Error>;
     fn precharge(&mut self, count: usize, units: usize) -> Result<bool, Error>;
     fn scan<T>(
@@ -56,6 +58,7 @@ trait Meter {
     ) -> Result<(), Error>;
 }
 impl Meter for Work {
+    const PREPAID: bool = false;
     #[inline(always)]
     fn add(&mut self, count: usize) -> Result<(), Error> {
         Work::add(self, count)
@@ -75,6 +78,7 @@ impl Meter for Work {
 }
 struct Prepaid(usize);
 impl Meter for Prepaid {
+    const PREPAID: bool = true;
     #[inline(always)]
     fn add(&mut self, count: usize) -> Result<(), Error> {
         self.0 += count;
@@ -550,7 +554,27 @@ fn validate(
             }
         });
     }
-    for i in 0..p.len() {
+    // Each loop iteration below charges one visit and then one per component,
+    // and its only side effect is that charge. For packed positions and
+    // contiguous float attributes, find the first vertex the loop would
+    // reject without charging; if the budget covers every iteration, charge
+    // the accepted prefix at once and let the loop rerun only from there.
+    // Errors, their order and the charged work are those of the full loop
+    // (parity/0217-optimesh/PROOFS.md, "Validation prefix").
+    let mut start = 0;
+    if let (Some(values), Some((records, width))) = (
+        p.packed_values(),
+        a.and_then(|a| Some((a.contiguous_floats()?, a.components()))),
+    ) {
+        let visits = width
+            .checked_add(1)
+            .and_then(|v| v.checked_mul(values.len()));
+        if visits.is_some_and(|v| matches!(work.covers(v), Ok(true))) {
+            start = first_nonfinite_vertex(values, records, width);
+            work.add_covered(start * (width + 1));
+        }
+    }
+    for i in start..p.len() {
         work.add(1)?;
         if !p
             .at(i)?
@@ -730,19 +754,24 @@ impl Q {
         perp.normalize(cache);
         Self::plane(perp, -perp.dot(a), cache.sqrt(ls) * w)
     }
+    /// The eleven accumulated fields; `inverse_weight` is derived.
+    #[inline(always)]
+    fn fields(self) -> [f32; 11] {
+        [
+            self.a00, self.a11, self.a22, self.a10, self.a20, self.a21, self.b0, self.b1, self.b2,
+            self.c, self.w,
+        ]
+    }
     #[inline(always)]
     fn finite(self) -> bool {
         // For either sign, finite IEEE-754 values have absolute bit patterns
         // below infinity. The maximum tests all eleven fields without changing
         // arithmetic or the position of the caller's numerical-error guard.
-        [
-            self.a00, self.a11, self.a22, self.a10, self.a20, self.a21, self.b0, self.b1, self.b2,
-            self.c, self.w,
-        ]
-        .into_iter()
-        .map(|x| x.to_bits() & 0x7fff_ffff)
-        .max()
-        .unwrap_or(0)
+        self.fields()
+            .into_iter()
+            .map(|x| x.to_bits() & 0x7fff_ffff)
+            .max()
+            .unwrap_or(0)
             < 0x7f80_0000
     }
 }
@@ -1859,13 +1888,31 @@ impl State {
         for q in &mut self.q {
             q.cache_inverse_weight();
         }
-        if self.aq.iter().any(|q| !q.finite())
-            || self.g.iter().any(|g| {
-                ![g.x, g.y, g.z, g.w]
-                    .iter()
-                    .fold(true, |finite, x| finite & x.is_finite())
-            })
-        {
+        // The same predicate as testing each quadric and gradient: no field
+        // of either table is non-finite. Field-wise maxima have no early
+        // exit, so the scans vectorize; neither has side effects.
+        // Each lane sums `x * 0.0`: exactly a signed zero for finite `x` and
+        // NaN for infinite or NaN `x`, and NaN persists through the sum, so a
+        // lane ends NaN exactly when one of its values is non-finite. Lane 11
+        // adds the constant 0, never `inverse_weight`. Lanes of one record
+        // are independent, so each record's update is a few vector ops.
+        let aq = self.aq.iter().fold([0.0f32; 12], |mut m, q| {
+            let f = q.fields();
+            let f = [
+                f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], 0.0,
+            ];
+            for (m, x) in m.iter_mut().zip(f) {
+                *m += x * 0.0;
+            }
+            m
+        });
+        let g = self.g.iter().fold([0.0f32; 4], |mut m, g| {
+            for (m, x) in m.iter_mut().zip([g.x, g.y, g.z, g.w]) {
+                *m += x * 0.0;
+            }
+            m
+        });
+        if aq.into_iter().chain(g).any(|lane| lane.is_nan()) {
             return Err(Error::NumericalFailure);
         }
         Ok(())
@@ -2364,6 +2411,136 @@ fn run(
     state.retain(ws);
     Ok(result)
 }
+/// One exactly when `x` is infinite or NaN (all exponent bits set), the
+/// `!x.is_finite()` predicate as an integer that SSE2 can compare and OR.
+#[inline(always)]
+fn nonfinite(x: f32) -> u32 {
+    u32::from(x.to_bits() & 0x7f80_0000 == 0x7f80_0000)
+}
+/// Whether any value is non-finite; no early exit, so the scan vectorizes.
+#[inline(always)]
+fn any_nonfinite(values: &[f32]) -> bool {
+    values.iter().fold(0, |a, &x| a | nonfinite(x)) != 0
+}
+/// Index of the first vertex with a non-finite position or attribute
+/// component, or the vertex count. `records` holds `width` components per
+/// vertex for every vertex of `positions`.
+fn first_nonfinite_vertex(positions: &[[f32; 3]], records: &[f32], width: usize) -> usize {
+    if !any_nonfinite(positions.as_flattened()) && !any_nonfinite(records) {
+        return positions.len();
+    }
+    (0..positions.len())
+        .find(|&i| any_nonfinite(&positions[i]) || any_nonfinite(&records[i * width..][..width]))
+        .unwrap_or(positions.len())
+}
+#[inline(always)]
+fn prepaid<M: Meter>(_: &M) -> bool {
+    M::PREPAID
+}
+/// Normalize leading vertices exactly as the checked loop in `run_state`
+/// does, stopping before the first vertex that loop rejects; returns the
+/// number written. `source` is `None` when `positions` already holds the
+/// coordinates; `records` holds `weights.len()` components per vertex, and
+/// every weight is positive, so row `i` of `attributes` is the products.
+#[allow(clippy::too_many_arguments)]
+fn normalize_prefix(
+    positions: &mut [V],
+    attributes: &mut [f32],
+    source: Option<&[[f32; 3]]>,
+    records: &[f32],
+    weights: &[f32],
+    lo: [f32; 3],
+    scale: f32,
+    finite_scale: bool,
+) -> usize {
+    // Fixed widths unroll each row; every instance computes the same values.
+    macro_rules! fixed {
+        ($($w:literal)*) => {
+            match weights.len() {
+                $($w => {
+                    return normalize_rows::<$w>(
+                        positions, attributes, source, records, weights, lo, scale, finite_scale,
+                    )
+                })*
+                _ => {}
+            }
+        };
+    }
+    fixed!(1 2 3 4 5 6 7 8);
+    let width = weights.len();
+    for (i, destination) in positions.iter_mut().enumerate() {
+        let normalized = normalized_position(source, i, destination, lo, scale);
+        if !finite_scale && any_nonfinite(&[normalized.x, normalized.y, normalized.z]) {
+            return i;
+        }
+        let values = &records[i * width..][..width];
+        let bad = values
+            .iter()
+            .zip(weights)
+            .fold(0, |bad, (&value, &weight)| bad | nonfinite(value * weight));
+        if bad != 0 {
+            return i;
+        }
+        *destination = normalized;
+        let row = &mut attributes[i * width..][..width];
+        for ((d, &value), &weight) in row.iter_mut().zip(values).zip(weights) {
+            *d = value * weight;
+        }
+    }
+    positions.len()
+}
+#[inline(always)]
+fn normalized_position(
+    source: Option<&[[f32; 3]]>,
+    i: usize,
+    cached: &V,
+    lo: [f32; 3],
+    scale: f32,
+) -> V {
+    let p = match source {
+        Some(source) => source[i],
+        None => [cached.x, cached.y, cached.z],
+    };
+    V {
+        x: (p[0] - lo[0]) * scale,
+        y: (p[1] - lo[1]) * scale,
+        z: (p[2] - lo[2]) * scale,
+    }
+}
+/// `normalize_prefix` for `W == weights.len()` components per vertex.
+#[allow(clippy::too_many_arguments)]
+fn normalize_rows<const W: usize>(
+    positions: &mut [V],
+    attributes: &mut [f32],
+    source: Option<&[[f32; 3]]>,
+    records: &[f32],
+    weights: &[f32],
+    lo: [f32; 3],
+    scale: f32,
+    finite_scale: bool,
+) -> usize {
+    let (Some(weights), (records, _), (rows, _)) = (
+        weights.first_chunk::<W>(),
+        records.as_chunks::<W>(),
+        attributes.as_chunks_mut::<W>(),
+    ) else {
+        return 0;
+    };
+    for (i, destination) in positions.iter_mut().enumerate() {
+        let normalized = normalized_position(source, i, destination, lo, scale);
+        if !finite_scale && any_nonfinite(&[normalized.x, normalized.y, normalized.z]) {
+            return i;
+        }
+        let values = records[i];
+        let products: [f32; W] = core::array::from_fn(|k| values[k] * weights[k]);
+        if any_nonfinite(&products) {
+            return i;
+        }
+        *destination = normalized;
+        rows[i] = products;
+    }
+    positions.len()
+}
 #[inline(always)]
 fn normalize_attribute_row<M: Meter>(
     destination: &mut [f32],
@@ -2423,6 +2600,7 @@ fn run_state(
     let n = positions.len();
     let m = input.as_slice().len();
     let ac = weights.iter().filter(|&&w| w > 0.0).count();
+    let dense = ac == weights.len();
     let mut s = State::new(n, m, ac, ws, output, solve, &mut input.original)?;
     s.clamped = settings.options.bits() & 256 != 0;
     if solve && ac > 0 {
@@ -2471,7 +2649,32 @@ fn run_state(
     // Each vertex charges once, then each supplied attribute weight once.
     let normalize_work = weights.len().checked_add(1).and_then(|v| n.checked_mul(v));
     metered!(work, normalize_work, |work| (|| {
-        for (i, destination) in s.p.iter_mut().enumerate() {
+        // Under a prepaid meter, each iteration's charge cannot fail and
+        // only its total matters. With packed or cached positions, contiguous
+        // float attributes and every weight positive, normalize the prefix of
+        // vertices the loop accepts, charge it at once and resume the loop at
+        // the first vertex it would reject (parity/0217-optimesh/PROOFS.md,
+        // "Normalization prefix").
+        let mut start = 0;
+        if prepaid(work) && dense {
+            let source = positions.packed_values();
+            if let Some(records) = attributes.and_then(|a| a.contiguous_floats()) {
+                if cached_positions || source.is_some() {
+                    start = normalize_prefix(
+                        &mut s.p,
+                        &mut s.a,
+                        if cached_positions { None } else { source },
+                        records,
+                        weights,
+                        lo,
+                        scale,
+                        finite_scale,
+                    );
+                    work.add(start * (weights.len() + 1))?;
+                }
+            }
+        }
+        for (i, destination) in s.p.iter_mut().enumerate().skip(start) {
             work.add(1)?;
             let p = if cached_positions {
                 let p = *destination;

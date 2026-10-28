@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (0.88–0.89×) and 1.09× those of scalar C++ 1.3 (1.088–1.091×). Across the
   benchmark corpus the ratios are 0.95× versus 0.2.14 (0.90–0.97×), 0.86×
   versus optimesh and 0.94× versus scalar C++ 1.3.
+- `simplify_with_attributes` validates packed positions with contiguous
+  attributes, and weights them, in branch-free scans that hand back to the
+  checked loops at the first rejected vertex, and tests its attribute
+  quadric tables without early exits. Results, errors, counted work and
+  storage are unchanged. On three production LOD-chain meshes it uses
+  0.79× the instructions of 0.2.14 (range 0.74–0.81×), 0.92× those of
+  optimesh 1.1.0 (0.92–0.93×) and 1.09× those of scalar C++ 1.3
+  (1.07–1.11×). Across the benchmark corpus the ratio versus 0.2.14 is
+  0.92–0.97×.
 
 ## [0.2.14] - 2026-10-28
 
