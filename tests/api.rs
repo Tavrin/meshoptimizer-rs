@@ -544,6 +544,73 @@ fn simplifier_validates_attribute_dimensions_and_values() {
     .is_err());
 }
 #[test]
+fn simplifier_attribute_layouts_match_at_every_work_limit() {
+    // Packed positions with contiguous attributes take the prefix scans;
+    // strided copies of the same values take the per-vertex loops. Results
+    // and counted work must agree at every limit, including failures.
+    let (p, ib) = simplifier_fixture();
+    for width in [1, 3, 4, 9] {
+        for bad in 0..13 {
+            let mut a = vec![0.5; 6 * width];
+            for (i, v) in a.iter_mut().enumerate() {
+                *v = (i % 7) as f32 * 0.25;
+            }
+            let mut weights = vec![1.0; width];
+            if bad > 0 {
+                let v = (bad - 1) % 6;
+                if bad <= 6 {
+                    a[v * width + width - 1] = f32::INFINITY;
+                } else {
+                    a[v * width] = 1e30;
+                    weights[0] = 1e10;
+                }
+            }
+            let strided_p: Vec<f32> = p.iter().flat_map(|v| [v[0], v[1], v[2], 9.]).collect();
+            let strided_a: Vec<f32> = a
+                .chunks(width)
+                .flat_map(|r| r.iter().copied().chain([7.]))
+                .collect();
+            let run = |fast: bool, max_work: u64| {
+                let mut ws = Workspace::new(Limits {
+                    max_work,
+                    ..Limits::default()
+                });
+                let result = if fast {
+                    simplify_with_attributes(
+                        &ib,
+                        Positions::from_packed(&p),
+                        Attributes::from_interleaved(&a, 6, width, width, 0).unwrap(),
+                        &weights,
+                        None,
+                        simplify_settings(3),
+                        &mut ws,
+                    )
+                } else {
+                    simplify_with_attributes(
+                        &ib,
+                        Positions::from_interleaved(&strided_p, 6, 4, 0).unwrap(),
+                        Attributes::from_interleaved(&strided_a, 6, width, width + 1, 0).unwrap(),
+                        &weights,
+                        None,
+                        simplify_settings(3),
+                        &mut ws,
+                    )
+                };
+                let result = result.map(|r| (r.indices, r.error.to_bits()));
+                (result, ws.usage().work)
+            };
+            let (_, unlimited) = run(false, u64::MAX);
+            for max_work in 0..=unlimited + 1 {
+                assert_eq!(
+                    run(true, max_work),
+                    run(false, max_work),
+                    "{width} {bad} {max_work}"
+                );
+            }
+        }
+    }
+}
+#[test]
 fn simplifier_validates_flag_length() {
     let (p, ib) = simplifier_fixture();
     let a = Attributes::from_interleaved(&[], 6, 0, 0, 0).unwrap();

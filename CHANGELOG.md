@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `simplify_with_attributes` validates packed positions with contiguous
+  attributes, and weights them, in branch-free scans that hand back to the
+  checked loops at the first rejected vertex, and tests its attribute
+  quadric tables without early exits. Results, errors, counted work and
+  storage are unchanged. On three production LOD-chain meshes it uses
+  0.79× the instructions of 0.2.14 (range 0.74–0.81×), 0.92× those of
+  optimesh 1.1.0 (0.92–0.93×) and 1.09× those of scalar C++ 1.3
+  (1.07–1.11×). Across the benchmark corpus the ratio versus 0.2.14 is
+  0.92–0.97×.
+
 ## [0.2.14] - 2026-10-28
 
 - `simplify`, `simplify_with_update` and `simplify_with_attributes` skip a

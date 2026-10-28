@@ -974,6 +974,20 @@ impl<'a> Attributes<'a> {
         let start = self.0.offset + vertex * self.0.stride;
         values.get(start..start + self.0.width)
     }
+    /// All components of an unmapped float view whose stride equals its
+    /// width: vertex `i` is `[i * width..(i + 1) * width]`, the same slice
+    /// `float_record(i)` returns.
+    pub(crate) fn contiguous_floats(self) -> Option<&'a [f32]> {
+        if self.1.is_some() || self.0.stride != self.0.width {
+            return None;
+        }
+        let Storage::Floats(values) = self.0.storage else {
+            return None;
+        };
+        values
+            .get(self.0.offset..)?
+            .get(..self.0.count.checked_mul(self.0.width)?)
+    }
     pub(crate) fn mapped(self, remap: &'a [u32]) -> Self {
         debug_assert!(self.1.is_none());
         Self(self.0, Some(remap))
