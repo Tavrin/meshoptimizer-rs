@@ -1,0 +1,14 @@
+{
+  "exit": 0,
+  "campaign2_samples": 192,
+  "campaign1_samples": 84,
+  "unique_keys_and_complete_cells": true,
+  "all_canonical_output_identities_match": true,
+  "all_counters_running_percent": 100,
+  "current_and_rejected_source_bindings_match": true,
+  "current_and_rejected_binary_bindings_match": true,
+  "proof_bindings_match": true,
+  "replay_patch_checks_exit": 0,
+  "executed_supervisor_sha256": "204f9216322acf801c1232ac3d423f93ce2317d67dc21327e90e45b3eaf5c16d",
+  "public_supervisor_sha256": "4380ec2ee5d61807719484745f5cadbcd865b11621a8c90db0458e3cce047bef"
+}

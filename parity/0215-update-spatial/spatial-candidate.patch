@@ -1,0 +1,55 @@
+diff --git a/src/meshlet_spatial.rs b/src/meshlet_spatial.rs
+--- a/src/meshlet_spatial.rs
++++ b/src/meshlet_spatial.rs
+@@ -22,8 +22,9 @@
+         }
+     }
+     #[inline(always)]
+-    fn merge(&mut self, b: Self) -> f32 {
+-        for k in 0..4 {
++    fn merge(&mut self, b: &Self) -> f32 {
++        let mut d = [0.; 4];
++        for (k, difference) in d.iter_mut().enumerate() {
+             self.lo[k] = if b.lo[k] < self.lo[k] {
+                 b.lo[k]
+             } else {
+@@ -34,13 +35,14 @@
+             } else {
+                 self.hi[k]
+             };
++            *difference = self.hi[k] - self.lo[k];
++        }
++        let rotated = [d[1], d[2], d[0], d[3]];
++        let mut products = [0.; 4];
++        for k in 0..4 {
++            products[k] = d[k] * rotated[k];
+         }
+-        let [x, y, z] = [
+-            self.hi[0] - self.lo[0],
+-            self.hi[1] - self.lo[1],
+-            self.hi[2] - self.lo[2],
+-        ];
+-        x * y + y * z + z * x
++        (products[0] + products[1]) + products[2]
+     }
+ }
+ fn count(
+@@ -249,13 +251,11 @@
+             let boxes = self.boxes;
+             let order = &self.axes[k][start..start + n];
+             let (left_areas, right_areas) = self.areas[..2 * n].split_at_mut(n);
+-            for ((la, ra), (&l, &r)) in left_areas
+-                .iter_mut()
+-                .zip(right_areas.iter_mut())
+-                .zip(order.iter().zip(order.iter().rev()))
+-            {
+-                *la = left.merge(boxes[l as usize]);
+-                *ra = right.merge(boxes[r as usize]);
++            for (la, &l) in left_areas.iter_mut().zip(order) {
++                *la = left.merge(&boxes[l as usize]);
++            }
++            for (ra, &r) in right_areas.iter_mut().zip(order.iter().rev()) {
++                *ra = right.merge(&boxes[r as usize]);
+             }
+             if n <= s.max_triangles {
+                 count(

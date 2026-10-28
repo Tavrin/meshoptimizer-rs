@@ -1,0 +1,227 @@
+{
+  "samples": 192,
+  "cells": [
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 122748.786,
+        "candidate": 122748.822,
+        "cpp": 128032.779,
+        "rust": 124766.589
+      },
+      "candidate_base": 1.000000293281923,
+      "candidate_optimesh": 0.9838276655940317,
+      "candidate_cpp": 0.958729654692569
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 46940.913,
+        "candidate": 46941.912,
+        "cpp": 47709.028,
+        "rust": 46388.452
+      },
+      "candidate_base": 1.0000212820743388,
+      "candidate_optimesh": 1.0119309866171002,
+      "candidate_cpp": 0.9839209467860045
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 15517366.0,
+        "candidate": 15517357.0,
+        "cpp": 13575726.333333334,
+        "rust": 15539151.333333334
+      },
+      "candidate_base": 0.999999420004658,
+      "candidate_optimesh": 0.99859745665218,
+      "candidate_cpp": 1.143022230928393
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 28186792.666666668,
+        "candidate": 28288369.333333332,
+        "cpp": 21769433.333333332,
+        "rust": 26018349.0
+      },
+      "candidate_base": 1.0036036972303979,
+      "candidate_optimesh": 1.0872469015360402,
+      "candidate_cpp": 1.2994536375927714
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 18102337.333333332,
+        "candidate": 18102340.666666668,
+        "cpp": 16048886.333333334,
+        "rust": 18643704.666666668
+      },
+      "candidate_base": 1.0000001841382842,
+      "candidate_optimesh": 0.9709626380765454,
+      "candidate_cpp": 1.1279499580645878
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 28256992.0,
+        "candidate": 28358556.333333332,
+        "cpp": 21786033.666666668,
+        "rust": 26053172.333333332
+      },
+      "candidate_base": 1.0035943080329757,
+      "candidate_optimesh": 1.0884876501987595,
+      "candidate_cpp": 1.3016851422901652
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 17116811.0,
+        "candidate": 17116828.333333332,
+        "cpp": 14578294.333333334,
+        "rust": 16753050.333333334
+      },
+      "candidate_base": 1.0000010126496888,
+      "candidate_optimesh": 1.0217141352029602,
+      "candidate_cpp": 1.174131070614731
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 28259933.666666668,
+        "candidate": 28361489.666666668,
+        "cpp": 21768581.333333332,
+        "rust": 26017314.666666668
+      },
+      "candidate_base": 1.0035936390084237,
+      "candidate_optimesh": 1.0901005745609615,
+      "candidate_cpp": 1.3028634816563762
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 2854845131.0,
+        "candidate": 2854845018.0,
+        "cpp": 2586100709.0,
+        "rust": 3008823862.0
+      },
+      "candidate_base": 0.9999999604181681,
+      "candidate_optimesh": 0.9488242412775707,
+      "candidate_cpp": 1.1039187329653217
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 5965981781.0,
+        "candidate": 5989598136.0,
+        "cpp": 4576738357.0,
+        "rust": 5397187693.0
+      },
+      "candidate_base": 1.0039585027019713,
+      "candidate_optimesh": 1.109762801795524,
+      "candidate_cpp": 1.3087045115522211
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 4699417984.0,
+        "candidate": 4699418043.0,
+        "cpp": 3277486143.0,
+        "rust": 4094566179.0
+      },
+      "candidate_base": 1.0000000125547461,
+      "candidate_optimesh": 1.1477206222974567,
+      "candidate_cpp": 1.4338483331308474
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 22587190687.0,
+        "candidate": 22675094657.0,
+        "cpp": 17115095465.0,
+        "rust": 20495608125.0
+      },
+      "candidate_base": 1.0038917619821837,
+      "candidate_optimesh": 1.1063391980714892,
+      "candidate_cpp": 1.3248593736079404
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 7340289737.0,
+        "candidate": 7340287962.0,
+        "cpp": 5498414652.0,
+        "rust": 7039884008.0
+      },
+      "candidate_base": 0.9999997581839323,
+      "candidate_optimesh": 1.042671719258247,
+      "candidate_cpp": 1.3349826134575054
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 26254021914.0,
+        "candidate": 26356225995.0,
+        "cpp": 19903774553.0,
+        "rust": 23831320276.0
+      },
+      "candidate_base": 1.003892892347496,
+      "candidate_optimesh": 1.1059490489724473,
+      "candidate_cpp": 1.3241823014432934
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 1829875180.0,
+        "candidate": 1829875166.0,
+        "cpp": 1367438542.0,
+        "rust": 1753397333.0
+      },
+      "candidate_base": 0.9999999923492049,
+      "candidate_optimesh": 1.043616943838479,
+      "candidate_cpp": 1.338177263399089
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 5872779416.0,
+        "candidate": 5895429308.0,
+        "cpp": 4458457826.0,
+        "rust": 5346363229.0
+      },
+      "candidate_base": 1.0038567585117009,
+      "candidate_optimesh": 1.102698985362934,
+      "candidate_cpp": 1.322302360610016
+    }
+  ],
+  "real_geomeans": {
+    "simplify-update": {
+      "candidate_base": 0.9999999210292878,
+      "candidate_optimesh": 1.0768989833325917,
+      "candidate_cpp": 1.3682459059664167,
+      "verdict": "NO-GAIN"
+    },
+    "meshlets-spatial": {
+      "candidate_base": 1.003880470806993,
+      "candidate_optimesh": 1.1049945383855515,
+      "candidate_cpp": 1.3237809031441883,
+      "verdict": "NO-GAIN"
+    }
+  }
+}
