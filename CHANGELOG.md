@@ -39,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Caller-defined vertex-cache score tables via `VertexScoreTable`,
   `optimize_vertex_cache_with_table` and `optimize_vertex_cache_with_table_into`.
+### Added
+
+- Opt-in typed vertex layouts and initialized field snapshots for position and attribute views.
 
 ## [0.2.14] - 2026-10-28
 
