@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- Update/spatial qualification instruction ratios (campaign 2 three-real-mesh GM,
+  candidate/0.2.14, candidate/optimesh, candidate/C++): update
+  1.000000 / 1.076899 / 1.368246; spatial (reverted)
+  1.003880 / 1.104995 / 1.323781.
+
 ## [0.2.14] - 2026-10-28
 
 - `simplify`, `simplify_with_update` and `simplify_with_attributes` skip a

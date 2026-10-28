@@ -1,0 +1,8 @@
+{
+  "exit": 0,
+  "target_role": "dedicated lane Cargo target",
+  "proof_jobs_finished": true,
+  "target_removed": true,
+  "target_verified_absent": true,
+  "scratch_inputs_outputs_logs_sources_and_binaries_retained": true
+}

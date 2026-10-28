@@ -1,0 +1,23 @@
+diff --git a/src/simplify_extra.rs b/src/simplify_extra.rs
+--- a/src/simplify_extra.rs
++++ b/src/simplify_extra.rs
+@@ -734,8 +734,7 @@
+         )?;
+         let mut lo = [f32::MAX; 3];
+         let mut hi = [-f32::MAX; 3];
+-        for i in 0..s.p.len() {
+-            work.add(1)?;
++        work.scan(0..s.p.len(), |i| {
+             let source = if s.sparse.is_empty() {
+                 i
+             } else {
+@@ -750,7 +749,8 @@
+                     hi[k] = p[k];
+                 }
+             }
+-        }
++            Ok(())
++        })?;
+         let mut extent = 0.0;
+         for k in 0..3 {
+             if hi[k] - lo[k] >= extent {
