@@ -1,6 +1,86 @@
 # Update and spatial instruction qualification
 
-## Disposition
+## Check lane (campaign 3): spatial SHIPS, update NO-GAIN
+
+A check lane reviewed campaigns 1 and 2, then retried the targets in one
+registered third campaign (REGISTRATION.md, "Check-lane campaign 3"). The
+sections after this one record campaigns 1 and 2 unchanged.
+
+**Check of campaigns 1-2.** Sound. Instruction counts are deterministic to
+about 1e-6 (update cells, source-identical to base, read 0.999999-1.000002).
+Campaign 1's medium-sparse update cell at 1.0115 is above the registered
+1.01 ceiling, so its revert was required. Campaign 2's spatial candidate
+was 1.0039 of base on every non-tiny input, a regression, so NO-GAIN and its
+revert were correct. All identities matched; the verdict arithmetic follows
+the registered rule.
+
+**Attribution (instructions:u samples, real-b6fd).** Spatial: `Bvh::split`
+79.7% of base instructions; inside it the box-merge area loop is 52.5%, the
+stable partition loops 13%, pivot/fill-cost the rest. The merge loop cost
+62 instructions per forward+reverse step. With the v0.2.14 select order
+`b < acc ? b : acc` LLVM cannot merge from memory and splits lanes into
+scalar and pair halves with register rotation. The partition loops reloaded
+`self.sides`/`self.temp` pointer and length every element. C++ 1.3 uses
+explicit SSE in `boxMerge` (out of scope here: no SIMD). Update: 85% is the
+simplify core shared with `simplify_with_attributes` (`run_state` 23%,
+`quadrics` 23%, `adjacency` 16%, `pick` 7%, `update` 5%); update-only code
+is `simplify_with_update`'s own loops (4.0%) and `solve_state` (3.3%).
+
+**Techniques (spatial, PROOFS.md "Check lane: spatial").**
+- `src/meshlet_spatial.rs:30`: tie-keeping select order (upstream's SSE
+  operand order), lanes 0-2 only, by reference. Unobservable by the
+  signed-zero argument in PROOFS.md. Merge loop 62 to 50 instructions in a
+  codegen probe.
+- `src/meshlet_spatial.rs:263`: index loop instead of four zipped iterators.
+- `src/meshlet_spatial.rs:312`: partition and side marks through local slices.
+- `src/meshlet_spatial.rs:61`: `count` reads triangle records via `as_chunks`.
+- W/R/F: spatial charges are already per block (`ctx.tick(n)`), there is no
+  root, and the one finite check is the centroid validation; none removed.
+
+**Update: not attempted, NO-GAIN.** Update-only code is 7.3% of its
+instructions, so even removing half of it cannot reach candidate/base 0.97,
+and the remaining 85% belongs to the shared core that the
+`simplify_with_attributes` lane (S1) changes. Duplicating that work here
+would conflict with S1; S1's core gains carry over to update when merged.
+Update source stays identical to v0.2.14.
+
+**Campaign 3 results** (median of three, all 192 samples 100% counted, all
+16 output identities matched across arms and repetitions;
+`check/measurements.json`, `check/counts.jsonl`):
+
+| Function | cand/base GM | cand/optimesh GM | cand/C++ GM | Verdict |
+|---|---:|---:|---:|---|
+| simplify_with_update | 0.999999921 | 1.076898893 | 1.368245729 | NO-GAIN (unchanged) |
+| build_meshlets_spatial | 0.876086037 | 0.964328216 | 1.155262949 | **SHIPS** |
+
+| Spatial input | cand/base | cand/optimesh | cand/C++ |
+|---|---:|---:|---:|
+| tiny-smooth | 1.0005 | 1.0124 | 0.9844 |
+| medium-smooth | 0.8862 | 0.9600 | 1.1474 |
+| medium-seams | 0.8866 | 0.9616 | 1.1500 |
+| medium-sparse | 0.8865 | 0.9629 | 1.1508 |
+| million-smooth | 0.8737 | 0.9658 | 1.1389 |
+| real-214e | 0.8757 | 0.9650 | 1.1556 |
+| real-a082 | 0.8757 | 0.9647 | 1.1551 |
+| real-b6fd | 0.8769 | 0.9632 | 1.1550 |
+
+Maximum candidate/base: spatial tiny-smooth 1.000511 (below 1.01; the tiny
+mesh never splits), update 1.000002.
+
+**Proof (campaign 3 candidate, exit 0 each, all-features / no-defaults):**
+`cargo test --locked` both modes; clippy `-D warnings`, `cargo fmt --check`,
+`parity/check-unsafe-boundary.sh`, `parity/tools/check_public_text.sh`;
+`run.sh exact` spatial 406,760 / 406,760 comparisons (eight meshes including
+an all-signed-zero mesh, four settings, four min/fill variants, owned and
+sentinel buffers, work limits 0 to success+1) and update 44,549,696 /
+10,878,208; `run.sh cpp` 1,246 simplify-family and 1,280 meshlet/cluster
+protocol cases per mode, spatial subset 400; `run.sh fuzz` spatial 289,900
+cases / 300.06 CPU s with the generator widened to signed-zero coordinates
+and flat axes, update 1,074,000 / 300.02 CPU s. Receipts:
+`check/receipts.json`, `check/proof-binding.json`, `check/build-binding.json`.
+Shared-helper changes: none. Not verified: non-x86 codegen, MSRV, wall time.
+
+## Original lane disposition (campaigns 1-2)
 
 Both functions are **NO-GAIN**. Both experimental source changes were reverted.
 Final `src/`, `Cargo.toml` and `Cargo.lock` are identical to v0.2.14,

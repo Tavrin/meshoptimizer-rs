@@ -19,6 +19,11 @@ LANE = Path(__file__).resolve().parent
 S = Path(os.environ['MESHOPT_SCRATCH'])
 ART = S / os.environ.get('LANE_CAMPAIGN', 'campaign1')
 TARGET = Path(os.environ['CARGO_TARGET_DIR'])
+# The check lane's campaign writes its public evidence beside, not over, the
+# original lane's campaign-2 files.
+CHECK = ART.name == 'campaign3'
+OUT = LANE / 'check' if CHECK else LANE
+TAG = '-check' if CHECK else ''
 assert os.environ.get('PARITY_RUNNER_ACTIVE')
 assert os.environ.get('PARITY_RUNNER_GPU') == '0'
 os.environ.update(CARGO_INCREMENTAL='0',
@@ -182,12 +187,12 @@ def fuzz():
         run('fuzz-build-'+kind, ['cargo', 'build', '--offline', '--locked', '--release', '--features', 'all', '--manifest-path', str(manifest)])
         binary = S/'proof'/f'fuzz-{kind}-binary'
         shutil.copy2(TARGET/'release'/f'fuzz-{kind}', binary)
-        journal = S/'proof'/f'fuzz-{kind}.jsonl'
+        journal = S/'proof'/f'fuzz-{kind}{TAG}.jsonl'
         rows = [json.loads(x) for x in journal.read_text().splitlines()] if journal.exists() else []
         assert all(r['exit'] == 0 and r['binary'] == sha(binary) for r in rows)
         total = sum(r['cpu_seconds'] for r in rows)
         while total < 300:
-            seed = 21540000 + len(rows)
+            seed = (21640000 if CHECK else 21540000) + len(rows)
             before = resource.getrusage(resource.RUSAGE_CHILDREN)
             child = subprocess.run([str(binary), str(seed)], capture_output=True)
             after = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -198,7 +203,7 @@ def fuzz():
                 f.flush()
                 os.fsync(f.fileno())
             if child.returncode:
-                (S/'proof'/f'fuzz-{kind}-failure.log').write_bytes(child.stderr)
+                (S/'proof'/f'fuzz-{kind}{TAG}-failure.log').write_bytes(child.stderr)
                 raise SystemExit(child.returncode)
             rows.append(row)
             total += seconds
@@ -238,11 +243,12 @@ def summarize():
                   for key in ['candidate_base', 'candidate_optimesh', 'candidate_cpp']}
         ratios['verdict'] = 'SHIPS' if ratios['candidate_base'] <= .97 and ratios['candidate_optimesh'] <= .99 else 'IMPROVES' if ratios['candidate_base'] <= .97 else 'NO-GAIN'
         verdicts[op] = ratios
-    (LANE/'measurements.json').write_text(json.dumps(dict(samples=len(rows), cells=cells, real_geomeans=verdicts), indent=2)+'\n')
-    shutil.copy2(ART/'counts.jsonl', LANE/'counts.jsonl')
-    shutil.copy2(ART/'inputs.json', LANE/'inputs.json')
-    shutil.copy2(ART/'build-binding.json', LANE/'build-binding.json')
-    if ART.name != 'campaign1':
+    OUT.mkdir(exist_ok=True)
+    (OUT/'measurements.json').write_text(json.dumps(dict(samples=len(rows), cells=cells, real_geomeans=verdicts), indent=2)+'\n')
+    shutil.copy2(ART/'counts.jsonl', OUT/'counts.jsonl')
+    shutil.copy2(ART/'inputs.json', OUT/'inputs.json')
+    shutil.copy2(ART/'build-binding.json', OUT/'build-binding.json')
+    if ART.name == 'campaign2':
         shutil.copy2(S/'campaign1/counts.jsonl', LANE/'rejected-counts.jsonl')
         shutil.copy2(S/'campaign1/regression.json', LANE/'regression.json')
         shutil.copy2(S/'campaign1/build-binding.json', LANE/'rejected-build-binding.json')
@@ -252,16 +258,16 @@ def summarize():
         command = [x.replace(str(ROOT), '<repo>').replace(str(S), '<scratch>').replace(str(TARGET), '<target>') for x in data['command']]
         receipts[p.stem] = dict(exit=data['exit'], command=command, log_sha256=data['log_sha256'])
     for kind in ['meshlet', 'quadrics']:
-        path = S/'proof'/f'fuzz-{kind}.jsonl'
+        path = S/'proof'/f'fuzz-{kind}{TAG}.jsonl'
         if path.exists():
             fuzzrows = [json.loads(x) for x in path.read_text().splitlines()]
             receipts['fuzz-'+kind] = dict(exit=0, cases=sum(r['cases'] for r in fuzzrows),
                 cpu_seconds=sum(r['cpu_seconds'] for r in fuzzrows), journal_sha256=sha(path),
                 binary=fuzzrows[0]['binary'])
-    (LANE/'receipts.json').write_text(json.dumps(receipts, indent=2)+'\n')
+    (OUT/'receipts.json').write_text(json.dumps(receipts, indent=2)+'\n')
     proof_binding = {str(p.relative_to(S)): sha(p) for p in (S/'proof').rglob('*')
                      if p.is_file() and (p.suffix == '.rs' or os.access(p, os.X_OK))}
-    (LANE/'proof-binding.json').write_text(json.dumps(proof_binding, indent=2)+'\n')
+    (OUT/'proof-binding.json').write_text(json.dumps(proof_binding, indent=2)+'\n')
     print(json.dumps(verdicts, indent=2))
 
 

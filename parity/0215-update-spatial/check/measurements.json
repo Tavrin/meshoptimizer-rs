@@ -1,0 +1,227 @@
+{
+  "samples": 192,
+  "cells": [
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 122748.714,
+        "candidate": 122748.691,
+        "cpp": 128032.712,
+        "rust": 124766.543
+      },
+      "candidate_base": 0.9999998126253282,
+      "candidate_optimesh": 0.9838269783590943,
+      "candidate_cpp": 0.9587291332233906
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 46940.873,
+        "candidate": 46964.877,
+        "cpp": 47708.98,
+        "rust": 46388.399
+      },
+      "candidate_base": 1.0005113667144623,
+      "candidate_optimesh": 1.012427201895888,
+      "candidate_cpp": 0.9844032926296056
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 15517327.333333334,
+        "candidate": 15517328.0,
+        "cpp": 13575698.0,
+        "rust": 15539140.0
+      },
+      "candidate_base": 1.000000042962725,
+      "candidate_optimesh": 0.9985963187151927,
+      "candidate_cpp": 1.1430224803174025
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 28186769.333333332,
+        "candidate": 24978826.666666668,
+        "cpp": 21769367.333333332,
+        "rust": 26018331.0
+      },
+      "candidate_base": 0.8861897712103888,
+      "candidate_optimesh": 0.9600472323404091,
+      "candidate_cpp": 1.14743006924317
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 18102297.333333332,
+        "candidate": 18102326.666666668,
+        "cpp": 16048869.333333334,
+        "rust": 18643662.666666668
+      },
+      "candidate_base": 1.00000162042048,
+      "candidate_optimesh": 0.9709640745126834,
+      "candidate_cpp": 1.1279502805265118
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 28256945.333333332,
+        "candidate": 25053939.666666668,
+        "cpp": 21786027.0,
+        "rust": 26053142.666666668
+      },
+      "candidate_base": 0.8866471365222823,
+      "candidate_optimesh": 0.9616475059157291,
+      "candidate_cpp": 1.1500003955134486
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 17116784.0,
+        "candidate": 17116777.666666668,
+        "cpp": 14578269.666666666,
+        "rust": 16753020.666666666
+      },
+      "candidate_base": 0.9999996299927993,
+      "candidate_optimesh": 1.0217129201496042,
+      "candidate_cpp": 1.1741295817708957
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 28259841.0,
+        "candidate": 25051926.666666668,
+        "cpp": 21768563.333333332,
+        "rust": 26017282.0
+      },
+      "candidate_base": 0.8864850537080753,
+      "candidate_optimesh": 0.9628956117194205,
+      "candidate_cpp": 1.1508305019057299
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 2854845061.0,
+        "candidate": 2854845309.0,
+        "cpp": 2586100984.0,
+        "rust": 3008823994.0
+      },
+      "candidate_base": 1.0000000868698633,
+      "candidate_optimesh": 0.948824296367267,
+      "candidate_cpp": 1.103918728101764
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 5965981770.0,
+        "candidate": 5212461037.0,
+        "cpp": 4576738112.0,
+        "rust": 5397187401.0
+      },
+      "candidate_base": 0.8736971110456477,
+      "candidate_optimesh": 0.9657735871899179,
+      "candidate_cpp": 1.1389030592187837
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 4699419935.0,
+        "candidate": 4699418333.0,
+        "cpp": 3277487004.0,
+        "rust": 4094567846.0
+      },
+      "candidate_base": 0.9999996591068638,
+      "candidate_optimesh": 1.1477202258575054,
+      "candidate_cpp": 1.4338480449394941
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 22587189866.0,
+        "candidate": 19778584630.0,
+        "cpp": 17115095679.0,
+        "rust": 20495608386.0
+      },
+      "candidate_base": 0.875654950763586,
+      "candidate_optimesh": 0.9650157369083135,
+      "candidate_cpp": 1.155622206323279
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 7340289544.0,
+        "candidate": 7340290179.0,
+        "cpp": 5498417421.0,
+        "rust": 7039885626.0
+      },
+      "candidate_base": 1.000000086508849,
+      "candidate_optimesh": 1.0426717945374757,
+      "candidate_cpp": 1.3349823443679214
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 26254021130.0,
+        "candidate": 22991248802.0,
+        "cpp": 19903775843.0,
+        "rust": 23831321691.0
+      },
+      "candidate_base": 0.8757229488068139,
+      "candidate_optimesh": 0.9647492111477285,
+      "candidate_cpp": 1.155119962330456
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-update",
+      "instructions": {
+        "base": 1829875025.0,
+        "candidate": 1829875055.0,
+        "cpp": 1367438440.0,
+        "rust": 1753397190.0
+      },
+      "candidate_base": 1.0000000163945622,
+      "candidate_optimesh": 1.0436169656459868,
+      "candidate_cpp": 1.338177282042766
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-spatial",
+      "instructions": {
+        "base": 5872779255.0,
+        "candidate": 5149727091.0,
+        "cpp": 4458457661.0,
+        "rust": 5346362718.0
+      },
+      "candidate_base": 0.8768807522631804,
+      "candidate_optimesh": 0.9632206721893425,
+      "candidate_cpp": 1.1550467633789199
+    }
+  ],
+  "real_geomeans": {
+    "simplify-update": {
+      "candidate_base": 0.9999999206700741,
+      "candidate_optimesh": 1.0768988927579934,
+      "candidate_cpp": 1.3682457287205367,
+      "verdict": "NO-GAIN"
+    },
+    "meshlets-spatial": {
+      "candidate_base": 0.8760860367483179,
+      "candidate_optimesh": 0.9643282156350128,
+      "candidate_cpp": 1.1552629490349342,
+      "verdict": "SHIPS"
+    }
+  }
+}

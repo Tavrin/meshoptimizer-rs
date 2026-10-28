@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Update/spatial qualification instruction ratios (campaign 2 three-real-mesh GM,
-  candidate/0.2.14, candidate/optimesh, candidate/C++): update
-  1.000000 / 1.076899 / 1.368246; spatial (reverted)
-  1.003880 / 1.104995 / 1.323781.
+- `build_meshlets_spatial` and its variants merge SAH boxes with
+  upstream's SSE operand order, partition through local slices and count
+  vertices per triangle record. Output, errors and `Usage` are unchanged. On
+  three production LOD-chain meshes they use 0.88× the instructions of
+  0.2.14 (0.876–0.877×), 0.96× those of optimesh 1.1.0 and 1.16× those of
+  C++ 1.3.
+- `simplify_with_update` is unchanged: 1.00× the instructions of 0.2.14,
+  1.08× optimesh 1.1.0 and 1.37× C++ 1.3 on the same meshes.
 
 ## [0.2.14] - 2026-10-28
 

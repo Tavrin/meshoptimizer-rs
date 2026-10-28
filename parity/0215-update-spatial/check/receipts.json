@@ -1,0 +1,1058 @@
+{
+  "boundary-attempt2": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/check-unsafe-boundary.sh"
+    ],
+    "log_sha256": "96d9d1f3bb324874db04bf01154e4cdee873cc04b8d100214eab2505a7386eb1"
+  },
+  "boundary-attempt3": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/check-unsafe-boundary.sh"
+    ],
+    "log_sha256": "96d9d1f3bb324874db04bf01154e4cdee873cc04b8d100214eab2505a7386eb1"
+  },
+  "boundary-attempt4": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/check-unsafe-boundary.sh"
+    ],
+    "log_sha256": "96d9d1f3bb324874db04bf01154e4cdee873cc04b8d100214eab2505a7386eb1"
+  },
+  "boundary": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/check-unsafe-boundary.sh"
+    ],
+    "log_sha256": "96d9d1f3bb324874db04bf01154e4cdee873cc04b8d100214eab2505a7386eb1"
+  },
+  "build-base-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-base/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "589b7517d76fd42aa8a5d92ca8c675abd5dfee5b2da05e7a7611a646fb6328aa"
+  },
+  "build-base-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-base/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "ecc4010d1c1ea1f26e70d938b065e9bf59d308baea75ae7f5c7c45317b88e68f"
+  },
+  "build-base-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-base/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "13d5fcc122107cacba7793d67161e03a53e98df77c61fee242814e5fe20d543d"
+  },
+  "build-base": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-base/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "9d59c77daed1fdde534015916edfc19b195120c4af0b8ce5b53f83751f10c6a5"
+  },
+  "build-candidate-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "0d56f4dccd7ba247bb2791f8d42f5d0d50273b939b40e84316f4d4d6341eeb39"
+  },
+  "build-candidate-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "090c7d0b4d986195c3842ec6b1f73a37a6317e425231eae288467b81780febcf"
+  },
+  "build-candidate-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "21df8114669c26d2d6104ba2658b45c9ea59fbe68450d5f14a46c9f31ee0dc0e"
+  },
+  "build-candidate": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "ours"
+    ],
+    "log_sha256": "22778ecd55f168e0e99b4de6592be355b8e18085bbee7fd5579c8186196d13eb"
+  },
+  "build-cpp-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "cpp"
+    ],
+    "log_sha256": "6aa938c3d62f31ec969300089a2a107ad54d639ed6b228ee6fb1cace207833e3"
+  },
+  "build-cpp-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "cpp"
+    ],
+    "log_sha256": "8f031a933cbf7af17eff4f051e67dcf82537cf9ffd0db29f186013851fbc5d5e"
+  },
+  "build-cpp-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "cpp"
+    ],
+    "log_sha256": "d361fb2d28d478c3626b356b93615c4bbb9e52d7196c2612be2fe20eb5adc1ec"
+  },
+  "build-cpp": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "cpp"
+    ],
+    "log_sha256": "00a1e8afa0feae3f7afdad9da21f0656cac50edfe926c7f6a9553ed8e00fd625"
+  },
+  "build-rust-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "rust"
+    ],
+    "log_sha256": "63234c10864e226a78615beaaf21d337a5ac035e5f13ac8ddfa76847cd65b941"
+  },
+  "build-rust-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "rust"
+    ],
+    "log_sha256": "4c47d7ad23a889a8c48fc5d21714f94702d6dbfde60a928b31e8aecef6d72cd2"
+  },
+  "build-rust-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "rust"
+    ],
+    "log_sha256": "7be73fe94d487939aece0d8fe5ab22bf01c619b4a24a8371efe2334b80c1a3c5"
+  },
+  "build-rust": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/frozen-candidate/parity/peers/Cargo.toml",
+      "--no-default-features",
+      "--features",
+      "rust"
+    ],
+    "log_sha256": "b0b534e237e9d7bb7bd1f5f0a3ab840ccd34efe75186d7561f4436f128722414"
+  },
+  "clippy-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--all-features",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "log_sha256": "76ab135dd81fdc7ec4cdd0b8afb20fa1f9331ba42e680c2a7cb6d8f16440e0eb"
+  },
+  "clippy-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--all-features",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "log_sha256": "f6ac3a08a1388ca58a9ea184e7cf07368c6b475279ff4992b48fdd1ff21d32bc"
+  },
+  "clippy-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--all-features",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "log_sha256": "d24f4d4e0273c8f7af3f3f4c44ac53272ed4295d3df4a76072fe2582a0d30e76"
+  },
+  "clippy-attempt5": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--all-features",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "log_sha256": "44252113c1fed968ac26979059acdc25328221a4d6eb9cd7493d81a4945f4e45"
+  },
+  "clippy": {
+    "exit": 101,
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--all-features",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "log_sha256": "e295568f6417807dcf412fc19089b4dfa6b78ba9cadf0aa67956e2a78784535e"
+  },
+  "cpp-spatial-attempt2": {
+    "exit": 0,
+    "command": [
+      "/usr/bin/python3",
+      "<repo>/parity/0216-qualify/meshlet-protocol-modes.py"
+    ],
+    "log_sha256": "73550b2a0132d52d050a5f7000c81fc76c21f16e3f0a9c5678c45765ad2e1000"
+  },
+  "cpp-spatial-attempt3": {
+    "exit": 0,
+    "command": [
+      "/usr/bin/python3",
+      "<repo>/parity/0216-qualify/meshlet-protocol-modes.py"
+    ],
+    "log_sha256": "1b653552fab8d9e3899c403bc9672b511ef26a8f1c4b5607ac435e0ebed5572f"
+  },
+  "cpp-spatial": {
+    "exit": 0,
+    "command": [
+      "/usr/bin/python3",
+      "<repo>/parity/0216-qualify/meshlet-protocol-modes.py"
+    ],
+    "log_sha256": "20b8b5e54d173970c69bc524bad9583cba61159d9d1fe07d2f1d093b73d94158"
+  },
+  "cpp-update-attempt2": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "<scratch>/proof/cpp-supervisor.sh"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "cpp-update-attempt3": {
+    "exit": 1,
+    "command": [
+      "bash",
+      "<scratch>/proof/cpp-supervisor.sh"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "cpp-update-attempt4": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "<scratch>/proof/cpp-supervisor.sh"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "cpp-update": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "<scratch>/proof/cpp-supervisor.sh"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exact-build-meshlet-all-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "98b6ffe7b0b5815af9e4ff7939cbcdee0859e1f062238017550b356e8aad31d6"
+  },
+  "exact-build-meshlet-all-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "25bc1351f58519e030c00a827504790561cb6d9c9fdbebacc945d32294371a5f"
+  },
+  "exact-build-meshlet-all-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "3a5530430183587343ca1fc2dcb21a3a4b186ab9123cbfdddb40baa0d8acae9f"
+  },
+  "exact-build-meshlet-all": {
+    "exit": 101,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "abc38af61abb471ca7826161f37a36ef32e7481490281f5cf63e2d4ad49d8559"
+  },
+  "exact-build-meshlet-none-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "3bb3f63c00f166ffe6ebc4d95c19d8007bdeeff82a1148beb50faf6182a0b934"
+  },
+  "exact-build-meshlet-none-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "9623cf1fd2ad149e77070a84383efa3f51c5e8b922d23a19de2624b6ffde7c46"
+  },
+  "exact-build-meshlet-none": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "c6614bee03ebc8e373c98ca20ce3e1712c49d7d9b01a18dcb12b0808108dc1ba"
+  },
+  "exact-build-quadrics-all-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "a63784736d4b61955c2ce26a6fab089f9429c16e9db81aa4904135ae8b80578f"
+  },
+  "exact-build-quadrics-all-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "c5930622c4356480b67868d49a77a98c1121cfc46d72141d15576617dee44eba"
+  },
+  "exact-build-quadrics-all": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml",
+      "--features",
+      "all"
+    ],
+    "log_sha256": "3ec2a71bfec87730b4a8d33a2006341f97fa391b3a24756f76bb194646423c7f"
+  },
+  "exact-build-quadrics-none-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml"
+    ],
+    "log_sha256": "0dff6446a8ed1e786593b344b2f573ba7ee8a4389e546858dcc0fa1ce86b2ef5"
+  },
+  "exact-build-quadrics-none-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml"
+    ],
+    "log_sha256": "cd4349818c09af474eb0a13311d0c2976a50a5280a8f07f9f08d7c7f205daae4"
+  },
+  "exact-build-quadrics-none": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml"
+    ],
+    "log_sha256": "32b54811aad12e14daf62e749ba2f80fa42df044da91cff14834030bd566f47b"
+  },
+  "exact-meshlet-all-attempt2": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/meshlet-all"
+    ],
+    "log_sha256": "4b495f0774abbce911a9cf176f3267e9f0943e235e2407a926100124ec9adf5d"
+  },
+  "exact-meshlet-all-attempt3": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/meshlet-all"
+    ],
+    "log_sha256": "4b495f0774abbce911a9cf176f3267e9f0943e235e2407a926100124ec9adf5d"
+  },
+  "exact-meshlet-all": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/meshlet-all"
+    ],
+    "log_sha256": "4b495f0774abbce911a9cf176f3267e9f0943e235e2407a926100124ec9adf5d"
+  },
+  "exact-meshlet-none-attempt2": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/meshlet-none"
+    ],
+    "log_sha256": "4b495f0774abbce911a9cf176f3267e9f0943e235e2407a926100124ec9adf5d"
+  },
+  "exact-meshlet-none-attempt3": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/meshlet-none"
+    ],
+    "log_sha256": "4b495f0774abbce911a9cf176f3267e9f0943e235e2407a926100124ec9adf5d"
+  },
+  "exact-meshlet-none": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/meshlet-none"
+    ],
+    "log_sha256": "4b495f0774abbce911a9cf176f3267e9f0943e235e2407a926100124ec9adf5d"
+  },
+  "exact-quadrics-all-attempt2": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/quadrics-all",
+      "0",
+      "12288"
+    ],
+    "log_sha256": "3e5d62bbda69b06ff41c48db1245d4bdabd2e14eda79076828d441fc13df4724"
+  },
+  "exact-quadrics-all-attempt3": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/quadrics-all",
+      "0",
+      "12288"
+    ],
+    "log_sha256": "c26077fb8090d4bd64349ab1bfe77e6dd032efd5dcca097b7c47d2c133a45320"
+  },
+  "exact-quadrics-all": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/quadrics-all",
+      "0",
+      "12288"
+    ],
+    "log_sha256": "70311f846f1293073fe1f82fdb9198bf684f566583d8c3b6efb9aa056d7e25c3"
+  },
+  "exact-quadrics-none-attempt2": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/quadrics-none",
+      "0",
+      "12288"
+    ],
+    "log_sha256": "aa233b32f31f86b2d9486dace76c671012db3452dc1a7bbd893e36b8692decbb"
+  },
+  "exact-quadrics-none-attempt3": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/quadrics-none",
+      "0",
+      "12288"
+    ],
+    "log_sha256": "e2ac25986f45b78b9ae36c86dc9c103fa41f356f05d963f9f922e687a32fe376"
+  },
+  "exact-quadrics-none": {
+    "exit": 0,
+    "command": [
+      "<scratch>/proof/quadrics-none",
+      "0",
+      "12288"
+    ],
+    "log_sha256": "32996993ef006171d78a43e4cb3b3cc9d9c6b2ace1b0d2e0c88ba74cfd8cb823"
+  },
+  "fmt-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "fmt-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "fmt-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "fmt": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "fuzz-build-meshlet-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--features",
+      "all",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-meshlet/Cargo.toml"
+    ],
+    "log_sha256": "a29492e5d0cb82398d36b151722afec44d5f47878bd676a7ad2031f789583ec9"
+  },
+  "fuzz-build-meshlet": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--features",
+      "all",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-meshlet/Cargo.toml"
+    ],
+    "log_sha256": "fa147b4a8b54c0ea85cd80f5e4d2d1d2e1e97c05fa7c6066d72243761dbdd658"
+  },
+  "fuzz-build-quadrics-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--features",
+      "all",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-quadrics/Cargo.toml"
+    ],
+    "log_sha256": "14d80689d0d9cefcf5d9b86102d4624833643223fb712413b73bc175846b2b28"
+  },
+  "fuzz-build-quadrics": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "build",
+      "--offline",
+      "--locked",
+      "--release",
+      "--features",
+      "all",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-quadrics/Cargo.toml"
+    ],
+    "log_sha256": "fddde893340481b9548e2509a6e62a62f3f5e1eb7e20d99dc8a2e06259cf45b1"
+  },
+  "fuzz-lock-meshlet-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-meshlet/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "fuzz-lock-meshlet": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-meshlet/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "fuzz-lock-quadrics-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-quadrics/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "fuzz-lock-quadrics": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/fuzz-quadrics/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-meshlet-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-meshlet-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-meshlet-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-meshlet": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/meshlet/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-quadrics-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-quadrics-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "lock-quadrics": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline",
+      "--manifest-path",
+      "<scratch>/proof/quadrics/Cargo.toml"
+    ],
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "public-attempt2": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/tools/check_public_text.sh"
+    ],
+    "log_sha256": "cb5dbe759f9084bb65182dc2e25e4fe1751a434aceea12f30ac5543029841b7b"
+  },
+  "public-attempt3": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/tools/check_public_text.sh"
+    ],
+    "log_sha256": "cb5dbe759f9084bb65182dc2e25e4fe1751a434aceea12f30ac5543029841b7b"
+  },
+  "public-attempt4": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/tools/check_public_text.sh"
+    ],
+    "log_sha256": "cb5dbe759f9084bb65182dc2e25e4fe1751a434aceea12f30ac5543029841b7b"
+  },
+  "public": {
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/tools/check_public_text.sh"
+    ],
+    "log_sha256": "cb5dbe759f9084bb65182dc2e25e4fe1751a434aceea12f30ac5543029841b7b"
+  },
+  "test-all-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--all-features"
+    ],
+    "log_sha256": "32cf2304175f766cc31d63d7698df631d93d96765d081c633ca28df50ce4bffa"
+  },
+  "test-all-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--all-features"
+    ],
+    "log_sha256": "db3e7f5bf0a402bad5851c2b86e02f094e8c1584ac61193742894bc81c5e6388"
+  },
+  "test-all-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--all-features"
+    ],
+    "log_sha256": "9c8b0724f7f0a3fd8fdcbeabda6193b5f78f8db3b578a6851dab806f3af5a8bf"
+  },
+  "test-all-attempt5": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--all-features"
+    ],
+    "log_sha256": "115466a18f433a496c6c5402efe8ed23663911d6b5bf80b893c07ee963faf0f5"
+  },
+  "test-all": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--all-features"
+    ],
+    "log_sha256": "9f490cb21a2f08f62a8385379ffb55448d057437fb29daf1ec02c2deaf203965"
+  },
+  "test-none-attempt2": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--no-default-features"
+    ],
+    "log_sha256": "bb18eb4578a524bf324edb5483b443ded58e973a78d350e8b03aebf14f272a61"
+  },
+  "test-none-attempt3": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--no-default-features"
+    ],
+    "log_sha256": "ad8baff55848912027c9948363137c7c5868e474de2d29ebbb6ab4017acd964f"
+  },
+  "test-none-attempt4": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--no-default-features"
+    ],
+    "log_sha256": "186931b9980bb72837bd3ad63df7d88f36f55957c8948f6a99f2c51d59c74654"
+  },
+  "test-none-attempt5": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--no-default-features"
+    ],
+    "log_sha256": "eb729c1db7e475b3948f26bbf1626d909c04be12898d52905c08a16892413f23"
+  },
+  "test-none": {
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--no-default-features"
+    ],
+    "log_sha256": "0b1ab754bfb6aa87fdf39f5df0ad6186c9e6c9ddad913fa00536152fb4e2ce7d"
+  },
+  "fuzz-meshlet": {
+    "exit": 0,
+    "cases": 289900,
+    "cpu_seconds": 300.0601040000002,
+    "journal_sha256": "f877a65782d15453a6249d4e8f01bda6176747dfeba4f1b6aee5a35fd719cce3",
+    "binary": "f158a4eeaaa9c1957d6d12ca978eab26dd54afa75ff39805f69ae15526659fb4"
+  },
+  "fuzz-quadrics": {
+    "exit": 0,
+    "cases": 1074000,
+    "cpu_seconds": 300.02268299999866,
+    "journal_sha256": "1467cad7b956ba0d0a51fd022e49ed61febf9a9c53e63567b1f1170b4bd2b2e7",
+    "binary": "d043f8f1382af06553847cd762fb6b933e5b7bd7ba366242090dacbcf521d749"
+  }
+}

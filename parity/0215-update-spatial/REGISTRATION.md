@@ -41,3 +41,16 @@ bash parity/0215-update-spatial/run.sh measure
 
 Every invocation runs inside the required CPU-only admission wrapper with
 4 GB declared. Scratch paths are supplied by environment, never embedded here.
+
+## Check-lane campaign 3 (registered before measurement)
+
+A later check lane was authorized by the coordinator to retry the targets after
+both original campaigns. This is a third campaign and a recorded deviation from
+the two-campaign limit above; campaigns 1 and 2 and their verdicts are kept
+unchanged. Candidate: the spatial-only source change in PROOFS.md, "Check lane:
+spatial"; update source is identical to v0.2.14, so its cells serve as a
+noise control. Arms, inputs, metric, collector, CPU and decision rule are
+exactly those above, applied verbatim. Set `LANE_CAMPAIGN=campaign3`; public
+results go to `parity/0215-update-spatial/check/`. The single-input screens and
+sampling profiles that motivated the change are diagnostics, not results. No
+implementation edit follows campaign 3 results except a revert.

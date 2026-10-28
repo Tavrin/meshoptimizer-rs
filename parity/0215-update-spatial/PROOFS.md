@@ -1,5 +1,72 @@
 # Observable preservation
 
+## Check lane: spatial
+
+These sections cover the check lane's spatial change (campaign 3). Update
+source stays identical to v0.2.14. Shared helper changes: none.
+
+### Spatial ties
+
+`src/meshlet_spatial.rs:30`: the merge now keeps the accumulator on ties
+(`acc < b ? acc : b`, `acc > b ? acc : b`), the operand order of upstream's
+SSE `_mm_min_ps(acc, b)`, instead of v0.2.14's `b < acc ? b : acc`. Lane 3
+is no longer merged; it never fed the area.
+
+1. Every box reaching `Bvh::split` is finite. `spatial` checks
+   `finite((lo + hi) / 2)` for every box and axis before the builder runs,
+   with its original error and charge; a NaN or infinite bound makes that
+   centroid NaN or infinite. Accumulators start at `f32::MAX`/`-f32::MAX`.
+2. For finite operands the two selects differ only when `acc == b` with
+   different bits, i.e. `+0`/`-0`. So each accumulated bound equals the
+   v0.2.14 bound bitwise, except that a zero bound may have the other sign.
+3. Extent `e = hi - lo`. If neither bound is zero, `e` is identical. If one
+   is zero, `e` is `hi` or `-lo` exactly, whatever the zero's sign. If both
+   are zero, `e` is a zero of either sign. So `e` differs at most in the
+   sign of a zero.
+4. Products `x*y`, `y*z`, `z*x` and the left-associated sum: a nonzero
+   finite or infinite operand is identical; a zero operand gives a zero of
+   either sign, or NaN when multiplied by an infinite extent in both
+   versions. Sums of values differing only in zero signs differ only in
+   the result's zero sign, and NaN/infinity outcomes match. So each area
+   equals v0.2.14's bitwise, or both are zeros, or both are NaN.
+5. Areas are consumed only by `Pivot` (`la * l + ra * r`, the fill term
+   `cost + fill * (lr * la + rr * ra)`) and by the comparisons `cost <=
+   best`, `cost < best`, `axiscost < bestcost`. No division, root,
+   `to_bits`, sign test or output uses them. Multiplication and addition
+   carry a zero-sign difference only into zero results, and IEEE comparison
+   treats `+0 == -0` and is false on NaN in both versions. Therefore every
+   comparison, hence every chosen axis and split, the partition, the
+   boundary marks, and all output bytes are identical. Areas are internal
+   scratch; nothing else reads them.
+
+Work: `ctx.tick` calls and their positions are unchanged; no fallible
+operation was added or moved. Storage: same allocations and sizes.
+
+### Area loop indexing
+
+`src/meshlet_spatial.rs:263`: the zipped forward/reverse iterator became an
+index loop over `0..n` reading `order[i]` and `order[n - 1 - i]`. It visits
+the same boxes in the same order and writes the same area slots. Bounds
+checks remain.
+
+### Partition with local slices
+
+`src/meshlet_spatial.rs:312`: `sides`, `temp` and each axis order are
+borrowed as local slices so their pointers and lengths stay in registers. The
+side marks are written as two loops (`0` for the first `split` entries, `1`
+for the rest), the same values v0.2.14 wrote with `u8::from(i >= split)`.
+The stable partition writes the same `temp` entries; the copy back is the
+same `n` values. The work charge `ctx.tick(n * 3)` stays before all of it.
+
+### Vertex counting by triangle record
+
+`src/meshlet_spatial.rs:61`: `count` indexes `indices.as_chunks::<3>()` by
+triangle instead of slicing `indices[v * 3..][..3]`. Sorted orders contain
+only triangle ids below `indices.len() / 3`, so the same three indices are
+read. All three `used < 0` tests still precede the three marks, so repeated
+vertices in a degenerate triangle are counted as before. Prefix counts and
+the reset loop are unchanged.
+
 Final disposition: both experiments were reverted; final library source and
 manifests equal v0.2.14. The proofs and file:line anchors below document the
 retained experimental patches, not a change in the final library.
