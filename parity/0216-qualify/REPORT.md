@@ -152,3 +152,115 @@ not meet the instruction-ratio threshold. There is no SHIPS verdict, no source
 revert (no difference was observed), and no new changelog claim. The designated
 build target was removed after the admitted job exited; the logs, binaries,
 source hashes and interrupted-run evidence remain in scratch.
+
+## SPEC-0216d targeted — partial, unqualified
+
+The initial quadrics pilot used one six-vertex mesh, width 3, mask 0 and seven
+API/buffer variants per feature mode. Both modes exited 0 with 4,604 cold and
+repeated-workspace comparisons, 0 differences, and approximately 0.01 user CPU
+seconds per mode. This is a sizing check, not the targeted proof.
+
+A preliminary numeric grid covered 384 cells per mode: eight six-vertex
+meshes, widths 0/3/32, the empty mask, the five individual option flags, and
+their ten pairs. Each cell covered seven API/buffer variants and all integer
+limits from zero through observed unlimited usage plus one, with a cold call
+and a repeated call at each limit. Both feature modes exited 0, each recording
+2,363,990 comparisons (494,688 simplify, 1,169,968 attributes, 699,334 update)
+and zero differences. User CPU time was 12.44 seconds all features and 14.11
+seconds no defaults. The first supervisor attempt exited 1 before building or
+running due to a wrong script path in its source-hash command; the corrected
+retry exited 0. These observations do not establish independently primed warm
+states, or success after a prior failed call at a different input.
+
+The later sections record the targeted meshlet and cluster-LOD sweeps and both
+corrected supervisor reruns. Successful priming was not established at every
+tested limit, so all changed paths remain UNQUALIFIED under this specification.
+The separate adversarial review is not incorporated here. No 0216d SHIP or
+FAIL verdict follows from these subsets. `TARGETED-PLAN.md` describes the sizes
+and unresolved harness requirements.
+
+The independently primed quadrics pilot exited 0 in each mode, with 10,582
+compared target calls per mode. The corresponding 384-cell grid also exited 0
+in each mode, with 4,722,604 target-call comparisons per mode: 987,072
+simplify, 2,337,632 attributes and 1,397,900 update. Priming succeeded on
+987,691 of 1,179,307 attempts per mode; it failed on 191,616 attempts. No
+comparisons differed. Those failed priming attempts cannot establish a
+successful-warm state. User CPU time was 31.43 seconds all-features and 33.69
+seconds no-default. Both the priming observation and two subsequent target
+calls are compared; the target-call count excludes the priming calls.
+
+The cluster-LOD pilot covered one grid mesh, width 1, no locks and one
+configuration mask, and exited 0 with 188 comparisons in each mode. It is a
+harness pilot and does not independently prime a successful warm workspace.
+
+The cluster-LOD grid used the pilot's mesh, two attribute widths, four lock
+patterns and all 4,096 boolean configurations: 32,768 cells per mode. It
+compared both revisions for the unlimited call, downward search for a failure,
+zero, successful usage, success plus one, and limits at a stride of 64; each
+observation sequence includes two consecutive calls on one workspace. Both
+modes exited 0 with 6,901,896 comparisons and no differences. User CPU time
+was 222.11 seconds all-features and 213.12 seconds no-default plus clusterlod.
+The driver does not independently prime a successful warm state for work limits
+where the first target call fails, so this is not the complete 0216d proof.
+
+The preliminary meshlet sweep covered seven meshes, including the four earlier
+meshes and collinear, clustered-pair and 2-by-2-by-2 coordinate patterns, four
+builder settings and five variants: 140 cells per mode. For each it compared
+unlimited execution and every limit from zero through the maximum observed
+unlimited work plus four times the triangle count plus 16. Each limit compares
+both allocated and sentinel-filled caller-buffer outputs and their usage. The
+cold-workspace sweep exited 0 in both modes with 161,778 comparisons per mode
+and no differences; user CPU time was 3.39 and 3.35 seconds respectively. The
+traversal entry boundary was not instrumented, and warm workspaces are not
+covered by this sweep; it is therefore not the full requested proof.
+
+A separate repeated-workspace meshlet sweep used the same 140 cells and limits,
+with two consecutive calls per workspace. Both modes exited 0, with 323,556
+comparisons per mode and no differences; user CPU time was 6.68 and 6.42
+seconds. Reuse after a failed first call is included. This does not establish
+independent successful priming at failing limits or directly measure each
+traversal entry's covered-work boundary.
+
+A diagnostic-only candidate copy logged traversal entry work and node count for
+140 meshlet cells in each mode, using two unlimited calls per API. Both modes
+exited 0. Each logged 9,280 nearest entries across 112 cells; 28 spatial cells
+had no nearest entry. The recorded boundary equals entry work plus twice the
+node-slice length. The frozen-candidate broad sweep above covers zero through
+unlimited usage plus four times the triangle count plus 16; since the node slice
+has twice the triangle count, that range includes the measured entry boundaries
+and their 16-limit neighborhoods for the traced executions. The trace copy has
+logging changes and is not itself used as the differential candidate. Its
+initial preparation exited 1 before building because the instrumentation
+assumed a single work implementation block; the corrected trace exited 0.
+
+The corrected overdraw supervisor was rerun against the retained, hash-matched
+binaries with the input directory. Both modes exited 0 with 20,558,564 exact
+observations each and no differences. User CPU time was 26.84 and 29.35
+seconds. This clears the new overdraw rerun item; it does not erase the original
+exit 101 receipt.
+
+The independently primed meshlet sweep used the same 140 cells and broad
+work-limit range, with a small valid meshlet call at each tested limit before
+two target calls. Both modes exited 0 with 323,556 target-call comparisons
+per mode and no differences; 315,996 of 323,556 priming calls succeeded in
+each mode. The 7,560 failed priming calls do not establish successful-warm
+coverage. User CPU time was 6.95 and 7.15 seconds.
+
+The independently primed cluster grid covered the same 32,768 cells per mode
+and selected work limits as the earlier grid. Both modes exited 0 with
+6,901,896 target-call comparisons and no differences per mode; 3,418,180 of
+3,450,948 priming calls succeeded per mode. The remaining 32,768 priming calls
+failed, leaving successful-warm coverage unproven for those observations. User
+CPU time was 229.75 and 223.74 seconds respectively.
+
+The corrected simplify supervisor was rerun in 32 deterministic shards per
+mode. The input enumeration contains 102,073 comparison cells and 2,139,095,040
+normalization bit patterns; each shard receives 3,189 or 3,190 cells and
+66,846,720 normalization values. Shard 0 ran first in each mode; the remaining
+shards ran in admitted groups of at most eight, with a 600-second CPU cap per
+shard and at most 4,800 seconds of capped child CPU per group. Later groups ran
+up to four shards concurrently. All 32 shards per mode exited 0. Their summed
+observations exactly match the corrected earlier supervisor: 1,200,243,710
+all-features and 273,906,930 no-default. The 32 recorded normalization ranges
+are contiguous, disjoint and cover all 2,139,095,040 patterns in each mode. No
+differences were reported. The original exit 101 receipts remain retained.
