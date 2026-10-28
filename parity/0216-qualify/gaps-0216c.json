@@ -1,0 +1,49 @@
+{
+  "specification": "SPEC-0216c-gaps",
+  "baseline": "9c26f3e",
+  "candidate": "4d14205cf201715a3df3debd795705ea0b1d904f",
+  "status": "incomplete: time limit",
+  "supervisor_exit": 124,
+  "elapsed_seconds_per_mode": 27900,
+  "driver_sha256": "ae256e3547cbd51f979400e1863e945dcd7f72eb6230002d4b292ac6c3cce344",
+  "supervisor_sha256": "b197ee6ab94cb40b259067597767d93212b97cd4096e6a4bd2acc53abb3cd508",
+  "modes": {
+    "all": {
+      "exit": 124,
+      "completed_cells": 649,
+      "planned_cells": 7077888,
+      "observations": {
+        "simplify": 67389904,
+        "simplify_with_attributes": 101772788,
+        "simplify_with_update": 51812838
+      },
+      "total_observations": 220975530,
+      "completed_cell_share_percent": 0.0091694,
+      "differences_observed": 0,
+      "unfinished_cell": "TIME_LIMIT ordinal=649 kind=5 n=65 layout=0 attr_layout=1 width=16 pattern=0 options=53",
+      "log_sha256": "1ba82db5a0f548107fb2c7dd7577249fe6eceae7c64924b15580da82a63188fe",
+      "binary_sha256": "65f1729b41f176790b2dfc98578fa94e307ebc186a4ae370ef9d77ed46904042"
+    },
+    "none": {
+      "exit": 124,
+      "completed_cells": 1117,
+      "planned_cells": 1769472,
+      "observations": {
+        "simplify": 64868620,
+        "simplify_with_attributes": 117681280,
+        "simplify_with_update": 60768500
+      },
+      "total_observations": 243318400,
+      "completed_cell_share_percent": 0.06312618,
+      "differences_observed": 0,
+      "unfinished_cell": "TIME_LIMIT ordinal=1117 kind=5 n=65 layout=0 attr_layout=2 width=32 pattern=1 options=44",
+      "log_sha256": "d4e4a633e5a90f8fa3504e2f4784baecb84e72f3c8ccc33e4614f79baa2fd8c8",
+      "binary_sha256": "401b7279e6dde3bd7c8f17950a77fbe7a30933f3afbe4c8f032ffed6c49ce5f2"
+    }
+  },
+  "gaps_2_3_4": {
+    "status": "not run: stopped within gap 1 at time limit",
+    "observations_per_mode": 0,
+    "exit": null
+  }
+}

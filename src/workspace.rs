@@ -638,6 +638,11 @@ impl Work {
             })
         }
     }
+    // Caller has proved that all charges in its operation fit the remaining budget.
+    #[inline(always)]
+    pub(crate) fn add_covered(&mut self, count: usize) {
+        self.remaining -= count as u64;
+    }
     #[inline]
     pub(crate) fn add(&mut self, count: usize) -> Result<(), Error> {
         let count = u64::try_from(count).map_err(|_| Error::SizeOverflow)?;

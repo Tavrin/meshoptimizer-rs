@@ -17,6 +17,12 @@ impl SqrtCache {
     #[inline(always)]
     pub(crate) fn sqrt(&mut self, value: f32) -> f32 {
         let bits = value.to_bits();
+        // Nonnegative finite operands have the same native and pinned root.
+        // Keep the original memoized backend for every other bit pattern.
+        #[cfg(feature = "std")]
+        if bits <= f32::MAX.to_bits() {
+            return value.sqrt();
+        }
         let bucket = (bits.wrapping_mul(0x9e3779b9) >> 23) as usize;
         let entry = &mut self.entries[bucket];
         if entry.0 != bits {

@@ -1,0 +1,142 @@
+{
+  "quadrics-pilot": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "50cbd290e1e81f3009f205e91fe47e602a4a87a32e95a43b70e475d35a538bfc",
+      "none": "50cbd290e1e81f3009f205e91fe47e602a4a87a32e95a43b70e475d35a538bfc"
+    }
+  },
+  "quadrics-preliminary": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "afacd190322cc56efc986ac2e6905031d3b2f7cec6bad74e21d8705d58dea0eb",
+      "none": "3058ef08b448887d855ee24e87a08fc4fa848c1a163b5faeeda0616d7d83366c"
+    }
+  },
+  "quadrics-warm-pilot": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "fc6c2a66c006159f142f72c9df19619d7917917a761e81a184b45cf48d9e7df5",
+      "none": "f12a6ce924670729807acc57bcd6faaecca336fc6568a9317082e5be98b3df53"
+    }
+  },
+  "quadrics-warm-grid": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "d6c09b32933a11d1df4371f0defb1b80099b1c13651cd69f190d14364a18d239",
+      "none": "b30f4ef0ed14da45516402412dcb85f293140d8a8a2ff3c425d899cf9f99b939"
+    }
+  },
+  "cluster-pilot": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "98a369a3cc6c32aa2d1b703995bf499907844bf6c300bcc35aa4450a1def2d59",
+      "none": "98a369a3cc6c32aa2d1b703995bf499907844bf6c300bcc35aa4450a1def2d59"
+    }
+  },
+  "cluster-grid": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "028645447c171de2ba6a66fc4697c9206b95df749383098c9ff07653164d6823",
+      "none": "b47c3742a4df04c0211cca89d16ddf7e0b83a7afedd29abed2c99078f3e9c50c"
+    }
+  },
+  "cluster-warm-pilot": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "c99d19f96eb85859437b9a04987e363b95b4e4b6090ce2401bb6197123400a5b",
+      "none": "c99d19f96eb85859437b9a04987e363b95b4e4b6090ce2401bb6197123400a5b"
+    }
+  },
+  "cluster-warm-grid": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "717e5875b8c4ca4f85700fadcb794439ca44b7bf3a998b1e623c3ed964f6cfa4",
+      "none": "41f37ac7c053763f7b737f8332ed681c315a9e79fbdb47251b9f1113723d36f5"
+    }
+  },
+  "meshlet-preliminary": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "731f4f38e9443891bf439df67a6fba56836e5493a071b161039ce3abdea2d6d5",
+      "none": "3708b6eb369c461ef7a91e0a1dd1c871814e96bfaefbc83e32fcd2a478213695"
+    }
+  },
+  "meshlet-reuse": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "656537cdf49c11cb72ce3e63e498708301c61c4ccddcc16c2d9c908c637048e9",
+      "none": "dc37a77a41aeee165033d0485173c990640eaf993b1cbcf8bd1793187ac16ebd"
+    }
+  },
+  "meshlet-warm": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "e1f7221f23e885fece5199a3d0cae7c4c57876b001b6e2ea3d98b5d8da9eb275",
+      "none": "1b24527cc96710125d10a0f662c6b53ee59eb00984df4524599eb5ae1c5a4c17"
+    }
+  },
+  "meshlet-trace": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "5babd714205d0939fd15ba32c6c99e5a846972e4bc9661a393b606b1d101c132",
+      "none": "0d4f19c2c9dad71e72d0cd4e58dd33c2f1ba329aef1fe97d9fc4a948dfad8e82"
+    }
+  },
+  "overdraw-supervisor": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "d311858a3a556c7fc88b4a9d51fd5a8f27760a87c96acdfb2f8532d1e8e4cd1f",
+      "none": "e7f8611a847b7a89b4eaa05caf08461b176259e3fb59a783e5298f7a479767e9"
+    }
+  },
+  "simplify-supervisor-shard-zero": {
+    "exit_codes": [
+      "all 0",
+      "none 0"
+    ],
+    "logs": {
+      "all": "7653576fbf2174ec4a4706599852a2f47ba574bde6a3f5bf4457c76139a0e29e",
+      "none": "9e662bba6cea407af3bda10e1044c79f42d20184d54da7442b0e159dc80ca887"
+    }
+  }
+}

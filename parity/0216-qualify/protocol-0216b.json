@@ -1,0 +1,14 @@
+{
+  "all": {
+    "exit": 0,
+    "cases": 1246,
+    "cpp_sha256": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+    "rust_sha256": "2fa65dccc8380fa6c713e685453153aebd92deec6bb98de896b616830922cb75"
+  },
+  "none": {
+    "exit": 0,
+    "cases": 1246,
+    "cpp_sha256": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+    "rust_sha256": "296f07d411f8df8272a9f2b071a11d84f8a49075951f334a42bfa8fd72e8bf7f"
+  }
+}

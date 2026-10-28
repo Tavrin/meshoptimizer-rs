@@ -1,0 +1,5 @@
+{
+  "target_directory": "dedicated qualification target",
+  "absent_after_cargo_clean": true,
+  "exit": 0
+}

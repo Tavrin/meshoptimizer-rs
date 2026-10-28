@@ -1,0 +1,27 @@
+{
+  "domain": "four small meshes, five selected settings, all position strides and byte orders, offsets 0..3, short and full final records, caller-buffer and allocated APIs; every work limit through maximum unrestricted usage plus one",
+  "release_proof_complete": false,
+  "modes": {
+    "all": {
+      "exit": 0,
+      "observations": {
+        "build_meshlets": 11100480,
+        "build_meshlets_flex": 11091552,
+        "build_meshlets_spatial": 10533552
+      },
+      "log_sha256": "b8057a67ab1c39d6287221d02da79d08de234d3b75894748574706d3147ff6e7",
+      "binary_sha256": "c5eb653076eb80793fc596ab1eb63e3f1a3f76439f2a01fe686147b7433fac50"
+    },
+    "none": {
+      "exit": 0,
+      "observations": {
+        "build_meshlets": 11100480,
+        "build_meshlets_flex": 11091552,
+        "build_meshlets_spatial": 10533552
+      },
+      "log_sha256": "b8057a67ab1c39d6287221d02da79d08de234d3b75894748574706d3147ff6e7",
+      "binary_sha256": "f9d648d5fa9e0f83172607ec86ec33b02d7b66d6bbefd8185a27b89a7b9f58c9"
+    }
+  },
+  "source_sha256": "e9c344825eab209bb9e92702630855e9bd55367e3e82201f9d77d3104f4b56a8"
+}

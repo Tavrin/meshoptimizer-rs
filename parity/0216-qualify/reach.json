@@ -1,0 +1,41 @@
+{
+  "status": "meshlet and cluster LOD coverage reports have no warnings; simplify report warns five functions have mismatched data, not identified by llvm-cov",
+  "meshlet_fuzz": {
+    "candidate_src_meshlet_rs_523_covered": "16.9k",
+    "candidate_src_meshlet_rs_525_fallback": "342",
+    "candidate_src_meshlet_rs_564_moderate_root": "22.9k"
+  },
+  "simplify_fuzz": {
+    "candidate_src_simplify_rs_1859_quadric_loop": "47.8k"
+  },
+  "cluster_lod_fuzz": {
+    "candidate_src_clusterlod_support_math_rs_24_native_sqrt": "579k",
+    "candidate_src_meshlet_rs_523_covered": "2.43k"
+  },
+  "coverage_artifact_sha256": {
+    "meshlet-build.log": "e71bc663878d65dcbf95fd75f79573d8380ddaa3bfc7db34e01f13d6a96c5d66",
+    "clod.profraw": "b70c0403bf9eaf1510464ceea44ee80a8357e472aca0bee8695e0493e2928e63",
+    "simplify-run.log": "ddf50c89a059e4f1b09eee2aa8195a0a8ddfb41d5936d3c1d6c80472cc3e4a09",
+    "simplify-clean.log": "346d9255e8ccc84d14f8a7e413dff757c0f7f4e8db0df36bdbaf99035ea6e55e",
+    "simplify": "b604adc86a6f5e885ec2b51070c303405b6d522ec9cf65046a30d4557e177efd",
+    "meshlet.coverage.txt": "77dabfcb432d3951b8ebf1de89d774b407797e628879878f766d799852021312",
+    "simplify-build.log": "1de9c23fd7ca3b03efc860f5d2955ba17f8401f65a864b59ac0bbaa695df3c5b",
+    "meshlet.profdata": "a56dfd00c032de2379951ca7d458b09be683b8114c7ebd1a3984327cffe9b6d8",
+    "simplify.profraw": "42dc471553079a93ef9653c8e6420fcd10e55e8ad3ae9f4831e66f854bccb0d0",
+    "clod-build.log": "14d457d5ef1e1a1900a1c47ee5291758fec92a827fd1caeab5f8b13758faa0c0",
+    "clod.coverage.txt": "768edac3d60079efc7619bc3d09086aff99f9e6f2298553b0cdb8fe33b54eb0a",
+    "clod.profdata": "25cf9ef0552e085540a712312671184b10da6ee5a8cfa64b75ec21d95190b7b8",
+    "clod-clean.log": "8f26e59416557acdfb66e66ebac54afc3f9d538c80d768f426e8588e295dccfd",
+    "simplify.profdata": "dd5b95b920b3f6d45089b048528b174ec3b56045bf3101350f69e52e6b2f36c1",
+    "meshlet-clean.log": "452c399a017bf8723494c415f939e932edad9dc75d5faebf25c5a0804f909be9",
+    "simplify.coverage.txt": "5f1c9c123e54212a6e74187519ae7457f54decbdff2d1e6a2182180b5de75618",
+    "meshlet.profraw": "a728ca37d05755a3458146ac44f495c952810051429bba3df204ec6796b11a32",
+    "clod": "0107e274e68231f396e9cd26e56fd1a00e8a06a5c7e1321edf12ffe5b707ebb0",
+    "meshlet": "2466e604078e56804afb2309584ba30b59c04b83b3cbff404bfc085e8c03080e"
+  },
+  "simplify_candidate_only": {
+    "candidate_src_simplify_rs_1859_quadric_loop": "95.7k",
+    "warning": "3 functions have mismatched data; llvm-cov does not identify them",
+    "report_sha256": "7873b9341233cc936f14f62968d88c675783ce0aededc0670b08abcb4c4a2087"
+  }
+}

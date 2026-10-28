@@ -1,0 +1,29 @@
+{
+  "schema": 2,
+  "source": "0967578",
+  "status": "campaign 2 NO-GAIN; standard exact and fuzz passed; remaining proof paused below disk floor",
+  "campaign2": {
+    "full-counts.jsonl": "b895a33b22ee6a32adb2fcc8ccd0f4106ffc0cfd991330ac4f60d6ba469db3e2",
+    "full-binding.json": "9849a084ba8d638733393cb5c6469089a01a6d3567b2ece929d110a381d6f3ca",
+    "full-results.json": "603507861ffae9fa588273daf3ed118077567547d925f104e06b5775a10b6b9b",
+    "driver-source.sha256": "6c96a884075ff2d7f22c75380fd2c0bd2e2cec6ea210c020ad77db964bbf3fb6"
+  },
+  "campaign1": {
+    "schema": 1,
+    "source": "cd3fe3a",
+    "status": "rejected combined candidate; positional-only revision unqualified",
+    "full-counts.jsonl": "585fc281a1332b7d792e775a52a3a4e07d6887bae190f9ca15f241a6a74ba2a0",
+    "full-binding.json": "ad527436914bb3436b2c329e5f494b6d5892d6e4bbd6e521b2bd68fa050cd2bb",
+    "full-results.json": "42d440a5406f5a5fdf840fe1b42e064c6f559a07468e654cb362e1ead9b164b5",
+    "binaries.sha256": "3d420e144f7ba72ab63003ffd63f0b20f9265be727af921e45c7d92a698f7133",
+    "gate-exits.tsv": "e139edd507138f4af7c3dc7b53272c2ff1b36bb7fb72a8bc71e88c4ccd4bd09a"
+  },
+  "proof": {
+    "gate-exits.tsv": "7109e811d01980bc4cf74c7f3b323ebba5e874460c66db78fa7a24cc2c5f1cf0",
+    "gate-simplify-exact-std.log": "96466f928857d137d399a7e1c9917776bce271a8e399ade1f87e736489d4b087",
+    "gate-overdraw-exact-std.log": "3af04bdd6933a8609c92df8ac8e2a848468e1fd026ad74b9c3172c4ef887c3bf",
+    "fuzz.jsonl": "36a201e93b2fbe77b9ad0ec69b7ed67f7ec89b378eb0d2ce610e2d96ee0a6013",
+    "driver-differential.jsonl": "255a4fe68949a9c7a61c5d6f2b2dd107553f8b3e6730615745ef77405deeeb0f",
+    "driver-differential.py": "874a9ec1f35f4c0552d0b1a2777e0613af126eaf669187e4e28b94af9a54557f"
+  }
+}

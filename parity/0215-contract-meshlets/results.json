@@ -1,0 +1,534 @@
+{
+  "verdict": "NO-GAIN",
+  "regressions": [],
+  "cases": {
+    "tiny-smooth/meshlets": {
+      "medians": {
+        "base": 62227.861,
+        "candidate": 61479.889,
+        "cpp": 44896.117,
+        "rust": 62031.782
+      },
+      "outputs": {
+        "base": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618",
+        "candidate": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618",
+        "cpp": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618",
+        "rust": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618"
+      },
+      "candidate_base": 0.9879801107095744,
+      "candidate_cpp": 1.369380986778879,
+      "candidate_optimesh": 0.9911030606858917
+    },
+    "tiny-smooth/meshlets-flex": {
+      "medians": {
+        "base": 62251.111,
+        "candidate": 61508.86,
+        "cpp": 44925.081,
+        "rust": 62082.706
+      },
+      "outputs": {
+        "base": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618",
+        "candidate": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618",
+        "cpp": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618",
+        "rust": "d5430c9cb05449327b0e2b12d59760b3624a0ec81524335107443823e7ffb618"
+      },
+      "candidate_base": 0.988076501959941,
+      "candidate_cpp": 1.3691429960916488,
+      "candidate_optimesh": 0.9907567495527659
+    },
+    "tiny-smooth/meshlets-spatial": {
+      "medians": {
+        "base": 46941.975,
+        "candidate": 46941.998,
+        "cpp": 47710.063,
+        "rust": 46386.504
+      },
+      "outputs": {
+        "base": "ec35e4697fbb031f55106847f9f839be628aa251e80a0b86aa20133a05a4cd5e",
+        "candidate": "ec35e4697fbb031f55106847f9f839be628aa251e80a0b86aa20133a05a4cd5e",
+        "cpp": "ec35e4697fbb031f55106847f9f839be628aa251e80a0b86aa20133a05a4cd5e",
+        "rust": "ec35e4697fbb031f55106847f9f839be628aa251e80a0b86aa20133a05a4cd5e"
+      },
+      "candidate_base": 1.0000004899666024,
+      "candidate_cpp": 0.9839014046156258,
+      "candidate_optimesh": 1.0119753366194615
+    },
+    "tiny-smooth/cluster-lod": {
+      "medians": {
+        "base": 101542.8,
+        "candidate": 100794.8,
+        "cpp": 75717.5
+      },
+      "outputs": {
+        "base": "8f0acfecd0abb5ce2b400926e7faaafbbe3d079033d68d040796edce443a22cd",
+        "candidate": "8f0acfecd0abb5ce2b400926e7faaafbbe3d079033d68d040796edce443a22cd",
+        "cpp": "8f0acfecd0abb5ce2b400926e7faaafbbe3d079033d68d040796edce443a22cd"
+      },
+      "candidate_base": 0.9926336480774609,
+      "candidate_cpp": 1.3311955624525373,
+      "candidate_optimesh": null
+    },
+    "medium-smooth/meshlets": {
+      "medians": {
+        "base": 28410517.0,
+        "candidate": 27835449.333333332,
+        "cpp": 26954169.333333332,
+        "rust": 36763985.0
+      },
+      "outputs": {
+        "base": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465",
+        "candidate": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465",
+        "cpp": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465",
+        "rust": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465"
+      },
+      "candidate_base": 0.9797586342175094,
+      "candidate_cpp": 1.0326954983884498,
+      "candidate_optimesh": 0.757139067849509
+    },
+    "medium-smooth/meshlets-flex": {
+      "medians": {
+        "base": 28410673.0,
+        "candidate": 27835575.0,
+        "cpp": 26953666.333333332,
+        "rust": 36763475.333333336
+      },
+      "outputs": {
+        "base": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465",
+        "candidate": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465",
+        "cpp": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465",
+        "rust": "cb0f06b09e8445e5917e56229bf211ca8723ccb7be6c219f04d9d0f53c110465"
+      },
+      "candidate_base": 0.9797576776868326,
+      "candidate_cpp": 1.0327194325165339,
+      "candidate_optimesh": 0.7571529826170043
+    },
+    "medium-smooth/meshlets-spatial": {
+      "medians": {
+        "base": 28186808.333333332,
+        "candidate": 28186797.333333332,
+        "cpp": 21769424.333333332,
+        "rust": 26018370.0
+      },
+      "outputs": {
+        "base": "83df105ad2671e5705d2d82706dd08fec718684199320a7f19aa80f4755b1fab",
+        "candidate": "83df105ad2671e5705d2d82706dd08fec718684199320a7f19aa80f4755b1fab",
+        "cpp": "83df105ad2671e5705d2d82706dd08fec718684199320a7f19aa80f4755b1fab",
+        "rust": "83df105ad2671e5705d2d82706dd08fec718684199320a7f19aa80f4755b1fab"
+      },
+      "candidate_base": 0.9999996097465215,
+      "candidate_cpp": 1.2947883647145286,
+      "candidate_optimesh": 1.083342166835714
+    },
+    "medium-smooth/cluster-lod": {
+      "medians": {
+        "base": 118868154.0,
+        "candidate": 116357332.0,
+        "cpp": 99770069.0
+      },
+      "outputs": {
+        "base": "e74a5e4168d6b284a48b5e966c96b886b1b3c229b439d4057c78689aff3eb8f0",
+        "candidate": "e74a5e4168d6b284a48b5e966c96b886b1b3c229b439d4057c78689aff3eb8f0",
+        "cpp": "e74a5e4168d6b284a48b5e966c96b886b1b3c229b439d4057c78689aff3eb8f0"
+      },
+      "candidate_base": 0.9788772525229928,
+      "candidate_cpp": 1.1662549015577006,
+      "candidate_optimesh": null
+    },
+    "medium-seams/meshlets": {
+      "medians": {
+        "base": 21809456.0,
+        "candidate": 21330290.666666668,
+        "cpp": 20692684.666666668,
+        "rust": 29322563.0
+      },
+      "outputs": {
+        "base": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9",
+        "candidate": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9",
+        "cpp": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9",
+        "rust": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9"
+      },
+      "candidate_base": 0.9780294688077809,
+      "candidate_cpp": 1.0308131115063626,
+      "candidate_optimesh": 0.7274360930409347
+    },
+    "medium-seams/meshlets-flex": {
+      "medians": {
+        "base": 21809838.0,
+        "candidate": 21330647.333333332,
+        "cpp": 20692368.0,
+        "rust": 29322330.333333332
+      },
+      "outputs": {
+        "base": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9",
+        "candidate": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9",
+        "cpp": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9",
+        "rust": "262f68c757c892ec71908864f51bfb06a2991709267da75d2080a22d2bacbde9"
+      },
+      "candidate_base": 0.9780286920670082,
+      "candidate_cpp": 1.0308461232340993,
+      "candidate_optimesh": 0.727454028750398
+    },
+    "medium-seams/meshlets-spatial": {
+      "medians": {
+        "base": 28256989.333333332,
+        "candidate": 28256980.666666668,
+        "cpp": 21786094.333333332,
+        "rust": 26053196.666666668
+      },
+      "outputs": {
+        "base": "85ae8de114b756c342893e5bb74b6ff41d7786cb10e66e4b0f0defe4756b0f09",
+        "candidate": "85ae8de114b756c342893e5bb74b6ff41d7786cb10e66e4b0f0defe4756b0f09",
+        "cpp": "85ae8de114b756c342893e5bb74b6ff41d7786cb10e66e4b0f0defe4756b0f09",
+        "rust": "85ae8de114b756c342893e5bb74b6ff41d7786cb10e66e4b0f0defe4756b0f09"
+      },
+      "candidate_base": 0.9999996932912222,
+      "candidate_cpp": 1.2970191092688284,
+      "candidate_optimesh": 1.0845878541583958
+    },
+    "medium-seams/cluster-lod": {
+      "medians": {
+        "base": 117577971.0,
+        "candidate": 113471638.0,
+        "cpp": 94525047.0
+      },
+      "outputs": {
+        "base": "045af14fb248bf67f8b5170f34e87967a5883b83b24bea061cf69cbfde0268de",
+        "candidate": "045af14fb248bf67f8b5170f34e87967a5883b83b24bea061cf69cbfde0268de",
+        "cpp": "045af14fb248bf67f8b5170f34e87967a5883b83b24bea061cf69cbfde0268de"
+      },
+      "candidate_base": 0.9650756603037486,
+      "candidate_cpp": 1.2004399003366801,
+      "candidate_optimesh": null
+    },
+    "medium-sparse/meshlets": {
+      "medians": {
+        "base": 28522995.333333332,
+        "candidate": 27947919.666666668,
+        "cpp": 26982011.666666668,
+        "rust": 36779147.333333336
+      },
+      "outputs": {
+        "base": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4",
+        "candidate": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4",
+        "cpp": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4",
+        "rust": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4"
+      },
+      "candidate_base": 0.9798381740786318,
+      "candidate_cpp": 1.0357982203822584,
+      "candidate_optimesh": 0.7598849264604122
+    },
+    "medium-sparse/meshlets-flex": {
+      "medians": {
+        "base": 28522758.333333332,
+        "candidate": 27947682.666666668,
+        "cpp": 26981474.0,
+        "rust": 36778653.0
+      },
+      "outputs": {
+        "base": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4",
+        "candidate": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4",
+        "cpp": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4",
+        "rust": "af35b4e5235a4c137332dea322f6272b40788b8d6da467d02a8712f07af0afd4"
+      },
+      "candidate_base": 0.9798380065509092,
+      "candidate_cpp": 1.0358100771909893,
+      "candidate_optimesh": 0.759888695941819
+    },
+    "medium-sparse/meshlets-spatial": {
+      "medians": {
+        "base": 28259898.666666668,
+        "candidate": 28259909.666666668,
+        "cpp": 21768610.333333332,
+        "rust": 26017312.666666668
+      },
+      "outputs": {
+        "base": "75aadef462576419d408e66903073df1ca0811222b5e7e2fe90573432b624525",
+        "candidate": "75aadef462576419d408e66903073df1ca0811222b5e7e2fe90573432b624525",
+        "cpp": "75aadef462576419d408e66903073df1ca0811222b5e7e2fe90573432b624525",
+        "rust": "75aadef462576419d408e66903073df1ca0811222b5e7e2fe90573432b624525"
+      },
+      "candidate_base": 1.0000003892441416,
+      "candidate_cpp": 1.2981953939151316,
+      "candidate_optimesh": 1.0861963350608923
+    },
+    "medium-sparse/cluster-lod": {
+      "medians": {
+        "base": 120682183.0,
+        "candidate": 118171387.0,
+        "cpp": 100759856.0
+      },
+      "outputs": {
+        "base": "e03ab99d0544b437430a644883c043646c0633c024df42330d4337780897cf3d",
+        "candidate": "e03ab99d0544b437430a644883c043646c0633c024df42330d4337780897cf3d",
+        "cpp": "e03ab99d0544b437430a644883c043646c0633c024df42330d4337780897cf3d"
+      },
+      "candidate_base": 0.9791949736275487,
+      "candidate_cpp": 1.1728022616467415,
+      "candidate_optimesh": null
+    },
+    "million-smooth/meshlets": {
+      "medians": {
+        "base": 4131410130.0,
+        "candidate": 4053995521.0,
+        "cpp": 3870400716.0,
+        "rust": 5200575713.0
+      },
+      "outputs": {
+        "base": "4c0eeb658386abe656859b7d8d6c01d25f01a34434fe38eca429d2c63323c872",
+        "candidate": "4c0eeb658386abe656859b7d8d6c01d25f01a34434fe38eca429d2c63323c872",
+        "cpp": "4c0eeb658386abe656859b7d8d6c01d25f01a34434fe38eca429d2c63323c872",
+        "rust": "4c0eeb658386abe656859b7d8d6c01d25f01a34434fe38eca429d2c63323c872"
+      },
+      "candidate_base": 0.981261940460024,
+      "candidate_cpp": 1.0474356064066004,
+      "candidate_optimesh": 0.7795282185520601
+    },
+    "million-smooth/meshlets-flex": {
+      "medians": {
+        "base": 4141109315.0,
+        "candidate": 4063224970.0,
+        "cpp": 3875326617.0,
+        "rust": 5206483950.0
+      },
+      "outputs": {
+        "base": "496a2216a6b2257a56d7a7e5d338ca3836c78e6c92c8310741356f2fe5dd3e07",
+        "candidate": "496a2216a6b2257a56d7a7e5d338ca3836c78e6c92c8310741356f2fe5dd3e07",
+        "cpp": "496a2216a6b2257a56d7a7e5d338ca3836c78e6c92c8310741356f2fe5dd3e07",
+        "rust": "496a2216a6b2257a56d7a7e5d338ca3836c78e6c92c8310741356f2fe5dd3e07"
+      },
+      "candidate_base": 0.9811923957868279,
+      "candidate_cpp": 1.048485810763857,
+      "candidate_optimesh": 0.7804163057104978
+    },
+    "million-smooth/meshlets-spatial": {
+      "medians": {
+        "base": 5965982334.0,
+        "candidate": 5965982197.0,
+        "cpp": 4576738594.0,
+        "rust": 5397187607.0
+      },
+      "outputs": {
+        "base": "0ab9420989e8d3fce7e973b3f758a0deb52c17554419acf3f668eb5115d765a0",
+        "candidate": "0ab9420989e8d3fce7e973b3f758a0deb52c17554419acf3f668eb5115d765a0",
+        "cpp": "0ab9420989e8d3fce7e973b3f758a0deb52c17554419acf3f668eb5115d765a0",
+        "rust": "0ab9420989e8d3fce7e973b3f758a0deb52c17554419acf3f668eb5115d765a0"
+      },
+      "candidate_base": 0.9999999770364724,
+      "candidate_cpp": 1.3035444508063596,
+      "candidate_optimesh": 1.1053872185695917
+    },
+    "million-smooth/cluster-lod": {
+      "medians": {
+        "base": 15711233821.0,
+        "candidate": 15275046622.0,
+        "cpp": 13010266351.0
+      },
+      "outputs": {
+        "base": "4f016457011319ed55354168a71b3a65ddfd66e381960333abd506fe2e6f4ade",
+        "candidate": "4f016457011319ed55354168a71b3a65ddfd66e381960333abd506fe2e6f4ade",
+        "cpp": "4f016457011319ed55354168a71b3a65ddfd66e381960333abd506fe2e6f4ade"
+      },
+      "candidate_base": 0.9722372409468579,
+      "candidate_cpp": 1.1740763955094526,
+      "candidate_optimesh": null
+    },
+    "real-214e/meshlets": {
+      "medians": {
+        "base": 18710578153.0,
+        "candidate": 16170126110.0,
+        "cpp": 13286175142.0,
+        "rust": 16849219659.0
+      },
+      "outputs": {
+        "base": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b",
+        "candidate": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b",
+        "cpp": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b",
+        "rust": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b"
+      },
+      "candidate_base": 0.8642237550210242,
+      "candidate_cpp": 1.2170640486954978,
+      "candidate_optimesh": 0.9596958456982747
+    },
+    "real-214e/meshlets-flex": {
+      "medians": {
+        "base": 18718480270.0,
+        "candidate": 16176052609.0,
+        "cpp": 13285981323.0,
+        "rust": 16849022595.0
+      },
+      "outputs": {
+        "base": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b",
+        "candidate": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b",
+        "cpp": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b",
+        "rust": "b672e33c178c839b73d2ed9e1804126035f030e40db24c3a55bf07ba229e7b8b"
+      },
+      "candidate_base": 0.8641755300469166,
+      "candidate_cpp": 1.2175278751142649,
+      "candidate_optimesh": 0.9600588115894803
+    },
+    "real-214e/meshlets-spatial": {
+      "medians": {
+        "base": 22587191697.0,
+        "candidate": 22587192737.0,
+        "cpp": 17115097100.0,
+        "rust": 20495619040.0
+      },
+      "outputs": {
+        "base": "de1c11903a492a85921b5fa988d5c5ef0d030078e9a785523c2820442b1d3157",
+        "candidate": "de1c11903a492a85921b5fa988d5c5ef0d030078e9a785523c2820442b1d3157",
+        "cpp": "de1c11903a492a85921b5fa988d5c5ef0d030078e9a785523c2820442b1d3157",
+        "rust": "de1c11903a492a85921b5fa988d5c5ef0d030078e9a785523c2820442b1d3157"
+      },
+      "candidate_base": 1.0000000460437939,
+      "candidate_cpp": 1.319723318250996,
+      "candidate_optimesh": 1.1020497938080331
+    },
+    "real-214e/cluster-lod": {
+      "medians": {
+        "base": 93214294681.0,
+        "candidate": 86126319365.0,
+        "cpp": 65734164303.0
+      },
+      "outputs": {
+        "base": "ce83ab14a96dbfee0013c593e84897123410e8ff13fc69e2d85d58b2e1d0c167",
+        "candidate": "ce83ab14a96dbfee0013c593e84897123410e8ff13fc69e2d85d58b2e1d0c167",
+        "cpp": "ce83ab14a96dbfee0013c593e84897123410e8ff13fc69e2d85d58b2e1d0c167"
+      },
+      "candidate_base": 0.9239604253804996,
+      "candidate_cpp": 1.310221561013583,
+      "candidate_optimesh": null
+    },
+    "real-a082/meshlets": {
+      "medians": {
+        "base": 19807728101.0,
+        "candidate": 17228134882.0,
+        "cpp": 14278322809.0,
+        "rust": 18265515921.0
+      },
+      "outputs": {
+        "base": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa",
+        "candidate": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa",
+        "cpp": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa",
+        "rust": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa"
+      },
+      "candidate_base": 0.8697683446659504,
+      "candidate_cpp": 1.2065937374059548,
+      "candidate_optimesh": 0.9432054893227891
+    },
+    "real-a082/meshlets-flex": {
+      "medians": {
+        "base": 19815632586.0,
+        "candidate": 17234066135.0,
+        "cpp": 14278104551.0,
+        "rust": 18265287514.0
+      },
+      "outputs": {
+        "base": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa",
+        "candidate": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa",
+        "cpp": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa",
+        "rust": "4b30f6421c4c990b90c815bc8c4e4d2c24d1c34b3bb8ca54c76d99e8fd350dfa"
+      },
+      "candidate_base": 0.8697207147036068,
+      "candidate_cpp": 1.207027590633028,
+      "candidate_optimesh": 0.9435420122344317
+    },
+    "real-a082/meshlets-spatial": {
+      "medians": {
+        "base": 26254018370.0,
+        "candidate": 26254018945.0,
+        "cpp": 19903773111.0,
+        "rust": 23831327304.0
+      },
+      "outputs": {
+        "base": "f992ea96a5e8e1feb91f24e7c2b4baa0af17472cae1f973780eb6278b5e892fa",
+        "candidate": "f992ea96a5e8e1feb91f24e7c2b4baa0af17472cae1f973780eb6278b5e892fa",
+        "cpp": "f992ea96a5e8e1feb91f24e7c2b4baa0af17472cae1f973780eb6278b5e892fa",
+        "rust": "f992ea96a5e8e1feb91f24e7c2b4baa0af17472cae1f973780eb6278b5e892fa"
+      },
+      "candidate_base": 1.0000000219014091,
+      "candidate_cpp": 1.3190473383406123,
+      "candidate_optimesh": 1.1016599541475542
+    },
+    "real-a082/cluster-lod": {
+      "medians": {
+        "base": 105108808704.0,
+        "candidate": 97163228736.0,
+        "cpp": 74324040740.0
+      },
+      "outputs": {
+        "base": "03b134b61718bb0e831a2aa5a148ecf3862dd6847446a64699eba997dc01848c",
+        "candidate": "03b134b61718bb0e831a2aa5a148ecf3862dd6847446a64699eba997dc01848c",
+        "cpp": "03b134b61718bb0e831a2aa5a148ecf3862dd6847446a64699eba997dc01848c"
+      },
+      "candidate_base": 0.9244061457267984,
+      "candidate_cpp": 1.3072920655094082,
+      "candidate_optimesh": null
+    },
+    "real-b6fd/meshlets": {
+      "medians": {
+        "base": 4785506387.0,
+        "candidate": 4155799013.0,
+        "cpp": 3427833907.0,
+        "rust": 4407790372.0
+      },
+      "outputs": {
+        "base": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+        "candidate": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+        "cpp": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+        "rust": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3"
+      },
+      "candidate_base": 0.8684136383746927,
+      "candidate_cpp": 1.2123688386748896,
+      "candidate_optimesh": 0.9428304575007135
+    },
+    "real-b6fd/meshlets-flex": {
+      "medians": {
+        "base": 4787480189.0,
+        "candidate": 4157279396.0,
+        "cpp": 3427779191.0,
+        "rust": 4407735676.0
+      },
+      "outputs": {
+        "base": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+        "candidate": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+        "cpp": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+        "rust": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3"
+      },
+      "candidate_base": 0.8683648248930644,
+      "candidate_cpp": 1.2128200693076674,
+      "candidate_optimesh": 0.9431780173743795
+    },
+    "real-b6fd/meshlets-spatial": {
+      "medians": {
+        "base": 5872779319.0,
+        "candidate": 5872779307.0,
+        "cpp": 4458459143.0,
+        "rust": 5346358521.0
+      },
+      "outputs": {
+        "base": "26d7fc425b853a84ad37daecdf9655852a10b4bb4ead41847a37ebcf768375e1",
+        "candidate": "26d7fc425b853a84ad37daecdf9655852a10b4bb4ead41847a37ebcf768375e1",
+        "cpp": "26d7fc425b853a84ad37daecdf9655852a10b4bb4ead41847a37ebcf768375e1",
+        "rust": "26d7fc425b853a84ad37daecdf9655852a10b4bb4ead41847a37ebcf768375e1"
+      },
+      "candidate_base": 0.9999999979566745,
+      "candidate_cpp": 1.3172217393133572,
+      "candidate_optimesh": 1.098463427757841
+    },
+    "real-b6fd/cluster-lod": {
+      "medians": {
+        "base": 26039224359.0,
+        "candidate": 24065479400.0,
+        "cpp": 18418150701.0
+      },
+      "outputs": {
+        "base": "d458ab591bd0923cd3fbbe8f8115b4687bc9f54dc17333e4dd1580836ea5a288",
+        "candidate": "d458ab591bd0923cd3fbbe8f8115b4687bc9f54dc17333e4dd1580836ea5a288",
+        "cpp": "d458ab591bd0923cd3fbbe8f8115b4687bc9f54dc17333e4dd1580836ea5a288"
+      },
+      "candidate_base": 0.9242010848023663,
+      "candidate_cpp": 1.3066175747325914,
+      "candidate_optimesh": null
+    }
+  }
+}

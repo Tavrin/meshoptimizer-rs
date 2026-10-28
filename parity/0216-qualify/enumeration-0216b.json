@@ -1,0 +1,50 @@
+{
+  "specification": "SPEC-0216b-proof",
+  "candidate": "4d14205cf201715a3df3debd795705ea0b1d904f",
+  "baseline": "9c26f3e",
+  "release_enumeration_complete": false,
+  "required": {
+    "feature_modes": [
+      "all-features",
+      "no-default-features"
+    ],
+    "work_limits": "each integer from zero through successful usage plus one, per case",
+    "simplify_options": {
+      "all_features": "0..511",
+      "no_default_features": "0..127"
+    },
+    "vertex_flag_values": "0..7, including their combinations in applicable inputs",
+    "position_float_strides": "3..64",
+    "position_byte_strides": "12..256 in steps of 4, both byte orders",
+    "index_width": "u32 in the listed public APIs",
+    "observations": [
+      "output bytes",
+      "Result",
+      "Usage work",
+      "Usage bytes",
+      "full sentinel-filled caller buffers"
+    ],
+    "cluster_lod_boolean_configurations": "2^12 = 4096 per fixed choice of numeric configuration and inputs",
+    "attribute_float_strides": "width..64 for each supported attribute width",
+    "attribute_byte_strides": "4*width..256 in steps of 4, both byte orders",
+    "attribute_widths": "0..32"
+  },
+  "retained_subset_observations_per_feature_mode": {
+    "build_meshlets": 7460,
+    "build_meshlets_flex": 7454,
+    "build_meshlets_spatial": 7079,
+    "cluster_lod": 132597,
+    "simplify_family_combined_all_features": 1200243710,
+    "simplify_family_combined_no_default_features": 273906930,
+    "optimize_overdraw": 20558564
+  },
+  "required_enumeration_sizes_per_function": null,
+  "missing": "The retained runs do not implement the required product over the existing small-mesh set, supported strides and accepted flag combinations; combined family totals are not per-function sizes. Cluster LOD was tested with its required feature enabled, in std and no_std variants.",
+  "additional_subset_receipts": [
+    "overdraw-strides-0216b.json",
+    "meshlet-strides-0216b.json",
+    "simplify-flags-0216b.json",
+    "meshlet-strides-owned-0216b.json",
+    "clod-flags-0216b.json"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "supervisor_exit": 0,
+  "supervisor_executed_sha256": "267164a35e2511fc67818d77dcbda8eb19790013bf1f9701b36593754b2b33b2",
+  "runs": {
+    "simplify-all": {
+      "exit": 0,
+      "observations": 1200243710,
+      "log_sha256": "96466f928857d137d399a7e1c9917776bce271a8e399ade1f87e736489d4b087",
+      "binary_sha256": "ca4edb9f1dfed1d9adb1950b76333320fcf63085d68d8238c7ad9336a3c401ed"
+    },
+    "overdraw-all": {
+      "exit": 0,
+      "observations": 20558564,
+      "log_sha256": "5c9b47e030c84ab32a3ef123b1c61dff8a699e013f962c0e88a4edb87ebe4af1",
+      "binary_sha256": "01bcfd13dd817cb7c11f0cca5bb7a23a2cb10cac1827651604b69b10e4a0f8ea"
+    },
+    "simplify-none": {
+      "exit": 0,
+      "observations": 273906930,
+      "log_sha256": "e3a85c3142ded3b6dc6ce8d2c487194bf4ae12200eae05758755a289051aaad4",
+      "binary_sha256": "f009f8ca9fda396bfd6c2bc39648c9d3fa8a9ba1207d35d621fdca7c645bcbd5"
+    },
+    "overdraw-none": {
+      "exit": 0,
+      "observations": 20558564,
+      "log_sha256": "5c9b47e030c84ab32a3ef123b1c61dff8a699e013f962c0e88a4edb87ebe4af1",
+      "binary_sha256": "d003e3671584e74f7505b16cd4b06c9f46c14e31982d484900fdd755d10f979b"
+    }
+  }
+}

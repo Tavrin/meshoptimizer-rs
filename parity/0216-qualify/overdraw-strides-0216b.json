@@ -1,0 +1,19 @@
+{
+  "domain": "four existing meshlet small meshes; all position strides, two byte orders, offsets 0..3, short and full final records, four APIs; work limits through each API unrestricted usage plus one",
+  "release_proof_complete": false,
+  "modes": {
+    "all": {
+      "exit": 0,
+      "observations": 46392864,
+      "log_sha256": "46b17aa82b6ac882b7166e76ea102290020dcd663ed57a83638197a1a48db52f",
+      "binary_sha256": "a953082ce02c8307bbeee6e3e7ce611d033b8e6b87648c945c25242a0e884cf9"
+    },
+    "none": {
+      "exit": 0,
+      "observations": 46392864,
+      "log_sha256": "46b17aa82b6ac882b7166e76ea102290020dcd663ed57a83638197a1a48db52f",
+      "binary_sha256": "61cabff63aeb1e575e27038cda217fcd86739e6b5c1ff4a23dbe1870bc15a2fd"
+    }
+  },
+  "source_sha256": "44b81eb6508180bf372007ba7f81bc3ff308f073719ed70df8ac4c13fb076466"
+}

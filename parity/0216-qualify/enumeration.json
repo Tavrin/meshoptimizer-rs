@@ -1,0 +1,21 @@
+{
+  "status": "incomplete",
+  "scope": "SPEC-0216-qualify exact baseline-versus-candidate comparison",
+  "feature_modes": ["all-features", "no-default-features"],
+  "functions": ["build_meshlets", "build_meshlets_flex", "build_meshlets_spatial", "cluster_lod", "simplify", "simplify_with_attributes", "simplify_with_update", "simplify_sloppy", "simplify_prune", "simplify_points", "optimize_overdraw"],
+  "required_dimensions": {
+    "small_meshes": "not bounded or fully enumerated by the specification",
+    "options": "every valid combination for each function",
+    "position_layouts": ["packed", "interleaved-f32", "little-endian-bytes", "big-endian-bytes", "mapped"],
+    "float_stride": "3..64 for position width 3",
+    "byte_stride": "multiples of 4 from 12 through 256 for position width 3",
+    "offset": "every valid absolute offset within the caller buffer; no fixed buffer-length bound is specified",
+    "attributes": "every supported width, layout, stride, offset and configuration",
+    "locks_and_flags": "every supported configuration for each vertex",
+    "work_limits": "all integers 0..success_work+1 for every case",
+    "storage_limits": "every byte/storage boundary for every case",
+    "observations": ["result", "error", "output_bytes", "entire_sentinel_filled_buffers", "work_usage", "storage_usage", "mutation_and_callback_bits"]
+  },
+  "complete_enumeration_size": null,
+  "reason": "The absolute-offset and caller-buffer domain has no specified finite bound, and the full product and boundary observations have not been executed. The finite legacy driver is a subset, not an exhaustive enumeration."
+}
