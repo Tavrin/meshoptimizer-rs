@@ -77,7 +77,7 @@ fn repeated_index_triangles_are_removed() {
 }
 
 #[test]
-fn zero_area_is_opt_in_and_compares_exact_positions() {
+fn coincident_corners_is_opt_in_and_keeps_collinear_triangles() {
     // Vertex 4 equals vertex 1 up to the sign of zero; vertex 3 is collinear with 0 and 1.
     let positions = [
         [0., 0., 0.],
@@ -91,9 +91,9 @@ fn zero_area_is_opt_in_and_compares_exact_positions() {
         run(&indices, &positions, SanitizeOptions::EMPTY).indices,
         indices
     );
-    let mesh = run(&indices, &positions, SanitizeOptions::ZERO_AREA);
+    let mesh = run(&indices, &positions, SanitizeOptions::COINCIDENT_CORNERS);
     assert_eq!(mesh.indices, [0, 1, 2, 0, 1, 3]);
-    assert_eq!(mesh.report.zero_area, 1);
+    assert_eq!(mesh.report.coincident_corners, 1);
 }
 
 #[test]
@@ -192,7 +192,7 @@ fn limits_are_enforced_without_partial_output() {
 fn unknown_option_bits_are_rejected() {
     assert_eq!(SanitizeOptions::from_bits(16), Err(Error::UnknownFlags));
     let all = SanitizeOptions::from_bits(15).unwrap();
-    assert!(all.contains(SanitizeOptions::WELD_POSITIONS | SanitizeOptions::ZERO_AREA));
+    assert!(all.contains(SanitizeOptions::WELD_POSITIONS | SanitizeOptions::COINCIDENT_CORNERS));
 }
 
 /// Seeded property check over random corrupted and clean grids: the output is
@@ -261,4 +261,136 @@ fn property_output_is_an_ordered_subset_and_clean_meshes_pass_unchanged() {
             }
         }
     }
+}
+
+/// First-kept-wins reference for the duplicate rules, written as the obvious
+/// quadratic scan over kept faces.
+#[test]
+fn duplicate_rules_match_a_quadratic_reference() {
+    let canonical = |t: [u32; 3]| {
+        [t, [t[1], t[2], t[0]], [t[2], t[0], t[1]]]
+            .into_iter()
+            .min()
+            .unwrap()
+    };
+    // Vertices 0..6 collapse to three distinct positions under welding.
+    let positions: Vec<[f32; 3]> = (0..6).map(|i| [(i % 3) as f32, 0., 0.]).collect();
+    let mut seed = 7u32;
+    let mut random = |n: u32| {
+        seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+        (seed >> 8) % n
+    };
+    for bits in [0, 4, 8, 12] {
+        let options = SanitizeOptions::from_bits(bits).unwrap();
+        let weld = bits & 4 != 0;
+        let reversed = bits & 8 != 0;
+        let indices: Vec<u32> = (0..900).map(|_| random(6)).collect();
+        let mut kept: Vec<[u32; 3]> = Vec::new();
+        let (mut repeated, mut duplicate, mut reverse) = (0, 0, 0);
+        let mut expected = Vec::new();
+        for t in indices.as_chunks::<3>().0 {
+            if t[0] == t[1] || t[0] == t[2] || t[1] == t[2] {
+                repeated += 1;
+                continue;
+            }
+            let label = |v: u32| if weld { v % 3 } else { v };
+            let c = [label(t[0]), label(t[1]), label(t[2])];
+            let key = canonical(c);
+            let mirror = canonical([c[0], c[2], c[1]]);
+            if kept.contains(&key) {
+                duplicate += 1;
+            } else if reversed && mirror != key && kept.contains(&mirror) {
+                reverse += 1;
+            } else {
+                kept.push(key);
+                expected.extend_from_slice(t);
+            }
+        }
+        let mesh = run(&indices, &positions, options);
+        assert_eq!(mesh.indices, expected, "options {bits}");
+        let r = mesh.report;
+        assert_eq!(
+            (r.repeated_index, r.duplicate, r.reversed_duplicate),
+            (repeated, duplicate, reverse)
+        );
+        assert_eq!(r.output_triangles, kept.len());
+    }
+}
+
+/// Faces `[0, b, c]` with `c = b * 19349663 * 3591 mod 8192` all hashed to one
+/// bucket under the former open-addressing table, which made the scan
+/// quadratic. Sorting is value-independent: work stays within 16 units per
+/// triangle (one screen visit, `log2(n) + 1` sort steps, one build visit and
+/// one emit visit).
+#[test]
+fn crafted_hash_collisions_stay_within_the_sort_work_bound() {
+    let positions = vec![[0.0f32; 3]; 8192];
+    let mut indices = Vec::new();
+    for b in 1u64..8192 {
+        let c = (b * 19349663 * 3591) % 8192;
+        if c != 0 && c != b {
+            indices.extend_from_slice(&[0, b as u32, c as u32]);
+        }
+        if indices.len() == 4092 * 3 {
+            break;
+        }
+    }
+    let triangles = indices.len() as u64 / 3;
+    assert_eq!(triangles, 4092);
+    for options in [SanitizeOptions::EMPTY, SanitizeOptions::IGNORE_ORIENTATION] {
+        let mut ws = Workspace::default();
+        let mesh = sanitize(
+            &indices,
+            Positions::from_packed(&positions),
+            options,
+            &mut ws,
+        )
+        .unwrap();
+        assert_eq!(mesh.indices, indices);
+        assert!(
+            ws.usage().work <= triangles * 16,
+            "work {}",
+            ws.usage().work
+        );
+    }
+}
+
+#[test]
+fn empty_index_list_with_weld_does_no_work_for_a_large_position_buffer() {
+    let positions = vec![[0.0f32; 3]; 1 << 24];
+    let mut ws = Workspace::default();
+    let mesh = sanitize(
+        &[],
+        Positions::from_packed(&positions),
+        SanitizeOptions::WELD_POSITIONS,
+        &mut ws,
+    )
+    .unwrap();
+    assert!(mesh.indices.is_empty());
+    assert_eq!((ws.usage().work, ws.usage().bytes), (0, 0));
+}
+
+#[test]
+fn scratch_is_sized_by_triangles_not_positions() {
+    // One million copies of one face over 16M positions. A per-position remap
+    // and weld table alone would need over 100 MiB; the cap is 48 MiB.
+    let positions = vec![[0.0f32; 3]; 1 << 24];
+    let triangles = 1 << 20;
+    let indices: Vec<u32> = [3u32, 5, 7].repeat(triangles);
+    let mut ws = Workspace::new(Limits {
+        max_bytes: 48 << 20,
+        ..Limits::default()
+    });
+    let options = SanitizeOptions::WELD_POSITIONS | SanitizeOptions::IGNORE_ORIENTATION;
+    let mesh = sanitize(
+        &indices,
+        Positions::from_packed(&positions),
+        options,
+        &mut ws,
+    )
+    .unwrap();
+    // All three corners share one position, so welding makes the face
+    // degenerate but not a repeated index; the first copy is kept.
+    assert_eq!(mesh.indices, [3, 5, 7]);
+    assert_eq!(mesh.report.duplicate, triangles - 1);
 }

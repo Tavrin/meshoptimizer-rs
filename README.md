@@ -166,7 +166,7 @@ Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long si
 
 These opt-in functions are not in C++ meshoptimizer. They leave every ported function unchanged.
 
-- `sanitize` removes out-of-range, non-finite, degenerate and duplicate triangles and reports counts by reason.
+- `sanitize` removes out-of-range, non-finite, repeated-index and duplicate triangles (and, opt-in, triangles with two coincident corners) and reports counts by reason.
 
 ## Features
 

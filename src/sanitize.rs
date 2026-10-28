@@ -8,7 +8,6 @@ use crate::{Error, Positions, Workspace};
 use alloc::vec::Vec;
 
 const NONE: u32 = u32::MAX;
-const EMPTY_KEY: [u32; 3] = [NONE; 3];
 
 /// Options for [`sanitize`]. Not in C++ meshoptimizer.
 ///
@@ -25,10 +24,11 @@ impl SanitizeOptions {
     /// (`NumericalFailure`). The first such triangle in input order decides
     /// the error.
     pub const REJECT_INVALID: Self = Self(1);
-    /// Also drop triangles with two corners at exactly equal positions
-    /// (signed zeros compare equal). Collinear triangles with three distinct
-    /// positions are kept: no area is computed.
-    pub const ZERO_AREA: Self = Self(2);
+    /// Also drop triangles with two corners at bit-identical positions
+    /// (signed zeros compare equal, so `0.0` and `-0.0` count as identical).
+    /// Nothing else is tested: triangles whose three corners are collinear
+    /// but distinct, or merely tiny, are kept because no area is computed.
+    pub const COINCIDENT_CORNERS: Self = Self(2);
     /// Compare faces for duplicates by exact position instead of by index:
     /// vertices with equal positions count as the same corner, using the same
     /// equality as [`generate_position_remap`](crate::generate_position_remap).
@@ -75,7 +75,7 @@ impl core::ops::BitOrAssign for SanitizeOptions {
 ///
 /// Each removed triangle is counted once, under the first reason that applies
 /// in this order: out-of-range index, non-finite position, repeated index,
-/// zero area, duplicate, reversed duplicate. So `input_triangles` equals
+/// coincident corners, duplicate, reversed duplicate. So `input_triangles` equals
 /// `output_triangles` plus [`Self::removed`].
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
@@ -90,8 +90,9 @@ pub struct SanitizeReport {
     pub non_finite: usize,
     /// Removed: two corners use the same index.
     pub repeated_index: usize,
-    /// Removed with [`SanitizeOptions::ZERO_AREA`]: two corners have equal positions.
-    pub zero_area: usize,
+    /// Removed with [`SanitizeOptions::COINCIDENT_CORNERS`]: two corners have
+    /// bit-identical positions (signed zeros compare equal).
+    pub coincident_corners: usize,
     /// Removed: an earlier kept face has the same corners in the same cyclic order.
     pub duplicate: usize,
     /// Removed with [`SanitizeOptions::IGNORE_ORIENTATION`]: an earlier kept
@@ -104,7 +105,7 @@ impl SanitizeReport {
         self.out_of_range
             + self.non_finite
             + self.repeated_index
-            + self.zero_area
+            + self.coincident_corners
             + self.duplicate
             + self.reversed_duplicate
     }
@@ -159,10 +160,14 @@ pub struct SanitizedMesh {
 /// # Errors
 /// `InvalidTopology` if the index count is not a multiple of three.
 /// With [`SanitizeOptions::REJECT_INVALID`], `IndexOutOfBounds` or
-/// `NumericalFailure` for the first invalid triangle. `NumericalFailure` if
-/// bounded hash probing finds no slot. `SizeOverflow` for size
+/// `NumericalFailure` for the first invalid triangle. `SizeOverflow` for size
 /// overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for
 /// failed reservation. An error returns no partial mesh.
+///
+/// Work is `O(n log n)` in the number of triangles that pass the per-triangle
+/// checks, whatever the input: duplicates are found by sorting, not hashing.
+/// Scratch storage is proportional to those triangles, never to the position
+/// count.
 pub fn sanitize(
     indices: &[u32],
     positions: Positions<'_>,
@@ -248,14 +253,6 @@ fn emit(
     Ok(())
 }
 
-fn buckets(n: usize) -> Result<usize, Error> {
-    n.checked_add(n / 4)
-        .ok_or(Error::SizeOverflow)?
-        .max(1)
-        .checked_next_power_of_two()
-        .ok_or(Error::SizeOverflow)
-}
-
 /// Lexicographically smallest cyclic rotation, so rotated copies share a key.
 #[inline]
 fn canonical(t: [u32; 3]) -> [u32; 3] {
@@ -270,26 +267,28 @@ fn canonical(t: [u32; 3]) -> [u32; 3] {
     }
 }
 
-#[inline]
-fn key_hash(key: [u32; 3]) -> u32 {
-    key[0].wrapping_mul(73856093) ^ key[1].wrapping_mul(19349663) ^ key[2].wrapping_mul(83492791)
+/// Comparison steps charged per element of a sort or binary search over `n`
+/// elements: `ceil(log2(n)) + 1`, an upper bound on both.
+fn steps(n: usize) -> usize {
+    (usize::BITS - n.leading_zeros()) as usize + 1
 }
 
-/// Find `key` or the empty slot where it would go. Each probe is one visit.
-fn probe(table: &[[u32; 3]], key: [u32; 3], work: &mut Work) -> Result<(bool, usize), Error> {
-    let mask = table.len() - 1;
-    let mut bucket = key_hash(key) as usize & mask;
-    for step in 0..table.len() {
-        work.add(1)?;
-        if table[bucket] == key {
-            return Ok((true, bucket));
-        }
-        if table[bucket] == EMPTY_KEY {
-            return Ok((false, bucket));
-        }
-        bucket = (bucket + step + 1) & mask;
-    }
-    Err(Error::NumericalFailure)
+/// Work charged for sorting `n` elements, or for `n` binary searches in `n`
+/// elements.
+fn sort_work(n: usize) -> Result<usize, Error> {
+    n.checked_mul(steps(n)).ok_or(Error::SizeOverflow)
+}
+
+/// One candidate triangle in the duplicate sort. Faces that are equal, or
+/// mirror images when `IGNORE_ORIENTATION` is set, share a `class`.
+#[derive(Clone, Copy)]
+struct Face {
+    /// Canonical corners of the face, or of its mirror image if that sorts lower.
+    class: [u32; 3],
+    /// Input triangle index; ties inside a class resolve to the lowest index.
+    index: u32,
+    /// Whether this triangle is the mirror image of `class`.
+    mirrored: bool,
 }
 
 #[inline]
@@ -298,8 +297,8 @@ fn finite(p: [f32; 3]) -> bool {
 }
 
 /// Classify every triangle without writing output. Returns the keep mask and
-/// the report. Scratch is charged to the budget; the hash tables are released
-/// before returning so the output can reuse their bytes.
+/// the report. Scratch is charged to the budget and released before returning
+/// so the output can reuse its bytes.
 fn classify(
     indices: &[u32],
     positions: Positions<'_>,
@@ -312,129 +311,211 @@ fn classify(
     }
     checked_bytes(indices.len(), 4)?;
     let triangles = indices.as_chunks::<3>().0;
-    let vertex_count = positions.len();
-    let weld = options.contains(SanitizeOptions::WELD_POSITIONS);
-    if weld && vertex_count > u32::MAX as usize {
-        return Err(Error::SizeOverflow);
-    }
     budget.ws.charge_retained()?;
     let mut keep = budget.filled(triangles.len(), false)?;
-    let table_len = buckets(triangles.len())?;
-    work.add(table_len)?;
-    let mut table = budget.filled(table_len, EMPTY_KEY)?;
-    let (mut remap, mut weld_table) = if weld {
-        let weld_len = weld_table_len(vertex_count)?;
-        work.add(vertex_count)?;
-        work.add(weld_len)?;
-        (
-            budget.filled(vertex_count, NONE)?,
-            budget.filled(weld_len, NONE)?,
-        )
+    let mut report = SanitizeReport {
+        input_triangles: triangles.len(),
+        ..SanitizeReport::default()
+    };
+    let candidates = if let Some(packed) = positions.packed_values() {
+        screen(options, triangles, &mut keep, &mut report, work, |i| {
+            packed.get(i as usize).copied()
+        })?
     } else {
-        (Vec::new(), Vec::new())
+        screen(options, triangles, &mut keep, &mut report, work, |i| {
+            positions.get(i as usize)
+        })?
     };
-    let mut state = Classify {
-        options,
-        positions,
-        table: &mut table,
-        remap: &mut remap,
-        weld_table: &mut weld_table,
-        work,
-        report: SanitizeReport {
-            input_triangles: triangles.len(),
-            ..SanitizeReport::default()
-        },
-    };
-    let result = if let Some(packed) = positions.packed_values() {
-        state.run(triangles, &mut keep, |i| packed.get(i as usize).copied())
-    } else {
-        state.run(triangles, &mut keep, |i| positions.get(i as usize))
-    };
-    let report = state.report;
-    budget.release(table);
-    budget.release(remap);
-    budget.release(weld_table);
-    result?;
+    // `keep` now marks the candidates. Scratch below is sized by them alone.
+    if candidates > 0 {
+        let read = |i: u32| positions.get(i as usize);
+        dedup(
+            options,
+            triangles,
+            &mut keep,
+            &mut report,
+            budget,
+            work,
+            read,
+        )?;
+    }
     Ok((keep, report))
 }
 
-struct Classify<'a, 'w> {
+/// Per-triangle checks in input order. Marks every triangle that survives them
+/// in `keep` and returns how many did.
+fn screen(
     options: SanitizeOptions,
-    positions: Positions<'a>,
-    table: &'a mut [[u32; 3]],
-    remap: &'a mut [u32],
-    weld_table: &'a mut [u32],
-    work: &'w mut Work,
-    report: SanitizeReport,
+    triangles: &[[u32; 3]],
+    keep: &mut [bool],
+    report: &mut SanitizeReport,
+    work: &mut Work,
+    read: impl Fn(u32) -> Option<[f32; 3]>,
+) -> Result<usize, Error> {
+    let reject = options.contains(SanitizeOptions::REJECT_INVALID);
+    let coincident = options.contains(SanitizeOptions::COINCIDENT_CORNERS);
+    let mut candidates = 0;
+    for (&[a, b, c], kept) in triangles.iter().zip(keep.iter_mut()) {
+        work.add(1)?;
+        let (Some(pa), Some(pb), Some(pc)) = (read(a), read(b), read(c)) else {
+            if reject {
+                return Err(Error::IndexOutOfBounds);
+            }
+            report.out_of_range += 1;
+            continue;
+        };
+        if !(finite(pa) && finite(pb) && finite(pc)) {
+            if reject {
+                return Err(Error::NumericalFailure);
+            }
+            report.non_finite += 1;
+            continue;
+        }
+        if a == b || a == c || b == c {
+            report.repeated_index += 1;
+            continue;
+        }
+        if coincident && (pa == pb || pa == pc || pb == pc) {
+            report.coincident_corners += 1;
+            continue;
+        }
+        *kept = true;
+        candidates += 1;
+    }
+    Ok(candidates)
 }
 
-impl Classify<'_, '_> {
-    fn run(
-        &mut self,
-        triangles: &[[u32; 3]],
-        keep: &mut [bool],
-        read: impl Fn(u32) -> Option<[f32; 3]>,
-    ) -> Result<(), Error> {
-        let reject = self.options.contains(SanitizeOptions::REJECT_INVALID);
-        let zero_area = self.options.contains(SanitizeOptions::ZERO_AREA);
-        let weld = self.options.contains(SanitizeOptions::WELD_POSITIONS);
-        let reversed = self.options.contains(SanitizeOptions::IGNORE_ORIENTATION);
-        for (&[a, b, c], kept) in triangles.iter().zip(keep.iter_mut()) {
-            self.work.add(1)?;
-            let (Some(pa), Some(pb), Some(pc)) = (read(a), read(b), read(c)) else {
-                if reject {
-                    return Err(Error::IndexOutOfBounds);
+/// Clear `keep` for every candidate that repeats an earlier candidate, counting
+/// it as a duplicate or reversed duplicate, and set `output_triangles`.
+///
+/// Candidates are sorted by `(class, input index)`; the first of each class is
+/// kept. A later member with the first member's orientation is a duplicate,
+/// the other orientation a reversed duplicate. Worst case `O(n log n)` with no
+/// dependence on the values, unlike hashing.
+fn dedup(
+    options: SanitizeOptions,
+    triangles: &[[u32; 3]],
+    keep: &mut [bool],
+    report: &mut SanitizeReport,
+    budget: &mut Budget<'_>,
+    work: &mut Work,
+    read: impl Fn(u32) -> Option<[f32; 3]>,
+) -> Result<(), Error> {
+    let candidates = keep.iter().filter(|&&k| k).count();
+    u32::try_from(triangles.len()).map_err(|_| Error::SizeOverflow)?;
+    let welded = if options.contains(SanitizeOptions::WELD_POSITIONS) {
+        Some(weld_candidates(
+            triangles, keep, candidates, budget, work, &read,
+        )?)
+    } else {
+        None
+    };
+    let reversed = options.contains(SanitizeOptions::IGNORE_ORIENTATION);
+    work.add(candidates)?;
+    work.add(sort_work(candidates)?)?;
+    let mut faces = budget.reserved::<Face>(candidates)?;
+    let mut nth = 0;
+    for (index, (triangle, &kept)) in triangles.iter().zip(keep.iter()).enumerate() {
+        if !kept {
+            continue;
+        }
+        let corners = welded.as_ref().map_or(*triangle, |w| w[nth]);
+        nth += 1;
+        let key = canonical(corners);
+        let mirror = canonical([corners[0], corners[2], corners[1]]);
+        let (class, mirrored) = if reversed && mirror < key {
+            (mirror, true)
+        } else {
+            (key, false)
+        };
+        faces.push(Face {
+            class,
+            index: index as u32,
+            mirrored,
+        });
+    }
+    if let Some(welded) = welded {
+        budget.release(welded);
+    }
+    faces.sort_unstable_by(|a, b| a.class.cmp(&b.class).then(a.index.cmp(&b.index)));
+    let mut first: Option<([u32; 3], bool)> = None;
+    for face in &faces {
+        match first {
+            Some((class, mirrored)) if class == face.class => {
+                keep[face.index as usize] = false;
+                if mirrored == face.mirrored {
+                    report.duplicate += 1;
+                } else {
+                    report.reversed_duplicate += 1;
                 }
-                self.report.out_of_range += 1;
-                continue;
-            };
-            if !(finite(pa) && finite(pb) && finite(pc)) {
-                if reject {
-                    return Err(Error::NumericalFailure);
-                }
-                self.report.non_finite += 1;
-                continue;
             }
-            if a == b || a == c || b == c {
-                self.report.repeated_index += 1;
-                continue;
+            _ => {
+                first = Some((face.class, face.mirrored));
+                report.output_triangles += 1;
             }
-            if zero_area && (pa == pb || pa == pc || pb == pc) {
-                self.report.zero_area += 1;
-                continue;
+        }
+    }
+    budget.release(faces);
+    Ok(())
+}
+
+/// Weld the corners of every candidate triangle, in input order. Only vertices
+/// that candidates reference are welded: they are gathered by sorting, copied
+/// into a compact position array, and welded there with the same hash and
+/// equality as `generate_position_remap`. Tables are sized by those vertices,
+/// never by the position count.
+fn weld_candidates(
+    triangles: &[[u32; 3]],
+    keep: &[bool],
+    candidates: usize,
+    budget: &mut Budget<'_>,
+    work: &mut Work,
+    read: &impl Fn(u32) -> Option<[f32; 3]>,
+) -> Result<Vec<[u32; 3]>, Error> {
+    let corner_count = candidates.checked_mul(3).ok_or(Error::SizeOverflow)?;
+    work.add(corner_count)?;
+    work.add(sort_work(corner_count)?)?;
+    let mut referenced = budget.reserved::<u32>(corner_count)?;
+    for (triangle, _) in triangles.iter().zip(keep).filter(|(_, &k)| k) {
+        referenced.extend_from_slice(triangle);
+    }
+    referenced.sort_unstable();
+    referenced.dedup();
+    let unique = referenced.len();
+    if unique >= NONE as usize {
+        return Err(Error::SizeOverflow);
+    }
+    work.add(unique)?;
+    let mut compact = budget.reserved::<[f32; 3]>(unique)?;
+    for &vertex in &referenced {
+        compact.push(read(vertex).ok_or(Error::IndexOutOfBounds)?);
+    }
+    let table_len = weld_table_len(unique)?;
+    work.add(unique)?;
+    work.add(table_len)?;
+    let mut remap = budget.filled(unique, NONE)?;
+    let mut table = budget.filled(table_len, NONE)?;
+    work.add(sort_work(corner_count)?)?;
+    let mut welded = budget.reserved::<[u32; 3]>(candidates)?;
+    let compact_positions = Positions::from_packed(&compact);
+    let result = (|| {
+        for (triangle, _) in triangles.iter().zip(keep).filter(|(_, &k)| k) {
+            let mut corners = [0; 3];
+            for (corner, &vertex) in corners.iter_mut().zip(triangle) {
+                let id = referenced
+                    .binary_search(&vertex)
+                    .map_err(|_| Error::IndexOutOfBounds)?;
+                *corner =
+                    weld_position(id as u32, &mut remap, &mut table, compact_positions, work)?;
             }
-            let corners = if weld {
-                [self.weld(a)?, self.weld(b)?, self.weld(c)?]
-            } else {
-                [a, b, c]
-            };
-            let key = canonical(corners);
-            let (found, slot) = probe(self.table, key, self.work)?;
-            if found {
-                self.report.duplicate += 1;
-                continue;
-            }
-            if reversed {
-                let mirror = canonical([corners[0], corners[2], corners[1]]);
-                if mirror != key && probe(self.table, mirror, self.work)?.0 {
-                    self.report.reversed_duplicate += 1;
-                    continue;
-                }
-            }
-            self.table[slot] = key;
-            *kept = true;
-            self.report.output_triangles += 1;
+            welded.push(corners);
         }
         Ok(())
-    }
-
-    fn weld(&mut self, index: u32) -> Result<u32, Error> {
-        weld_position(
-            index,
-            self.remap,
-            self.weld_table,
-            self.positions,
-            self.work,
-        )
-    }
+    })();
+    budget.release(referenced);
+    budget.release(compact);
+    budget.release(remap);
+    budget.release(table);
+    result?;
+    Ok(welded)
 }
