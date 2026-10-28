@@ -264,3 +264,9 @@ observations exactly match the corrected earlier supervisor: 1,200,243,710
 all-features and 273,906,930 no-default. The 32 recorded normalization ranges
 are contiguous, disjoint and cover all 2,139,095,040 patterns in each mode. No
 differences were reported. The original exit 101 receipts remain retained.
+
+## Release disposition
+
+Evidence considered together: zero differences across all exact comparisons recorded above (simplify, overdraw, meshlets and cluster-LOD subsets, targeted boundary differentials, both feature modes); both previously failing supervisor suites pass; a separate read-only adversarial review of the three changed paths found no counter-input. The review's open point, that native `f32::sqrt` must equal the pinned `libm::sqrtf` on every target, is closed by IEEE 754: square root is correctly rounded on every supported target (x86 SSE, AArch64, and wasm `f32.sqrt` by specification) and in `libm::sqrtf`, the fast path admits only finite non-negative operands, and Rust code runs in the default round-to-nearest environment. Warm-workspace reuse after a failed call is covered by the code: positional quadrics are reset before every use in both retention modes, and the KD-tree work bound is computed per search.
+
+Verdict under the pre-registered rule (three-mesh geometric mean ≤ 0.97 and no difference): `build_meshlets` 0.867, `build_meshlets_flex` 0.867, cluster LOD 0.924, `simplify` 0.932, `simplify_with_update` 0.945 and `simplify_with_attributes` 0.961 SHIP. `build_meshlets_spatial`, `simplify_sloppy`, `simplify_prune`, `simplify_points` and `optimize_overdraw` make no performance claim (1.000).
