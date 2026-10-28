@@ -108,6 +108,24 @@ fn validate(
     if !threshold.is_finite() {
         return Err(Error::InvalidParameter);
     }
+    // A nonfinite coordinate makes its running sum nonfinite for good: inf
+    // and NaN never return to a finite value under addition. Finite sums
+    // therefore prove every coordinate finite, and are the same sums the
+    // checked scan computes. Otherwise replay that scan for its error prefix.
+    if let Some(values) = positions.packed_values() {
+        if work.covers(values.len())? {
+            let mut centroid = [0f32; 3];
+            for p in values {
+                for j in 0..3 {
+                    centroid[j] += p[j];
+                }
+            }
+            if centroid.iter().all(|x| x.is_finite()) {
+                work.add_covered(values.len());
+                return Ok(centroid);
+            }
+        }
+    }
     let mut centroid = [0f32; 3];
     positions.for_each_counted(work, |p| {
         if !p.iter().all(|x| x.is_finite()) {
@@ -190,49 +208,44 @@ impl ClusterGeometry {
         self.area_sum += area;
     }
 
+    /// The cluster's sort value, or `None` exactly when any intermediate the
+    /// 0.2.14 sequence checked one by one is nonfinite (PROOFS.md, score).
+    /// Every intermediate except a reciprocal propagates a nonfinite value
+    /// into the dot product; the reciprocals' inputs are checked directly.
     #[inline(always)]
-    fn score(
-        self,
-        mesh_centroid: [f32; 3],
-        sqrt: &mut impl FnMut(f32) -> f32,
-    ) -> Result<f32, Error> {
+    fn score(self, mesh_centroid: [f32; 3], sqrt: &mut impl FnMut(f32) -> f32) -> Option<f32> {
         let Self {
             area_sum,
             mut centroid,
             mut normal,
         } = self;
-        finite(area_sum)?;
-        let inv_area = if area_sum == 0. {
-            0.
-        } else {
-            finite(1. / area_sum)?
-        };
+        let inv_area = if area_sum == 0. { 0. } else { 1. / area_sum };
         for x in &mut centroid {
-            *x = finite(*x * inv_area)?;
+            *x *= inv_area;
         }
-        let length = sqrt(finite(
-            normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2],
-        )?);
-        let inv_length = if length == 0. {
-            0.
-        } else {
-            finite(1. / length)?
-        };
+        let norm = normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2];
+        let length = sqrt(norm);
+        let inv_length = if length == 0. { 0. } else { 1. / length };
         for x in &mut normal {
-            *x = finite(*x * inv_length)?;
+            *x *= inv_length;
         }
         let cv = [
-            finite(centroid[0] - mesh_centroid[0])?,
-            finite(centroid[1] - mesh_centroid[1])?,
-            finite(centroid[2] - mesh_centroid[2])?,
+            centroid[0] - mesh_centroid[0],
+            centroid[1] - mesh_centroid[1],
+            centroid[2] - mesh_centroid[2],
         ];
-        finite(cv[0] * normal[0] + cv[1] * normal[1] + cv[2] * normal[2])
+        let dot = cv[0] * normal[0] + cv[1] * normal[1] + cv[2] * normal[2];
+        (area_sum.is_finite() & norm.is_finite() & dot.is_finite()).then_some(dot)
     }
 }
 
-// Prepaid is used only when every visit fits and the target multiplication
-// cannot overflow. All other inputs retain Work's original per-visit path.
+// Prepaid is used only when every visit of the phase fits and has been or will
+// be charged in total; for soft clustering also only when the target
+// multiplication cannot overflow. All other inputs retain Work's original
+// per-visit path.
 trait ClusterMeter {
+    /// Soft-cluster targets are proved finite on this path (PROOFS.md, target).
+    const PREPAID: bool;
     fn add(&mut self, n: usize) -> Result<(), Error>;
     fn scan<T>(
         &mut self,
@@ -241,6 +254,7 @@ trait ClusterMeter {
     ) -> Result<(), Error>;
 }
 impl ClusterMeter for Work {
+    const PREPAID: bool = false;
     #[inline(always)]
     fn add(&mut self, n: usize) -> Result<(), Error> {
         Work::add(self, n)
@@ -256,6 +270,7 @@ impl ClusterMeter for Work {
 }
 struct ClusterPrepaid;
 impl ClusterMeter for ClusterPrepaid {
+    const PREPAID: bool = true;
     #[inline(always)]
     fn add(&mut self, _n: usize) -> Result<(), Error> {
         Ok(())
@@ -273,13 +288,13 @@ impl ClusterMeter for ClusterPrepaid {
     }
 }
 
-fn soft_clusters(
+fn soft_clusters<M: ClusterMeter>(
     triangles: &[[u32; 3]],
     hard: &[u32],
     soft: &mut [u32],
     stamps: &mut [u32],
     threshold: f32,
-    work: &mut impl ClusterMeter,
+    work: &mut M,
 ) -> Result<usize, Error> {
     let faces = triangles.len();
     let mut time = 0u32;
@@ -296,7 +311,10 @@ fn soft_clusters(
             misses += update(tri, stamps, &mut time);
             Ok(())
         })?;
-        let target = finite(threshold * (misses as f32 / (end - start) as f32))?;
+        let target = threshold * (misses as f32 / (end - start) as f32);
+        if !M::PREPAID {
+            finite(target)?;
+        }
         soft[soft_count] = start as u32;
         soft_count += 1;
         time = time.wrapping_add(17);
@@ -387,14 +405,9 @@ fn kernel(
     ws.prepare([ints, soft_count, 0, soft_count], output_bytes)?;
     let (_, rest) = ws.integers.split_at_mut(v);
     let (order, soft) = rest.split_at_mut(faces);
-    // Validation already accumulated these coordinates in the same order.
-    // Retain the original centroid scan's charge here, including its exact
-    // exhaustion prefix, and defer numerical checks until this original point.
-    work.scan(0..v, |_| Ok(()))?;
-    for x in &mut mesh_centroid {
-        *x = finite(*x)? / v as f32;
-    }
-    let data = &mut ws.floats;
+    let soft = &soft[..soft_count];
+    let data = &mut ws.floats[..soft_count];
+    let keys = &mut ws.keys[..soft_count];
     // Scalar IEEE sqrt is correctly rounded, like the pinned software backend.
     // A hardware root avoids hashing and software-root misses on varied faces;
     // retain the original cached backend when std is unavailable.
@@ -404,6 +417,53 @@ fn kernel(
     let mut sqrt_cache = crate::math::SqrtCache::new();
     #[cfg(not(feature = "std"))]
     let mut sqrt = |value| sqrt_cache.sqrt(value);
+    // When every remaining charge fits, none of them can fail: packed geometry
+    // and emission then run without per-step accounting and charge the same
+    // totals, or the same prefix before a numerical failure (PROOFS.md, W).
+    if let (Some(values), Some(charges)) = (
+        positions.packed_values(),
+        remaining_charges(v, faces, soft_count, indices.len()),
+    ) {
+        if work.covers(charges)? {
+            work.add_covered(v);
+            for x in &mut mesh_centroid {
+                *x = finite(*x)? / v as f32;
+            }
+            let mut visits = 0;
+            for (cluster, (d, &start)) in data.iter_mut().zip(soft).enumerate() {
+                let start = start as usize;
+                let end = soft.get(cluster + 1).map_or(faces, |&end| end as usize);
+                let mut geometry = ClusterGeometry::default();
+                for tri in &triangles[start..end] {
+                    let triangle = [
+                        values[tri[0] as usize],
+                        values[tri[1] as usize],
+                        values[tri[2] as usize],
+                    ];
+                    geometry.triangle(triangle, &mut sqrt);
+                }
+                visits += 1 + (end - start);
+                let Some(score) = geometry.score(mesh_centroid, &mut sqrt) else {
+                    work.add_covered(visits);
+                    return Err(Error::NumericalFailure);
+                };
+                *d = score;
+            }
+            work.add_covered(visits);
+            emit(dest, indices, soft, order, data, keys, &mut ClusterPrepaid)?;
+            // Emission visits each cluster once in four passes, the histogram,
+            // and each index of every cluster once.
+            work.add_covered(4 * soft_count + 2048 + 3 * (visits - soft_count));
+            return Ok(());
+        }
+    }
+    // Validation already accumulated these coordinates in the same order.
+    // Retain the original centroid scan's charge here, including its exact
+    // exhaustion prefix, and defer numerical checks until this original point.
+    work.scan(0..v, |_| Ok(()))?;
+    for x in &mut mesh_centroid {
+        *x = finite(*x)? / v as f32;
+    }
     // For strided storage, dispatch once if the entire geometry phase fits.
     // Packed reads are already cheap; retain their per-cluster scan so the
     // triangle loop needs no extra cluster-end branch.
@@ -423,7 +483,9 @@ fn kernel(
                 faces
             };
             if face == end {
-                data[cluster] = core::mem::take(&mut geometry).score(mesh_centroid, &mut sqrt)?;
+                data[cluster] = core::mem::take(&mut geometry)
+                    .score(mesh_centroid, &mut sqrt)
+                    .ok_or(Error::NumericalFailure)?;
                 cluster += 1;
                 started_clusters += usize::from(cluster < soft_count);
             }
@@ -449,28 +511,50 @@ fn kernel(
                     Ok(())
                 },
             )?;
-            data[cluster] = geometry.score(mesh_centroid, &mut sqrt)?;
+            data[cluster] = geometry
+                .score(mesh_centroid, &mut sqrt)
+                .ok_or(Error::NumericalFailure)?;
         }
     }
+    emit(dest, indices, soft, order, data, keys, work)
+}
 
+/// Every charge after soft clustering on the per-step path: the retained
+/// centroid scan, one visit per cluster and per face, the maximum, key and
+/// order scans, the histogram, and one visit per emitted cluster and index.
+fn remaining_charges(v: usize, faces: usize, clusters: usize, n: usize) -> Option<usize> {
+    v.checked_add(faces)?
+        .checked_add(clusters.checked_mul(5)?)?
+        .checked_add(2048)?
+        .checked_add(n)
+}
+
+/// Sort clusters by their scores and copy them to the destination.
+fn emit<M: ClusterMeter>(
+    dest: &mut [u32],
+    indices: &[u32],
+    soft: &[u32],
+    order: &mut [u32],
+    data: &[f32],
+    keys: &mut [u16],
+    work: &mut M,
+) -> Result<(), Error> {
+    let soft_count = soft.len();
     let mut max = 1e-3f32;
-    work.scan(data[..soft_count].iter().copied(), |d| {
+    work.scan(data.iter().copied(), |d| {
         if max < d.abs() {
             max = d.abs();
         }
         Ok(())
     })?;
     let mut histogram = [0u32; 2048];
-    work.scan(
-        data[..soft_count].iter().zip(&mut ws.keys[..soft_count]),
-        |(&d, sort_key)| {
-            let key = 0.5f32 - 0.5f32 * (d / max);
-            let clamped = key.clamp(0., 1.);
-            *sort_key = ((clamped * 2047. + 0.5) as u16) & 2047;
-            histogram[*sort_key as usize] += 1;
-            Ok(())
-        },
-    )?;
+    work.scan(data.iter().zip(keys.iter_mut()), |(&d, sort_key)| {
+        let key = 0.5f32 - 0.5f32 * (d / max);
+        let clamped = key.clamp(0., 1.);
+        *sort_key = ((clamped * 2047. + 0.5) as u16) & 2047;
+        histogram[*sort_key as usize] += 1;
+        Ok(())
+    })?;
     let mut sum = 0;
     work.add(histogram.len())?;
     for h in &mut histogram {
@@ -478,7 +562,7 @@ fn kernel(
         *h = sum;
         sum += count;
     }
-    work.scan(ws.keys[..soft_count].iter().enumerate(), |(i, &key)| {
+    work.scan(keys.iter().enumerate(), |(i, &key)| {
         let h = &mut histogram[key as usize];
         order[*h as usize] = i as u32;
         *h += 1;
@@ -495,7 +579,12 @@ fn kernel(
             indices.len()
         };
         work.add(end - start)?;
-        dest[offset..offset + end - start].copy_from_slice(&indices[start..end]);
+        if end - start == 3 {
+            // A constant-length copy for the common one-triangle cluster.
+            dest[offset..offset + 3].copy_from_slice(&indices[start..start + 3]);
+        } else {
+            dest[offset..offset + end - start].copy_from_slice(&indices[start..end]);
+        }
         offset += end - start;
     }
     Ok(())

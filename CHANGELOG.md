@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- `optimize_overdraw` and its `_into` and `_in_place` variants check the finiteness of
+  validated positions and of each cluster's sort value once instead of per
+  coordinate and per intermediate, and charge work in totals when the
+  remaining budget covers every charge. Output, errors and `Usage` are
+  unchanged. On three production LOD-chain meshes they use 0.75× the
+  instructions of 0.2.14 (0.74–0.76×), 0.88× those of optimesh 1.1.0
+  (0.88–0.89×) and 1.09× those of scalar C++ 1.3 (1.088–1.091×). Across the
+  benchmark corpus the ratios are 0.95× versus 0.2.14 (0.90–0.97×), 0.86×
+  versus optimesh and 0.94× versus scalar C++ 1.3.
+
 ## [0.2.14] - 2026-10-28
 
 - `simplify`, `simplify_with_update` and `simplify_with_attributes` skip a
