@@ -1,0 +1,23 @@
+{
+  "domain": "four small meshes, all 4096 boolean configurations, selected numeric defaults, no attributes or locks, each work limit through unrestricted usage plus one",
+  "release_proof_complete": false,
+  "initial_formatting_supervisor_exit": 130,
+  "all_supervisor_exit": 130,
+  "all_supervisor_exit_reason": "stopped duplicate no-default continuation after all mode completed",
+  "modes": {
+    "all": {
+      "exit": 0,
+      "observations": 130418688,
+      "log_sha256": "b79da8cbe2ecd30d4945c12284e5b847b3c9a1fa85c534383a38e2c79ba9f2b5",
+      "binary_sha256": "360bbb643d32c441e2250fb8f1aa4462a795b62dc1dce810c69c12b7708f7f0c"
+    },
+    "none": {
+      "exit": 0,
+      "observations": 130418688,
+      "log_sha256": "b79da8cbe2ecd30d4945c12284e5b847b3c9a1fa85c534383a38e2c79ba9f2b5",
+      "binary_sha256": "a64a58ed3f8a8e9016528eb611218a843f159763bdbdab83e14efafe622c6dbb"
+    }
+  },
+  "none_supervisor_exit": 0,
+  "source_sha256": "9e8021bdf5049a6e7399b49c734bfd27312c9128b55f5b7451b3a2bc63e3b64c"
+}

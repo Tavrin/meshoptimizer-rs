@@ -1,0 +1,33 @@
+{
+  "domain": "one three-vertex small mesh, every 0..7 flag assignment, every accepted simplify option mask, selected packed position and attribute layout, every work limit through unrestricted usage plus one; cold and warm observations",
+  "release_proof_complete": false,
+  "modes": {
+    "all": {
+      "exit": 0,
+      "observations": {
+        "simplify": 116719616,
+        "simplify_with_attributes": 165453824,
+        "simplify_with_update": 100069376,
+        "simplify_sloppy": 8042496,
+        "simplify_prune": 48234496,
+        "simplify_points": 12582912
+      },
+      "log_sha256": "da5218d8dfa5e05415c83401936c4a5f3fa1848a708c0383ec9bd920f12cd73b",
+      "binary_sha256": "e801a59403527661cbb0df070145c70ebe36243a868c0614d6cf926744056c4b"
+    },
+    "none": {
+      "exit": 0,
+      "observations": {
+        "simplify": 28655616,
+        "simplify_with_attributes": 40839168,
+        "simplify_with_update": 24755200,
+        "simplify_sloppy": 2010624,
+        "simplify_prune": 12058624,
+        "simplify_points": 3145728
+      },
+      "log_sha256": "2102cc840bdfa48ce40f1296873987fad8767ed9965f82a4b0da07f710597688",
+      "binary_sha256": "8e21ae82055bc1d8bd3e7c8919455441e7caab14c6b66f5361edb817777c0d38"
+    }
+  },
+  "source_sha256": "fb80aa63ed412a6d6adaf4b67856981efc597b526329ba17c5d0cb77fba571f8"
+}

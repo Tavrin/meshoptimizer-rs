@@ -1,30 +1,32 @@
 # Exact-comparison domain and current coverage
 
-The requested comparison is not complete. The earlier finite driver copied into
-this directory is an executable subset, not the specification's enumeration.
-It crosses 512 all-feature simplify option masks (128 in no-default) with eight represented position layouts,
-three attribute layouts, widths 0/1/3/32, and two selected flag patterns;
-its loops cover work limits for those selected cases. It does not cover every
-supported stride, offset, per-vertex flag and attribute configuration, or every
-storage boundary. The meshlet and cluster-LOD drivers likewise use selected
-settings, layouts and limits. No observation count from these subsets is an
-exhaustive proof size.
+SPEC-0216b replaces the earlier unbounded enumeration request with a release
+standard: the existing small-mesh set and worst cases for precharge bounds,
+each work limit through success plus one, every accepted option/flag value
+combination and each supported index width and stride, in both feature modes.
+The data inventory for this correction is `enumeration-0216b.json`; its required
+per-function sizes remain unknown because the required product is not yet
+implemented or executed. The earlier `enumeration.json` describes the
+superseded wording, not a reason to reject the corrected standard.
 
-The input domain must include packed, interleaved float, and both byte orders;
-mapped positions; each supported position and attribute width, stride and
-absolute offset; every valid vertex-flag/lock vector; each accepted option mask
-and combination; all caller-buffer and allocation APIs; and, for each case,
-work limits 0 through successful work plus one and all byte/storage boundaries.
-Cluster LOD adds its complete configuration, attributes, locks, callback records,
-position writes and result bits. Compare full sentinel-filled caller buffers,
-result/error and work/storage usage for both feature sets.
+The retained drivers establish subsets, not the corrected release proof:
 
-The spec does not bound the supplied buffer length or absolute offset. In
-`src/input.rs`, float strides range through 64, byte strides through 256, and
-valid offsets are bounded by the caller's buffer length rather than by a fixed
-layout constant. For example, even a one-vertex view with stride 3 accepts
-many offsets in a sufficiently large buffer. Thus a fixed finite cross-product
-cannot be reported as exhaustive without an additional domain bound or an
-independent proof covering arbitrary offsets and buffers. The latter would not
-itself be the requested literal execution of every combination. No reduction of
-the registered proof requirement is assumed here.
+* Meshlet and cluster LOD have 154,590 records in each mode, split into 7,460
+  build_meshlets, 7,454 build_meshlets_flex, 7,079 build_meshlets_spatial and
+  132,597 cluster LOD. Meshlet settings and layouts are selected; LOD options
+  are varied individually instead of enumerating their combinations. The
+  no_std LOD build enables `clusterlod`, which is required for that API.
+* The simplify driver produces 1,200,243,710 all-feature and 273,906,930
+  no-default observations across six functions combined. It crosses all
+  accepted option masks with eight selected position layouts, three attribute
+  layouts, widths 0/1/3/32 and two selected flag patterns. The totals are not
+  per-function enumeration sizes and do not cover all supported strides or
+  flag combinations on all meshes.
+* The overdraw driver produces 20,558,564 observations in each mode. Its
+  stride sweep uses selected work limits, while its every-work-limit sweeps
+  use selected layouts. The two dimensions have not been crossed over the
+  required small-mesh set.
+
+These observations compare results, usage and relevant full output buffers;
+they do not establish the missing cross-product. The supervisor failures and
+corrected subset runs remain separately recorded in `proof-results.json`.
