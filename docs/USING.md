@@ -61,6 +61,43 @@ simplify(&indices, view, settings, &mut workspace)?;
 # Ok::<(), meshoptimizer_rs::Error>(())
 ```
 
+## Typed Rust vertex fields
+
+`VertexLayout` is an opt-in extension not in C++ meshoptimizer. Use `offset_of!`
+and a typed selector to check a field against the struct's size and alignment.
+See the [`VertexLayout`](crate::VertexLayout) doctest for a complete `#[repr(C)]`
+vertex with position, normal and UV fields.
+
+```rust
+use core::mem::offset_of;
+use meshoptimizer_rs::{VertexBuffer, VertexLayoutError};
+
+#[repr(C)]
+struct Vertex {
+    position: [f32; 3],
+    normal: [f32; 3],
+    uv: [f32; 2],
+}
+let vertices = [Vertex {
+    position: [0., 0., 0.], normal: [0., 0., 1.], uv: [0., 0.],
+}];
+let data = VertexBuffer::from_vertices(
+    &vertices, offset_of!(Vertex, position), |v| &v.position,
+)?;
+let positions = data.positions()?;
+assert_eq!(positions.get(0), Some([0., 0., 0.]));
+# Ok::<(), VertexLayoutError>(())
+```
+
+Keep `data` alive while using its views. Construction copies selected floats into
+a zero-filled, little-endian snapshot with the original stride and offset; it
+never reads struct padding. The allocation is one full struct stride per vertex,
+outside `Workspace` limits, so bound caller input sizes first. Later vertex edits
+require a new snapshot. Selectors enforce float element types at compile time;
+layout, field-width and address failures return `VertexLayoutError`. Empty input
+checks the layout but has no field address to verify. Packed position slices can
+continue to use `Positions::from_packed` without a copy.
+
 ## Simplify one mesh
 
 ```text

@@ -19,6 +19,10 @@ meshoptimizer-rs = "0.2"
 
 The minimum Rust version is 1.88. The library name is `meshoptimizer_rs`.
 
+## Beyond upstream
+
+- Typed vertex layouts build position and attribute views from Rust struct fields.
+
 ## Usage
 
 Task recipes: [the `guide` module](https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/guide/index.html) ([source](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/USING.md)).
