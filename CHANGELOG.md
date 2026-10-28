@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+- On three production LOD-chain meshes, `simplify_prune` uses 0.688× the
+  instructions of 0.2.14, 0.846× those of optimesh 1.1.0 and 1.104× those
+  of C++ meshoptimizer 1.3; `simplify_points` uses 0.812× / 0.854× / 1.370×,
+  respectively (geometric means of per-mesh instruction ratios).
+
 ## [0.2.14] - 2026-10-28
 
 - `simplify`, `simplify_with_update` and `simplify_with_attributes` skip a
