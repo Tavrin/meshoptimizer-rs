@@ -93,10 +93,15 @@ impl Scores for VertexScoreTable {
 /// guaranteed.
 ///
 /// A triangle score is the sum of its three vertex scores. After each emitted
-/// triangle, the next one is the highest positive-scoring triangle adjacent to
-/// the cache; when none scores above zero, the next unemitted triangle in input
-/// order follows. A table whose sums are never positive therefore keeps the
-/// input order. Extreme finite scores can overflow the summed scores, which
+/// triangle, the vertices of the cache are rescored in cache order, and each
+/// change in a vertex score is added to the score of every unemitted triangle
+/// that uses it. The next triangle is whichever updated triangle first reaches
+/// the largest positive running score during this pass, so a transient maximum
+/// reached before a later vertex lowers the same triangle's score can win.
+/// This is upstream's incremental selection, and tables are applied through the
+/// same procedure as the default table. When no updated triangle scores above
+/// zero, the next unemitted triangle in input order follows. A table whose sums
+/// are never positive therefore keeps the input order. Extreme finite scores can overflow the summed scores, which
 /// degrades the ordering but never drops or duplicates a triangle.
 ///
 /// ```

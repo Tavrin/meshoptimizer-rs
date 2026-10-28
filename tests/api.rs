@@ -968,6 +968,26 @@ fn custom_vertex_score_table_changes_order_deterministically() {
 }
 
 #[test]
+fn table_selection_follows_the_incremental_procedure_not_the_final_maximum() {
+    // After emitting triangle 0 (0,1,2) the cache is [0,1,2] with position
+    // scores 10, -10, 2, and every live score is 1. Vertices are rescored in
+    // cache order: vertex 0 lifts triangle 1 (0,1,3) from 3 to 13, which becomes
+    // the running best; vertex 1 then drops it back to 3, and vertex 2 lifts
+    // triangle 2 (2,4,5) from 3 to 5, which does not beat 13. Triangle 1 wins on
+    // its transient maximum although triangle 2 has the higher final score, so
+    // the order stays as the input. This is upstream's incremental procedure and
+    // is what keeps the default table identical to C++; comparing final triangle
+    // scores would give [0,1,2, 2,4,5, 0,1,3] instead.
+    let input = [0, 1, 2, 0, 1, 3, 2, 4, 5];
+    let mut cache = [0.; 17];
+    cache[..4].copy_from_slice(&[0., 10., -10., 2.]);
+    let table = VertexScoreTable::new(&cache, &[1.; 9]).unwrap();
+    let result =
+        optimize_vertex_cache_with_table(&input, 6, &table, &mut Workspace::default()).unwrap();
+    assert_eq!(result, input);
+}
+
+#[test]
 fn default_vertex_score_table_matches_every_work_prefix_and_errors() {
     let table = VertexScoreTable::default();
     for (indices, count) in [
