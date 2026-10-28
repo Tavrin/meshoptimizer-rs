@@ -47,7 +47,8 @@ fn padded_layout_matches_independently_written_bytes() {
             manual.get(i).unwrap().map(f32::to_bits)
         );
     }
-    let uv = VertexBuffer::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv).unwrap();
+    let uv =
+        VertexFieldSnapshot::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv).unwrap();
     for (i, vertex) in vertices.iter().enumerate() {
         for j in 0..2 {
             assert_eq!(uv.attributes().unwrap().get(i, j), Some(vertex.uv[j]));
@@ -74,15 +75,17 @@ fn packed_aligned_empty_and_bit_patterns() {
         .unwrap();
     assert_eq!(data.positions().unwrap().get(0), Some([1., 2., 3.]));
     let values = [[-0.0, f32::from_bits(0x7fc12345), f32::INFINITY]];
-    let data = VertexBuffer::from_vertices(&values, 0, |v| v).unwrap();
+    let data = VertexFieldSnapshot::from_vertices(&values, 0, |v| v).unwrap();
     assert_eq!((data.stride(), data.offset()), (12, 0));
     assert_eq!(
         data.positions().unwrap().get(0).unwrap().map(f32::to_bits),
         values[0].map(f32::to_bits)
     );
     let empty =
-        VertexBuffer::from_vertices::<Vertex>(&[], offset_of!(Vertex, position), |v| &v.position)
-            .unwrap();
+        VertexFieldSnapshot::from_vertices::<Vertex>(&[], offset_of!(Vertex, position), |v| {
+            &v.position
+        })
+        .unwrap();
     assert!(empty.positions().unwrap().is_empty());
     assert!(empty.attributes().unwrap().is_empty());
     assert!(empty.as_bytes().is_empty());
@@ -133,18 +136,18 @@ fn rejects_invalid_layouts_and_selector_addresses() {
         Some(MisalignedField)
     );
     assert_eq!(
-        VertexBuffer::from_vertices(&[[1., 2., 3.]], 0, |_| &ZERO).unwrap_err(),
+        VertexFieldSnapshot::from_vertices(&[[1., 2., 3.]], 0, |_| &ZERO).unwrap_err(),
         FieldOffsetMismatch
     );
     let vertices = [[1., 2., 3., 4., 5., 6.]];
     assert_eq!(
-        VertexBuffer::from_vertices(&vertices, 0, |v| v[3..].first_chunk::<3>().unwrap())
+        VertexFieldSnapshot::from_vertices(&vertices, 0, |v| v[3..].first_chunk::<3>().unwrap())
             .unwrap_err(),
         FieldOffsetMismatch
     );
     let vertices = [[0., 1., 2., 3., 4., 5.], [1., 2., 3., 4., 5., 6.]];
     assert_eq!(
-        VertexBuffer::from_vertices(&vertices, 0, |v| {
+        VertexFieldSnapshot::from_vertices(&vertices, 0, |v| {
             if v[0] == 0. {
                 v.first_chunk::<3>().unwrap()
             } else {
@@ -179,9 +182,10 @@ fn simplify_and_meshlets_match_manual_views_bit_for_bit() {
             indices.extend([a, a + 1, a + 9, a + 9, a + 1, a + 10]);
         }
     }
-    let data = VertexBuffer::from_vertices(&vertices, 4, |v| &v.position).unwrap();
+    let data = VertexFieldSnapshot::from_vertices(&vertices, 4, |v| &v.position).unwrap();
     let helper = data.positions().unwrap();
-    let uv = VertexBuffer::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv).unwrap();
+    let uv =
+        VertexFieldSnapshot::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv).unwrap();
     let uv_floats: Vec<f32> = vertices.iter().flat_map(|v| v.uv).collect();
     let uv_manual = Attributes::from_interleaved(&uv_floats, 81, 2, 2, 0).unwrap();
     for manual in [

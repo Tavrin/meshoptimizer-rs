@@ -55,7 +55,7 @@ impl std::error::Error for VertexLayoutError {}
 ///
 /// ```
 /// use core::mem::{offset_of, size_of};
-/// use meshoptimizer_rs::{VertexBuffer, VertexLayout};
+/// use meshoptimizer_rs::{VertexFieldSnapshot, VertexLayout};
 ///
 /// #[repr(C)]
 /// struct Vertex {
@@ -70,11 +70,11 @@ impl std::error::Error for VertexLayoutError {}
 /// assert_eq!(layout.stride(), size_of::<Vertex>());
 /// let positions = layout.copy_from(&vertices)?;
 /// assert_eq!(positions.positions()?.get(0), Some([1.0, 2.0, 3.0]));
-/// let normals = VertexBuffer::from_vertices(
+/// let normals = VertexFieldSnapshot::from_vertices(
 ///     &vertices, offset_of!(Vertex, normal), |v| &v.normal,
 /// )?;
 /// assert_eq!(normals.attributes()?.components(), 3);
-/// let uv = VertexBuffer::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv)?;
+/// let uv = VertexFieldSnapshot::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv)?;
 /// assert_eq!(uv.attributes()?.components(), 2);
 /// # Ok::<(), meshoptimizer_rs::VertexLayoutError>(())
 /// ```
@@ -90,6 +90,25 @@ impl std::error::Error for VertexLayoutError {}
 pub struct VertexLayout<V, const N: usize> {
     offset: usize,
     field: fn(&V) -> &[f32; N],
+}
+
+// Manual impls: derives would needlessly require `V: Clone`/`V: Debug`.
+impl<V, const N: usize> Clone for VertexLayout<V, N> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+
+impl<V, const N: usize> Copy for VertexLayout<V, N> {}
+
+impl<V, const N: usize> core::fmt::Debug for VertexLayout<V, N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("VertexLayout")
+            .field("stride", &self.stride())
+            .field("offset", &self.offset)
+            .field("components", &N)
+            .finish()
+    }
 }
 
 impl<V, const N: usize> VertexLayout<V, N> {
@@ -132,7 +151,7 @@ impl<V, const N: usize> VertexLayout<V, N> {
     /// Returns `SizeOverflow` or `AllocationFailed` if the snapshot cannot be
     /// allocated; `FieldOffsetMismatch` if any selector result differs from the
     /// declared field address. Selector panics propagate to the caller.
-    pub fn copy_from(&self, vertices: &[V]) -> Result<VertexBuffer<N>, VertexLayoutError> {
+    pub fn copy_from(&self, vertices: &[V]) -> Result<VertexFieldSnapshot<N>, VertexLayoutError> {
         let len = vertices
             .len()
             .checked_mul(self.stride())
@@ -155,7 +174,7 @@ impl<V, const N: usize> VertexLayout<V, N> {
                 record[start..start + 4].copy_from_slice(&value.to_le_bytes());
             }
         }
-        Ok(VertexBuffer {
+        Ok(VertexFieldSnapshot {
             bytes,
             count: vertices.len(),
             stride: self.stride(),
@@ -169,14 +188,14 @@ impl<V, const N: usize> VertexLayout<V, N> {
 /// Stores `vertex_count * size_of::<V>()` bytes. Only the selected field is
 /// copied; remaining bytes are zero. This is not a serialization of the struct.
 #[derive(Debug)]
-pub struct VertexBuffer<const N: usize> {
+pub struct VertexFieldSnapshot<const N: usize> {
     bytes: Vec<u8>,
     count: usize,
     stride: usize,
     offset: usize,
 }
 
-impl<const N: usize> VertexBuffer<N> {
+impl<const N: usize> VertexFieldSnapshot<N> {
     /// Check and copy a typed field directly from a vertex slice and byte offset.
     ///
     /// # Errors

@@ -70,7 +70,7 @@ vertex with position, normal and UV fields.
 
 ```rust
 use core::mem::offset_of;
-use meshoptimizer_rs::{VertexBuffer, VertexLayoutError};
+use meshoptimizer_rs::{VertexFieldSnapshot, VertexLayoutError};
 
 #[repr(C)]
 struct Vertex {
@@ -81,7 +81,7 @@ struct Vertex {
 let vertices = [Vertex {
     position: [0., 0., 0.], normal: [0., 0., 1.], uv: [0., 0.],
 }];
-let data = VertexBuffer::from_vertices(
+let data = VertexFieldSnapshot::from_vertices(
     &vertices, offset_of!(Vertex, position), |v| &v.position,
 )?;
 let positions = data.positions()?;

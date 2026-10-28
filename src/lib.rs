@@ -177,7 +177,7 @@ mod remesh;
 mod simplify;
 mod strip;
 mod tangent;
-pub mod vertex_layout;
+mod vertex_layout;
 mod workspace;
 pub use simplify::{
     simplify, simplify_into, simplify_points, simplify_points_into, simplify_prune,
@@ -185,7 +185,7 @@ pub use simplify::{
     simplify_with_attributes, simplify_with_attributes_into, simplify_with_update, SimplifiedMesh,
     SimplifyOptions, SimplifyResult, SimplifySettings,
 };
-pub use vertex_layout::{VertexBuffer, VertexLayout, VertexLayoutError};
+pub use vertex_layout::{VertexFieldSnapshot, VertexLayout, VertexLayoutError};
 
 pub use analyze::{
     analyze_vertex_cache, analyze_vertex_fetch, VertexCacheStatistics, VertexFetchStatistics,

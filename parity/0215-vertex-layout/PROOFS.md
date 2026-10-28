@@ -7,7 +7,7 @@ Base: v0.2.14, `dbb75e03ec011ae04645e6d40b0039561991286d`.
 `VertexLayout<V, N>::new(offset, selector)` derives stride from `size_of::<V>()`
 and checks stride, alignment, field width and offset arithmetic. The selector's
 `fn(&V) -> &[f32; N]` type checks element type and field width without a macro.
-`copy_from` checks the selected address on every record. `VertexBuffer::from_vertices`
+`copy_from` checks the selected address on every record. `VertexFieldSnapshot::from_vertices`
 combines both steps. Its `positions` and `attributes` methods return existing views.
 This extension is explicitly opt-in and not in C++ meshoptimizer.
 
@@ -96,3 +96,36 @@ No boundary rule was weakened. Existing ignored exhaustive-root and migration
 doctests were not executed. No fresh C++ differential corpus, cross-target run,
 allocator fault injection, independent review or performance campaign was run.
 The focused Rust 1.88 result is not a full MSRV release qualification.
+
+## Follow-up check
+
+A second pass checked c3d468d against the spec, item by item. Soundness held up.
+The module has no unsafe code. It reads only `f32` values through the typed
+selector, never padding or other fields. The selector address check compares
+integers and dereferences nothing. Stride, alignment and width checks match the
+limits of `Positions::from_bytes` and `Attributes::from_bytes`. The pass made
+three API-shape changes, none of which alter behaviour:
+
+- `VertexBuffer` is renamed to `VertexFieldSnapshot`. The old name read as a
+  whole vertex buffer, which is the codec's term (`encode_vertex_buffer`). The
+  type holds one copied field.
+- The `vertex_layout` module is private. Like the other feature modules, its
+  items are reachable only through the crate-root re-exports, so the API has
+  one path to keep stable instead of two.
+- `VertexLayout` gets manual `Clone`, `Copy` and `Debug` impls with no bounds on
+  `V`. The snapshot still has no `Clone`, keeping the earlier rule against
+  allocating clones.
+
+Gates were rerun on the final tree under the shared build queue, with a fresh
+target directory:
+
+| Command | Result |
+|---|---|
+| `cargo fmt --check` | exit 0 |
+| `cargo test --locked --all-features` | exit 0; 236 passed, 0 failed (doctests 27 passed, 5 ignored) |
+| `cargo test --locked --no-default-features` | exit 0; 190 passed, 0 failed (doctests 24 passed, 5 ignored) |
+| `cargo clippy --locked --all-targets --all-features -- -D warnings` | exit 0 |
+| `python3 parity/simd/check_boundary.py` | exit 0 |
+| `cargo package --locked --allow-dirty --list \| python3 parity/simd/check_package.py` | exit 0 |
+| `bash parity/tools/check_public_text.sh` | exit 0 |
+| `cargo +1.88 test --locked --no-default-features --test vertex_layout` | exit 0; 4 passed |
