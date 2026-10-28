@@ -1,22 +1,22 @@
 # SPEC 0216 qualification
 
-**UNQUALIFIED: the SPEC-0216b release proof is incomplete.** No function has a SHIPS verdict. The 0216 campaign found no instruction regression, but the corrected finite proof has not been implemented and run completely. Earlier campaigns are not reused as verdicts.
+**UNQUALIFIED: the SPEC-0216c gaps remain open.** No function has a SHIPS verdict. The bounded gap-1 run reached its time limit before completing its grid; gaps 2–4 were not run under this specification. Earlier campaigns are not reused as complete gap verdicts.
 
 Candidate: `4d14205cf201715a3df3debd795705ea0b1d904f`; baseline `9c26f3e`.
 
 | Function | Three-mesh candidate/base geometric mean | Verdict |
 |---|---:|---|
-| build_meshlets | 0.867465 | no claim; exact proof incomplete |
-| build_meshlets_flex | 0.867417 | no claim; exact proof incomplete |
-| build_meshlets_spatial | 1.000000 | no claim; exact proof incomplete |
-| cluster LOD | 0.924189 | no claim; exact proof incomplete |
-| simplify | 0.932214 | no claim; exact proof incomplete |
-| simplify_with_attributes | 0.961486 | no claim; exact proof incomplete |
-| simplify_with_update | 0.944959 | no claim; exact proof incomplete |
-| simplify_sloppy | 1.000000 | no claim; exact proof incomplete |
-| simplify_prune | 1.000000 | no claim; exact proof incomplete |
-| simplify_points | 1.000000 | no claim; exact proof incomplete |
-| optimize_overdraw | 1.000000 | no claim; exact proof incomplete |
+| build_meshlets | 0.867465 | UNQUALIFIED; exact proof incomplete |
+| build_meshlets_flex | 0.867417 | UNQUALIFIED; exact proof incomplete |
+| build_meshlets_spatial | 1.000000 | does not meet instruction-ratio threshold |
+| cluster LOD | 0.924189 | UNQUALIFIED; exact proof incomplete |
+| simplify | 0.932214 | UNQUALIFIED; exact proof incomplete |
+| simplify_with_attributes | 0.961486 | UNQUALIFIED; exact proof incomplete |
+| simplify_with_update | 0.944959 | UNQUALIFIED; exact proof incomplete |
+| simplify_sloppy | 1.000000 | does not meet instruction-ratio threshold |
+| simplify_prune | 1.000000 | does not meet instruction-ratio threshold |
+| simplify_points | 1.000000 | does not meet instruction-ratio threshold |
+| optimize_overdraw | 1.000000 | does not meet instruction-ratio threshold |
 
 ## Campaign
 
@@ -115,15 +115,40 @@ exited (`cleanup-0216b.json`); retained inputs, binaries and logs remain in
 scratch. The source tree still matches `4d14205`.
 The final public-text check exited 0.
 
-## SPEC-0216c gaps — in progress
+## SPEC-0216c gaps — time limit
 
-The new gap-1 grid and count semantics are documented in `GAP1.md`. A first
-ordering was deliberately interrupted (supervisor exit 130) to spread a
-bounded prefix across the input dimensions. Its last checkpoints report 70
-completed cells per mode and 9,250,250 all-feature / 9,166,328 no-default
-compared observations, including comparisons in the next unfinished cell.
-They are checkpoint counts, not exact totals for the interrupted processes.
-The reordered driver has been admitted and is running in both modes. No gap-1
-completion or per-function SHIPS verdict has been established. Gaps 2–4 have
-not yet been rerun under this specification. The earlier affected-suite
-rerun and its two original failures remain documented above.
+Gap 1 reached the specified active-work cutoff before completing its grid. The
+bounded reordered run was admitted CPU-only with a 4 GB declaration; the
+wrapper selected a 6 GB scope cap. Each mode ran for 27,900 seconds and exited
+124, as did its supervisor. No compared observations differed. The count includes
+completed cold and reused-workspace comparisons in the unfinished cell; a reused
+workspace after a failed call can be empty or only partially populated. This is
+not a complete warm-workspace proof. Source and binary bindings, final counts,
+unfinished-cell coordinates and retained-log hashes are in `gaps-0216c.json`;
+the product and count semantics are documented in `GAP1.md`.
+
+| Gap | All features: observations; completed cells | No defaults: observations; completed cells | Exit |
+|---|---:|---:|---|
+| 1: simplify quadrics | 220,975,530; 649 / 7,077,888 (0.0091694%) | 243,318,400; 1,117 / 1,769,472 (0.06312618%) | 124 / 124; incomplete |
+| 2: meshlet nearest and work accounting | 0 | 0 | not run |
+| 3: cluster LOD roots with attributes and locks | 0 | 0 | not run |
+| 4: affected-suite supervisor reruns | 0 | 0 | not run under this specification |
+
+Gap 1 counts by function, all-features / no-default: `simplify` 67,389,904 /
+64,868,620; `simplify_with_attributes` 101,772,788 / 117,681,280;
+`simplify_with_update` 51,812,838 / 60,768,500. The counts are from this
+bounded run, not full enumeration sizes. The first ordering was deliberately
+interrupted (exit 130) to spread a bounded prefix across input dimensions. Its
+last checkpoints contain 70 completed cells per mode and 9,250,250 all-feature /
+9,166,328 no-default observations, including partial-cell comparisons. They are
+checkpoint counts, not exact totals for the interrupted processes, and are not
+added to the new run. The two earlier supervisor exits 101 and their subsequent
+0216b affected-suite rerun remain documented above; no new gap-4 rerun occurred.
+
+All six functions whose instruction ratio is at most 0.97 remain UNQUALIFIED:
+`build_meshlets`, `build_meshlets_flex`, `cluster LOD`, `simplify`,
+`simplify_with_update`, and `simplify_with_attributes`. The other functions do
+not meet the instruction-ratio threshold. There is no SHIPS verdict, no source
+revert (no difference was observed), and no new changelog claim. The designated
+build target was removed after the admitted job exited; the logs, binaries,
+source hashes and interrupted-run evidence remain in scratch.
