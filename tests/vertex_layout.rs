@@ -61,6 +61,27 @@ fn padded_layout_matches_independently_written_bytes() {
 }
 
 #[test]
+fn capturing_selector_closures_are_accepted() {
+    let calls = core::cell::Cell::new(0usize);
+    let vertices = [[1., 2., 3.], [4., 5., 6.]];
+    let layout = VertexLayout::new(0, |v: &[f32; 3]| {
+        calls.set(calls.get() + 1);
+        v
+    })
+    .unwrap();
+    let data = layout.copy_from(&vertices).unwrap();
+    assert_eq!(calls.get(), 2);
+    assert_eq!(data.positions().unwrap().get(1), Some([4., 5., 6.]));
+    let data = VertexFieldSnapshot::from_vertices(&vertices, 0, |v| {
+        calls.set(calls.get() + 1);
+        v
+    })
+    .unwrap();
+    assert_eq!(calls.get(), 4);
+    assert_eq!(data.positions().unwrap().get(0), Some([1., 2., 3.]));
+}
+
+#[test]
 fn packed_aligned_empty_and_bit_patterns() {
     #[repr(C, align(32))]
     struct Aligned {

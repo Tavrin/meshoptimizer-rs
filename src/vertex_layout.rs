@@ -11,7 +11,10 @@ use core::mem::{align_of, size_of};
 use crate::{Attributes, ByteOrder, Positions};
 
 /// A construction failure for a typed vertex layout or snapshot.
+///
+/// New variants may be added in a minor release.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum VertexLayoutError {
     /// The struct stride is not a multiple of four in the range 4..=256.
     InvalidStride,
@@ -87,21 +90,29 @@ impl std::error::Error for VertexLayoutError {}
 /// struct Vertex { position: [u32; 3] }
 /// let layout = VertexLayout::new(0, |v: &Vertex| &v.position);
 /// ```
-pub struct VertexLayout<V, const N: usize> {
+///
+/// The selector may be any `Fn(&V) -> &[f32; N]`, including a capturing closure;
+/// the layout is `Clone`/`Copy` when the selector is.
+pub struct VertexLayout<V, const N: usize, F> {
     offset: usize,
-    field: fn(&V) -> &[f32; N],
+    field: F,
+    marker: core::marker::PhantomData<fn(&V) -> &[f32; N]>,
 }
 
 // Manual impls: derives would needlessly require `V: Clone`/`V: Debug`.
-impl<V, const N: usize> Clone for VertexLayout<V, N> {
+impl<V, const N: usize, F: Clone> Clone for VertexLayout<V, N, F> {
     fn clone(&self) -> Self {
-        *self
+        Self {
+            offset: self.offset,
+            field: self.field.clone(),
+            marker: core::marker::PhantomData,
+        }
     }
 }
 
-impl<V, const N: usize> Copy for VertexLayout<V, N> {}
+impl<V, const N: usize, F: Copy> Copy for VertexLayout<V, N, F> {}
 
-impl<V, const N: usize> core::fmt::Debug for VertexLayout<V, N> {
+impl<V, const N: usize, F> core::fmt::Debug for VertexLayout<V, N, F> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("VertexLayout")
             .field("stride", &self.stride())
@@ -111,13 +122,25 @@ impl<V, const N: usize> core::fmt::Debug for VertexLayout<V, N> {
     }
 }
 
-impl<V, const N: usize> VertexLayout<V, N> {
+impl<V, const N: usize, F> VertexLayout<V, N, F> {
+    /// Byte stride, equal to `size_of::<V>()`.
+    pub const fn stride(&self) -> usize {
+        size_of::<V>()
+    }
+
+    /// Byte offset of the selected field.
+    pub const fn offset(&self) -> usize {
+        self.offset
+    }
+}
+
+impl<V, const N: usize, F: Fn(&V) -> &[f32; N]> VertexLayout<V, N, F> {
     /// Check a byte offset and typed field selector using `V`'s size/alignment.
     ///
     /// # Errors
     /// Returns `InvalidStride`, `MisalignedField` or `InvalidFieldSize` for an
     /// unsupported layout. A selector/offset mismatch is checked by `copy_from`.
-    pub fn new(offset: usize, field: fn(&V) -> &[f32; N]) -> Result<Self, VertexLayoutError> {
+    pub fn new(offset: usize, field: F) -> Result<Self, VertexLayoutError> {
         let stride = size_of::<V>();
         if stride == 0 || stride > 256 || !stride.is_multiple_of(4) {
             return Err(VertexLayoutError::InvalidStride);
@@ -128,17 +151,11 @@ impl<V, const N: usize> VertexLayout<V, N> {
         if N == 0 || N > 32 || offset.checked_add(N * 4).is_none_or(|end| end > stride) {
             return Err(VertexLayoutError::InvalidFieldSize);
         }
-        Ok(Self { offset, field })
-    }
-
-    /// Byte stride, equal to `size_of::<V>()`.
-    pub const fn stride(&self) -> usize {
-        size_of::<V>()
-    }
-
-    /// Byte offset of the selected field.
-    pub const fn offset(&self) -> usize {
-        self.offset
+        Ok(Self {
+            offset,
+            field,
+            marker: core::marker::PhantomData,
+        })
     }
 
     /// Copy the selected field into an initialized snapshot with the same layout.
@@ -204,7 +221,7 @@ impl<const N: usize> VertexFieldSnapshot<N> {
     pub fn from_vertices<V>(
         vertices: &[V],
         offset: usize,
-        field: fn(&V) -> &[f32; N],
+        field: impl Fn(&V) -> &[f32; N],
     ) -> Result<Self, VertexLayoutError> {
         VertexLayout::new(offset, field)?.copy_from(vertices)
     }
