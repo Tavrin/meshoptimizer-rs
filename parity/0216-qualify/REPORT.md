@@ -114,3 +114,16 @@ The dedicated qualification target was removed after all admitted proof jobs
 exited (`cleanup-0216b.json`); retained inputs, binaries and logs remain in
 scratch. The source tree still matches `4d14205`.
 The final public-text check exited 0.
+
+## SPEC-0216c gaps — in progress
+
+The new gap-1 grid and count semantics are documented in `GAP1.md`. A first
+ordering was deliberately interrupted (supervisor exit 130) to spread a
+bounded prefix across the input dimensions. Its last checkpoints report 70
+completed cells per mode and 9,250,250 all-feature / 9,166,328 no-default
+compared observations, including comparisons in the next unfinished cell.
+They are checkpoint counts, not exact totals for the interrupted processes.
+The reordered driver has been admitted and is running in both modes. No gap-1
+completion or per-function SHIPS verdict has been established. Gaps 2–4 have
+not yet been rerun under this specification. The earlier affected-suite
+rerun and its two original failures remain documented above.
