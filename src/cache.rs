@@ -266,8 +266,11 @@ fn cache_loop<const STRIP: bool, const FAST: bool>(
         }
         let mut best = usize::MAX;
         let mut best_score = 0.;
+        // One visit per cache entry: a single covered tally, or a checked
+        // charge before each entry's mutation on the limited path.
+        work.tally(write);
         for (i, &index) in cache[..write].iter().enumerate() {
-            work.add(1)?;
+            work.visit()?;
             let j = index as usize;
             let vertex = &mut vertices[j];
             if vertex.live == 0 {
@@ -641,6 +644,22 @@ impl<'a, const FAST: bool> CacheWork<'a, FAST> {
             Ok(())
         } else {
             self.work.add(count)
+        }
+    }
+    // Covered path: tally `count` infallible visits at once. The limited path
+    // charges each of them with `visit` instead.
+    #[inline(always)]
+    fn tally(&mut self, count: usize) {
+        if FAST {
+            self.spent += count;
+        }
+    }
+    #[inline(always)]
+    fn visit(&mut self) -> Result<(), Error> {
+        if FAST {
+            Ok(())
+        } else {
+            self.work.add(1)
         }
     }
     #[inline(always)]
