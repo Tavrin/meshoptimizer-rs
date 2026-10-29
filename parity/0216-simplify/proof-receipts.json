@@ -1,0 +1,122 @@
+{
+  "exact-all": {
+    "elapsed": 95.73007607460022,
+    "exit": 0,
+    "log_sha256": "5300ad424694c5bdc2ce423ec4c56ea2f34bcae58b692362952a79b32bb42911"
+  },
+  "exact-build-all": {
+    "elapsed": 23.164586544036865,
+    "exit": 0,
+    "log_sha256": "4c6305fdb278e2d6a573cfc746ae702e83dc14f71fb8b6801595e483b2b90990"
+  },
+  "exact-build-none": {
+    "elapsed": 51.01934504508972,
+    "exit": 0,
+    "log_sha256": "7573e1536b368fb52ecfd08179b634736f20fb0b8263d6e31999d91dddb7ea24"
+  },
+  "exact-lock": {
+    "elapsed": 0.022858142852783203,
+    "exit": 0,
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "exact-none": {
+    "elapsed": 2.308431625366211,
+    "exit": 101,
+    "log_sha256": "0a4a3b4554627b4e03bf0c8b339179b9313aa72609fac2ced8d7f8b1acc16d06"
+  },
+  "final-clippy": {
+    "elapsed": 5.419533967971802,
+    "exit": 0,
+    "log_sha256": "4e34925a218d3f497508e0ce79ca4aa47866a4ce25b49a30628c3975a0e2f3bd"
+  },
+  "final-cpp-build": {
+    "elapsed": 3.4630208015441895,
+    "exit": 0,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "final-cpp-differential": {
+    "elapsed": 15.224009037017822,
+    "exit": 0,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "final-exact-all": {
+    "elapsed": 90.40928936004639,
+    "exit": 0,
+    "log_sha256": "5300ad424694c5bdc2ce423ec4c56ea2f34bcae58b692362952a79b32bb42911"
+  },
+  "final-exact-build-all": {
+    "elapsed": 3.3057799339294434,
+    "exit": 0,
+    "log_sha256": "572a07e1a266742d16ef8aa28f055a940cb5b98864ce558abb7d200cbba289df"
+  },
+  "final-exact-build-none": {
+    "elapsed": 3.337775707244873,
+    "exit": 0,
+    "log_sha256": "441dde3e0d03e68efcf286d9256e387344a2db7645898d10b2dd70c50330ce5f"
+  },
+  "final-exact-lock": {
+    "elapsed": 0.02618122100830078,
+    "exit": 0,
+    "log_sha256": "f109044de181d79ee03ac131834fef40912deda14a7b0c1b413d31013d7f4233"
+  },
+  "final-exact-none": {
+    "elapsed": 107.19927072525024,
+    "exit": 0,
+    "log_sha256": "3da7047304818e5b267ceeaeb2048c0c312178a57db39f2c08a8afd176e3128a"
+  },
+  "final-fmt": {
+    "elapsed": 0.40424346923828125,
+    "exit": 0,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "final-protocol-build-all": {
+    "elapsed": 27.505788326263428,
+    "exit": 0,
+    "log_sha256": "a8d6d75b4424c47674cbc017ee88293cfffdd7662dd4a9a7bb3e40c3aca928cd"
+  },
+  "final-protocol-build-none": {
+    "elapsed": 22.901119470596313,
+    "exit": 0,
+    "log_sha256": "b3b04a1e69d6b872b9f5fa29b115bce9fcdb61c7c063fe905b568c1419c18b10"
+  },
+  "final-protocol-lock-all": {
+    "elapsed": 0.037169694900512695,
+    "exit": 0,
+    "log_sha256": "837994130f585b3cedc6d8937a58518de4bdd79d0cf9d350343069c870641fc5"
+  },
+  "final-protocol-lock-none": {
+    "elapsed": 0.017574787139892578,
+    "exit": 0,
+    "log_sha256": "ef74f1b0c870b1e09026b71bf8d9a5b89427abffdadecd2966fbdd0c891919ab"
+  },
+  "final-public-text": {
+    "elapsed": 0.07204461097717285,
+    "exit": 0,
+    "log_sha256": "cb5dbe759f9084bb65182dc2e25e4fe1751a434aceea12f30ac5543029841b7b"
+  },
+  "final-reference-pin": {
+    "elapsed": 0.018172740936279297,
+    "exit": 0,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "final-tests-all": {
+    "elapsed": 17.581884622573853,
+    "exit": 0,
+    "log_sha256": "d7224d5d933b81db4a685828c25e9e7e102df44491d4bf44c1e86d8e17df4e6e"
+  },
+  "final-tests-default": {
+    "elapsed": 10.07400107383728,
+    "exit": 0,
+    "log_sha256": "8a64cfd00d038e225a78fed707fd9e434a2948a6fb115362d1445b6ec505858c"
+  },
+  "final-tests-none": {
+    "elapsed": 12.063141822814941,
+    "exit": 0,
+    "log_sha256": "1e2a05669e18849912ea1889a207922ba746783a9da60eef430e30c7b9969bea"
+  },
+  "final-unsafe-boundary": {
+    "elapsed": 3.8880796432495117,
+    "exit": 0,
+    "log_sha256": "96d9d1f3bb324874db04bf01154e4cdee873cc04b8d100214eab2505a7386eb1"
+  }
+}

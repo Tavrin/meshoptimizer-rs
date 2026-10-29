@@ -1,0 +1,895 @@
+{
+  "cells": [
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base-default": 110534.887,
+        "base-scalar": 110522.914,
+        "candidate-default": 110714.895,
+        "candidate-scalar": 110714.939,
+        "cpp-default": 121048.536,
+        "cpp-scalar": 121048.536
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.0016285175195412,
+        "default_cpp": 0.9146322513144646,
+        "scalar_base": 1.001737422522175,
+        "scalar_cpp": 0.9146326148050233
+      },
+      "seconds": {
+        "base-default": 6.517889e-06,
+        "base-scalar": 6.836999e-06,
+        "candidate-default": 7.102599e-06,
+        "candidate-scalar": 6.973697e-06,
+        "cpp-default": 7.777798e-06,
+        "cpp-scalar": 7.433251e-06
+      }
+    },
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base-default": 124930.889,
+        "base-scalar": 124930.939,
+        "candidate-default": 125134.859,
+        "candidate-scalar": 125134.916,
+        "cpp-default": 128395.381,
+        "cpp-scalar": 128395.395
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0016326626796037,
+        "default_cpp": 0.9746056129542542,
+        "scalar_base": 1.0016327180571338,
+        "scalar_cpp": 0.9746059506261887
+      },
+      "seconds": {
+        "base-default": 7.795342e-06,
+        "base-scalar": 7.591769e-06,
+        "candidate-default": 7.6109849999999994e-06,
+        "candidate-scalar": 9.055291e-06,
+        "cpp-default": 7.657853e-06,
+        "cpp-scalar": 7.833734e-06
+      }
+    },
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base-default": 121827.886,
+        "base-scalar": 121827.902,
+        "candidate-default": 121207.859,
+        "candidate-scalar": 121195.894,
+        "cpp-default": 128888.859,
+        "cpp-scalar": 128888.876
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.9949106315445709,
+        "default_cpp": 0.9404060206631203,
+        "scalar_base": 0.9948122885675237,
+        "scalar_cpp": 0.9403130647209617
+      },
+      "seconds": {
+        "base-default": 7.641863e-06,
+        "base-scalar": 7.414395e-06,
+        "candidate-default": 7.490799e-06,
+        "candidate-scalar": 7.517579e-06,
+        "cpp-default": 7.87416e-06,
+        "cpp-scalar": 7.593753e-06
+      }
+    },
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base-default": 19009.942,
+        "base-scalar": 19009.923,
+        "candidate-default": 21389.914,
+        "candidate-scalar": 21389.862,
+        "cpp-default": 15251.499,
+        "cpp-scalar": 15251.481
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.125196173665338,
+        "default_cpp": 1.4024794546424584,
+        "scalar_base": 1.1251945628606703,
+        "scalar_cpp": 1.4024777003623452
+      },
+      "seconds": {
+        "base-default": 1.203423e-06,
+        "base-scalar": 1.171833e-06,
+        "candidate-default": 1.3406920000000001e-06,
+        "candidate-scalar": 1.686513e-06,
+        "cpp-default": 9.885300000000001e-07,
+        "cpp-scalar": 9.88569e-07
+      }
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base-default": 11959134.666666666,
+        "base-scalar": 11959152.333333334,
+        "candidate-default": 12000619.0,
+        "candidate-scalar": 12000618.666666666,
+        "cpp-default": 11066158.666666666,
+        "cpp-scalar": 11066161.0
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.0034688407221437,
+        "default_cpp": 1.0844430629887951,
+        "scalar_base": 1.0034673304743977,
+        "scalar_cpp": 1.084442804208855
+      },
+      "seconds": {
+        "base-default": 0.000855292,
+        "base-scalar": 0.0008466123333333333,
+        "candidate-default": 0.0009071193333333333,
+        "candidate-scalar": 0.000908148,
+        "cpp-default": 0.0011144993333333333,
+        "cpp-scalar": 0.0011939623333333334
+      }
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base-default": 28144622.333333332,
+        "base-scalar": 28144618.0,
+        "candidate-default": 28186100.666666668,
+        "candidate-scalar": 28186095.0,
+        "cpp-default": 26202550.0,
+        "cpp-scalar": 26202541.333333332
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0014737569700558,
+        "default_cpp": 1.0757006728988845,
+        "scalar_base": 1.0014737098226028,
+        "scalar_cpp": 1.0757008124301022
+      },
+      "seconds": {
+        "base-default": 0.0018373189999999998,
+        "base-scalar": 0.0021402586666666667,
+        "candidate-default": 0.001923865,
+        "candidate-scalar": 0.0018759016666666667,
+        "cpp-default": 0.0022415426666666668,
+        "cpp-scalar": 0.002180805
+      }
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base-default": 15319384.333333334,
+        "base-scalar": 15319391.0,
+        "candidate-default": 15217235.333333334,
+        "candidate-scalar": 15217235.666666666,
+        "cpp-default": 13709241.333333334,
+        "cpp-scalar": 13709241.333333334
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.9933320427389674,
+        "default_cpp": 1.1099983553672943,
+        "scalar_base": 0.9933316322213244,
+        "scalar_cpp": 1.1099983796817932
+      },
+      "seconds": {
+        "base-default": 0.0010733756666666666,
+        "base-scalar": 0.0013307393333333332,
+        "candidate-default": 0.001126078,
+        "candidate-scalar": 0.0011260176666666665,
+        "cpp-default": 0.0013810643333333334,
+        "cpp-scalar": 0.0014004136666666666
+      }
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base-default": 3898443.0,
+        "base-scalar": 3898424.6666666665,
+        "candidate-default": 4392686.333333333,
+        "candidate-scalar": 4392698.666666667,
+        "cpp-default": 3149276.3333333335,
+        "cpp-scalar": 3149285.6666666665
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.1267796741759037,
+        "default_cpp": 1.394824038411364,
+        "scalar_base": 1.1267881368149222,
+        "scalar_cpp": 1.394823820893987
+      },
+      "seconds": {
+        "base-default": 0.00024055566666666666,
+        "base-scalar": 0.0002513226666666667,
+        "candidate-default": 0.00029128466666666664,
+        "candidate-scalar": 0.000279619,
+        "cpp-default": 0.00032842433333333333,
+        "cpp-scalar": 0.0003390243333333334
+      }
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base-default": 15226051.0,
+        "base-scalar": 15226075.0,
+        "candidate-default": 15271385.666666666,
+        "candidate-scalar": 15271449.0,
+        "cpp-default": 14330030.333333334,
+        "cpp-scalar": 14330040.333333334
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.002977440878575,
+        "default_cpp": 1.0656910914657054,
+        "scalar_base": 1.0029800194731735,
+        "scalar_cpp": 1.0656947674094706
+      },
+      "seconds": {
+        "base-default": 0.001117896,
+        "base-scalar": 0.0011882716666666666,
+        "candidate-default": 0.0011722883333333334,
+        "candidate-scalar": 0.0011849553333333333,
+        "cpp-default": 0.0015753696666666666,
+        "cpp-scalar": 0.001476347
+      }
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base-default": 28411693.666666668,
+        "base-scalar": 28411688.333333332,
+        "candidate-default": 28457007.333333332,
+        "candidate-scalar": 28457004.333333332,
+        "cpp-default": 26266649.333333332,
+        "cpp-scalar": 26266641.333333332
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0015948949470699,
+        "default_cpp": 1.0833893189878754,
+        "scalar_base": 1.001594977372282,
+        "scalar_cpp": 1.0833895347411757
+      },
+      "seconds": {
+        "base-default": 0.0018403346666666669,
+        "base-scalar": 0.0017724503333333332,
+        "candidate-default": 0.0017958210000000002,
+        "candidate-scalar": 0.0018404883333333333,
+        "cpp-default": 0.002503579,
+        "cpp-scalar": 0.00235354
+      }
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base-default": 17870420.666666668,
+        "base-scalar": 17870436.333333332,
+        "candidate-default": 17739528.0,
+        "candidate-scalar": 17739498.666666668,
+        "cpp-default": 16222347.666666666,
+        "cpp-scalar": 16222342.0
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.9926754568844135,
+        "default_cpp": 1.0935240918582212,
+        "scalar_base": 0.9926729451802792,
+        "scalar_cpp": 1.093522665634017
+      },
+      "seconds": {
+        "base-default": 0.0013403543333333334,
+        "base-scalar": 0.001346379,
+        "candidate-default": 0.001271214,
+        "candidate-scalar": 0.0013182893333333334,
+        "cpp-default": 0.001580583,
+        "cpp-scalar": 0.0015814276666666668
+      }
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base-default": 7076075.0,
+        "base-scalar": 7076069.333333333,
+        "candidate-default": 8794793.0,
+        "candidate-scalar": 8794792.666666666,
+        "cpp-default": 5150270.0,
+        "cpp-scalar": 5150288.666666667
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.2428914334571073,
+        "default_cpp": 1.7076372695023756,
+        "scalar_base": 1.2428923816838424,
+        "scalar_cpp": 1.7076310156336867
+      },
+      "seconds": {
+        "base-default": 0.000376064,
+        "base-scalar": 0.000408248,
+        "candidate-default": 0.000664433,
+        "candidate-scalar": 0.000521374,
+        "cpp-default": 0.0004627136666666667,
+        "cpp-scalar": 0.0004524173333333333
+      }
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base-default": 12940817.0,
+        "base-scalar": 12940832.333333334,
+        "candidate-default": 12999190.333333334,
+        "candidate-scalar": 12999189.333333334,
+        "cpp-default": 11988478.666666666,
+        "cpp-scalar": 11988508.333333334
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.0045107919641654,
+        "default_cpp": 1.0843069162292376,
+        "scalar_base": 1.0045095244646423,
+        "scalar_cpp": 1.0843041495988173
+      },
+      "seconds": {
+        "base-default": 0.0010515176666666666,
+        "base-scalar": 0.0009073666666666666,
+        "candidate-default": 0.0008328633333333334,
+        "candidate-scalar": 0.0011651146666666666,
+        "cpp-default": 0.0011994426666666667,
+        "cpp-scalar": 0.0011650446666666666
+      }
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base-default": 24911955.333333332,
+        "base-scalar": 24911948.666666668,
+        "candidate-default": 24970348.0,
+        "candidate-scalar": 24970333.666666668,
+        "cpp-default": 23202404.666666668,
+        "cpp-scalar": 23202411.0
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0023439615993746,
+        "default_cpp": 1.0761965562937197,
+        "scalar_base": 1.0023436544760596,
+        "scalar_cpp": 1.0761956447830645
+      },
+      "seconds": {
+        "base-default": 0.0016070026666666667,
+        "base-scalar": 0.0016349786666666668,
+        "candidate-default": 0.0017284576666666666,
+        "candidate-scalar": 0.0016320063333333332,
+        "cpp-default": 0.00250252,
+        "cpp-scalar": 0.002544372333333333
+      }
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base-default": 16689782.0,
+        "base-scalar": 16689776.0,
+        "candidate-default": 16460897.666666666,
+        "candidate-scalar": 16460915.0,
+        "cpp-default": 14728700.333333334,
+        "cpp-scalar": 14728731.333333334
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.986285960275974,
+        "default_cpp": 1.11760693707734,
+        "scalar_base": 0.9862873534072596,
+        "scalar_cpp": 1.1176057616548734
+      },
+      "seconds": {
+        "base-default": 0.0011336653333333332,
+        "base-scalar": 0.0011475013333333334,
+        "candidate-default": 0.0011413766666666667,
+        "candidate-scalar": 0.001138755,
+        "cpp-default": 0.0013375623333333334,
+        "cpp-scalar": 0.0013703839999999999
+      }
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base-default": 4773148.333333333,
+        "base-scalar": 4773145.666666667,
+        "candidate-default": 5761625.333333333,
+        "candidate-scalar": 5761613.0,
+        "cpp-default": 3871999.0,
+        "cpp-scalar": 3871992.6666666665
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.2070911966210982,
+        "default_cpp": 1.4880234559289227,
+        "scalar_base": 1.2070892870997652,
+        "scalar_cpp": 1.4880227045884558
+      },
+      "seconds": {
+        "base-default": 0.0003014336666666667,
+        "base-scalar": 0.0003398626666666667,
+        "candidate-default": 0.00037734000000000004,
+        "candidate-scalar": 0.00038050933333333333,
+        "cpp-default": 0.00046192900000000003,
+        "cpp-scalar": 0.00046337500000000003
+      }
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base-default": 2417178984.0,
+        "base-scalar": 2417178752.0,
+        "candidate-default": 2422189737.0,
+        "candidate-scalar": 2422190971.0,
+        "cpp-default": 2278667437.0,
+        "cpp-scalar": 2278667482.0
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.002072975577385,
+        "default_cpp": 1.0629851893565283,
+        "scalar_base": 1.0020735822685238,
+        "scalar_cpp": 1.062985709908858
+      },
+      "seconds": {
+        "base-default": 0.290950598,
+        "base-scalar": 0.297011045,
+        "candidate-default": 0.309781595,
+        "candidate-scalar": 0.308499404,
+        "cpp-default": 0.335587251,
+        "cpp-scalar": 0.329891338
+      }
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base-default": 3974933509.0,
+        "base-scalar": 3974933008.0,
+        "candidate-default": 3979943727.0,
+        "candidate-scalar": 3979943995.0,
+        "cpp-default": 3679527310.0,
+        "cpp-scalar": 3679527554.0
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0012604532852325,
+        "default_cpp": 1.08164538314026,
+        "scalar_base": 1.00126064690648,
+        "scalar_cpp": 1.0816453842486975
+      },
+      "seconds": {
+        "base-default": 0.420192019,
+        "base-scalar": 0.415057833,
+        "candidate-default": 0.405359992,
+        "candidate-scalar": 0.421603905,
+        "cpp-default": 0.533063992,
+        "cpp-scalar": 0.46635842
+      }
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base-default": 2837729675.0,
+        "base-scalar": 2837730457.0,
+        "candidate-default": 2825649299.0,
+        "candidate-scalar": 2825649228.0,
+        "cpp-default": 2611067848.0,
+        "cpp-scalar": 2611067103.0
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.9957429433443128,
+        "default_cpp": 1.082181491823111,
+        "scalar_base": 0.9957426439251132,
+        "scalar_cpp": 1.0821817734034698
+      },
+      "seconds": {
+        "base-default": 0.345460103,
+        "base-scalar": 0.352611042,
+        "candidate-default": 0.326811307,
+        "candidate-scalar": 0.345402073,
+        "cpp-default": 0.376133303,
+        "cpp-scalar": 0.354011748
+      }
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base-default": 408963752.0,
+        "base-scalar": 408963763.0,
+        "candidate-default": 448173072.0,
+        "candidate-scalar": 448172893.0,
+        "cpp-default": 342171807.0,
+        "cpp-scalar": 342171831.0
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.095874805060963,
+        "default_cpp": 1.3097895935067496,
+        "scalar_base": 1.095874337893355,
+        "scalar_cpp": 1.309788978508871
+      },
+      "seconds": {
+        "base-default": 0.048894528,
+        "base-scalar": 0.049039361,
+        "candidate-default": 0.059027201,
+        "candidate-scalar": 0.052177207,
+        "cpp-default": 0.058150709,
+        "cpp-scalar": 0.064115113
+      }
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base-default": 3150525456.0,
+        "base-scalar": 3150525438.0,
+        "candidate-default": 3186270963.0,
+        "candidate-scalar": 3186270952.0,
+        "cpp-default": 2853785721.0,
+        "cpp-scalar": 2853787574.0
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.0113458873763184,
+        "default_cpp": 1.1165067298337639,
+        "scalar_base": 1.0113458896629928,
+        "scalar_cpp": 1.1165060010174395
+      },
+      "seconds": {
+        "base-default": 1.065818419,
+        "base-scalar": 1.018198123,
+        "candidate-default": 1.1369964,
+        "candidate-scalar": 1.064792278,
+        "cpp-default": 1.377242093,
+        "cpp-scalar": 1.246432079
+      }
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base-default": 5266265225.0,
+        "base-scalar": 5266264637.0,
+        "candidate-default": 5302008773.0,
+        "candidate-scalar": 5302010786.0,
+        "cpp-default": 4973808853.0,
+        "cpp-scalar": 4973808730.0
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0067872669667906,
+        "default_cpp": 1.065985631876875,
+        "scalar_base": 1.0067877616230778,
+        "scalar_cpp": 1.0659860629582352
+      },
+      "seconds": {
+        "base-default": 1.156394533,
+        "base-scalar": 1.070204139,
+        "candidate-default": 1.132684632,
+        "candidate-scalar": 1.159592247,
+        "cpp-default": 1.71688155,
+        "cpp-scalar": 1.748836242
+      }
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base-default": 4305156626.0,
+        "base-scalar": 4305156673.0,
+        "candidate-default": 4109756624.0,
+        "candidate-scalar": 4109756657.0,
+        "cpp-default": 3331436381.0,
+        "cpp-scalar": 3331436641.0
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.9546125683744171,
+        "default_cpp": 1.233629027838848,
+        "scalar_base": 0.9546125656180039,
+        "scalar_cpp": 1.2336289414666373
+      },
+      "seconds": {
+        "base-default": 1.173016542,
+        "base-scalar": 1.199684066,
+        "candidate-default": 1.246986363,
+        "candidate-scalar": 1.199806997,
+        "cpp-default": 1.361081126,
+        "cpp-scalar": 1.404345064
+      }
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base-default": 2947575756.0,
+        "base-scalar": 2947575727.0,
+        "candidate-default": 4140702170.0,
+        "candidate-scalar": 4140702125.0,
+        "cpp-default": 2310623353.0,
+        "cpp-scalar": 2310623226.0
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.4047822728801138,
+        "default_cpp": 1.7920281834873328,
+        "scalar_base": 1.4047822714344125,
+        "scalar_cpp": 1.7920282625082555
+      },
+      "seconds": {
+        "base-default": 0.597999709,
+        "base-scalar": 0.607444641,
+        "candidate-default": 0.718526086,
+        "candidate-scalar": 0.720303524,
+        "cpp-default": 0.679286154,
+        "cpp-scalar": 0.673410518
+      }
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base-default": 5744850843.0,
+        "base-scalar": 5744852554.0,
+        "candidate-default": 5783670448.0,
+        "candidate-scalar": 5783672237.0,
+        "cpp-default": 5092144364.0,
+        "cpp-scalar": 5092143942.0
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.006757286840145,
+        "default_cpp": 1.1358025292623066,
+        "scalar_base": 1.0067572984049817,
+        "scalar_cpp": 1.1358029747148888
+      },
+      "seconds": {
+        "base-default": 2.527907056,
+        "base-scalar": 2.717552681,
+        "candidate-default": 2.883931356,
+        "candidate-scalar": 2.749238075,
+        "cpp-default": 2.945040902,
+        "cpp-scalar": 3.038588622
+      }
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base-default": 8413248407.0,
+        "base-scalar": 8413249467.0,
+        "candidate-default": 8452067413.0,
+        "candidate-scalar": 8452069115.0,
+        "cpp-default": 7671894502.0,
+        "cpp-scalar": 7671888466.0
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.004614033025306,
+        "default_cpp": 1.1016923408939754,
+        "scalar_base": 1.004614108752185,
+        "scalar_cpp": 1.1016934295196779
+      },
+      "seconds": {
+        "base-default": 3.673327513,
+        "base-scalar": 3.563664405,
+        "candidate-default": 3.744642621,
+        "candidate-scalar": 3.877452097,
+        "cpp-default": 7.320909492,
+        "cpp-scalar": 4.895858925
+      }
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base-default": 6940778742.0,
+        "base-scalar": 6940780784.0,
+        "candidate-default": 6733528918.0,
+        "candidate-scalar": 6733530555.0,
+        "cpp-default": 5580470684.0,
+        "cpp-scalar": 5580470420.0
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.9701402635491186,
+        "default_cpp": 1.2066238314459712,
+        "scalar_base": 0.9701402139831651,
+        "scalar_cpp": 1.2066241818731833
+      },
+      "seconds": {
+        "base-default": 3.064514698,
+        "base-scalar": 3.194162895,
+        "candidate-default": 2.913071955,
+        "candidate-scalar": 3.223876482,
+        "cpp-default": 3.412635572,
+        "cpp-scalar": 3.202414541
+      }
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base-default": 2910435990.0,
+        "base-scalar": 2910435997.0,
+        "candidate-default": 3898331000.0,
+        "candidate-scalar": 3898331007.0,
+        "cpp-default": 2328268008.0,
+        "cpp-scalar": 2328268056.0
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.3394319659990186,
+        "default_cpp": 1.6743480503985004,
+        "scalar_base": 1.3394319651826379,
+        "scalar_cpp": 1.6743480188863615
+      },
+      "seconds": {
+        "base-default": 0.950804044,
+        "base-scalar": 0.988095031,
+        "candidate-default": 0.970931701,
+        "candidate-scalar": 1.017544603,
+        "cpp-default": 1.094615927,
+        "cpp-scalar": 1.046536554
+      }
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base-default": 1433655744.0,
+        "base-scalar": 1433655865.0,
+        "candidate-default": 1443360607.0,
+        "candidate-scalar": 1443360466.0,
+        "cpp-default": 1267242354.0,
+        "cpp-scalar": 1267242448.0
+      },
+      "op": "simplify",
+      "ratios": {
+        "default_base": 1.0067693119778691,
+        "default_cpp": 1.1389775621404143,
+        "scalar_base": 1.0067691286569669,
+        "scalar_cpp": 1.138977366389482
+      },
+      "seconds": {
+        "base-default": 0.303260154,
+        "base-scalar": 0.317749857,
+        "candidate-default": 0.295923359,
+        "candidate-scalar": 0.299314128,
+        "cpp-default": 0.365363302,
+        "cpp-scalar": 0.365865076
+      }
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base-default": 2100678073.0,
+        "base-scalar": 2100678155.0,
+        "candidate-default": 2110382722.0,
+        "candidate-scalar": 2110382746.0,
+        "cpp-default": 1912124660.0,
+        "cpp-scalar": 1912124622.0
+      },
+      "op": "simplify-attributes",
+      "ratios": {
+        "default_base": 1.0046197697423198,
+        "default_cpp": 1.1036846949089605,
+        "scalar_base": 1.0046197419518554,
+        "scalar_cpp": 1.1036847293941703
+      },
+      "seconds": {
+        "base-default": 0.382175918,
+        "base-scalar": 0.387929518,
+        "candidate-default": 0.348307455,
+        "candidate-scalar": 0.366662033,
+        "cpp-default": 0.609893718,
+        "cpp-scalar": 0.621423306
+      }
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base-default": 1730016500.0,
+        "base-scalar": 1730016486.0,
+        "candidate-default": 1678203475.0,
+        "candidate-scalar": 1678203574.0,
+        "cpp-default": 1387949350.0,
+        "cpp-scalar": 1387949322.0
+      },
+      "op": "simplify-update",
+      "ratios": {
+        "default_base": 0.97005056021142,
+        "default_cpp": 1.2091244359889646,
+        "scalar_base": 0.9700506252863534,
+        "scalar_cpp": 1.209124531709667
+      },
+      "seconds": {
+        "base-default": 0.302579282,
+        "base-scalar": 0.297119283,
+        "candidate-default": 0.312402807,
+        "candidate-scalar": 0.327608151,
+        "cpp-default": 0.379324408,
+        "cpp-scalar": 0.348186811
+      }
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base-default": 818980108.0,
+        "base-scalar": 818980123.0,
+        "candidate-default": 1136520194.0,
+        "candidate-scalar": 1136520192.0,
+        "cpp-default": 639480912.0,
+        "cpp-scalar": 639480739.0
+      },
+      "op": "simplify-sloppy",
+      "ratios": {
+        "default_base": 1.3877262498785867,
+        "default_cpp": 1.7772542896479762,
+        "scalar_base": 1.3877262220196764,
+        "scalar_cpp": 1.777254767324587
+      },
+      "seconds": {
+        "base-default": 0.114741473,
+        "base-scalar": 0.100394743,
+        "candidate-default": 0.138711763,
+        "candidate-scalar": 0.138197805,
+        "cpp-default": 0.112791633,
+        "cpp-scalar": 0.11264619
+      }
+    }
+  ],
+  "samples": 576,
+  "summaries": {
+    "simplify": {
+      "corpus": {
+        "default_base": 1.0029311929568256,
+        "default_cpp": 1.0402861310987321,
+        "scalar_base": 1.0029530834853442,
+        "scalar_cpp": 1.0402864528215754
+      },
+      "default_base": 1.0082885168918787,
+      "default_cpp": 1.1303851627320745,
+      "max_default_base": 1.0113458873763184,
+      "scalar_base": 1.0082884603134268,
+      "scalar_cpp": 1.1303849997913256,
+      "verdict": "NO-GAIN"
+    },
+    "simplify-attributes": {
+      "corpus": {
+        "default_base": 1.001661079312616,
+        "default_cpp": 1.0574413267152172,
+        "scalar_base": 1.0016610748002277,
+        "scalar_cpp": 1.05744129063089
+      },
+      "default_base": 1.0053398362177042,
+      "default_cpp": 1.0903156196799428,
+      "max_default_base": 1.0067872669667906,
+      "scalar_base": 1.0053400168564588,
+      "scalar_cpp": 1.0903161371371033,
+      "verdict": "NO-GAIN"
+    },
+    "simplify-sloppy": {
+      "corpus": {
+        "default_base": 1.1582446266351967,
+        "default_cpp": 1.454536332147171,
+        "scalar_base": 1.158245746324936,
+        "scalar_cpp": 1.454534574034528
+      },
+      "default_base": 1.3770334615318751,
+      "default_cpp": 1.7470823751472633,
+      "max_default_base": 1.4047822728801138,
+      "scalar_base": 1.3770334515649774,
+      "scalar_cpp": 1.7470825463889836,
+      "verdict": "NO-GAIN"
+    },
+    "simplify-update": {
+      "corpus": {
+        "default_base": 0.9925837888824484,
+        "default_cpp": 1.0666232756415095,
+        "scalar_base": 0.9925638018928071,
+        "scalar_cpp": 1.0666017459896617
+      },
+      "default_base": 0.9649067608307057,
+      "default_cpp": 1.2163983590291534,
+      "max_default_base": 0.9957429433443128,
+      "scalar_base": 0.964906765045759,
+      "scalar_cpp": 1.216398480494694,
+      "verdict": "NO-GAIN"
+    }
+  }
+}
