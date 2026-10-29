@@ -1,101 +1,49 @@
 # Changelog
 
+[0.2.15]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.14...v0.2.15
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.15] - 2026-10-29
 
 ### Added
 
-- `build_lod_chain` generates successive or independent simplification levels.
-  Every level equals the direct simplifier call on its input, including with
-  ratios, `ERROR_ABSOLUTE`, `SPARSE` (the scale covers only referenced vertices,
-  so any input a sparse call accepts is accepted), attributes and vertex flags,
-  which also apply without attributes. Limits and `Workspace::usage()` cover the
-  whole call: the builder's scans, every level, and chain metadata plus retained
-  outputs with scratch. Failure is atomic and `LodChainError` names the level.
-  Ratios round down to whole triangles and may round to equal counts. Levels
-  report the simplifier's raw `error` and the `scale` used, per level and not
-  cumulative, and `stopped_at_error_limit`. Options and enums are
-  `#[non_exhaustive]`; build options with `LodChainOptions::new` and its setters.
+- `sanitize` and `sanitize_into` remove invalid, repeated-index and duplicate triangles and report counts by reason.
+- `analyze_mesh` reports topology, invalid triangles and duplicate faces without changing the mesh.
+- `VertexScoreTable` and `optimize_vertex_cache_with_table` accept caller-defined vertex-cache scores.
+- Typed vertex layouts build position and attribute views from initialized Rust struct fields.
+- `build_lod_chain` builds successive or independent simplification levels with whole-call limits and per-level errors.
 
-- `remap_vertex_buffer` and `remap_vertex_buffer_into` validate the remap in
-  one branch-free maximum (the old scan still reports failures) and copy
-  packed 4, 8, 12 and 16-byte records as fixed-size chunks;
-  `remap_index_buffer` looks up four indices per step and checks for
-  unmapped values in one pass after the copy. Output, errors and `Usage`
-  are unchanged. On three production LOD-chain meshes `remap_vertex_buffer`
-  uses 0.47× the instructions of the previous implementation (1.39× scalar
-  C++ 1.3, 0.45× optimesh 1.1.0) and `remap_index_buffer` 0.77× (1.63×
-  scalar C++, 0.98× optimesh); across the benchmark corpus the ratios
-  versus the previous implementation are 0.47–0.68× and 0.77–0.87×.
-- `optimize_overdraw` and its `_into` and `_in_place` variants check the finiteness of
-  validated positions and of each cluster's sort value once instead of per
-  coordinate and per intermediate, and charge work in totals when the
-  remaining budget covers every charge. Output, errors and `Usage` are
-  unchanged. On three production LOD-chain meshes they use 0.75× the
-  instructions of 0.2.14 (0.74–0.76×), 0.88× those of optimesh 1.1.0
-  (0.88–0.89×) and 1.09× those of scalar C++ 1.3 (1.088–1.091×). Across the
-  benchmark corpus the ratios are 0.95× versus 0.2.14 (0.90–0.97×), 0.86×
-  versus optimesh and 0.94× versus scalar C++ 1.3.
-- `simplify_with_attributes` validates packed positions with contiguous
-  attributes, and weights them, in branch-free scans that hand back to the
-  checked loops at the first rejected vertex, and tests its attribute
-  quadric tables without early exits. Results, errors, counted work and
-  storage are unchanged. On three production LOD-chain meshes it uses
-  0.79× the instructions of 0.2.14 (range 0.74–0.81×), 0.92× those of
-  optimesh 1.1.0 (0.92–0.93×) and 1.09× those of scalar C++ 1.3
-  (1.07–1.11×). Across the benchmark corpus the ratio versus 0.2.14 is
-  0.92–0.97×.
-### Added
+### Performance
 
-- `sanitize` and `sanitize_into` remove triangles with out-of-range indices,
-  non-finite positions, repeated indices or duplicate faces, and report counts
-  by reason. They are not in C++ meshoptimizer. Options: `REJECT_INVALID`,
-  `COINCIDENT_CORNERS` (two corners at bit-identical positions; collinear
-  triangles are kept), `WELD_POSITIONS` and `IGNORE_ORIENTATION`. Duplicates
-  are found by sorting, so work is `O(n log n)` for any input, and scratch is
-  sized by the triangles that pass the per-triangle checks, not by the
-  position count.
-- `analyze_mesh` reports a mesh's topology without changing it: boundary
-  edges and components, non-manifold edges and vertices, orientation conflicts,
-  connected components, and the invalid, degenerate and duplicate triangles, with optional lists capped by the caller. It is not
-  in C++ meshoptimizer. `AnalyzeOptions::with_weld_positions` analyzes
-  position-coincident instead of index topology. Grouping is by sorting and
-  union-find, so work is `O(n log n)` for any input.
-### Added
+Instruction-count ratios on three real meshes, scalar vs scalar (0.2.15 / comparison):
 
-- Caller-defined vertex-cache score tables via `VertexScoreTable`,
-  `optimize_vertex_cache_with_table` and `optimize_vertex_cache_with_table_into`.
-### Added
+- `simplify`: 0.919× vs 0.2.14; 1.137× vs scalar C++ 1.3.
+- `simplify_with_attributes`: 0.787× vs 0.2.14; 1.095× vs scalar C++ 1.3.
+- `simplify_sloppy`: 0.845× vs 0.2.14; 1.275× vs scalar C++ 1.3.
+- `simplify_with_update`: 0.936× vs 0.2.14; 1.280× vs scalar C++ 1.3.
+- `simplify_prune`: 0.620× vs 0.2.14; 0.995× vs scalar C++ 1.3.
+- `simplify_points`: 0.601× vs 0.2.14; 1.014× vs scalar C++ 1.3.
+- `optimize_vertex_cache`: 0.955× vs 0.2.14; 1.254× vs scalar C++ 1.3.
+- `optimize_overdraw`: 0.753× vs 0.2.14; 1.090× vs scalar C++ 1.3.
+- `optimize_vertex_fetch`: 1.000× vs 0.2.14; 0.952× vs scalar C++ 1.3.
+- `build_meshlets`: 0.826× vs 0.2.14; 1.001× vs scalar C++ 1.3.
+- `build_meshlets_flex`: 0.826× vs 0.2.14; 1.002× vs scalar C++ 1.3.
+- `build_meshlets_spatial`: 0.876× vs 0.2.14; 0.965× vs scalar C++ 1.3.
+- cluster LOD: 0.909× vs 0.2.14; 1.189× vs scalar C++ 1.3.
+- `encode_vertex_buffer`: 1.000× vs 0.2.14; 0.554× vs scalar C++ 1.3.
+- `decode_vertex_buffer`: 1.000× vs 0.2.14; 1.061× vs scalar C++ 1.3.
+- `encode_index_buffer`: 1.000× vs 0.2.14; 0.771× vs scalar C++ 1.3.
+- `decode_index_buffer`: 1.000× vs 0.2.14; 0.994× vs scalar C++ 1.3.
+- `remap_vertex_buffer`: 0.465× vs 0.2.14; 1.394× vs scalar C++ 1.3.
+- `remap_index_buffer`: 0.772× vs 0.2.14; 1.625× vs scalar C++ 1.3.
 
-- Opt-in typed vertex layouts and initialized field snapshots for position and attribute views.
-- On three production LOD-chain meshes, `simplify_prune` uses 0.620× the
-  instructions of 0.2.14, 0.763× those of optimesh 1.1.0 and 0.995× those
-  of C++ meshoptimizer 1.3; `simplify_points` uses 0.606× / 0.637× / 1.022×,
-  respectively (geometric means of per-mesh instruction ratios).
-- `build_meshlets_spatial` and its variants merge SAH boxes with
-  upstream's SSE operand order, partition through local slices and count
-  vertices per triangle record. Output, errors and `Usage` are unchanged. On
-  three production LOD-chain meshes they use 0.88× the instructions of
-  0.2.14 (0.876–0.877×), 0.96× those of optimesh 1.1.0 and 1.16× those of
-  C++ 1.3.
-- `simplify_with_update` is unchanged: 1.00× the instructions of 0.2.14,
-  1.08× optimesh 1.1.0 and 1.37× C++ 1.3 on the same meshes.
-- On three production meshes, `optimize_vertex_cache` uses 0.9422× the
-  instructions of 0.2.14, 0.9062× those of optimesh 1.1.0, and 1.2372×
-  those of C++ 1.3.
-- `build_meshlets` and `build_meshlets_flex` respectively use 0.8261× and
-  0.8263× the instructions of 0.2.14, 0.7836× and 0.7840× those of
-  optimesh 1.1.0, and 1.0012× and 1.0018× those of C++ 1.3 on the same meshes.
-- Cluster LOD uses 0.9089× the instructions of 0.2.14 and 1.1889× those
-  of C++ 1.3 on the same meshes.
-- `simplify` uses 0.919× the instructions of 0.2.14, 0.898× optimesh
-  1.1.0 and 1.137× scalar C++ 1.3 on three real meshes.
-- `simplify_sloppy` uses 0.845× the instructions of 0.2.14, 0.706×
-  optimesh 1.1.0 and 1.275× scalar C++ 1.3 on three real meshes.
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for corpus ratios, comparisons and method.
 
 ## [0.2.14] - 2026-10-28
 

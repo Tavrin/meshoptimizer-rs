@@ -1,130 +1,106 @@
 # Performance
 
-Timings of meshoptimizer-rs against C++ meshoptimizer 1.3 and the meshopt crate. This file holds
-the detail that the README summarizes; the linked parity records hold the raw data.
+The 0.2.15 tables report scalar instruction counts against meshoptimizer-rs
+0.2.14, `meshopt` 0.7.0 (C++ meshoptimizer 1.3), and optimesh 1.1.0.
+Ratios are 0.2.15 / comparison, aggregated as geometric means of per-mesh
+ratios. A value below 1 means fewer instructions. These are instruction counts,
+not elapsed times; they do not measure the default SIMD build.
 
-## Against C++ 1.3
+## Real meshes
 
-Recorded on an AMD Ryzen 9 7945HX, Linux x86-64, using a pinned core and interleaved pairs on a
-shared host. Ratios are Rust time / C++ time: lower is faster, 1.00 is equal. Validation, required
-copies and allocation are timed. The scalar baseline is pinned meshoptimizer 1.3 with SIMD and FMA
-contraction disabled. The records below differ in source, corpus and API scope. For 0.2.1 and
-0.2.2, only the encoders were timed again (see [Encoders in 0.2.2](#encoders-in-022)); no new
-full-tree timing was run for those releases or for 0.2.3.
+Geometric means over the three production LOD-chain meshes `real-214e`,
+`real-a082` and `real-b6fd`, scalar vs scalar.
 
-The thin-LTO profile uses thin LTO and one codegen unit. The defaults profile uses Cargo's consumer
-release settings: no LTO and sixteen codegen units. The crate-local fat-LTO profile does not apply
-to dependents.
+| Function | vs 0.2.14 | vs optimesh 1.1.0 | vs `meshopt` 0.7.0 (scalar C++ 1.3) |
+|---|---:|---:|---:|
+| `simplify` | 0.919 | 0.898 | 1.137 |
+| `simplify_with_attributes` | 0.787 | 0.926 | 1.095 |
+| `simplify_sloppy` | 0.845 | 0.706 | 1.275 |
+| `simplify_with_update` | 0.936 | 1.008 | 1.280 |
+| `simplify_prune` | 0.620 | 0.763 | 0.995 |
+| `simplify_points` | 0.601 | 0.632 | 1.014 |
+| `optimize_vertex_cache` | 0.955 | 0.919 | 1.254 |
+| `optimize_overdraw` | 0.753 | 0.884 | 1.090 |
+| `optimize_vertex_fetch` | 1.000 | 0.716 | 0.952 |
+| `build_meshlets` | 0.826 | 0.784 | 1.001 |
+| `build_meshlets_flex` | 0.826 | 0.784 | 1.002 |
+| `build_meshlets_spatial` | 0.876 | 0.835 | 0.965 |
+| cluster LOD | 0.909 | — | 1.189 |
+| `encode_vertex_buffer` | 1.000 | 0.455 | 0.554 |
+| `decode_vertex_buffer` | 1.000 | 0.544 | 1.061 |
+| `encode_index_buffer` | 1.000 | 0.712 | 0.771 |
+| `decode_index_buffer` | 1.000 | 0.907 | 0.994 |
+| `remap_vertex_buffer` | 0.465 | 0.453 | 1.394 |
+| `remap_index_buffer` | 0.772 | 0.975 | 1.625 |
 
-| Recorded scope | Thin-LTO ratio | Defaults ratio | Evidence |
-|---|---:|---:|---|
-| Core `simplify`, family geometric mean | 1.049 | 1.060 | [core records](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_PERFORMANCE.md) |
-| Standard meshlet builder, mean / max | 1.126 / 1.324 | 1.148 / 1.405 | [P03](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/MEASURED_P03.json) |
-| Scalar codecs and filters, historical family mean range | 0.61–1.24 | 0.59–1.24 | [P04 thin LTO](https://github.com/Tavrin/meshoptimizer-rs/tree/release/0.2.0/parity/results/), [defaults](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/results/benchmark-0.4-default.json) |
-| Opacity-map compact, selected final scope mean | 0.557 | 0.578 | [P05 state](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P05_CURRENT_STATE.md) |
-| Cluster LOD, sum of per-mesh medians | 1.196 | 1.090 | [cluster-LOD recovery](https://github.com/Tavrin/meshoptimizer-rs/tree/release/0.2.0/parity/results/) |
+## Corpus
 
-### Simplify in 0.2.4
+Geometric means over `tiny-smooth`, `medium-smooth`, `medium-seams`,
+`medium-sparse` and `million-smooth`, scalar vs scalar.
 
-Median simplify time as a ratio of Rust to C++ 1.3 (scalar) on the three real meshes measured,
-0.2.3 → 0.2.4: 214e 1.380 → 0.963, b6fd 1.298 → 0.947, a082 1.052 → 0.941. See the
-[r2 measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md).
+| Function | vs 0.2.14 | vs optimesh 1.1.0 | vs `meshopt` 0.7.0 (scalar C++ 1.3) |
+|---|---:|---:|---:|
+| `simplify` | 0.984 | 0.920 | 1.047 |
+| `simplify_with_attributes` | 0.951 | 0.917 | 1.065 |
+| `simplify_sloppy` | 0.916 | 0.882 | 1.268 |
+| `simplify_with_update` | 0.987 | 0.972 | 1.085 |
+| `simplify_prune` | 0.711 | 0.852 | 1.071 |
+| `simplify_points` | 0.686 | 0.665 | 1.066 |
+| `optimize_vertex_cache` | 0.943 | 0.911 | 1.242 |
+| `optimize_overdraw` | 0.946 | 0.865 | 0.939 |
+| `optimize_vertex_fetch` | 1.000 | 0.962 | 1.171 |
+| `build_meshlets` | 0.975 | 0.778 | 1.068 |
+| `build_meshlets_flex` | 0.975 | 0.778 | 1.068 |
+| `build_meshlets_spatial` | 0.906 | 0.872 | 0.972 |
+| cluster LOD | 0.973 | — | 1.176 |
+| `encode_vertex_buffer` | 1.000 | 0.466 | 0.578 |
+| `decode_vertex_buffer` | 1.000 | 0.644 | 1.114 |
+| `encode_index_buffer` | 1.000 | 0.752 | 0.933 |
+| `decode_index_buffer` | 1.000 | 0.915 | 1.044 |
+| `remap_vertex_buffer` | 0.521 | 0.515 | 1.328 |
+| `remap_index_buffer` | 0.791 | 0.986 | 1.570 |
 
-### SIMD decoding
+Cluster LOD has no optimesh comparison. Every measured output matches 0.2.14
+and C++ 1.3, and matches optimesh wherever that comparison is available.
 
-Current SIMD timings use a separate registered driver and SIMD/JS comparators. Native vertex decode
-has allocating / caller-buffer means of 1.116 / 1.051; the resolved allocating maximum still fails.
-Every current family mean and native caller-buffer family passes the registered 0.2 rule; the
-allocating index, vertex and filtered-view maxima fail. The symmetric WASM JavaScript adapters pass
-that rule, but that does not qualify the Vec-returning Rust WASM API. See the
-[full qualification and A/A widths](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/P07_RELEASE_QUALIFICATION.md).
+## Method and host
 
-The general family mean / case maximum bars are 1.25 / 1.50. For 0.2 SIMD, maxima apply only when
-both independent A/A upper bounds are at most 1.25; all rows still contribute to means. Unresolved
-rows remain listed. Passing a family mean does not clear a failed or inconclusive maximum.
+The host was an AMD Ryzen 9 7945HX running Linux x86-64. The campaigns used
+Rust 1.98.1 (LLVM 22.1.8), GCC 13.3 and perf 6.17.13, with resident-loop
+`instructions:u` counts on pinned CPU 9. Arms were interleaved across three
+repetitions, reversing arm order on the second repetition; each case uses the
+median instruction count per call before ratios and geometric means are computed.
+Every accepted counter sample had 100% counter running time.
 
-### Parallel batches
+All arms were scalar: meshoptimizer-rs and optimesh had `simd` disabled, and
+C++ 1.3 was built with `MESHOPTIMIZER_NO_SIMD`. The Rust consumer release profile
+used thin LTO and one codegen unit. This profile is distinct from Cargo's default
+consumer profile. No default-build speed comparison is claimed.
 
-Parallel speed curves compare batches with sequential Rust, not C++. Small hierarchy batches can be
-slower, including caller-side pool overhead. See the
-[P06 record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/p06/README.md).
+The sources for all numerical ratios are the merged
+[qualification table](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/parity/0215-qualify/TABLE.md)
+and [qualification report](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/parity/0215-qualify/REPORT.md),
+with the `optimize_vertex_cache` row replaced by the later
+[cache restoration qualification](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/parity/0215-cache-restore/REPORT.md).
+The cache campaign used the same eight inputs and scalar comparisons and
+checked output identity for every arm and repetition. It changed a function's
+inlining boundary, without changing its algorithm or output.
 
-## Against the meshopt crate
+## Added API costs
 
-The 0.2.0 comparison from 2026-10-06 uses meshopt 0.6.2 (bundled C++ 0.25) and five frozen inputs
-on the Ryzen 9 7945HX in two consumer profiles. meshopt is faster at allocating vertex decode and
-Oct/Quat/Exp encoding by five-case geometric mean in both profiles; Exp encoding is about 3.4×
-faster. meshoptimizer-rs is faster by the same measure at matched-v1 vertex encoding, Color
-encoding, Exp/Color decoding and scan meshlet construction; individual cases vary.
+Against `filter_index_buffer`, corpus geometric-mean instruction ratios are
+`sanitize` 2.33×, with position welding 9.03×, and with all options 9.07×;
+`analyze_mesh` 14.8×, with position welding 17.3×. These APIs perform different
+work from filtering and are optional; the qualification report documents the
+comparison. Custom cache-table performance was not measured.
 
-meshoptimizer-rs has the 1.3 meshlet codecs, opacity maps, tangents, experimental
-normals/remeshing, cluster LOD and built-in parallel batches, which meshopt 0.6.2 lacks. It also has
-`no_std + alloc`, checked views, typed errors, per-call work/byte limits and reusable workspaces
-without a C++ toolchain. Default vertex encodings differ (ours v1, theirs v0), and some meshlet,
-partitioning and simplification outputs differ across upstream versions.
+## Scope and planned work
 
-These shared-host timings do not isolate language, compiler, wrapper or version costs; see the
-[full comparison, output checks and case intervals](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md).
-The 0.2.2 encoder run below measured meshopt 0.6.2 again in the same two consumer profiles. For
-encoding, its results replace the encoder claims above.
+These measurements cover the listed scalar functions and inputs. They do not
+establish wall-time speed, SIMD performance, no_std performance, other
+architectures, or exhaustive per-case limits. Earlier timing campaigns used
+different versions, input sets and API forms; their results are retained in the
+repository's parity records and are not substituted for these release ratios.
 
-## Encoders in 0.2.2
-
-0.2.2 makes the allocating index, sequence and Quat encoders faster without changing their output.
-Ratios are family geometric means of Rust time / comparator time with the allocating APIs,
-0.2.1 → 0.2.2 for C++ 1.3 and 0.2.2 for meshopt 0.6.2; lower is faster.
-
-| Encoder | C++ 1.3, defaults | C++ 1.3, thin LTO | meshopt 0.6.2, defaults | meshopt 0.6.2, thin LTO |
-|---|---:|---:|---:|---:|
-| Vertex | 0.666 → 0.667 | 0.660 → 0.657 | 0.710 | 0.733 |
-| Index | 1.019 → 0.773 | 1.016 → 0.764 | 0.860 | 0.858 |
-| Sequence | 0.931 → 0.924 | 0.986 → 0.940 | 0.980 | 0.952 |
-| Oct | 0.591 → 0.585 | 0.565 → 0.563 | 0.845 | 0.868 |
-| Quat | 1.055 → 0.700 | 0.681 → 0.669 | 0.868 | 0.868 |
-| Exp | 0.609 → 0.621 | 0.588 → 0.590 | 0.575 | 0.579 |
-| Color | — | — | 0.825 | 0.825 |
-
-In both profiles every C++ family mean is at or below 1.25 and all 111 cases have a 95% upper
-bound at or below 1.50. Encoded bytes are unchanged: 17,264 exact comparisons per profile against
-scalar and SIMD meshoptimizer 1.3, with zero mismatches. The run used an AMD Ryzen 9 7945HX on
-Linux, one pinned core, a generic CPU target and C++ built with GCC 13.3 using its normal runtime
-SIMD dispatch, with interleaved Rust/C++ pairs and A/A controls. meshopt 0.6.2 bundles C++ 0.25, so
-those ratios include version and wrapper differences. See the
-[intervals, per-case results and method](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.2/parity/P03_ENCODER_PERFORMANCE.md).
-
-## Known exceptions in detail
-
-Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
-See the [r2 measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/SIMPLIFY_LARGE_MESH_R2_PERFORMANCE.md)
-and the [v2 release check](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.4/parity/release-check-v2/REPORT.md).
-
-The 0.2.0 exceptions below still applied at 0.2.4: 0.2.2 changed only encoders, 0.2.3 changed only
-how `Workspace` handles retained scratch, and 0.2.4 changed only simplify and overdraw speed.
-
-The owner's 2026-10-06 roadmap permitted the allocating vertex exception and scheduled its fix for
-0.2.1, which stages large owned vertex decodes. The 0.2.2 run repeated the exact
-`vertex-v1-streaming-s4` request in the defaults and thin-LTO profiles and measured 1.000× C++ (95%
-interval 0.850–1.206) and 1.058× (0.959–1.171). The historical gap did not reproduce, but that does
-not show the staging fixed it. Use `decode_vertex_buffer_into` where possible: the owner records
-about 1.04× for the caller-buffer form of that case. The 0.2.0 complete qualification also records
-these results:
-
-| Native allocating case | Final Rust/C++ 95% interval | Status |
-|---|---:|---|
-| `vertex-v1-streaming-s4` | 1.529–2.118 | Resolved performance failure; caller-buffer is the workaround. |
-| `index-2-v0-streaming-s4` | 1.508–3.625 | Resolved maximum failure. |
-| `index-2-v1-streaming-s4` | 2.189–2.465 | Resolved maximum failure. |
-| `view-1-streaming-s4` | 1.343–1.636 | Resolved maximum fails the upper-bound rule. |
-| `varied-view-3-streaming-s32` | 1.619–2.590 | Unresolved: Rust/C++ A/A upper bounds 1.284 / 1.026. |
-
-The roadmap also names the filtered-view maximum near 1.64 and a small S3 case. The latest
-independent S3 report records caller-buffer `varied-filter-3-resident-s32` at 1.026–1.124× scalar
-Rust. The full report lists all excluded A/A rows and their interval widths; an excluded row has
-not passed.
-
-Older records retain a sparse allocating vertex-fetch maximum failure, inconclusive
-overdraw/sloppy-simplification maxima, and Cargo-default `partition_clusters` mean / max of
-1.450 / 1.778. P05's final selected compact/coverage/raster-overdraw scope passes; the full matrix
-was not refreshed after those edits. The stricter SIMD amendment targets are left for 0.3.
-
-See the [comparison's exception ledger](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/COMPARE_MESHOPT_CRATE.md#against-pinned-upstream-c-13).
+SIMD work is planned for a later 0.2.x release. AVX2, AVX-512 and 32-bit ARM SIMD
+are not implemented; index and sequence decoding remain scalar.

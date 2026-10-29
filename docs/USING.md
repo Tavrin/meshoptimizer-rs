@@ -24,6 +24,28 @@ must be validated on the target hardware using representative meshes; a changed
 ordering does not establish a GPU performance gain. The existing standard and
 strip APIs retain their upstream presets.
 
+```rust
+use meshoptimizer_rs::{
+    optimize_vertex_cache, optimize_vertex_cache_with_table, VertexScoreTable, Workspace,
+};
+
+let indices = [0, 1, 2, 2, 1, 3];
+let mut workspace = Workspace::default();
+let preset = VertexScoreTable::default();
+let mut cache = *preset.cache_scores();
+let live = *preset.live_scores();
+let table = VertexScoreTable::new(&cache, &live)?;
+assert_eq!(
+    optimize_vertex_cache_with_table(&indices, 4, &table, &mut workspace)?,
+    optimize_vertex_cache(&indices, 4, &mut workspace)?,
+);
+cache[1] *= 1.1;
+let tuned = VertexScoreTable::new(&cache, &live)?;
+let reordered = optimize_vertex_cache_with_table(&indices, 4, &tuned, &mut workspace)?;
+assert_eq!(reordered.len(), indices.len());
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
 ## Non-packed positions
 
 ```text
@@ -89,7 +111,7 @@ vertex with position, normal and UV fields.
 
 ```rust
 use core::mem::offset_of;
-use meshoptimizer_rs::{VertexFieldSnapshot, VertexLayoutError};
+use meshoptimizer_rs::{VertexFieldSnapshot, VertexLayout, VertexLayoutError};
 
 #[repr(C)]
 struct Vertex {
@@ -100,11 +122,14 @@ struct Vertex {
 let vertices = [Vertex {
     position: [0., 0., 0.], normal: [0., 0., 1.], uv: [0., 0.],
 }];
-let data = VertexFieldSnapshot::from_vertices(
-    &vertices, offset_of!(Vertex, position), |v| &v.position,
-)?;
+let layout = VertexLayout::new(offset_of!(Vertex, position), |v: &Vertex| &v.position)?;
+let data = layout.copy_from(&vertices)?;
 let positions = data.positions()?;
 assert_eq!(positions.get(0), Some([0., 0., 0.]));
+let normals = VertexFieldSnapshot::from_vertices(
+    &vertices, offset_of!(Vertex, normal), |v| &v.normal,
+)?;
+assert_eq!(normals.attributes()?.components(), 3);
 # Ok::<(), VertexLayoutError>(())
 ```
 
@@ -477,7 +502,7 @@ assert!(lod.indices.len() <= indices.len());
 
 Returns the same simplification result and errors as the first recipe. Lean is
 opt-in: it lowers peak memory, but later calls reallocate scratch and run slower.
-See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/PERFORMANCE.md).
+See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/PERFORMANCE.md).
 
 ## Mesh repair
 
@@ -523,6 +548,8 @@ reason. `sanitize_into` writes to a caller buffer of at least
 `sanitize_bound(indices.len())` indices and leaves it unchanged on any error.
 Sanitation does not weld vertices, fill holes or fix orientation; the result is
 not guaranteed to be manifold or closed.
+
+## Mesh topology analysis
 
 `analyze_mesh`, also an extension, reports what is wrong before anything is
 removed. It changes nothing and returns a `MeshAnalysis`: triangle
@@ -578,7 +605,7 @@ a late error may leave a used prefix modified. The `_into` functions are
 `build_lod_chain` is an extension not in C++ meshoptimizer. Targets are
 relative to the original mesh; each level defaults to the previous output.
 
-```
+```rust
 use meshoptimizer_rs::{build_lod_chain, LodChainOptions, LodTargets, LodErrors, Positions, Workspace};
 let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
 let options = LodChainOptions::new(LodTargets::Ratios(&[0.5]), LodErrors::Uniform(1.0));

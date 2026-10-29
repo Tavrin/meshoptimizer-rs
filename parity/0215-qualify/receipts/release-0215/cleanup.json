@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "dedicated_target_removed": true,
+  "prior_release_jobs_completed": true,
+  "retained": [
+    "logs",
+    "binaries",
+    "inputs",
+    "generated manifests",
+    "receipts"
+  ]
+}

@@ -1,6 +1,6 @@
 [package]
 name = "meshoptimizer-rs"
-version = "0.2.14"
+version = "0.2.15"
 edition = "2021"
 rust-version = "1.88"
 description = "Rust port of meshoptimizer 1.3 with byte-identical output. Covers mesh simplification, meshlets, cluster LOD, vertex/index compression analysis, remeshing and optional parallel batch APIs and audited SIMD codecs."
@@ -11,7 +11,7 @@ documentation = "https://docs.rs/meshoptimizer-rs"
 readme = "README.md"
 keywords = ["mesh", "meshoptimizer", "simplification", "meshlet", "gltf"]
 categories = ["graphics", "rendering", "game-development", "compression", "no-std"]
-include = ["/src/**/*.rs", "/src/codec/simd/SAFETY.md", "/tests/api.rs", "/tests/vertex_layout.rs", "/tests/lod_chain.rs", "/tests/p05.rs", "/tests/meshlets.rs", "/tests/preprocessing.rs", "/tests/sanitize.rs", "/tests/parallel.rs", "/tests/codec.rs", "/tests/simd.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/docs/MIGRATING_FROM_MESHOPT.md", "/docs/USING.md", "/examples/*.rs", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
+include = ["/src/**/*.rs", "/src/codec/simd/SAFETY.md", "/tests/api.rs", "/tests/vertex_layout.rs", "/tests/lod_chain.rs", "/tests/p05.rs", "/tests/meshlets.rs", "/tests/preprocessing.rs", "/tests/sanitize.rs", "/tests/parallel.rs", "/tests/codec.rs", "/tests/simd.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/docs/MIGRATING_FROM_MESHOPT.md", "/docs/USING.md", "/docs/PERFORMANCE.md", "/examples/*.rs", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
 
 [features]
 default = ["std", "simd"]
