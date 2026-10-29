@@ -1,0 +1,2 @@
+corpus=21 generated=160 noncanonical=20 total_cases=9990 cpp_checks=9990 chunkings=2703362 stream_budgets=2284337 baseline_comparisons=164442780 differences=0
+cpu_user=49.70 cpu_system=0.15 elapsed=49.91 exit=0

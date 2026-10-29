@@ -1,0 +1,2 @@
+PASS: public text contains no private machine paths or project names
+cpu_user=0.22 cpu_system=0.12 elapsed=0.10 exit=0

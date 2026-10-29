@@ -1,0 +1,22 @@
+    Checking crossbeam-utils v0.8.23
+    Checking either v1.18.0
+    Checking libm v0.2.16
+    Checking crossbeam-epoch v0.9.21
+    Checking crossbeam-deque v0.8.8
+    Checking rayon-core v1.13.0
+    Checking rayon v1.11.0
+    Checking meshoptimizer-rs v0.2.15 (<worktree>)
+error: using `chunks_exact` with a constant chunk size
+  --> tests/sequence_stream.rs:89:18
+   |
+89 |                 .chunks_exact(4)
+   |                  ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<4>().0.iter()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+   = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: could not compile `meshoptimizer-rs` (test "sequence_stream") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+Command exited with non-zero status 101
+cpu_user=4.79 cpu_system=0.85 elapsed=4.76 exit=101

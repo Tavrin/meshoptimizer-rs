@@ -243,3 +243,10 @@ path="fuzz_targets/simd.rs"
 test=false
 doc=false
 bench=false
+
+[[bin]]
+name="sequence_stream"
+path="fuzz_targets/sequence_stream.rs"
+test=false
+doc=false
+bench=false
