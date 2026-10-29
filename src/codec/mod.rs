@@ -22,7 +22,7 @@
 
 mod encode;
 #[cfg(feature = "simd")]
-mod simd;
+pub(crate) mod simd;
 
 /// Diagnostic dispatch control; outside semver. Overrides only lower detected ISA.
 #[cfg(all(feature = "simd", feature = "parity-internals"))]

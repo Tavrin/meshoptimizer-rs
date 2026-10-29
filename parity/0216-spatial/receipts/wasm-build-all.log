@@ -1,0 +1,13 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.15 (<scratch>/candidate)
+warning: unnecessary `unsafe` block
+   --> <scratch>/candidate/src/codec/simd/spatial.rs:171:9
+    |
+171 |         unsafe { sweep(boxes, order, left, right) }
+    |         ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+   Compiling meshopt-p03-parity v0.0.0 (<scratch>/candidate/parity/p03)
+    Finished `release` profile [optimized] target(s) in 17.43s

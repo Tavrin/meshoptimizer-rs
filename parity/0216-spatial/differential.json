@@ -1,0 +1,22 @@
+{
+  "exit": 0,
+  "corpus_cases": 2028,
+  "corpus_sha256": "30eae6ac5ec786cdcd29a437431c5f4f946e4fe75b63a0069f7c1ef009e7f572",
+  "real": [
+    {
+      "case": "real-214e",
+      "input_sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7",
+      "output_sha256": "3541455551af956934d084dcaf5552797108821d9504f90e0d552c2a9e51e16f"
+    },
+    {
+      "case": "real-a082",
+      "input_sha256": "f631b2a30e79f167c0650f595bed6341193243aaab4d552d4cafa85e68944793",
+      "output_sha256": "9b38ead27c4cb3a8506ea4b4dd48396180e3df0f47a0115fd7e2f1e821b151f0"
+    },
+    {
+      "case": "real-b6fd",
+      "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+      "output_sha256": "b56e465d1a4eba4852136d8450a8045da41993d2f34082be9b02c411da9667d5"
+    }
+  ]
+}

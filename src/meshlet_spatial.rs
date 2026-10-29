@@ -9,9 +9,9 @@ use division::Divisor;
 // Boxes padded to four lanes (component 3 is ignored), so each record is one
 // 32-byte stride. Lanes 0-2 use upstream's area expression.
 #[derive(Clone, Copy, Default)]
-struct Box3 {
-    lo: [f32; 4],
-    hi: [f32; 4],
+pub(crate) struct Box3 {
+    pub(crate) lo: [f32; 4],
+    pub(crate) hi: [f32; 4],
 }
 impl Box3 {
     fn empty() -> Self {
@@ -20,12 +20,7 @@ impl Box3 {
             hi: [-f32::MAX; 4],
         }
     }
-    // The selects keep the accumulator on ties (upstream's SSE operand
-    // order), so each lane is one min/max reading the record from memory.
-    // Boxes reaching the builder are finite (`spatial` checks every centroid),
-    // so a tie can differ from the scalar order only in the sign of a zero
-    // bound; areas then differ at most in the sign of a zero, which the SAH
-    // comparisons cannot see (PROOFS.md, "Spatial ties").
+    // Ordered selects choose the incoming bound on ties, including signed zero.
     #[inline(always)]
     fn merge(&mut self, b: &Self) -> f32 {
         for k in 0..3 {
@@ -260,9 +255,16 @@ impl Bvh<'_> {
             let boxes = self.boxes;
             let order = &self.axes[k][start..start + n];
             let (left_areas, right_areas) = self.areas[..2 * n].split_at_mut(n);
-            for i in 0..n {
-                left_areas[i] = left.merge(&boxes[order[i] as usize]);
-                right_areas[i] = right.merge(&boxes[order[n - 1 - i] as usize]);
+            #[cfg(feature = "simd")]
+            let vectorized =
+                crate::codec::simd::spatial::areas(boxes, order, left_areas, right_areas);
+            #[cfg(not(feature = "simd"))]
+            let vectorized = false;
+            if !vectorized {
+                for i in 0..n {
+                    left_areas[i] = left.merge(&boxes[order[i] as usize]);
+                    right_areas[i] = right.merge(&boxes[order[n - 1 - i] as usize]);
+                }
             }
             if n <= s.max_triangles {
                 count(
@@ -428,4 +430,157 @@ pub(crate) fn spatial(
         pending -= bvh.boundary[i] as usize;
     }
     Ok(())
+}
+
+#[cfg(all(test, feature = "simd"))]
+mod simd_tests {
+    use super::Box3;
+    use crate::codec::simd::{dispatch, spatial};
+
+    fn compare(boxes: &[Box3], order: &[u32]) {
+        for level in [dispatch::Level::Scalar, dispatch::detected_level()] {
+            dispatch::with_level(level, || {
+                let mut left = alloc::vec![123.; order.len() + 1];
+                let mut right = left.clone();
+                let used = spatial::areas(boxes, order, &mut left, &mut right);
+                if level == dispatch::Level::Scalar {
+                    assert!(!used);
+                    return;
+                }
+                assert!(used);
+                let (mut l, mut r) = (Box3::empty(), Box3::empty());
+                for i in 0..order.len() {
+                    for (actual, expected) in [
+                        (left[i], l.merge(&boxes[order[i] as usize])),
+                        (
+                            right[i],
+                            r.merge(&boxes[order[order.len() - 1 - i] as usize]),
+                        ),
+                    ] {
+                        assert!(
+                            actual.to_bits() == expected.to_bits()
+                                || (actual.is_nan() && expected.is_nan()),
+                            "{actual:?} != {expected:?}"
+                        );
+                    }
+                }
+                assert_eq!(left[order.len()], 123.);
+                assert_eq!(right[order.len()], 123.);
+            })
+            .unwrap();
+        }
+    }
+
+    #[test]
+    fn signed_zero_ties() {
+        for bits in 0..64 {
+            let boxes: alloc::vec::Vec<_> = (0..2)
+                .map(|i| Box3 {
+                    lo: core::array::from_fn(|k| {
+                        if bits & (1 << (i * 3 + k)) == 0 {
+                            0.
+                        } else {
+                            -0.
+                        }
+                    }),
+                    hi: core::array::from_fn(|k| {
+                        if bits & (1 << (i * 3 + k)) == 0 {
+                            -0.
+                        } else {
+                            0.
+                        }
+                    }),
+                })
+                .collect();
+            compare(&boxes, &[0, 1, 0]);
+        }
+    }
+
+    #[test]
+    fn ordered_area_extremes() {
+        let mut seed = 216u32;
+        let boxes: alloc::vec::Vec<_> = (0..1024)
+            .map(|_| {
+                let mut next = || {
+                    seed ^= seed << 13;
+                    seed ^= seed >> 17;
+                    seed ^= seed << 5;
+                    // Finite signed values: includes subnormals, overflow extents and areas.
+                    f32::from_bits(seed & 0xff7f_ffff)
+                };
+                let a: [f32; 4] = core::array::from_fn(|_| next());
+                let b: [f32; 4] = core::array::from_fn(|_| next());
+                Box3 {
+                    lo: core::array::from_fn(|k| if a[k] < b[k] { a[k] } else { b[k] }),
+                    hi: core::array::from_fn(|k| if a[k] > b[k] { a[k] } else { b[k] }),
+                }
+            })
+            .collect();
+        compare(&boxes, &(0..1024).rev().collect::<alloc::vec::Vec<_>>());
+    }
+
+    #[test]
+    fn explicit_boundary_values() {
+        // Signed zeros, subnormals, MIN_POSITIVE and values at/next to the largest finite f32.
+        let v = [
+            0.,
+            -0.,
+            f32::from_bits(1),
+            -f32::from_bits(1),
+            f32::from_bits(0x007f_ffff),
+            f32::MIN_POSITIVE,
+            -f32::MIN_POSITIVE,
+            1.,
+            f32::MAX,
+            -f32::MAX,
+            f32::from_bits(0x7f7f_fffe),
+            -f32::from_bits(0x7f7f_fffe),
+        ];
+        let n = v.len();
+        let mut boxes = alloc::vec::Vec::new();
+        for i in 0..n {
+            for j in 0..n {
+                let (a, b) = (v[i], v[j]);
+                let pair = |k: usize| if k & 1 == 0 { (a, b) } else { (b, a) };
+                let lo = core::array::from_fn(|k| {
+                    let (p, q) = pair(k + i);
+                    if p < q {
+                        p
+                    } else {
+                        q
+                    }
+                });
+                let hi = core::array::from_fn(|k| {
+                    let (p, q) = pair(k + j);
+                    if p > q {
+                        p
+                    } else {
+                        q
+                    }
+                });
+                // Each box twice: exact ties against the accumulator.
+                boxes.push(Box3 { lo, hi });
+                boxes.push(Box3 { lo, hi });
+            }
+        }
+        let len = boxes.len() as u32;
+        compare(&boxes, &(0..len).collect::<alloc::vec::Vec<_>>());
+        compare(
+            &boxes,
+            &(0..len)
+                .map(|i| (i * 37) % len)
+                .collect::<alloc::vec::Vec<_>>(),
+        );
+    }
+
+    #[test]
+    fn short_sweeps_preserve_output_tails() {
+        let boxes = [Box3 {
+            lo: [-1., -2., -3., 0.],
+            hi: [2., 3., 4., 0.],
+        }; 3];
+        for n in 0..=3 {
+            compare(&boxes[..n], &(0..n as u32).collect::<alloc::vec::Vec<_>>());
+        }
+    }
 }

@@ -10,6 +10,7 @@ mod kernels;
 #[cfg(target_arch = "aarch64")]
 mod aarch64;
 pub(crate) mod dispatch;
+pub(crate) mod spatial;
 #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
 mod wasm32;
 #[cfg(target_arch = "x86_64")]
