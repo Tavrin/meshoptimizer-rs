@@ -1,0 +1,46 @@
+{
+  "exact_all": {
+    "exit": 0,
+    "observations": 1200243710,
+    "binary_sha256": "624a4a8fdbd2b0d2f831fb72659cecd4f27568bc1b0e49dabbdefb7481cceb12",
+    "log_sha256": "96466f928857d137d399a7e1c9917776bce271a8e399ade1f87e736489d4b087"
+  },
+  "exact_none": {
+    "exit": 0,
+    "observations": 273906930,
+    "binary_sha256": "9c84c77ef9a464353d9ce2c4f0538e760aff4e57c23c6aeaabd3e135f64f04d3",
+    "log_sha256": "e3a85c3142ded3b6dc6ce8d2c487194bf4ae12200eae05758755a289051aaad4"
+  },
+  "fuzz": {
+    "exit": 0,
+    "seeds": 1522,
+    "cpu_seconds": 300.034,
+    "records_sha256": "888db066b2c8e83783997c6f7cace88f172c4aa73b7ade8c8f5e72ab58c31c58"
+  },
+  "cpp": {
+    "all": {
+      "exit": 0,
+      "cases": 1246,
+      "cpp_sha256": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+      "rust_sha256": "390a4cd2543f45707e7d66e3908abf82a7ab2663b80349b8a6618593e78ca52a"
+    },
+    "none": {
+      "exit": 0,
+      "cases": 1246,
+      "cpp_sha256": "348716aeb7c2033e05cadf6a57b45cc90f34f0f2c300460b4085896e176a944a",
+      "rust_sha256": "c3332d4290bd0f15dfe300c664f58c45d36f34d9d8df2ca8c1ab904b921ac9a3"
+    }
+  },
+  "gates": {
+    "all": 0,
+    "none": 0,
+    "clippy": 0,
+    "fmt": 0,
+    "boundary": 0,
+    "public": 0
+  },
+  "failed_scratch_build": {
+    "exit": 1,
+    "log_sha256": "46df694a847e83b3a1b7c623399dc76e0bab0a41f21f47189bedd60d9914bad3"
+  }
+}

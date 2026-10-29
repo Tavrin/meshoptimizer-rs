@@ -92,6 +92,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   optimesh 1.1.0, and 1.0012× and 1.0018× those of C++ 1.3 on the same meshes.
 - Cluster LOD uses 0.9089× the instructions of 0.2.14 and 1.1889× those
   of C++ 1.3 on the same meshes.
+- `simplify` uses 0.919× the instructions of 0.2.14, 0.898× optimesh
+  1.1.0 and 1.137× scalar C++ 1.3 on three real meshes.
+- `simplify_sloppy` uses 0.845× the instructions of 0.2.14, 0.706×
+  optimesh 1.1.0 and 1.275× scalar C++ 1.3 on three real meshes.
 
 ## [0.2.14] - 2026-10-28
 

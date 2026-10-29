@@ -22,6 +22,26 @@ fn sqrt(value: f32) -> f32 {
     crate::math::sqrt(value)
 }
 
+/// Whether every packed coordinate is finite. `x - x` is +0 for finite `x`
+/// and NaN otherwise; NaN persists through the lane sums, and a sum of +0
+/// values is +0, so the total is zero exactly when all values are finite.
+#[inline]
+#[allow(clippy::eq_op)] // `x - x` is the finiteness probe, not a zero.
+fn packed_finite(values: &[[f32; 3]]) -> bool {
+    let (chunks, tail) = values.as_flattened().as_chunks::<8>();
+    let mut lanes = [0.0f32; 8];
+    for chunk in chunks {
+        for (lane, &x) in lanes.iter_mut().zip(chunk) {
+            *lane += x - x;
+        }
+    }
+    let mut sum = tail.iter().fold(0.0f32, |sum, &x| sum + (x - x));
+    for lane in lanes {
+        sum += lane;
+    }
+    sum == 0.0
+}
+
 #[cfg(not(feature = "std"))]
 type SqrtCache = crate::math::SqrtCache;
 
@@ -564,6 +584,14 @@ fn validate(
                     Err(Error::InvalidParameter)
                 }
             });
+        }
+        // Packed positions that are all finite and fit the budget charge the
+        // scan's one visit per vertex at once. Otherwise the counted scan
+        // reports the first non-finite vertex at its original charge.
+        if let Some(values) = p.packed_values() {
+            if work.covers(values.len())? && packed_finite(values) {
+                return work.add(values.len());
+            }
         }
         return p.for_each_counted(work, |v| {
             if !v.iter().fold(true, |finite, x| finite & x.is_finite()) {
@@ -1863,7 +1891,8 @@ impl State {
                 if k0 == MAN || k1 == MAN {
                     continue;
                 }
-                if ![BORDER, SEAM, FRINGE].contains(&k0) && ![BORDER, SEAM, FRINGE].contains(&k1) {
+                // A pattern test; slice `contains` on bytes calls the memchr scan.
+                if !matches!(k0, BORDER | SEAM | FRINGE) && !matches!(k1, BORDER | SEAM | FRINGE) {
                     continue;
                 }
                 if (k0 == BORDER || k0 == SEAM) && forward[a] as usize != b {
@@ -2670,6 +2699,27 @@ fn run_state(
     // Each vertex charges once, then each supplied attribute weight once.
     let normalize_work = weights.len().checked_add(1).and_then(|v| n.checked_mul(v));
     metered!(work, normalize_work, |work| (|| {
+        // Packed positions without attributes under a finite scale have no
+        // fallible step: reads are in bounds and the finite guard cannot fire.
+        // When their n visits fit, charge them once and normalize in one pass
+        // with the same arithmetic; otherwise keep the per-vertex loop.
+        if let (false, true, None, Some(values)) = (
+            cached_positions,
+            finite_scale,
+            attributes,
+            positions.packed_values(),
+        ) {
+            if work.precharge(values.len(), 1)? {
+                for (destination, p) in s.p.iter_mut().zip(values) {
+                    *destination = V {
+                        x: (p[0] - lo[0]) * scale,
+                        y: (p[1] - lo[1]) * scale,
+                        z: (p[2] - lo[2]) * scale,
+                    };
+                }
+                return Ok(());
+            }
+        }
         // Under a prepaid meter, each iteration's charge cannot fail and
         // only its total matters. With packed or cached positions, contiguous
         // float attributes and every weight positive, normalize the prefix of
@@ -2838,13 +2888,18 @@ fn run_state(
         // n vertex visits, at most n*ac gradient visits, two n loop passes.
         let update_work = ac.checked_add(3).and_then(|v| n.checked_mul(v));
         metered!(work, update_work, |w| s.update(&mut vertex_error, w))?;
-        let mut write = 0;
         let cr = &s.cr.0[..n];
         let remap = &s.remap.0[..n];
-        metered!(work, Some(count), |w| (|| {
+        let write = metered!(work, Some(count), |w| (|| {
             let out = &mut out[..count];
+            let mut write = 0;
+            // Only the charge can fail in this pass: when all its triangles
+            // fit, charge them before the first write, as the loop would.
+            let charged = w.precharge(count / 3, 3)?;
             for i in 0..count / 3 {
-                w.add(3)?;
+                if !charged {
+                    w.add(3)?;
+                }
                 // Copy one checked triangle before writing the compacted
                 // prefix. write<=i, so no unread triangle is overwritten.
                 let [a, b, c] = out.as_chunks::<3>().0[i];
@@ -2859,7 +2914,7 @@ fn run_state(
                     write += 1;
                 }
             }
-            Ok(())
+            Ok(write)
         })())?;
         count = write * 3;
         if settings.options.contains(SimplifyOptions::PRUNE)
