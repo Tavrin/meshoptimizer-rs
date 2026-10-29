@@ -1,0 +1,29 @@
+{
+  "analyze": "eab884280cdd91e38ebcc6349b9553597ad177baf8a0989f07fbb105e2c9d799",
+  "cache": "4efcdfb0c3231df9e0978c46461fc77edcf05ef4ffaa2e72f0a684cd63e9fff8",
+  "clod": "63519ef7b0b04e7c53b6c98b4fa804248ac40f97b64287bf089f7d300896c541",
+  "lod_chain": "a78e6f3fb3a5b27cb47515688f879b3acaa2359ef1fe97e4bd434794a9547d89",
+  "meshlets": "6dff1cabeb4c457ab6a6114621de572bff079313e20a61fbe76a9a09f5fb089c",
+  "overdraw": "529ffa267f272489e396e53afe347a58ffbf13fbca3d995f212ecc219ce46433",
+  "remap": "b694733b87d0cae40f0b09958a090b83137542f1be3e879eb1c7ef79d2d78bac",
+  "sanitize": "8704503d5650d26bac8b524b2c917397268da6466a9911594d523b36e68f5701",
+  "simplify": "ca4ff2f36b3aed2d5bc9cbb533b7785ca9fde20b38d2552e238d277448386968",
+  "simplify_extra": "0736405579268ef31deb62a1e86271451d629d37d0783d45f0727350cd8fb900",
+  "sources": {
+    "Cargo.lock": "76cc3dbff883509eb926d7501d88de4a4a154be15c4278e7faba52061f76ec2e",
+    "Cargo.toml": "ea20c5c815da6113503ff8333ac7af3b814b42613cc01eba1eae9292f5746217",
+    "fuzz_targets/analyze.rs": "18be036ab67e3bf724adbccbab6fbb386f9c2e2074e0c6a7264a15b4403a0734",
+    "fuzz_targets/cache.rs": "757f948749c348cbce7f08e55fd971bdf80f147bde07047e81a8b4cbf99dfc08",
+    "fuzz_targets/clod.rs": "6303f5e08654da266261eaa7084c15d2f60c084d49ede94187f4d39f0573ca04",
+    "fuzz_targets/lod_chain.rs": "005c0cdf2435b2c57d6eed2ecc11699b283186b44fba36b2899bb54270f2b30f",
+    "fuzz_targets/meshlets.rs": "4b2bf52134b4c1180862dc44f2cf4bf92b61a335fc548a6625ae5cfa6f4a46af",
+    "fuzz_targets/overdraw.rs": "03d3e55fd1fff66f4a746995c8b7c1f44e1b13f452e5cee08a3c686d67d0e8cf",
+    "fuzz_targets/remap.rs": "43c9e3e35c63daa31218c5ffcb98000eb885eb41376d2003976e8640d0998915",
+    "fuzz_targets/sanitize.rs": "de93f587018739fbda177fb19cd689a2f8883b6cb5b2f510d2fe8ff17cba2c48",
+    "fuzz_targets/simplify.rs": "7b64a2ef276d99b549853c005758eb144b6dc6b42bd1f047d1ccd0a80161a42e",
+    "fuzz_targets/simplify_extra.rs": "1bf95865625314513be1087c7f37d1a93ad9bdf8df3220e9b6bb2ebdb83e1526",
+    "fuzz_targets/vertex_layout.rs": "523a27f3cbfe4103597f206862015fc3fb1f52299b45a95f646d60ef4d5b0036",
+    "src.rs": "eb551d7cca9355d54ac26cc489fa2652a6838545a6c9df088682e7ad0be495d8"
+  },
+  "vertex_layout": "4d5f082f2217e0ba160d7aa448006382a81839adf76db6aca966f790d696e2ff"
+}

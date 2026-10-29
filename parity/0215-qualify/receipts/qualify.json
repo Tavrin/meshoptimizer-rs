@@ -1,0 +1,48 @@
+{
+  "train": "70893fb1b198c9fa371e76b1e3289a95f8e3f7ef",
+  "baseline": "v0.2.14 (dbb75e03ec011ae04645e6d40b0039561991286d)",
+  "src_changed": false,
+  "reverts": [],
+  "gates": {
+    "test_all_features": 0, "test_no_default": 0, "clippy_all_targets": 0, "fmt": 0,
+    "unsafe_and_package_boundary": 0, "public_text": 0
+  },
+  "exact_vs_v0.2.14": {
+    "merge-exact (hand-merged normalization region)": {"all": 263399660, "none": 181403100, "cells_all": 63940, "cells_none": 58564, "differences": 0},
+    "overdraw-huge (finite operands overflowing the cluster normal root)": {"all": 2069568, "none": 2069568, "cases": 456, "failing_cases": 408, "differences": 0},
+    "0216-qualify/simplify-exact (S6 #66, reaches S1/S3/S4/E5)": {"all": 1200243710, "none": 273906930, "differences": 0},
+    "0217-optimesh/simplify-exact families 1,2 (S1 #61)": {"all": 825235834, "none": 191311596, "differences": 0},
+    "0217-optimesh/targeted-attributes (S1 #61), compared calls": {"all": 117142056, "none": 117142056, "cells": 93312, "differences": 0},
+    "0215-prune-points (S3 #62)": {"all": 15517656, "none": 15517656, "differences": 0},
+    "0215-update-spatial spatial (S4 #63), priming attempts": {"all": 406760, "none": 406760, "differences": 0},
+    "0215-update-spatial update (S4)": {"all": 44549696, "none": 10878208, "differences": 0},
+    "0212-overdraw/exact (S2 #56)": {"std": 20558816, "no_std": 20558816, "differences": 0},
+    "0215-overdraw/exact-extra (S2)": {"std": 136288, "no_std": 136288, "differences": 0},
+    "0215-toward-cpp/exact cache+decode (S5 #64)": {"std": 992130, "no_std": 992130, "differences": 0},
+    "0215-toward-cpp/geometry-exact meshlets (S5)": {"std": 1020255, "no_std": 1020255, "differences": 0},
+    "0215-contract-meshlets/exact meshlet+LOD output identity (S5)": {"std": "cmp 0", "no_std": "cmp 0"},
+    "0215-basics/exact remap (S7 #68)": {"std": 1893337, "no_std": 1893337, "differences": 0},
+    "0215-basics seeded fuzz mode (S7)": {"std": 5175360, "no_std": 5178240, "differences": 0},
+    "lane differential fuzz in the rerun lane scripts": {"overdraw_cpu_seconds": 300.06, "toward_cpp_cpu_seconds": 298.95}
+  },
+  "corpus_identity": {
+    "lod_chain corpus_identity, lane runner fixtures": {"all": 0, "none": 0},
+    "lod_chain corpus_identity, frozen corpus incl. three real meshes (release)": {"all": 0, "none": 0},
+    "cache default_vertex_score_table_identity_on_corpus (E2)": {"all": 0, "none": 0}
+  },
+  "cpp_differentials": {
+    "simplify/overdraw/cache/fetch protocol (0216-qualify)": {"all": 1246, "none": 1246, "differences": 0},
+    "overdraw pinned C++ (0212-overdraw)": 178,
+    "cache/decode C++ (0215-toward-cpp)": 1932,
+    "meshlet/cluster-LOD pinned C++ (p03)": {"op1": 400, "op3": 400, "op4": 400, "clusterlod": 80},
+    "campaign output identity vs C++ 1.3": "8/8 cases for every function"
+  },
+  "fuzz_partial_before_reassignment": {
+    "rule": "flat cov 600 CPU-s, 600..7200 CPU-s per target, 0 crashes",
+    "passed": ["remap", "overdraw", "sanitize", "analyze", "cache", "simplify_extra", "vertex_layout", "simplify", "clod", "meshlets"],
+    "failed": {"lod_chain": "library panic: src/lod_chain.rs:276 `(ratio * triangles) as usize * 3` overflows under overflow checks for a LodTargets::Ratios value above about usize::MAX / (3 * triangles) (e.g. inf, 1e30); release builds wrap and then reject the ratio with InvalidParameter. Crash input: receipts/crashes/"},
+    "harness_fixed": {"vertex_layout": "first run stopped on a harness assertion (empty slice accepts any offset); fixed and rerun to coverage-flat"},
+    "remaining_for_fuzz_lane": ["lod_chain after a fix (and lod_chain:bounded)"]
+  },
+  "campaign": {"samples": "see campaign/measurement-exit.json", "cases_above_1.01_vs_v0.2.14": [], "base_candidate_outputs_identical": true}
+}
