@@ -1,0 +1,8 @@
+{
+  ".github/workflows/ci.yml": "9f016ab019bd20432109b09082e8f1a90ea85c05eb943702e09c7f7f26bf7aa2",
+  "docs/VERIFICATION.md": "ee57b6c81a5c2999c26114fd59c3cd55b709c1294f137f1e08848658db1d9d2f",
+  "parity/0216-decode/PROOFS.md": "c8e6f54e9964303ba158f797833c1421ecfb651e147e24dec96953d5cc72d0fb",
+  "parity/0216-decode/README.md": "39a76c105e7c0e9a8c23da5db92cfc8c37cbf30f27f84250376715f32bbc3873",
+  "parity/0216-decode/differential.py": "fe98c510950f51a0f01b801a18fc4e53c6a685293642d6a854220ce52ad8364e",
+  "parity/0216-decode/test_differential.py": "825b396813c748f53f0564675575a4f0da08c06076d2cecfbbc63ee405bbc10e"
+}

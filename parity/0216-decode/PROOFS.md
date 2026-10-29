@@ -86,30 +86,29 @@ native C++ scalar/default differentials. Their receipts are uploaded separately.
 No local ARM runner or qemu is available. The coordinator must push and read
 those jobs before treating native NEON identity as qualified.
 
-The first arm64 CI run passed every forced scalar/NEON Rust comparison but
-stopped at a C++ default status mismatch (case n=1, stride 4, v0, 2-bit groups,
-full length). The only permitted C++ ISA divergence is now this upstream
-NEON class: on `aarch64` or `arm64`, scalar parsing of the actual supplied
-bytes reaches a **2-bit group with all 16 fields escaped**. Its four packed
-bytes are exactly `ff ff ff ff`; all 16 escape literals and the canonical
-24-byte group lookahead must be readable. Upstream's `SIMD_LATENCYOPT`
-4-bit escape-count sum wraps 16 to zero, consuming 4 bytes rather than 20.
-Upstream's encoder chooses a cheaper mode and never produces this group.
-One-bit and four-bit groups are outside this allowance.
+At revision `522a194`, native CI on `ubuntu-24.04-arm` and `macos-14`
+reported **318,608 cases**, **0 Rust forced-level differences** and **0 C++
+successful-byte differences**. C++ 1.3's own NEON/default build diverged from
+C++ scalar on **30,500 malformed cases**. Only **15,246** matched the former
+all-escaped 2-bit predicate; **15,254** did not. Examples outside that class
+are cases `[1,4,0,0,0,2,133]` and `[1,4,1,0,0,3,126]` (fields: n, stride,
+version, channel, control, selector, length): scalar status `00000000`, NEON
+status `01000000`. These counts are supplied CI evidence, not local ARM runs.
+The narrow class allowance was therefore removed; the reproducer below is
+one example of the inconsistent upstream malformed-input behaviour.
 
-`neon_escape_group` follows version/header and minimum-tail validation,
-block controls, per-plane selector headers, scalar group consumption and
-channel validity, stopping at the first parse failure. It examines actual
-mutated/truncated input, not the generator's nominal selectors or an arbitrary
-byte substring. The first reachable matching group's position is retained
-with example divergences. A status split or differing successful output is
-counted as allowed only on arm64 with this predicate; all other divergences
-increment `cpp_default_isa_failing` and fail the run after writing its receipt.
-`cpp_default_isa_allowed` and the total `cpp_default_isa_divergences` remain
-explicit. x86 permits zero divergences, including streams in the known class.
-Rust NEON must still match Rust scalar on every status and destination byte;
-C++ scalar remains the C++ oracle. Inherited failed-output staging differences
-are counted separately as before.
+On arm64 (`aarch64` or `arm64`), every Rust NEON status and destination byte
+must equal Rust scalar. C++ scalar is the sole C++ reference on every case:
+normalized success/failure statuses and successful output bytes must match;
+inherited failed-output staging differences remain counted as before.
+C++ NEON/default is never used as a Rust reference, even when it agrees with
+C++ scalar. Its status splits and differing successful outputs are counted
+in `cpp_default_isa_divergences`, with the first four cases and statuses in
+`isa_first`, as disclosure only. Failure-prefix-only differences between C++
+ISAs are not ISA divergences. Receipts identify `cpp_references` and
+`cpp_default_isa_disclosure_only`; the old allowed/failing class fields are
+removed. x86 retains both C++ references and requires zero ISA divergences.
+Both feature modes use this policy in the native arm64 CI step.
 
 A minimal complete reproducer (47 bytes, one v1 vertex of stride 4) is:
 
@@ -128,7 +127,7 @@ bytes before its final-consumption check and fails. The four-bit sum is
 one-byte selector header, twenty-byte escaped group and 24-byte v1 tail.
 The native differential request is `struct.pack('<III', 1, 4, 47) + src`;
 the drivers normalize scalar success to 0 and the NEON failure to 1.
-Native arm64 reproduction remains a coordinator CI requirement.
+This is one documented upstream divergence, not an exhaustive class rule.
 
 ## Final verdict and receipts
 
@@ -174,9 +173,11 @@ package verification, unsafe inventory, formatting, and public text checks.
 Focused Rust 1.88 SIMD and no-default checks also pass. The owned decoder's
 1 MiB staging threshold and staged destination tails have focused coverage.
 
-Native NEON execution is **pending coordinator CI**, on both Linux arm64
-and Apple arm64, for std/no-std forced-level and C++ differential matrices.
-No ARM performance claim is made. Cross-compilation does not clear identity.
+Native CI at `522a194` executed the Rust forced-level comparisons with zero
+differences, but the old harness rejected the upstream C++ divergences above.
+The revised scalar-reference policy still requires coordinator CI execution
+on Linux and Apple arm64 in both feature modes. No ARM performance claim is
+made. Local x86 runs and policy injections do not clear native ARM execution.
 
 Four initial installed-supervisor attempts received SIGTERM immediately after
 admission; they were not canceled by this lane. Subsequent jobs retained the
@@ -186,7 +187,7 @@ installed runner configuration or queue steering was changed.
 
 Final proof steps: **26**, all exit **0**; MSRV steps: **2**, both exit **0**. Final proof CPU: **377.09 s**; including the retained initial proof attempt: **972.23 s**, below 7,200 s. `receipts/proof-final/` retains individual exits and logs.
 
-## P2a harness fix verification
+## P2a first harness fix verification (historical)
 
 `receipts/p2a-fix/` retains the tightened harness's x86_64 rerun. Both std and
 no-std SIMD completed 318,608 cases each with **0 allowed / 0 failing C++ ISA
@@ -210,3 +211,20 @@ pre-fix `SAFETY.md` (zero diff, SHA-256
 Regression, audit regeneration, public-text and whitespace checks exit 0.
 The designated temporary build target was removed after execution. Retained
 build logs replace private absolute paths with placeholders.
+
+## P2a second harness fix verification
+
+`receipts/p2a-fix2/` retains both local x86_64 feature-mode reruns. Each
+completed **318,608 cases**, with **0 Rust forced-level differences**, **0 C++
+successful-byte differences**, **0 C++ ISA divergences** and the inherited
+**74,863 C++ failure-write differences**. Both builds and both differential
+runs exited **0**. The designated temporary build target was removed.
+
+Eight policy regression tests exited **0**. Injected arm64 cases cover both
+status-split directions, successful-output splits, streams outside the former
+class and default failure writes that must never become a reference. Rust
+NEON status/output/failure-write mismatches and C++ scalar status/success-byte
+mismatches still fail; x86 ISA splits still fail after writing a receipt.
+Both systematic and seeded-case comparison paths are exercised. These tests
+validate harness policy, not native ARM execution. CI YAML parsing, public
+text and whitespace checks exit **0**. No runtime implementation changed.
