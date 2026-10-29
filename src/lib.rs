@@ -179,7 +179,8 @@ mod raster;
 #[cfg(feature = "experimental")]
 mod remesh;
 pub use lod_chain::{
-    build_lod_chain, LodChain, LodChainAttributes, LodChainOptions, LodErrors, LodLevel, LodTargets,
+    build_lod_chain, LodChain, LodChainAttributes, LodChainError, LodChainOptions, LodErrors,
+    LodLevel, LodTargets,
 };
 mod simplify;
 mod strip;

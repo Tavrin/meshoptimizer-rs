@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `build_lod_chain` generates successive or independent simplification levels.
+  Every level equals the direct simplifier call on its input, including with
+  ratios, `ERROR_ABSOLUTE`, `SPARSE` (the scale covers only referenced vertices,
+  so any input a sparse call accepts is accepted), attributes and vertex flags,
+  which also apply without attributes. Limits and `Workspace::usage()` cover the
+  whole call: the builder's scans, every level, and chain metadata plus retained
+  outputs with scratch. Failure is atomic and `LodChainError` names the level.
+  Ratios round down to whole triangles and may round to equal counts. Levels
+  report the simplifier's raw `error` and the `scale` used, per level and not
+  cumulative, and `stopped_at_error_limit`. Options and enums are
+  `#[non_exhaustive]`; build options with `LodChainOptions::new` and its setters.
 
 - `optimize_overdraw` and its `_into` and `_in_place` variants check the finiteness of
   validated positions and of each cluster's sort value once instead of per

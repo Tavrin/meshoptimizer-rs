@@ -395,6 +395,24 @@ pub fn simplify_with_attributes(
         workspace,
     )
 }
+/// Allocating simplification with per-vertex flags and no attributes.
+pub(crate) fn simplify_flagged(
+    indices: &[u32],
+    positions: Positions<'_>,
+    flags: &[VertexFlags],
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMesh, Error> {
+    allocating(
+        indices,
+        positions,
+        None,
+        &[],
+        Some(flags),
+        settings,
+        workspace,
+    )
+}
 fn allocating(
     indices: &[u32],
     positions: Positions<'_>,

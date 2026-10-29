@@ -579,13 +579,34 @@ a late error may leave a used prefix modified. The `_into` functions are
 relative to the original mesh; each level defaults to the previous output.
 
 ```
-use meshoptimizer_rs::{build_lod_chain, LodChainOptions, LodTargets, LodErrors, Positions, SimplifyOptions, Workspace};
+use meshoptimizer_rs::{build_lod_chain, LodChainOptions, LodTargets, LodErrors, Positions, Workspace};
 let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
-let options = LodChainOptions { targets: LodTargets::Ratios(&[0.5]), errors: LodErrors::Uniform(1.0), simplify_options: SimplifyOptions::EMPTY, attributes: None, independent: false };
+let options = LodChainOptions::new(LodTargets::Ratios(&[0.5]), LodErrors::Uniform(1.0));
 let chain = build_lod_chain(&[0,1,2,2,1,3], Positions::from_packed(&positions), &options, &mut Workspace::default())?;
 assert_eq!(chain.levels.len(), 1);
-# Ok::<(), meshoptimizer_rs::Error>(())
+# Ok::<(), meshoptimizer_rs::LodChainError>(())
 ```
 
-Each error describes that level's simplification call, not accumulated error.
-A missed target may reflect topology constraints as well as the error cap.
+Options are built with `LodChainOptions::new` and the `with_simplify_options`,
+`with_attributes`, `with_vertex_flags` and `with_independent` setters; the option
+and enum types are `#[non_exhaustive]`. Vertex flags (locks) apply with or
+without attributes. Each level owns a `Vec<u32>`; other outputs such as meshlets
+or clusters would be separate APIs.
+
+- **Targets:** ratios become `floor(ratio * source_triangles) * 3` indices. The
+  ratios must decrease strictly, but two neighbouring ratios may round to the
+  same count on a small mesh.
+- **Error and scale:** `LodLevel::error` is the simplifier's own returned value
+  for that level, unconverted. In successive mode it is relative to the previous
+  level, not to the source and not cumulative; with attributes it includes the
+  attribute terms. `LodLevel::scale` is the extent it was normalized by (the
+  referenced vertices only, with `SPARSE`). Units follow `ERROR_ABSOLUTE`.
+- **`stopped_at_error_limit`:** the simplifier stopped because the next collapse
+  candidate exceeded the level's error limit. A looser limit is not guaranteed
+  to reach the target; a missed target may also reflect topology constraints.
+- **Limits and usage:** the workspace limits cover the whole call, including the
+  builder's own scans, every level's work, and the chain metadata plus retained
+  level outputs together with scratch. `Workspace::usage()` reports the call's
+  total work and peak bytes, on success and on failure.
+- **Failure:** the result is atomic. `LodChainError::level` is the zero-based
+  failing level, or `None` for a failure of the call as a whole.

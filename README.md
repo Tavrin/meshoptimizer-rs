@@ -170,7 +170,7 @@ These opt-in functions are not in C++ meshoptimizer. They leave every ported fun
 - `analyze_mesh` reports boundary edges and components, non-manifold edges and vertices, orientation conflicts and connected components without changing the mesh.
 - `VertexScoreTable` and `optimize_vertex_cache_with_table` accept caller-defined vertex-cache scores.
 - Typed vertex layouts build position and attribute views from Rust struct fields.
-- `build_lod_chain` builds successive or independent simplification levels.
+- `build_lod_chain` builds successive or independent simplification levels in one call, with whole-call limits and usage, raw per-level error and scale, and `LodChainError` naming the failing level.
 
 ## Features
 

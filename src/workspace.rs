@@ -109,6 +109,10 @@ impl Workspace {
     pub(crate) fn set_lod_limits(&mut self, limits: Limits) {
         self.limits = limits;
     }
+    /// Replace the last call's measurements with a composite call's totals.
+    pub(crate) fn set_lod_usage(&mut self, usage: Usage) {
+        self.usage = usage;
+    }
     /// Current scratch retention policy.
     pub const fn retention(&self) -> Retention {
         self.retention
