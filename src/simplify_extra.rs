@@ -5,6 +5,19 @@ use crate::budget::Budget as Heap;
 fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3], f32), Error> {
     let mut lo = [f32::MAX; 3];
     let mut hi = [-f32::MAX; 3];
+    // Packed positions that are all finite and fit the budget take one pass
+    // without per-vertex error exits; it yields the bounds of the ordered
+    // selects below and the scan's charge is one visit per vertex. Otherwise
+    // the checked scan reports the first non-finite value at the original charge.
+    let packed = positions
+        .packed_values()
+        .filter(|values| work.covers(values.len()).unwrap_or(false));
+    if let Some(values) = packed {
+        if let Some((lo, hi)) = packed_bounds(values) {
+            work.add(values.len())?;
+            return bounds_extent(positions, lo, hi);
+        }
+    }
     positions.for_each_counted(work, |v| {
         for j in 0..3 {
             if !v[j].is_finite() {
@@ -19,6 +32,14 @@ fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3]
         }
         Ok(())
     })?;
+    bounds_extent(positions, lo, hi)
+}
+#[inline(always)]
+fn bounds_extent(
+    positions: Positions<'_>,
+    lo: [f32; 3],
+    hi: [f32; 3],
+) -> Result<([f32; 3], f32), Error> {
     if positions.is_empty() {
         return Ok((lo, 0.0));
     }
@@ -33,6 +54,88 @@ fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3]
         return Err(Error::NumericalFailure);
     }
     Ok((lo, extent))
+}
+/// Bounds that the ordered selects `if lo > v { lo = v }` and
+/// `if hi < v { hi = v }` give over finite packed positions, or `None` if a
+/// value is not finite. The flattened coordinates are read in blocks of four
+/// vertices: lane `l` of accumulator `k` holds component `(4 * k + l) % 3`.
+/// For finite values the selects compute the numerical minimum and maximum,
+/// so lane order changes only the sign of a zero result; the ordered selects
+/// keep the first zero of that component (every earlier value lies strictly on
+/// the other side of it), which the final pass restores.
+#[inline(always)]
+#[allow(clippy::eq_op)] // `v - v` is the finiteness probe, not a zero.
+fn packed_bounds(values: &[[f32; 3]]) -> Option<([f32; 3], [f32; 3])> {
+    let (blocks, tail) = values.as_flattened().as_chunks::<12>();
+    let [lo0, lo1, lo2, hi0, hi1, hi2, nan0, nan1, nan2] = bounds_lanes(blocks);
+    let mut lo = [f32::MAX; 3];
+    let mut hi = [-f32::MAX; 3];
+    let mut nan = 0.0f32;
+    for (k, (lanes_lo, lanes_hi, lanes_nan)) in
+        [(lo0, hi0, nan0), (lo1, hi1, nan1), (lo2, hi2, nan2)]
+            .into_iter()
+            .enumerate()
+    {
+        for l in 0..4 {
+            let j = (4 * k + l) % 3;
+            if lo[j] > lanes_lo[l] {
+                lo[j] = lanes_lo[l];
+            }
+            if hi[j] < lanes_hi[l] {
+                hi[j] = lanes_hi[l];
+            }
+            nan += lanes_nan[l];
+        }
+    }
+    for (i, &v) in tail.iter().enumerate() {
+        let j = i % 3;
+        if lo[j] > v {
+            lo[j] = v;
+        }
+        if hi[j] < v {
+            hi[j] = v;
+        }
+        nan += v - v;
+    }
+    if nan != 0.0 {
+        return None;
+    }
+    for j in 0..3 {
+        for bound in [&mut lo[j], &mut hi[j]] {
+            if *bound == 0.0 {
+                if let Some(v) = values.iter().find(|v| v[j] == 0.0) {
+                    *bound = v[j];
+                }
+            }
+        }
+    }
+    Some((lo, hi))
+}
+/// Lane accumulators of [`packed_bounds`]: minima, maxima and finiteness
+/// sums for the three quads of each twelve-value block. Kept out of line so
+/// the lane-to-component combination is not folded into the loop as shuffles.
+#[inline(never)]
+#[allow(clippy::eq_op)] // `v - v` is the finiteness probe, not a zero.
+fn bounds_lanes(blocks: &[[f32; 12]]) -> [[f32; 4]; 9] {
+    // `v - v` is +0 for finite `v` and NaN otherwise; NaN persists in a sum.
+    #[inline(always)]
+    fn quad(lo: &mut [f32; 4], hi: &mut [f32; 4], nan: &mut [f32; 4], v: &[f32; 4]) {
+        for l in 0..4 {
+            lo[l] = if lo[l] > v[l] { v[l] } else { lo[l] };
+            hi[l] = if hi[l] < v[l] { v[l] } else { hi[l] };
+            nan[l] += v[l] - v[l];
+        }
+    }
+    let (mut lo0, mut lo1, mut lo2) = ([f32::MAX; 4], [f32::MAX; 4], [f32::MAX; 4]);
+    let (mut hi0, mut hi1, mut hi2) = ([-f32::MAX; 4], [-f32::MAX; 4], [-f32::MAX; 4]);
+    let (mut nan0, mut nan1, mut nan2) = ([0.0f32; 4], [0.0f32; 4], [0.0f32; 4]);
+    for block in blocks {
+        let q = block.as_chunks::<4>().0;
+        quad(&mut lo0, &mut hi0, &mut nan0, &q[0]);
+        quad(&mut lo1, &mut hi1, &mut nan1, &q[1]);
+        quad(&mut lo2, &mut hi2, &mut nan2, &q[2]);
+    }
+    [lo0, lo1, lo2, hi0, hi1, hi2, nan0, nan1, nan2]
 }
 fn scaled(
     positions: Positions<'_>,
@@ -806,54 +909,54 @@ fn cell_hash(mut h: u32) -> u32 {
     h ^= h >> 15;
     h
 }
+/// Find the slot holding cell `id` or the first empty slot on its probe
+/// sequence, with the number of probes (at most `table.len()`); `None` if the
+/// sequence ends first. A table entry is a cell id, or with `MAPPED` a vertex
+/// whose cell is `ids[entry]`.
 #[inline(always)]
-fn cell_slot<const MAPPED: bool>(
-    table: &[u32],
-    ids: Option<&[u32]>,
-    key: u32,
-    work: &mut Work,
-) -> Result<usize, Error> {
-    if work.covers(table.len())? {
-        cell_slot_kernel::<MAPPED, false>(table, ids, key, work)
-    } else {
-        cell_slot_kernel::<MAPPED, true>(table, ids, key, work)
-    }
-}
-#[inline(always)]
-fn cell_slot_kernel<const MAPPED: bool, const LIMITED: bool>(
-    table: &[u32],
-    ids: Option<&[u32]>,
-    key: u32,
-    work: &mut Work,
-) -> Result<usize, Error> {
-    let id = if MAPPED {
-        ids.expect("mapped ids")[key as usize]
-    } else {
-        key
-    };
+fn cell_slot<const MAPPED: bool>(table: &[u32], ids: &[u32], id: u32) -> Option<(usize, usize)> {
     let mask = table.len() - 1;
     let mut bucket = cell_hash(id) as usize & mask;
     for probe in 0..table.len() {
-        if LIMITED {
-            work.add(1)?;
-        }
         let old = table[bucket];
-        if old == u32::MAX
-            || (if MAPPED {
-                ids.expect("mapped ids")[old as usize]
-            } else {
-                old
-            }) == id
-        {
-            if !LIMITED {
-                work.add(probe + 1)?;
-            }
-            return Ok(bucket);
+        if old == u32::MAX || (if MAPPED { ids[old as usize] } else { old }) == id {
+            return Some((bucket, probe + 1));
         }
         bucket = (bucket + probe + 1) & mask;
     }
-    if !LIMITED {
-        work.add(table.len())?;
+    None
+}
+/// 0.2.14 accounting for one lookup: a covered lookup charges its probes once
+/// found (or the whole table before failing); otherwise each probe is charged
+/// before it is read.
+#[inline(always)]
+fn cell_slot_checked<const MAPPED: bool>(
+    table: &[u32],
+    ids: &[u32],
+    id: u32,
+    work: &mut Work,
+) -> Result<usize, Error> {
+    if work.covers(table.len())? {
+        return match cell_slot::<MAPPED>(table, ids, id) {
+            Some((slot, probes)) => {
+                work.add(probes)?;
+                Ok(slot)
+            }
+            None => {
+                work.add(table.len())?;
+                Err(Error::NumericalFailure)
+            }
+        };
+    }
+    let mask = table.len() - 1;
+    let mut bucket = cell_hash(id) as usize & mask;
+    for probe in 0..table.len() {
+        work.add(1)?;
+        let old = table[bucket];
+        if old == u32::MAX || (if MAPPED { ids[old as usize] } else { old }) == id {
+            return Ok(bucket);
+        }
+        bucket = (bucket + probe + 1) & mask;
     }
     Err(Error::NumericalFailure)
 }
@@ -923,40 +1026,72 @@ fn cells(
     output: Option<&mut [u32]>,
     work: &mut Work,
 ) -> Result<usize, Error> {
-    if output.is_some() {
-        cells_kernel::<true>(table, ids, output, work)
-    } else {
-        cells_kernel::<false>(table, ids, None, work)
+    match output {
+        Some(out) => cells_kernel::<true>(table, ids, out, work),
+        None => cells_kernel::<false>(table, ids, &mut [], work),
     }
 }
+/// Count distinct cells; with `MAPPED`, also write each vertex's dense cell
+/// index to `out`. Each vertex visits at most one full table plus its entry
+/// charge. A batch runs with a local tally only after that complete bound fits;
+/// otherwise the checked path preserves the original charge-before-visit order.
 #[inline(always)]
 fn cells_kernel<const MAPPED: bool>(
     table: &mut [u32],
     ids: &[u32],
-    mut output: Option<&mut [u32]>,
+    out: &mut [u32],
     work: &mut Work,
 ) -> Result<usize, Error> {
     work.add(table.len())?;
     table.fill(u32::MAX);
     let mut count = 0;
-    for (i, &id) in ids.iter().enumerate() {
-        work.add(1)?;
-        let key = if MAPPED { i as u32 } else { id };
-        let slot = cell_slot::<MAPPED>(table, if MAPPED { Some(ids) } else { None }, key, work)?;
-        if let Some(ref mut out) = output {
-            if table[slot] == u32::MAX {
-                table[slot] = i as u32;
-                out[i] = count as u32;
-                count += 1;
-            } else {
-                out[i] = out[table[slot] as usize];
+    let mut start = 0;
+    while start < ids.len() {
+        let batch = work.batch(ids.len() - start, table.len() + 1)?;
+        if batch == 0 {
+            for (offset, &id) in ids[start..].iter().enumerate() {
+                work.add(1)?;
+                let slot = cell_slot_checked::<MAPPED>(table, ids, id, work)?;
+                cell_insert::<MAPPED>(table, out, &mut count, start + offset, id, slot);
             }
-        } else {
-            count += usize::from(table[slot] == u32::MAX);
-            table[slot] = id;
+            break;
         }
+        let mut visits = 0;
+        for i in start..start + batch {
+            visits += 1;
+            let Some((slot, probes)) = cell_slot::<MAPPED>(table, ids, ids[i]) else {
+                work.add(visits + table.len())?;
+                return Err(Error::NumericalFailure);
+            };
+            visits += probes;
+            cell_insert::<MAPPED>(table, out, &mut count, i, ids[i], slot);
+        }
+        work.add(visits)?;
+        start += batch;
     }
     Ok(count)
+}
+#[inline(always)]
+fn cell_insert<const MAPPED: bool>(
+    table: &mut [u32],
+    out: &mut [u32],
+    count: &mut usize,
+    i: usize,
+    id: u32,
+    slot: usize,
+) {
+    if MAPPED {
+        if table[slot] == u32::MAX {
+            table[slot] = i as u32;
+            out[i] = *count as u32;
+            *count += 1;
+        } else {
+            out[i] = out[table[slot] as usize];
+        }
+    } else {
+        *count += usize::from(table[slot] == u32::MAX);
+        table[slot] = id;
+    }
 }
 #[inline(always)]
 fn interpolate(y: f32, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
