@@ -459,3 +459,164 @@ fn oct_short_tails_match_canonical_root_rounding() {
         }
     }
 }
+
+mod vertex_fixtures {
+    // Hand-authored wire streams exercise channels independently of encoder choices.
+    pub fn stream(
+        count: usize,
+        stride: usize,
+        version: u8,
+        channel: u8,
+        control: u8,
+        selector: u8,
+    ) -> Vec<u8> {
+        let mut data = vec![0xa0 | version];
+        let block_size = ((8192 / stride) & !15).min(256);
+        let mut offset = 0;
+        while offset < count {
+            let block = block_size.min(count - offset);
+            let groups = block.div_ceil(16);
+            if version == 1 {
+                data.extend(vec![control.wrapping_mul(85); stride / 4]);
+            }
+            for _ in 0..stride {
+                if version == 1 && control == 2 {
+                    continue;
+                }
+                if version == 1 && control == 3 {
+                    data.extend((0..block).map(|i| (i * 73 + offset * 3 + 17) as u8));
+                    continue;
+                }
+                data.extend(vec![selector.wrapping_mul(85); groups.div_ceil(4)]);
+                let bits = if version == 0 {
+                    [0, 2, 4, 8][selector as usize]
+                } else if control == 0 {
+                    [0, 1, 2, 4][selector as usize]
+                } else {
+                    [1, 2, 4, 8][selector as usize]
+                };
+                for _ in 0..groups {
+                    if bits == 8 {
+                        data.extend([0x93; 16]);
+                    } else if bits != 0 {
+                        // Every field escapes, including the final packed field.
+                        data.extend(vec![255; bits as usize * 2]);
+                        data.extend((0..16).map(|i| (i * 71 + 19) as u8));
+                    }
+                }
+            }
+            offset += block;
+        }
+        let tail = stride + if version == 0 { 0 } else { stride / 4 };
+        let padded = tail.max(if version == 0 { 32 } else { 24 });
+        data.extend(vec![0; padded - tail]);
+        data.extend((0..stride).map(|i| (i * 37 + 251) as u8));
+        if version == 1 {
+            data.extend(vec![channel; stride / 4]);
+        }
+        data
+    }
+}
+
+#[test]
+fn vertex_full_path_preserves_errors_partial_writes_and_every_tail() {
+    // Keep integration tests bounded; parity/0216-decode executes every
+    // group/block remainder, every rotation nibble and the larger stride set.
+    let counts: Vec<_> = (0..=17).chain([31, 32, 33, 255, 256, 257]).collect();
+    let strides = [4, 12, 256];
+    let channels = [0, 1, 2, 0xf2, 3];
+    for &count in &counts {
+        for stride in strides {
+            for version in 0..=1 {
+                for &channel in if version == 0 {
+                    &channels[..1]
+                } else {
+                    &channels
+                } {
+                    // All four v1 controls and every packed width, plus direct copies.
+                    for control in 0..=if version == 0 { 0 } else { 3 } {
+                        for selector in 0..=if control >= 2 { 0 } else { 3 } {
+                            let source = vertex_fixtures::stream(
+                                count, stride, version, channel, control, selector,
+                            );
+                            let lengths = [source.len(), source.len() - 1, source.len() / 2, 0];
+                            for length in lengths {
+                                let run = |level| {
+                                    with_level(level, || {
+                                        let mut out = vec![0xcc; count * stride + 7];
+                                        let mut w = Workspace::default();
+                                        let result = decode_vertex_buffer_into(
+                                            &mut out,
+                                            count,
+                                            stride,
+                                            &source[..length],
+                                            &mut w,
+                                        );
+                                        assert_eq!(&out[count * stride..], &[0xcc; 7]);
+                                        (result, out, w.usage())
+                                    })
+                                    .unwrap()
+                                };
+                                let expected = run(Level::Scalar);
+                                for level in levels() {
+                                    assert_eq!(run(level),expected,"{count}/{stride}/{version}/{channel}/{control}/{selector}/{length}/{level:?}");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn vertex_mutations_preserve_failure_prefixes_for_each_isa() {
+    let source = vertex_fixtures::stream(33, 12, 1, 1, 0, 3);
+    // Every truncation, each byte mutated once, and a reserved channel after
+    // one valid channel has already committed its four-byte components.
+    let mut cases: Vec<Vec<u8>> = (0..=source.len()).map(|n| source[..n].to_vec()).collect();
+    for i in 0..source.len() {
+        let mut b = source.clone();
+        b[i] ^= 0x81;
+        cases.push(b);
+    }
+    let mut reserved = source.clone();
+    let at = reserved.len() - 2;
+    reserved[at] = 3;
+    cases.push(reserved);
+    for b in cases {
+        let run = |level| {
+            with_level(level, || {
+                let mut out = vec![0xcc; 33 * 12 + 7];
+                let mut w = Workspace::default();
+                let result = decode_vertex_buffer_into(&mut out, 33, 12, &b, &mut w);
+                (result, out, w.usage())
+            })
+            .unwrap()
+        };
+        let expected = run(Level::Scalar);
+        for level in levels() {
+            assert_eq!(run(level), expected, "{level:?}");
+        }
+    }
+}
+
+#[test]
+fn vertex_owned_staging_threshold_matches_scalar() {
+    if cfg!(miri) {
+        return;
+    }
+    for count in [262143, 262144, 262145] {
+        let source = vertex_fixtures::stream(count, 4, 1, 0xf2, 3, 0);
+        let run = |level| {
+            with_level(level, || {
+                let mut w = Workspace::default();
+                let result = decode_vertex_buffer(count, 4, &source, &mut w);
+                (result, w.usage())
+            })
+            .unwrap()
+        };
+        assert_eq!(run(detected_level()), run(Level::Scalar));
+    }
+}

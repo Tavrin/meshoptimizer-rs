@@ -1,0 +1,5 @@
+     Locking 2 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+   Compiling decode-differential v0.0.0 (<target-dir>/differential-source)
+    Finished `release` profile [optimized] target(s) in 17.44s

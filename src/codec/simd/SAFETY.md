@@ -21,6 +21,18 @@ bound every conversion in i32. Color validates conversion range or falls back
 to the checked scalar kernel before writing that batch. Exp uses scalar bit
 construction and multiplication. The scalar reuse cache remains available.
 
+The NEON full vertex path uses checked 24-byte group windows (or a
+checked 96-byte window for four groups), initialized 1024-byte plane scratch
+and the canonical per-channel commit order. Zip operations transpose four
+planes into records. Byte/halfword wrapping sums or word XOR prefixes shift
+by one then two records and add/XOR the previous record. Variable NEON shifts
+implement exact 32-bit rotation, including rotation zero. Only complete
+16-record groups use vector reconstruction; the canonical scalar tail uses
+the last reconstructed record. No output overstore or input overread is used.
+Native arm64 CI must execute forced scalar/NEON comparisons, including errors,
+partial writes and destination tails; local cross-compilation is not identity
+or performance evidence.
+
 | Block (source line) | Kind and safety argument |
 |---|---|
 | `src/codec/simd/aarch64.rs:66` | fixed-array memory access: the initialized array supplies 16 readable bytes; vld1q_u8 permits byte alignment and the pointer is not retained. |
@@ -30,6 +42,7 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/aarch64.rs:115` | token-authorized target_feature call: Baseline proves AArch64 NEON, and the complete input is typed. |
 | `src/codec/simd/aarch64.rs:141` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
 | `src/codec/simd/aarch64.rs:274` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
+| `src/codec/simd/aarch64.rs:495` | token-authorized target_feature call: Baseline proves AArch64 NEON. Every load/store uses an initialized fixed array behind checked slices; the parser validates complete group windows and keeps scalar channel commit order. |
 | `src/codec/simd/wasm32.rs:58` | fixed-array memory access: the initialized array supplies 16 readable bytes; v128_load permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/wasm32.rs:65` | fixed-array memory access: the exclusive array supplies 16 writable bytes; v128_store permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/x86.rs:10` | fixed-array memory access: the borrowed initialized array supplies exactly 16 readable bytes; loadu has no alignment requirement and retains no pointer. |
@@ -52,7 +65,7 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/spatial.rs:115` | token-authorized target_feature call: Baseline proves AArch64 NEON; the sweep uses checked indices and fixed-array loads only. |
 | `src/codec/simd/spatial.rs:147` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; wasm load permits unaligned addresses and retains no pointer. |
 
-Inventory: **28 unsafe blocks**, one module-level allowance. The token-aware
+Inventory: **29 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
 for repository sources and the published package. The unsafe-free build is
 checked with --no-default-features and RUSTFLAGS=-Funsafe_code.

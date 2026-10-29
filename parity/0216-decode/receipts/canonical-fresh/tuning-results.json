@@ -1,0 +1,327 @@
+{
+  "rows": [
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "instructions": {
+        "base": 535245.64,
+        "candidate": 542303.0,
+        "control": 535245.81,
+        "cpp-default": 494048.82,
+        "cpp-scalar": 494048.56
+      },
+      "wall_seconds": {
+        "base": 2.4176520000000003e-05,
+        "candidate": 5.4187130000000004e-05,
+        "control": 2.278851e-05,
+        "cpp-default": 2.067182e-05,
+        "cpp-scalar": 5.074775e-05
+      },
+      "baseline_default_ratio": 1.0833861317592055,
+      "candidate_base_ratio": 1.0131852732139957
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 266907.63,
+        "candidate": 234740.8,
+        "control": 266907.8,
+        "cpp-default": 198243.89,
+        "cpp-scalar": 808396.03
+      },
+      "wall_seconds": {
+        "base": 1.139826e-05,
+        "candidate": 1.023557e-05,
+        "control": 1.16862e-05,
+        "cpp-default": 9.86147e-06,
+        "cpp-scalar": 7.303983e-05
+      },
+      "baseline_default_ratio": 1.346359930689415,
+      "candidate_base_ratio": 0.8794832879075056
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 430644.77,
+        "candidate": 430645.87,
+        "control": 430644.85,
+        "cpp-default": 396839.49,
+        "cpp-scalar": 396839.68
+      },
+      "wall_seconds": {
+        "base": 1.917471e-05,
+        "candidate": 1.902392e-05,
+        "control": 1.918472e-05,
+        "cpp-default": 1.745086e-05,
+        "cpp-scalar": 1.705993e-05
+      },
+      "baseline_default_ratio": 1.085186280226295,
+      "candidate_base_ratio": 1.0000025543094369
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 228420.67,
+        "candidate": 202183.88,
+        "control": 228420.95,
+        "cpp-default": 171343.75,
+        "cpp-scalar": 559782.97
+      },
+      "wall_seconds": {
+        "base": 9.77821e-06,
+        "candidate": 8.72112e-06,
+        "control": 1.0161829999999999e-05,
+        "cpp-default": 8.39671e-06,
+        "cpp-scalar": 2.981824e-05
+      },
+      "baseline_default_ratio": 1.3331135217946382,
+      "candidate_base_ratio": 0.885138284551919
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "instructions": {
+        "base": 555606.71,
+        "candidate": 563735.98,
+        "control": 555606.87,
+        "cpp-default": 529231.39,
+        "cpp-scalar": 529230.78
+      },
+      "wall_seconds": {
+        "base": 2.360174e-05,
+        "candidate": 5.440785e-05,
+        "control": 2.411922e-05,
+        "cpp-default": 2.296765e-05,
+        "cpp-scalar": 2.251148e-05
+      },
+      "baseline_default_ratio": 1.049837028752206,
+      "candidate_base_ratio": 1.0146313387755883
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 318720.6,
+        "candidate": 266496.78,
+        "control": 318720.68,
+        "cpp-default": 217089.86,
+        "cpp-scalar": 1041885.82
+      },
+      "wall_seconds": {
+        "base": 1.3188329999999999e-05,
+        "candidate": 2.205222e-05,
+        "control": 1.372234e-05,
+        "cpp-default": 1.1307890000000002e-05,
+        "cpp-scalar": 9.715814999999999e-05
+      },
+      "baseline_default_ratio": 1.468150562168127,
+      "candidate_base_ratio": 0.8361454515334121
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 52042756.9,
+        "candidate": 52042760.8,
+        "control": 52042767.3,
+        "cpp-default": 48034010.4,
+        "cpp-scalar": 48034009.4
+      },
+      "wall_seconds": {
+        "base": 0.0066133262,
+        "candidate": 0.006444258999999999,
+        "control": 0.006041193,
+        "cpp-default": 0.0055789227,
+        "cpp-scalar": 0.0056470299
+      },
+      "baseline_default_ratio": 1.0834564190376241,
+      "candidate_base_ratio": 1.000000074938382
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 23497987.9,
+        "candidate": 20397418.6,
+        "control": 23497990.6,
+        "cpp-default": 17347860.4,
+        "cpp-scalar": 83354214.2
+      },
+      "wall_seconds": {
+        "base": 0.0019636604,
+        "candidate": 0.0017873184000000001,
+        "control": 0.0017944649,
+        "cpp-default": 0.0029070617,
+        "cpp-scalar": 0.0089170712
+      },
+      "baseline_default_ratio": 1.3545179266026375,
+      "candidate_base_ratio": 0.8680495830879206
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "instructions": {
+        "base": 167342069.6,
+        "candidate": 167342051.6,
+        "control": 167342048.1,
+        "cpp-default": 175017324.4,
+        "cpp-scalar": 175017330.1
+      },
+      "wall_seconds": {
+        "base": 0.0618111258,
+        "candidate": 0.0708989136,
+        "control": 0.0664167742,
+        "cpp-default": 0.0553534837,
+        "cpp-scalar": 0.0588974231
+      },
+      "baseline_default_ratio": 0.9561457425639858,
+      "candidate_base_ratio": 0.9999998924358947
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 461991644.7,
+        "candidate": 419952779.4,
+        "control": 461991650.4,
+        "cpp-default": 365787587.1,
+        "cpp-scalar": 1227538346.2
+      },
+      "wall_seconds": {
+        "base": 0.1328772942,
+        "candidate": 0.12520018959999998,
+        "control": 0.1306606551,
+        "cpp-default": 0.13479782769999998,
+        "cpp-scalar": 0.2532979182
+      },
+      "baseline_default_ratio": 1.2630052549423976,
+      "candidate_base_ratio": 0.9090051394169726
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "instructions": {
+        "base": 391556698.4,
+        "candidate": 392701090.0,
+        "control": 391556686.8,
+        "cpp-default": 333344019.6,
+        "cpp-scalar": 333344032.0
+      },
+      "wall_seconds": {
+        "base": 0.08754274990000001,
+        "candidate": 0.0901729953,
+        "control": 0.0870843522,
+        "cpp-default": 0.0786312112,
+        "cpp-scalar": 0.0763980014
+      },
+      "baseline_default_ratio": 1.1746324378936,
+      "candidate_base_ratio": 1.0029226714922164
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 513093976.3,
+        "candidate": 468341282.0,
+        "control": 513093960.3,
+        "cpp-default": 410931868.8,
+        "cpp-scalar": 1414329603.6
+      },
+      "wall_seconds": {
+        "base": 0.1312890694,
+        "candidate": 0.13732535340000002,
+        "control": 0.134278074,
+        "cpp-default": 0.1297919089,
+        "cpp-scalar": 0.2516705648
+      },
+      "baseline_default_ratio": 1.2486108166746301,
+      "candidate_base_ratio": 0.9127787571728699
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "instructions": {
+        "base": 47209394.9,
+        "candidate": 47209395.7,
+        "control": 47209393.6,
+        "cpp-default": 49347416.1,
+        "cpp-scalar": 49347418.7
+      },
+      "wall_seconds": {
+        "base": 0.0066262429,
+        "candidate": 0.006270324900000001,
+        "control": 0.0060797411,
+        "cpp-default": 0.005638342100000001,
+        "cpp-scalar": 0.0061429902
+      },
+      "baseline_default_ratio": 0.9566741003081618,
+      "candidate_base_ratio": 1.0000000169457797
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 125953031.0,
+        "candidate": 114764699.6,
+        "control": 125953043.6,
+        "cpp-default": 100113914.7,
+        "cpp-scalar": 330727573.6
+      },
+      "wall_seconds": {
+        "base": 0.014325284499999999,
+        "candidate": 0.0130679306,
+        "control": 0.0136771794,
+        "cpp-default": 0.015547139500000001,
+        "cpp-scalar": 0.0469808971
+      },
+      "baseline_default_ratio": 1.2580971524031315,
+      "candidate_base_ratio": 0.9111706061285655
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 2429.5807,
+        "candidate": 2430.5807,
+        "control": 2429.5826,
+        "cpp-default": 2154.5419,
+        "cpp-scalar": 2154.5436
+      },
+      "wall_seconds": {
+        "base": 1.1235159999999999e-07,
+        "candidate": 1.12069e-07,
+        "control": 1.118125e-07,
+        "cpp-default": 9.94132e-08,
+        "cpp-scalar": 9.20733e-08
+      },
+      "baseline_default_ratio": 1.127655349844902,
+      "candidate_base_ratio": 1.0004115936548228
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 4390.5779,
+        "candidate": 4081.5815,
+        "control": 4390.5782,
+        "cpp-default": 2819.5428,
+        "cpp-scalar": 5479.5429
+      },
+      "wall_seconds": {
+        "base": 1.903374e-07,
+        "candidate": 1.862628e-07,
+        "control": 1.946505e-07,
+        "cpp-default": 4.321407e-07,
+        "cpp-scalar": 5.580939e-07
+      },
+      "baseline_default_ratio": 1.5571949821084468,
+      "candidate_base_ratio": 0.929622840765449
+    }
+  ],
+  "selected_arm": "candidate",
+  "method": "instructions:u; three interleaved repetitions per arm; median; setup, encoding, serialization and warmup excluded",
+  "gate": "tuning ships only at candidate/base geometric mean <=0.97 and every case <=1.01; NEON identity requires native CI"
+}

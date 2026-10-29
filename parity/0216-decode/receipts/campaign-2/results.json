@@ -1,0 +1,294 @@
+{
+  "rows": [
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "instructions": {
+        "base": 535245.46,
+        "candidate": 542302.72,
+        "cpp-default": 494048.55,
+        "cpp-scalar": 494048.54
+      },
+      "wall_seconds": {
+        "base": 2.191104e-05,
+        "candidate": 2.195793e-05,
+        "cpp-default": 1.962333e-05,
+        "cpp-scalar": 2.133115e-05
+      },
+      "baseline_default_ratio": 1.0833869026278125,
+      "candidate_base_ratio": 1.0131850908179585
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 266900.73,
+        "candidate": 234740.81,
+        "cpp-default": 198243.53,
+        "cpp-scalar": 808395.92
+      },
+      "wall_seconds": {
+        "base": 2.08864e-05,
+        "candidate": 1.868797e-05,
+        "cpp-default": 1.722792e-05,
+        "cpp-scalar": 7.397502e-05
+      },
+      "baseline_default_ratio": 1.3463618711793521,
+      "candidate_base_ratio": 0.8795060620478633
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 430645.07,
+        "candidate": 430645.34,
+        "cpp-default": 396839.79,
+        "cpp-scalar": 396839.89
+      },
+      "wall_seconds": {
+        "base": 1.895598e-05,
+        "candidate": 3.086569e-05,
+        "cpp-default": 1.794908e-05,
+        "cpp-scalar": 2.883657e-05
+      },
+      "baseline_default_ratio": 1.0851857526315418,
+      "candidate_base_ratio": 1.000000626966425
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 228420.68,
+        "candidate": 202184.03,
+        "cpp-default": 171343.41,
+        "cpp-scalar": 559782.82
+      },
+      "wall_seconds": {
+        "base": 9.724e-06,
+        "candidate": 1.093057e-05,
+        "cpp-default": 1.480496e-05,
+        "cpp-scalar": 4.0145959999999995e-05
+      },
+      "baseline_default_ratio": 1.3331139494640882,
+      "candidate_base_ratio": 0.8851389024846612
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "instructions": {
+        "base": 555606.82,
+        "candidate": 563735.63,
+        "cpp-default": 529230.69,
+        "cpp-scalar": 529230.6
+      },
+      "wall_seconds": {
+        "base": 2.373247e-05,
+        "candidate": 2.44452e-05,
+        "cpp-default": 2.189711e-05,
+        "cpp-scalar": 2.245376e-05
+      },
+      "baseline_default_ratio": 1.0498381613466183,
+      "candidate_base_ratio": 1.014630507955248
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 318720.61,
+        "candidate": 266496.23,
+        "cpp-default": 217089.45,
+        "cpp-scalar": 1041885.74
+      },
+      "wall_seconds": {
+        "base": 1.438597e-05,
+        "candidate": 1.316377e-05,
+        "cpp-default": 1.129055e-05,
+        "cpp-scalar": 5.686812e-05
+      },
+      "baseline_default_ratio": 1.4681496310630686,
+      "candidate_base_ratio": 0.8361436996496712
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 52042756.7,
+        "candidate": 52042758.0,
+        "cpp-default": 48034003.6,
+        "cpp-scalar": 48034010.7
+      },
+      "wall_seconds": {
+        "base": 0.0028893967,
+        "candidate": 0.0029730892,
+        "cpp-default": 0.0027707134000000003,
+        "cpp-scalar": 0.0027833431
+      },
+      "baseline_default_ratio": 1.0834566100565863,
+      "candidate_base_ratio": 1.0000000249794607
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 23497985.2,
+        "candidate": 20397415.6,
+        "cpp-default": 17347859.9,
+        "cpp-scalar": 83354210.0
+      },
+      "wall_seconds": {
+        "base": 0.0010715496,
+        "candidate": 0.0009230301,
+        "cpp-default": 0.0010152025,
+        "cpp-scalar": 0.0043669374
+      },
+      "baseline_default_ratio": 1.3545180030625446,
+      "candidate_base_ratio": 0.8680495551593079
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "instructions": {
+        "base": 167342045.2,
+        "candidate": 167342042.0,
+        "cpp-default": 175017312.6,
+        "cpp-scalar": 175017313.0
+      },
+      "wall_seconds": {
+        "base": 0.0298690613,
+        "candidate": 0.0283030361,
+        "cpp-default": 0.026090636499999997,
+        "cpp-scalar": 0.0265802369
+      },
+      "baseline_default_ratio": 0.9561458135146987,
+      "candidate_base_ratio": 0.9999999808774896
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 461991658.0,
+        "candidate": 419952774.3,
+        "cpp-default": 365787578.7,
+        "cpp-scalar": 1227538259.6
+      },
+      "wall_seconds": {
+        "base": 0.059984945199999994,
+        "candidate": 0.0590036053,
+        "cpp-default": 0.0587970035,
+        "cpp-scalar": 0.1169808961
+      },
+      "baseline_default_ratio": 1.2630054169248013,
+      "candidate_base_ratio": 0.9090051022090101
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "instructions": {
+        "base": 391556686.7,
+        "candidate": 392701052.5,
+        "cpp-default": 333344017.7,
+        "cpp-scalar": 333344015.6
+      },
+      "wall_seconds": {
+        "base": 0.0449476304,
+        "candidate": 0.0441066858,
+        "cpp-default": 0.0378231304,
+        "cpp-scalar": 0.037603655400000005
+      },
+      "baseline_default_ratio": 1.174632546216029,
+      "candidate_base_ratio": 1.0029226056887053
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 513093941.0,
+        "candidate": 468341256.1,
+        "cpp-default": 410931850.8,
+        "cpp-scalar": 1414329566.5
+      },
+      "wall_seconds": {
+        "base": 0.0657609903,
+        "candidate": 0.0666992731,
+        "cpp-default": 0.0619301929,
+        "cpp-scalar": 0.125827094
+      },
+      "baseline_default_ratio": 1.2486107455804643,
+      "candidate_base_ratio": 0.9127787694924272
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "instructions": {
+        "base": 47209397.9,
+        "candidate": 47209396.8,
+        "cpp-default": 49347413.1,
+        "cpp-scalar": 49347415.6
+      },
+      "wall_seconds": {
+        "base": 0.0030412205,
+        "candidate": 0.0030066844999999997,
+        "cpp-default": 0.0029861609,
+        "cpp-scalar": 0.0031042952
+      },
+      "baseline_default_ratio": 0.9566739978301683,
+      "candidate_base_ratio": 0.9999999766995545
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 125953025.3,
+        "candidate": 114764695.6,
+        "cpp-default": 100113929.5,
+        "cpp-scalar": 330727657.0
+      },
+      "wall_seconds": {
+        "base": 0.0069312703,
+        "candidate": 0.006432777200000001,
+        "cpp-default": 0.0074720751,
+        "cpp-scalar": 0.0236619036
+      },
+      "baseline_default_ratio": 1.258097049732686,
+      "candidate_base_ratio": 0.9111706156056896
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 2429.5772,
+        "candidate": 2430.5789,
+        "cpp-default": 2154.5418,
+        "cpp-scalar": 2154.5409
+      },
+      "wall_seconds": {
+        "base": 1.8944260000000002e-07,
+        "candidate": 1.973965e-07,
+        "cpp-default": 1.532925e-07,
+        "cpp-scalar": 1.355932e-07
+      },
+      "baseline_default_ratio": 1.127652322113336,
+      "candidate_base_ratio": 1.0004122939579774
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 4390.5772,
+        "candidate": 4081.5772,
+        "cpp-default": 2819.541,
+        "cpp-scalar": 5479.5387
+      },
+      "wall_seconds": {
+        "base": 1.9782630000000002e-07,
+        "candidate": 2.481851e-07,
+        "cpp-default": 1.2832550000000002e-07,
+        "cpp-scalar": 3.677791e-07
+      },
+      "baseline_default_ratio": 1.5571949790980175,
+      "candidate_base_ratio": 0.9296220096073018
+    }
+  ],
+  "method": "instructions:u; three interleaved repetitions per arm; median; setup, encoding, serialization and warmup excluded",
+  "gate": "tuning ships only at candidate/base geometric mean <=0.97 and every case <=1.01; NEON identity requires native CI"
+}

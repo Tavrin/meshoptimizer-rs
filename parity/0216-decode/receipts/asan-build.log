@@ -1,0 +1,11 @@
+   Compiling libc v0.2.190
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling libm v0.2.16
+   Compiling jobserver v0.1.35
+   Compiling cc v1.6.0
+   Compiling arbitrary v1.4.2
+   Compiling libfuzzer-sys v0.4.13
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+   Compiling meshopt-codec-fuzz v0.0.0 (<repo>/fuzz/codec)
+    Finished `release` profile [optimized + debuginfo] target(s) in 41.16s

@@ -1,0 +1,294 @@
+{
+  "rows": [
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "instructions": {
+        "base": 535245.37,
+        "candidate": 542303.0,
+        "cpp-default": 494048.64,
+        "cpp-scalar": 494048.56
+      },
+      "wall_seconds": {
+        "base": 2.346582e-05,
+        "candidate": 2.444055e-05,
+        "cpp-default": 2.2394820000000003e-05,
+        "cpp-scalar": 2.016744e-05
+      },
+      "baseline_default_ratio": 1.0833869026278125,
+      "candidate_base_ratio": 1.0131857843067378
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 266900.98,
+        "candidate": 234740.35,
+        "cpp-default": 198243.62,
+        "cpp-scalar": 808395.79
+      },
+      "wall_seconds": {
+        "base": 1.08204e-05,
+        "candidate": 1.127215e-05,
+        "cpp-default": 9.7587e-06,
+        "cpp-scalar": 4.164814e-05
+      },
+      "baseline_default_ratio": 1.3463618711793521,
+      "candidate_base_ratio": 0.8795035147491779
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 430644.61,
+        "candidate": 430645.61,
+        "cpp-default": 396840.22,
+        "cpp-scalar": 396839.69
+      },
+      "wall_seconds": {
+        "base": 1.892952e-05,
+        "candidate": 1.98286e-05,
+        "cpp-default": 1.954777e-05,
+        "cpp-scalar": 1.717172e-05
+      },
+      "baseline_default_ratio": 1.0851857526315418,
+      "candidate_base_ratio": 1.000002322100351
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 228420.58,
+        "candidate": 202184.02,
+        "cpp-default": 171344.03,
+        "cpp-scalar": 559783.3
+      },
+      "wall_seconds": {
+        "base": 1.733322e-05,
+        "candidate": 8.55906e-06,
+        "cpp-default": 7.85323e-06,
+        "cpp-scalar": 3.150982e-05
+      },
+      "baseline_default_ratio": 1.3331139494640882,
+      "candidate_base_ratio": 0.8851392462097767
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "instructions": {
+        "base": 555606.61,
+        "candidate": 563735.7,
+        "cpp-default": 529230.16,
+        "cpp-scalar": 529230.79
+      },
+      "wall_seconds": {
+        "base": 2.1755110000000002e-05,
+        "candidate": 2.343236e-05,
+        "cpp-default": 2.134745e-05,
+        "cpp-scalar": 2.08917e-05
+      },
+      "baseline_default_ratio": 1.0498381613466183,
+      "candidate_base_ratio": 1.0146310174387594
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 318720.69,
+        "candidate": 266496.44,
+        "cpp-default": 217089.52,
+        "cpp-scalar": 1041885.48
+      },
+      "wall_seconds": {
+        "base": 1.325477e-05,
+        "candidate": 1.164424e-05,
+        "cpp-default": 1.734935e-05,
+        "cpp-scalar": 4.578119e-05
+      },
+      "baseline_default_ratio": 1.4681496310630686,
+      "candidate_base_ratio": 0.8361441486588147
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 52042758.7,
+        "candidate": 52042759.3,
+        "cpp-default": 48034006.5,
+        "cpp-scalar": 48034005.6
+      },
+      "wall_seconds": {
+        "base": 0.0030764819999999997,
+        "candidate": 0.0030428699,
+        "cpp-default": 0.002893197,
+        "cpp-scalar": 0.0028013817999999998
+      },
+      "baseline_default_ratio": 1.0834566100565863,
+      "candidate_base_ratio": 1.0000000115289813
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 23497990.8,
+        "candidate": 20397416.9,
+        "cpp-default": 17347857.8,
+        "cpp-scalar": 83354211.1
+      },
+      "wall_seconds": {
+        "base": 0.0010144182,
+        "candidate": 0.001087892,
+        "cpp-default": 0.0010635063,
+        "cpp-scalar": 0.0046625786
+      },
+      "baseline_default_ratio": 1.3545180030625446,
+      "candidate_base_ratio": 0.8680494036111376
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "instructions": {
+        "base": 167342049.5,
+        "candidate": 167342043.1,
+        "cpp-default": 175017314.4,
+        "cpp-scalar": 175017310.2
+      },
+      "wall_seconds": {
+        "base": 0.028428949399999997,
+        "candidate": 0.0284040474,
+        "cpp-default": 0.025478234,
+        "cpp-scalar": 0.0273158152
+      },
+      "baseline_default_ratio": 0.9561458135146987,
+      "candidate_base_ratio": 0.9999999617549802
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 461991666.5,
+        "candidate": 419952800.7,
+        "cpp-default": 365787581.7,
+        "cpp-scalar": 1227538297.9
+      },
+      "wall_seconds": {
+        "base": 0.0676981159,
+        "candidate": 0.063821722,
+        "cpp-default": 0.0657853604,
+        "cpp-scalar": 0.129751613
+      },
+      "baseline_default_ratio": 1.2630054169248013,
+      "candidate_base_ratio": 0.9090051426284763
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "instructions": {
+        "base": 391556684.8,
+        "candidate": 392701048.0,
+        "cpp-default": 333344017.5,
+        "cpp-scalar": 333344016.1
+      },
+      "wall_seconds": {
+        "base": 0.040948757200000005,
+        "candidate": 0.041223406000000004,
+        "cpp-default": 0.0347057192,
+        "cpp-scalar": 0.0355157465
+      },
+      "baseline_default_ratio": 1.174632546216029,
+      "candidate_base_ratio": 1.0029225990627244
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 513093934.2,
+        "candidate": 468341250.5,
+        "cpp-default": 410931855.0,
+        "cpp-scalar": 1414329555.7
+      },
+      "wall_seconds": {
+        "base": 0.06129146989999999,
+        "candidate": 0.0604444804,
+        "cpp-default": 0.0586488391,
+        "cpp-scalar": 0.1167576539
+      },
+      "baseline_default_ratio": 1.2486107455804643,
+      "candidate_base_ratio": 0.9127787706752429
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "instructions": {
+        "base": 47209393.3,
+        "candidate": 47209395.1,
+        "cpp-default": 49347415.8,
+        "cpp-scalar": 49347413.8
+      },
+      "wall_seconds": {
+        "base": 0.0029371010999999997,
+        "candidate": 0.0028998853,
+        "cpp-default": 0.0028373009,
+        "cpp-scalar": 0.0029831264999999997
+      },
+      "baseline_default_ratio": 0.9566739978301683,
+      "candidate_base_ratio": 1.0000000381280054
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 125953026.0,
+        "candidate": 114764695.3,
+        "cpp-default": 100113913.1,
+        "cpp-scalar": 330727582.4
+      },
+      "wall_seconds": {
+        "base": 0.0062788555,
+        "candidate": 0.0058638547,
+        "cpp-default": 0.0070887523999999995,
+        "cpp-scalar": 0.0220011818
+      },
+      "baseline_default_ratio": 1.258097049732686,
+      "candidate_base_ratio": 0.9111706081599024
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 2429.5772,
+        "candidate": 2430.5788,
+        "cpp-default": 2154.5364,
+        "cpp-scalar": 2154.5391
+      },
+      "wall_seconds": {
+        "base": 1.451854e-07,
+        "candidate": 1.0655790000000001e-07,
+        "cpp-default": 1.0524440000000001e-07,
+        "cpp-scalar": 9.070919999999999e-08
+      },
+      "baseline_default_ratio": 1.127652322113336,
+      "candidate_base_ratio": 1.0004122527985526
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 4390.5762,
+        "candidate": 4081.5816,
+        "cpp-default": 2819.5375,
+        "cpp-scalar": 5479.5375
+      },
+      "wall_seconds": {
+        "base": 1.877152e-07,
+        "candidate": 1.888794e-07,
+        "cpp-default": 1.420405e-07,
+        "cpp-scalar": 2.536248e-07
+      },
+      "baseline_default_ratio": 1.5571949790980175,
+      "candidate_base_ratio": 0.929623223484881
+    }
+  ],
+  "method": "instructions:u; three interleaved repetitions per arm; median; setup, encoding, serialization and warmup excluded",
+  "gate": "tuning ships only at candidate/base geometric mean <=0.97 and every case <=1.01; NEON identity requires native CI"
+}

@@ -1,0 +1,141 @@
+[
+  {
+    "fingerprint": {
+      "rustc": 1625334936438085654,
+      "features": "[\"default\"]",
+      "declared_features": "[\"default\"]",
+      "target": 16649359759497724202,
+      "profile": 11264489599640293354,
+      "path": 11633544595921915306,
+      "deps": [
+        [
+          4413156869287882956,
+          "candidate",
+          false,
+          13059977171327589899
+        ],
+        [
+          11194858409896017127,
+          "baseline",
+          false,
+          18291435672850992688
+        ]
+      ],
+      "local": [
+        {
+          "CheckDepInfo": {
+            "dep_info": "release/.fingerprint/decode-exact-4b1e66d1e6b721db/dep-bin-exact",
+            "checksum": false
+          }
+        }
+      ],
+      "rustflags": [],
+      "config": 9396254390672932401,
+      "compile_kind": 0
+    },
+    "binary_sha256": "2d924e4ce296db3f5d7631296cabfa51d0de32537db7281389c24b873872c109",
+    "harness": "exact"
+  },
+  {
+    "fingerprint": {
+      "rustc": 1625334936438085654,
+      "features": "[]",
+      "declared_features": "[\"default\"]",
+      "target": 16649359759497724202,
+      "profile": 11264489599640293354,
+      "path": 11633544595921915306,
+      "deps": [
+        [
+          4413156869287882956,
+          "candidate",
+          false,
+          5350357225921033306
+        ],
+        [
+          11194858409896017127,
+          "baseline",
+          false,
+          12430186114828994532
+        ]
+      ],
+      "local": [
+        {
+          "CheckDepInfo": {
+            "dep_info": "release/.fingerprint/decode-exact-d7f174c0839f9026/dep-bin-exact",
+            "checksum": false
+          }
+        }
+      ],
+      "rustflags": [],
+      "config": 9396254390672932401,
+      "compile_kind": 0
+    },
+    "binary_sha256": "07ac87e5fcb6ef7f0c5d10fa4e654dd0c4be6f28a12ec529a65182df608b7d53",
+    "harness": "exact"
+  },
+  {
+    "fingerprint": {
+      "rustc": 1625334936438085654,
+      "features": "[]",
+      "declared_features": "[]",
+      "target": 841877455322910910,
+      "profile": 11264489599640293354,
+      "path": 10342174541123142561,
+      "deps": [
+        [
+          4413156869287882956,
+          "meshoptimizer_rs",
+          false,
+          12378820266560583076
+        ]
+      ],
+      "local": [
+        {
+          "CheckDepInfo": {
+            "dep_info": "release/.fingerprint/decode-differential-8edd75132dc70e65/dep-bin-differential",
+            "checksum": false
+          }
+        }
+      ],
+      "rustflags": [
+        "-C",
+        "target-feature=+ssse3,+popcnt,+sse4.1"
+      ],
+      "config": 9396254390672932401,
+      "compile_kind": 0
+    },
+    "binary_sha256": "87f63eb4e2772252aebf23764369b425acd7d1361804bf90c0ea4382c57ea11f",
+    "harness": "differential"
+  },
+  {
+    "fingerprint": {
+      "rustc": 1625334936438085654,
+      "features": "[]",
+      "declared_features": "[]",
+      "target": 841877455322910910,
+      "profile": 11264489599640293354,
+      "path": 10342174541123142561,
+      "deps": [
+        [
+          4413156869287882956,
+          "meshoptimizer_rs",
+          false,
+          14625184255170052754
+        ]
+      ],
+      "local": [
+        {
+          "CheckDepInfo": {
+            "dep_info": "release/.fingerprint/decode-differential-176631890b45d4f4/dep-bin-differential",
+            "checksum": false
+          }
+        }
+      ],
+      "rustflags": [],
+      "config": 9396254390672932401,
+      "compile_kind": 0
+    },
+    "binary_sha256": "fa5e302b585e620265780166c7b69002badf18b0934ee0079d06a45e7363cef0",
+    "harness": "differential"
+  }
+]

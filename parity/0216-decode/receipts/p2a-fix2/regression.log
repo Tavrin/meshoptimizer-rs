@@ -1,0 +1,13 @@
+test_arm64_default_failure_writes_are_not_reference (test_differential.DivergenceGateTests.test_arm64_default_failure_writes_are_not_reference) ... ok
+test_arm64_reverse_status_split_disclosed (test_differential.DivergenceGateTests.test_arm64_reverse_status_split_disclosed) ... ok
+test_arm64_status_splits_disclosed_without_classification (test_differential.DivergenceGateTests.test_arm64_status_splits_disclosed_without_classification) ... ok
+test_arm64_success_bytes_disclosed (test_differential.DivergenceGateTests.test_arm64_success_bytes_disclosed) ... ok
+test_rust_neon_status_and_failure_writes_always_asserted (test_differential.DivergenceGateTests.test_rust_neon_status_and_failure_writes_always_asserted) ... ok
+test_scalar_failure_writes_remain_disclosure (test_differential.DivergenceGateTests.test_scalar_failure_writes_remain_disclosure) ... ok
+test_scalar_status_and_success_bytes_always_asserted (test_differential.DivergenceGateTests.test_scalar_status_and_success_bytes_always_asserted) ... ok
+test_x86_divergences_fail_after_receipt (test_differential.DivergenceGateTests.test_x86_divergences_fail_after_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.163s
+
+OK

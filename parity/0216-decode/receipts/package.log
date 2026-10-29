@@ -1,0 +1,8 @@
+   Packaging meshoptimizer-rs v0.2.15 (<repo>)
+warning: ignoring test `codec04` as `tests/codec04.rs` is not included in the published package
+warning: ignoring test `mesh_analysis` as `tests/mesh_analysis.rs` is not included in the published package
+    Updating crates.io index
+    Packaged 81 files, 1.7MiB (370.3KiB compressed)
+   Verifying meshoptimizer-rs v0.2.15 (<repo>)
+   Compiling meshoptimizer-rs v0.2.15 (<target-dir>/package/meshoptimizer-rs-0.2.15)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.68s

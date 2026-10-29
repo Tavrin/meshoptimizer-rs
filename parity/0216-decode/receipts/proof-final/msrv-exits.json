@@ -1,0 +1,14 @@
+[
+  {
+    "step": "msrv-simd",
+    "exit": 0,
+    "wall_seconds": 18.47744536702521,
+    "cpu_seconds": 26.147641
+  },
+  {
+    "step": "msrv-no-default",
+    "exit": 0,
+    "wall_seconds": 2.6910493259783834,
+    "cpu_seconds": 2.5883189999999985
+  }
+]
