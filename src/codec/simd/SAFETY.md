@@ -33,6 +33,15 @@ Native arm64 CI must execute forced scalar/NEON comparisons, including errors,
 partial writes and destination tails; local cross-compilation is not identity
 or performance evidence.
 
+Geometry kernels take eight independent roots in initialized four-float
+windows. Only nonnegative finite operands use hardware sqrt; all other bit
+patterns retain the pinned scalar backend, including negative zero and NaNs.
+Sphere expansion, cone math and strict tie decisions keep their original
+order. SSE2, NEON and simd128 use exact IEEE sqrt, with no FMA, reciprocal
+estimate or approximate root. Diagnostic ceilings also apply to geometry.
+Geometry batching adds bounded stack arrays and no heap allocation or workspace
+charge. The rejected KD distance experiments are recorded in the P3 proofs.
+
 | Block (source line) | Kind and safety argument |
 |---|---|
 | `src/codec/simd/aarch64.rs:66` | fixed-array memory access: the initialized array supplies 16 readable bytes; vld1q_u8 permits byte alignment and the pointer is not retained. |

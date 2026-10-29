@@ -149,6 +149,8 @@ jobs:
           cargo fetch --locked
           cargo fetch --locked --manifest-path parity/Cargo.toml
       - run: parity/report.sh --identity-check native-identity
+      - name: Force each native SIMD geometry kernel against the scalar backend
+        run: cargo test --locked --lib codec::simd::bounds
       - uses: actions/checkout@v4
         if: startsWith(matrix.target, 'aarch64-')
         with:

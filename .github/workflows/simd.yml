@@ -51,6 +51,11 @@ jobs:
           echo "MESHOPT_ARTIFACTS=$RUNNER_TEMP/simd-artifacts" >> "$GITHUB_ENV"
           cargo fetch --locked --manifest-path parity/codec/Cargo.toml
       - run: cargo test --locked --all-features
+      - name: Execute the simd128 geometry kernel against the scalar backend
+        run: cargo test --locked --target wasm32-wasip1 --lib codec::simd::bounds -- --test-threads=1
+        env:
+          RUSTFLAGS: -C target-feature=+simd128
+          CARGO_TARGET_WASM32_WASIP1_RUNNER: node parity/simd/wasi_runner.mjs
       - run: cargo clippy --locked --all-features --target wasm32-unknown-unknown -- -D warnings
       - run: cargo clippy --locked --all-features --target wasm32-unknown-unknown -- -D warnings
         env:

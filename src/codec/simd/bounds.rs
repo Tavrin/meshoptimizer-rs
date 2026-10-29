@@ -131,6 +131,7 @@ mod tests {
 
     #[test]
     fn roots_match_pinned_bits_and_preserve_scalar_fallback() {
+        let mut executed = 0;
         for level in [
             Level::Sse2,
             Level::Ssse3,
@@ -138,7 +139,7 @@ mod tests {
             Level::Neon,
             Level::Wasm,
         ] {
-            let _ = with_level(level, || {
+            let ran = with_level(level, || {
                 let special = [
                     0,
                     1,
@@ -177,7 +178,17 @@ mod tests {
                     assert!(roots(input).is_none());
                 }
             });
+            executed += usize::from(ran.is_ok());
         }
+        // Every SIMD architecture must execute its kernel here (NEON on
+        // AArch64 CI, simd128 under the wasm runner), never skip silently.
+        #[cfg(any(
+            target_arch = "x86_64",
+            target_arch = "aarch64",
+            all(target_arch = "wasm32", target_feature = "simd128")
+        ))]
+        assert!(executed > 0);
+        let _ = executed;
         with_level(Level::Scalar, || {
             assert!(roots([1.; 8]).is_none());
         })
