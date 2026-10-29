@@ -34,7 +34,7 @@ fn listing() -> AnalyzeOptions {
 fn closed_cube_has_no_boundary_or_defect() {
     let a = run(&CUBE, &CUBE_POSITIONS, listing());
     assert_eq!((a.triangles, a.vertices, a.edges), (12, 8, 18));
-    assert_eq!((a.boundary_edges, a.boundary_loops), (0, 0));
+    assert_eq!((a.boundary_edges, a.boundary_components), (0, 0));
     assert_eq!((a.non_manifold_edges, a.non_manifold_vertices), (0, 0));
     assert_eq!(a.orientation_conflicts, 0);
     assert_eq!(
@@ -48,13 +48,13 @@ fn closed_cube_has_no_boundary_or_defect() {
 fn open_box_has_one_boundary_loop() {
     let open: Vec<u32> = CUBE[..6].iter().chain(&CUBE[12..]).copied().collect();
     let a = run(&open, &CUBE_POSITIONS, listing());
-    assert_eq!((a.boundary_edges, a.boundary_loops), (4, 1));
+    assert_eq!((a.boundary_edges, a.boundary_components), (4, 1));
     assert_eq!(a.lists.boundary_edges, [[5, 4], [4, 7], [6, 5], [7, 6]]);
-    assert_eq!(a.lists.boundary_loops.len(), 1);
+    assert_eq!(a.lists.boundary_components.len(), 1);
     assert_eq!(
         (
-            a.lists.boundary_loops[0].vertex,
-            a.lists.boundary_loops[0].edges
+            a.lists.boundary_components[0].vertex,
+            a.lists.boundary_components[0].edges
         ),
         (4, 4)
     );
@@ -76,7 +76,7 @@ fn bowtie_vertex_has_two_fans() {
     assert_eq!(a.non_manifold_edges, 0);
     // Joined at the shared vertex: one component and one boundary loop.
     assert_eq!(
-        (a.components, a.boundary_edges, a.boundary_loops),
+        (a.components, a.boundary_edges, a.boundary_components),
         (1, 6, 1)
     );
 }
@@ -93,8 +93,8 @@ fn t_shaped_edge_is_non_manifold() {
     let a = run(&[0, 1, 2, 1, 0, 3, 0, 1, 4], &positions, listing());
     assert_eq!(a.non_manifold_edges, 1);
     assert_eq!(a.lists.non_manifold_edges, [[0, 1]]);
-    // Two of the three faces run 0 -> 1.
-    assert_eq!(a.lists.orientation_conflicts, [[0, 1]]);
+    assert_eq!(a.orientation_conflicts, 0);
+    assert!(a.lists.orientation_conflicts.is_empty());
     assert_eq!((a.non_manifold_vertices, a.boundary_edges), (0, 6));
 }
 
@@ -137,7 +137,11 @@ fn welded_positions_join_a_triangle_soup() {
     let soup: Vec<u32> = (0..36).collect();
     let split = run(&soup, &positions, AnalyzeOptions::EMPTY);
     assert_eq!(
-        (split.components, split.boundary_edges, split.boundary_loops),
+        (
+            split.components,
+            split.boundary_edges,
+            split.boundary_components
+        ),
         (12, 36, 12)
     );
     let welded = run(&soup, &positions, listing().with_weld_positions(true));
@@ -233,7 +237,7 @@ fn faces_sharing_one_edge_stay_within_the_n_log_n_work_bound() {
             (2 * n + 1, 1, 2 * n)
         );
         assert_eq!(
-            (a.components, a.boundary_loops, a.non_manifold_vertices),
+            (a.components, a.boundary_components, a.non_manifold_vertices),
             (1, 1, 0)
         );
         assert_eq!(a.lists.boundary_edges.len(), 16);
@@ -254,4 +258,89 @@ fn faces_sharing_one_edge_stay_within_the_n_log_n_work_bound() {
         &mut ws,
     );
     assert_eq!(result, Err(Error::LimitExceeded));
+}
+
+#[test]
+fn welded_names_use_only_referenced_vertices() {
+    let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 0., 0.]];
+    let a = run(&[3, 1, 2], &positions, listing().with_weld_positions(true));
+    assert_eq!(a.lists.boundary_edges, [[1, 2], [3, 1], [2, 3]]);
+    assert_eq!(a.lists.boundary_components[0].vertex, 1);
+}
+
+#[test]
+fn invalid_input_passes_are_charged_in_both_modes() {
+    let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+    let mut indices = vec![0, 1, 2];
+    for _ in 0..1000 {
+        indices.extend_from_slice(&[9, 9, 9]);
+    }
+    for weld in [false, true] {
+        let options = AnalyzeOptions::EMPTY.with_weld_positions(weld);
+        let mut ws = Workspace::default();
+        analyze_mesh(
+            &indices,
+            Positions::from_packed(&positions),
+            options,
+            &mut ws,
+        )
+        .unwrap();
+        assert!(ws.usage().work >= 2 * 1001);
+        let mut limited = Workspace::new(Limits {
+            max_work: 1002,
+            ..Limits::default()
+        });
+        assert_eq!(
+            analyze_mesh(
+                &indices,
+                Positions::from_packed(&positions),
+                options,
+                &mut limited
+            ),
+            Err(Error::LimitExceeded)
+        );
+    }
+}
+
+#[test]
+fn all_invalid_needs_no_triangle_scratch() {
+    let indices = vec![9; 3_000_000];
+    let mut ws = Workspace::new(Limits {
+        max_bytes: 64,
+        ..Limits::default()
+    });
+    let a = analyze_mesh(
+        &indices,
+        Positions::from_packed(&[]),
+        AnalyzeOptions::EMPTY,
+        &mut ws,
+    )
+    .unwrap();
+    assert_eq!(
+        (a.input_triangles, a.out_of_range, a.triangles),
+        (1_000_000, 1_000_000, 0)
+    );
+}
+
+#[test]
+fn duplicate_windings_differ_from_orientation_ignoring_sanitize() {
+    let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+    let indices = [0, 1, 2, 0, 2, 1, 0, 2, 1];
+    let a = run(&indices, &positions, AnalyzeOptions::EMPTY);
+    assert_eq!((a.duplicate, a.reversed_duplicate), (1, 1));
+    let mut ws = Workspace::default();
+    let sanitized = sanitize(
+        &indices,
+        Positions::from_packed(&positions),
+        SanitizeOptions::IGNORE_ORIENTATION,
+        &mut ws,
+    )
+    .unwrap();
+    assert_eq!(
+        (
+            sanitized.report.duplicate,
+            sanitized.report.reversed_duplicate
+        ),
+        (0, 2)
+    );
 }

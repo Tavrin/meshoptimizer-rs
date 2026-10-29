@@ -54,10 +54,10 @@ impl AnalyzeOptions {
 /// meshoptimizer.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct BoundaryLoop {
-    /// Smallest vertex index on the loop.
+pub struct BoundaryComponent {
+    /// Smallest vertex index in the component.
     pub vertex: u32,
-    /// Boundary edges in the loop.
+    /// Boundary edges in the component.
     pub edges: usize,
 }
 
@@ -66,19 +66,20 @@ pub struct BoundaryLoop {
 /// Each list holds at most [`AnalyzeOptions::list_limit`] entries: the first
 /// ones in ascending order of their vertex indices (edges by smaller, then
 /// larger, vertex index). With [`AnalyzeOptions::with_weld_positions`], a
-/// vertex is named by the smallest index among those sharing its position.
+/// vertex is named by the smallest referenced index among those sharing its
+/// position; unreferenced positions are not scanned.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct AnalysisLists {
     /// Boundary edges as `[from, to]` in the winding of their one face.
     pub boundary_edges: Vec<[u32; 2]>,
-    /// Boundary loops, ordered by [`BoundaryLoop::vertex`].
-    pub boundary_loops: Vec<BoundaryLoop>,
+    /// Boundary components, ordered by [`BoundaryComponent::vertex`].
+    pub boundary_components: Vec<BoundaryComponent>,
     /// Edges with more than two faces, as `[smaller, larger]`.
     pub non_manifold_edges: Vec<[u32; 2]>,
     /// Vertices whose faces form more than one fan.
     pub non_manifold_vertices: Vec<u32>,
-    /// Edges used at least twice in the same direction, as `[smaller, larger]`.
+    /// Edges with exactly two incident faces using the same direction, as `[smaller, larger]`.
     pub orientation_conflicts: Vec<[u32; 2]>,
 }
 
@@ -107,8 +108,9 @@ pub struct MeshAnalysis {
     /// counted and analyzed.
     pub coincident_corners: usize,
     /// Analyzed triangles with the same corners and winding as an earlier
-    /// analyzed triangle, after a cyclic rotation. This is what `sanitize`
-    /// removes as `duplicate` when no triangle has coincident corners.
+    /// analyzed triangle, after a cyclic rotation. The first winding is kept;
+    /// later copies of either winding count here.
+    /// `sanitize` with `IGNORE_ORIENTATION` classifies copies differently.
     pub duplicate: usize,
     /// Analyzed triangles that are the first with the opposite winding of an
     /// earlier analyzed triangle with the same corners. Later copies of that
@@ -126,15 +128,14 @@ pub struct MeshAnalysis {
     /// the number of holes and borders when each boundary vertex has one
     /// incoming and one outgoing boundary edge; borders that touch at a vertex
     /// count as one.
-    pub boundary_loops: usize,
+    pub boundary_components: usize,
     /// Edges with more than two faces.
     pub non_manifold_edges: usize,
     /// Vertices whose faces form more than one fan, where two faces around a
     /// vertex are in one fan when a chain of faces sharing edges at that
     /// vertex connects them. A bow-tie vertex has two fans.
     pub non_manifold_vertices: usize,
-    /// Edges used at least twice in the same direction, so the faces around
-    /// them cannot all agree on winding.
+    /// Edges with exactly two incident faces using the same direction.
     pub orientation_conflicts: usize,
     /// Sets of analyzed triangles connected through shared vertices.
     pub components: usize,
@@ -149,10 +150,9 @@ pub struct MeshAnalysis {
 /// Report the topology of a triangle list without changing anything.
 /// Not in C++ meshoptimizer.
 ///
-/// Counts boundary edges and loops, non-manifold edges and vertices,
+/// Counts boundary edges and components, non-manifold edges and vertices,
 /// orientation conflicts, connected components, and the invalid, degenerate
-/// and duplicate triangles that [`sanitize`](crate::sanitize) would classify;
-/// [`MeshAnalysis`] defines each count. With
+/// and duplicate triangles; [`MeshAnalysis`] defines each count. With
 /// [`AnalyzeOptions::with_list_limit`], also lists the first defects of each
 /// kind. Index topology is the default; position-coincident topology needs
 /// [`AnalyzeOptions::with_weld_positions`]. A boundary is not necessarily a
@@ -167,7 +167,7 @@ pub struct MeshAnalysis {
 /// let mut workspace = Workspace::default();
 /// let options = AnalyzeOptions::EMPTY.with_list_limit(8);
 /// let analysis = analyze_mesh(&indices, Positions::from_packed(&positions), options, &mut workspace)?;
-/// assert_eq!((analysis.edges, analysis.boundary_edges, analysis.boundary_loops), (5, 4, 1));
+/// assert_eq!((analysis.edges, analysis.boundary_edges, analysis.boundary_components), (5, 4, 1));
 /// assert_eq!(analysis.lists.boundary_edges, [[0, 1], [3, 0], [1, 2], [2, 3]]);
 /// assert_eq!((analysis.non_manifold_edges, analysis.components), (0, 1));
 /// # Ok::<(), meshoptimizer_rs::Error>(())
@@ -181,7 +181,7 @@ pub struct MeshAnalysis {
 ///
 /// Work is `O(n log n)` in the number of triangles whatever the input: edges,
 /// duplicates and welded positions are grouped by sorting, not hashing, and
-/// fans, components and loops use union-find with union by size. Scratch
+/// fans, components and boundary components use union-find with union by size. Scratch
 /// storage is proportional to the analyzed triangles, never to the position
 /// count; each list holds at most the list limit.
 pub fn analyze_mesh(
@@ -218,22 +218,24 @@ fn analyze(
     let triangles = indices.as_chunks::<3>().0;
     budget.ws.charge_retained()?;
     let weld = options.weld_positions;
-    let mut keep = budget.filled(triangles.len(), false)?;
     let mut screened = SanitizeReport::default();
     let policy = if weld {
         SanitizeOptions::COINCIDENT_CORNERS
     } else {
         SanitizeOptions::EMPTY
     };
-    let candidates = if let Some(packed) = positions.packed_values() {
-        screen(policy, triangles, &mut keep, &mut screened, work, |i| {
-            packed.get(i as usize).copied()
-        })?
-    } else {
-        screen(policy, triangles, &mut keep, &mut screened, work, |i| {
-            positions.get(i as usize)
-        })?
-    };
+    let mut candidates = 0;
+    for triangle in triangles {
+        let mut keep = [false];
+        candidates += screen(
+            policy,
+            core::slice::from_ref(triangle),
+            &mut keep,
+            &mut screened,
+            work,
+            |i| positions.get(i as usize),
+        )?;
+    }
     let mut report = MeshAnalysis {
         input_triangles: triangles.len(),
         out_of_range: screened.out_of_range,
@@ -246,18 +248,34 @@ fn analyze(
     if candidates == 0 {
         return Ok(report);
     }
+    // Collect only screened triangles; the second screening pass is charged too.
+    let mut kept = budget.reserved::<[u32; 3]>(candidates)?;
+    let mut ignored = SanitizeReport::default();
+    for triangle in triangles {
+        let mut keep = [false];
+        screen(
+            policy,
+            core::slice::from_ref(triangle),
+            &mut keep,
+            &mut ignored,
+            work,
+            |i| positions.get(i as usize),
+        )?;
+        if keep[0] {
+            kept.push(*triangle);
+        }
+    }
     if !weld {
         work.add(candidates)?;
-        for (&[a, b, c], _) in triangles.iter().zip(&keep).filter(|(_, &k)| k) {
+        for &[a, b, c] in &kept {
             let [pa, pb, pc] = [a, b, c].map(|i| positions.get(i as usize));
             if pa == pb || pa == pc || pb == pc {
                 report.coincident_corners += 1;
             }
         }
     }
-    let (faces, names) =
-        number_vertices(triangles, &keep, candidates, weld, positions, budget, work)?;
-    budget.release(keep);
+    let (faces, names) = number_vertices(&kept, weld, positions, budget, work)?;
+    budget.release(kept);
     count_duplicates(&faces, &mut report, budget, work)?;
     let lists = topology(
         &faces,
@@ -279,18 +297,17 @@ fn analyze(
 /// smallest index sharing its position, so numbers stay in index order.
 fn number_vertices(
     triangles: &[[u32; 3]],
-    keep: &[bool],
-    candidates: usize,
     weld: bool,
     positions: Positions<'_>,
     budget: &mut Budget<'_>,
     work: &mut Work,
 ) -> Result<(Vec<[u32; 3]>, Vec<u32>), Error> {
+    let candidates = triangles.len();
     let corner_count = times(candidates, 3)?;
     work.add(corner_count)?;
     work.add(sort_work(corner_count)?)?;
     let mut referenced = budget.reserved::<u32>(corner_count)?;
-    for (triangle, _) in triangles.iter().zip(keep).filter(|(_, &k)| k) {
+    for triangle in triangles {
         referenced.extend_from_slice(triangle);
     }
     referenced.sort_unstable();
@@ -305,7 +322,7 @@ fn number_vertices(
     };
     work.add(times(corner_count, steps(names.len()))?)?;
     let mut faces = budget.reserved::<[u32; 3]>(candidates)?;
-    for (triangle, _) in triangles.iter().zip(keep).filter(|(_, &k)| k) {
+    for triangle in triangles {
         let mut face = [0; 3];
         for (corner, &vertex) in face.iter_mut().zip(triangle) {
             let id = names
@@ -429,8 +446,7 @@ impl HalfEdge {
     }
     /// Whether the faces of this edge group use it twice in one direction.
     fn conflict(group: &[Self]) -> bool {
-        let forward = group.iter().filter(|e| e.forward).count();
-        forward > 1 || group.len() - forward > 1
+        group.len() == 2 && group[0].forward == group[1].forward
     }
 }
 
@@ -482,7 +498,7 @@ fn times(a: usize, b: usize) -> Result<usize, Error> {
     a.checked_mul(b).ok_or(Error::SizeOverflow)
 }
 
-/// Edge, fan, component and boundary-loop counts, then the bounded lists.
+/// Edge, fan, component and boundary-component counts, then the bounded lists.
 fn topology(
     faces: &[[u32; 3]],
     names: &[u32],
@@ -570,7 +586,7 @@ fn topology(
     report.smallest_component = if report.components > 0 { smallest } else { 0 };
     parts.release(budget);
 
-    // Boundary loops: vertices joined by boundary edges, sized in edges.
+    // Boundary components: vertices joined by boundary edges, sized in edges.
     let mut loops = None;
     if report.boundary_edges > 0 {
         let mut sets = Sets::new(unique, budget, work)?;
@@ -593,7 +609,7 @@ fn topology(
             let root = sets.find(edge.lo);
             sets.size[root as usize] += 1;
         }
-        report.boundary_loops = sets.size.iter().filter(|&&n| n > 0).count();
+        report.boundary_components = sets.size.iter().filter(|&&n| n > 0).count();
         loops = Some(sets);
     }
 
@@ -636,7 +652,7 @@ fn list(
         report.non_manifold_edges,
         report.orientation_conflicts,
         report.non_manifold_vertices,
-        report.boundary_loops,
+        report.boundary_components,
     ]
     .map(|n| n.min(limit));
     let mut lists = AnalysisLists {
@@ -644,7 +660,7 @@ fn list(
         non_manifold_edges: budget.reserved(caps[1])?,
         orientation_conflicts: budget.reserved(caps[2])?,
         non_manifold_vertices: budget.reserved(caps[3])?,
-        boundary_loops: budget.reserved(caps[4])?,
+        boundary_components: budget.reserved(caps[4])?,
     };
     if caps[..3].iter().any(|&n| n > 0) {
         work.add(edges.len())?;
@@ -676,17 +692,17 @@ fn list(
         }
     }
     if let (Some(sets), true) = (loops, caps[4] > 0) {
-        // The first vertex met of each loop is its smallest; zeroing the
-        // loop's count skips its other vertices.
+        // The first vertex met of each component is its smallest; zeroing the
+        // component's count skips its other vertices.
         work.add(times(names.len(), steps(names.len()))?)?;
         for v in 0..names.len() as u32 {
-            if lists.boundary_loops.len() == caps[4] {
+            if lists.boundary_components.len() == caps[4] {
                 break;
             }
             let root = sets.find(v);
             let edges = sets.size[root as usize];
             if edges > 0 {
-                lists.boundary_loops.push(BoundaryLoop {
+                lists.boundary_components.push(BoundaryComponent {
                     vertex: name(v),
                     edges: edges as usize,
                 });

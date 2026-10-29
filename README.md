@@ -167,7 +167,7 @@ Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long si
 These opt-in functions are not in C++ meshoptimizer. They leave every ported function unchanged.
 
 - `sanitize` removes out-of-range, non-finite, repeated-index and duplicate triangles (and, opt-in, triangles with two coincident corners) and reports counts by reason.
-- `analyze_mesh` reports boundary edges and loops, non-manifold edges and vertices, orientation conflicts and connected components without changing the mesh.
+- `analyze_mesh` reports boundary edges and components, non-manifold edges and vertices, orientation conflicts and connected components without changing the mesh.
 - `VertexScoreTable` and `optimize_vertex_cache_with_table` accept caller-defined vertex-cache scores.
 - Typed vertex layouts build position and attribute views from Rust struct fields.
 

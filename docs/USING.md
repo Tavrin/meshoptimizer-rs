@@ -525,10 +525,11 @@ Sanitation does not weld vertices, fill holes or fix orientation; the result is
 not guaranteed to be manifold or closed.
 
 `analyze_mesh`, also an extension, reports what is wrong before anything is
-removed. It changes nothing and returns a `MeshAnalysis`: the same triangle
-classes as `SanitizeReport`, then counts of boundary edges and loops,
+removed. It changes nothing and returns a `MeshAnalysis`: triangle
+classifications, then counts of boundary edges and components,
 non-manifold edges (more than two faces) and vertices (more than one fan of
-faces), orientation conflicts (an edge used twice in one direction) and
+faces), orientation conflicts (exactly two incident faces using an edge in the
+same direction) and
 connected components. `AnalyzeOptions::with_weld_positions(true)` treats
 vertices with equal positions as one, which shows whether split seams close a
 surface; `with_list_limit(n)` also lists the first `n` defects of each kind.

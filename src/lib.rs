@@ -205,7 +205,9 @@ pub use input::{
     validate_vertex_flags, Attributes, AttributesMut, ByteOrder, Positions, PositionsMut,
     VertexFlags,
 };
-pub use mesh_analysis::{analyze_mesh, AnalysisLists, AnalyzeOptions, BoundaryLoop, MeshAnalysis};
+pub use mesh_analysis::{
+    analyze_mesh, AnalysisLists, AnalyzeOptions, BoundaryComponent, MeshAnalysis,
+};
 pub use overdraw::{optimize_overdraw, optimize_overdraw_in_place, optimize_overdraw_into};
 pub use quantize::{
     compute_position_exponent, dequantize_half, quantize_float, quantize_half, quantize_snorm,

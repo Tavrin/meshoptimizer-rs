@@ -36,9 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sized by the triangles that pass the per-triangle checks, not by the
   position count.
 - `analyze_mesh` reports a mesh's topology without changing it: boundary
-  edges and loops, non-manifold edges and vertices, orientation conflicts,
-  connected components, and the invalid, degenerate and duplicate triangles
-  `sanitize` classifies, with optional lists capped by the caller. It is not
+  edges and components, non-manifold edges and vertices, orientation conflicts,
+  connected components, and the invalid, degenerate and duplicate triangles, with optional lists capped by the caller. It is not
   in C++ meshoptimizer. `AnalyzeOptions::with_weld_positions` analyzes
   position-coincident instead of index topology. Grouping is by sorting and
   union-find, so work is `O(n log n)` for any input.
