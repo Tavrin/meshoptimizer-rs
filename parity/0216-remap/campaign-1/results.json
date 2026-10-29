@@ -1,0 +1,122 @@
+{
+  "remap-vertex": {
+    "cases": {
+      "tiny-smooth": {
+        "base": 995.003,
+        "candidate": 920.922,
+        "cpp": 901.552,
+        "cpp-default": 901.552
+      },
+      "medium-smooth": {
+        "base": 79318.33333333333,
+        "candidate": 62444.333333333336,
+        "cpp": 57485.333333333336,
+        "cpp-default": 57485.333333333336
+      },
+      "medium-seams": {
+        "base": 96702.66666666667,
+        "candidate": 75999.66666666667,
+        "cpp": 69962.66666666667,
+        "cpp-default": 69959.66666666667
+      },
+      "medium-sparse": {
+        "base": 122101.33333333333,
+        "candidate": 92563.33333333333,
+        "cpp": 87060.33333333333,
+        "cpp-default": 87078.33333333333
+      },
+      "million-smooth": {
+        "base": 9107761.0,
+        "candidate": 7098222.0,
+        "cpp": 6533786.0,
+        "cpp-default": 6533841.0
+      },
+      "real-214e": {
+        "base": 123235685.0,
+        "candidate": 96041955.0,
+        "cpp": 88393518.0,
+        "cpp-default": 88393457.0
+      },
+      "real-a082": {
+        "base": 131191613.0,
+        "candidate": 102242349.0,
+        "cpp": 94100066.0,
+        "cpp-default": 94100084.0
+      },
+      "real-b6fd": {
+        "base": 32801139.0,
+        "candidate": 25563773.0,
+        "cpp": 23528086.0,
+        "cpp-default": 23528087.0
+      }
+    },
+    "real_gm": {
+      "base": 0.7793426210163227,
+      "cpp": 1.0865255393140962,
+      "cpp-default": 1.0865257045775338
+    },
+    "worst_vs_base": 0.9255469581498749,
+    "same_output_as_cpp": true,
+    "verdict": "SHIPS"
+  },
+  "remap-index": {
+    "cases": {
+      "tiny-smooth": {
+        "base": 1519.931,
+        "candidate": 1716.949,
+        "cpp": 1094.534,
+        "cpp-default": 1094.543
+      },
+      "medium-smooth": {
+        "base": 242407.33333333334,
+        "candidate": 322161.3333333333,
+        "cpp": 149958.33333333334,
+        "cpp-default": 149967.33333333334
+      },
+      "medium-seams": {
+        "base": 242405.66666666666,
+        "candidate": 322168.6666666667,
+        "cpp": 149971.66666666666,
+        "cpp-default": 149971.66666666666
+      },
+      "medium-sparse": {
+        "base": 242434.33333333334,
+        "candidate": 322155.3333333333,
+        "cpp": 149961.33333333334,
+        "cpp-default": 149976.33333333334
+      },
+      "million-smooth": {
+        "base": 29256718.0,
+        "candidate": 39006602.0,
+        "cpp": 18006446.0,
+        "cpp-default": 18006463.0
+      },
+      "real-214e": {
+        "base": 83406912.0,
+        "candidate": 111204052.0,
+        "cpp": 51332807.0,
+        "cpp-default": 51332839.0
+      },
+      "real-a082": {
+        "base": 96240938.0,
+        "candidate": 128315654.0,
+        "cpp": 59231226.0,
+        "cpp-default": 59231181.0
+      },
+      "real-b6fd": {
+        "base": 24063039.0,
+        "candidate": 32081666.0,
+        "cpp": 14810356.0,
+        "cpp-default": 14810354.0
+      }
+    },
+    "real_gm": {
+      "base": 1.3332602591329858,
+      "cpp": 2.166283597334663,
+      "cpp-default": 2.1662837933057277
+    },
+    "worst_vs_base": 1.3332751806720753,
+    "same_output_as_cpp": true,
+    "verdict": "NO-GAIN"
+  }
+}
