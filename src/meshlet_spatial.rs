@@ -6,9 +6,8 @@ use alloc::vec::Vec;
 #[path = "meshlet_division.rs"]
 mod division;
 use division::Divisor;
-// Boxes padded to four lanes (component 3 is ignored), so each merge loads
-// whole aligned records. Lanes 0-2 use upstream's ordered selects and area
-// expression, so results are identical.
+// Boxes padded to four lanes (component 3 is ignored), so each record is one
+// 32-byte stride. Lanes 0-2 use upstream's area expression.
 #[derive(Clone, Copy, Default)]
 struct Box3 {
     lo: [f32; 4],
@@ -21,18 +20,24 @@ impl Box3 {
             hi: [-f32::MAX; 4],
         }
     }
+    // The selects keep the accumulator on ties (upstream's SSE operand
+    // order), so each lane is one min/max reading the record from memory.
+    // Boxes reaching the builder are finite (`spatial` checks every centroid),
+    // so a tie can differ from the scalar order only in the sign of a zero
+    // bound; areas then differ at most in the sign of a zero, which the SAH
+    // comparisons cannot see (PROOFS.md, "Spatial ties").
     #[inline(always)]
-    fn merge(&mut self, b: Self) -> f32 {
-        for k in 0..4 {
-            self.lo[k] = if b.lo[k] < self.lo[k] {
-                b.lo[k]
-            } else {
+    fn merge(&mut self, b: &Self) -> f32 {
+        for k in 0..3 {
+            self.lo[k] = if self.lo[k] < b.lo[k] {
                 self.lo[k]
-            };
-            self.hi[k] = if b.hi[k] > self.hi[k] {
-                b.hi[k]
             } else {
+                b.lo[k]
+            };
+            self.hi[k] = if self.hi[k] > b.hi[k] {
                 self.hi[k]
+            } else {
+                b.hi[k]
             };
         }
         let [x, y, z] = [
@@ -51,19 +56,25 @@ fn count(
     ctx: &mut Context<'_>,
 ) -> Result<usize, Error> {
     ctx.tick(order.len() * 2)?;
+    // Whole-triangle records: one index check per triangle instead of two
+    // slice range checks.
+    let triangles = indices.as_chunks::<3>().0;
     let mut n = 0;
     for (i, &v) in order.iter().enumerate() {
-        let t = &indices[v as usize * 3..][..3];
-        n += t.iter().filter(|&&v| used[v as usize] < 0).count();
-        for &v in t {
-            used[v as usize] = 1;
-        }
+        let [a, b, c] = triangles[v as usize];
+        // All three tests precede the marks, as upstream counts them.
+        n += usize::from(used[a as usize] < 0)
+            + usize::from(used[b as usize] < 0)
+            + usize::from(used[c as usize] < 0);
+        used[a as usize] = 1;
+        used[b as usize] = 1;
+        used[c as usize] = 1;
         if let Some(o) = out.as_deref_mut() {
             o[i] = n as u32;
         }
     }
     for &v in order {
-        for &v in &indices[v as usize * 3..][..3] {
+        for v in triangles[v as usize] {
             used[v as usize] = -1;
         }
     }
@@ -249,13 +260,9 @@ impl Bvh<'_> {
             let boxes = self.boxes;
             let order = &self.axes[k][start..start + n];
             let (left_areas, right_areas) = self.areas[..2 * n].split_at_mut(n);
-            for ((la, ra), (&l, &r)) in left_areas
-                .iter_mut()
-                .zip(right_areas.iter_mut())
-                .zip(order.iter().zip(order.iter().rev()))
-            {
-                *la = left.merge(boxes[l as usize]);
-                *ra = right.merge(boxes[r as usize]);
+            for i in 0..n {
+                left_areas[i] = left.merge(&boxes[order[i] as usize]);
+                right_areas[i] = right.merge(&boxes[order[n - 1 - i] as usize]);
             }
             if n <= s.max_triangles {
                 count(
@@ -300,24 +307,33 @@ impl Bvh<'_> {
             return self.tail(start, n, ctx);
         }
         ctx.tick(n * 3)?;
-        for i in 0..n {
-            self.sides[self.axes[axis][start + i] as usize] = u8::from(i >= split);
+        // Local slices: the stores below cannot alias the builder's fields,
+        // so their pointers and lengths stay in registers.
+        let sides = &mut self.sides[..];
+        let temp = &mut self.temp[..n];
+        let (lower, upper) = self.axes[axis][start..start + n].split_at(split);
+        for &v in lower {
+            sides[v as usize] = 0;
+        }
+        for &v in upper {
+            sides[v as usize] = 1;
         }
         for k in 0..3 {
             if k == axis {
                 continue;
             }
+            let order = &mut self.axes[k][start..start + n];
             let (mut l, mut r) = (0, split);
-            for &v in &self.axes[k][start..start + n] {
+            for &v in order.iter() {
                 // Sides are exactly 0/1. Select a destination and update both
                 // cursors, avoiding an unpredictable branch for interleaved axes.
-                let side = self.sides[v as usize] as usize;
+                let side = sides[v as usize] as usize;
                 let destination = if side == 0 { l } else { r };
-                self.temp[destination] = v;
+                temp[destination] = v;
                 l += 1 - side;
                 r += side;
             }
-            self.axes[k][start..start + n].copy_from_slice(&self.temp[..n]);
+            order.copy_from_slice(temp);
         }
         self.split(start, split, depth + 1, ctx)?;
         self.split(start + split, n - split, depth + 1, ctx)

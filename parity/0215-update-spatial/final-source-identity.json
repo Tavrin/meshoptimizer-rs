@@ -1,0 +1,7 @@
+{
+  "baseline": "dbb75e03ec011ae04645e6d40b0039561991286d",
+  "command": ["git", "diff", "--exit-code", "v0.2.14", "--", "src", "Cargo.toml", "Cargo.lock"],
+  "exit": 0,
+  "production_source_changes": false,
+  "additional_measurement_campaign_after_final_revert": false
+}

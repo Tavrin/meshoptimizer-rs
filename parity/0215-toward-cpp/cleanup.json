@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "dedicated_target_removed": true,
+  "retained": [
+    "logs",
+    "inputs",
+    "binaries",
+    "outputs",
+    "profiles",
+    "frozen_sources"
+  ]
+}

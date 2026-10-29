@@ -5,6 +5,19 @@ use crate::budget::Budget as Heap;
 fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3], f32), Error> {
     let mut lo = [f32::MAX; 3];
     let mut hi = [-f32::MAX; 3];
+    // Packed positions that are all finite and fit the budget take one pass
+    // without per-vertex error exits; it yields the bounds of the ordered
+    // selects below and the scan's charge is one visit per vertex. Otherwise
+    // the checked scan reports the first non-finite value at the original charge.
+    let packed = positions
+        .packed_values()
+        .filter(|values| work.covers(values.len()).unwrap_or(false));
+    if let Some(values) = packed {
+        if let Some((lo, hi)) = packed_bounds(values) {
+            work.add(values.len())?;
+            return bounds_extent(positions, lo, hi);
+        }
+    }
     positions.for_each_counted(work, |v| {
         for j in 0..3 {
             if !v[j].is_finite() {
@@ -19,6 +32,14 @@ fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3]
         }
         Ok(())
     })?;
+    bounds_extent(positions, lo, hi)
+}
+#[inline(always)]
+fn bounds_extent(
+    positions: Positions<'_>,
+    lo: [f32; 3],
+    hi: [f32; 3],
+) -> Result<([f32; 3], f32), Error> {
     if positions.is_empty() {
         return Ok((lo, 0.0));
     }
@@ -33,6 +54,88 @@ fn counted_bounds(positions: Positions<'_>, work: &mut Work) -> Result<([f32; 3]
         return Err(Error::NumericalFailure);
     }
     Ok((lo, extent))
+}
+/// Bounds that the ordered selects `if lo > v { lo = v }` and
+/// `if hi < v { hi = v }` give over finite packed positions, or `None` if a
+/// value is not finite. The flattened coordinates are read in blocks of four
+/// vertices: lane `l` of accumulator `k` holds component `(4 * k + l) % 3`.
+/// For finite values the selects compute the numerical minimum and maximum,
+/// so lane order changes only the sign of a zero result; the ordered selects
+/// keep the first zero of that component (every earlier value lies strictly on
+/// the other side of it), which the final pass restores.
+#[inline(always)]
+#[allow(clippy::eq_op)] // `v - v` is the finiteness probe, not a zero.
+fn packed_bounds(values: &[[f32; 3]]) -> Option<([f32; 3], [f32; 3])> {
+    let (blocks, tail) = values.as_flattened().as_chunks::<12>();
+    let [lo0, lo1, lo2, hi0, hi1, hi2, nan0, nan1, nan2] = bounds_lanes(blocks);
+    let mut lo = [f32::MAX; 3];
+    let mut hi = [-f32::MAX; 3];
+    let mut nan = 0.0f32;
+    for (k, (lanes_lo, lanes_hi, lanes_nan)) in
+        [(lo0, hi0, nan0), (lo1, hi1, nan1), (lo2, hi2, nan2)]
+            .into_iter()
+            .enumerate()
+    {
+        for l in 0..4 {
+            let j = (4 * k + l) % 3;
+            if lo[j] > lanes_lo[l] {
+                lo[j] = lanes_lo[l];
+            }
+            if hi[j] < lanes_hi[l] {
+                hi[j] = lanes_hi[l];
+            }
+            nan += lanes_nan[l];
+        }
+    }
+    for (i, &v) in tail.iter().enumerate() {
+        let j = i % 3;
+        if lo[j] > v {
+            lo[j] = v;
+        }
+        if hi[j] < v {
+            hi[j] = v;
+        }
+        nan += v - v;
+    }
+    if nan != 0.0 {
+        return None;
+    }
+    for j in 0..3 {
+        for bound in [&mut lo[j], &mut hi[j]] {
+            if *bound == 0.0 {
+                if let Some(v) = values.iter().find(|v| v[j] == 0.0) {
+                    *bound = v[j];
+                }
+            }
+        }
+    }
+    Some((lo, hi))
+}
+/// Lane accumulators of [`packed_bounds`]: minima, maxima and finiteness
+/// sums for the three quads of each twelve-value block. Kept out of line so
+/// the lane-to-component combination is not folded into the loop as shuffles.
+#[inline(never)]
+#[allow(clippy::eq_op)] // `v - v` is the finiteness probe, not a zero.
+fn bounds_lanes(blocks: &[[f32; 12]]) -> [[f32; 4]; 9] {
+    // `v - v` is +0 for finite `v` and NaN otherwise; NaN persists in a sum.
+    #[inline(always)]
+    fn quad(lo: &mut [f32; 4], hi: &mut [f32; 4], nan: &mut [f32; 4], v: &[f32; 4]) {
+        for l in 0..4 {
+            lo[l] = if lo[l] > v[l] { v[l] } else { lo[l] };
+            hi[l] = if hi[l] < v[l] { v[l] } else { hi[l] };
+            nan[l] += v[l] - v[l];
+        }
+    }
+    let (mut lo0, mut lo1, mut lo2) = ([f32::MAX; 4], [f32::MAX; 4], [f32::MAX; 4]);
+    let (mut hi0, mut hi1, mut hi2) = ([-f32::MAX; 4], [-f32::MAX; 4], [-f32::MAX; 4]);
+    let (mut nan0, mut nan1, mut nan2) = ([0.0f32; 4], [0.0f32; 4], [0.0f32; 4]);
+    for block in blocks {
+        let q = block.as_chunks::<4>().0;
+        quad(&mut lo0, &mut hi0, &mut nan0, &q[0]);
+        quad(&mut lo1, &mut hi1, &mut nan1, &q[1]);
+        quad(&mut lo2, &mut hi2, &mut nan2, &q[2]);
+    }
+    [lo0, lo1, lo2, hi0, hi1, hi2, nan0, nan1, nan2]
 }
 fn scaled(
     positions: Positions<'_>,
@@ -90,60 +193,169 @@ pub(super) fn components(
     let errors = component_errors(p, &c, nc, budget, work)?;
     Ok((c, errors))
 }
+/// Charge `count` unit visits and run them without per-visit limit checks
+/// when all fit; otherwise run the checked visits. Visits cannot fail except
+/// by exhaustion, so the charged prefix and error are unchanged.
+macro_rules! units {
+    ($work:expr, $count:expr, |$m:ident| $body:expr) => {{
+        let work: &mut Work = $work;
+        if work.precharge($count, 1)? {
+            let mut tally = super::Prepaid(0);
+            let $m = &mut tally;
+            $body
+        } else {
+            let $m = &mut *work;
+            $body
+        }
+    }};
+}
 pub(super) fn component_ids(
     remap: &[u32],
     indices: &[u32],
     budget: &mut Heap<'_>,
     work: &mut Work,
 ) -> Result<(Vec<u32>, usize), Error> {
-    let n = remap.len();
-    let mut c = budget.filled(n, 0u32)?;
-    for (i, r) in c.iter_mut().enumerate() {
-        work.add(1)?;
-        *r = i as u32;
-    }
-    fn follow(c: &mut [u32], mut i: usize, work: &mut Work) -> Result<usize, Error> {
-        while i != c[i] as usize {
-            work.add(1)?;
-            let parent = c[i] as usize;
-            c[i] = c[parent];
-            i = parent;
+    let mut c = budget.filled(remap.len(), 0u32)?;
+    let triangles = indices.as_chunks::<3>().0;
+    // Each batch proves its complete traversal bound before using a local
+    // tally. Tight budgets retain the original charge-before-visit path.
+    units!(work, remap.len(), |m| {
+        for (i, r) in c.iter_mut().enumerate() {
+            m.add(1)?;
+            *r = i as u32;
         }
-        Ok(i)
+    });
+    let mut start = 0;
+    // Each triangle has three edge charges and at most six n-1 walks.
+    let edge_bound = remap.len().checked_mul(6).and_then(|n| n.checked_add(3));
+    while start < triangles.len() {
+        let batch = match edge_bound {
+            Some(bound) => work.batch(triangles.len() - start, bound)?,
+            None => 0,
+        };
+        if batch == 0 {
+            component_edges::<true>(&mut c, remap, &triangles[start..], work)?;
+            break;
+        }
+        component_edges::<false>(&mut c, remap, &triangles[start..start + batch], work)?;
+        start += batch;
     }
-    for tri in indices.as_chunks::<3>().0 {
-        for e in 0..3 {
+    start = 0;
+    while start < remap.len() {
+        let batch = work.batch(remap.len() - start, remap.len())?;
+        if batch == 0 {
+            component_roots::<true>(&mut c, remap, start, remap.len(), work)?;
+            break;
+        }
+        component_roots::<false>(&mut c, remap, start, start + batch, work)?;
+        start += batch;
+    }
+    let mut nc = 0;
+    units!(work, remap.len(), |m| {
+        for (i, &r) in remap.iter().enumerate() {
+            m.add(1)?;
+            component_number(&mut c, &mut nc, i, r);
+        }
+    });
+    Ok((c, nc as usize))
+}
+/// Union-find over welded triangle edges, then dense component ids. With
+/// `CHECKED`, every visit is charged to `work` before it runs; otherwise the
+/// visits are added to the batch's local tally.
+#[inline(always)]
+fn component_follow<const CHECKED: bool>(
+    c: &mut [u32],
+    mut i: usize,
+    work: &mut Work,
+    steps: &mut usize,
+) -> Result<usize, Error> {
+    // Parents are smaller than their children (unions link the larger root to
+    // the smaller, compression copies a smaller parent), so one walk visits at
+    // most `n - 1` parents and a record's tally below stays under 2^36.
+    while i != c[i] as usize {
+        if CHECKED {
             work.add(1)?;
-            let a = follow(&mut c, remap[tri[e] as usize] as usize, work)?;
-            let b = follow(&mut c, remap[tri[(e + 1) % 3] as usize] as usize, work)?;
+        } else {
+            *steps += 1;
+        }
+        let parent = c[i] as usize;
+        c[i] = c[parent];
+        i = parent;
+    }
+    Ok(i)
+}
+#[inline(always)]
+fn component_edges<const CHECKED: bool>(
+    c: &mut [u32],
+    remap: &[u32],
+    triangles: &[[u32; 3]],
+    work: &mut Work,
+) -> Result<(), Error> {
+    let mut steps = 0;
+    for tri in triangles {
+        for e in 0..3 {
+            if CHECKED {
+                work.add(1)?;
+            } else {
+                steps += 1;
+            }
+            let a =
+                component_follow::<CHECKED>(c, remap[tri[e] as usize] as usize, work, &mut steps)?;
+            let b = component_follow::<CHECKED>(
+                c,
+                remap[tri[(e + 1) % 3] as usize] as usize,
+                work,
+                &mut steps,
+            )?;
             if a != b {
                 c[a.max(b)] = a.min(b) as u32;
             }
         }
     }
-    for (i, &r) in remap.iter().enumerate() {
-        work.add(1)?;
-        if r as usize == i {
-            c[i] = follow(&mut c, i, work)? as u32;
-        }
+    if !CHECKED {
+        work.add(steps)?;
     }
-    let mut nc = 0;
-    for (i, &r) in remap.iter().enumerate() {
-        work.add(1)?;
-        if r as usize == i {
-            let root = c[i] as usize;
-            c[i] = if root == i {
-                let v = nc;
-                nc += 1;
-                v
-            } else {
-                c[root]
-            };
+    Ok(())
+}
+#[inline(always)]
+fn component_roots<const CHECKED: bool>(
+    c: &mut [u32],
+    remap: &[u32],
+    start: usize,
+    end: usize,
+    work: &mut Work,
+) -> Result<(), Error> {
+    let mut steps = 0;
+    for (offset, &r) in remap[start..end].iter().enumerate() {
+        let i = start + offset;
+        if CHECKED {
+            work.add(1)?;
         } else {
-            c[i] = c[r as usize];
+            steps += 1;
+        }
+        if r as usize == i {
+            c[i] = component_follow::<CHECKED>(c, i, work, &mut steps)? as u32;
         }
     }
-    Ok((c, nc as usize))
+    if !CHECKED {
+        work.add(steps)?;
+    }
+    Ok(())
+}
+#[inline(always)]
+fn component_number(c: &mut [u32], nc: &mut u32, i: usize, r: u32) {
+    if r as usize == i {
+        let root = c[i] as usize;
+        c[i] = if root == i {
+            let v = *nc;
+            *nc += 1;
+            v
+        } else {
+            c[root]
+        };
+    } else {
+        c[i] = c[r as usize];
+    }
 }
 pub(super) fn component_errors(
     p: &[V],
@@ -153,41 +365,52 @@ pub(super) fn component_errors(
     work: &mut Work,
 ) -> Result<Vec<f32>, Error> {
     let mut errors = budget.filled(checked_bytes(nc, 4)?, 0.0f32)?;
-    for (i, v) in p.iter().enumerate() {
-        work.add(1)?;
-        let j = c[i] as usize * 4;
-        errors[j] += v.x;
-        errors[j + 1] += v.y;
-        errors[j + 2] += v.z;
-        errors[j + 3] += 1.0;
-    }
-    for j in (0..errors.len()).step_by(4) {
-        work.add(1)?;
-        let iw = if errors[j + 3] == 0.0 {
-            0.0
-        } else {
-            1.0 / errors[j + 3]
-        };
-        errors[j] *= iw;
-        errors[j + 1] *= iw;
-        errors[j + 2] *= iw;
-        errors[j + 3] = 0.0;
-    }
-    for (i, v) in p.iter().enumerate() {
-        work.add(1)?;
-        let j = c[i] as usize * 4;
-        let dx = v.x - errors[j];
-        let dy = v.y - errors[j + 1];
-        let dz = v.z - errors[j + 2];
-        let r = dx * dx + dy * dy + dz * dz;
-        if errors[j + 3] < r {
-            errors[j + 3] = r;
+    // `errors` holds one [x, y, z, w] record per component.
+    units!(work, p.len(), |m| {
+        let records = errors.as_chunks_mut::<4>().0;
+        for (i, v) in p.iter().enumerate() {
+            m.add(1)?;
+            let e = &mut records[c[i] as usize];
+            e[0] += v.x;
+            e[1] += v.y;
+            e[2] += v.z;
+            e[3] += 1.0;
         }
-    }
-    for i in 0..nc {
-        work.add(1)?;
-        errors[i] = errors[i * 4 + 3];
-    }
+    });
+    units!(work, nc, |m| {
+        for j in (0..errors.len()).step_by(4) {
+            m.add(1)?;
+            let iw = if errors[j + 3] == 0.0 {
+                0.0
+            } else {
+                1.0 / errors[j + 3]
+            };
+            errors[j] *= iw;
+            errors[j + 1] *= iw;
+            errors[j + 2] *= iw;
+            errors[j + 3] = 0.0;
+        }
+    });
+    units!(work, p.len(), |m| {
+        let records = errors.as_chunks_mut::<4>().0;
+        for (i, v) in p.iter().enumerate() {
+            m.add(1)?;
+            let e = &mut records[c[i] as usize];
+            let dx = v.x - e[0];
+            let dy = v.y - e[1];
+            let dz = v.z - e[2];
+            let r = dx * dx + dy * dy + dz * dz;
+            if e[3] < r {
+                e[3] = r;
+            }
+        }
+    });
+    units!(work, nc, |m| {
+        for i in 0..nc {
+            m.add(1)?;
+            errors[i] = errors[i * 4 + 3];
+        }
+    });
     errors.truncate(nc);
     Ok(errors)
 }
@@ -201,18 +424,39 @@ pub(super) fn prune(
 ) -> Result<(usize, f32), Error> {
     let mut write = 0;
     let mut next = f32::MAX;
+    units!(work, (0..count).step_by(3).len(), |m| prune_triangles(
+        out,
+        count,
+        components,
+        errors,
+        cutoff,
+        (&mut write, &mut next),
+        m
+    ))?;
+    Ok((write, next))
+}
+#[inline(always)]
+fn prune_triangles<M: super::Meter>(
+    out: &mut [u32],
+    count: usize,
+    components: &[u32],
+    errors: &[f32],
+    cutoff: f32,
+    (write, next): (&mut usize, &mut f32),
+    m: &mut M,
+) -> Result<(), Error> {
     for i in (0..count).step_by(3) {
-        work.add(1)?;
+        m.add(1)?;
         let error = errors[components[out[i] as usize] as usize];
         if error > cutoff {
-            if next > error {
-                next = error;
+            if *next > error {
+                *next = error;
             }
-            out.copy_within(i..i + 3, write);
-            write += 3;
+            out.copy_within(i..i + 3, *write);
+            *write += 3;
         }
     }
-    Ok((write, next))
+    Ok(())
 }
 /// Remove disconnected components whose bounding-sphere radius is at most the
 /// relative error. Position welding is numerical, including signed zeros; unused positions affect bounds.
@@ -246,29 +490,30 @@ fn simplify_prune_kernel(
         let p = scaled(positions, &mut budget, &mut work)?;
         let mut remap = budget.filled(p.len(), 0u32)?;
         let mut table = budget.filled(hash_size(p.len())?, u32::MAX)?;
-        for (i, r) in remap.iter_mut().enumerate() {
-            work.add(1)?;
-            let raw = positions.at(i)?;
-            let h = raw.map(|v| {
-                let x = if v == 0.0 { 0 } else { v.to_bits() };
-                x ^ (x >> 17)
-            });
-            let hash = h[0].wrapping_mul(73856093)
-                ^ h[1].wrapping_mul(19349663)
-                ^ h[2].wrapping_mul(83492791);
-            let mut slot = hash as usize & (table.len() - 1);
-            for probe in 0..table.len() {
-                work.add(1)?;
-                let old = table[slot];
-                if old == u32::MAX || positions.at(old as usize)? == raw {
-                    if old == u32::MAX {
-                        table[slot] = i as u32;
-                    }
-                    *r = table[slot];
+        if let Some(source) = positions.packed_values() {
+            let mut start = 0;
+            while start < remap.len() {
+                let batch = work.batch(remap.len() - start, table.len() + 1)?;
+                if batch == 0 {
+                    let mut visits = 0;
+                    weld_pass::<true>(
+                        &mut remap[start..],
+                        &mut table,
+                        &|i| Ok(source[i]),
+                        &mut work,
+                        &mut visits,
+                        start,
+                    )?;
                     break;
                 }
-                slot = (slot + probe + 1) & (table.len() - 1);
+                let visits =
+                    weld_packed(&mut remap[start..start + batch], &mut table, source, start);
+                let settled = work.settle(visits);
+                debug_assert!(settled);
+                start += batch;
             }
+        } else {
+            weld(&mut remap, &mut table, |i| positions.at(i), &mut work)?;
         }
         budget.release(table);
         let (c, e) = components(&p, &remap, indices, &mut budget, &mut work)?;
@@ -296,6 +541,125 @@ fn simplify_prune_kernel(
     })();
     workspace.finish(&work);
     result
+}
+/// Map each vertex to the first vertex with numerically equal coordinates.
+/// One record charges one visit plus one per probe, at most `1 + table.len()`.
+#[inline(always)]
+fn weld(
+    remap: &mut [u32],
+    table: &mut [u32],
+    position: impl Fn(usize) -> Result<[f32; 3], Error>,
+    work: &mut Work,
+) -> Result<(), Error> {
+    // A tallied pass that fits would have charged the same visits, including
+    // those before a failed read, without exhausting the budget. Otherwise the
+    // probe table is reset and the checked pass replays the 0.2.14 charges;
+    // `remap` is scratch that the caller discards on error.
+    let mut visits = 0u128;
+    let bound = remap.len() as u128 * (table.len() as u128 + 1);
+    if work.covers_wide(bound) {
+        let result = weld_pass::<false>(remap, table, &position, work, &mut visits, 0);
+        let settled = work.settle(visits);
+        debug_assert!(settled);
+        return result;
+    }
+    table.fill(u32::MAX);
+    weld_pass::<true>(remap, table, &position, work, &mut visits, 0)
+}
+/// Tallied weld of packed positions; returns the visits the checked pass
+/// charges (one per vertex and one per probe). Table entries are earlier
+/// vertices or `u32::MAX`, which is never a valid index because the vertex
+/// count is at most `u32::MAX`; so the empty test and the position read share
+/// one bounds test. `table.len() > n` holds and the triangular probe sequence
+/// visits every slot of a power-of-two table, so each lookup ends at its match
+/// or an empty slot within `table.len()` probes, as in the checked pass.
+#[inline(always)]
+fn weld_packed(remap: &mut [u32], table: &mut [u32], source: &[[f32; 3]], start: usize) -> u128 {
+    let mask = table.len() - 1;
+    // Same slice; its length makes `slot & mask` visibly in bounds.
+    let table = &mut table[..=mask];
+    let mut visits = 0u128;
+    for (offset, (r, raw)) in remap.iter_mut().zip(&source[start..]).enumerate() {
+        let i = start + offset;
+        let h = raw.map(|v| {
+            let x = if v == 0.0 { 0 } else { v.to_bits() };
+            x ^ (x >> 17)
+        });
+        let hash =
+            h[0].wrapping_mul(73856093) ^ h[1].wrapping_mul(19349663) ^ h[2].wrapping_mul(83492791);
+        let mut slot = hash as usize & mask;
+        let mut probes = table.len();
+        for probe in 0..table.len() {
+            let old = table[slot];
+            let found = match source.get(old as usize) {
+                None => {
+                    table[slot] = i as u32;
+                    true
+                }
+                Some(p) => p == raw,
+            };
+            if found {
+                *r = table[slot];
+                probes = probe + 1;
+                break;
+            }
+            slot = (slot + probe + 1) & mask;
+        }
+        visits += 1 + probes as u128;
+    }
+    visits
+}
+#[inline(always)]
+fn weld_pass<const CHECKED: bool>(
+    remap: &mut [u32],
+    table: &mut [u32],
+    position: &impl Fn(usize) -> Result<[f32; 3], Error>,
+    work: &mut Work,
+    visits: &mut u128,
+    start: usize,
+) -> Result<(), Error> {
+    let mask = table.len() - 1;
+    for (offset, r) in remap.iter_mut().enumerate() {
+        let i = start + offset;
+        // One record visits at most 1 + table.len() < 2^35 times.
+        let mut steps = 0u64;
+        let result = (|| {
+            if CHECKED {
+                work.add(1)?;
+            } else {
+                steps += 1;
+            }
+            let raw = position(i)?;
+            let h = raw.map(|v| {
+                let x = if v == 0.0 { 0 } else { v.to_bits() };
+                x ^ (x >> 17)
+            });
+            let hash = h[0].wrapping_mul(73856093)
+                ^ h[1].wrapping_mul(19349663)
+                ^ h[2].wrapping_mul(83492791);
+            let mut slot = hash as usize & mask;
+            for probe in 0..table.len() {
+                if CHECKED {
+                    work.add(1)?;
+                } else {
+                    steps += 1;
+                }
+                let old = table[slot];
+                if old == u32::MAX || position(old as usize)? == raw {
+                    if old == u32::MAX {
+                        table[slot] = i as u32;
+                    }
+                    *r = table[slot];
+                    break;
+                }
+                slot = (slot + probe + 1) & mask;
+            }
+            Ok(())
+        })();
+        *visits += u128::from(steps);
+        result?;
+    }
+    Ok(())
 }
 fn hash_size(n: usize) -> Result<usize, Error> {
     n.checked_add(n / 4)
@@ -806,54 +1170,54 @@ fn cell_hash(mut h: u32) -> u32 {
     h ^= h >> 15;
     h
 }
+/// Find the slot holding cell `id` or the first empty slot on its probe
+/// sequence, with the number of probes (at most `table.len()`); `None` if the
+/// sequence ends first. A table entry is a cell id, or with `MAPPED` a vertex
+/// whose cell is `ids[entry]`.
 #[inline(always)]
-fn cell_slot<const MAPPED: bool>(
-    table: &[u32],
-    ids: Option<&[u32]>,
-    key: u32,
-    work: &mut Work,
-) -> Result<usize, Error> {
-    if work.covers(table.len())? {
-        cell_slot_kernel::<MAPPED, false>(table, ids, key, work)
-    } else {
-        cell_slot_kernel::<MAPPED, true>(table, ids, key, work)
-    }
-}
-#[inline(always)]
-fn cell_slot_kernel<const MAPPED: bool, const LIMITED: bool>(
-    table: &[u32],
-    ids: Option<&[u32]>,
-    key: u32,
-    work: &mut Work,
-) -> Result<usize, Error> {
-    let id = if MAPPED {
-        ids.expect("mapped ids")[key as usize]
-    } else {
-        key
-    };
+fn cell_slot<const MAPPED: bool>(table: &[u32], ids: &[u32], id: u32) -> Option<(usize, usize)> {
     let mask = table.len() - 1;
     let mut bucket = cell_hash(id) as usize & mask;
     for probe in 0..table.len() {
-        if LIMITED {
-            work.add(1)?;
-        }
         let old = table[bucket];
-        if old == u32::MAX
-            || (if MAPPED {
-                ids.expect("mapped ids")[old as usize]
-            } else {
-                old
-            }) == id
-        {
-            if !LIMITED {
-                work.add(probe + 1)?;
-            }
-            return Ok(bucket);
+        if old == u32::MAX || (if MAPPED { ids[old as usize] } else { old }) == id {
+            return Some((bucket, probe + 1));
         }
         bucket = (bucket + probe + 1) & mask;
     }
-    if !LIMITED {
-        work.add(table.len())?;
+    None
+}
+/// 0.2.14 accounting for one lookup: a covered lookup charges its probes once
+/// found (or the whole table before failing); otherwise each probe is charged
+/// before it is read.
+#[inline(always)]
+fn cell_slot_checked<const MAPPED: bool>(
+    table: &[u32],
+    ids: &[u32],
+    id: u32,
+    work: &mut Work,
+) -> Result<usize, Error> {
+    if work.covers(table.len())? {
+        return match cell_slot::<MAPPED>(table, ids, id) {
+            Some((slot, probes)) => {
+                work.add(probes)?;
+                Ok(slot)
+            }
+            None => {
+                work.add(table.len())?;
+                Err(Error::NumericalFailure)
+            }
+        };
+    }
+    let mask = table.len() - 1;
+    let mut bucket = cell_hash(id) as usize & mask;
+    for probe in 0..table.len() {
+        work.add(1)?;
+        let old = table[bucket];
+        if old == u32::MAX || (if MAPPED { ids[old as usize] } else { old }) == id {
+            return Ok(bucket);
+        }
+        bucket = (bucket + probe + 1) & mask;
     }
     Err(Error::NumericalFailure)
 }
@@ -923,40 +1287,72 @@ fn cells(
     output: Option<&mut [u32]>,
     work: &mut Work,
 ) -> Result<usize, Error> {
-    if output.is_some() {
-        cells_kernel::<true>(table, ids, output, work)
-    } else {
-        cells_kernel::<false>(table, ids, None, work)
+    match output {
+        Some(out) => cells_kernel::<true>(table, ids, out, work),
+        None => cells_kernel::<false>(table, ids, &mut [], work),
     }
 }
+/// Count distinct cells; with `MAPPED`, also write each vertex's dense cell
+/// index to `out`. Each vertex visits at most one full table plus its entry
+/// charge. A batch runs with a local tally only after that complete bound fits;
+/// otherwise the checked path preserves the original charge-before-visit order.
 #[inline(always)]
 fn cells_kernel<const MAPPED: bool>(
     table: &mut [u32],
     ids: &[u32],
-    mut output: Option<&mut [u32]>,
+    out: &mut [u32],
     work: &mut Work,
 ) -> Result<usize, Error> {
     work.add(table.len())?;
     table.fill(u32::MAX);
     let mut count = 0;
-    for (i, &id) in ids.iter().enumerate() {
-        work.add(1)?;
-        let key = if MAPPED { i as u32 } else { id };
-        let slot = cell_slot::<MAPPED>(table, if MAPPED { Some(ids) } else { None }, key, work)?;
-        if let Some(ref mut out) = output {
-            if table[slot] == u32::MAX {
-                table[slot] = i as u32;
-                out[i] = count as u32;
-                count += 1;
-            } else {
-                out[i] = out[table[slot] as usize];
+    let mut start = 0;
+    while start < ids.len() {
+        let batch = work.batch(ids.len() - start, table.len() + 1)?;
+        if batch == 0 {
+            for (offset, &id) in ids[start..].iter().enumerate() {
+                work.add(1)?;
+                let slot = cell_slot_checked::<MAPPED>(table, ids, id, work)?;
+                cell_insert::<MAPPED>(table, out, &mut count, start + offset, id, slot);
             }
-        } else {
-            count += usize::from(table[slot] == u32::MAX);
-            table[slot] = id;
+            break;
         }
+        let mut visits = 0;
+        for i in start..start + batch {
+            visits += 1;
+            let Some((slot, probes)) = cell_slot::<MAPPED>(table, ids, ids[i]) else {
+                work.add(visits + table.len())?;
+                return Err(Error::NumericalFailure);
+            };
+            visits += probes;
+            cell_insert::<MAPPED>(table, out, &mut count, i, ids[i], slot);
+        }
+        work.add(visits)?;
+        start += batch;
     }
     Ok(count)
+}
+#[inline(always)]
+fn cell_insert<const MAPPED: bool>(
+    table: &mut [u32],
+    out: &mut [u32],
+    count: &mut usize,
+    i: usize,
+    id: u32,
+    slot: usize,
+) {
+    if MAPPED {
+        if table[slot] == u32::MAX {
+            table[slot] = i as u32;
+            out[i] = *count as u32;
+            *count += 1;
+        } else {
+            out[i] = out[table[slot] as usize];
+        }
+    } else {
+        *count += usize::from(table[slot] == u32::MAX);
+        table[slot] = id;
+    }
 }
 #[inline(always)]
 fn interpolate(y: f32, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
@@ -1715,20 +2111,32 @@ fn simplify_points_kernel_impl<const COLORS: bool, const RESERVOIR: usize>(
         let (reservoir_data, errors) = rest.split_at_mut(nc * RESERVOIR);
         let reservoirs = reservoir_data.as_chunks_mut::<RESERVOIR>().0;
         reservoirs.fill([0.0; RESERVOIR]);
-        work.scan(p.iter().enumerate(), |(i, v)| {
-            let r = &mut reservoirs[vc[i] as usize];
-            let color = if COLORS { color(i)? } else { [0.0; 3] };
-            r[0] += v[0];
-            r[1] += v[1];
-            r[2] += v[2];
-            if COLORS {
+        if COLORS {
+            work.scan(p.iter().enumerate(), |(i, v)| {
+                let r = &mut reservoirs[vc[i] as usize];
+                let color = color(i)?;
+                r[0] += v[0];
+                r[1] += v[1];
+                r[2] += v[2];
                 r[3] += color[0];
                 r[4] += color[1];
                 r[5] += color[2];
-            }
-            r[RESERVOIR - 1] += 1.0;
-            Ok(())
-        })?;
+                r[RESERVOIR - 1] += 1.0;
+                Ok(())
+            })?;
+        } else {
+            // Without colors no visit can fail, so a fitting scan is prepaid.
+            units!(&mut work, p.len(), |m| {
+                for (v, &c) in p.iter().zip(&vc[..p.len()]) {
+                    m.add(1)?;
+                    let r = &mut reservoirs[c as usize];
+                    r[0] += v[0];
+                    r[1] += v[1];
+                    r[2] += v[2];
+                    r[RESERVOIR - 1] += 1.0;
+                }
+            });
+        }
         work.scan(reservoirs.iter_mut(), |r| {
             let iw = if r[RESERVOIR - 1] == 0.0 {
                 0.0
@@ -1749,30 +2157,46 @@ fn simplify_points_kernel_impl<const COLORS: bool, const RESERVOIR: usize>(
         if !COLORS && !weight.is_finite() {
             return Err(Error::NumericalFailure);
         }
-        work.scan(p.iter().enumerate(), |(i, v)| {
-            let c = vc[i] as usize;
-            let r = reservoirs[c];
-            let color = if COLORS { color(i)? } else { [0.0; 3] };
-            let pe = (v[0] - r[0]) * (v[0] - r[0])
-                + (v[1] - r[1]) * (v[1] - r[1])
-                + (v[2] - r[2]) * (v[2] - r[2]);
-            let ce = if COLORS {
-                (color[0] - r[3]) * (color[0] - r[3])
+        if COLORS {
+            work.scan(p.iter().enumerate(), |(i, v)| {
+                let c = vc[i] as usize;
+                let r = reservoirs[c];
+                let color = color(i)?;
+                let pe = (v[0] - r[0]) * (v[0] - r[0])
+                    + (v[1] - r[1]) * (v[1] - r[1])
+                    + (v[2] - r[2]) * (v[2] - r[2]);
+                let ce = (color[0] - r[3]) * (color[0] - r[3])
                     + (color[1] - r[4]) * (color[1] - r[4])
-                    + (color[2] - r[5]) * (color[2] - r[5])
-            } else {
-                0.0
-            };
-            let e = if COLORS { pe + weight * ce } else { pe };
-            if !e.is_finite() {
-                return Err(Error::NumericalFailure);
-            }
-            if remap[c] == u32::MAX || errors[c] > e {
-                remap[c] = i as u32;
-                errors[c] = e;
-            }
-            Ok(())
-        })?;
+                    + (color[2] - r[5]) * (color[2] - r[5]);
+                let e = pe + weight * ce;
+                if !e.is_finite() {
+                    return Err(Error::NumericalFailure);
+                }
+                if remap[c] == u32::MAX || errors[c] > e {
+                    remap[c] = i as u32;
+                    errors[c] = e;
+                }
+                Ok(())
+            })?;
+        } else {
+            // Normalized coordinates and their cell means are finite and
+            // bounded (PROOFS.md, "Uncolored point errors"), so `e` is finite
+            // and no visit can fail: a fitting scan is prepaid.
+            units!(&mut work, p.len(), |m| {
+                for (i, (v, &c)) in p.iter().zip(&vc[..p.len()]).enumerate() {
+                    m.add(1)?;
+                    let c = c as usize;
+                    let r = reservoirs[c];
+                    let e = (v[0] - r[0]) * (v[0] - r[0])
+                        + (v[1] - r[1]) * (v[1] - r[1])
+                        + (v[2] - r[2]) * (v[2] - r[2]);
+                    if remap[c] == u32::MAX || errors[c] > e {
+                        remap[c] = i as u32;
+                        errors[c] = e;
+                    }
+                }
+            });
+        }
         Ok((owned, nc))
     })();
     workspace.finish(&work);
@@ -1898,6 +2322,60 @@ mod solve_tests {
             assert_eq!(expected.0, Err(Error::NumericalFailure));
             assert_eq!(expected.2, (fail + 1) as u64);
             assert_eq!(run::<false>(fail), expected);
+        }
+    }
+}
+#[cfg(test)]
+mod bounds_tests {
+    use super::*;
+
+    #[test]
+    fn packed_bounds_match_ordered_selects_including_zero_signs() {
+        fn ordered(values: &[[f32; 3]]) -> Option<([u32; 3], [u32; 3])> {
+            let mut lo = [f32::MAX; 3];
+            let mut hi = [-f32::MAX; 3];
+            for v in values {
+                for j in 0..3 {
+                    if !v[j].is_finite() {
+                        return None;
+                    }
+                    if lo[j] > v[j] {
+                        lo[j] = v[j];
+                    }
+                    if hi[j] < v[j] {
+                        hi[j] = v[j];
+                    }
+                }
+            }
+            Some((lo.map(f32::to_bits), hi.map(f32::to_bits)))
+        }
+        // Single-sign pools make a signed zero the extreme; the last pool
+        // reaches the non-finite exit.
+        let pools: [&[f32]; 5] = [
+            &[0.0, -0.0, 0.5, 1.0],
+            &[0.0, -0.0, -0.5, -1.0],
+            &[0.0, -0.0],
+            &[0.0, -0.0, 0.5, -0.5, f32::MAX, -f32::MAX, f32::MIN_POSITIVE],
+            &[0.0, -0.0, 1.0, f32::INFINITY, f32::NEG_INFINITY, f32::NAN],
+        ];
+        let mut state = 0x9e37_79b9u32;
+        for n in 0..30 {
+            for round in 0..250 {
+                let pool = pools[round % pools.len()];
+                let values: Vec<[f32; 3]> = (0..n)
+                    .map(|_| {
+                        core::array::from_fn(|_| {
+                            state ^= state << 13;
+                            state ^= state >> 17;
+                            state ^= state << 5;
+                            pool[state as usize % pool.len()]
+                        })
+                    })
+                    .collect();
+                let got = packed_bounds(&values)
+                    .map(|(lo, hi)| (lo.map(f32::to_bits), hi.map(f32::to_bits)));
+                assert_eq!(got, ordered(&values), "{values:?}");
+            }
         }
     }
 }

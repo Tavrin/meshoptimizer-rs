@@ -1,9 +1,39 @@
 #![allow(clippy::too_many_arguments)]
 // Port of meshoptimizer 1.3 clusterizer.cpp (MIT, Arseny Kapoulkine).
-use crate::math::{root_at_least, sqrt8, RootEstimate, SqrtCache, LANES};
+use crate::math::{root_at_least, RootEstimate, LANES};
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Error, Positions, Workspace};
 use alloc::vec::Vec;
+
+// Every builder root goes through this memo. With std, an operand whose bit
+// pattern is at most f32::MAX is finite and nonnegative (including +0 and
+// subnormals); the native root is bit-identical to the pinned backend there
+// (0.2.10 exhaustive comparison; IEEE 754 correct rounding). Every other bit
+// pattern, and every operand in no_std, keeps the pinned memoized backend.
+struct SqrtCache(crate::math::SqrtCache);
+impl SqrtCache {
+    const fn new() -> Self {
+        Self(crate::math::SqrtCache::new())
+    }
+    #[inline(always)]
+    fn sqrt(&mut self, value: f32) -> f32 {
+        #[cfg(feature = "std")]
+        if value.to_bits() <= f32::MAX.to_bits() {
+            return value.sqrt();
+        }
+        self.0.sqrt(value)
+    }
+}
+// Eight roots under the same guard: all lanes finite and nonnegative use the
+// native root; otherwise the pinned eight-lane backend.
+#[inline(always)]
+fn sqrt8(values: [f32; LANES]) -> [f32; LANES] {
+    #[cfg(feature = "std")]
+    if values.iter().all(|v| v.to_bits() <= f32::MAX.to_bits()) {
+        return values.map(f32::sqrt);
+    }
+    crate::math::sqrt8(values)
+}
 
 /// Current 1.3 descriptor: triangle offsets are consecutive byte offsets, without padding.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -519,10 +549,95 @@ fn nearest<const CHECK: bool>(
         .len()
         .checked_mul(2)
         .is_some_and(|bound| ctx.work.covers(bound).unwrap_or(false));
-    if covered {
+    if covered && !CHECK {
+        let mut search = Covered {
+            nodes,
+            cones,
+            emitted,
+            p,
+            result: *result,
+            limit: *limit,
+            visits: 0,
+            roots,
+        };
+        let status = search.nearest(root);
+        // The same visits nearest_inner::<false, true> charges one by one,
+        // charged once on every exit (the covered budget cannot exhaust).
+        ctx.work.add_covered(search.visits);
+        *result = search.result;
+        *limit = search.limit;
+        status
+    } else if covered {
         nearest_inner::<CHECK, true>(nodes, root, cones, emitted, p, result, limit, roots, ctx)
     } else {
         nearest_inner::<CHECK, false>(nodes, root, cones, emitted, p, result, limit, roots, ctx)
+    }
+}
+
+// The moderate (!CHECK) search when the budget covers every visit: the
+// statements and order of nearest_inner::<false, true>, with the invariant
+// arguments in one record (the recursion passes two arguments, not nine) and
+// the visits tallied locally instead of charged per node.
+struct Covered<'a> {
+    nodes: &'a mut [Node],
+    cones: &'a [Cone],
+    emitted: &'a [u8],
+    p: [f32; 3],
+    result: u32,
+    limit: f32,
+    visits: usize,
+    roots: &'a mut SqrtCache,
+}
+impl Covered<'_> {
+    fn nearest(&mut self, root: usize) -> Result<(), Error> {
+        self.visits += 1;
+        let node = self.nodes[root];
+        if node.children() == 0 {
+            return Ok(());
+        }
+        if node.axis() == 3 {
+            let count = node.children();
+            // One bound for both per-vertex tables: a single index check
+            // per item (kd-tree items index both).
+            let n = self.cones.len().min(self.emitted.len());
+            let (cones, emitted) = (&self.cones[..n], &self.emitted[..n]);
+            let mut inactive = true;
+            for item in &self.nodes[root..root + count] {
+                let v = item.data as usize;
+                if emitted[v] == EMITTED {
+                    continue;
+                }
+                inactive = false;
+                let d = sub(cones[v].p, self.p);
+                let square = dot(d, d);
+                if PRUNE && (lower_distance(d) >= self.limit || root_at_least(square, self.limit)) {
+                    continue;
+                }
+                let distance = moderate_root(square, self.roots);
+                if distance < self.limit {
+                    self.result = v as u32;
+                    self.limit = distance;
+                }
+            }
+            self.visits += count;
+            if inactive {
+                self.nodes[root].set(3, 0)?;
+            }
+        } else {
+            let delta = self.p[node.axis()] - f32::from_bits(node.data);
+            let first = if delta <= 0. { 0 } else { node.children() };
+            let second = first ^ node.children();
+            if self.nodes[root + 1 + first].children() | self.nodes[root + 1 + second].children()
+                == 0
+            {
+                self.nodes[root].set(node.axis(), 0)?;
+            }
+            self.nearest(root + 1 + first)?;
+            if delta.abs() <= self.limit {
+                self.nearest(root + 1 + second)?;
+            }
+        }
+        Ok(())
     }
 }
 
@@ -558,7 +673,7 @@ fn nearest_inner<const CHECK: bool, const COVERED: bool>(
             inactive = false;
             let d = sub(cones[v].p, p);
             let square = dot(d, d);
-            if lower_distance(d) >= *limit || root_at_least(square, *limit) {
+            if PRUNE && (lower_distance(d) >= *limit || root_at_least(square, *limit)) {
                 continue;
             }
             let distance = moderate_root(square, roots);
@@ -584,7 +699,8 @@ fn nearest_inner<const CHECK: bool, const COVERED: bool>(
             }
             inactive = false;
             let d = sub(cones[v].p, p);
-            if !CHECK && (lower_distance(d) >= *limit || root_at_least(dot(d, d), *limit)) {
+            if !CHECK && PRUNE && (lower_distance(d) >= *limit || root_at_least(dot(d, d), *limit))
+            {
                 return Ok(());
             }
             let distance = roots.sqrt(number::<CHECK>(dot(d, d))?);
@@ -631,6 +747,13 @@ fn nearest_inner<const CHECK: bool, const COVERED: bool>(
     }
     Ok(())
 }
+// Root-bracket pruning of moderate candidates. A pruned candidate's rounded
+// root is at least the current limit, so it never changes a strict-less
+// selection; the tests only avoid computing that root. With std the root is
+// the native one (a single instruction), cheaper than the tests, so the
+// candidates are evaluated exactly instead. no_std keeps the pinned backend
+// and the pruning.
+const PRUNE: bool = cfg!(not(feature = "std"));
 // The moderate meshlet envelope proves this squared distance finite and nonnegative.
 #[inline(always)]
 fn moderate_root(value: f32, roots: &mut SqrtCache) -> f32 {
@@ -775,7 +898,11 @@ impl CandidateInput<'_> {
         let square = dot(dp, dp);
         let square = if CHECK { finite(square)? } else { square };
         if !CHECK && self.bounded {
-            self.bracketed(tri, priority, cone.n, square, selected, search);
+            if PRUNE {
+                self.bracketed(tri, priority, cone.n, square, selected, search);
+            } else {
+                self.exact_bounded(tri, priority, cone.n, square, selected, search);
+            }
             return Ok(());
         }
         let clamped = self.clamped(dot(cone.n, self.meshlet.n));
@@ -921,6 +1048,44 @@ impl CandidateInput<'_> {
             known: false,
             square,
         };
+    }
+    // Bounded mode with std (see PRUNE): the exact score with the native root
+    // of the moderate square, as `resolve` computes it. No bracket is ever
+    // stored, so every selection is exact; listed candidates break exact ties
+    // by the upstream visit order, as in `resolve`.
+    #[inline(always)]
+    fn exact_bounded(
+        &self,
+        tri: u32,
+        priority: i32,
+        normal: [f32; 3],
+        square: f32,
+        selected: &mut Selection,
+        search: &mut Search<'_>,
+    ) {
+        // exact_normal is zero for zero weight; skip its out-of-line call.
+        let n = if self.weight == 0. {
+            [0.; 3]
+        } else {
+            self.exact_normal(search)
+        };
+        let distance = moderate_root(square, search.roots);
+        let score = self.score(distance, self.clamped(dot(normal, n)));
+        if priority < selected.priority
+            || score < selected.hi
+            || (search.listed
+                && score == selected.hi
+                && self.visit(tri, search.data) < self.visit(selected.triangle, search.data))
+        {
+            *selected = Selection {
+                triangle: tri,
+                priority,
+                lo: score,
+                hi: score,
+                known: true,
+                square,
+            };
+        }
     }
     // Upstream visit order of a candidate: its earliest meshlet vertex (by
     // local index), then its position in that vertex's live adjacency list.
@@ -1262,7 +1427,7 @@ fn flex<const CHECK: bool, const ZERO_WEIGHT: bool>(
     let mut initial = u32::MAX;
     let mut score = f32::MAX;
     for (i, c) in cones.iter().enumerate() {
-        if !CHECK && initial != u32::MAX && {
+        if !CHECK && PRUNE && initial != u32::MAX && {
             let d = sub(c.p, corner);
             lower_distance(d) >= score || root_at_least(dot(d, d), score)
         } {
@@ -1438,7 +1603,7 @@ fn flex<const CHECK: bool, const ZERO_WEIGHT: bool>(
                     + adj.vertices[t[2] as usize].live;
                 if !CHECK
                     && (l > live
-                        || (l == live && {
+                        || (PRUNE && l == live && {
                             let d = sub(cones[tri as usize].p, corner);
                             lower_distance(d) >= score || root_at_least(dot(d, d), score)
                         }))

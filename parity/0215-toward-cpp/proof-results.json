@@ -1,0 +1,138 @@
+{
+  "steps": {
+    "test-all": 0,
+    "test-no-default": 0,
+    "clippy": 0,
+    "fmt": 0,
+    "boundary": 0,
+    "public-text": 0,
+    "exact-build-std": 0,
+    "exact-std": 0,
+    "geometry-exact-std": 0,
+    "exact-build-no-std": 0,
+    "exact-no-std": 0,
+    "geometry-exact-no-std": 0,
+    "meshlets-build-baseline-std": 0,
+    "meshlets-run-baseline-std": 0,
+    "meshlets-build-baseline-no-std": 0,
+    "meshlets-run-baseline-no-std": 0,
+    "meshlets-build-candidate-std": 0,
+    "meshlets-run-candidate-std": 0,
+    "meshlets-build-candidate-no-std": 0,
+    "meshlets-run-candidate-no-std": 0,
+    "meshlets-exact-std": 0,
+    "meshlets-exact-no-std": 0,
+    "cpp-build": 0,
+    "cpp-cache-decode": 0,
+    "reference": 0,
+    "cpp-meshlets-clod": 0,
+    "fuzz": 0
+  },
+  "final_helpers": {
+    "bind.py": "b33077282e91cdaff03831c0ebd354aabff108a877154dbd777b0f35c245f0e1",
+    "geometry-exact.rs": "2c33fff7a07d8da89425024585e98eb54fe59b94beeecf0909bdcb21b0a17442",
+    "build.py": "258de5bd3f844f12068d60ec6db7bb59460dd402750f228085d9073927edfa90",
+    "report.py": "918208260d67107d3db844c7f191f1c579451a235d910094965ad2a00ad1c7ea",
+    "exact.rs": "83c81f9699a51cffa5259d41e455fcae164cafca7a7eaefa35b7b4928bf958cd",
+    "proof.sh": "7968f81907f4c6fe4b76d2ac2bbd0fff9c7ec17a17742210840704e50029dea2",
+    "cpp-differential.rs": "3ef20d8399e1a5920613ad32218e6930e0c3b0976d04a0384ca88c004f1c3bf2",
+    "results.py": "098a9b4c999518570226f47ec4ea5e6302e65c815006e0bd9415fe88d5db4362",
+    "fuzz.rs": "16449916426f5c692acc3f1237c0a598d378944b53f06c143da585e32d6ff949",
+    "measure.py": "15643b967f77824a60b879e881e7f3b407bf162458ad77cb45d30dcd859cecb5"
+  },
+  "logs": {
+    "proof-cpp-cache-decode.log": "f93ea8d776fc7722c1fe5b755fd18b03627a7646e35e220279660297999da422",
+    "proof-public-text.log": "cb5dbe759f9084bb65182dc2e25e4fe1751a434aceea12f30ac5543029841b7b",
+    "proof-cpp-build.log": "46d0c2cb47cc3d5646d9088b0df0ada8fb68b4e2d4378d1ca988dcae3e2b65ea",
+    "proof-cpp-meshlets-clod.log": "8b7939e96a913dc2c9832687f00d9e38a0661d7fb029698820efd1788c7e12ee",
+    "proof-reference.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-geometry-exact-std.log": "af3f773840813c89d9fd2af94ffa0e5cdb63d23c6b22a8489f870684e30a2d5f",
+    "proof-meshlets-run-candidate-std.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-fmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-meshlets-build-baseline-std.log": "33e4a3b51b84c886b7b436be07167035ea33e7d9dc1b05de2d1bebdba9fead42",
+    "proof-meshlets-exact-no-std.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-meshlets-build-candidate-no-std.log": "84339e73c0398314ab01b390725eeba892885f93f24d6e69494dcb123530de2e",
+    "proof-meshlets-run-baseline-std.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-exact-std.log": "988bde029966f9eef26c4c30e8b10d94e49145867e20821889eb4b72ed932f8a",
+    "proof-clippy.log": "a5f4c585ee974ca44916ac30a98bbc189e067a7e0a6bc6d2e8d6bc525be724af",
+    "proof-meshlets-build-candidate-std.log": "7b5a75ada963529bf611b1301ea7aafafc5825a06953f5736f4b3a311bd7d2a0",
+    "proof-exact-no-std.log": "988bde029966f9eef26c4c30e8b10d94e49145867e20821889eb4b72ed932f8a",
+    "proof-boundary.log": "96d9d1f3bb324874db04bf01154e4cdee873cc04b8d100214eab2505a7386eb1",
+    "proof-meshlets-run-baseline-no-std.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-fuzz.log": "a5107a231d12ee5c08fa314575a822cf4347d4dbffb8719fda263dd992cd5504",
+    "proof-geometry-exact-no-std.log": "af3f773840813c89d9fd2af94ffa0e5cdb63d23c6b22a8489f870684e30a2d5f",
+    "proof-exact-build-std.log": "adae4393ad5d25471a58f36aa7c452ff8da0175f2955dd7c1e2385541c43e668",
+    "proof-test-no-default.log": "409ae43a9f01d90a814bbcdd39e607aeaa05f7c27a9e98eca4302a9871648d4d",
+    "proof-meshlets-exact-std.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "proof-exact-build-no-std.log": "a43688ca3ba0873e14ce5de99f215538958505a87d1e437bf51e9134babc0d99",
+    "proof-test-all.log": "1a504fee48be4a33bcce7608d62d0187b2a475bad1ddfb088ac1a088f79bd034",
+    "proof-meshlets-build-baseline-no-std.log": "e5936d2b56bdd61506c1a0ce3668ba71fe5545dcf1514d7ccd2250aa6698e36f",
+    "proof-meshlets-run-candidate-no-std.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "binaries": {
+    "cpp-differential": "7f8ef3ad103a328db139abf29a24d61a6c7094a3a358ab7c0f4218fb2318b6b1",
+    "meshlets-exact-baseline-std": "fff119c68a9827aecac998e195d48941185350cf41c3bc3c69a781b9981eeb64",
+    "meshlets-exact-baseline-no-std": "5ed4fcd22bc8c419fa3e87c6b90ef64b4e7c72cf141fe72febaa5380ba2de358",
+    "meshlets-exact-candidate-std": "e3aeac0cb3e8086b4a602b3ee5a09b29da08dc260b1f885667c0a89dfef0d83b",
+    "fuzz-std": "7369e799c624c6d6521f239d67217fb6b8f900ce0ed23ee4bcdfcaa3f1bd1741",
+    "fuzz-no-std": "0441033abc48891fc6348bc69de884b147293841782560e099db71ec509a4be9",
+    "exact-no-std": "8a7196c4ec9ad0f365bc03022a666e498e25cf24822e791f32be73ba7a792ca8",
+    "geometry-exact-no-std": "ae60d06f86622a1694fd15b6845c7a8f1fe19cd68c1e5a977ec1d4d0cdc21e9f",
+    "meshlets-exact-candidate-no-std": "ebf9971a0b30514cdc2d5ba9a355eeb42fd784038f1775e7ee2a4902cc20524a",
+    "geometry-exact-std": "d971f325ef2a748d4de662dc96a203db5a523c8b1ce373364a3227f2b0c1cef1",
+    "exact-std": "853c62aab071fd53536f6def72cd2c8432436a3667bbb2f9e6b534c4c1a917c3"
+  },
+  "fuzz": {
+    "exit": 0,
+    "cpu_seconds": 300.12554700000004,
+    "cases": 2284000
+  },
+  "cpp": {
+    "exit": 0,
+    "counts": {
+      "1": 400,
+      "3": 400,
+      "4": 400,
+      "clusterlod": 80
+    },
+    "binaries": {
+      "cpp": "79777f458651119dfc983667308dbef822d5952a16c7dbae8ccac36a3596c477",
+      "nostd": "be8db58500dd56d6f16297ed6492e5e1387589538de1dd36b201c10cb6b79721",
+      "std": "ae7817e166591d7e77f9822b3ffd65f0ba810e6d88badb1b10585ed38c4b14f7"
+    },
+    "corpus": "5be3804b918b44dab567cdb212d73f0e3c79dcacd39df5ce6e7da778705436f4",
+    "cpp_sources": {
+      "clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+      "meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+      "spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+      "partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+      "allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+      "simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+      "indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948"
+    }
+  },
+  "exact": {
+    "proof-exact-std.log": "compared 992130 differences 0",
+    "proof-exact-no-std.log": "compared 992130 differences 0"
+  },
+  "geometry": {
+    "proof-geometry-exact-std.log": [
+      "case 0 compared 192376 differences 0",
+      "case 1 compared 649677 differences 0",
+      "case 2 compared 782048 differences 0",
+      "case 3 compared 972237 differences 0",
+      "case 4 compared 973321 differences 0",
+      "listed (64, 124, 41, 0.0, 2.0) compared 996773 differences 0",
+      "listed (64, 124, 41, 0.75, 2.0) compared 1020255 differences 0"
+    ],
+    "proof-geometry-exact-no-std.log": [
+      "case 0 compared 192376 differences 0",
+      "case 1 compared 649677 differences 0",
+      "case 2 compared 782048 differences 0",
+      "case 3 compared 972237 differences 0",
+      "case 4 compared 973321 differences 0",
+      "listed (64, 124, 41, 0.0, 2.0) compared 996773 differences 0",
+      "listed (64, 124, 41, 0.75, 2.0) compared 1020255 differences 0"
+    ]
+  }
+}
