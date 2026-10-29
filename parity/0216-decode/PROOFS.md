@@ -86,6 +86,17 @@ native C++ scalar/default differentials. Their receipts are uploaded separately.
 No local ARM runner or qemu is available. The coordinator must push and read
 those jobs before treating native NEON identity as qualified.
 
+The first arm64 CI run passed every forced scalar/NEON Rust comparison but
+stopped at a C++ default status mismatch (case n=1, stride 4, v0, 2-bit groups,
+full length). Upstream's NEON latency path counts escapes in 4-bit nibbles, so
+a 1/2-bit group with all 16 fields escaped, which the encoder never emits,
+consumes 4 bytes instead of 20 there; C++ scalar and x86 SIMD consume 20. The
+Rust oracle is C++ scalar. The differential therefore compares C++ default
+only where its status (and, on success, its bytes) agrees with C++ scalar,
+records the rest as
+`cpp_default_isa_divergences`, and still requires zero such divergences on
+x86_64.
+
 ## Final verdict and receipts
 
 SSSE3 stride-12 tuning is **REJECTED and reverted**. The correctly rebuilt

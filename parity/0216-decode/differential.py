@@ -33,6 +33,20 @@ def main():
     ds={l:Driver([target/'proof/release/differential',l]) for l in levels}
     for name in ['cpp-scalar','cpp-default']:ds[name]=Driver([target/(name+'-exact')])
     count=0; cpp_failure_differences=0; cpp_success_differences=0; first=[]
+    # Upstream's NEON latency path sums escape counts in 4-bit nibbles, so a
+    # hand-authored 1/2-bit group with all 16 fields escaped (never emitted by
+    # the encoder) consumes the wrong length. The Rust oracle is C++ scalar;
+    # C++ default outputs that differ from C++ scalar are recorded, not compared.
+    isa_divergences=0; isa_first=[]
+    def cpp_arms(out,case):
+        nonlocal isa_divergences
+        s,d=out['cpp-scalar'],out['cpp-default']
+        # Failure prefixes may differ by staging (counted below); only a
+        # status split or differing successful bytes is an ISA divergence.
+        if s[:4]==d[:4] and (int.from_bytes(s[:4],'little') or s==d):return ['cpp-scalar','cpp-default']
+        isa_divergences+=1
+        if len(isa_first)<4:isa_first.append(dict(case=case,scalar_status=out['cpp-scalar'][:4].hex(),default_status=out['cpp-default'][:4].hex()))
+        return ['cpp-scalar']
     try:
         for n in list(range(34))+list(range(64,81))+list(range(256,273)):
             for stride in [4,8,12,32,48,256]:
@@ -45,7 +59,7 @@ def main():
                                     b=struct.pack('<III',n,stride,length)+src[:length]
                                     out={k:d.call(b) for k,d in ds.items()};expected=out['scalar']
                                     for level in levels:assert out[level]==expected,(n,stride,v,ch,ctrl,sel,length,level)
-                                    for k in ['cpp-scalar','cpp-default']:
+                                    for k in cpp_arms(out,[n,stride,v,ch,ctrl,sel,length]):
                                         # Both success/failure status and entire destination are observed.
                                         assert out[k][:4]==expected[:4],(n,stride,v,ch,ctrl,sel,length,k,'status')
                                         if out[k]!=expected:
@@ -63,16 +77,18 @@ def main():
             b=struct.pack('<III',n,stride,len(src))+src
             out={k:d.call(b) for k,d in ds.items()};expected=out['scalar']
             for level in levels:assert out[level]==expected,('random',i,level)
-            for k in ['cpp-scalar','cpp-default']:
+            for k in cpp_arms(out,['random',i]):
                 assert out[k][:4]==expected[:4],('random',i,k,'status')
                 if out[k]!=expected:
                     if int.from_bytes(expected[:4],'little'):cpp_failure_differences+=1
                     else:cpp_success_differences+=1
             count+=1
         assert cpp_success_differences==0
+        # Upstream x86 SIMD agrees with its scalar decoder on every case.
+        assert isa_divergences==0 or os.uname().machine!='x86_64',isa_first
     finally:
         for d in ds.values():d.close()
-    r=dict(cases=count,levels=levels,forced_level_differences=0,cpp_success_differences=cpp_success_differences,cpp_failure_write_differences=cpp_failure_differences,first=first)
+    r=dict(cases=count,levels=levels,forced_level_differences=0,cpp_success_differences=cpp_success_differences,cpp_failure_write_differences=cpp_failure_differences,cpp_default_isa_divergences=isa_divergences,first=first,isa_first=isa_first)
     (art/('differential-no-std.json' if os.environ.get('DECODE_NO_STD') else 'differential.json')).write_text(json.dumps(r,indent=2)+'\n');print(r)
 
 if __name__=="__main__": main()
