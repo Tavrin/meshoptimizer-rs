@@ -388,6 +388,56 @@ Errors: `InvalidLayout` for invalid vertex/index strides or vertex byte lengths,
 Encoding constructors validate versions and levels (`InvalidParameter` for an
 unsupported vertex level), so an invalid encoding configuration cannot be built.
 
+## Streaming index sequences
+
+`codec::IndexSequenceDecoder` is an opt-in extension, not in C++ meshoptimizer.
+It accepts ordinary version 0/1 index-sequence bytes as they arrive, without
+heap allocation or a Cargo feature. The container supplies the index count.
+Keep the decoder across transport chunks and resubmit the unconsumed input
+suffix when output space runs out. Zero output space is valid and yields
+`NeedOutput` while indices remain; use at least one slot to make progress.
+
+```rust
+use meshoptimizer_rs::{codec::{IndexSequenceDecoder, Status}, Limits};
+
+let compressed = [0xd1, 0, 4, 0xcd, 1, 4, 7, 0x98, 0x1f, 0, 0, 0, 0];
+let mut decoder = IndexSequenceDecoder::new(6, Limits::default())?;
+let mut provisional = Vec::new();
+for chunk in compressed.chunks(2) { // replace with your transport's chunks
+    let mut input = chunk;
+    loop {
+        let mut output = [0u32; 1];
+        let progress = decoder.push(input, &mut output)?;
+        provisional.extend_from_slice(&output[..progress.written]);
+        input = &input[progress.consumed..];
+        // `Status` is non-exhaustive; anything but NeedOutput ends this chunk.
+        if progress.status != Status::NeedOutput {
+            assert!(input.is_empty());
+            break;
+        }
+    }
+}
+decoder.finish()?; // transport EOF: only now commit provisional indices
+assert_eq!(provisional, [0, 1, 51, 2, 49, 1000]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+All output is provisional until `finish()` succeeds. Submit every byte of the
+stream, including any bytes arriving after `Done`: these are rejected as extra
+input. `finish()` rejects incomplete headers, varints, counts, and padding.
+Padding is exactly four opaque bytes, as in the one-shot decoder. Noncanonical
+varints retain upstream's five-byte/truncated-high-bit semantics. Header errors
+are reported immediately, even before enough bytes exist for the one-shot
+minimum-length check. Errors are terminal and repeat on subsequent calls; an
+error may follow provisional writes in the same call without a progress receipt.
+
+`new` checks decoded size and charges four work units per declared index.
+`push` charges one per consumed compressed byte against the remaining budget;
+chunking and empty calls do not reset it. Fixed state and caller buffers are
+outside `max_bytes` (zero is allowed). This enables bounded staging; the
+application chooses whether to retain provisional output. Vertex and triangle
+streams require trailer information and are not supported by this decoder.
+
 ## Untrusted input with Limits
 
 ```text
@@ -685,3 +735,43 @@ stage decisions in checked heap scratch and leave the entire destination
 unchanged on any error, including limits and insufficient capacity. Reports
 list original face/vertex indices, so callers can inspect changes. Added faces
 have no inherited material or face attributes; assign those explicitly.
+
+### Parallel groups within one cluster LOD mesh
+
+Enable `parallel` and `clusterlod` for the opt-in `clusterlod::build_parallel`
+(or `build_parallel_with_output`). This extension is not in C++ meshoptimizer.
+Choose an existing Rayon pool and explicitly opt out of finite logical limits:
+
+```rust
+# #[cfg(all(feature = "parallel", feature = "clusterlod"))]
+# fn example(mut positions: Vec<[f32; 3]>, indices: Vec<u32>) -> Result<(), Box<dyn std::error::Error>> {
+use meshoptimizer_rs::{clusterlod, Limits, Workspace};
+let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+let mut workspace = Workspace::new(Limits {
+    max_bytes: usize::MAX,
+    max_work: u64::MAX,
+});
+let config = clusterlod::default_config(128)?; // dilation disabled
+let groups = pool.install(|| clusterlod::build_parallel(config, clusterlod::Mesh {
+    indices: &indices,
+    positions: &mut positions,
+    attributes: None,
+    vertex_lock: None,
+    attribute_weights: &[],
+    attribute_protect_mask: 0,
+}, &mut workspace))?;
+# let _ = groups;
+# Ok(()) }
+```
+
+Partitioning and boundary locks run serially each level; groups use the existing
+serial kernels and assemble in ordinal order. Callbacks run serially on the
+calling thread, including their custom IDs and failure prefixes. Dilation,
+any finite work/storage limit (including `Limits::default()`), single-group
+levels, and speculative worker failures use the serial algorithm. Existing
+`build` and batch APIs retain their behavior.
+
+`Usage` reports identical logical serial work and peak storage. Concurrent
+worker scratch, held speculative results, and Rayon infrastructure consume
+additional physical memory. Select a pool size that fits the mesh and available
+memory. No parallel speedup is guaranteed.

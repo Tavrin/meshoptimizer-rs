@@ -1,0 +1,7 @@
+     Locking 3 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-baseline v0.2.15 (<target-dir>/proof-scratch/base)
+   Compiling meshoptimizer-rs v0.2.15 (<worktree>)
+   Compiling stream-exact v0.0.0 (<target-dir>/proof-scratch/exact)
+    Finished `release` profile [optimized] target(s) in 8.85s
+cpu_user=1.02 cpu_system=0.23 elapsed=8.86 exit=0

@@ -1,0 +1,27 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling autocfg v1.5.1
+   Compiling shlex v2.0.1
+   Compiling num-traits v0.2.19
+   Compiling find-msvc-tools v0.1.15
+   Compiling thiserror v2.0.21
+   Compiling cc v1.10.0
+   Compiling bitflags v2.13.2
+   Compiling float-cmp v0.10.0
+   Compiling meshopt v0.7.0
+   Compiling syn v3.0.9
+   Compiling thiserror-impl v2.0.21
+   Compiling clod-peer v0.0.0 (${SCRATCH}/peer)
+warning: variable does not need to be mutable
+   --> main.rs:103:6
+    |
+103 |  let mut positions=x.p.clone();let mut out=Vec::<u32>::new();let mut gid=0i32;
+    |      ----^^^^^^^^^
+    |      |
+    |      help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `clod-peer` (bin "clod-peer") generated 1 warning (run `cargo fix --bin "clod-peer" -p clod-peer` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 6.08s

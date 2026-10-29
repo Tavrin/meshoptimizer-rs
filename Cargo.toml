@@ -11,7 +11,7 @@ documentation = "https://docs.rs/meshoptimizer-rs"
 readme = "README.md"
 keywords = ["mesh", "meshoptimizer", "simplification", "meshlet", "gltf"]
 categories = ["graphics", "rendering", "game-development", "compression", "no-std"]
-include = ["/src/**/*.rs", "/src/codec/simd/SAFETY.md", "/tests/api.rs", "/tests/vertex_layout.rs", "/tests/lod_chain.rs", "/tests/p05.rs", "/tests/meshlets.rs", "/tests/preprocessing.rs", "/tests/sanitize.rs", "/tests/repair.rs", "/tests/parallel.rs", "/tests/codec.rs", "/tests/simd.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/docs/MIGRATING_FROM_MESHOPT.md", "/docs/USING.md", "/docs/PERFORMANCE.md", "/examples/*.rs", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
+include = ["/src/**/*.rs", "/src/codec/simd/SAFETY.md", "/tests/api.rs", "/tests/vertex_layout.rs", "/tests/lod_chain.rs", "/tests/p05.rs", "/tests/meshlets.rs", "/tests/preprocessing.rs", "/tests/sanitize.rs", "/tests/repair.rs", "/tests/parallel.rs", "/tests/clusterlod_parallel.rs", "/tests/codec.rs", "/tests/sequence_stream.rs", "/tests/simd.rs", "/Cargo.toml", "/Cargo.lock", "/README.md", "/docs/MIGRATING_FROM_MESHOPT.md", "/docs/USING.md", "/docs/PERFORMANCE.md", "/examples/*.rs", "/CHANGELOG.md", "/LICENSE", "/UPSTREAM.md"]
 
 [features]
 default = ["std", "simd"]

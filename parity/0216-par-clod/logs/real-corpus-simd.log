@@ -1,0 +1,9 @@
+corpus "medium-seams.bin" comparisons 16
+corpus "medium-smooth.bin" comparisons 32
+corpus "medium-sparse.bin" comparisons 48
+corpus "million-smooth.bin" comparisons 64
+corpus "real-214e.bin" comparisons 80
+corpus "real-a082.bin" comparisons 96
+corpus "real-b6fd.bin" comparisons 112
+corpus "tiny-smooth.bin" comparisons 128
+PASS comparisons 128 (exact results, float words, IDs, callbacks, positions, Usage)
