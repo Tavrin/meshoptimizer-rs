@@ -25,6 +25,8 @@
 mod encode;
 #[cfg(feature = "simd")]
 pub(crate) mod simd;
+#[cfg(feature = "simd")]
+pub(crate) use simd::bounds::roots as bounds_roots;
 
 /// Diagnostic dispatch control; outside semver. Overrides only lower detected ISA.
 #[cfg(all(feature = "simd", feature = "parity-internals"))]
