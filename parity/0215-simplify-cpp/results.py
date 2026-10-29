@@ -8,9 +8,13 @@ import re
 import statistics
 
 scratch = Path(os.environ['MESHOPT_SCRATCH'])
-art = scratch/'campaign-1'
-lane = Path(__file__).resolve().parent
-root = lane.parents[1]
+campaign = os.environ.get('MESHOPT_CAMPAIGN', 'campaign-1')
+art = scratch/campaign
+here = Path(__file__).resolve().parent
+root = here.parents[1]
+# Later campaigns keep their receipts beside the first campaign's.
+lane = here if campaign == 'campaign-1' else here/campaign
+lane.mkdir(exist_ok=True)
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def emit(name, value): (lane/name).write_text(json.dumps(value,indent=2)+'\n')
 rows = [json.loads(s) for s in (art/'counts.jsonl').read_text().splitlines()]
@@ -19,8 +23,9 @@ assert len(rows)==len({(r['case'],r['op'],r['arm'],r['rep']) for r in rows})==19
 binding = json.loads((art/'build-binding.json').read_text())
 for name, digest in binding['sources'].items():
     assert sha(scratch/name)==digest
-    if name.startswith('candidate/src/'):
-        assert sha(root/name.removeprefix('candidate/'))==digest
+    tree, _, rest = name.partition('/')
+    if tree.startswith('candidate') and rest.startswith('src/'):
+        assert sha(root/rest)==digest
 for arm, digest in binding['binaries'].items(): assert sha(art/f'driver-{arm}')==digest
 raw = {}
 for r in rows:
@@ -41,15 +46,19 @@ for x in inputs:
         med={a:statistics.median(r['instructions_per_call'] for r in cell if r['arm']==a) for a in binding['binaries']}
         cases[x['case']+'/'+op]=dict(medians=med,
             candidate_base=med['candidate']/med['base'], candidate_cpp=med['candidate']/med['cpp'],
+            base_cpp=med['base']/med['cpp'],
             candidate_optimesh=med['candidate']/med['rust'],output_sha256=cell[0]['output_sha256'])
 summary={}
 for op in ['simplify','simplify-sloppy']:
     real=[v for k,v in cases.items() if k.startswith('real-') and k.endswith('/'+op)]
     gm={ratio:math.exp(sum(math.log(v[ratio]) for v in real)/3)
-        for ratio in ['candidate_base','candidate_cpp','candidate_optimesh']}
+        for ratio in ['candidate_base','candidate_cpp','candidate_optimesh','base_cpp']}
     regressions={k:v['candidate_base'] for k,v in cases.items() if k.endswith('/'+op) and v['candidate_base']>1.01}
-    verdict='REVERT' if regressions else 'SHIPS' if gm['candidate_base']<=.97 and gm['candidate_optimesh']<=.99 else 'IMPROVES' if gm['candidate_base']<=.97 else 'NO-GAIN'
-    summary[op]=dict(**gm,verdict=verdict,regressions=regressions)
+    # The spec replaces the optimesh condition for these two functions with
+    # candidate/C++ improving on base/C++ by at least five percentage points.
+    cpp_gain=gm['base_cpp']-gm['candidate_cpp']
+    verdict='REVERT' if regressions else 'SHIPS' if gm['candidate_base']<=.97 and cpp_gain>=.05 else 'IMPROVES' if gm['candidate_base']<=.97 else 'NO-GAIN'
+    summary[op]=dict(**gm,cpp_gain_points=cpp_gain*100,verdict=verdict,regressions=regressions)
 emit('results.json',dict(summary=summary,cases=cases))
 emit('binding.json',binding)
 emit('inputs.json',inputs)

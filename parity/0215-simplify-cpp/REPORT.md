@@ -53,3 +53,77 @@ through success plus one for its finite small-mesh cases and the larger
 batch-bound cases. The independent fuzz run exited 0 after 1,522 seeds and
 300.034 child CPU seconds. These finite inputs do not exhaust all possible
 meshes or platforms.
+
+## Check lane: review and second campaign
+
+The review found no observable change in the two `simplify_extra.rs`
+routines; PROOFS.md records why. They are byte-identical to the packed
+bounds and cell-table routines on the prune/points branch, so the two
+branches merge with a conflict only in CHANGELOG.md. That branch also adds a
+unit test of the zero-sign restore.
+
+Attribution used unthrottled `instructions:u` samples (period 500009) on
+real-b6fd, mapped to inlined source functions, with candidate and C++
+1.3 phases side by side, in samples:
+
+| Phase | Candidate | C++ |
+|---|---:|---:|
+| Quadric construction | 640 | 603 |
+| Collapse picking | 374 | 353 |
+| Edge adjacency, initial and per pass | 485 | 406 |
+| Position welding | 381 | 343 |
+| Vertex classification | 280 | 234 |
+| Position normalization | 144 | 124 |
+| Quadric and edge-loop update | 216 | 135 |
+| Input validation | 72 | 0 |
+
+Quadric construction is the largest phase but runs close to C++: face,
+vertex and edge loops have the same arithmetic, and the difference is
+indexing checks and one byte-slice search. The gap is spread over the
+phases below it. The cheapest fixes that keep every observable were the
+per-vertex readers and checks in validation and normalization, which run
+on every vertex of the unwelded real meshes.
+
+Changes, all in `src/simplify.rs` (bounds in PROOFS.md):
+
+- `:30`, `:569`: packed finite validation by lane sums of `x - x`, charged
+  once when the scan fits; otherwise the counted scan.
+- `:2503`: packed normalization without attributes under a finite scale,
+  precharged when its visits fit; otherwise the per-vertex loop.
+- `:2673`: one charge for a fitting compaction pass.
+- `:1847`: a pattern test in place of a byte-slice `contains`.
+
+Not tried: the remaining adjacency, classification and update gaps are
+mostly bounds checks on data-dependent indices; removing them needs
+`unsafe`, which the spec excludes.
+
+Campaign 2 used the registered harness and verdict rule (three samples per
+arm, the same inputs and peer drivers; receipts in `campaign-2/`):
+
+| Function | Base | optimesh | C++ | C++ gain | Verdict |
+|---|---:|---:|---:|---:|---|
+| simplify, campaign 1 | 1.0000 | 0.9767 | 1.2364 | 0.0 points | NO-GAIN |
+| simplify, campaign 2 | 0.9192 | 0.8978 | 1.1365 | 10.0 points | SHIPS |
+| simplify_sloppy, campaign 2 | 0.8446 | 0.7063 | 1.2754 | 23.5 points | SHIPS |
+
+| Case | simplify base / optimesh / C++ |
+|---|---|
+| tiny-smooth | 0.9914 / 0.9488 / 0.9186 |
+| medium-smooth | 0.9839 / 0.9226 / 1.0917 |
+| medium-seams | 0.9851 / 0.9108 / 1.0741 |
+| medium-sparse | 0.9682 / 0.9176 / 1.0907 |
+| million-smooth | 0.9929 / 0.9002 / 1.0710 |
+| real-214e | 0.8888 / 0.9041 / 1.1198 |
+| real-a082 | 0.9349 / 0.8947 / 1.1433 |
+| real-b6fd | 0.9348 / 0.8946 / 1.1466 |
+
+No case exceeds 1.01 against base, and all outputs match across arms. The
+sloppy ratios are unchanged from campaign 1. The changes were measured
+together; the sample does not isolate each one.
+
+Proofs for the final source, each exit 0: all-features and no-default tests
+(412 passed in total), all-target clippy, formatting, unsafe-boundary and
+public-text checks; the exact v0.2.14 comparison with 1,200,243,710
+observations with all features and 273,906,930 without; the pinned C++
+differential with 1,246 cases per mode; fuzzing with 1,966 seeds and 300.126
+child CPU seconds. Receipts are in `campaign-2/proof-results.json`.

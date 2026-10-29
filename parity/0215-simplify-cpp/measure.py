@@ -9,7 +9,7 @@ import tempfile
 
 assert os.environ.get('PARITY_RUNNER_ACTIVE') and os.environ['PARITY_RUNNER_GPU'] == '0'
 assert os.environ['LC_ALL'] == 'C'
-art = Path(os.environ['MESHOPT_SCRATCH'])/'campaign-1'
+art = Path(os.environ['MESHOPT_SCRATCH'])/os.environ.get('MESHOPT_CAMPAIGN', 'campaign-1')
 perf = os.environ['PEERS_PERF']
 cpu = os.environ.get('PEERS_CPU', '9')
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()

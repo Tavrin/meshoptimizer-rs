@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `simplify` uses 0.919× the instructions of 0.2.14, 0.898× optimesh
+  1.1.0 and 1.137× scalar C++ 1.3 on three real meshes.
 - `simplify_sloppy` uses 0.845× the instructions of 0.2.14, 0.706×
   optimesh 1.1.0 and 1.275× scalar C++ 1.3 on three real meshes.
 

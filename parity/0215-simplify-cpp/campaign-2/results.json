@@ -1,0 +1,232 @@
+{
+  "summary": {
+    "simplify": {
+      "candidate_base": 0.9192233852405369,
+      "candidate_cpp": 1.1365166059832834,
+      "candidate_optimesh": 0.8978028194438381,
+      "base_cpp": 1.236387829369557,
+      "cpp_gain_points": 9.987122338627351,
+      "verdict": "SHIPS",
+      "regressions": {}
+    },
+    "simplify-sloppy": {
+      "candidate_base": 0.8446054052851519,
+      "candidate_cpp": 1.2754214238499015,
+      "candidate_optimesh": 0.7063466698629712,
+      "base_cpp": 1.5100796370339347,
+      "cpp_gain_points": 23.465821318403314,
+      "verdict": "SHIPS",
+      "regressions": {}
+    }
+  },
+  "cases": {
+    "tiny-smooth/simplify": {
+      "medians": {
+        "base": 111426.409,
+        "candidate": 110473.486,
+        "cpp": 120268.01,
+        "rust": 116431.587
+      },
+      "candidate_base": 0.9914479609586988,
+      "candidate_cpp": 0.9185608542121884,
+      "base_cpp": 0.926484183117356,
+      "candidate_optimesh": 0.9488274517807612,
+      "output_sha256": "7fbdd9134666b1d0f32cbdbb461a259fa96c23d41118da7f6592f186a9601968"
+    },
+    "tiny-smooth/simplify-sloppy": {
+      "medians": {
+        "base": 20605.426,
+        "candidate": 19007.425,
+        "cpp": 15117.029,
+        "rust": 21034.705
+      },
+      "candidate_base": 0.9224475630836266,
+      "candidate_cpp": 1.257351891036261,
+      "base_cpp": 1.3630605590556186,
+      "candidate_optimesh": 0.9036221330415615,
+      "output_sha256": "13368145d8fb9aabf2bb791bd35da0f7aa059ed7bdd7d73697ab08884d29bad9"
+    },
+    "medium-smooth/simplify": {
+      "medians": {
+        "base": 12154860.666666666,
+        "candidate": 11958847.666666666,
+        "cpp": 10954553.0,
+        "rust": 12962339.333333334
+      },
+      "candidate_base": 0.983873694205517,
+      "candidate_cpp": 1.091678288166269,
+      "base_cpp": 1.109571578745994,
+      "candidate_optimesh": 0.9225840613440711,
+      "output_sha256": "beae56c4803edd3bcb401bca01223dd9587188cf5443777980307c167d97b6ad"
+    },
+    "medium-smooth/simplify-sloppy": {
+      "medians": {
+        "base": 4226449.666666667,
+        "candidate": 3898269.3333333335,
+        "cpp": 3116363.3333333335,
+        "rust": 4244251.333333333
+      },
+      "candidate_base": 0.9223508241629755,
+      "candidate_cpp": 1.2509033499517066,
+      "base_cpp": 1.3562121019264977,
+      "candidate_optimesh": 0.9184822073842,
+      "output_sha256": "1fbe832b0a89ebbab7d05d5b8ecdd390864e6bf2da7b1e95b219e6ccc3379704"
+    },
+    "medium-seams/simplify": {
+      "medians": {
+        "base": 15455104.333333334,
+        "candidate": 15224495.666666666,
+        "cpp": 14174769.333333334,
+        "rust": 16715007.333333334
+      },
+      "candidate_base": 0.9850788023365656,
+      "candidate_cpp": 1.074055972880264,
+      "base_cpp": 1.0903249266278479,
+      "candidate_optimesh": 0.910827938214884,
+      "output_sha256": "fde60f434f03505489f1dd92d7792527cb0e9a467024ac078d23be9dea945e07"
+    },
+    "medium-seams/simplify-sloppy": {
+      "medians": {
+        "base": 7480406.0,
+        "candidate": 7075904.333333333,
+        "cpp": 5117310.0,
+        "rust": 8864932.666666666
+      },
+      "candidate_base": 0.945925172154203,
+      "candidate_cpp": 1.3827390432343034,
+      "base_cpp": 1.4617848049072657,
+      "candidate_optimesh": 0.7981904205476575,
+      "output_sha256": "e93e97f1237352ac8d1d765a4d1c8c9499c5b9bb26dac6d2763b1bec5388193a"
+    },
+    "medium-sparse/simplify": {
+      "medians": {
+        "base": 13365586.333333334,
+        "candidate": 12940515.333333334,
+        "cpp": 11864187.666666666,
+        "rust": 14102483.666666666
+      },
+      "candidate_base": 0.968196606613517,
+      "candidate_cpp": 1.0907207216294035,
+      "base_cpp": 1.1265487961628389,
+      "candidate_optimesh": 0.9176054118694129,
+      "output_sha256": "a0c1d1bfbc2e3eefe501ac2b9be88b5d31794b322f6c8389b4f24764c369a051"
+    },
+    "medium-sparse/simplify-sloppy": {
+      "medians": {
+        "base": 5437527.0,
+        "candidate": 4772987.0,
+        "cpp": 3839059.3333333335,
+        "rust": 5726973.333333333
+      },
+      "candidate_base": 0.8777863539804033,
+      "candidate_cpp": 1.2432699225452624,
+      "base_cpp": 1.416369617626818,
+      "candidate_optimesh": 0.8334222497980318,
+      "output_sha256": "6acd9b7fb15e2e3e1fd784ca1f03e4e21fdb63810f100d5eaecbddf6ba1d109f"
+    },
+    "million-smooth/simplify": {
+      "medians": {
+        "base": 2434042653.0,
+        "candidate": 2416643976.0,
+        "cpp": 2256440405.0,
+        "rust": 2684600072.0
+      },
+      "candidate_base": 0.9928519424347162,
+      "candidate_cpp": 1.0709983612441119,
+      "base_cpp": 1.0787090355262452,
+      "candidate_optimesh": 0.9001877043829566,
+      "output_sha256": "701197038328e8e32af7aa41085329c3151446f319e4a75db31456fda3dcf5e4"
+    },
+    "million-smooth/simplify-sloppy": {
+      "medians": {
+        "base": 448020463.0,
+        "candidate": 408963331.0,
+        "cpp": 338171336.0,
+        "rust": 425759937.0
+      },
+      "candidate_base": 0.9128228837172556,
+      "candidate_cpp": 1.2093376565777296,
+      "base_cpp": 1.3248327557838906,
+      "candidate_optimesh": 0.9605491157332635,
+      "output_sha256": "ec3294c3fa76eb7c07e4fc9989f268dc4ede8f8070d3b8550a45033fa85998da"
+    },
+    "real-214e/simplify": {
+      "medians": {
+        "base": 3544785850.0,
+        "candidate": 3150523024.0,
+        "cpp": 2813432866.0,
+        "rust": 3484676270.0
+      },
+      "candidate_base": 0.8887766870317427,
+      "candidate_cpp": 1.1198145376325463,
+      "base_cpp": 1.2599503947075879,
+      "candidate_optimesh": 0.904107807982978,
+      "output_sha256": "bd2a5e50340a8670fc27fa1e7b97b475f574923ea476664e9935195753f0bb8a"
+    },
+    "real-214e/simplify-sloppy": {
+      "medians": {
+        "base": 3483903482.0,
+        "candidate": 2947575397.0,
+        "cpp": 2299204492.0,
+        "rust": 4272219167.0
+      },
+      "candidate_base": 0.8460554123353294,
+      "candidate_cpp": 1.2819979289602048,
+      "base_cpp": 1.5152647335729021,
+      "candidate_optimesh": 0.6899401181868252,
+      "output_sha256": "1870f3263de0b9eb7402b2a624cc42d9235fa0bcecbbcfbfe306263090b515b1"
+    },
+    "real-a082/simplify": {
+      "medians": {
+        "base": 6144360628.0,
+        "candidate": 5744306990.0,
+        "cpp": 5024123067.0,
+        "rust": 6420045894.0
+      },
+      "candidate_base": 0.9348909248300066,
+      "candidate_cpp": 1.1433451994300043,
+      "base_cpp": 1.2229717596605203,
+      "candidate_optimesh": 0.8947454714254415,
+      "output_sha256": "328c4a7c0df78afe2649828c4e045dd3f21a89cd5b976d98c0a85440593f0cba"
+    },
+    "real-a082/simplify-sloppy": {
+      "medians": {
+        "base": 3480859120.0,
+        "candidate": 2910436383.0,
+        "cpp": 2315103859.0,
+        "rust": 3994537378.0
+      },
+      "candidate_base": 0.8361258765910641,
+      "candidate_cpp": 1.2571515406039502,
+      "base_cpp": 1.5035433967543657,
+      "candidate_optimesh": 0.7286041179710298,
+      "output_sha256": "b8fd730f6bf6b4e2372fef7f1991f9ef3ef95072791e7b07d70dd08affab44b0"
+    },
+    "real-b6fd/simplify": {
+      "medians": {
+        "base": 1533514066.0,
+        "candidate": 1433498882.0,
+        "cpp": 1250240247.0,
+        "rust": 1602412015.0
+      },
+      "candidate_base": 0.9347803934652661,
+      "candidate_cpp": 1.1465787359187454,
+      "base_cpp": 1.2265755079311569,
+      "candidate_optimesh": 0.894588201150002,
+      "output_sha256": "eaa8634e12a912ce1b02e86e2986c8ce3cf32fdd15080789291c845f88fbe939"
+    },
+    "real-b6fd/simplify-sloppy": {
+      "medians": {
+        "base": 961572464.0,
+        "candidate": 818979659.0,
+        "cpp": 636190160.0,
+        "rust": 1168214062.0
+      },
+      "candidate_base": 0.8517087267590474,
+      "candidate_cpp": 1.2873189660776898,
+      "base_cpp": 1.5114544745552179,
+      "candidate_optimesh": 0.7010527313786092,
+      "output_sha256": "1acb1caa4e697ba13cd0412c822ea0e8e8e8faab12a2e3690bfeef347c3a962b"
+    }
+  }
+}
