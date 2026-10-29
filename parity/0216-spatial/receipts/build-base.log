@@ -1,0 +1,6 @@
+     Locking 1 package to latest compatible version
+      Adding meshoptimizer-baseline v0.2.15 (<scratch>/base)
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-baseline v0.2.15 (<scratch>/base)
+   Compiling meshopt-peers v0.0.0 (<scratch>/base/parity/peers)
+    Finished `release` profile [optimized] target(s) in 19.50s

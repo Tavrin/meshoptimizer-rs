@@ -1,0 +1,173 @@
+{
+  "exit": 0,
+  "samples": 120,
+  "cpu": 0,
+  "cells": [
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base": 46968.121,
+        "candidate": 46968.094,
+        "scalar": 46968.157,
+        "cpp-scalar": 47718.194,
+        "cpp-default": 47718.134
+      },
+      "wall_seconds": {
+        "base": 1.999873e-06,
+        "candidate": 2.99981e-06,
+        "scalar": 7.999493e-06,
+        "cpp-scalar": 9.99937e-07,
+        "cpp-default": 2.99981e-06
+      },
+      "vs_base": 0.9999994251420021,
+      "scalar_vs_cpp": 0.9842819491450158,
+      "default_vs_cpp": 0.9842818665122153
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base": 24978934.0,
+        "candidate": 23554853.666666668,
+        "scalar": 24978918.333333332,
+        "cpp-scalar": 25642508.666666668,
+        "cpp-default": 21769467.666666668
+      },
+      "wall_seconds": {
+        "base": 0.00299981,
+        "candidate": 0.001333249,
+        "scalar": 0.0013332486666666667,
+        "cpp-scalar": 0.0013332486666666667,
+        "cpp-default": 0.0009999366666666666
+      },
+      "vs_base": 0.9429887467041895,
+      "scalar_vs_cpp": 0.9741214737622005,
+      "default_vs_cpp": 1.0820133053934882
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base": 25054049.333333332,
+        "candidate": 23625974.666666668,
+        "scalar": 25054045.666666668,
+        "cpp-scalar": 25659766.666666668,
+        "cpp-default": 21786141.333333332
+      },
+      "wall_seconds": {
+        "base": 0.0019998733333333333,
+        "candidate": 0.001333249,
+        "scalar": 0.001333249,
+        "cpp-scalar": 0.001999873,
+        "cpp-default": 0.001333249
+      },
+      "vs_base": 0.943000245283038,
+      "scalar_vs_cpp": 0.9763941345270741,
+      "default_vs_cpp": 1.084449710721299
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base": 25052026.666666668,
+        "candidate": 23627954.333333332,
+        "scalar": 25052021.0,
+        "cpp-scalar": 25641705.666666668,
+        "cpp-default": 21768662.666666668
+      },
+      "wall_seconds": {
+        "base": 0.001333249,
+        "candidate": 0.0013332486666666667,
+        "scalar": 0.0013332486666666667,
+        "cpp-scalar": 0.001999873,
+        "cpp-default": 0.00299981
+      },
+      "vs_base": 0.9431554040604565,
+      "scalar_vs_cpp": 0.9770029079058794,
+      "default_vs_cpp": 1.0854113867781925
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base": 5212461996.0,
+        "candidate": 4871596737.0,
+        "scalar": 5212461407.0,
+        "cpp-scalar": 5505170665.0,
+        "cpp-default": 4576738590.0
+      },
+      "wall_seconds": {
+        "base": 0.753952188,
+        "candidate": 0.680956814,
+        "scalar": 0.796949474,
+        "cpp-scalar": 0.731953594,
+        "cpp-default": 0.598962022
+      },
+      "vs_base": 0.9346057085381961,
+      "scalar_vs_cpp": 0.9468301210240501,
+      "default_vs_cpp": 1.064425385282929
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base": 19778589046.0,
+        "candidate": 18531870119.0,
+        "scalar": 19778605538.0,
+        "cpp-scalar": 20501103610.0,
+        "cpp-default": 17115100979.0
+      },
+      "wall_seconds": {
+        "base": 5.85562763,
+        "candidate": 4.631705605,
+        "scalar": 6.318598008,
+        "cpp-scalar": 5.671639081,
+        "cpp-default": 3.831756675
+      },
+      "vs_base": 0.9369662353517509,
+      "scalar_vs_cpp": 0.9647580888451497,
+      "default_vs_cpp": 1.0827788945994743
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base": 22991258089.0,
+        "candidate": 21535712958.0,
+        "scalar": 22991263716.0,
+        "cpp-scalar": 23847659096.0,
+        "cpp-default": 19903773947.0
+      },
+      "wall_seconds": {
+        "base": 5.454652185,
+        "candidate": 5.055677574,
+        "scalar": 5.708636182,
+        "cpp-scalar": 5.934621852,
+        "cpp-default": 3.824756336
+      },
+      "vs_base": 0.9366913665461224,
+      "scalar_vs_cpp": 0.9640889121841043,
+      "default_vs_cpp": 1.0819914361640937
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base": 5149727774.0,
+        "candidate": 4830947834.0,
+        "scalar": 5149735184.0,
+        "cpp-scalar": 5326527332.0,
+        "cpp-default": 4458457939.0
+      },
+      "wall_seconds": {
+        "base": 1.074931399,
+        "candidate": 0.934940332,
+        "scalar": 0.677956742,
+        "cpp-scalar": 0.655958143,
+        "cpp-default": 0.389975116
+      },
+      "vs_base": 0.9380977104053034,
+      "scalar_vs_cpp": 0.9668091165255284,
+      "default_vs_cpp": 1.0835468002830473
+    }
+  ],
+  "real_geomean": {
+    "vs_base": 0.937251573220554,
+    "scalar_vs_cpp": 0.9652180123480085,
+    "default_vs_cpp": 1.0827721908191281
+  },
+  "verdict": "SHIPS"
+}

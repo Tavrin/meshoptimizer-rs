@@ -1,0 +1,10 @@
+(node:2558446) ExperimentalWarning: WASI is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+running 3 tests
+test meshlet_spatial::simd_tests::ordered_area_extremes ... ok
+test meshlet_spatial::simd_tests::short_sweeps_preserve_output_tails ... ok
+test meshlet_spatial::simd_tests::signed_zero_ties ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 43 filtered out; finished in 0.00s
+

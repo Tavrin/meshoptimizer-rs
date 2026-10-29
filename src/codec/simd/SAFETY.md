@@ -1,7 +1,7 @@
 # SIMD safety audit
 
 This module is private. Its only unsafe operations are calls authorized by an
-ISA token and fixed-array vector loads/stores. All value intrinsics run inside
+ISA token and fixed-array vector loads/stores, including spatial box sweeps. All value intrinsics run inside
 a matching target_feature function. No transmute, raw-pointer arithmetic,
 MaybeUninit, get_unchecked, static mut, heap allocation or thread-local kernel
 state is used. Scalar parsing validates the layout and the complete 24-byte
@@ -46,8 +46,14 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/x86.rs:954` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT for every private kernel choice. All retain checked layout, group lookahead and bounded destinations; stack scratch is at most 1,280 bytes; memory operations are array-backed. |
 | `src/codec/simd/x86.rs:1141` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
 | `src/codec/simd/x86.rs:1169` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
+| `src/codec/simd/spatial.rs:30` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; SSE loadu permits unaligned addresses and retains no pointer. |
+| `src/codec/simd/spatial.rs:57` | token-authorized target_feature call: Baseline proves SSE2; the sweep uses checked indices and fixed-array loads only. |
+| `src/codec/simd/spatial.rs:89` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; NEON load permits unaligned addresses and retains no pointer. |
+| `src/codec/simd/spatial.rs:115` | token-authorized target_feature call: Baseline proves AArch64 NEON; the sweep uses checked indices and fixed-array loads only. |
+| `src/codec/simd/spatial.rs:147` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; wasm load permits unaligned addresses and retains no pointer. |
+| `src/codec/simd/spatial.rs:171` | token-authorized target_feature call: Baseline proves simd128; the sweep uses checked indices and fixed-array loads only. |
 
-Inventory: **23 unsafe blocks**, one module-level allowance. The token-aware
+Inventory: **29 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
 for repository sources and the published package. The unsafe-free build is
 checked with --no-default-features and RUSTFLAGS=-Funsafe_code.
@@ -57,3 +63,13 @@ fuzzing budgets, exhaustive filter/sqrt records and performance qualifications
 are recorded in parity/SIMD_RESULTS.md. Finite tests are not a proof of UB
 absence. AArch64 NEON is not Miri-covered; its execution/fuzzing requires
 native CI. A level without its release safety/parity record must not ship.
+
+Spatial sweeps dispatch once per axis and keep independent forward/reverse
+accumulators in registers. SSE min/max select their second operand on equality;
+NEON and wasm use strict comparison and bit selection to preserve exactly that
+choice, including signed zero. Area uses (x*y + y*z) + z*x without FMA or a
+horizontal reassociation. Lane 3 never reaches an area. Empty and short sweeps
+need no padding outside the four-float record, heap scratch or unchecked access.
+Work charges and fallible operations remain outside the infallible sweep.
+Spatial qualification and the native NEON execution limitation are recorded in
+parity/0216-spatial/PROOFS.md.
