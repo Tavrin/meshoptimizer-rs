@@ -137,3 +137,34 @@ The dedicated build directory is removed after retaining these receipts.
 No queued job was canceled. Git branch, HEAD, index, refs, and publication
 state were not changed; all deliverables are file edits for the coordinator.
 
+## Check round
+
+An independent check attacked the claim that any chunking of the stream,
+followed by `finish`, equals one-shot decoding in output, error kind, error
+position and work. `stream_any_two_cuts_and_any_capacity_match_one_shot`
+drives every single cut and every pair of cuts with output capacities 0, 1, 2
+and exact. Inputs are small v0/v1 encodings, five-byte varints at `u32`
+overflow (fifth byte 0x7f, 0x8f, 0xff), every truncation, an extra byte, bad
+headers, a last varint that runs into the padding, and declared counts one
+off. Limits cover work 0, 4 per index, and the whole charge minus one, exact
+and plus one, each with byte limits 0 and unlimited. Each result must equal a
+byte-at-a-time reference: the same output, the same error, and a failing call
+whose input holds the reference's failing byte. Every call is also checked:
+no write past `written`, `written <= consumed`, `NeedInput` and `Done` consume
+everything, `NeedOutput` fills the output, a call with output space and input
+makes progress, and a zero-capacity `NeedOutput` happens before any varint
+byte and repeats as a no-op. Against `decode_index_sequence_into`, success
+must match, with `Usage { bytes: 0, work: 4 * count + len }`. A stream error
+at sufficient work must match, except the documented early version error. A
+one-shot `LimitExceeded` must be `LimitExceeded` for a valid stream, and
+either `LimitExceeded` or the stream's own error for a malformed one, because
+the stream charges consumed bytes instead of the whole source. A mutant that
+drops a partial varint between calls fails this test and two existing ones.
+
+`Status` and `Progress` are now `#[non_exhaustive]`, so a later vertex or
+triangle decoder can share them and add states or fields; the guide recipe no
+longer matches `Status` exhaustively. The rerun of `proof.sh` appended its
+exits (all 0) to `exits.tsv`: 298 all-features and 252 no-default tests pass,
+seven of them streaming tests. `cargo doc --no-deps` with `-D warnings` exits
+0 in both modes. `verification.json` still describes the original round.
+

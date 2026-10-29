@@ -410,12 +410,10 @@ for chunk in compressed.chunks(2) { // replace with your transport's chunks
         let progress = decoder.push(input, &mut output)?;
         provisional.extend_from_slice(&output[..progress.written]);
         input = &input[progress.consumed..];
-        match progress.status {
-            Status::NeedOutput => continue,
-            Status::NeedInput | Status::Done => {
-                assert!(input.is_empty());
-                break;
-            }
+        // `Status` is non-exhaustive; anything but NeedOutput ends this chunk.
+        if progress.status != Status::NeedOutput {
+            assert!(input.is_empty());
+            break;
         }
     }
 }

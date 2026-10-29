@@ -2,6 +2,7 @@ use crate::{workspace::checked_bytes, Error, Limits};
 
 /// The next action for an incremental index-sequence decoder.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Status {
     /// Supply more compressed bytes. Only [`IndexSequenceDecoder::finish`]
     /// declares an exhausted input malformed.
@@ -14,6 +15,7 @@ pub enum Status {
 
 /// Progress made by one successful [`IndexSequenceDecoder::push`] call.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct Progress {
     /// Bytes consumed from this call's input; resubmit its unconsumed suffix.
     pub consumed: usize,

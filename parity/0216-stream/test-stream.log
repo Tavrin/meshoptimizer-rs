@@ -1,15 +1,16 @@
    Compiling meshoptimizer-rs v0.2.15 (<worktree>)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.32s
      Running tests/sequence_stream.rs (<target-dir>/debug/deps/sequence_stream-edd66d99e1cdbb44)
 
-running 6 tests
+running 7 tests
 test stream_backpressure_partial_varint_and_done_are_explicit ... ok
 test stream_finish_checks_count_and_each_padding_boundary ... ok
 test stream_noncanonical_varints_and_opaque_padding_match_one_shot ... ok
 test stream_malformed_headers_truncation_and_padding_are_terminal ... ok
 test stream_work_is_whole_stream_and_independent_of_chunks ... ok
 test stream_every_split_one_byte_and_short_output ... ok
+test stream_any_two_cuts_and_any_capacity_match_one_shot ... ok
 
-test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
 
-cpu_user=0.26 cpu_system=0.17 elapsed=0.63 exit=0
+cpu_user=0.51 cpu_system=0.20 elapsed=5.47 exit=0

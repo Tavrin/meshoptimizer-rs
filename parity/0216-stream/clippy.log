@@ -1,3 +1,10 @@
+    Checking crossbeam-utils v0.8.23
+    Checking either v1.18.0
+    Checking libm v0.2.16
+    Checking crossbeam-epoch v0.9.21
+    Checking crossbeam-deque v0.8.8
+    Checking rayon-core v1.13.0
+    Checking rayon v1.11.0
     Checking meshoptimizer-rs v0.2.15 (<worktree>)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.52s
-cpu_user=0.95 cpu_system=0.75 elapsed=0.57 exit=0
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.71s
+cpu_user=5.84 cpu_system=1.14 elapsed=3.75 exit=0
