@@ -444,7 +444,7 @@ impl HalfEdge {
             (next, self.corner)
         }
     }
-    /// Whether the faces of this edge group use it twice in one direction.
+    /// Whether this edge has exactly two faces and both use it in the same direction.
     fn conflict(group: &[Self]) -> bool {
         group.len() == 2 && group[0].forward == group[1].forward
     }

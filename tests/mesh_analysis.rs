@@ -74,7 +74,7 @@ fn bowtie_vertex_has_two_fans() {
     assert_eq!(a.non_manifold_vertices, 1);
     assert_eq!(a.lists.non_manifold_vertices, [0]);
     assert_eq!(a.non_manifold_edges, 0);
-    // Joined at the shared vertex: one component and one boundary loop.
+    // Joined at the shared vertex: one component and one boundary component.
     assert_eq!(
         (a.components, a.boundary_edges, a.boundary_components),
         (1, 6, 1)
