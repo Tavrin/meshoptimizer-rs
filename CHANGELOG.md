@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `remap_vertex_buffer` and `remap_vertex_buffer_into` validate the remap in
+  one branch-free maximum (the old scan still reports failures) and copy
+  packed 4, 8, 12 and 16-byte records as fixed-size chunks;
+  `remap_index_buffer` looks up four indices per step and checks for
+  unmapped values in one pass after the copy. Output, errors and `Usage`
+  are unchanged. On three production LOD-chain meshes `remap_vertex_buffer`
+  uses 0.47× the instructions of the previous implementation (1.39× scalar
+  C++ 1.3, 0.45× optimesh 1.1.0) and `remap_index_buffer` 0.77× (1.63×
+  scalar C++, 0.98× optimesh); across the benchmark corpus the ratios
+  versus the previous implementation are 0.47–0.68× and 0.77–0.87×.
 - `optimize_overdraw` and its `_into` and `_in_place` variants check the finiteness of
   validated positions and of each cluster's sort value once instead of per
   coordinate and per intermediate, and charge work in totals when the
