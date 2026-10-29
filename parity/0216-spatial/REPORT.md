@@ -49,7 +49,7 @@ No new sanitizer or Miri run was performed; finite tests supplement the structur
 
 Full tests (including doctests), all-features and no-default-features: exit 0. Clippy, fmt, repository/package boundary,
 public-text, AArch64 check and -Funsafe_code no-feature check: exit 0. See receipts and exits.jsonl.
-Unsafe inventory: 23 -> 29 blocks (+6), one allowance. No non-SIMD unsafe code.
+Unsafe inventory: 23 -> 28 blocks (+5; the wasm entry needs no unsafe block), one allowance. No non-SIMD unsafe code.
 
 The first frozen-candidate build exited 101 because the harness omitted included documentation.
 The harness copy was corrected. A later real-mesh differential exceeded the inherited C++ protocol 128 MiB cap.

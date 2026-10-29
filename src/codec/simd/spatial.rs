@@ -167,8 +167,9 @@ mod wasm32 {
         left: &mut [f32],
         right: &mut [f32],
     ) {
-        // SAFETY: Baseline proves simd128; the kernel uses checked indexing and array-backed loads.
-        unsafe { sweep(boxes, order, left, right) }
+        // simd128 is enabled for the whole crate here, so this call is safe Rust;
+        // Baseline still gates dispatch and the kernel uses checked indexing.
+        sweep(boxes, order, left, right)
     }
     #[target_feature(enable = "simd128")]
     fn sweep(boxes: &[Box3], order: &[u32], left: &mut [f32], right: &mut [f32]) {

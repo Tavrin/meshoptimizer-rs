@@ -520,6 +520,60 @@ mod simd_tests {
     }
 
     #[test]
+    fn explicit_boundary_values() {
+        // Signed zeros, subnormals, MIN_POSITIVE and values at/next to the largest finite f32.
+        let v = [
+            0.,
+            -0.,
+            f32::from_bits(1),
+            -f32::from_bits(1),
+            f32::from_bits(0x007f_ffff),
+            f32::MIN_POSITIVE,
+            -f32::MIN_POSITIVE,
+            1.,
+            f32::MAX,
+            -f32::MAX,
+            f32::from_bits(0x7f7f_fffe),
+            -f32::from_bits(0x7f7f_fffe),
+        ];
+        let n = v.len();
+        let mut boxes = alloc::vec::Vec::new();
+        for i in 0..n {
+            for j in 0..n {
+                let (a, b) = (v[i], v[j]);
+                let pair = |k: usize| if k & 1 == 0 { (a, b) } else { (b, a) };
+                let lo = core::array::from_fn(|k| {
+                    let (p, q) = pair(k + i);
+                    if p < q {
+                        p
+                    } else {
+                        q
+                    }
+                });
+                let hi = core::array::from_fn(|k| {
+                    let (p, q) = pair(k + j);
+                    if p > q {
+                        p
+                    } else {
+                        q
+                    }
+                });
+                // Each box twice: exact ties against the accumulator.
+                boxes.push(Box3 { lo, hi });
+                boxes.push(Box3 { lo, hi });
+            }
+        }
+        let len = boxes.len() as u32;
+        compare(&boxes, &(0..len).collect::<alloc::vec::Vec<_>>());
+        compare(
+            &boxes,
+            &(0..len)
+                .map(|i| (i * 37) % len)
+                .collect::<alloc::vec::Vec<_>>(),
+        );
+    }
+
+    #[test]
     fn short_sweeps_preserve_output_tails() {
         let boxes = [Box3 {
             lo: [-1., -2., -3., 0.],

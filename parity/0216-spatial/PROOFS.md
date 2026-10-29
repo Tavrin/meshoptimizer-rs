@@ -47,12 +47,15 @@ also applies to reused workspaces after successful and failed calls.
 ## ISA and memory boundary
 
 The existing dispatch issuer alone creates Baseline tokens. SSE2, AArch64
-NEON and wasm simd128 kernels live inside `codec::simd`. Each has one unsafe
-token-authorized entry and one unsafe unaligned load from `&[f32;4]`. Those
+NEON and wasm simd128 kernels live inside `codec::simd`. SSE2 and NEON each have
+one unsafe token-authorized entry; the wasm entry is safe Rust because simd128 is
+enabled crate-wide (an unsafe block there is `unused_unsafe`, which fails the
+wasm `clippy -D warnings` CI step). Each kernel has one unsafe unaligned load
+from `&[f32;4]`. Those
 arrays contain exactly 16 initialized bytes; no record overread or tail
 padding is assumed. Zero-length and 1-3-element sweeps retain checked indexing.
 The no-simd build omits the entire audited module and is checked with
-`-Funsafe_code`. Inventory rises from 23 to 29 blocks, retaining one allowance.
+`-Funsafe_code`. Inventory rises from 23 to 28 blocks, retaining one allowance.
 The independent package gate now verifies exact block inventory as well.
 
 ## Executable proof design

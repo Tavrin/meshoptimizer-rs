@@ -51,9 +51,8 @@ construction and multiplication. The scalar reuse cache remains available.
 | `src/codec/simd/spatial.rs:89` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; NEON load permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/spatial.rs:115` | token-authorized target_feature call: Baseline proves AArch64 NEON; the sweep uses checked indices and fixed-array loads only. |
 | `src/codec/simd/spatial.rs:147` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; wasm load permits unaligned addresses and retains no pointer. |
-| `src/codec/simd/spatial.rs:171` | token-authorized target_feature call: Baseline proves simd128; the sweep uses checked indices and fixed-array loads only. |
 
-Inventory: **29 unsafe blocks**, one module-level allowance. The token-aware
+Inventory: **28 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
 for repository sources and the published package. The unsafe-free build is
 checked with --no-default-features and RUSTFLAGS=-Funsafe_code.
