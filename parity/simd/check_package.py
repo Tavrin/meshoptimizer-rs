@@ -20,4 +20,5 @@ print('PASS: published package contains exactly one unsafe-code allowance')
 audit=(MODULE/'SAFETY.md').read_text()
 recorded=re.findall(r'^\| `(src/codec/simd/[^`]+:\d+)` \|',audit,re.M)
 assert sorted(recorded)==sorted(blocks),'published unsafe inventory differs from safety audit'
+assert MODULE/'aarch64.rs' in files
 print(f'PASS: published package includes all {len(blocks)} audited unsafe blocks')

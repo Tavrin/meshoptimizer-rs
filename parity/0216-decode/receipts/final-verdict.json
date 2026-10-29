@@ -1,0 +1,8 @@
+{
+  "selected_arm": "control",
+  "tuning_verdict": "REJECTED",
+  "real_vertex_geomean": 0.9109835218647034,
+  "worst_case": 1.0146313387755883,
+  "control_worst_case": 1.000001225808505,
+  "gate": "geomean <=0.97, every decode case <=1.01; unchanged-x86 control <=1.01"
+}

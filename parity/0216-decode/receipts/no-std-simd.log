@@ -1,0 +1,19 @@
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.70s
+     Running tests/simd.rs (<target-dir>/debug/deps/simd-beb2f827b0d9b224)
+
+running 11 tests
+test color_alpha_conversion_bounds_and_wrap ... ok
+test exp_dispatch_boundary_preserves_words_and_tail ... ok
+test filters_match_scalar_with_extreme_words_and_tails ... ok
+test lowering_is_checked_nested_and_unwind_safe ... ok
+test meshlet_all_pair_codes_odd_tails_and_counter_wrap ... ok
+test meshlet_controls_widths_partial_groups_and_tail_preservation ... ok
+test oct_short_tails_match_canonical_root_rounding ... ok
+test repeated_filter_runs_preserve_alpha_and_changed_suffix ... ok
+test vertex_full_path_preserves_errors_partial_writes_and_every_tail ... ok
+test vertex_mutations_preserve_failure_prefixes_for_each_isa ... ok
+test vertex_versions_channels_boundaries_and_malformed_results ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.19s
+

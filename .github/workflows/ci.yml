@@ -150,12 +150,31 @@ jobs:
           cargo fetch --locked --manifest-path parity/Cargo.toml
       - run: parity/report.sh --identity-check native-identity
       - uses: actions/checkout@v4
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        if: startsWith(matrix.target, 'aarch64-')
         with:
           repository: zeux/meshoptimizer
           ref: 4c203430ca565cb59a468a91922c76c208169536
           fetch-depth: 0
           path: reference
+      - name: Execute forced NEON vertex and SIMD differentials
+        if: startsWith(matrix.target, 'aarch64-')
+        env:
+          MESHOPT_REFERENCE: ${{ github.workspace }}/reference
+          DECODE_ART: ${{ runner.temp }}/decode-proof
+        run: |
+          mkdir -p "$DECODE_ART"
+          cargo test --locked --features parity-internals --test simd
+          cargo test --locked --features parity-internals --lib codec::vertex::streaming_tests
+          cargo test --locked --no-default-features --features simd,parity-internals --test simd -- --test-threads=1
+          python3 parity/0216-decode/build_differential.py
+          python3 parity/0216-decode/differential.py
+          DECODE_NO_STD=1 python3 parity/0216-decode/build_differential.py
+          DECODE_NO_STD=1 python3 parity/0216-decode/differential.py
+      - uses: actions/upload-artifact@v4
+        if: always() && startsWith(matrix.target, 'aarch64-')
+        with:
+          name: neon-decode-${{ matrix.target }}
+          path: ${{ runner.temp }}/decode-proof/
       - name: Qualify native Linux arm64 C++ against the same recorded outputs
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         env:

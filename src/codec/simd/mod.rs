@@ -332,7 +332,10 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     if let Some(token) = dispatch::ssse3() {
         return Some(arch::vertex(token, output, count, stride, data));
     }
-    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    #[cfg(any(
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    ))]
     if let Some(token) = dispatch::baseline() {
         return Some(arch::vertex(token, output, count, stride, data));
     }

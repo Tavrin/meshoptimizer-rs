@@ -1,0 +1,10 @@
+{
+  "reference": "4c203430ca565cb59a468a91922c76c208169536",
+  "version": "1.3",
+  "meshopt_dependency": "0.7.0",
+  "source_sha256": {
+    "vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+    "indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+    "meshoptimizer.h": "e3688ef553f603391747895a5c221ef1528574cc7f8173782417a96cb531f61b"
+  }
+}
