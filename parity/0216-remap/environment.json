@@ -1,0 +1,16 @@
+{
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+  "cxx": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "machine": "x86_64",
+  "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
+  "flags": {
+    "RUSTFLAGS": "",
+    "CARGO_ENCODED_RUSTFLAGS": "",
+    "CXXFLAGS": ""
+  },
+  "baseline_commit": "1ecf69abe9f92c17e13dc38fa97be659aee44582",
+  "locale": "C",
+  "cpu_affinity": 9,
+  "admission_gb": 4,
+  "gpu": false
+}
