@@ -1,0 +1,14 @@
+check	exit
+all-features	0
+no-default-features	0
+corpus-all	0
+corpus-no-default	0
+doctests-all	0
+doctests-no-default	0
+clippy-all	101
+clippy-no-default	101
+fmt	0
+boundary	0
+package-boundary	0
+public-text	0
+diff-check	0

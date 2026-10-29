@@ -1,0 +1,9 @@
+{
+  "case": "medium-sparse",
+  "op": "simplify-update",
+  "ratio": 1.0115023146867907,
+  "medians": {
+    "base": 17116786.666666668,
+    "candidate": 17313669.333333332
+  }
+}

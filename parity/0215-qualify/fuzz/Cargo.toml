@@ -1,0 +1,101 @@
+# Coverage-guided release fuzz targets for the 0.2.15 qualification.
+# Build from a copy of this directory placed next to `base/` (v0.2.14 with the
+# package renamed meshoptimizer-baseline) and `candidate/` (the train tree):
+#   cargo +nightly fuzz build --fuzz-dir <copy> -O -a --sanitizer none
+# fuzz.py runs each target under the release rule.
+[package]
+name = "meshopt-qualify-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+candidate = { package = "meshoptimizer-rs", path = "../candidate", default-features = false, features = ["std", "simd", "clusterlod", "experimental"] }
+baseline = { package = "meshoptimizer-baseline", path = "../base", default-features = false, features = ["std", "simd", "clusterlod", "experimental"] }
+
+[lib]
+path = "src.rs"
+
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "simplify"
+path = "fuzz_targets/simplify.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "simplify_extra"
+path = "fuzz_targets/simplify_extra.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "overdraw"
+path = "fuzz_targets/overdraw.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "meshlets"
+path = "fuzz_targets/meshlets.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "clod"
+path = "fuzz_targets/clod.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "cache"
+path = "fuzz_targets/cache.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "remap"
+path = "fuzz_targets/remap.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "sanitize"
+path = "fuzz_targets/sanitize.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "analyze"
+path = "fuzz_targets/analyze.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "vertex_layout"
+path = "fuzz_targets/vertex_layout.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "lod_chain"
+path = "fuzz_targets/lod_chain.rs"
+test = false
+doc = false
+bench = false

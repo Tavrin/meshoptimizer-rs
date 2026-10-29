@@ -751,6 +751,48 @@ pub fn generate_position_remap(
     )?
     .remap)
 }
+/// Hash table length for [`weld_position`] over `vertices` vertices.
+pub(crate) fn weld_table_len(vertices: usize) -> Result<usize, Error> {
+    buckets(vertices)
+}
+/// Exact-position weld of one referenced vertex for `sanitize`, using the
+/// [`generate_position_remap`] hash and equality: signed zeros weld, NaNs do
+/// not. `remap` and `table` start filled with the unused sentinel, `index` is
+/// in range and `table` has [`weld_table_len`] entries. Returns the first
+/// visited vertex whose position equals this vertex's position. Every
+/// hash-table visit is charged to `work`.
+pub(crate) fn weld_position(
+    index: u32,
+    remap: &mut [u32],
+    table: &mut [u32],
+    positions: Positions<'_>,
+    work: &mut Work,
+) -> Result<u32, Error> {
+    let mut next = 0;
+    let mut visits = 0;
+    if let Some(p) = positions.packed_values() {
+        generate_record::<true, true, false>(
+            index,
+            remap,
+            table,
+            &|i| position_value_hash(p[i as usize]),
+            &mut |a, b| p[a as usize] == p[b as usize],
+            &mut next,
+            (work, &mut visits),
+        )?;
+    } else {
+        generate_record::<true, true, false>(
+            index,
+            remap,
+            table,
+            &|i| position_hash(positions, i),
+            &mut |a, b| positions.get(a as usize) == positions.get(b as usize),
+            &mut next,
+            (work, &mut visits),
+        )?;
+    }
+    Ok(remap[index as usize])
+}
 /// Generate compact numbering into caller storage. The tail is untouched;
 /// work exhaustion may leave the used prefix partially modified.
 ///
@@ -830,6 +872,26 @@ fn remap_vertex_copy<const SIZE: usize>(
     }
     Ok(())
 }
+// Tightly packed fixed-size records: zip source records with the remap, so
+// only the destination record index needs a bounds check. Same visit order,
+// so repeated targets still keep the last source record.
+fn remap_vertex_packed<const SIZE: usize>(
+    destination: &mut [u8],
+    vertices: VertexStream<'_>,
+    remap: &[u32],
+    work: &mut Work,
+) -> Result<(), Error> {
+    if vertices.stride != SIZE || vertices.offset != 0 || !work.precharge(remap.len(), 1)? {
+        return remap_vertex_copy::<SIZE>(destination, vertices, remap, work);
+    }
+    let output = destination.as_chunks_mut::<SIZE>().0;
+    for (record, &r) in vertices.data.as_chunks::<SIZE>().0.iter().zip(remap) {
+        if r != NONE {
+            output[r as usize] = *record;
+        }
+    }
+    Ok(())
+}
 fn remap_vertex_dispatch(
     destination: &mut [u8],
     vertices: VertexStream<'_>,
@@ -837,12 +899,36 @@ fn remap_vertex_dispatch(
     work: &mut Work,
 ) -> Result<(), Error> {
     match vertices.size {
-        4 => remap_vertex_copy::<4>(destination, vertices, remap, work),
-        8 => remap_vertex_copy::<8>(destination, vertices, remap, work),
-        12 => remap_vertex_copy::<12>(destination, vertices, remap, work),
-        16 => remap_vertex_copy::<16>(destination, vertices, remap, work),
+        4 => remap_vertex_packed::<4>(destination, vertices, remap, work),
+        8 => remap_vertex_packed::<8>(destination, vertices, remap, work),
+        12 => remap_vertex_packed::<12>(destination, vertices, remap, work),
+        16 => remap_vertex_packed::<16>(destination, vertices, remap, work),
         _ => remap_vertex_copy::<0>(destination, vertices, remap, work),
     }
+}
+/// Output record count of a vertex remap (largest target + 1), rejecting
+/// targets at or beyond `count`. `NONE + 1` wraps to zero, so one branch-free
+/// maximum covers both the unmapped test and the bound; a failing or
+/// limited reduction falls back to the per-record scan and its charges.
+fn remap_required(remap: &[u32], count: usize, work: &mut Work) -> Result<usize, Error> {
+    if work.covers(remap.len())? {
+        let top = remap.iter().fold(0u32, |m, &i| m.max(i.wrapping_add(1)));
+        if top as usize <= count {
+            work.add(remap.len())?;
+            return Ok(top as usize);
+        }
+    }
+    let mut required = 0;
+    work.scan(remap.iter().copied(), |i| {
+        if i != NONE {
+            if i as usize >= count {
+                return Err(Error::IndexOutOfBounds);
+            }
+            required = required.max(i as usize + 1);
+        }
+        Ok(())
+    })?;
+    Ok(required)
 }
 
 /// Remap initialized vertex bytes into caller storage. Repeated destinations
@@ -862,16 +948,7 @@ pub fn remap_vertex_buffer_into(
         if remap.len() != vertices.count {
             return Err(Error::InvalidLayout);
         }
-        let mut required = 0;
-        work.scan(remap.iter().copied(), |i| {
-            if i != NONE {
-                if i as usize >= vertices.count {
-                    return Err(Error::IndexOutOfBounds);
-                }
-                required = required.max(i as usize + 1);
-            }
-            Ok(())
-        })?;
+        let required = remap_required(remap, vertices.count, &mut work)?;
         if destination.len() < checked_bytes(required, vertices.size)? {
             return Err(Error::BufferTooSmall);
         }
@@ -897,16 +974,7 @@ pub fn remap_vertex_buffer(
         if remap.len() != vertices.count {
             return Err(Error::InvalidLayout);
         }
-        let mut required = 0;
-        work.scan(remap.iter().copied(), |i| {
-            if i != NONE {
-                if i as usize >= vertices.count {
-                    return Err(Error::IndexOutOfBounds);
-                }
-                required = required.max(i as usize + 1);
-            }
-            Ok(())
-        })?;
+        let required = remap_required(remap, vertices.count, &mut work)?;
         let bytes = checked_bytes(required, vertices.size)?;
         let mut budget = Budget::new(workspace);
         let mut out = budget.filled(bytes, 0u8)?;
@@ -992,24 +1060,41 @@ pub fn remap_index_buffer_into(
 #[inline(always)]
 fn remap_index_copy(
     output: &mut [u32],
-    input: impl ExactSizeIterator<Item = u32>,
+    input: Option<&[u32]>,
     remap: &[u32],
     work: &mut Work,
 ) -> Result<(), Error> {
     let count = output.len();
     if work.covers(count)? {
-        for (at, (out, index)) in output.iter_mut().zip(input).enumerate() {
-            *out = remap[index as usize];
-            if *out == NONE {
-                work.add(at + 1)?;
-                return Err(Error::InvalidParameter);
+        // Copy without a per-index exit (four lookups per step), then test for
+        // unmapped values in one branch-free pass. The owned output is dropped
+        // on error, so only the charge through the first unmapped index is
+        // observable. Unindexed input is the remap prefix itself.
+        if let Some(input) = input {
+            let (input4, input_tail) = input.as_chunks::<4>();
+            let (output4, output_tail) = output.as_chunks_mut::<4>();
+            for (out, index) in output4.iter_mut().zip(input4) {
+                *out = index.map(|i| remap[i as usize]);
             }
+            for (out, &index) in output_tail.iter_mut().zip(input_tail) {
+                *out = remap[index as usize];
+            }
+        } else {
+            output.copy_from_slice(&remap[..count]);
+        }
+        let unmapped = output
+            .iter()
+            .fold(0u32, |any, &v| any | u32::from(v == NONE));
+        if unmapped != 0 {
+            let at = output.iter().position(|&v| v == NONE).unwrap_or(count);
+            work.add(at + 1)?;
+            return Err(Error::InvalidParameter);
         }
         work.add(count)?;
     } else {
-        for (out, index) in output.iter_mut().zip(input) {
+        for (i, out) in output.iter_mut().enumerate() {
             work.add(1)?;
-            *out = remap[index as usize];
+            *out = remap[input.map_or(i, |v| v[i] as usize)];
             if *out == NONE {
                 return Err(Error::InvalidParameter);
             }
@@ -1034,11 +1119,7 @@ pub fn remap_index_buffer(
         let count = indices.map_or(remap.len(), <[u32]>::len);
         let mut budget = Budget::new(workspace);
         let mut out = budget.filled(count, 0u32)?;
-        if let Some(input) = indices {
-            remap_index_copy(&mut out, input.iter().copied(), remap, &mut work)?;
-        } else {
-            remap_index_copy(&mut out, (0..count).map(|i| i as u32), remap, &mut work)?;
-        }
+        remap_index_copy(&mut out, indices, remap, &mut work)?;
         Ok(out)
     })();
     workspace.finish(&work);

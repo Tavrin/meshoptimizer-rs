@@ -3,14 +3,11 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Tavrin/meshoptimizer-rs/ci.yml?branch=main&label=CI)](https://github.com/Tavrin/meshoptimizer-rs/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/meshoptimizer-rs.svg)](https://crates.io/crates/meshoptimizer-rs)
 [![docs.rs](https://img.shields.io/docsrs/meshoptimizer-rs)](https://docs.rs/meshoptimizer-rs)
-[![License: MIT](https://img.shields.io/crates/l/meshoptimizer-rs)](https://github.com/Tavrin/meshoptimizer-rs/blob/main/LICENSE)
-[![MSRV: 1.88](https://img.shields.io/badge/MSRV-1.88-blue)](https://github.com/Tavrin/meshoptimizer-rs/blob/main/Cargo.toml)
+[![License: MIT](https://img.shields.io/crates/l/meshoptimizer-rs)](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/LICENSE)
+[![MSRV: 1.88](https://img.shields.io/badge/MSRV-1.88-blue)](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/Cargo.toml)
 
-A pure-Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3. Its output is
-byte-identical to the C++ library: index order, error values and encoded bytes match. It needs no
-C++ toolchain, so `cargo build --target wasm32-unknown-unknown` works with only the Rust target
-installed; the `meshopt` crate compiles C++ and needs a C++ compiler for that target. It also
-supports `no_std` with `alloc`.
+`meshoptimizer-rs` is a Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3 for asset pipelines without a C++ toolchain and for wasm applications.
+It checks untrusted meshes with per-call work and byte limits and supports `no_std` with `alloc`.
 
 ```toml
 [dependencies]
@@ -21,9 +18,9 @@ The minimum Rust version is 1.88. The library name is `meshoptimizer_rs`.
 
 ## Usage
 
-Task recipes: [the `guide` module](https://docs.rs/meshoptimizer-rs/latest/meshoptimizer_rs/guide/index.html) ([source](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/USING.md)).
+Task recipes: [the `guide` module](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html) ([source](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/USING.md)).
 
-Coming from the `meshopt` crate? See [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/MIGRATING_FROM_MESHOPT.md).
+Coming from the `meshopt` crate? See [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/MIGRATING_FROM_MESHOPT.md).
 
 Every operation takes a `&mut Workspace` and returns `Result<_, meshoptimizer_rs::Error>`. Most
 have an allocating form, a caller-buffer `_into` form and, where it applies, an `_in_place` form.
@@ -162,6 +159,16 @@ over a limit returns `Error::LimitExceeded`, and `Workspace::usage` reports the 
 and work.
 Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long simplify chains at some time cost.
 
+### Beyond upstream
+
+These opt-in APIs extend C++ meshoptimizer.
+
+- [`sanitize`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#mesh-repair) removes invalid, repeated-index and duplicate triangles and reports counts by reason.
+- [`analyze_mesh`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#mesh-topology-analysis) reports boundary edges, non-manifold topology, orientation conflicts and connected components.
+- [`VertexScoreTable` and `optimize_vertex_cache_with_table`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#tuning-for-a-specific-gpu-cache) accept caller-defined vertex-cache scores.
+- [Typed vertex layouts](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#typed-rust-vertex-fields) build position and attribute views from initialized Rust struct fields.
+- [`build_lod_chain`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#one-call-lod-chain) builds successive or independent simplification levels with whole-call limits and per-level errors.
+
 ## Features
 
 | Feature | Default | Enables |
@@ -178,38 +185,55 @@ contains no `unsafe` code. Cargo feature unification applies: if another depende
 
 ## Correctness and performance
 
-Default output is byte-identical to meshoptimizer 1.3 at commit
-`4c203430ca565cb59a468a91922c76c208169536`, whose `src` tree equals tag v1.3. Fixtures,
-differential sweeps, fuzzing and WASM runs check this on recorded inputs; they don't prove it for
-every input. SIMD decoding matches the scalar bytes. See
-[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/docs/VERIFICATION.md)
-and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/UPSTREAM.md). Timings against C++ 1.3 and the meshopt crate are in
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/docs/PERFORMANCE.md),
-with links to the parity records. Development phases and planned work are in
-[docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/docs/ROADMAP.md).
+Output matches scalar C++ meshoptimizer 1.3 at commit
+`4c203430ca565cb59a468a91922c76c208169536`, whose `src` tree equals tag v1.3,
+on the recorded differential inputs. SIMD decoding matches the scalar bytes.
+These checks do not prove equivalence for every input; see
+[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/VERIFICATION.md)
+and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/UPSTREAM.md).
+
+The table gives instruction-count ratios for 0.2.15 on three real meshes,
+scalar vs scalar, as geometric means of per-mesh ratios (0.2.15 / comparison).
+The comparisons are `meshopt` 0.7.0 (C++ meshoptimizer 1.3, SIMD disabled) and
+optimesh 1.1.0 (SIMD disabled). Values below 1 mean fewer instructions;
+these are not wall-time measurements or measurements of the default SIMD build.
+
+| Function | vs `meshopt` 0.7.0 (scalar C++ 1.3) | vs optimesh 1.1.0 (scalar) |
+|---|---:|---:|
+| `simplify` | 1.137 | 0.898 |
+| `simplify_with_attributes` | 1.095 | 0.926 |
+| `simplify_sloppy` | 1.275 | 0.706 |
+| `simplify_with_update` | 1.280 | 1.008 |
+| `simplify_prune` | 0.995 | 0.763 |
+| `simplify_points` | 1.014 | 0.632 |
+| `optimize_vertex_cache` | 1.254 | 0.919 |
+| `optimize_overdraw` | 1.090 | 0.884 |
+| `optimize_vertex_fetch` | 0.952 | 0.716 |
+| `build_meshlets` | 1.001 | 0.784 |
+| `build_meshlets_flex` | 1.002 | 0.784 |
+| `build_meshlets_spatial` | 0.965 | 0.835 |
+| cluster LOD | 1.189 | — |
+| `encode_vertex_buffer` | 0.554 | 0.455 |
+| `decode_vertex_buffer` | 1.061 | 0.544 |
+| `encode_index_buffer` | 0.771 | 0.712 |
+| `decode_index_buffer` | 0.994 | 0.907 |
+| `remap_vertex_buffer` | 1.394 | 0.453 |
+| `remap_index_buffer` | 1.625 | 0.975 |
+
+Cluster LOD has no optimesh comparison. See
+[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/PERFORMANCE.md)
+for the real-mesh and corpus tables, the comparison with 0.2.14, method and host.
+Planned work is in [docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/ROADMAP.md).
 
 ## Known exceptions
 
-Intervals and method are in
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/docs/PERFORMANCE.md#known-exceptions-in-detail).
-
-- Overdraw optimization is about 1.47–1.60× C++ 1.3 (scalar) on the largest real meshes measured.
-- Allocating vertex decode, `vertex-v1-streaming-s4`: 1.529–2.118× in 0.2.0; 1.000× and 1.058× when
-  re-run for 0.2.2. The caller-buffer form, `decode_vertex_buffer_into`, is about 1.04×.
-- Allocating index decode maxima: `index-2-v0-streaming-s4` 1.508–3.625×,
-  `index-2-v1-streaming-s4` 2.189–2.465×.
-- Allocating EXT view maxima: `view-1-streaming-s4` 1.343–1.636×; `varied-view-3-streaming-s32`
-  1.619–2.590× (unresolved); the filtered-view maximum is near 1.64×.
-- `partition_clusters` with Cargo defaults: mean 1.450×, maximum 1.778×.
-- Older records keep a sparse allocating vertex-fetch maximum failure and inconclusive overdraw and
-  sloppy-simplification maxima.
-- A malformed meshlet tail is accepted by scalar upstream and by this crate, but rejected by
-  upstream SSE.
+- A malformed meshlet tail is accepted by scalar upstream and by this crate, but rejected by upstream SSE.
 - AVX2, AVX-512 and 32-bit ARM SIMD are not implemented; index and sequence decoding is scalar.
+- The scalar instruction counts above do not qualify SIMD performance, other architectures or per-case wall-time limits.
 
 ## Licence and acknowledgements
 
-MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.14/LICENSE). meshoptimizer
+MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/LICENSE). meshoptimizer
 is written by Arseny Kapoulkine. This independent port keeps upstream's licence notice and credits
 its algorithms; it is not affiliated with or endorsed by the upstream project. UPSTREAM.md records
 provenance and intentional API differences.

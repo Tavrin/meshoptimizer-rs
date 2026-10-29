@@ -32,6 +32,7 @@
 //! - [Untrusted input with Limits](guide#untrusted-input-with-limits).
 //! - [Parallel workers](guide#parallel-workers).
 //! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
+//! - [Mesh repair](guide#mesh-repair) (an extension, not in C++ meshoptimizer).
 //!
 //! # Simplify a mesh
 //!
@@ -164,19 +165,27 @@ pub mod codec;
 mod error;
 mod input;
 mod math;
+mod mesh_analysis;
 #[cfg(feature = "experimental")]
 mod normal;
 mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
+mod sanitize;
 
+mod lod_chain;
 mod raster;
 #[cfg(feature = "experimental")]
 mod remesh;
+pub use lod_chain::{
+    build_lod_chain, LodChain, LodChainAttributes, LodChainError, LodChainOptions, LodErrors,
+    LodLevel, LodTargets,
+};
 mod simplify;
 mod strip;
 mod tangent;
+mod vertex_layout;
 mod workspace;
 pub use simplify::{
     simplify, simplify_into, simplify_points, simplify_points_into, simplify_prune,
@@ -184,6 +193,7 @@ pub use simplify::{
     simplify_with_attributes, simplify_with_attributes_into, simplify_with_update, SimplifiedMesh,
     SimplifyOptions, SimplifyResult, SimplifySettings,
 };
+pub use vertex_layout::{VertexFieldSnapshot, VertexLayout, VertexLayoutError};
 
 pub use analyze::{
     analyze_vertex_cache, analyze_vertex_fetch, VertexCacheStatistics, VertexFetchStatistics,
@@ -192,12 +202,16 @@ pub use cache::{
     optimize_vertex_cache, optimize_vertex_cache_fifo, optimize_vertex_cache_fifo_in_place,
     optimize_vertex_cache_fifo_into, optimize_vertex_cache_in_place, optimize_vertex_cache_into,
     optimize_vertex_cache_strip, optimize_vertex_cache_strip_in_place,
-    optimize_vertex_cache_strip_into,
+    optimize_vertex_cache_strip_into, optimize_vertex_cache_with_table,
+    optimize_vertex_cache_with_table_into, VertexScoreTable,
 };
 pub use error::Error;
 pub use input::{
     validate_vertex_flags, Attributes, AttributesMut, ByteOrder, Positions, PositionsMut,
     VertexFlags,
+};
+pub use mesh_analysis::{
+    analyze_mesh, AnalysisLists, AnalyzeOptions, BoundaryComponent, MeshAnalysis,
 };
 pub use overdraw::{optimize_overdraw, optimize_overdraw_in_place, optimize_overdraw_into};
 pub use quantize::{
@@ -205,6 +219,9 @@ pub use quantize::{
     quantize_unorm,
 };
 pub use remap::*;
+pub use sanitize::{
+    sanitize, sanitize_bound, sanitize_into, SanitizeOptions, SanitizeReport, SanitizedMesh,
+};
 
 #[cfg(feature = "experimental")]
 pub use normal::{generate_normals, generate_normals_into};

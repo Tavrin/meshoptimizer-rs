@@ -1,6 +1,6 @@
 //! Scalar edge-collapse simplification translated from upstream simplifier.cpp.
 use crate::clusterlod::support::math::sqrt;
-use crate::clusterlod::support::workspace::{checked_bytes, topology, Work};
+use crate::clusterlod::support::workspace::{checked_bytes, metered, topology, Meter, Work};
 use crate::clusterlod::support::{
     validate_vertex_flags, Attributes, Error, Positions, VertexFlags, Workspace,
 };
@@ -690,7 +690,17 @@ impl State {
         state.bytes = b.bytes;
         Ok(state)
     }
-    fn adjacency(&mut self, indices: &[u32], weld: bool, work: &mut Work) -> Result<(), Error> {
+    // Charges vertex_count, then one per index twice: at most
+    // vertex_count + 2 * indices.len().
+    fn adjacency_bound(&self, indices: &[u32]) -> Option<usize> {
+        self.vertex_count.checked_add(indices.len().checked_mul(2)?)
+    }
+    fn adjacency<M: Meter>(
+        &mut self,
+        indices: &[u32],
+        weld: bool,
+        work: &mut M,
+    ) -> Result<(), Error> {
         work.add(self.vertex_count)?;
         self.offsets.fill(0);
         let counters = &mut self.offsets.0[1..];
@@ -1087,41 +1097,68 @@ impl State {
         }
         Ok(())
     }
-    fn pick(&mut self, indices: &[u32], capacity: usize, work: &mut Work) -> Result<usize, Error> {
+    // Charges one visit per edge of every triangle it reaches: at most
+    // `indices.len()` in total.
+    fn pick<M: Meter>(
+        &mut self,
+        indices: &[u32],
+        capacity: usize,
+        work: &mut M,
+    ) -> Result<usize, Error> {
         let mut count = 0;
-        self.collapses.clear();
+        // Fill a local vector (the same allocation) and read local tables,
+        // so the loop keeps them in registers; restored on every exit.
+        let mut collapses = core::mem::take(&mut self.collapses);
+        collapses.clear();
+        let result = self.pick_into(&mut collapses, &mut count, indices, capacity, work);
+        self.collapses = collapses;
+        result.map(|()| count)
+    }
+    #[inline(always)]
+    fn pick_into<M: Meter>(
+        &self,
+        collapses: &mut Vec<Collapse>,
+        count: &mut usize,
+        indices: &[u32],
+        capacity: usize,
+        work: &mut M,
+    ) -> Result<(), Error> {
+        let remap = &self.remap.0[..];
+        let kind = &self.kind[..];
+        let forward = &self.forward.0[..];
+        let back = &self.back.0[..];
         for t in indices.as_chunks::<3>().0 {
-            if count + 3 > capacity {
+            if *count + 3 > capacity {
                 break;
             }
             for e in 0..3 {
                 work.add(1)?;
                 let a = t[e] as usize;
                 let b = t[(e + 1) % 3] as usize;
-                if self.remap.get(a) == self.remap.get(b) {
+                if remap[a] == remap[b] {
                     continue;
                 }
-                let k0 = self.kind[a] as usize;
-                let k1 = self.kind[b] as usize;
+                let k0 = kind[a] as usize;
+                let k1 = kind[b] as usize;
                 if CAN[k0][k1] | CAN[k1][k0] == 0 {
                     continue;
                 }
-                if OPP[k0][k1] != 0 && self.remap.get(b) > self.remap.get(a) {
+                if OPP[k0][k1] != 0 && remap[b] > remap[a] {
                     continue;
                 }
                 if (k0 == BORDER as usize || k0 == SEAM as usize)
                     && k1 != MAN as usize
-                    && self.forward.get(a) != b
+                    && forward[a] as usize != b
                 {
                     continue;
                 }
                 if (k1 == BORDER as usize || k1 == SEAM as usize)
                     && k0 != MAN as usize
-                    && self.back.get(b) != a
+                    && back[b] as usize != a
                 {
                     continue;
                 }
-                self.collapses.push(if CAN[k0][k1] & CAN[k1][k0] != 0 {
+                collapses.push(if CAN[k0][k1] & CAN[k1][k0] != 0 {
                     Collapse {
                         a: a as u32,
                         b: b as u32,
@@ -1140,10 +1177,10 @@ impl State {
                         ..Collapse::default()
                     }
                 });
-                count += 1;
+                *count += 1;
             }
         }
-        Ok(count)
+        Ok(())
     }
     fn complex_target(&self, v: usize, t: usize) -> usize {
         let r = self.remap.get(t);
@@ -1421,7 +1458,43 @@ impl State {
         }
         Ok(edges)
     }
-    fn update(&mut self, vertex_error: &mut f32, work: &mut Work) -> Result<(), Error> {
+    // Compact `out[..count]` to the triangles that stay non-degenerate after
+    // the pass's collapses. Charges three per triangle: at most `count`.
+    fn filter<M: Meter>(
+        &self,
+        out: &mut [u32],
+        count: usize,
+        work: &mut M,
+    ) -> Result<usize, Error> {
+        let cr = &self.cr.0[..];
+        let remap = &self.remap.0[..];
+        let mut write = 0;
+        for i in (0..count).step_by(3) {
+            work.add(3)?;
+            let a = cr[out[i] as usize];
+            let b = cr[out[i + 1] as usize];
+            let c = cr[out[i + 2] as usize];
+            let r0 = remap[a as usize];
+            let r1 = remap[b as usize];
+            let r2 = remap[c as usize];
+            if r0 != r1 && r0 != r2 && r1 != r2 {
+                out[write] = a;
+                out[write + 1] = b;
+                out[write + 2] = c;
+                write += 3;
+            }
+        }
+        Ok(write)
+    }
+    // At most 1 + ac per vertex, then one per forward and back entry.
+    fn update_bound(&self) -> Option<usize> {
+        self.p
+            .len()
+            .checked_mul(self.ac.checked_add(1)?)?
+            .checked_add(self.forward.len())?
+            .checked_add(self.back.len())
+    }
+    fn update<M: Meter>(&mut self, vertex_error: &mut f32, work: &mut M) -> Result<(), Error> {
         for i in 0..self.p.len() {
             work.add(1)?;
             let t = self.cr.get(i);
@@ -1600,8 +1673,10 @@ fn run_state(
     work.add(m)?;
     out[..m].copy_from_slice(indices);
     while count > settings.target_index_count {
-        s.adjacency(&out[..count], true, work)?;
-        let nc = s.pick(&out[..count], capacity, work)?;
+        let current = &out[..count];
+        metered!(work, s.adjacency_bound(current), |m| s
+            .adjacency(current, true, m))?;
+        let nc = metered!(work, Some(count), |m| s.pick(current, capacity, m))?;
         if nc == 0 {
             break;
         }
@@ -1620,24 +1695,8 @@ fn run_state(
         if ac == 0 {
             vertex_error = error;
         }
-        s.update(&mut vertex_error, work)?;
-        let mut write = 0;
-        for i in (0..count).step_by(3) {
-            work.add(3)?;
-            let a = s.cr.get(out[i] as usize);
-            let b = s.cr.get(out[i + 1] as usize);
-            let c = s.cr.get(out[i + 2] as usize);
-            let r0 = s.remap.get(a);
-            let r1 = s.remap.get(b);
-            let r2 = s.remap.get(c);
-            if r0 != r1 && r0 != r2 && r1 != r2 {
-                out[write] = a as u32;
-                out[write + 1] = b as u32;
-                out[write + 2] = c as u32;
-                write += 3;
-            }
-        }
-        count = write;
+        metered!(work, s.update_bound(), |m| s.update(&mut vertex_error, m))?;
+        count = metered!(work, Some(count), |m| s.filter(out, count, m))?;
         if settings.options.contains(SimplifyOptions::PRUNE)
             && count > settings.target_index_count
             && component_next <= vertex_error

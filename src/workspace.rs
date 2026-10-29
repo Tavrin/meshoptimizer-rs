@@ -74,6 +74,7 @@ pub enum Retention {
 #[derive(Debug, Default)]
 pub struct Workspace {
     limits: Limits,
+    pub(crate) lod_error_limited: bool,
     active: [bool; 5],
     family: Option<ScratchFamily>,
     retention: Retention,
@@ -104,6 +105,13 @@ impl Workspace {
             limits,
             ..Self::default()
         }
+    }
+    pub(crate) fn set_lod_limits(&mut self, limits: Limits) {
+        self.limits = limits;
+    }
+    /// Replace the last call's measurements with a composite call's totals.
+    pub(crate) fn set_lod_usage(&mut self, usage: Usage) {
+        self.usage = usage;
     }
     /// Current scratch retention policy.
     pub const fn retention(&self) -> Retention {
@@ -636,6 +644,25 @@ impl Work {
                     Ok(())
                 }
             })
+        }
+    }
+    /// Test a conservative bound without narrowing or overflowing it.
+    #[inline]
+    pub(crate) fn covers_wide(&self, bound: u128) -> bool {
+        bound <= u128::from(self.remaining)
+    }
+    /// Charge the visits an unchecked pass tallied when they fit and report
+    /// whether they did. A fitting pass would have charged the same visits
+    /// through `add` without exhausting the budget; otherwise nothing is
+    /// charged and the caller replays its checked pass.
+    #[inline]
+    pub(crate) fn settle(&mut self, visits: u128) -> bool {
+        match u64::try_from(visits) {
+            Ok(visits) if visits <= self.remaining => {
+                self.remaining -= visits;
+                true
+            }
+            _ => false,
         }
     }
     // Caller has proved that all charges in its operation fit the remaining budget.

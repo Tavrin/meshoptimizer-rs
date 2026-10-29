@@ -14,12 +14,174 @@ const STRIP_CACHE: [f32; 17] = [
     0.050, 0.131,
 ];
 const STRIP_LIVE: [f32; 9] = [0., 0.956, 0.786, 0.577, 0.558, 0.618, 0.549, 0.499, 0.489];
-fn score<const STRIP: bool>(position: usize, live: u32) -> f32 {
-    if STRIP {
-        STRIP_CACHE[position] + STRIP_LIVE[live.min(8) as usize]
-    } else {
-        CACHE[position] + LIVE[live.min(8) as usize]
+/// Caller-defined vertex-cache scores; an opt-in extension not in C++ meshoptimizer.
+///
+/// Cache score zero is for a vertex outside the cache; entries 1 through 16
+/// correspond to most to least recently used. Live-valence scores cover 0 through
+/// 8 remaining triangle references; larger valences use entry 8. The cache size
+/// and valence clamp cannot be changed. [`Default`] reproduces the standard table.
+#[derive(Clone, Debug, PartialEq)]
+pub struct VertexScoreTable {
+    cache: [f32; 17],
+    live: [f32; 9],
+}
+
+impl VertexScoreTable {
+    /// Copy and validate exactly 17 cache scores and 9 live-valence scores.
+    /// Construction allocates no heap storage and needs no workspace.
+    ///
+    /// # Errors
+    /// `InvalidParameter` if either length differs or any score is non-finite.
+    pub fn new(cache: &[f32], live: &[f32]) -> Result<Self, Error> {
+        if cache.len() != 17 || live.len() != 9 || !cache.iter().chain(live).all(|s| s.is_finite())
+        {
+            return Err(Error::InvalidParameter);
+        }
+        let mut table = Self::default();
+        table.cache.copy_from_slice(cache);
+        table.live.copy_from_slice(live);
+        Ok(table)
     }
+
+    /// Cache-position scores, including the outside-cache score at zero.
+    pub fn cache_scores(&self) -> &[f32; 17] {
+        &self.cache
+    }
+
+    /// Live-valence scores; valences above eight use the final entry.
+    pub fn live_scores(&self) -> &[f32; 9] {
+        &self.live
+    }
+}
+
+impl Default for VertexScoreTable {
+    fn default() -> Self {
+        Self {
+            cache: CACHE,
+            live: LIVE,
+        }
+    }
+}
+
+trait Scores {
+    fn score(&self, position: usize, live: u32) -> f32;
+}
+
+struct Preset<const STRIP: bool>;
+
+impl<const STRIP: bool> Scores for Preset<STRIP> {
+    fn score(&self, position: usize, live: u32) -> f32 {
+        if STRIP {
+            STRIP_CACHE[position] + STRIP_LIVE[live.min(8) as usize]
+        } else {
+            CACHE[position] + LIVE[live.min(8) as usize]
+        }
+    }
+}
+
+impl Scores for VertexScoreTable {
+    fn score(&self, position: usize, live: u32) -> f32 {
+        self.cache[position] + self.live[live.min(8) as usize]
+    }
+}
+
+/// Reorder triangles with caller-defined scores; not in C++ meshoptimizer.
+///
+/// Uses the same workspace limits, topology validation and triangle preservation
+/// as [`optimize_vertex_cache`]. The default table gives identical output.
+/// Tuned tables must be validated on the target hardware; no improvement is
+/// guaranteed.
+///
+/// A triangle score is the sum of its three vertex scores. After each emitted
+/// triangle, the vertices of the cache are rescored in cache order, and each
+/// change in a vertex score is added to the score of every unemitted triangle
+/// that uses it. The next triangle is whichever updated triangle first reaches
+/// the largest positive running score during this pass, so a transient maximum
+/// reached before a later vertex lowers the same triangle's score can win.
+/// This is upstream's incremental selection, and tables are applied through the
+/// same procedure as the default table. When no updated triangle scores above
+/// zero, the next unemitted triangle in input order follows. A table whose sums
+/// are never positive therefore keeps the input order. Extreme finite scores can overflow the summed scores, which
+/// degrades the ordering but never drops or duplicates a triangle.
+///
+/// ```
+/// use meshoptimizer_rs::{optimize_vertex_cache_with_table, VertexScoreTable, Workspace};
+/// let defaults = VertexScoreTable::default();
+/// let mut cache = *defaults.cache_scores();
+/// cache[1] = 1.0;
+/// let table = VertexScoreTable::new(&cache, defaults.live_scores())?;
+/// let result = optimize_vertex_cache_with_table(&[0, 1, 2], 3, &table,
+///                                               &mut Workspace::default())?;
+/// assert_eq!(result, [0, 1, 2]);
+/// # Ok::<(), meshoptimizer_rs::Error>(())
+/// ```
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache`].
+pub fn optimize_vertex_cache_with_table(
+    indices: &[u32],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        topology(indices, vertex_count, &mut work)?;
+        prepare(
+            indices.len(),
+            vertex_count,
+            checked_bytes(indices.len(), 4)?,
+            workspace,
+        )?;
+        let mut destination = output(indices.len())?;
+        kernel(
+            &mut destination,
+            indices,
+            vertex_count,
+            workspace,
+            &mut work,
+            table,
+        )?;
+        Ok(destination)
+    })();
+    workspace.finish(&work);
+    result
+}
+
+/// Write caller-defined cache ordering; not in C++ meshoptimizer.
+///
+/// The unused destination tail is untouched. Validation and reservation precede
+/// writes; work exhaustion can partially modify the used prefix. Caller-owned
+/// destination storage is excluded from workspace byte limits.
+///
+/// # Errors
+/// Same errors as [`optimize_vertex_cache_with_table`], plus `BufferTooSmall`
+/// if the destination is shorter than the input.
+pub fn optimize_vertex_cache_with_table_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        topology(indices, vertex_count, &mut work)?;
+        if destination.len() < indices.len() {
+            return Err(Error::BufferTooSmall);
+        }
+        prepare(indices.len(), vertex_count, 0, workspace)?;
+        kernel(
+            destination,
+            indices,
+            vertex_count,
+            workspace,
+            &mut work,
+            table,
+        )
+    })();
+    workspace.finish(&work);
+    result
 }
 
 /// Reorder triangles using upstream `meshopt_optimizeVertexCache` (standard variant).
@@ -46,12 +208,13 @@ pub fn optimize_vertex_cache(
             workspace,
         )?;
         let mut destination = output(indices.len())?;
-        kernel::<false>(
+        kernel(
             &mut destination,
             indices,
             vertex_count,
             workspace,
             &mut work,
+            &Preset::<false>,
         )?;
         Ok(destination)
     })();
@@ -80,7 +243,14 @@ pub fn optimize_vertex_cache_into(
             return Err(Error::BufferTooSmall);
         }
         prepare(indices.len(), vertex_count, 0, workspace)?;
-        kernel::<false>(destination, indices, vertex_count, workspace, &mut work)
+        kernel(
+            destination,
+            indices,
+            vertex_count,
+            workspace,
+            &mut work,
+            &Preset::<false>,
+        )
     })();
     workspace.finish(&work);
     result
@@ -110,12 +280,13 @@ fn prepare(n: usize, v: usize, out: usize, ws: &mut Workspace) -> Result<(), Err
     ws.prepare_cache([n, faces, faces, 0], v, out)
 }
 
-fn kernel<const STRIP: bool>(
+fn kernel<S: Scores>(
     dest: &mut [u32],
     indices: &[u32],
     v: usize,
     ws: &mut Workspace,
     work: &mut Work,
+    scores: &S,
 ) -> Result<(), Error> {
     if indices.is_empty() {
         return Ok(());
@@ -166,7 +337,7 @@ fn kernel<const STRIP: bool>(
     work.scan(vertices.iter_mut(), |vertex| {
         max_live = max_live.max(vertex.live as usize);
         vertex.offset -= vertex.live;
-        vertex.score = score::<STRIP>(0, vertex.live);
+        vertex.score = scores.score(0, vertex.live);
         Ok(())
     })?;
     work.add(faces)?;
@@ -189,7 +360,7 @@ fn kernel<const STRIP: bool>(
         .and_then(|n| faces.checked_mul(n));
     if let Some(bound) = bound.filter(|&n| work.covers(n) == Ok(true)) {
         let mut counted = CacheWork::<true>::reserved(work, bound)?;
-        let result = cache_loop::<STRIP, true>(
+        let result = cache_loop::<S, true>(
             destination,
             triangles,
             vertices,
@@ -197,11 +368,12 @@ fn kernel<const STRIP: bool>(
             triangle_scores,
             emitted,
             &mut counted,
+            scores,
         );
         counted.finish();
         result
     } else {
-        cache_loop::<STRIP, false>(
+        cache_loop::<S, false>(
             destination,
             triangles,
             vertices,
@@ -209,12 +381,14 @@ fn kernel<const STRIP: bool>(
             triangle_scores,
             emitted,
             &mut CacheWork::<false>::new(work),
+            scores,
         )
     }
 }
 
+#[inline(never)]
 #[allow(clippy::too_many_arguments)]
-fn cache_loop<const STRIP: bool, const FAST: bool>(
+fn cache_loop<S: Scores, const FAST: bool>(
     destination: &mut [[u32; 3]],
     triangles: &[[u32; 3]],
     vertices: &mut [crate::workspace::CacheVertex],
@@ -222,6 +396,7 @@ fn cache_loop<const STRIP: bool, const FAST: bool>(
     triangle_scores: &mut [f32],
     emitted: &mut [u8],
     work: &mut CacheWork<'_, FAST>,
+    scores: &S,
 ) -> Result<(), Error> {
     let faces = triangles.len();
     assert_eq!(triangles.len(), triangle_scores.len());
@@ -266,14 +441,17 @@ fn cache_loop<const STRIP: bool, const FAST: bool>(
         }
         let mut best = usize::MAX;
         let mut best_score = 0.;
+        // One visit per cache entry: a single covered tally, or a checked
+        // charge before each entry's mutation on the limited path.
+        work.tally(write);
         for (i, &index) in cache[..write].iter().enumerate() {
-            work.add(1)?;
+            work.visit()?;
             let j = index as usize;
             let vertex = &mut vertices[j];
             if vertex.live == 0 {
                 continue;
             }
-            let s = score::<STRIP>(if i >= 16 { 0 } else { i + 1 }, vertex.live);
+            let s = scores.score(if i >= 16 { 0 } else { i + 1 }, vertex.live);
             let diff = s - vertex.score;
             vertex.score = s;
             work.scan(
@@ -326,12 +504,13 @@ pub fn optimize_vertex_cache_strip(
             workspace,
         )?;
         let mut destination = output(indices.len())?;
-        kernel::<true>(
+        kernel(
             &mut destination,
             indices,
             vertex_count,
             workspace,
             &mut work,
+            &Preset::<true>,
         )?;
         Ok(destination)
     })();
@@ -356,7 +535,14 @@ pub fn optimize_vertex_cache_strip_into(
             return Err(Error::BufferTooSmall);
         }
         prepare(indices.len(), vertex_count, 0, workspace)?;
-        kernel::<true>(destination, indices, vertex_count, workspace, &mut work)
+        kernel(
+            destination,
+            indices,
+            vertex_count,
+            workspace,
+            &mut work,
+            &Preset::<true>,
+        )
     })();
     workspace.finish(&work);
     result
@@ -641,6 +827,22 @@ impl<'a, const FAST: bool> CacheWork<'a, FAST> {
             Ok(())
         } else {
             self.work.add(count)
+        }
+    }
+    // Covered path: tally `count` infallible visits at once. The limited path
+    // charges each of them with `visit` instead.
+    #[inline(always)]
+    fn tally(&mut self, count: usize) {
+        if FAST {
+            self.spent += count;
+        }
+    }
+    #[inline(always)]
+    fn visit(&mut self) -> Result<(), Error> {
+        if FAST {
+            Ok(())
+        } else {
+            self.work.add(1)
         }
     }
     #[inline(always)]

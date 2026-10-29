@@ -1,0 +1,24 @@
+{
+  "baseline_commit": "dbb75e03ec011ae04645e6d40b0039561991286d",
+  "baseline_tag": "v0.2.14",
+  "reference_commit": "4c203430ca565cb59a468a91922c76c208169536",
+  "rustc": "1.98.1 (48a229cea 2026-09-01)",
+  "llvm": "22.1.8",
+  "target": "x86_64-unknown-linux-gnu",
+  "cxx": "GNU 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1)",
+  "cpu": "AMD Ryzen 9 7945HX with Radeon Graphics",
+  "profile": {
+    "opt-level": 3,
+    "lto": "thin",
+    "codegen-units": 1
+  },
+  "locale": "C",
+  "rustflags": "",
+  "cargo_encoded_rustflags": "",
+  "admission": {
+    "phase": "build, proof and measurement",
+    "gpu": false,
+    "declared_gb": 4,
+    "wrapper_selected_cap_gb": 6
+  }
+}

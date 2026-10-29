@@ -5,6 +5,47 @@ These recipes use triangle lists of `u32` indices and borrowed vertex views.
 floats, strides and offsets count `f32` components; for byte views they count
 bytes and the byte order is explicit. Indices refer to the full position array.
 
+## Tuning for a specific GPU cache
+
+`VertexScoreTable` and `optimize_vertex_cache_with_table` are opt-in extensions
+not in C++ meshoptimizer. Start from `VertexScoreTable::default()`, copy its
+`cache_scores()` and `live_scores()`, adjust the scores, and validate them with
+`VertexScoreTable::new(&cache, &live)?`. Pass the table before the workspace to
+`optimize_vertex_cache_with_table`, or use `optimize_vertex_cache_with_table_into`
+with a caller-owned destination. The constructor requires exactly 17 finite
+cache scores and 9 finite live-valence scores; it does not change cache capacity.
+
+Cache entry zero scores vertices outside the cache, entries 1–16 score cache
+positions, and live entry eight also scores all higher valences. Only triangles
+whose summed score is positive are picked by score; otherwise the next unemitted
+triangle in input order follows, so keep the scores you want to favour positive.
+Tuned tables
+must be validated on the target hardware using representative meshes; a changed
+ordering does not establish a GPU performance gain. The existing standard and
+strip APIs retain their upstream presets.
+
+```rust
+use meshoptimizer_rs::{
+    optimize_vertex_cache, optimize_vertex_cache_with_table, VertexScoreTable, Workspace,
+};
+
+let indices = [0, 1, 2, 2, 1, 3];
+let mut workspace = Workspace::default();
+let preset = VertexScoreTable::default();
+let mut cache = *preset.cache_scores();
+let live = *preset.live_scores();
+let table = VertexScoreTable::new(&cache, &live)?;
+assert_eq!(
+    optimize_vertex_cache_with_table(&indices, 4, &table, &mut workspace)?,
+    optimize_vertex_cache(&indices, 4, &mut workspace)?,
+);
+cache[1] *= 1.1;
+let tuned = VertexScoreTable::new(&cache, &live)?;
+let reordered = optimize_vertex_cache_with_table(&indices, 4, &tuned, &mut workspace)?;
+assert_eq!(reordered.len(), indices.len());
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
 ## Non-packed positions
 
 ```text
@@ -60,6 +101,47 @@ let view = Positions::from_bytes(&bytes, 4, 20, 0, ByteOrder::BigEndian)?;
 simplify(&indices, view, settings, &mut workspace)?;
 # Ok::<(), meshoptimizer_rs::Error>(())
 ```
+
+## Typed Rust vertex fields
+
+`VertexLayout` is an opt-in extension not in C++ meshoptimizer. Use `offset_of!`
+and a typed selector to check a field against the struct's size and alignment.
+See the [`VertexLayout`](crate::VertexLayout) doctest for a complete `#[repr(C)]`
+vertex with position, normal and UV fields.
+
+```rust
+use core::mem::offset_of;
+use meshoptimizer_rs::{VertexFieldSnapshot, VertexLayout, VertexLayoutError};
+
+#[repr(C)]
+struct Vertex {
+    position: [f32; 3],
+    normal: [f32; 3],
+    uv: [f32; 2],
+}
+let vertices = [Vertex {
+    position: [0., 0., 0.], normal: [0., 0., 1.], uv: [0., 0.],
+}];
+let layout = VertexLayout::new(offset_of!(Vertex, position), |v: &Vertex| &v.position)?;
+let data = layout.copy_from(&vertices)?;
+let positions = data.positions()?;
+assert_eq!(positions.get(0), Some([0., 0., 0.]));
+let normals = VertexFieldSnapshot::from_vertices(
+    &vertices, offset_of!(Vertex, normal), |v| &v.normal,
+)?;
+assert_eq!(normals.attributes()?.components(), 3);
+# Ok::<(), VertexLayoutError>(())
+```
+
+Keep `data` alive while using its views. Construction copies selected floats into
+a zero-filled, little-endian snapshot with the original stride and offset; it
+never reads struct padding. The allocation is one full struct stride per vertex,
+outside `Workspace` limits, so bound caller input sizes first. Later vertex edits
+require a new snapshot. Selectors may be capturing closures and enforce float
+element types at compile time;
+layout, field-width and address failures return `VertexLayoutError`. Empty input
+checks the layout but has no field address to verify. Packed position slices can
+continue to use `Positions::from_packed` without a copy.
 
 ## Simplify one mesh
 
@@ -420,7 +502,81 @@ assert!(lod.indices.len() <= indices.len());
 
 Returns the same simplification result and errors as the first recipe. Lean is
 opt-in: it lowers peak memory, but later calls reallocate scratch and run slower.
-See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/main/docs/PERFORMANCE.md).
+See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/PERFORMANCE.md).
+
+## Mesh repair
+
+`sanitize` is an extension; it is not in C++ meshoptimizer.
+
+```text
+pub fn sanitize(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: SanitizeOptions,
+    workspace: &mut Workspace,
+) -> Result<SanitizedMesh, Error>
+```
+
+Use it on uploaded or generated meshes before simplification or meshlet
+building. It only removes triangles: out-of-range indices, non-finite positions,
+repeated indices and later copies of the same face. Kept triangles stay in input
+order with their original indices and winding, so vertex streams need no change.
+`SanitizeOptions::COINCIDENT_CORNERS` also drops triangles with two corners at
+bit-identical positions (collinear triangles are kept; no area is computed),
+`WELD_POSITIONS` compares duplicate faces by position instead of by
+index, `IGNORE_ORIENTATION` also drops reverse-wound copies, and `REJECT_INVALID`
+returns an error instead of dropping invalid triangles.
+
+```rust
+use meshoptimizer_rs::{sanitize, Positions, SanitizeOptions, Workspace};
+
+let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 1., 0.]];
+// A face, its rotated copy, its reverse-wound copy, and a face whose
+// corners 2 and 3 share a position.
+let indices = [0, 1, 2, 1, 2, 0, 0, 2, 1, 0, 2, 3];
+let mut workspace = Workspace::default();
+let options = SanitizeOptions::COINCIDENT_CORNERS | SanitizeOptions::IGNORE_ORIENTATION;
+let mesh = sanitize(&indices, Positions::from_packed(&positions), options, &mut workspace)?;
+assert_eq!(mesh.indices, [0, 1, 2]);
+let report = mesh.report;
+assert_eq!((report.duplicate, report.reversed_duplicate, report.coincident_corners), (1, 1, 1));
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+Returns the kept indices and a `SanitizeReport` with one count per removal
+reason. `sanitize_into` writes to a caller buffer of at least
+`sanitize_bound(indices.len())` indices and leaves it unchanged on any error.
+Sanitation does not weld vertices, fill holes or fix orientation; the result is
+not guaranteed to be manifold or closed.
+
+## Mesh topology analysis
+
+`analyze_mesh`, also an extension, reports what is wrong before anything is
+removed. It changes nothing and returns a `MeshAnalysis`: triangle
+classifications, then counts of boundary edges and components,
+non-manifold edges (more than two faces) and vertices (more than one fan of
+faces), orientation conflicts (exactly two incident faces using an edge in the
+same direction) and
+connected components. `AnalyzeOptions::with_weld_positions(true)` treats
+vertices with equal positions as one, which shows whether split seams close a
+surface; `with_list_limit(n)` also lists the first `n` defects of each kind.
+Analyze, sanitize, then analyze the result to see what remains:
+
+```rust
+use meshoptimizer_rs::{analyze_mesh, sanitize, AnalyzeOptions, Positions, SanitizeOptions, Workspace};
+
+let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
+// A tetrahedron plus a duplicate of its first face.
+let indices = [0, 2, 1, 0, 1, 3, 1, 2, 3, 0, 3, 2, 2, 1, 0];
+let mut workspace = Workspace::default();
+let positions = Positions::from_packed(&positions);
+let before = analyze_mesh(&indices, positions, AnalyzeOptions::EMPTY, &mut workspace)?;
+assert_eq!((before.duplicate, before.non_manifold_edges), (1, 3));
+let mesh = sanitize(&indices, positions, SanitizeOptions::EMPTY, &mut workspace)?;
+let after = analyze_mesh(&mesh.indices, positions, AnalyzeOptions::EMPTY, &mut workspace)?;
+assert_eq!((after.boundary_edges, after.non_manifold_edges, after.orientation_conflicts), (0, 0, 0));
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
 
 ## Resource errors
 
@@ -443,3 +599,41 @@ a late error may leave a used prefix modified. The `_into` functions are
 - **Default Limits:** 1 GiB of crate-owned storage and 2^34 counted visits per call; set smaller `max_bytes` and `max_work` for untrusted input and check caller allocations separately.
 - **Byte-identical output:** results match C++ meshoptimizer 1.3 (scalar build); recorded differential inputs and exceptions are described in the README.
 - **Semver policy:** 0.2.x patch releases are drop-in, with no API break and the same output.
+
+## One-call LOD chain
+
+`build_lod_chain` is an extension not in C++ meshoptimizer. Targets are
+relative to the original mesh; each level defaults to the previous output.
+
+```rust
+use meshoptimizer_rs::{build_lod_chain, LodChainOptions, LodTargets, LodErrors, Positions, Workspace};
+let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
+let options = LodChainOptions::new(LodTargets::Ratios(&[0.5]), LodErrors::Uniform(1.0));
+let chain = build_lod_chain(&[0,1,2,2,1,3], Positions::from_packed(&positions), &options, &mut Workspace::default())?;
+assert_eq!(chain.levels.len(), 1);
+# Ok::<(), meshoptimizer_rs::LodChainError>(())
+```
+
+Options are built with `LodChainOptions::new` and the `with_simplify_options`,
+`with_attributes`, `with_vertex_flags` and `with_independent` setters; the option
+and enum types are `#[non_exhaustive]`. Vertex flags (locks) apply with or
+without attributes. Each level owns a `Vec<u32>`; other outputs such as meshlets
+or clusters would be separate APIs.
+
+- **Targets:** ratios become `floor(ratio * source_triangles) * 3` indices. The
+  ratios must decrease strictly, but two neighbouring ratios may round to the
+  same count on a small mesh.
+- **Error and scale:** `LodLevel::error` is the simplifier's own returned value
+  for that level, unconverted. In successive mode it is relative to the previous
+  level, not to the source and not cumulative; with attributes it includes the
+  attribute terms. `LodLevel::scale` is the extent it was normalized by (the
+  referenced vertices only, with `SPARSE`). Units follow `ERROR_ABSOLUTE`.
+- **`stopped_at_error_limit`:** the simplifier stopped because the next collapse
+  candidate exceeded the level's error limit. A looser limit is not guaranteed
+  to reach the target; a missed target may also reflect topology constraints.
+- **Limits and usage:** the workspace limits cover the whole call, including the
+  builder's own scans, every level's work, and the chain metadata plus retained
+  level outputs together with scratch. `Workspace::usage()` reports the call's
+  total work and peak bytes, on success and on failure.
+- **Failure:** the result is atomic. `LodChainError::level` is the zero-based
+  failing level, or `None` for a failure of the call as a whole.
