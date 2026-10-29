@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "dedicated_target_removed": true,
+  "all_lane_jobs_completed": true,
+  "retained": [
+    "frozen_sources",
+    "binaries",
+    "inputs",
+    "raw_perf",
+    "outputs",
+    "logs"
+  ]
+}

@@ -386,6 +386,7 @@ fn kernel<S: Scores>(
     }
 }
 
+#[inline(never)]
 #[allow(clippy::too_many_arguments)]
 fn cache_loop<S: Scores, const FAST: bool>(
     destination: &mut [[u32; 3]],
