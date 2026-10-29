@@ -23,6 +23,7 @@
     "src/codec/index_encode.rs": "d09cd8c00ddef25136f616124632e820e885da3be7320593f9209efd640dae1d",
     "src/codec/meshlet.rs": "12f85f5d47907f27532af986b2c9a1fae2f92af6f5622fca78ee89cae82293ff",
     "src/codec/mod.rs": "ba121a097fa0d8806b099fd2c8bb146bcbb3485ecc8a729d2ab73a4b830f9256",
+    "src/codec/simd/SAFETY.md": "c3b569a49fccbdbd0ea244545386b3862a41908c51e1ac8dffbe401a05710235",
     "src/codec/simd/aarch64.rs": "e9ed3d1830a29d5ed348ebe2cb6bc0a09b9faa352fa5ad4273658cd34db73509",
     "src/codec/simd/dispatch.rs": "a41a304bde5460b0974e7f855793f7400df9c5ac88fc976327f4478fadcef298",
     "src/codec/simd/kernels.rs": "e08323103fc8dea3fc86dc0623bb768bcb7c2707de308c604c49b67efca9f101",
@@ -61,20 +62,20 @@
     "src/workspace.rs": "4c60ef9cfffa65d7370c3aedb934dff7694d777f3bfa6818fb50910555c50f2c"
   },
   "candidate_files_sha256": {
-    "Cargo.toml": "9eaa163cdfca03f73ecc40b508c002329d07d49712d5109d79f62465785dc9be",
+    "Cargo.toml": "563bd7042fd7faf64232830539008a785895ffa308aff0a98201dc353600225f",
     "Cargo.lock": "7f8d2e60b33d7917f2834732c03c5f21c0d75c928969a7385875887406902405",
-    "docs/USING.md": "eb71f4bcd9f32f2c48c6bef54f12c6e7a30ca85b8de000ae1e77fad1fb7a2aac",
-    "src/lib.rs": "1044e65f5e9fef8297756990e7741cf514cf59bd8763c43043e94bc3a634e0d1",
-    "src/repair.rs": "25eaa471e545edce020602383ba541733fc55b511d554b3673b154206d650870",
-    "tests/repair.rs": "ffc0324e21e1f9f27b495e1a1de242261ec1c5495f0083d5e9d23c6908556a89",
+    "docs/USING.md": "3fc3d9e57d6253c3e9721b58bfc84de7b9484a93c292aca4da171ce69880636d",
+    "src/lib.rs": "e2793ce3a77cb3507f525791419a62f471efa3d9dfed838ae1d483a52e8b723b",
+    "src/repair.rs": "67db3d505b2e0b77dd910703c3d5de1b25906e5aaa8dc821b6dee994e4eb252a",
+    "tests/repair.rs": "7387fc45869182befaaf955812c6fb79b7e9db52e1384beb3c4d27c25e89205a",
     "parity/0216-repair/corpus.rs": "2b6d96856ce1e287f3b31a2a4b05a368dbd393d3773dc3a03f9c9f3cd497a16a",
     "parity/0216-repair/exact.rs": "7cedbe604348d43a9d3e913559a1ac7e5500c27b1665757d3b0a96d3b79f3ee7",
-    "parity/0216-repair/fuzz/Cargo.toml": "590a7d2fb669a2b12c6f63566b5bb70023e9a4edaa99dab79626bc5d797c79d3",
+    "parity/0216-repair/fuzz/Cargo.toml": "13892b2139a4d0273ea8b40b762035c5b590de16780292c7da1df12aa77536e5",
     "parity/0216-repair/fuzz/fuzz_targets/fill_holes.rs": "de802de68e6bc1ad9d5eccf381fb38376a06fdbec1778e1c6bd0ac7ab720cb12",
     "parity/0216-repair/fuzz/fuzz_targets/orient_faces.rs": "7020a6db355bf68393090455f185ad5cfa17c0e97999fa98d48026eb9a6bb7f6",
     "parity/0216-repair/fuzz/fuzz_targets/weld_vertices.rs": "3b1d790c95313e07d986cc5199823c9afd9696a6af7fa7cb7ec6b5f4826b9c4b",
-    "parity/0216-repair/run.sh": "740eb7a1b66db0b139331c98cdf794ff0ff917c58c4e255be6224fcc0a651a66",
-    "parity/0216-repair/PROOFS.md": "b3638f2cbb603694b031538aee4e30122623759426863cf260b0cc96d9b24388"
+    "parity/0216-repair/run.sh": "03d5e07c23be95773c35b0810b7bfcef63157af28e73eda0c041e226d93bb852",
+    "parity/0216-repair/PROOFS.md": "7bd2b41abe211f9a89f788b286ba704d450f069ab75c9e70bc52bd48c2f43cde"
   },
   "root_lockfile_unchanged": true
 }

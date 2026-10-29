@@ -137,9 +137,12 @@ The dedicated target was removed after extracting the retained receipts; see
 
 ## Check-lane amendments
 
-These changes follow the receipts above, so `receipts/source-binding.json`,
-`exits.tsv` and the `*-repair-no-std` logs describe the earlier revision. The
-gates were rerun once on the amended tree (see the commit message).
+These changes were made after the first receipts. `run.sh` was rerun in full on
+6106b11, so `receipts/source-binding.json`, `exits.tsv` and the logs now
+describe 6106b11. (The binding records `PROOFS.md`'s own hash, so it matches
+the file as of the commit that refreshed the receipts.) The `*-repair-no-std`
+logs and `summary.json` counts are from the earlier amended-tree run and were not
+regenerated. Fuzzing: `receipts/fuzz.json`.
 
 **Feature removed.** The `repair` Cargo feature no longer exists. The APIs are
 exported unconditionally from `src/lib.rs`, like `sanitize` and

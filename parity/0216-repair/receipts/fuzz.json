@@ -1,0 +1,15 @@
+{
+  "commit": "6106b11",
+  "toolchain": "nightly, cargo-fuzz 0.13.2, libfuzzer-sys 0.4.13, libFuzzer single process (CPU-s = chunk wall-s)",
+  "rule": "chunks of 600 s; stop once a whole chunk shows no coverage gain (init cov == final cov) after >= 600 CPU-s; cap 7200 CPU-s",
+  "targets": {
+    "weld_vertices": {"seed": 20261029, "chunks": 4, "cpu_s": 2400, "initial_cov": 100, "final_cov": 475,
+      "executions_recorded": 13917235, "crashes": 0,
+      "note": "chunk records 1 (100->475, 7746341 execs), 2 (474->475, 3323554), 4 (475->475, 2847340; the flat chunk). The chunk-3 log and record were lost when the shared target dir holding the logs was reaped by the orphan-target sweeper; it exited 0 like the others, so executions_recorded excludes it."},
+    "orient_faces": {"seed": 20261030, "chunks": 2, "cpu_s": 1200, "initial_cov": 71, "final_cov": 623,
+      "executions": 48938858, "crashes": 0, "note": "chunk 1 71->623 (22497426 execs), chunk 2 flat 623->623 (26441432)"},
+    "fill_holes": {"seed": 20261031, "chunks": 2, "cpu_s": 1200, "initial_cov": 75, "final_cov": 1355,
+      "executions": 47415844, "crashes": 0, "note": "chunk 1 75->1354 (26079799 execs), chunk 2 flat 1355->1355 (21336045); chunk 2 was relaunched with the persisted corpus after the same log loss"}
+  },
+  "crash_inputs": []
+}

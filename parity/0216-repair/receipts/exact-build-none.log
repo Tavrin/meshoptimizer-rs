@@ -1,3 +1,4 @@
+   Compiling meshoptimizer-baseline v0.2.15 (<target>/proof/base)
    Compiling meshoptimizer-rs v0.2.15 (<worktree>)
    Compiling repair-proof v0.0.0 (<target>/proof/exact)
-    Finished `release` profile [optimized] target(s) in 6.32s
+    Finished `release` profile [optimized] target(s) in 6.99s
