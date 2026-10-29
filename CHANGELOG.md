@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `build_lod_chain` generates successive or independent simplification levels.
+
 - `optimize_overdraw` and its `_into` and `_in_place` variants check the finiteness of
   validated positions and of each cluster's sort value once instead of per
   coordinate and per intermediate, and charge work in totals when the

@@ -74,6 +74,7 @@ pub enum Retention {
 #[derive(Debug, Default)]
 pub struct Workspace {
     limits: Limits,
+    pub(crate) lod_error_limited: bool,
     active: [bool; 5],
     family: Option<ScratchFamily>,
     retention: Retention,
@@ -104,6 +105,9 @@ impl Workspace {
             limits,
             ..Self::default()
         }
+    }
+    pub(crate) fn set_lod_limits(&mut self, limits: Limits) {
+        self.limits = limits;
     }
     /// Current scratch retention policy.
     pub const fn retention(&self) -> Retention {

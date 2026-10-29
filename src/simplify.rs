@@ -404,6 +404,7 @@ fn allocating(
     settings: SimplifySettings,
     ws: &mut Workspace,
 ) -> Result<SimplifiedMesh, Error> {
+    ws.lod_error_limited = false;
     let mut work = ws.begin();
     let result = (|| {
         validate(
@@ -2226,8 +2227,9 @@ impl State {
         limit: f32,
         error: &mut f32,
         work: &mut M,
-    ) -> Result<usize, Error> {
+    ) -> Result<(usize, bool), Error> {
         let n = self.p.len();
+        let mut error_limited = false;
         work.scan(
             self.cr.0[..n]
                 .iter_mut()
@@ -2246,6 +2248,7 @@ impl State {
             work.add(1)?;
             let c = self.collapses[self.order.get(i)];
             if c.error > limit || triangles >= goal {
+                error_limited = c.error > limit && triangles < goal;
                 break;
             }
             let error_goal = if edge_goal < count {
@@ -2288,7 +2291,7 @@ impl State {
                 *error = c.error;
             }
         }
-        Ok(edges)
+        Ok((edges, error_limited))
     }
     fn update<M: Meter>(&mut self, vertex_error: &mut f32, work: &mut M) -> Result<(), Error> {
         let n = self.p.len();
@@ -2805,9 +2808,10 @@ fn run_state(
         s.rank(nc, work)?;
         s.sort(nc, work)?;
         let goal = (count - settings.target_index_count) / 3;
-        let edges = metered!(work, s.perform_work(nc, settings.options), |w| s
+        let (edges, error_limited) = metered!(work, s.perform_work(nc, settings.options), |w| s
             .perform(nc, goal, limit, &mut error, w))?;
         if edges == 0 {
+            ws.lod_error_limited = error_limited;
             break;
         }
         if ac == 0 {
@@ -2882,6 +2886,12 @@ fn run_state(
         if error < max_error {
             error = max_error;
         }
+    }
+    if settings.options.contains(SimplifyOptions::PRUNE)
+        && count > settings.target_index_count
+        && component_next > limit
+    {
+        ws.lod_error_limited = true;
     }
     if solve {
         extra::solve_state(&mut s, &out[..count], work)?;

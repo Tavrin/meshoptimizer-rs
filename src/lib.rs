@@ -174,9 +174,13 @@ mod quantize;
 mod remap;
 mod sanitize;
 
+mod lod_chain;
 mod raster;
 #[cfg(feature = "experimental")]
 mod remesh;
+pub use lod_chain::{
+    build_lod_chain, LodChain, LodChainAttributes, LodChainOptions, LodErrors, LodLevel, LodTargets,
+};
 mod simplify;
 mod strip;
 mod tangent;

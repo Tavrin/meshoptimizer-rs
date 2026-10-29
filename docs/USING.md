@@ -572,3 +572,20 @@ a late error may leave a used prefix modified. The `_into` functions are
 - **Default Limits:** 1 GiB of crate-owned storage and 2^34 counted visits per call; set smaller `max_bytes` and `max_work` for untrusted input and check caller allocations separately.
 - **Byte-identical output:** results match C++ meshoptimizer 1.3 (scalar build); recorded differential inputs and exceptions are described in the README.
 - **Semver policy:** 0.2.x patch releases are drop-in, with no API break and the same output.
+
+## One-call LOD chain
+
+`build_lod_chain` is an extension not in C++ meshoptimizer. Targets are
+relative to the original mesh; each level defaults to the previous output.
+
+```
+use meshoptimizer_rs::{build_lod_chain, LodChainOptions, LodTargets, LodErrors, Positions, SimplifyOptions, Workspace};
+let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
+let options = LodChainOptions { targets: LodTargets::Ratios(&[0.5]), errors: LodErrors::Uniform(1.0), simplify_options: SimplifyOptions::EMPTY, attributes: None, independent: false };
+let chain = build_lod_chain(&[0,1,2,2,1,3], Positions::from_packed(&positions), &options, &mut Workspace::default())?;
+assert_eq!(chain.levels.len(), 1);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+Each error describes that level's simplification call, not accumulated error.
+A missed target may reflect topology constraints as well as the error cap.
