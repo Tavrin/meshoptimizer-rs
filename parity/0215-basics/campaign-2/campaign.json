@@ -1,0 +1,94 @@
+{
+  "arms": [
+    "base",
+    "candidate",
+    "cpp",
+    "rust"
+  ],
+  "binaries": {
+    "base": "064d31fb855d90eb5443c140ec2921f681156b89e52b6b06b85d1c24c051269d",
+    "candidate": "fec5e084134dbe013c682608b8737f01803017dbbc0d19f3589f7154d67d58da",
+    "cpp": "036458f3ac2e1ac094e9691e58c9ea416615fbafa7b11aefbec89b432a78a173",
+    "rust": "fe1b86706b568ef40f93d3ed2cc99a760d60af4a0574306f5ef0e1fc3d793649"
+  },
+  "inputs": [
+    {
+      "case": "tiny-smooth",
+      "vertices": 25,
+      "indices": 96,
+      "sha256": "f4e48de832bfbce945c5afee1aa701fd725e4f10ea251d30477b7b571ec9f5b4",
+      "source_sha256": "c3e9336827ad92e501b805a127069e8ae2a2bd928911f7bca563d5ce80052351",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "medium-smooth",
+      "vertices": 4225,
+      "indices": 24576,
+      "sha256": "778799101159b3bd6398d6f697e146d0eaf287c6b8cfb79d18e0d93e27833994",
+      "source_sha256": "89d430f983699a82e635a284afa873af6166c42f5059f848234585e7f313a194",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "medium-seams",
+      "vertices": 5184,
+      "indices": 24576,
+      "sha256": "f1eb9f9502852b555e666bef1c6660225184ff7998a9ebaa90df723b06858e32",
+      "source_sha256": "f2d223f5b49c735ecfceb8688189151ad416f34bbbe48d9e629e738fca92f7fe",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "medium-sparse",
+      "vertices": 8450,
+      "indices": 24576,
+      "sha256": "98854d7d658208772f474fd8d86be43d1983c0594cbeee66c33bf97098513141",
+      "source_sha256": "36128f4d55c39c2ba1d29b708fd546609252dc03e0ba135cab66835131709021",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "million-smooth",
+      "vertices": 502681,
+      "indices": 3000000,
+      "sha256": "1f4a5db09fb81ea0cd494ff06c9846f04fa49ecdb3726dd5ed163d981e5988ab",
+      "source_sha256": "f3a568950e936cdc8e0311e96dabf847ecb368d0cb1ac7644c90fb6e7cb301bf",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "real-214e",
+      "vertices": 6798441,
+      "indices": 8553003,
+      "sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7",
+      "source_sha256": "50d76608648568ef2f595270cf48f2461c5d0b2ef623310259c4ecf29dd79171",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "real-a082",
+      "vertices": 7237324,
+      "indices": 9869175,
+      "sha256": "f631b2a30e79f167c0650f595bed6341193243aaab4d552d4cafa85e68944793",
+      "source_sha256": "8989ac19a20a654d7d1fd57810b58a228f97969e3efc1347d36b1cb0f15245b5",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    },
+    {
+      "case": "real-b6fd",
+      "vertices": 1809344,
+      "indices": 2467305,
+      "sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+      "source_sha256": "294b78ee5f9d0a20f72707ebba29f4ea621d4bbe7ab87976c9c0f23d19e68661",
+      "projection": "packed XYZ and original indices; synthetic four attributes from existing harness"
+    }
+  ],
+  "cpu": 9,
+  "ops": [
+    "remap",
+    "remap-multi",
+    "remap-custom",
+    "position-remap",
+    "remap-vertex",
+    "remap-index",
+    "shadow",
+    "shadow-multi",
+    "index-decode"
+  ],
+  "runner_sha256": "5452dddf7c0f97ca36431f2f0b88f97ab971cec498b290dd2c8d066241dfa7aa",
+  "perf": "perf version 6.17.13"
+}

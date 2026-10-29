@@ -1,0 +1,12 @@
+test-all	0
+test-no-default	0
+clippy	0
+fmt	0
+boundary	0
+public-text	0
+exact-build-std	0
+exact-std	0
+fuzz-std	0
+exact-build-no-std	0
+exact-no-std	0
+fuzz-no-std	0

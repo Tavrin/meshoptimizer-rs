@@ -1,0 +1,6 @@
+exact-std: cases 3840 comparisons 1893337 differences 0
+fuzz-std: cases 35928 comparisons 5175360 differences 0
+exact-no-std: cases 3840 comparisons 1893337 differences 0
+fuzz-no-std: cases 35952 comparisons 5178240 differences 0
+fd1886975eda85ab2de8c0425c3c20683301654848adfe560e0991313aae05d5  exact-std
+a2309b43dd364fd34e3aa84606bec7c9ce79ae3c51da2c2d2e12428d85268942  exact-no-std
