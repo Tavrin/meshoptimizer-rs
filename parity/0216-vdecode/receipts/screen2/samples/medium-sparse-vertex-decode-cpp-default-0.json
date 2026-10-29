@@ -1,0 +1,18 @@
+{
+  "case": "medium-sparse",
+  "op": "vertex-decode",
+  "arm": "cpp-default",
+  "rep": 0,
+  "repetitions": 100,
+  "exit": 0,
+  "input_sha256": "98854d7d658208772f474fd8d86be43d1983c0594cbeee66c33bf97098513141",
+  "binary_sha256": "b499ef99cb2ab1f4ed245c52cef74f1c494aa33a6d516c14d18241c927be873b",
+  "process_wall": 0.019044964108616114,
+  "instructions": 21708979,
+  "instructions_per_call": 217089.79,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 1.1797e-05,
+  "peak_rss_kib": 15508,
+  "output_sha256": "fcbd81e5c24f5e77fa5bc4fb0eff554737679b34b9d3fed6f2bb1d0def6dce3a",
+  "output_bytes": 101400
+}

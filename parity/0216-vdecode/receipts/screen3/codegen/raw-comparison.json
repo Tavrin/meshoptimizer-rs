@@ -1,0 +1,16 @@
+{
+  "candidate": {
+    "lines": 1734,
+    "sha256": "eb16722b06db9e869d926ce9ca5b72ea5a1a1b93bde5a581d98a52227131b958",
+    "base_identical": false,
+    "instruction_sha256": "7e0ad7e7893a6e0e5fc1d59e8fca32dc1c14ce9682030753e684eb2120594abf",
+    "base_instruction_identity": true
+  },
+  "base": {
+    "lines": 1734,
+    "sha256": "5eba51e077cca7961ff6c87d83b3b3d9d1bc467b7c3c322d7d3da8fb791f553d",
+    "base_identical": true,
+    "instruction_sha256": "7e0ad7e7893a6e0e5fc1d59e8fca32dc1c14ce9682030753e684eb2120594abf",
+    "base_instruction_identity": true
+  }
+}

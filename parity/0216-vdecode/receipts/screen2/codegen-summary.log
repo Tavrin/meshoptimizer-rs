@@ -1,0 +1,66 @@
+{
+  "base": [
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<alloc::vec::Vec<u8>>",
+      "bytes": 3227,
+      "address": 471344,
+      "disassembly_sha256": "6976634a6205ad037d3fc88d5ff92342964be8a329303bf7dc6b7e81577e42ca"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<meshoptimizer_rs::codec::vertex::StreamingDestination>",
+      "bytes": 3320,
+      "address": 474576,
+      "disassembly_sha256": "311701283ef5de7306d4f97e2953b0187a6e7748af90c7a37dd3919a94a3fb0c"
+    },
+    {
+      "symbol": "meshopt_peers::run",
+      "bytes": 11803,
+      "address": 215136,
+      "disassembly_sha256": "b334d02145abb62cee3f561e3e3512531a97b5f833190779e4f319d13e081582"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::raw",
+      "bytes": 7300,
+      "address": 711616,
+      "disassembly_sha256": "bb4d763bde72cd00d31b549b5bbfe29e3f772d8c6781fb1d40755ea2c8730e1b"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::allocate",
+      "bytes": 1271,
+      "address": 732832,
+      "disassembly_sha256": "5550b8d351f529677d89a0497eed9454843d958316810d8e2afdf151d4b76399"
+    }
+  ],
+  "candidate": [
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<alloc::vec::Vec<u8>>",
+      "bytes": 3268,
+      "address": 471200,
+      "disassembly_sha256": "95c1cb8821218435eeab667f638b23b57bcb7e56b8863e4a3cd46e2e880581ff"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<meshoptimizer_rs::codec::vertex::StreamingDestination>",
+      "bytes": 3327,
+      "address": 474480,
+      "disassembly_sha256": "7118fa4d0b99d7eb14a0732829876dce92637810cd000b11ef240fcb6e1000a9"
+    },
+    {
+      "symbol": "meshopt_peers::run",
+      "bytes": 10742,
+      "address": 216048,
+      "disassembly_sha256": "cb02de1372acae895dac33b5ec1222c3d45c59ae4719e990541bb97ed5758a20"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::raw",
+      "bytes": 7313,
+      "address": 712880,
+      "disassembly_sha256": "e250dc2a2ef835655e820d06985f187c3c014818f0bbcc8a618d9723209f174e"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::allocate",
+      "bytes": 1271,
+      "address": 734112,
+      "disassembly_sha256": "bdb73acf9d487353bfb4a4c71bc6a728cc4a49abbfbf4ebb8446d0f9448ffe87"
+    }
+  ]
+}

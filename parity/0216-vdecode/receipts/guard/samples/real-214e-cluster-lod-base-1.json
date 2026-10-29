@@ -1,0 +1,18 @@
+{
+  "case": "real-214e",
+  "op": "cluster-lod",
+  "arm": "base",
+  "rep": 1,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7",
+  "binary_sha256": "92358716b5203ff51ad83c346f8c28eeb0240f15f07b3730be4b1f291453c12d",
+  "process_wall": 39.18271508405451,
+  "instructions": 78177657813,
+  "instructions_per_call": 78177657813.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 18.177285309,
+  "peak_rss_kib": 733752,
+  "output_sha256": "ce83ab14a96dbfee0013c593e84897123410e8ff13fc69e2d85d58b2e1d0c167",
+  "output_bytes": 72132044
+}

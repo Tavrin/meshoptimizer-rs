@@ -1,0 +1,18 @@
+{
+  "case": "real-b6fd",
+  "op": "remap-index",
+  "arm": "cpp-default",
+  "rep": 1,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+  "binary_sha256": "bf9b25296b8791ba176784e1246306b18f1c3c599b5c5bad21dc36ba19d5ea86",
+  "process_wall": 0.3129273650702089,
+  "instructions": 148049367,
+  "instructions_per_call": 14804936.7,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.0014546172,
+  "peak_rss_kib": 121576,
+  "output_sha256": "88abdc6e0a5568a3a383451cdfbe6522f0991753c3c24dd49f30754dac91088f",
+  "output_bytes": 9869220
+}

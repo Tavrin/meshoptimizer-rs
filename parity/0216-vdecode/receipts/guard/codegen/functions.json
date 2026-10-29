@@ -1,0 +1,98 @@
+{
+  "base": [
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<alloc::vec::Vec<u8>>",
+      "bytes": 3227,
+      "address": 512336,
+      "disassembly_sha256": "c66e9f97f01aef4e01d1815d71f2a4cd6b92a2662080d956c95e7108777c57c8"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<meshoptimizer_rs::codec::vertex::StreamingDestination>",
+      "bytes": 3320,
+      "address": 515568,
+      "disassembly_sha256": "6bda9f31611d4d9659971cb4f8695479747b23f548c938f59d82ce767791c160"
+    },
+    {
+      "symbol": "meshopt_peers::run",
+      "bytes": 17344,
+      "address": 236832,
+      "disassembly_sha256": "b071a80206473eb8cd3672a772515900e40648b4a09e77f977a718072f8fa1c0"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::raw",
+      "bytes": 7300,
+      "address": 767600,
+      "disassembly_sha256": "e10aa24cdabc6119032e1184b6a21cfaed0097242013742cba932246c3caf6e7"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::allocate",
+      "bytes": 1271,
+      "address": 788816,
+      "disassembly_sha256": "ad8b7ab98c9d3c3ef2cbe913d1153ea5484e92dc4a7f19a00738af9141634055"
+    }
+  ],
+  "control": [
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<meshoptimizer_rs::codec::vertex::StreamingDestination>",
+      "bytes": 3320,
+      "address": 513360,
+      "disassembly_sha256": "d1b05da915ef967db5796697ace009db57beb5ee8f05978f36f9777091d4cb75"
+    },
+    {
+      "symbol": "meshopt_peers::run",
+      "bytes": 16270,
+      "address": 237392,
+      "disassembly_sha256": "12fd1a81f6c50c28dd3a7720257f432e2529e882de478786e463681bc363d176"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::raw",
+      "bytes": 7300,
+      "address": 758224,
+      "disassembly_sha256": "4a0fdf1cfc62695478dfd68889a190aa6a30b82fca150d00ef5fadbdfbf512ae"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::allocate",
+      "bytes": 1271,
+      "address": 779440,
+      "disassembly_sha256": "8937d7e438348889853bc95371b54e762cdb1d31cac63c70f2a29f8fd728344d"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode_owned",
+      "bytes": 3227,
+      "address": 948448,
+      "disassembly_sha256": "8d328301bbb7392e9f8e9b103c7f033c33dc4b63e4eaf1832bd505198abf1283"
+    }
+  ],
+  "candidate": [
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode::<meshoptimizer_rs::codec::vertex::StreamingDestination>",
+      "bytes": 3320,
+      "address": 513888,
+      "disassembly_sha256": "d00249fa3d143c51589eed61fe2d583fa9e585813a31d5fff89956be3e82294c"
+    },
+    {
+      "symbol": "meshopt_peers::run",
+      "bytes": 16270,
+      "address": 237920,
+      "disassembly_sha256": "001438d4f70d228d643f70f8b98ec2259d063ff8c07c9ccdc353484c9509668d"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::raw",
+      "bytes": 7300,
+      "address": 767280,
+      "disassembly_sha256": "b2accc8e6aff659644f8461d16916542a060b472a6f7ca3b992cdab1609003c4"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::allocate",
+      "bytes": 1271,
+      "address": 788496,
+      "disassembly_sha256": "826fc3eddc31c66fc437428ecbc68ee413edd0f42316cf7843529aaebe2f8266"
+    },
+    {
+      "symbol": "meshoptimizer_rs::codec::vertex::decode_owned",
+      "bytes": 3290,
+      "address": 957504,
+      "disassembly_sha256": "21ed1b10e6ea824d062834628455a087de1a6e65344798ca5c48bf1da16d82ef"
+    }
+  ]
+}

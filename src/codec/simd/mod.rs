@@ -344,6 +344,23 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     None
 }
 
+// Only the owned destination uses the extra stride-12 monomorphs. The generic
+// vertex dispatcher above remains independent of this optimization.
+#[cfg(target_arch = "x86_64")]
+pub(super) fn vertex_owned(
+    output: &mut alloc::vec::Vec<u8>,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Option<Result<(), crate::Error>> {
+    if stride == 12 {
+        if let Some(token) = dispatch::ssse3() {
+            return Some(x86::vertex_owned(token, output, count, data));
+        }
+    }
+    None
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

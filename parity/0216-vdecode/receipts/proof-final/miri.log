@@ -1,0 +1,10 @@
+WARNING: Ignoring `RUSTC_WRAPPER` environment variable, Miri does not support wrapping.
+WARNING: Ignoring `RUSTC_WORKSPACE_WRAPPER` environment variable, Miri does not support wrapping.
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (<target-dir>/miri/x86_64-unknown-linux-gnu/debug/build/meshoptimizer-rs/f6b35c7bf6bc4b7d/out/meshoptimizer_rs-f6b35c7bf6bc4b7d)
+
+running 1 test
+test codec::simd::tests::packed_groups_and_meshlet_masks_match_integer_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 46 filtered out; finished in 2.27s
+

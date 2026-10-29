@@ -344,6 +344,9 @@ fn allocate(
                 source,
             )?;
         } else {
+            #[cfg(all(feature = "simd", target_arch = "x86_64"))]
+            vertex::decode_owned(&mut out, count, stride, source)?;
+            #[cfg(not(all(feature = "simd", target_arch = "x86_64")))]
             vertex::decode(&mut out, count, stride, source)?;
         }
     } else if mode == Mode::Indices {

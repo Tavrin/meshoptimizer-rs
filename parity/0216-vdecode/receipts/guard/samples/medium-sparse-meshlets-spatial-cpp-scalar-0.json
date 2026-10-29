@@ -1,0 +1,18 @@
+{
+  "case": "medium-sparse",
+  "op": "meshlets-spatial",
+  "arm": "cpp-scalar",
+  "rep": 0,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "98854d7d658208772f474fd8d86be43d1983c0594cbeee66c33bf97098513141",
+  "binary_sha256": "3dea9545d32cbf40d4e2199293d177b2a61ccef57e95a0e677c2b1b711cf474f",
+  "process_wall": 0.03095705306623131,
+  "instructions": 25645660,
+  "instructions_per_call": 25645660.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.003587082,
+  "peak_rss_kib": 15488,
+  "output_sha256": "75aadef462576419d408e66903073df1ca0811222b5e7e2fe90573432b624525",
+  "output_bytes": 55376
+}
