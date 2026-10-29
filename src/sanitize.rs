@@ -255,7 +255,7 @@ fn emit(
 
 /// Lexicographically smallest cyclic rotation, so rotated copies share a key.
 #[inline]
-fn canonical(t: [u32; 3]) -> [u32; 3] {
+pub(crate) fn canonical(t: [u32; 3]) -> [u32; 3] {
     let a = t;
     let b = [t[1], t[2], t[0]];
     let c = [t[2], t[0], t[1]];
@@ -269,13 +269,13 @@ fn canonical(t: [u32; 3]) -> [u32; 3] {
 
 /// Comparison steps charged per element of a sort or binary search over `n`
 /// elements: `ceil(log2(n)) + 1`, an upper bound on both.
-fn steps(n: usize) -> usize {
+pub(crate) fn steps(n: usize) -> usize {
     (usize::BITS - n.leading_zeros()) as usize + 1
 }
 
 /// Work charged for sorting `n` elements, or for `n` binary searches in `n`
 /// elements.
-fn sort_work(n: usize) -> Result<usize, Error> {
+pub(crate) fn sort_work(n: usize) -> Result<usize, Error> {
     n.checked_mul(steps(n)).ok_or(Error::SizeOverflow)
 }
 
@@ -344,7 +344,7 @@ fn classify(
 
 /// Per-triangle checks in input order. Marks every triangle that survives them
 /// in `keep` and returns how many did.
-fn screen(
+pub(crate) fn screen(
     options: SanitizeOptions,
     triangles: &[[u32; 3]],
     keep: &mut [bool],

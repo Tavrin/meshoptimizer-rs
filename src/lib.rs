@@ -165,6 +165,7 @@ pub mod codec;
 mod error;
 mod input;
 mod math;
+mod mesh_analysis;
 #[cfg(feature = "experimental")]
 mod normal;
 mod opacity;
@@ -204,6 +205,7 @@ pub use input::{
     validate_vertex_flags, Attributes, AttributesMut, ByteOrder, Positions, PositionsMut,
     VertexFlags,
 };
+pub use mesh_analysis::{analyze_mesh, AnalysisLists, AnalyzeOptions, BoundaryLoop, MeshAnalysis};
 pub use overdraw::{optimize_overdraw, optimize_overdraw_in_place, optimize_overdraw_into};
 pub use quantize::{
     compute_position_exponent, dequantize_half, quantize_float, quantize_half, quantize_snorm,

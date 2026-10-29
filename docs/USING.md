@@ -524,6 +524,32 @@ reason. `sanitize_into` writes to a caller buffer of at least
 Sanitation does not weld vertices, fill holes or fix orientation; the result is
 not guaranteed to be manifold or closed.
 
+`analyze_mesh`, also an extension, reports what is wrong before anything is
+removed. It changes nothing and returns a `MeshAnalysis`: the same triangle
+classes as `SanitizeReport`, then counts of boundary edges and loops,
+non-manifold edges (more than two faces) and vertices (more than one fan of
+faces), orientation conflicts (an edge used twice in one direction) and
+connected components. `AnalyzeOptions::with_weld_positions(true)` treats
+vertices with equal positions as one, which shows whether split seams close a
+surface; `with_list_limit(n)` also lists the first `n` defects of each kind.
+Analyze, sanitize, then analyze the result to see what remains:
+
+```rust
+use meshoptimizer_rs::{analyze_mesh, sanitize, AnalyzeOptions, Positions, SanitizeOptions, Workspace};
+
+let positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [0., 0., 1.]];
+// A tetrahedron plus a duplicate of its first face.
+let indices = [0, 2, 1, 0, 1, 3, 1, 2, 3, 0, 3, 2, 2, 1, 0];
+let mut workspace = Workspace::default();
+let positions = Positions::from_packed(&positions);
+let before = analyze_mesh(&indices, positions, AnalyzeOptions::EMPTY, &mut workspace)?;
+assert_eq!((before.duplicate, before.non_manifold_edges), (1, 3));
+let mesh = sanitize(&indices, positions, SanitizeOptions::EMPTY, &mut workspace)?;
+let after = analyze_mesh(&mesh.indices, positions, AnalyzeOptions::EMPTY, &mut workspace)?;
+assert_eq!((after.boundary_edges, after.non_manifold_edges, after.orientation_conflicts), (0, 0, 0));
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
 ## Resource errors
 
 Workspace operations can return `SizeOverflow` when size arithmetic or platform
