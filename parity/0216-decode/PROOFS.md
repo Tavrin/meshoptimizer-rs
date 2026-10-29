@@ -88,14 +88,47 @@ those jobs before treating native NEON identity as qualified.
 
 The first arm64 CI run passed every forced scalar/NEON Rust comparison but
 stopped at a C++ default status mismatch (case n=1, stride 4, v0, 2-bit groups,
-full length). Upstream's NEON latency path counts escapes in 4-bit nibbles, so
-a 1/2-bit group with all 16 fields escaped, which the encoder never emits,
-consumes 4 bytes instead of 20 there; C++ scalar and x86 SIMD consume 20. The
-Rust oracle is C++ scalar. The differential therefore compares C++ default
-only where its status (and, on success, its bytes) agrees with C++ scalar,
-records the rest as
-`cpp_default_isa_divergences`, and still requires zero such divergences on
-x86_64.
+full length). The only permitted C++ ISA divergence is now this upstream
+NEON class: on `aarch64` or `arm64`, scalar parsing of the actual supplied
+bytes reaches a **2-bit group with all 16 fields escaped**. Its four packed
+bytes are exactly `ff ff ff ff`; all 16 escape literals and the canonical
+24-byte group lookahead must be readable. Upstream's `SIMD_LATENCYOPT`
+4-bit escape-count sum wraps 16 to zero, consuming 4 bytes rather than 20.
+Upstream's encoder chooses a cheaper mode and never produces this group.
+One-bit and four-bit groups are outside this allowance.
+
+`neon_escape_group` follows version/header and minimum-tail validation,
+block controls, per-plane selector headers, scalar group consumption and
+channel validity, stopping at the first parse failure. It examines actual
+mutated/truncated input, not the generator's nominal selectors or an arbitrary
+byte substring. The first reachable matching group's position is retained
+with example divergences. A status split or differing successful output is
+counted as allowed only on arm64 with this predicate; all other divergences
+increment `cpp_default_isa_failing` and fail the run after writing its receipt.
+`cpp_default_isa_allowed` and the total `cpp_default_isa_divergences` remain
+explicit. x86 permits zero divergences, including streams in the known class.
+Rust NEON must still match Rust scalar on every status and destination byte;
+C++ scalar remains the C++ oracle. Inherited failed-output staging differences
+are counted separately as before.
+
+A minimal complete reproducer (47 bytes, one v1 vertex of stride 4) is:
+
+```python
+src = bytes.fromhex('a1 a8 02 ff ff ff ff') + bytes(40)
+vertex_count, vertex_size = 1, 4
+```
+
+`a8` selects a packed first plane and three zero planes; selector `02` maps
+to two bits. The next four bytes escape all sixteen values, followed by
+sixteen zero literals and the minimum 24-byte zero tail (including seed and
+channel). Scalar consumes 23 bytes before the tail and succeeds with four
+zero destination bytes. The affected upstream NEON path consumes only seven
+bytes before its final-consumption check and fails. The four-bit sum is
+`16 & 15 == 0`. This uses the minimum one-byte header, one-byte control,
+one-byte selector header, twenty-byte escaped group and 24-byte v1 tail.
+The native differential request is `struct.pack('<III', 1, 4, 47) + src`;
+the drivers normalize scalar success to 0 and the NEON failure to 1.
+Native arm64 reproduction remains a coordinator CI requirement.
 
 ## Final verdict and receipts
 
@@ -152,3 +185,28 @@ systemd cap instead of the failing optional elastic scope supervisor. No
 installed runner configuration or queue steering was changed.
 
 Final proof steps: **26**, all exit **0**; MSRV steps: **2**, both exit **0**. Final proof CPU: **377.09 s**; including the retained initial proof attempt: **972.23 s**, below 7,200 s. `receipts/proof-final/` retains individual exits and logs.
+
+## P2a harness fix verification
+
+`receipts/p2a-fix/` retains the tightened harness's x86_64 rerun. Both std and
+no-std SIMD completed 318,608 cases each with **0 allowed / 0 failing C++ ISA
+divergences**, zero Rust forced-level differences and zero C++ successful-byte
+differences. Each mode retains the inherited 74,863 failure-write differences.
+Both builds and both differential runs exited 0. The minimal reproducer's
+scalar and x86 default statuses, destination bytes and untouched tail were
+also checked; native arm64 execution remains pending coordinator CI.
+
+Six harness regression tests pass, including injected known-class arm64
+allowances, rejection of an unclassified arm64 divergence, and rejection of
+the known class on x86; rejected injections write a failing-count receipt
+before raising. Mixed group widths, controls, blocks, truncations, invalid
+channels and headers are covered. These injections test harness policy and
+do not establish native NEON identity.
+
+`parity/simd/update_audit.py` now retains spatial prose, inventory ordering and
+expanded spatial safety arguments. Regeneration is byte-identical to the
+pre-fix `SAFETY.md` (zero diff, SHA-256
+`fc03f8da1d3573795c985f8ddb43f4ad45a8fd43060b48376128194867b9f43c`).
+Regression, audit regeneration, public-text and whitespace checks exit 0.
+The designated temporary build target was removed after execution. Retained
+build logs replace private absolute paths with placeholders.

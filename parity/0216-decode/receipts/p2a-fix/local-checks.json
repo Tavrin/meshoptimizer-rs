@@ -1,0 +1,31 @@
+[
+  {
+    "step": "regression",
+    "exit": 0
+  },
+  {
+    "step": "audit-regeneration",
+    "exit": 0
+  },
+  {
+    "step": "audit-zero-diff",
+    "exit": 0
+  },
+  {
+    "step": "public-text",
+    "exit": 0
+  },
+  {
+    "step": "whitespace",
+    "exit": 0
+  },
+  {
+    "step": "audit-byte-identity",
+    "exit": 0,
+    "sha256": "fc03f8da1d3573795c985f8ddb43f4ad45a8fd43060b48376128194867b9f43c"
+  },
+  {
+    "step": "target-cleanup",
+    "exit": 0
+  }
+]
