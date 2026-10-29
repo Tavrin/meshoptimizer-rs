@@ -54,6 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   C++ 1.3.
 - `simplify_with_update` is unchanged: 1.00× the instructions of 0.2.14,
   1.08× optimesh 1.1.0 and 1.37× C++ 1.3 on the same meshes.
+- On three production meshes, `optimize_vertex_cache` uses 0.9422× the
+  instructions of 0.2.14, 0.9062× those of optimesh 1.1.0, and 1.2372×
+  those of C++ 1.3.
+- `build_meshlets` and `build_meshlets_flex` respectively use 0.8261× and
+  0.8263× the instructions of 0.2.14, 0.7836× and 0.7840× those of
+  optimesh 1.1.0, and 1.0012× and 1.0018× those of C++ 1.3 on the same meshes.
+- Cluster LOD uses 0.9089× the instructions of 0.2.14 and 1.1889× those
+  of C++ 1.3 on the same meshes.
 
 ## [0.2.14] - 2026-10-28
 

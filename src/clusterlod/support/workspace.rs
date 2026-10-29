@@ -249,6 +249,87 @@ impl Work {
     }
 }
 
+/// Work charging inside one simplifier phase: the checked [`Work`], or a
+/// [`Tally`] when a proven bound of every charge the phase can make fits the
+/// remaining budget. The phase charges the same counts at the same points
+/// either way; with a covering bound the checked path cannot exhaust, so
+/// charging the final tally once leaves `Work` exactly as the checked path
+/// would, on success and on every error return.
+pub(crate) trait Meter {
+    fn add(&mut self, count: usize) -> Result<(), Error>;
+    /// Same charges as [`Work::scan`]: the visited prefix on a callback
+    /// failure, every visit otherwise.
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error>;
+}
+impl Meter for Work {
+    #[inline(always)]
+    fn add(&mut self, count: usize) -> Result<(), Error> {
+        Work::add(self, count)
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        Work::scan(self, values, visit)
+    }
+}
+/// Plain local count of a covered phase's charges; see [`Meter`].
+#[derive(Default)]
+pub(crate) struct Tally(pub(crate) usize);
+impl Meter for Tally {
+    #[inline(always)]
+    fn add(&mut self, count: usize) -> Result<(), Error> {
+        self.0 += count;
+        Ok(())
+    }
+    #[inline(always)]
+    fn scan<T>(
+        &mut self,
+        values: impl ExactSizeIterator<Item = T>,
+        mut visit: impl FnMut(T) -> Result<(), Error>,
+    ) -> Result<(), Error> {
+        let count = values.len();
+        for (i, value) in values.enumerate() {
+            if let Err(error) = visit(value) {
+                self.0 += i + 1;
+                return Err(error);
+            }
+        }
+        self.0 += count;
+        Ok(())
+    }
+}
+/// Run a phase generic over [`Meter`]: with a local [`Tally`] when `bound`
+/// (an upper bound of its total charge; `None` on overflow) fits the
+/// remaining budget, charging the tally once on every exit; otherwise with
+/// the checked [`Work`].
+macro_rules! metered {
+    ($work:expr, $bound:expr, |$meter:ident| $phase:expr) => {{
+        let work: &mut $crate::clusterlod::support::workspace::Work = $work;
+        let bound: Option<usize> = $bound;
+        if bound.is_some_and(|bound| work.covers(bound) == Ok(true)) {
+            let mut tally = $crate::clusterlod::support::workspace::Tally::default();
+            let result = {
+                let $meter = &mut tally;
+                $phase
+            };
+            debug_assert!(Some(tally.0) <= bound, "phase work bound overrun");
+            work.add(tally.0)?;
+            result
+        } else {
+            let $meter = work;
+            $phase
+        }
+    }};
+}
+pub(crate) use metered;
+
 pub(crate) fn topology(indices: &[u32], vertices: usize, work: &mut Work) -> Result<(), Error> {
     if !indices.len().is_multiple_of(3) {
         return Err(Error::InvalidTopology);
