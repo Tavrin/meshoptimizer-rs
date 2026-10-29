@@ -273,7 +273,11 @@ fn build(
     meter.charge(len).map_err(whole)?;
     let target = |i: usize| match options.targets {
         LodTargets::Counts(v) => v[i],
-        LodTargets::Ratios(v) => ((v[i] as f64 * (indices.len() / 3) as f64) as usize) * 3,
+        // The float-to-integer cast saturates, so a huge ratio only needs the
+        // multiplication to saturate too; the order check below then rejects it.
+        LodTargets::Ratios(v) => {
+            ((v[i] as f64 * (indices.len() / 3) as f64) as usize).saturating_mul(3)
+        }
     };
     let cap = |i: usize| match options.errors {
         LodErrors::Uniform(v) => v,

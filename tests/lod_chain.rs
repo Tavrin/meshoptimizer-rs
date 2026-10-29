@@ -190,6 +190,23 @@ fn limits_invalid_and_error_cap() {
     );
 }
 
+/// Release fuzzing (0.2.15 qualification) found `ratio * triangles` overflowing
+/// `usize * 3` for huge ratios, which panicked under overflow checks.
+#[test]
+fn huge_ratios_are_invalid_parameters_not_overflow() {
+    let (p, indices) = grid(8);
+    let pos = Positions::from_packed(&p);
+    for huge in [f32::INFINITY, 1e30, f32::MAX] {
+        for (ratios, level) in [([huge, 0.5], 0), ([0.5, huge], 1)] {
+            let options = LodChainOptions::new(LodTargets::Ratios(&ratios), LodErrors::Uniform(0.));
+            let error =
+                build_lod_chain(&indices, pos, &options, &mut Workspace::default()).unwrap_err();
+            assert_eq!(error.error, Error::InvalidParameter);
+            assert_eq!(error.level, Some(level));
+        }
+    }
+}
+
 #[test]
 fn rounded_ratio_targets_can_match() {
     let p = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.]];
