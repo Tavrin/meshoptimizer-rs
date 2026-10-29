@@ -1,0 +1,162 @@
+diff --git a/src/simplify.rs b/src/simplify.rs
+index 20af4e2..49f075b 100644
+--- a/src/simplify.rs
++++ b/src/simplify.rs
+@@ -938,6 +938,12 @@ impl Indices {
+         self.0.len()
+     }
+ }
++// Original-space bounds from the same ordered scan used for normalization.
++// Update finalization reuses them before it mutates caller positions.
++struct PositionBounds {
++    lo: [f32; 3],
++    hi: [f32; 3],
++}
+ pub(crate) struct State {
+     vertex_count: usize,
+     sqrt_cache: SqrtCache,
+@@ -2445,7 +2451,7 @@ fn run(
+     work: &mut Work,
+     output: usize,
+ ) -> Result<SimplifyResult, Error> {
+-    let (result, state) = run_state(
++    let (result, state, _) = run_state(
+         out,
+         Input::borrowed(indices),
+         positions,
+@@ -2641,7 +2647,7 @@ fn run_state(
+     work: &mut Work,
+     output: usize,
+     solve: bool,
+-) -> Result<(SimplifyResult, State), Error> {
++) -> Result<(SimplifyResult, State, PositionBounds), Error> {
+     if settings.options.contains(SimplifyOptions::SPARSE) {
+         return extra::sparse_run(
+             out, input, positions, attributes, weights, flags, settings, ws, work, output, solve,
+@@ -2980,6 +2986,7 @@ fn run_state(
+             error,
+         },
+         s,
++        PositionBounds { lo, hi },
+     ))
+ }
+ 
+@@ -2988,6 +2995,46 @@ mod tests {
+     use super::*;
+     use crate::Limits;
+ 
++    #[test]
++    fn update_bounds_preserve_original_sparse_order_and_zero_signs() {
++        let p = [
++            [100.0; 3], // Unreferenced; dense bounds must still include it.
++            [0.0, -0.0, 0.0],
++            [1.0, 0.0, 0.0],
++            [-0.0, 1.0, 0.0],
++            [0.0, 0.0, 1.0],
++        ];
++        let indices = [3, 2, 1, 1, 2, 4];
++        for (options, expected_lo, expected_hi) in [
++            (SimplifyOptions::EMPTY, [0.0f32, -0.0, 0.0], [100.0f32; 3]),
++            (SimplifyOptions::SPARSE, [-0.0f32, 0.0, 0.0], [1.0f32; 3]),
++        ] {
++            let mut out = [0; 6];
++            let mut ws = Workspace::default();
++            let mut work = ws.begin();
++            let (_, _, bounds) = run_state(
++                &mut out,
++                Input::borrowed(&indices),
++                Positions::from_packed(&p),
++                None,
++                &[],
++                None,
++                SimplifySettings {
++                    target_index_count: indices.len(),
++                    target_error: 1.0,
++                    options,
++                },
++                &mut ws,
++                &mut work,
++                0,
++                true,
++            )
++            .unwrap();
++            assert_eq!(bounds.lo.map(f32::to_bits), expected_lo.map(f32::to_bits));
++            assert_eq!(bounds.hi.map(f32::to_bits), expected_hi.map(f32::to_bits));
++        }
++    }
++
+     #[test]
+     fn preflight_preserves_the_first_reservations_limit_error() {
+         // On 32-bit this vertex count fits the public index width. The quadric
+diff --git a/src/simplify_extra.rs b/src/simplify_extra.rs
+index 5ac1e72..6ad93ac 100644
+--- a/src/simplify_extra.rs
++++ b/src/simplify_extra.rs
+@@ -681,7 +681,7 @@ pub(super) fn sparse_run(
+     work: &mut Work,
+     output: usize,
+     solve: bool,
+-) -> Result<(SimplifyResult, State), Error> {
++) -> Result<(SimplifyResult, State, PositionBounds), Error> {
+     let mut b = Budget::new(ws, output);
+     b.reclaim_input(
+         &mut input.original,
+@@ -748,7 +748,7 @@ pub(super) fn sparse_run(
+     }
+     let bytes = b.bytes;
+     settings.options = SimplifyOptions(settings.options.bits() & !2);
+-    let (r, mut state) = run_state(
++    let (r, mut state, bounds) = run_state(
+         out,
+         Input {
+             indices: &topology,
+@@ -772,7 +772,7 @@ pub(super) fn sparse_run(
+         *i = sparse[*i as usize];
+     }
+     state.sparse = sparse;
+-    Ok((r, state))
++    Ok((r, state, bounds))
+ }
+ pub(super) fn fold_quadrics<M: super::Meter>(s: &mut State, work: &mut M) -> Result<(), Error> {
+     for a in 0..s.p.len() {
+@@ -1079,7 +1079,7 @@ pub fn simplify_with_update(
+         work.add(indices.len())?;
+         original.copy_from_slice(indices);
+         let bytes = b.bytes;
+-        let (r, s) = run_state(
++        let (r, s, bounds) = run_state(
+             indices,
+             Input {
+                 indices: &[],
+@@ -1096,25 +1096,12 @@ pub fn simplify_with_update(
+             bytes,
+             true,
+         )?;
+-        let mut lo = [f32::MAX; 3];
+-        let mut hi = [-f32::MAX; 3];
+-        for i in 0..s.p.len() {
+-            work.add(1)?;
+-            let source = if s.sparse.is_empty() {
+-                i
+-            } else {
+-                s.sparse[i] as usize
+-            };
+-            let p = positions.as_view().at(source)?;
+-            for k in 0..3 {
+-                if lo[k] > p[k] {
+-                    lo[k] = p[k];
+-                }
+-                if hi[k] < p[k] {
+-                    hi[k] = p[k];
+-                }
+-            }
+-        }
++        // The normalization scan visited the same original-space positions
++        // in this order (including the sparse map). Caller positions are still
++        // untouched, and all those reads are in bounds. Keep every work visit,
++        // including the limited failure prefix, without repeating the reads.
++        work.scan(s.p.iter(), |_| Ok(()))?;
++        let PositionBounds { lo, hi } = bounds;
+         let mut extent = 0.0;
+         for k in 0..3 {
+             if hi[k] - lo[k] >= extent {

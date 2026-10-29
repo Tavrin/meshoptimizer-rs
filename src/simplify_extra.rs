@@ -681,7 +681,7 @@ pub(super) fn sparse_run(
     work: &mut Work,
     output: usize,
     solve: bool,
-) -> Result<(SimplifyResult, State), Error> {
+) -> Result<(SimplifyResult, State, PositionBounds), Error> {
     let mut b = Budget::new(ws, output);
     b.reclaim_input(
         &mut input.original,
@@ -748,7 +748,7 @@ pub(super) fn sparse_run(
     }
     let bytes = b.bytes;
     settings.options = SimplifyOptions(settings.options.bits() & !2);
-    let (r, mut state) = run_state(
+    let (r, mut state, bounds) = run_state(
         out,
         Input {
             indices: &topology,
@@ -772,7 +772,7 @@ pub(super) fn sparse_run(
         *i = sparse[*i as usize];
     }
     state.sparse = sparse;
-    Ok((r, state))
+    Ok((r, state, bounds))
 }
 pub(super) fn fold_quadrics<M: super::Meter>(s: &mut State, work: &mut M) -> Result<(), Error> {
     for a in 0..s.p.len() {
@@ -1079,7 +1079,7 @@ pub fn simplify_with_update(
         work.add(indices.len())?;
         original.copy_from_slice(indices);
         let bytes = b.bytes;
-        let (r, s) = run_state(
+        let (r, s, bounds) = run_state(
             indices,
             Input {
                 indices: &[],
@@ -1096,25 +1096,12 @@ pub fn simplify_with_update(
             bytes,
             true,
         )?;
-        let mut lo = [f32::MAX; 3];
-        let mut hi = [-f32::MAX; 3];
-        for i in 0..s.p.len() {
-            work.add(1)?;
-            let source = if s.sparse.is_empty() {
-                i
-            } else {
-                s.sparse[i] as usize
-            };
-            let p = positions.as_view().at(source)?;
-            for k in 0..3 {
-                if lo[k] > p[k] {
-                    lo[k] = p[k];
-                }
-                if hi[k] < p[k] {
-                    hi[k] = p[k];
-                }
-            }
-        }
+        // The normalization scan visited the same original-space positions
+        // in this order (including the sparse map). Caller positions are still
+        // untouched, and all those reads are in bounds. Keep every work visit,
+        // including the limited failure prefix, without repeating the reads.
+        work.scan(s.p.iter(), |_| Ok(()))?;
+        let PositionBounds { lo, hi } = bounds;
         let mut extent = 0.0;
         for k in 0..3 {
             if hi[k] - lo[k] >= extent {

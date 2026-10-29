@@ -938,6 +938,12 @@ impl Indices {
         self.0.len()
     }
 }
+// Original-space bounds from the same ordered scan used for normalization.
+// Update finalization reuses them before it mutates caller positions.
+struct PositionBounds {
+    lo: [f32; 3],
+    hi: [f32; 3],
+}
 pub(crate) struct State {
     vertex_count: usize,
     sqrt_cache: SqrtCache,
@@ -2445,7 +2451,7 @@ fn run(
     work: &mut Work,
     output: usize,
 ) -> Result<SimplifyResult, Error> {
-    let (result, state) = run_state(
+    let (result, state, _) = run_state(
         out,
         Input::borrowed(indices),
         positions,
@@ -2641,7 +2647,7 @@ fn run_state(
     work: &mut Work,
     output: usize,
     solve: bool,
-) -> Result<(SimplifyResult, State), Error> {
+) -> Result<(SimplifyResult, State, PositionBounds), Error> {
     if settings.options.contains(SimplifyOptions::SPARSE) {
         return extra::sparse_run(
             out, input, positions, attributes, weights, flags, settings, ws, work, output, solve,
@@ -2980,6 +2986,7 @@ fn run_state(
             error,
         },
         s,
+        PositionBounds { lo, hi },
     ))
 }
 
@@ -2987,6 +2994,46 @@ fn run_state(
 mod tests {
     use super::*;
     use crate::Limits;
+
+    #[test]
+    fn update_bounds_preserve_original_sparse_order_and_zero_signs() {
+        let p = [
+            [100.0; 3], // Unreferenced; dense bounds must still include it.
+            [0.0, -0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [-0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+        ];
+        let indices = [3, 2, 1, 1, 2, 4];
+        for (options, expected_lo, expected_hi) in [
+            (SimplifyOptions::EMPTY, [0.0f32, -0.0, 0.0], [100.0f32; 3]),
+            (SimplifyOptions::SPARSE, [-0.0f32, 0.0, 0.0], [1.0f32; 3]),
+        ] {
+            let mut out = [0; 6];
+            let mut ws = Workspace::default();
+            let mut work = ws.begin();
+            let (_, _, bounds) = run_state(
+                &mut out,
+                Input::borrowed(&indices),
+                Positions::from_packed(&p),
+                None,
+                &[],
+                None,
+                SimplifySettings {
+                    target_index_count: indices.len(),
+                    target_error: 1.0,
+                    options,
+                },
+                &mut ws,
+                &mut work,
+                0,
+                true,
+            )
+            .unwrap();
+            assert_eq!(bounds.lo.map(f32::to_bits), expected_lo.map(f32::to_bits));
+            assert_eq!(bounds.hi.map(f32::to_bits), expected_hi.map(f32::to_bits));
+        }
+    }
 
     #[test]
     fn preflight_preserves_the_first_reservations_limit_error() {
