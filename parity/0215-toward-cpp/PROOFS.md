@@ -93,10 +93,45 @@ callback failure are exercised by `geometry-exact.rs`. Each selected case
 sweeps every work limit 0 through unrestricted usage + 1 in both feature
 modes; the inherited meshlet driver adds disconnected broad KD traversal.
 
+## Covered KD search record (check lane, campaign 2)
+
+`src/meshlet.rs` `nearest` now routes the covered moderate case
+(`!CHECK`, budget covers `2 * nodes.len()`) to `Covered::nearest` instead of
+`nearest_inner::<false, true>`. Attribution: in the campaign-1 candidate this
+monomorph was 66% of `meshlets` instructions on real-b6fd; the recursion
+passed nine arguments (five on the stack, spilled and reloaded per call) and
+paid two index checks per leaf item, where C++ `kdtreeNearest` passes eight
+and checks none.
+
+Equivalence, statement by statement against `nearest_inner::<false, true>`:
+
+- Same visit, node read, leaf/inner split, leaf loop (EMITTED skip, `inactive`,
+  `PRUNE` test, `moderate_root`, strict `distance < limit` update), inner
+  `delta`/`first`/`second`, both-children-inactive `set`, recursion order and
+  `delta.abs() <= limit` test. `result` and `limit` live in the record during
+  the search and are written back on every exit; the caller discards them on
+  an error (`?`), as before.
+- Work: the original charges `add_covered(1)` per visited node and
+  `add_covered(count)` per leaf; the record adds the same counts to `visits`
+  at the same points and the wrapper charges `add_covered(visits)` once on
+  every exit. `add_covered` is a plain subtraction under the same covering
+  bound, and nothing in the covered moderate search reads the budget, so
+  `Usage.work` and the exhaustion point (none: covered) are unchanged. The
+  only fallible statements are `Node::set(axis, 0)`, which cannot fail
+  (`0 <= 0x3fffffff`); both versions count before them anyway.
+- Leaf indexing: `cones` and `emitted` are resliced to their common length
+  per leaf, so one bound check serves both lookups. KD items index both
+  per-triangle tables (built over `cones`; `emitted` has one byte per
+  triangle), so neither version can panic; no output, error or write changes.
+
+No unsafe, no API change, no change to `CHECK` or uncovered paths. no_std
+keeps the pinned memo root and pruning through the same record field.
+
 ## Scope and shared helpers
 
 Shared-helper changes are limited to the private cluster-LOD snapshot's
 `support/workspace.rs` (Meter/Tally/macro) and `support/simplify.rs` (four
-metered phases and local table/vector borrows). Main `workspace.rs`,
+metered phases and local table/vector borrows). The campaign-2 change is
+local to `src/meshlet.rs`. Main `workspace.rs`,
 `processing.rs`, `math.rs`, SIMD modules and all other function families
 are unchanged. Vertex decoding has no retained source change.

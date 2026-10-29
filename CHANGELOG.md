@@ -10,10 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On three production meshes, `optimize_vertex_cache` uses 0.9422× the
   instructions of 0.2.14, 0.9062× those of optimesh 1.1.0, and 1.2372×
   those of C++ 1.3.
-- `build_meshlets` and `build_meshlets_flex` respectively use 0.9611× and
-  0.9612× the instructions of 0.2.14, 0.9116× and 0.9121× those of
-  optimesh 1.1.0, and 1.1648× and 1.1654× those of C++ 1.3 on the same meshes.
-- Cluster LOD uses 0.9476× the instructions of 0.2.14 and 1.2395× those
+- `build_meshlets` and `build_meshlets_flex` respectively use 0.8261× and
+  0.8263× the instructions of 0.2.14, 0.7836× and 0.7840× those of
+  optimesh 1.1.0, and 1.0012× and 1.0018× those of C++ 1.3 on the same meshes.
+- Cluster LOD uses 0.9089× the instructions of 0.2.14 and 1.1889× those
   of C++ 1.3 on the same meshes.
 
 ## [0.2.14] - 2026-10-28

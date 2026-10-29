@@ -1,5 +1,68 @@
 # Toward C++: 0.2.15 instruction and contract proof
 
+## Check lane: campaign 2 (current result)
+
+A second agent checked the campaign-1 commit and then optimized further. It
+found no case where the batched cache tally, the guarded native meshlet
+roots, the exact bounded scores or the metered cluster-LOD phases can change
+output, errors, their order, `Usage` or partial writes compared with
+v0.2.14. The checks were: the tally adds exactly what the per-entry charges
+add, because the covered loop has no early exit; the root guard admits only
++0, subnormals and finite positives; the exact-score selection and the
+removed pruning keep strict-less and listed tie order; the four phase bounds
+match their charges (`vertex_count + 2n`, `n`,
+`p.len() * (ac + 1) + forward + back`, `n`).
+
+Attribution for the remaining meshlet gap (perf record, instructions:u, on
+real-b6fd): `nearest_inner::<false, true>` took 66% of `meshlets`. Its
+recursion passed nine arguments, five of them on the stack and reloaded
+per call, and each leaf item paid two index checks. C++ `kdtreeNearest`
+takes 64% of a smaller total. The fix is a covered-search record
+(`src/meshlet.rs`, `Covered::nearest`; proof in PROOFS.md "Covered KD search
+record"). Cluster LOD benefits too, because its meshlet builds use the same
+search.
+
+Vertex decode was attributed but not changed. Of 126.0M instructions per
+call on real-b6fd, `bytes_kernel` takes 51% and `deltas_kernel` 41%; C++
+1.3 spends 94.6M of its 100.1M in one fused `decodeVertexBlockSimd`. The
+gap is inside the x86 SIMD kernels. The spec makes SIMD a non-goal and
+forbids new unsafe code. The scalar remainder (block driver 2.8%, output
+memset 1.1%) cannot reach the 0.97 gate, so the verdict stays NO-GAIN.
+
+This second campaign follows the same registration with the same arms,
+inputs and runner. It is the second and last campaign allowed. The
+coordinator authorized edits after campaign 1. No library code was edited
+after campaign 2's results.
+
+| Function | Candidate/base | Candidate/optimesh | Base/C++ | Candidate/C++ | Verdict | Campaign 1 (c/base, c/opt, c/C++) |
+|---|---:|---:|---:|---:|---|---|
+| cache | 0.9422 | 0.9062 | 1.3130 | 1.2372 | SHIPS | 0.9422, 0.9062, 1.2372 |
+| vertex-decode | 1.0000 | 0.7090 | 1.2565 | 1.2565 | NO-GAIN | 1.0000, 0.7090, 1.2565 |
+| meshlets | 0.8261 | 0.7836 | 1.2120 | 1.0012 | SHIPS | 0.9611, 0.9116, 1.1648 |
+| meshlets-flex | 0.8263 | 0.7840 | 1.2125 | 1.0018 | SHIPS | 0.9612, 0.9121, 1.1654 |
+| cluster-lod | 0.9089 | N/A | 1.3080 | 1.1889 | SHIPS | 0.9476, N/A, 1.2395 |
+
+All 456 samples were accepted. Maximum candidate/base over all cases was
+1.0000223. No case regressed (`regressions` is empty). The base, candidate
+and C++ output hashes are equal in every cell. On real-214e, `meshlets` now
+uses fewer instructions than C++ (13,272,832,724 against 13,286,174,217).
+Corpus meshes gain less (meshlets 0.975 against base) because they rarely
+fall back to the KD search. Medians per case are in `campaign-2/results.json`.
+
+Proof, run in a fresh directory against the final source (every step exited 0,
+`campaign-2/proof-exits.tsv`): test-all, test-no-default, clippy, fmt,
+boundary and public-text passed. Exact cache/decode compared 992,130 cases per
+feature mode with 0 differences. Geometry exact compared 996,773 + 1,020,255
+per mode with 0 differences. The meshlet/LOD exact driver produced 154,590
+identical records per mode. The C++ cache/decode check passed 1,932 cases;
+the reference check passed; the C++ meshlet/LOD differential passed 1,280 cases
+(400/400/400/80). Fuzz ran 2,270,000 cases in 300.29 child CPU seconds.
+
+Not verified: other architectures, wasm and no_std performance; the native-root
+exhaustive experiment was not rerun. The record covers this host only.
+
+## Campaign 1
+
 Baseline: v0.2.14. One registered four-arm instruction-only campaign,
 median of three per cell, five frozen corpus meshes and three real meshes.
 All accepted counters ran 100%; LC_ALL=C. No wall-time claim.

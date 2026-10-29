@@ -549,10 +549,95 @@ fn nearest<const CHECK: bool>(
         .len()
         .checked_mul(2)
         .is_some_and(|bound| ctx.work.covers(bound).unwrap_or(false));
-    if covered {
+    if covered && !CHECK {
+        let mut search = Covered {
+            nodes,
+            cones,
+            emitted,
+            p,
+            result: *result,
+            limit: *limit,
+            visits: 0,
+            roots,
+        };
+        let status = search.nearest(root);
+        // The same visits nearest_inner::<false, true> charges one by one,
+        // charged once on every exit (the covered budget cannot exhaust).
+        ctx.work.add_covered(search.visits);
+        *result = search.result;
+        *limit = search.limit;
+        status
+    } else if covered {
         nearest_inner::<CHECK, true>(nodes, root, cones, emitted, p, result, limit, roots, ctx)
     } else {
         nearest_inner::<CHECK, false>(nodes, root, cones, emitted, p, result, limit, roots, ctx)
+    }
+}
+
+// The moderate (!CHECK) search when the budget covers every visit: the
+// statements and order of nearest_inner::<false, true>, with the invariant
+// arguments in one record (the recursion passes two arguments, not nine) and
+// the visits tallied locally instead of charged per node.
+struct Covered<'a> {
+    nodes: &'a mut [Node],
+    cones: &'a [Cone],
+    emitted: &'a [u8],
+    p: [f32; 3],
+    result: u32,
+    limit: f32,
+    visits: usize,
+    roots: &'a mut SqrtCache,
+}
+impl Covered<'_> {
+    fn nearest(&mut self, root: usize) -> Result<(), Error> {
+        self.visits += 1;
+        let node = self.nodes[root];
+        if node.children() == 0 {
+            return Ok(());
+        }
+        if node.axis() == 3 {
+            let count = node.children();
+            // One bound for both per-vertex tables: a single index check
+            // per item (kd-tree items index both).
+            let n = self.cones.len().min(self.emitted.len());
+            let (cones, emitted) = (&self.cones[..n], &self.emitted[..n]);
+            let mut inactive = true;
+            for item in &self.nodes[root..root + count] {
+                let v = item.data as usize;
+                if emitted[v] == EMITTED {
+                    continue;
+                }
+                inactive = false;
+                let d = sub(cones[v].p, self.p);
+                let square = dot(d, d);
+                if PRUNE && (lower_distance(d) >= self.limit || root_at_least(square, self.limit)) {
+                    continue;
+                }
+                let distance = moderate_root(square, self.roots);
+                if distance < self.limit {
+                    self.result = v as u32;
+                    self.limit = distance;
+                }
+            }
+            self.visits += count;
+            if inactive {
+                self.nodes[root].set(3, 0)?;
+            }
+        } else {
+            let delta = self.p[node.axis()] - f32::from_bits(node.data);
+            let first = if delta <= 0. { 0 } else { node.children() };
+            let second = first ^ node.children();
+            if self.nodes[root + 1 + first].children() | self.nodes[root + 1 + second].children()
+                == 0
+            {
+                self.nodes[root].set(node.axis(), 0)?;
+            }
+            self.nearest(root + 1 + first)?;
+            if delta.abs() <= self.limit {
+                self.nearest(root + 1 + second)?;
+            }
+        }
+        Ok(())
     }
 }
 
