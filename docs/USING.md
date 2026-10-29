@@ -637,3 +637,52 @@ or clusters would be separate APIs.
   total work and peak bytes, on success and on failure.
 - **Failure:** the result is atomic. `LodChainError::level` is the zero-based
   failing level, or `None` for a failure of the call as a whole.
+
+### Tolerance welding, orientation and small holes
+
+Enable `repair` for these opt-in extensions, which are not in C++ meshoptimizer.
+Welding returns original representatives without moving or compacting vertices.
+Choose an explicit seam policy; use `WeldPolicy::AttributeEquality` to compare
+UVs, normals, materials or other caller attributes. Every merged vertex lies
+within tolerance of its representative; nearby chains do not merge transitively.
+Always apply the remap and sanitize faces again before proceeding.
+
+```rust
+# #[cfg(feature = "repair")] {
+use meshoptimizer_rs::{weld_vertices, orient_faces, fill_holes, sanitize,
+    Positions, SanitizeOptions, WeldPolicy, Workspace};
+let vertices = [[0.,0.,0.], [1.,0.,0.], [1.,1.,0.], [0.,1.,0.], [0.001,0.,0.]];
+let uv_classes = [0, 0, 0, 0, 0];
+let mut workspace = Workspace::default();
+let positions = Positions::from_packed(&vertices);
+let welded = weld_vertices(positions, 0.01,
+    WeldPolicy::AttributeEquality(&|a,b| uv_classes[a as usize] == uv_classes[b as usize]),
+    &mut workspace)?;
+assert_eq!(welded.remap, [0,1,2,3,0]);
+let indices: Vec<u32> = [4,1,2,0,3,2].map(|v| welded.remap[v]).to_vec();
+let clean = sanitize(&indices, positions, SanitizeOptions::EMPTY, &mut workspace)?;
+let oriented = orient_faces(&clean.indices, vertices.len(), &mut workspace)?;
+assert_eq!(oriented.report.flipped_faces, [1]);
+assert!(oriented.report.conflicts.is_empty());
+let filled = fill_holes(&oriented.indices, positions, 4, &mut workspace)?;
+assert_eq!(filled.report.filled.len(), 1);
+assert_eq!(filled.report.output_triangles, 4);
+assert!(filled.indices.iter().all(|&v| v < vertices.len() as u32));
+# }
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`orient_faces` preserves each component's lowest face as its winding seed;
+it does not choose outward orientation. Inspect `conflicts` and
+`ambiguous_components` before relying on the result. Non-manifold edges never
+provide propagation links. `fill_holes` appends deterministic ear triangles for
+simple, approximately planar boundary loops within the inclusive edge limit.
+It reports oversized, non-simple and ambiguous components separately, uses no
+new vertices, and does not test intersections with other mesh surfaces. Intended
+openings can also be filled: the caller must choose whether to invoke it.
+
+Each API has an `_into` variant and a bound function. Caller-buffer variants
+stage decisions in checked heap scratch and leave the entire destination
+unchanged on any error, including limits and insufficient capacity. Reports
+list original face/vertex indices, so callers can inspect changes. Added faces
+have no inherited material or face attributes; assign those explicitly.
