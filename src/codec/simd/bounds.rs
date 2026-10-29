@@ -14,15 +14,16 @@ pub(crate) fn roots(values: [f32; 8]) -> Option<[f32; 8]> {
     if !values.iter().all(|v| v.to_bits() <= f32::MAX.to_bits()) {
         return None;
     }
-    #[cfg(any(
-        target_arch = "x86_64",
-        target_arch = "aarch64",
-        all(target_arch = "wasm32", target_feature = "simd128")
-    ))]
+    #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
     if let Some(token) = dispatch::baseline() {
         // SAFETY: Baseline proves the selected backend's ISA. Both complete
         // initialized arrays are accessed only through fixed four-float windows.
         return Some(unsafe { arch::roots(token, values) });
+    }
+    // simd128 is enabled for the whole wasm build, so this call is safe.
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    if let Some(token) = dispatch::baseline() {
+        return Some(arch::roots(token, values));
     }
     None
 }
