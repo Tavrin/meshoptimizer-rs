@@ -1,0 +1,16 @@
+     Locking 9 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-baseline v0.2.15 (${SCRATCH}/base)
+   Compiling meshoptimizer-rs v0.2.15 (${WORKTREE})
+   Compiling clod-exact v0.0.0 (${SCRATCH}/exact-simd)
+    Finished `release` profile [optimized] target(s) in 23.70s

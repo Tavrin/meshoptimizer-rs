@@ -1,0 +1,7 @@
+build-exact-simd 0
+build-exact-scalar 0
+build-peer-base 0
+build-peer-serial 0
+build-peer-candidate 0
+build-peer-cpp-scalar 0
+build-peer-cpp-default 0

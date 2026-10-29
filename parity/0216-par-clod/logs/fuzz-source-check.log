@@ -1,0 +1,37 @@
+     Locking 18 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling libc v0.2.191
+   Compiling find-msvc-tools v0.1.15
+   Compiling shlex v2.0.1
+    Checking either v1.19.0
+    Checking rayon v1.11.0
+    Checking arbitrary v1.5.0
+   Compiling jobserver v0.1.35
+   Compiling cc v1.10.0
+    Checking meshoptimizer-rs v0.2.15 (${WORKTREE})
+   Compiling libfuzzer-sys v0.4.13
+    Checking meshopt-parallel-clod-fuzz v0.0.0 (${WORKTREE}/fuzz/parallel-clod)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.59s
+	Command being timed: "cargo check --offline --manifest-path fuzz/parallel-clod/Cargo.toml --bin parallel_clod"
+	User time (seconds): 0.30
+	System time (seconds): 0.52
+	Percent of CPU this job got: 22%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 148084
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 81
+	Minor (reclaiming a frame) page faults: 78971
+	Voluntary context switches: 10161
+	Involuntary context switches: 493
+	Swaps: 0
+	File system inputs: 1504
+	File system outputs: 145168
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

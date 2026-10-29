@@ -637,3 +637,43 @@ or clusters would be separate APIs.
   total work and peak bytes, on success and on failure.
 - **Failure:** the result is atomic. `LodChainError::level` is the zero-based
   failing level, or `None` for a failure of the call as a whole.
+
+### Parallel groups within one cluster LOD mesh
+
+Enable `parallel` and `clusterlod` for the opt-in `clusterlod::build_parallel`
+(or `build_parallel_with_output`). This extension is not in C++ meshoptimizer.
+Choose an existing Rayon pool and explicitly opt out of finite logical limits:
+
+```rust
+# #[cfg(all(feature = "parallel", feature = "clusterlod"))]
+# fn example(mut positions: Vec<[f32; 3]>, indices: Vec<u32>) -> Result<(), Box<dyn std::error::Error>> {
+use meshoptimizer_rs::{clusterlod, Limits, Workspace};
+let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+let mut workspace = Workspace::new(Limits {
+    max_bytes: usize::MAX,
+    max_work: u64::MAX,
+});
+let config = clusterlod::default_config(128)?; // dilation disabled
+let groups = pool.install(|| clusterlod::build_parallel(config, clusterlod::Mesh {
+    indices: &indices,
+    positions: &mut positions,
+    attributes: None,
+    vertex_lock: None,
+    attribute_weights: &[],
+    attribute_protect_mask: 0,
+}, &mut workspace))?;
+# let _ = groups;
+# Ok(()) }
+```
+
+Partitioning and boundary locks run serially each level; groups use the existing
+serial kernels and assemble in ordinal order. Callbacks run serially on the
+calling thread, including their custom IDs and failure prefixes. Dilation,
+any finite work/storage limit (including `Limits::default()`), single-group
+levels, and speculative worker failures use the serial algorithm. Existing
+`build` and batch APIs retain their behavior.
+
+`Usage` reports identical logical serial work and peak storage. Concurrent
+worker scratch, held speculative results, and Rayon infrastructure consume
+additional physical memory. Select a pool size that fits the mesh and available
+memory. No parallel speedup is guaranteed.
