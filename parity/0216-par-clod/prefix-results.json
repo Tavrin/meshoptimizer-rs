@@ -1,0 +1,249 @@
+{
+  "drivers": [
+    {
+      "mode": "simd",
+      "source_sha256": "37fcfcb1f0998dc6006a0041aba70d52abcb31c0f5b578fc769ec6bf4ebe0602",
+      "binary_sha256": "dbafd4b66b42f8880c91b753b0f2d1b4ee22dba002a165ddc5dfe129d8bf99c1",
+      "exit": 0
+    },
+    {
+      "mode": "scalar",
+      "source_sha256": "37fcfcb1f0998dc6006a0041aba70d52abcb31c0f5b578fc769ec6bf4ebe0602",
+      "binary_sha256": "3eddfb3bbda39ea64511a38350c2db457801bdff77ff8fcae98fba16985a5b26",
+      "exit": 0
+    }
+  ],
+  "cpp_lod_comparisons": 180,
+  "cpp_lod_outputs": [
+    {
+      "case": "04-js-encoder-reorderMesh-topology.bin",
+      "input_sha256": "4dd9add6ba61ee66fd69f35b57c19c9b3a677d8ed95c23004a104a921809e54a",
+      "output_sha256": "e25797a1a657d9593b1805477ee876cb55637800fe0c35b22182d3c5b7b84333"
+    },
+    {
+      "case": "05-grid-threshold--1.0.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "06-grid-threshold-0.0.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "07-grid-threshold-0.5.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "08-grid-threshold-1.0.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "09-grid-threshold-1.01.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "10-grid-threshold-1.05.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "11-grid-threshold-1.1.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "12-grid-threshold-2.0.bin",
+      "input_sha256": "f708faceacccdf69c94cd92f0699b425dc18a7ea821289fb2b334be452db0305",
+      "output_sha256": "34375864d321abeb2387335e0ac2d77928f5e9fc2dc3b428e3a9f08f5f3f3555"
+    },
+    {
+      "case": "13-disconnected-with-unused-vertex.bin",
+      "input_sha256": "fda5a762655890c7efff7942dfa49ce47a7c90236f3a7f52d0b3d5fb0c8b5c71",
+      "output_sha256": "456e387353a5c4ece3c19f101839b99fafd55f6ca2ab07a91a1bceab9a6cb38a"
+    },
+    {
+      "case": "14-duplicate-triangles.bin",
+      "input_sha256": "0c6307161eb8c59cc448750e8dd82eee8e9316836a07a70f3375ac4e49edd903",
+      "output_sha256": "9f7a1df6b8a5849c1c0c830b447290245772710ecb2cc1f1f7230aec8f64a17d"
+    },
+    {
+      "case": "16-million-indices-grid.bin",
+      "input_sha256": "0544d88f3a064da0ee1784c440f3d10bad0d55754c47b37a7b2bf3754fce9006",
+      "output_sha256": "fdeb3869a5e4f1602af252a12d961322c053ee3636abf75f042e9296045f8026"
+    },
+    {
+      "case": "17-sphere-shared-0.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "18-sphere-split-normal-uv-color-tangent-0.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "19-sphere-shared-1.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "20-sphere-split-normal-uv-color-tangent-1.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "21-sphere-shared-2.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "22-sphere-split-normal-uv-color-tangent-2.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "23-sphere-shared-3.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "24-sphere-split-normal-uv-color-tangent-3.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "25-sphere-shared-4.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "26-sphere-split-normal-uv-color-tangent-4.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "27-sphere-shared-5.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "28-sphere-split-normal-uv-color-tangent-5.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "29-sphere-shared-6.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "30-sphere-split-normal-uv-color-tangent-6.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "31-sphere-shared-7.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "32-sphere-split-normal-uv-color-tangent-7.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "33-sphere-shared-8.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "34-sphere-split-normal-uv-color-tangent-8.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "35-sphere-shared-9.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "36-sphere-split-normal-uv-color-tangent-9.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "37-sphere-shared-10.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "38-sphere-split-normal-uv-color-tangent-10.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "39-sphere-shared-11.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "40-sphere-split-normal-uv-color-tangent-11.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "41-sphere-shared-12.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "42-sphere-split-normal-uv-color-tangent-12.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "43-sphere-shared-13.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "44-sphere-split-normal-uv-color-tangent-13.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "45-sphere-shared-14.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "46-sphere-split-normal-uv-color-tangent-14.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "47-sphere-shared-15.bin",
+      "input_sha256": "8c2e8d01a6b450778367e98d553d0b073eaf0ce5d387638449e62272627f4139",
+      "output_sha256": "bae95458b6194d870b8664dc9df1435372b625a7a3a6f6cb72d11d958b9600d7"
+    },
+    {
+      "case": "48-sphere-split-normal-uv-color-tangent-15.bin",
+      "input_sha256": "549108a6e5ef5267c0d720c1970247a893e477b8fccddb4b0de5e20354e2550c",
+      "output_sha256": "ef95a3c3bc85c07fa5b3e6076798b37e50dcd8c3760ce43bf902fb0febf46347"
+    },
+    {
+      "case": "49-nonmanifold-shared-edge.bin",
+      "input_sha256": "8b779d934fa73047fd74010b317e170a3bc30983a0315fee87f20dd945f9c366",
+      "output_sha256": "7a6941f9cf25c32666742802aca920476adc34bed66324fa97c6605aaa87b9ef"
+    }
+  ],
+  "no_std_serial": {
+    "source_sha256": "6b95def8f746d378027055c42d4a18e4efe6c8045ec30c6715ba691ed4ec7f74",
+    "binary_sha256": "c71663621dc503d1f2730770a0ad1466926510a659b679b13517f11483f5ca64",
+    "exit": 0
+  }
+}

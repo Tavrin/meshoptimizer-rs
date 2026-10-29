@@ -7,6 +7,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Opt-in `clusterlod::build_parallel` and `build_parallel_with_output` use the current Rayon pool for independent groups within one mesh (`parallel` + `clusterlod`). Outputs, callback order and logical usage match the serial builder; finite budgets and border dilation use serial execution.
+
 ## [0.2.15] - 2026-10-29
 
 ### Added

@@ -1,0 +1,79 @@
+{
+  "instructions": {
+    "tiny-smooth": {
+      "base": 98792.97,
+      "serial": 98786.51,
+      "candidate": 98783.79,
+      "cpp-scalar": 75218.3,
+      "cpp-default": 75218.57
+    },
+    "medium-smooth": {
+      "base": 113146341.0,
+      "serial": 113144528.66666667,
+      "candidate": 113309158.66666667,
+      "cpp-scalar": 99765386.0,
+      "cpp-default": 99766162.33333333
+    },
+    "medium-seams": {
+      "base": 109350556.0,
+      "serial": 109348556.66666667,
+      "candidate": 109514109.0,
+      "cpp-scalar": 94520645.0,
+      "cpp-default": 94520673.66666667
+    },
+    "medium-sparse": {
+      "base": 114962449.66666667,
+      "serial": 114960660.33333333,
+      "candidate": 115116621.33333333,
+      "cpp-scalar": 100755060.0,
+      "cpp-default": 100755066.0
+    },
+    "million-smooth": {
+      "base": 14850888010.0,
+      "serial": 14850659551.0,
+      "candidate": 14854961677.0,
+      "cpp-scalar": 13010268542.0,
+      "cpp-default": 13010273022.0
+    },
+    "real-214e": {
+      "base": 78182485863.0,
+      "serial": 78180906865.0,
+      "candidate": 78199507756.0,
+      "cpp-scalar": 65734201747.0,
+      "cpp-default": 65734196602.0
+    },
+    "real-a082": {
+      "base": 88386829431.0,
+      "serial": 88384971364.0,
+      "candidate": 88409635301.0,
+      "cpp-scalar": 74324065331.0,
+      "cpp-default": 74324038916.0
+    },
+    "real-b6fd": {
+      "base": 21899715863.0,
+      "serial": 21899279224.0,
+      "candidate": 21905135815.0,
+      "cpp-scalar": 18418150556.0,
+      "cpp-default": 18418152786.0
+    }
+  },
+  "wall": {
+    "real-214e": {
+      "serial": 8.981424655,
+      "candidate": 5.490611258,
+      "speedup": 1.635778647033838
+    },
+    "real-a082": {
+      "serial": 9.453394041,
+      "candidate": 5.278333845,
+      "speedup": 1.7909806993270998
+    },
+    "real-b6fd": {
+      "serial": 2.168860918,
+      "candidate": 1.26828785,
+      "speedup": 1.710069932468406
+    }
+  },
+  "output_identity": true,
+  "samples": 150
+}

@@ -34,3 +34,9 @@ It includes too-small buffers and checks successful prefixes, index/source and
 record ranges, untouched tails, external guards and workspace accounting.
 The stable seeded harness retains replay seeds and execution counts; it has no
 coverage guidance or sanitizer instrumentation.
+
+`parallel-clod/target.rs` is the separate `parallel_clod` libFuzzer source for
+intra-mesh cluster LOD identity. It bounds meshes and topology, varies float
+bits, limits, dilation, callbacks and worker counts, and compares exact output
+words, errors, usage and mutable positions on reused workspaces. This feature
+lane adds the source only; execution belongs to the dedicated fuzz lane.

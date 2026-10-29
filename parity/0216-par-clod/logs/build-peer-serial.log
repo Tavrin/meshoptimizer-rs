@@ -1,0 +1,5 @@
+     Locking 1 package to latest compatible version
+      Adding meshoptimizer-rs v0.2.15 (${WORKTREE})
+   Compiling meshoptimizer-rs v0.2.15 (${WORKTREE})
+   Compiling clod-peer v0.0.0 (${SCRATCH}/peer)
+    Finished `release` profile [optimized] target(s) in 19.08s

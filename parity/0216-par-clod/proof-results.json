@@ -1,0 +1,41 @@
+{
+  "comparisons": {
+    "targeted-simd": 86371,
+    "lod-corpus-simd": 720,
+    "real-corpus-simd": 128,
+    "targeted-scalar": 86371,
+    "lod-corpus-scalar": 720,
+    "real-corpus-scalar": 128,
+    "prefix-simd": 1590,
+    "prefix-scalar": 1590,
+    "exact-no-std": 86371
+  },
+  "total_exact_comparisons": 263989,
+  "cpp_lod_comparisons": 180,
+  "performance_samples": 150,
+  "last_exit_per_step": {
+    "fmt": 0,
+    "test-all": 0,
+    "test-no-default": 0,
+    "test-scalar-parallel": 0,
+    "clippy": 0,
+    "unsafe-boundary": 0,
+    "build-drivers": 0,
+    "corpus-export": 0,
+    "targeted-simd": 0,
+    "lod-corpus-simd": 0,
+    "real-corpus-simd": 0,
+    "targeted-scalar": 0,
+    "lod-corpus-scalar": 0,
+    "real-corpus-scalar": 0,
+    "measure": 0,
+    "test-no-std-clusterlod": 0,
+    "fuzz-source-check": 0,
+    "prefixes": 0,
+    "final-source-binding": 0,
+    "cleanup": 0,
+    "public-text": 0,
+    "diff-check": 0
+  },
+  "fuzz_executed": false
+}
