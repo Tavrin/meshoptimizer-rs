@@ -1,0 +1,31 @@
+{
+  "test-all": {
+    "passed": 313,
+    "failed": 0,
+    "ignored": 8
+  },
+  "test-none": {
+    "passed": 245,
+    "failed": 0,
+    "ignored": 8
+  },
+  "test-repair-no-std": {
+    "passed": 267,
+    "failed": 0,
+    "ignored": 8
+  },
+  "doctest-all": {
+    "passed": 36,
+    "failed": 0,
+    "ignored": 5
+  },
+  "doctest-repair-no-std": {
+    "passed": 33,
+    "failed": 0,
+    "ignored": 5
+  },
+  "repair_tests_per_enabled_mode": 22,
+  "exact_observations_per_mode": 68872,
+  "corpus_meshes_per_mode": 45,
+  "fuzz_targets": "sources only; not built or run"
+}

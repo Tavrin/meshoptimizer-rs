@@ -1,0 +1,48 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+   Doc-tests meshoptimizer_rs
+
+running 41 tests
+test src/lib.rs - MigrationDoctests (line 313) ... ignored
+test src/lib.rs - MigrationDoctests (line 327) ... ignored
+test src/lib.rs - MigrationDoctests (line 346) ... ignored
+test src/lib.rs - MigrationDoctests (line 371) ... ignored
+test src/lib.rs - MigrationDoctests (line 390) ... ignored
+test src/lib.rs - ReadmeDoctests (line 241) ... ok
+test src/lib.rs - ReadmeDoctests (line 274) ... ok
+test src/lib.rs - ReadmeDoctests (line 178) ... ok
+test src/lib.rs - ReadmeDoctests (line 208) ... ok
+test src/lib.rs - guide (line 567) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/lib.rs - guide (line 763) ... ok
+test src/lib.rs - guide (line 318) ... ok
+test src/lib.rs - guide (line 182) ... ok
+test src/lib.rs - guide (line 685) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/lib.rs - (line 58) ... ok
+test src/lib.rs - guide (line 445) ... ok
+test src/lib.rs - (line 39) ... ok
+test src/lib.rs - MigrationDoctests (line 393) ... ok
+test src/lib.rs - guide (line 374) ... ok
+test src/lib.rs - guide (line 720) ... ok
+test src/lib.rs - MigrationDoctests (line 351) ... ok
+test src/cache.rs - cache::optimize_vertex_cache_with_table (line 107) ... ok
+test src/lib.rs - MigrationDoctests (line 332) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - MigrationDoctests (line 317) ... ok
+test src/parallel.rs - parallel (line 24) ... ok
+test src/lib.rs - (line 73) ... ok
+test src/parallel.rs - parallel (line 33) ... ok
+test src/lib.rs - guide (line 644) ... ok
+test src/lib.rs - guide (line 520) ... ok
+test src/lib.rs - (line 102) ... ok
+test src/lib.rs - guide (line 267) ... ok
+test src/lib.rs - guide (line 230) ... ok
+test src/lib.rs - guide (line 600) ... ok
+test src/lib.rs - guide (line 806) ... ok
+test src/lib.rs - MigrationDoctests (line 377) ... ok
+test src/parallel.rs - parallel::simplify_lod_chain (line 135) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+
+test result: ok. 36 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.44s
+

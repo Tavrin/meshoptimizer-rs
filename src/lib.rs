@@ -172,7 +172,13 @@ mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
+mod repair;
 mod sanitize;
+pub use repair::{
+    fill_holes, fill_holes_bound, fill_holes_into, orient_faces, orient_faces_bound,
+    orient_faces_into, weld_vertices, weld_vertices_bound, weld_vertices_into, FillHolesReport,
+    FilledMesh, HoleLoop, OrientReport, OrientedMesh, WeldPolicy, WeldReport, WeldedVertices,
+};
 
 mod lod_chain;
 mod raster;
