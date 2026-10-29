@@ -163,6 +163,7 @@ Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long si
 
 These opt-in APIs extend C++ meshoptimizer.
 
+- `codec::IndexSequenceDecoder` incrementally decodes arriving index-sequence bytes into caller buffers with a whole-stream work limit. Output remains provisional until `finish()` validates EOF.
 - [`sanitize`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#mesh-repair) removes invalid, repeated-index and duplicate triangles and reports counts by reason.
 - [`analyze_mesh`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#mesh-topology-analysis) reports boundary edges, non-manifold topology, orientation conflicts and connected components.
 - [`VertexScoreTable` and `optimize_vertex_cache_with_table`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#tuning-for-a-specific-gpu-cache) accept caller-defined vertex-cache scores.

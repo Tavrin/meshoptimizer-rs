@@ -388,6 +388,58 @@ Errors: `InvalidLayout` for invalid vertex/index strides or vertex byte lengths,
 Encoding constructors validate versions and levels (`InvalidParameter` for an
 unsupported vertex level), so an invalid encoding configuration cannot be built.
 
+## Streaming index sequences
+
+`codec::IndexSequenceDecoder` is an opt-in extension, not in C++ meshoptimizer.
+It accepts ordinary version 0/1 index-sequence bytes as they arrive, without
+heap allocation or a Cargo feature. The container supplies the index count.
+Keep the decoder across transport chunks and resubmit the unconsumed input
+suffix when output space runs out. Zero output space is valid and yields
+`NeedOutput` while indices remain; use at least one slot to make progress.
+
+```rust
+use meshoptimizer_rs::{codec::{IndexSequenceDecoder, Status}, Limits};
+
+let compressed = [0xd1, 0, 4, 0xcd, 1, 4, 7, 0x98, 0x1f, 0, 0, 0, 0];
+let mut decoder = IndexSequenceDecoder::new(6, Limits::default())?;
+let mut provisional = Vec::new();
+for chunk in compressed.chunks(2) { // replace with your transport's chunks
+    let mut input = chunk;
+    loop {
+        let mut output = [0u32; 1];
+        let progress = decoder.push(input, &mut output)?;
+        provisional.extend_from_slice(&output[..progress.written]);
+        input = &input[progress.consumed..];
+        match progress.status {
+            Status::NeedOutput => continue,
+            Status::NeedInput | Status::Done => {
+                assert!(input.is_empty());
+                break;
+            }
+        }
+    }
+}
+decoder.finish()?; // transport EOF: only now commit provisional indices
+assert_eq!(provisional, [0, 1, 51, 2, 49, 1000]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+All output is provisional until `finish()` succeeds. Submit every byte of the
+stream, including any bytes arriving after `Done`: these are rejected as extra
+input. `finish()` rejects incomplete headers, varints, counts, and padding.
+Padding is exactly four opaque bytes, as in the one-shot decoder. Noncanonical
+varints retain upstream's five-byte/truncated-high-bit semantics. Header errors
+are reported immediately, even before enough bytes exist for the one-shot
+minimum-length check. Errors are terminal and repeat on subsequent calls; an
+error may follow provisional writes in the same call without a progress receipt.
+
+`new` checks decoded size and charges four work units per declared index.
+`push` charges one per consumed compressed byte against the remaining budget;
+chunking and empty calls do not reset it. Fixed state and caller buffers are
+outside `max_bytes` (zero is allowed). This enables bounded staging; the
+application chooses whether to retain provisional output. Vertex and triangle
+streams require trailer information and are not supported by this decoder.
+
 ## Untrusted input with Limits
 
 ```text

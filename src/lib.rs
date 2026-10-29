@@ -29,6 +29,7 @@
 //! - [Per-mesh LOD chain](guide#per-mesh-lod-chain).
 //! - [Meshlets with bounds](guide#meshlets-with-bounds).
 //! - [Vertex and index encode and decode](guide#vertex-and-index-encode-and-decode).
+//! - [Streaming index sequences](guide#streaming-index-sequences) (an extension, not in C++ meshoptimizer).
 //! - [Untrusted input with Limits](guide#untrusted-input-with-limits).
 //! - [Parallel workers](guide#parallel-workers).
 //! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
