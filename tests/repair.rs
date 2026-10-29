@@ -1,4 +1,3 @@
-#![cfg(feature = "repair")]
 use meshoptimizer_rs::*;
 
 const QUAD: [[f32; 3]; 4] = [[0., 0., 0.], [1., 0., 0.], [1., 1., 0.], [0., 1., 0.]];
@@ -179,6 +178,51 @@ fn orient_reports_mobius_strip_contradiction() {
     assert_eq!(r.report.components, 1);
     assert!(!r.report.conflicts.is_empty());
     assert_eq!(r.report.ambiguous_components, [0]);
+}
+#[test]
+fn weld_cell_boundaries_match_oracle_for_nondyadic_tolerance_and_offsets() {
+    // Coordinates sit on, and one ulp either side of, multiples of a
+    // non-dyadic cell width, across zero and at a large offset.
+    for (t, offset) in [(0.1f32, 0f32), (0.1, -3.0), (0.3, 1.0e6), (1.0e-3, 4096.0)] {
+        let mut p = Vec::new();
+        for k in -6i32..=6 {
+            let base = offset + k as f32 * t;
+            for v in [base.next_down(), base, base.next_up()] {
+                p.push([v, offset - v, 0.5 * v]);
+            }
+        }
+        let mut expected = Vec::new();
+        for i in 0..p.len() {
+            let r = (0..i).find(|&j| {
+                expected[j] == j as u32
+                    && (0..3)
+                        .map(|k| (f64::from(p[i][k]) - f64::from(p[j][k])).powi(2))
+                        .sum::<f64>()
+                        <= f64::from(t).powi(2)
+            });
+            expected.push(r.unwrap_or(i) as u32);
+        }
+        let r = weld(&p, t);
+        assert_eq!(r.remap, expected);
+        let zero =
+            generate_position_remap(Positions::from_packed(&p), &mut Workspace::default()).unwrap();
+        assert_eq!(weld(&p, 0.).remap, zero);
+    }
+}
+#[test]
+fn orient_is_noop_on_closed_cube_and_stays_within_components() {
+    let (_, mut cube) = cube();
+    cube.extend_from_slice(&[4, 5, 6, 4, 6, 7]);
+    let r = orient_faces(&cube, 8, &mut Workspace::default()).unwrap();
+    assert_eq!(r.indices, cube);
+    assert!(r.report.flipped_faces.is_empty() && r.report.conflicts.is_empty());
+    // A consistent cube plus a separate flipped patch: only the patch changes.
+    let mut both = cube.clone();
+    both.extend(PATCH.map(|v| v + 8));
+    let r = orient_faces(&both, 12, &mut Workspace::default()).unwrap();
+    assert_eq!(&r.indices[..cube.len()], &cube[..]);
+    assert_eq!(r.report.flipped_faces, [cube.len() as u32 / 3 + 1]);
+    assert_eq!(r.report.components, 2);
 }
 #[test]
 fn fill_cube_missing_face_closes_boundary_with_original_vertices() {

@@ -26,11 +26,10 @@ cd "$root"
 rec fmt cargo fmt --all -- --check
 rec test-all cargo test --locked --all-features
 rec test-none cargo test --locked --no-default-features
-rec test-repair-no-std cargo test --locked --no-default-features --features repair
 rec doctest-all cargo test --locked --all-features --doc
-rec doctest-repair-no-std cargo test --locked --no-default-features --features repair --doc
+rec doctest-none cargo test --locked --no-default-features --doc
 rec clippy-all cargo clippy --locked --all-features --all-targets -- -D warnings
-rec clippy-repair-no-std cargo clippy --locked --no-default-features --features repair --all-targets -- -D warnings
+rec clippy-none cargo clippy --locked --no-default-features --all-targets -- -D warnings
 rec boundary bash parity/check-unsafe-boundary.sh
 # Read-only archive of the exact base; no checkout, staging or ref changes.
 git archive 1ecf69abe9f92c17e13dc38fa97be659aee44582 Cargo.toml Cargo.lock src docs README.md | tar -x -C "$scratch/base"
@@ -41,8 +40,8 @@ p=Path(sys.argv[1]);p.write_text(p.read_text().replace('name = "meshoptimizer-rs
 PY
 for mode in all none; do
   base_features='["std", "simd", "clusterlod", "experimental", "parallel", "parity-internals"]'
-  candidate_features='["std", "simd", "clusterlod", "experimental", "parallel", "parity-internals", "repair"]'
-  if [[ $mode == none ]]; then base_features='[]'; candidate_features='["repair"]'; fi
+  candidate_features='["std", "simd", "clusterlod", "experimental", "parallel", "parity-internals"]'
+  if [[ $mode == none ]]; then base_features='[]'; candidate_features='[]'; fi
   cat > "$scratch/exact/Cargo.toml" <<MANIFEST
 [package]
 name = "repair-proof"

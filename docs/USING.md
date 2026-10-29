@@ -640,7 +640,8 @@ or clusters would be separate APIs.
 
 ### Tolerance welding, orientation and small holes
 
-Enable `repair` for these opt-in extensions, which are not in C++ meshoptimizer.
+These are opt-in calls, like `sanitize`; they are extensions, not in C++
+meshoptimizer.
 Welding returns original representatives without moving or compacting vertices.
 Choose an explicit seam policy; use `WeldPolicy::AttributeEquality` to compare
 UVs, normals, materials or other caller attributes. Every merged vertex lies
@@ -648,7 +649,6 @@ within tolerance of its representative; nearby chains do not merge transitively.
 Always apply the remap and sanitize faces again before proceeding.
 
 ```rust
-# #[cfg(feature = "repair")] {
 use meshoptimizer_rs::{weld_vertices, orient_faces, fill_holes, sanitize,
     Positions, SanitizeOptions, WeldPolicy, Workspace};
 let vertices = [[0.,0.,0.], [1.,0.,0.], [1.,1.,0.], [0.,1.,0.], [0.001,0.,0.]];
@@ -668,7 +668,6 @@ let filled = fill_holes(&oriented.indices, positions, 4, &mut workspace)?;
 assert_eq!(filled.report.filled.len(), 1);
 assert_eq!(filled.report.output_triangles, 4);
 assert!(filled.indices.iter().all(|&v| v < vertices.len() as u32));
-# }
 # Ok::<(), meshoptimizer_rs::Error>(())
 ```
 

@@ -1,9 +1,11 @@
 # Opt-in local repair proof record
 
 Base: `1ecf69abe9f92c17e13dc38fa97be659aee44582` (0.2.15).
-The `repair` feature is disabled by default. The package version and dependency
-lockfile are unchanged. All existing algorithm source files are byte-identical
-to the base; `src/lib.rs` only adds feature documentation and gated exports.
+The repair APIs are exported ungated, like `sanitize` and `analyze_mesh`; there
+is no `repair` Cargo feature (see "Check-lane amendments" below). The package
+version and dependency lockfile are unchanged. All existing algorithm source
+files are byte-identical to the base; `src/lib.rs` only adds the module and its
+exports.
 `receipts/source-binding.json` binds every existing algorithm file, the new
 implementation, tests, guide, drivers and fuzz sources by SHA-256. No Git ref,
 checkout, staging, commit, tag or publication operation was performed.
@@ -132,3 +134,49 @@ the entire validation campaign completed well below two CPU-hours.
 CPU-only admission wrapper and dedicated build target. No queue was canceled.
 The dedicated target was removed after extracting the retained receipts; see
 `receipts/cleanup.json`. No timings or performance improvements are claimed.
+
+## Check-lane amendments
+
+These changes follow the receipts above, so `receipts/source-binding.json`,
+`exits.tsv` and the `*-repair-no-std` logs describe the earlier revision. The
+gates were rerun once on the amended tree (see the commit message).
+
+**Feature removed.** The `repair` Cargo feature no longer exists. The APIs are
+exported unconditionally from `src/lib.rs`, like `sanitize` and
+`analyze_mesh`; every item's rustdoc still says it is not in C++ meshoptimizer.
+`tests/repair.rs`, the guide recipe, `run.sh` and the fuzz manifest no longer
+name the feature. With no default features, the repair tests now run in the
+`test-none` gate.
+
+**No `unwrap` in library code.** Each former call is now a `?` on an error
+that cannot occur, so no reachable behaviour changed:
+
+- `weld_plan`, three reads of `positions.get(i)` / `get(j)` with indices below
+  `positions.len()`: the validation scan reads every such index first and
+  returns `InvalidParameter` if a read is `None`. `Positions::get` is pure, so
+  the later reads are `Some`. The fallback error is the same `InvalidParameter`.
+- `fill_plan`, the finiteness scan over referenced positions: `edges` has
+  already returned `IndexOutOfBounds` for any index `>= positions.len()`, and
+  a public `Positions` returns `Some` below its length. Fallback:
+  `IndexOutOfBounds`, the error `edges` would give.
+- `fill_plan`, the outgoing edge on the loop walk: a component reaches the walk
+  only if every vertex has exactly two boundary ends and exactly one incoming
+  end, so it has exactly one outgoing edge, which `find` returns. The walk
+  starts in the component and only follows its edges. Fallback:
+  `InvalidTopology`.
+- `triangulate`, the position closure: polygon vertices are input indices that
+  `edges` bounds-checked. Fallback: `IndexOutOfBounds`.
+
+**Work charged before allocation.** As in `sanitize`, the work for filling and
+sorting the weld grid, the edge list, fill's boundary scan and endpoint list,
+and orientation's group scan is now charged before the matching buffer is
+reserved. Totals are unchanged; a tight work limit now fails before that
+allocation rather than after it.
+
+**Attack tests added.** `weld_cell_boundaries_match_oracle_for_nondyadic_tolerance_and_offsets`
+places points on and one ulp either side of multiples of non-dyadic
+tolerances, across zero and at offsets up to 1e6, and compares with the
+exhaustive greedy oracle and, at tolerance 0, with `generate_position_remap`.
+`orient_is_noop_on_closed_cube_and_stays_within_components` checks a closed
+consistent cube is unchanged and that a flipped patch in a second component
+is the only face flipped.

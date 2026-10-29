@@ -126,8 +126,6 @@
 //!   default features for `no_std`; an allocator is still required.
 //! - `clusterlod`: the cluster-LOD builder from upstream's `demo/clusterlod.h`.
 //!   It reproduces the pinned demo exactly; it is not a stable upstream API.
-//! - `repair`: opt-in tolerance welding, face orientation and small-hole filling;
-//!   these extensions are not in C++ meshoptimizer.
 //! - `experimental`: upstream functions and options marked experimental.
 //! - `parallel`: ordered Rayon batch APIs for independent meshes and buffer
 //!   views; enables `std`. See the `parallel` module for limits and error semantics.
@@ -174,10 +172,8 @@ mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
-#[cfg(feature = "repair")]
 mod repair;
 mod sanitize;
-#[cfg(feature = "repair")]
 pub use repair::{
     fill_holes, fill_holes_bound, fill_holes_into, orient_faces, orient_faces_bound,
     orient_faces_into, weld_vertices, weld_vertices_bound, weld_vertices_into, FillHolesReport,

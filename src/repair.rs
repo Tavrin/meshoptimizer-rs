@@ -158,15 +158,16 @@ fn weld_plan(
     } else {
         (2.0 * f64::from(tolerance)).max(largest / ((1u64 << 50) as f64))
     };
-    let mut cells = budget.reserved::<Cell>(n)?;
     work.add(n)?;
+    work.add(sort_work(n)?)?;
+    let mut cells = budget.reserved::<Cell>(n)?;
     for i in 0..n {
         cells.push(Cell {
-            key: cell(positions.get(i).unwrap(), width),
+            // Infallible: the scan above returned for any missing position.
+            key: cell(positions.get(i).ok_or(Error::InvalidParameter)?, width),
             vertex: i as u32,
         });
     }
-    work.add(sort_work(n)?)?;
     cells.sort_unstable_by_key(|c| (c.key, c.vertex));
     let mut remap = budget.reserved::<u32>(n)?;
     let mut merged = 0;
@@ -174,7 +175,7 @@ fn weld_plan(
     let squared = f64::from(tolerance) * f64::from(tolerance);
     for i in 0..n {
         work.add(1)?;
-        let p = positions.get(i).unwrap();
+        let p = positions.get(i).ok_or(Error::InvalidParameter)?;
         let key = cell(p, width);
         let mut representative = i as u32;
         for x in -radius..=radius {
@@ -192,7 +193,7 @@ fn weld_plan(
                         if j >= representative as usize || remap[j] != c.vertex {
                             continue;
                         }
-                        let q = positions.get(j).unwrap();
+                        let q = positions.get(j).ok_or(Error::InvalidParameter)?;
                         let d = [0, 1, 2].map(|axis| f64::from(p[axis]) - f64::from(q[axis]));
                         if d[0] * d[0] + d[1] * d[1] + d[2] * d[2] <= squared
                             && match policy {
@@ -349,8 +350,9 @@ fn edges(
             return Err(Error::InvalidTopology);
         }
     }
-    let mut edges = budget.reserved::<Edge>(indices.len())?;
     work.add(indices.len())?;
+    work.add(sort_work(indices.len())?)?;
+    let mut edges = budget.reserved::<Edge>(indices.len())?;
     for (f, t) in indices.as_chunks::<3>().0.iter().enumerate() {
         for c in 0..3 {
             let (a, b) = (t[c], t[(c + 1) % 3]);
@@ -362,7 +364,6 @@ fn edges(
             });
         }
     }
-    work.add(sort_work(edges.len())?)?;
     edges.sort_unstable_by_key(|e| (e.key, e.face, e.corner));
     Ok(edges)
 }
@@ -391,6 +392,7 @@ fn orient_plan(
 ) -> Result<(Vec<i8>, OrientReport), Error> {
     let edges = edges(indices, vertex_count, budget, work)?;
     let n = indices.len() / 3;
+    work.add(sort_work(edges.len())?)?; // group discovery plus all edge visits
     let mut links = budget.filled(
         n,
         [Link {
@@ -399,7 +401,6 @@ fn orient_plan(
         }; 3],
     )?;
     let mut blocked = budget.filled(n, false)?;
-    work.add(sort_work(edges.len())?)?; // group discovery plus all edge visits
     for group in groups(&edges) {
         if let [a, b] = group {
             let parity = i8::from(a.forward == b.forward);
@@ -640,19 +641,20 @@ fn fill_plan(
     let edges = edges(indices, positions.len(), budget, work)?;
     for &v in indices {
         work.add(1)?;
+        // Infallible: `edges` returned `IndexOutOfBounds` for any index >= len.
         if !positions
             .get(v as usize)
-            .unwrap()
+            .ok_or(Error::IndexOutOfBounds)?
             .iter()
             .all(|x| x.is_finite())
         {
             return Err(Error::NumericalFailure);
         }
     }
+    work.add(sort_work(edges.len())?)?;
     let mut boundary = budget.reserved::<Edge>(edges.len())?;
     let mut bad_vertices =
         budget.reserved::<u32>(edges.len().checked_mul(2).ok_or(Error::SizeOverflow)?)?;
-    work.add(sort_work(edges.len())?)?;
     for group in groups(&edges) {
         match group {
             [e] => boundary.push(*e),
@@ -664,14 +666,15 @@ fn fill_plan(
     work.add(sort_work(bad_vertices.len())?)?;
     bad_vertices.sort_unstable();
     let b = boundary.len();
-    let mut ends = budget.reserved::<End>(b.checked_mul(2).ok_or(Error::SizeOverflow)?)?;
+    let end_count = b.checked_mul(2).ok_or(Error::SizeOverflow)?;
     work.add(b)?;
+    work.add(sort_work(end_count)?)?;
+    let mut ends = budget.reserved::<End>(end_count)?;
     for (i, e) in boundary.iter().enumerate() {
         for vertex in e.key {
             ends.push(End { vertex, edge: i });
         }
     }
-    work.add(sort_work(ends.len())?)?;
     ends.sort_unstable_by_key(|e| (e.vertex, e.edge));
     let mut visited = budget.filled(b, false)?;
     let mut queue = budget.reserved::<usize>(b)?;
@@ -741,7 +744,8 @@ fn fill_plan(
             let e = ends[range]
                 .iter()
                 .find(|e| directed(&boundary[e.edge])[0] == current)
-                .unwrap();
+                // Infallible: each loop vertex has two ends and one incoming edge.
+                .ok_or(Error::InvalidTopology)?;
             current = directed(&boundary[e.edge])[1];
         }
         let old = added.len();
@@ -877,17 +881,23 @@ fn triangulate(
     added: &mut Vec<u32>,
     work: &mut Work,
 ) -> Result<LoopResult, Error> {
-    let point = |i: usize| positions.get(polygon[i] as usize).unwrap().map(f64::from);
+    // Infallible: polygon vertices are indices that `edges` bounds-checked.
+    let point = |i: usize| {
+        positions
+            .get(polygon[i] as usize)
+            .map(|p| p.map(f64::from))
+            .ok_or(Error::IndexOutOfBounds)
+    };
     let n = polygon.len();
-    let origin = point(0);
+    let origin = point(0)?;
     let mut normal = [0.0; 3];
     let mut extent = 0.0f64;
     let mut lo = origin;
     let mut hi = origin;
     for i in 0..n {
         work.add(1)?;
-        let a = point(i);
-        let b = point((i + 1) % n);
+        let a = point(i)?;
+        let b = point((i + 1) % n)?;
         let a = [0, 1, 2].map(|k| {
             lo[k] = lo[k].min(a[k]);
             hi[k] = hi[k].max(a[k]);
@@ -912,7 +922,7 @@ fn triangulate(
     active.clear();
     for i in 0..n {
         work.add(1)?;
-        let p = point(i);
+        let p = point(i)?;
         projected.push([p[(axis + 1) % 3], p[(axis + 2) % 3]]);
         active.push(i);
     }
@@ -938,7 +948,7 @@ fn triangulate(
     let length = libm::sqrt(normal.iter().map(|v| v * v).sum());
     for i in 0..n {
         work.add(1)?;
-        let p = point(i);
+        let p = point(i)?;
         let distance = (0..3)
             .map(|k| (p[k] - origin[k]) * normal[k])
             .sum::<f64>()
