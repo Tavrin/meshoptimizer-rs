@@ -250,3 +250,5 @@ MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/LICEN
 is written by Arseny Kapoulkine. This independent port keeps upstream's licence notice and credits
 its algorithms; it is not affiliated with or endorsed by the upstream project. UPSTREAM.md records
 provenance and intentional API differences.
+
+Beyond upstream: `measure_lod_quality` and `measure_lod_chain_quality` measure sampled surface/normal deviation and camera LOD switch distances; this API is not in C++ meshoptimizer. See the [recipe](docs/USING.md#lod-quality-and-switch-distances).

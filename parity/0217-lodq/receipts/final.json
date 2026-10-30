@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "final_exit": 0,
+  "base": "09da597f438471d0ad9c16e460f3598e9356e9ea",
+  "focused_tests_per_mode": 16,
+  "analytic_tolerance": 2e-07,
+  "scaling": {
+    "triangles": [
+      256,
+      2048
+    ],
+    "work": [
+      75114,
+      773568
+    ],
+    "ratio": 10.298586149053438
+  },
+  "exact": {
+    "default": "exact base/candidate observations=91290; every work limit, byte boundaries, cold/warm/after-failure; differences=0",
+    "scalar": "exact base/candidate observations=91290; every work limit, byte boundaries, cold/warm/after-failure; differences=0"
+  },
+  "proof_cpu_seconds": 1.5337049999999999,
+  "perf_samples": 96,
+  "perf_event": "instructions:u",
+  "perf_gate": "valid instructions:u samples, exact four-arm outputs, final-source binding",
+  "worst_candidate_over_base": 1.0000006915053865,
+  "final_gates": {
+    "final-focused": 0,
+    "final-focused-scalar": 0,
+    "final-all": 0,
+    "scalar": 0,
+    "final-wasm": 0,
+    "final-wasm-default": 0,
+    "post-clippy": 0,
+    "post-fmt": 0,
+    "boundary": 0,
+    "exact-default": 0,
+    "exact-scalar": 0,
+    "cpp-oracle-default": 0,
+    "cpp-oracle-scalar": 0,
+    "proof-build-default": 0,
+    "proof-build-scalar": 0,
+    "oracle-build": 0,
+    "perf-final-binding": 0,
+    "perf-measure": 0,
+    "post-rebind": 0,
+    "public-text": 0
+  },
+  "retained_initial_failures": [
+    "clippy:101 (manual_is_multiple_of)",
+    "final-clippy:101 (fixture chunks_exact_to_as_chunks)"
+  ],
+  "fuzz": "source added; not run",
+  "target_removed": true,
+  "corpus_instruction_ratios": {
+    "candidate_over_base": 0.9999996401601979,
+    "candidate_over_cpp_scalar": 1.0515666472064882,
+    "candidate_over_cpp_default": 1.0515652919343046
+  },
+  "real_instruction_ratios": {
+    "candidate_over_base": 0.9999983160095439,
+    "candidate_over_cpp_scalar": 1.1378261483382381,
+    "candidate_over_cpp_default": 1.1378258732117665
+  }
+}

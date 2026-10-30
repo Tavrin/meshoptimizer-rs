@@ -1,0 +1,25 @@
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.67s
+     Running tests/lod_quality.rs (<target>/debug/deps/lod_quality-23cfa8e199b49842)
+
+running 16 tests
+test camera_distance_matches_pixel_model_and_rejects_invalid_parameters ... ok
+test cancelling_interpolated_normals_are_rejected ... ok
+test bump_against_plane_has_known_height ... ok
+test degenerates_and_extreme_finite_coordinates_are_supported ... ok
+test deterministic_ties_use_original_triangle_for_normals ... ok
+test chain_measures_each_level_against_source_under_one_budget ... ok
+test invalid_inputs_return_typed_errors ... ok
+test parallel_planes_have_exact_max_and_rms ... ok
+test normal_interpolation_uses_closest_point_barycentrics ... ok
+test supplied_normals_compare_normalized_interpolants ... ok
+test barycentric_sampling_detects_missing_interior_without_extra_vertices ... ok
+test every_work_limit_and_byte_boundary_is_deterministic_after_failure ... ok
+test cube_and_decimated_open_cube_find_missing_face_interior ... ok
+test sphere_tessellations_have_known_face_sagitta ... ok
+test retained_scratch_and_chain_failure_obey_call_limits ... ok
+N_vs_8N work=[75114, 773568] ratio=10.298586149053438
+test eight_times_triangles_scales_near_n_log_n ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+

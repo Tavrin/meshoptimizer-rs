@@ -778,3 +778,46 @@ or clusters would be separate APIs.
   total work and peak bytes, on success and on failure.
 - **Failure:** the result is atomic. `LodChainError::level` is the zero-based
   failing level, or `None` for a failure of the call as a whole.
+
+## LOD quality and switch distances
+
+`measure_lod_quality` and `measure_lod_chain_quality` measure sampled surface
+distances and shading-normal angles. This extension is not in C++ meshoptimizer. It does not change
+`simplify` or `build_lod_chain`.
+
+```rust
+use meshoptimizer_rs::{measure_lod_quality, LodQualityMesh, LodQualityOptions,
+    LodCamera, Positions, Workspace};
+let source = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.]];
+let level = [[0.,0.,0.1], [1.,0.,0.1], [0.,1.,0.1]];
+let indices = [0, 1, 2];
+let quality = measure_lod_quality(
+    LodQualityMesh::new(&indices, Positions::from_packed(&source)),
+    LodQualityMesh::new(&indices, Positions::from_packed(&level)),
+    &LodQualityOptions::default(), &mut Workspace::default())?;
+let camera = LodCamera::new(60_f64.to_radians(), 1080., 1.)?;
+let depth = camera.switch_distance(quality.symmetric.max)?;
+assert!(depth > 90. && depth < 100.);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`measure_lod_chain_quality(source, &chain, &options, Some(camera), &mut workspace)`
+returns one report per level, measured against the source using the chain's
+shared vertex buffers. Empty simplified surfaces return `InvalidParameter`.
+Assign `LodQualityMesh::normals` on both surfaces to compare interpolated shading
+normals in radians. Normals must be finite and nonzero; cancelling interpolated
+normals return `NumericalFailure`.
+
+Every triangle contributes its three corners plus `ceil(area * density)`
+barycentric samples. Shared corners repeat. The deterministic sequence and BVH
+tie rule are specified on `measure_lod_quality`. RMS/mean weight samples equally.
+Maxima are sampled estimates and can miss continuous surface extrema, including
+with high density. Increasing density is useful for convergence checks.
+
+Switch distances use a pinhole camera and the sampled symmetric maximum:
+`error * height / (2 * tan(vertical_fov/2) * pixel_tolerance)`. The result is the
+minimum camera-space depth for a transverse displacement of that magnitude.
+For camera-to-mesh-center distances, add a conservative bounding radius. This
+model excludes texture error, occlusion and rasterization; it is not a certified
+screen-space bound. Chain thresholds may be nonmonotone. Limits bound the whole
+measurement call, including all chain reports, validation, BVH and query visits.
