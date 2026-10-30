@@ -1,0 +1,3 @@
+   Compiling meshoptimizer-rs v0.2.16 (<target>/perf/candidate)
+   Compiling meshopt-peers v0.0.0 (<target>/perf/candidate/parity/peers)
+    Finished `release` profile [optimized] target(s) in 18.47s

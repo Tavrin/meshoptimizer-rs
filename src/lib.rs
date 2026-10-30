@@ -35,6 +35,8 @@
 //! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
 //! - [Mesh repair](guide#mesh-repair) (an extension, not in C++ meshoptimizer).
 //!
+//! - [LOD quality and switch distances](guide#lod-quality-and-switch-distances) (not in C++ meshoptimizer).
+//!
 //! # Simplify a mesh
 //!
 //! ```
@@ -181,6 +183,11 @@ pub use repair::{
     FilledMesh, HoleLoop, OrientReport, OrientedMesh, WeldPolicy, WeldReport, WeldedVertices,
 };
 
+mod lod_quality;
+pub use lod_quality::{
+    measure_lod_chain_quality, measure_lod_quality, LodCamera, LodDistance, LodNormalDeviation,
+    LodQuality, LodQualityLevel, LodQualityMesh, LodQualityOptions,
+};
 mod lod_chain;
 mod raster;
 #[cfg(feature = "experimental")]

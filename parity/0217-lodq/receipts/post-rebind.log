@@ -1,0 +1,159 @@
+perf-build-base built
+perf-build-candidate built
+perf-build-cpp-scalar built
+perf-build-cpp-default built
+tiny-smooth four arms byte-identical
+medium-smooth four arms byte-identical
+medium-seams four arms byte-identical
+medium-sparse four arms byte-identical
+million-smooth four arms byte-identical
+real-214e four arms byte-identical
+real-a082 four arms byte-identical
+real-b6fd four arms byte-identical
+[
+  {
+    "case": "tiny-smooth",
+    "instructions": {
+      "base": 110645.84,
+      "candidate": 110645.84,
+      "cpp-scalar": 120315.51,
+      "cpp-default": 120315.08
+    },
+    "wall_seconds": {
+      "base": 9.999360000000002e-06,
+      "candidate": 9.999360000000002e-06,
+      "cpp-scalar": 9.999360000000002e-06,
+      "cpp-default": 9.999360000000002e-06
+    },
+    "candidate_over_base": 1.0,
+    "candidate_over_cpp_scalar": 0.919630727576187,
+    "candidate_over_cpp_default": 0.919634014289813
+  },
+  {
+    "case": "medium-smooth",
+    "instructions": {
+      "base": 12038800.0,
+      "candidate": 12038791.0,
+      "cpp-scalar": 10958272.0,
+      "cpp-default": 10958317.0
+    },
+    "wall_seconds": {
+      "base": 0.000999936,
+      "candidate": 0.000999936,
+      "cpp-scalar": 0.000999936,
+      "cpp-default": 0.000999937
+    },
+    "candidate_over_base": 0.9999992524171845,
+    "candidate_over_cpp_scalar": 1.0986030461737033,
+    "candidate_over_cpp_default": 1.0985985347932534
+  },
+  {
+    "case": "medium-seams",
+    "instructions": {
+      "base": 15301356.0,
+      "candidate": 15301329.0,
+      "cpp-scalar": 14178405.0,
+      "cpp-default": 14178459.0
+    },
+    "wall_seconds": {
+      "base": 0.000999936,
+      "candidate": 0.000999936,
+      "cpp-scalar": 0.000999936,
+      "cpp-default": 0.000999936
+    },
+    "candidate_over_base": 0.9999982354505051,
+    "candidate_over_cpp_scalar": 1.0791995996728827,
+    "candidate_over_cpp_default": 1.0791954894392966
+  },
+  {
+    "case": "medium-sparse",
+    "instructions": {
+      "base": 13015083.0,
+      "candidate": 13015092.0,
+      "cpp-scalar": 11868158.0,
+      "cpp-default": 11868183.0
+    },
+    "wall_seconds": {
+      "base": 0.001999872,
+      "candidate": 0.000999935,
+      "cpp-scalar": 0.001999872,
+      "cpp-default": 0.000999936
+    },
+    "candidate_over_base": 1.0000006915053865,
+    "candidate_over_cpp_scalar": 1.0966395964731848,
+    "candidate_over_cpp_default": 1.0966372864321354
+  },
+  {
+    "case": "million-smooth",
+    "instructions": {
+      "base": 2426542817.0,
+      "candidate": 2426542869.0,
+      "cpp-scalar": 2256440699.0,
+      "cpp-default": 2256440691.0
+    },
+    "wall_seconds": {
+      "base": 0.253983771,
+      "candidate": 0.261983261,
+      "cpp-scalar": 0.286981662,
+      "cpp-default": 0.311980066
+    },
+    "candidate_over_base": 1.0000000214296652,
+    "candidate_over_cpp_scalar": 1.075385171910516,
+    "candidate_over_cpp_default": 1.0753851757231938
+  },
+  {
+    "case": "real-214e",
+    "instructions": {
+      "base": 3154100898.0,
+      "candidate": 3154088391.0,
+      "cpp-scalar": 2813433117.0,
+      "cpp-default": 2813432890.0
+    },
+    "wall_seconds": {
+      "base": 0.844946012,
+      "candidate": 0.858945116,
+      "cpp-scalar": 1.048932977,
+      "cpp-default": 0.989936746
+    },
+    "candidate_over_base": 0.9999960346861421,
+    "candidate_over_cpp_scalar": 1.1210817033259513,
+    "candidate_over_cpp_default": 1.1210817937796982
+  },
+  {
+    "case": "real-a082",
+    "instructions": {
+      "base": 5750946652.0,
+      "candidate": 5750940563.0,
+      "cpp-scalar": 5024122854.0,
+      "cpp-default": 5024126932.0
+    },
+    "wall_seconds": {
+      "base": 1.988872918,
+      "candidate": 2.159861991,
+      "cpp-scalar": 2.332850935,
+      "cpp-default": 2.325851386
+    },
+    "candidate_over_base": 0.999998941217791,
+    "candidate_over_cpp_scalar": 1.1446655924071079,
+    "candidate_over_cpp_default": 1.1446646633011461
+  },
+  {
+    "case": "real-b6fd",
+    "instructions": {
+      "base": 1435176706.0,
+      "candidate": 1435176666.0,
+      "cpp-scalar": 1250240398.0,
+      "cpp-default": 1250240391.0
+    },
+    "wall_seconds": {
+      "base": 0.22098588,
+      "candidate": 0.224985624,
+      "cpp-scalar": 0.27998211,
+      "cpp-default": 0.287981598
+    },
+    "candidate_over_base": 0.9999999721288676,
+    "candidate_over_cpp_scalar": 1.1479205665533134,
+    "candidate_over_cpp_default": 1.1479205729804325
+  }
+]
+final-source performance binding: binary identity False
