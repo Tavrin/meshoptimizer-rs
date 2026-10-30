@@ -521,3 +521,44 @@ fn hidden_candidate_and_finite_view_limits_preserve_destination_and_recover() {
         }
     }
 }
+
+#[test]
+fn extreme_coordinates_and_density_requests_are_bounded_and_atomic() {
+    let p = [
+        [-f32::MAX, -f32::MAX, -f32::MAX],
+        [f32::MAX, -f32::MAX, f32::MAX],
+        [-f32::MAX, f32::MAX, f32::MAX],
+    ];
+    let i = [0, 1, 2];
+    let side = 2.0 * f64::from(f32::MAX);
+    let mut ws = Workspace::default();
+    // Exercise resolution 1 and the exact maximum, on full-range f32 geometry.
+    for pixel_size in [f64::MAX, side * 2.0 / 2048.0] {
+        let mut o = HiddenOptions::default();
+        o.pixel_size = pixel_size;
+        assert_eq!(run(&p, &i, o).indices, i);
+    }
+    // Both an infinite requested resolution and just-over-limit sizes fail
+    // before raster allocation, preserving the caller's destination.
+    for pixel_size in [f64::from_bits(1), side * 2.0 / 2049.0] {
+        let mut o = HiddenOptions::default();
+        o.pixel_size = pixel_size;
+        let mut out = [99; 6];
+        assert_eq!(
+            remove_hidden_triangles_into(&mut out, &i, Positions::from_packed(&p), o, &mut ws),
+            Err(Error::InvalidParameter)
+        );
+        assert_eq!(out, [99; 6]);
+        assert_eq!(
+            remove_hidden_triangles(
+                &i,
+                Positions::from_packed(&p),
+                HiddenOptions::default(),
+                &mut ws
+            )
+            .unwrap()
+            .indices,
+            i
+        );
+    }
+}

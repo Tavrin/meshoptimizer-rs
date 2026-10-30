@@ -1,0 +1,5 @@
+parity/0217-hsr/eval/campaign.py:13:scenes=Path('<scene-scratch>')
+parity/0217-hsr/eval/finish.py:8:report=Path('<evaluation-report>')
+parity/0217-hsr/eval/oracle.py:74:scene_root=Path('<scene-scratch>')
+parity/0217-hsr/eval/prepare.py:13:SCRATCH = Path('<scene-scratch>')
+FAIL: private machine paths or project names in public text

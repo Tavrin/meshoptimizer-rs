@@ -1,0 +1,181 @@
+fmt 0 
+clippy-all 0    Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+    Checking either v1.18.0
+    Checking rayon v1.11.0
+    Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.15s
+
+clippy-none 0     Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.47s
+
+tests-all 0 (line 377) ... ok
+test src/lib.rs - guide (line 233) ... ok
+test src/lib.rs - ReadmeDoctests (line 181) ... ok
+test src/cache.rs - cache::optimize_vertex_cache_with_table (line 107) ... ok
+test src/lib.rs - guide (line 558) ... ok
+test src/lib.rs - MigrationDoctests (line 354) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/hidden.rs - hidden::remove_hidden_triangles (line 137) ... ok
+test src/lib.rs - guide (line 965) ... ok
+test src/lib.rs - MigrationDoctests (line 380) ... ok
+test src/lib.rs - guide (line 270) ... ok
+test src/lib.rs - MigrationDoctests (line 335) ... ok
+test src/lib.rs - guide (line 653) ... ok
+test src/lib.rs - guide (line 813) ... ok
+test src/lib.rs - (line 105) ... ok
+test src/lib.rs - guide (line 448) ... ok
+test src/lib.rs - guide (line 523) ... ok
+test src/lib.rs - guide (line 741) ... ok
+test src/lib.rs - (line 42) ... ok
+test src/lib.rs - guide (line 691) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/parallel.rs - parallel (line 24) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/parallel.rs - parallel::simplify_lod_chain (line 135) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+test src/parallel.rs - parallel (line 33) ... ok
+
+test result: ok. 40 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.52s
+
+
+tests-none 0 st src/lib.rs - MigrationDoctests (line 320) ... ok
+test src/lib.rs - guide (line 864) ... ok
+test src/lib.rs - guide (line 321) ... ok
+test src/lib.rs - guide (line 907) ... ok
+test src/lib.rs - guide (line 741) ... ok
+test src/lib.rs - guide (line 185) ... ok
+test src/lib.rs - MigrationDoctests (line 335) ... ok
+test src/lib.rs - guide (line 965) ... ok
+test src/hidden.rs - hidden::remove_hidden_triangles (line 137) ... ok
+test src/lib.rs - (line 76) ... ok
+test src/lib.rs - guide (line 781) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - MigrationDoctests (line 354) ... ok
+test src/lib.rs - guide (line 813) ... ok
+test src/lib.rs - guide (line 270) ... ok
+test src/lib.rs - (line 42) ... ok
+test src/lib.rs - guide (line 448) ... ok
+test src/lib.rs - guide (line 523) ... ok
+test src/lib.rs - guide (line 558) ... ok
+test src/lib.rs - guide (line 377) ... ok
+test src/lib.rs - guide (line 233) ... ok
+test src/lib.rs - MigrationDoctests (line 380) ... ok
+test src/lib.rs - MigrationDoctests (line 396) ... ok
+test src/lib.rs - guide (line 653) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+
+test result: ok. 37 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.39s
+
+
+wasm-all 0    Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+warning: enum `Level` is never used
+ --> src/codec/simd/dispatch.rs:7:10
+  |
+7 | pub enum Level {
+  |          ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: static `DETECTED` is never used
+  --> src/codec/simd/dispatch.rs:21:8
+   |
+21 | static DETECTED: AtomicU8 = AtomicU8::new(255);
+   |        ^^^^^^^^
+
+warning: function `detected_level` is never used
+  --> src/codec/simd/dispatch.rs:24:8
+   |
+24 | pub fn detected_level() -> Level {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `from_byte` is never used
+  --> src/codec/simd/dispatch.rs:33:4
+   |
+33 | fn from_byte(n: u8) -> Level {
+   |    ^^^^^^^^^
+
+warning: function `detect` is never used
+  --> src/codec/simd/dispatch.rs:43:4
+   |
+43 | fn detect() -> Level {
+   |    ^^^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 5 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.10s
+
+wasm-none 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.52s
+
+boundary 0 PASS: one allow, 37 individually documented blocks; no unsafe fn/impl
+PASS: published package contains exactly one unsafe-code allowance
+PASS: published package includes all 37 audited unsafe blocks
+
+exact-build-all 0      Locking 9 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-all)
+    Finished `release` profile [optimized] target(s) in 11.99s
+
+exact-all 0 PASS 87272 exact observations; 9 fixtures, 46 API/policy combinations; all work limits, byte boundaries, cold/repeat/after-failure
+
+exact-build-none 0      Locking 3 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-none)
+    Finished `release` profile [optimized] target(s) in 6.96s
+
+exact-none 0 PASS 87272 exact observations; 9 fixtures, 46 API/policy combinations; all work limits, byte boundaries, cold/repeat/after-failure
+
+hidden-release 0 ven_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+HSR scaling work N=2816 8N=25600 ratio=9.090909090909092
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test original_sample_rounding_seam_can_only_restore_triangles ... ok
+test opening_exposes_inside_from_outside ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+test extreme_coordinates_and_density_requests_are_bounded_and_atomic ... ok
+test hidden_candidate_and_finite_view_limits_preserve_destination_and_recover ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+
+
+docs-all 0  Documenting meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.96s
+   Generated <target>/doc/meshoptimizer_rs/index.html
+
+public-text 1 parity/0217-hsr/eval/campaign.py:13:scenes=Path('<scene-scratch>')
+parity/0217-hsr/eval/finish.py:8:report=Path('<evaluation-report>')
+parity/0217-hsr/eval/oracle.py:74:scene_root=Path('<scene-scratch>')
+parity/0217-hsr/eval/prepare.py:13:SCRATCH = Path('<scene-scratch>')
+FAIL: private machine paths or project names in public text
+

@@ -1,0 +1,18 @@
+{
+  "expected_exit": 1,
+  "actual_exit": 1,
+  "changed_pixels": 151800,
+  "per_view": [
+    18975,
+    18975,
+    18975,
+    18975,
+    18975,
+    18975,
+    18975,
+    18975
+  ],
+  "width": 512,
+  "height": 512,
+  "depth_bits": 16
+}
