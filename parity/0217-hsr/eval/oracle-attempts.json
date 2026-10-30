@@ -1,0 +1,16 @@
+{
+  "attempt1": {
+    "exit": 101,
+    "phase": "old ray driver build",
+    "reason": "Original ray API predates pixel_size; evaluation driver incorrectly referenced that field",
+    "logs": "oracle-attempt1"
+  },
+  "remediation": "Use unchanged original speed driver for the ray implementation; density-capable evaluation driver for all raster arms; repeat full oracle phase",
+  "attempt2": {
+    "exit": 1,
+    "phase": "pre-fix executable copy",
+    "reason": "Source directory and executable shared prior path",
+    "logs": "oracle-attempt2"
+  },
+  "remediation2": "Distinct driver-prefixed executable names, path preflight, repeat complete oracle phase"
+}

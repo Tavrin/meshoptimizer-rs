@@ -161,6 +161,11 @@ Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long si
 
 ### Beyond upstream
 
+- `remove_hidden_triangles` and `_into`: deterministic tiled software visibility (BVH rays for finite cameras),
+  exact duplicate removal, caller viewpoints, and checked resource limits.
+  See the [hidden-surface recipe](docs/USING.md#hidden-surface-removal); finite
+  samples do not prove continuous invisibility.
+
 These opt-in APIs extend C++ meshoptimizer.
 
 - [`codec::IndexSequenceDecoder`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#streaming-index-sequences) incrementally decodes arriving index-sequence bytes into caller buffers with a whole-stream work limit. Output remains provisional until `finish()` validates EOF.

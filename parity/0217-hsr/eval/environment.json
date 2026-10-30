@@ -1,0 +1,21 @@
+{
+  "cpu": 0,
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8\n",
+  "repetitions": 3,
+  "order": "coarse/default/fine/simplify; reversed in repetition 2",
+  "timing": "one warm resident call per process, parsing/initial warmup/emission outside timer; monotonic wall time; single thread",
+  "workspace_limits": {
+    "max_bytes": 3221225472,
+    "max_work": 17179869184
+  },
+  "simplify_settings": {
+    "target_fraction": 0.5,
+    "target_error": 0.5,
+    "options": "EMPTY"
+  },
+  "render": "independent two-sided CPU center-sample depth, 8 orthographic +/-1 corner directions, 512x512, 16-bit quantized depth incl coverage; exact pixel comparison",
+  "binary_sha256": {
+    "hsr-eval": "f93e48636bf97e7fb9d75e1e3110be590d6b5590aea89b590264bc5f596cb849",
+    "hsr-render": "f2843f01fd3d54965bb0c0c51da86428c1b741b6495dd23d4662a6cc2efb4703"
+  }
+}

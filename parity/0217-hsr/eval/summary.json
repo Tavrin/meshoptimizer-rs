@@ -1,0 +1,200 @@
+[
+  {
+    "scene": "breakfast_room",
+    "density": "coarse",
+    "resolution": 128,
+    "pixel_size": 0.23334389179944992,
+    "triangles": 269764,
+    "removed_percent": 33.61975652792812,
+    "report": {
+      "input": 269764,
+      "output": 179070,
+      "removed": 90694,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 90214,
+      "work": 4268442554,
+      "bytes": 61506192
+    },
+    "seconds": 25.362364933,
+    "simplify_seconds": 0.067995614,
+    "hsr_vs_simplify": 373.000013397923,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "breakfast_room",
+    "density": "default",
+    "resolution": 256,
+    "pixel_size": 0.0,
+    "triangles": 269764,
+    "removed_percent": 42.53569786924868,
+    "report": {
+      "input": 269764,
+      "output": 155018,
+      "removed": 114746,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 6492902900,
+      "bytes": 61506192
+    },
+    "seconds": 33.951811517,
+    "simplify_seconds": 0.067995614,
+    "hsr_vs_simplify": 499.32355220735275,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "breakfast_room",
+    "density": "fine",
+    "resolution": 512,
+    "pixel_size": 0.05833597294986248,
+    "triangles": 269764,
+    "removed_percent": 56.112379709672155,
+    "report": {
+      "input": 269764,
+      "output": 118393,
+      "removed": 151371,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 150891,
+      "work": 11448555331,
+      "bytes": 61506192
+    },
+    "seconds": 42.62425089,
+    "simplify_seconds": 0.067995614,
+    "hsr_vs_simplify": 626.867651934138,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "living_room",
+    "density": "coarse",
+    "resolution": 128,
+    "pixel_size": 0.13435777788981795,
+    "triangles": 580637,
+    "removed_percent": 0.009989029290245024,
+    "report": {
+      "input": 580637,
+      "output": 580579,
+      "removed": 58,
+      "duplicate": 4,
+      "back_to_back": 0,
+      "occluded": 54,
+      "work": 1448638245,
+      "bytes": 132385236
+    },
+    "seconds": 0.659957352,
+    "simplify_seconds": 0.280981839,
+    "hsr_vs_simplify": 2.348754475907605,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "living_room",
+    "density": "default",
+    "resolution": 256,
+    "pixel_size": 0.0,
+    "triangles": 580637,
+    "removed_percent": 0.6339589106446885,
+    "report": {
+      "input": 580637,
+      "output": 576956,
+      "removed": 3681,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3613936897,
+      "bytes": 132385236
+    },
+    "seconds": 2.285852244,
+    "simplify_seconds": 0.280981839,
+    "hsr_vs_simplify": 8.135231273790616,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "living_room",
+    "density": "fine",
+    "resolution": 512,
+    "pixel_size": 0.03358944447245449,
+    "triangles": 580637,
+    "removed_percent": 8.847696581513063,
+    "report": {
+      "input": 580637,
+      "output": 529264,
+      "removed": 51373,
+      "duplicate": 4,
+      "back_to_back": 488,
+      "occluded": 50881,
+      "work": 11069103236,
+      "bytes": 132385236
+    },
+    "seconds": 20.104700524,
+    "simplify_seconds": 0.280981839,
+    "hsr_vs_simplify": 71.55160132609139,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "conference",
+    "density": "coarse",
+    "resolution": 128,
+    "pixel_size": 42.2803430557251,
+    "triangles": 124619,
+    "removed_percent": 9.602869546377358,
+    "report": {
+      "input": 124619,
+      "output": 112652,
+      "removed": 11967,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 11967,
+      "work": 971698407,
+      "bytes": 28413132
+    },
+    "seconds": 3.328784769,
+    "simplify_seconds": 0.036997608,
+    "hsr_vs_simplify": 89.97297255000917,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "conference",
+    "density": "default",
+    "resolution": 256,
+    "pixel_size": 0.0,
+    "triangles": 124619,
+    "removed_percent": 20.629278039464285,
+    "report": {
+      "input": 124619,
+      "output": 98911,
+      "removed": 25708,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 2235726993,
+      "bytes": 28413132
+    },
+    "seconds": 9.499385798,
+    "simplify_seconds": 0.036997608,
+    "hsr_vs_simplify": 256.7567556799888,
+    "changed_pixels": 0
+  },
+  {
+    "scene": "conference",
+    "density": "fine",
+    "resolution": 512,
+    "pixel_size": 10.570085763931274,
+    "triangles": 124619,
+    "removed_percent": 38.770973928534175,
+    "report": {
+      "input": 124619,
+      "output": 76303,
+      "removed": 48316,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 48316,
+      "work": 7491891487,
+      "bytes": 32311849
+    },
+    "seconds": 17.583863123,
+    "simplify_seconds": 0.036997608,
+    "hsr_vs_simplify": 475.2702694455274,
+    "changed_pixels": 0
+  }
+]

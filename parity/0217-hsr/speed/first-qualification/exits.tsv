@@ -1,0 +1,11 @@
+build-before	0	16.337
+build-after	0	16.700
+build-none	0	15.358
+build-parallel	0	19.784
+scaling-32768-0	0	0.247
+scaling-262144-0	0	1.862
+scaling-262144-1	0	1.957
+scaling-32768-1	0	0.246
+scaling-32768-2	0	0.251
+scaling-262144-2	0	1.886
+oracle-build	0	0.624

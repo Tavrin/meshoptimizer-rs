@@ -1,0 +1,14 @@
+build-before 101      Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<target>/speed/old)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-before)
+error[E0609]: no field `pixel_size` on type `HiddenOptions<'_>`
+  --> <worktree>/parity/0217-hsr/eval/bench.rs:42:11
+   |
+42 |         o.pixel_size = s.parse().unwrap();
+   |           ^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `views`, `subdivisions`, `tolerance`
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `hsr-speed` (bin "hsr-speed") due to 1 previous error
+

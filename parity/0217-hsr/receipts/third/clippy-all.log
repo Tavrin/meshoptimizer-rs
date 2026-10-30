@@ -1,0 +1,26 @@
+    Checking meshoptimizer-rs v0.2.16 (<worktree>)
+error: using `contains()` instead of `iter().any()` is more efficient
+  --> tests/hidden.rs:71:13
+   |
+71 |       assert!(m
+   |  _____________^
+72 | |         .indices
+73 | |         .as_chunks::<3>()
+74 | |         .0
+75 | |         .iter()
+76 | |         .any(|t| *t == [12, 9, 10]));
+   | |___________________________________^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#manual_contains
+   = note: `-D clippy::manual-contains` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::manual_contains)]`
+help: try
+   |
+71 ~     assert!(m
+72 +         .indices
+73 +         .as_chunks::<3>()
+74 ~         .0.contains(&[12, 9, 10]));
+   |
+
+error: could not compile `meshoptimizer-rs` (test "hidden") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
