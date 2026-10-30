@@ -1,0 +1,18 @@
+{
+  "case": "medium-smooth",
+  "op": "overdraw",
+  "arm": "cpp-default",
+  "rep": 0,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "778799101159b3bd6398d6f697e146d0eaf287c6b8cfb79d18e0d93e27833994",
+  "binary_sha256": "bf9b25296b8791ba176784e1246306b18f1c3c599b5c5bad21dc36ba19d5ea86",
+  "process_wall": 0.017654911032877862,
+  "instructions": 1604458,
+  "instructions_per_call": 1604458.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.000173095,
+  "peak_rss_kib": 15804,
+  "output_sha256": "3a6698b8c420e9bdc6dcd8bda5dd68da790a3f52b6c506c2dafa9ddc1e99320b",
+  "output_bytes": 98304
+}

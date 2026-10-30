@@ -1,0 +1,30 @@
+[package]
+name = "meshopt-repair-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[package.metadata]
+cargo-fuzz = true
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../../..", default-features = false }
+[workspace]
+members = ["."]
+[[bin]]
+name = "weld_vertices"
+path = "fuzz_targets/weld_vertices.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "orient_faces"
+path = "fuzz_targets/orient_faces.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "fill_holes"
+path = "fuzz_targets/fill_holes.rs"
+test = false
+doc = false
+bench = false

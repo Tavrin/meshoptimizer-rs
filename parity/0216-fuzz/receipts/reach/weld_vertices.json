@@ -1,0 +1,364 @@
+{
+ "target": "weld_vertices",
+ "changed_executable_lines": 682,
+ "changed_lines_hit": 123,
+ "functions": [
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::apply_flips",
+   "regions_hit": 0,
+   "regions": 7,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::cell",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 32439
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::cell::{closure#0}",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 19464
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::cell::{closure#1}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 77853
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::cross",
+   "regions_hit": 0,
+   "regions": 10,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::directed",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::edges",
+   "regions_hit": 0,
+   "regions": 50,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::edges::{closure#2}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::edges::{closure#3}",
+   "regions_hit": 0,
+   "regions": 3,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::end_range",
+   "regions_hit": 0,
+   "regions": 8,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::end_range::{closure#0}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::end_range::{closure#1}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fan_root",
+   "regions_hit": 0,
+   "regions": 11,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_holes",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_holes::{closure#0}",
+   "regions_hit": 0,
+   "regions": 17,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_holes_bound",
+   "regions_hit": 0,
+   "regions": 8,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_holes_into",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_holes_into::{closure#0}",
+   "regions_hit": 0,
+   "regions": 16,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_plan",
+   "regions_hit": 0,
+   "regions": 171,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_plan::{closure#0}",
+   "regions_hit": 0,
+   "regions": 1,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_plan::{closure#1}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::fill_plan::{closure#2}",
+   "regions_hit": 0,
+   "regions": 3,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::groups",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::groups::{closure#0}",
+   "regions_hit": 0,
+   "regions": 9,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::groups::{closure#0}::{closure#0}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::intersects",
+   "regions_hit": 0,
+   "regions": 34,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::mark_disconnected_fans",
+   "regions_hit": 0,
+   "regions": 71,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::mark_disconnected_fans::{closure#0}",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::on_segment",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::on_segment::{closure#0}",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::orient_faces",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::orient_faces::{closure#0}",
+   "regions_hit": 0,
+   "regions": 14,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::orient_faces_bound",
+   "regions_hit": 0,
+   "regions": 3,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::orient_faces_into",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::orient_faces_into::{closure#0}",
+   "regions_hit": 0,
+   "regions": 14,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::orient_plan",
+   "regions_hit": 0,
+   "regions": 103,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate",
+   "regions_hit": 0,
+   "regions": 156,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate::{closure#0}",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate::{closure#0}::{closure#0}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate::{closure#1}",
+   "regions_hit": 0,
+   "regions": 10,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate::{closure#2}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate::{closure#3}",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::triangulate::{closure#4}",
+   "regions_hit": 0,
+   "regions": 3,
+   "entry_count": 0
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_plan",
+   "regions_hit": 92,
+   "regions": 105,
+   "entry_count": 378
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_plan::{closure#1}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 112704
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_plan::{closure#2}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 2368221
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_plan::{closure#3}",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 96201
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_vertices",
+   "regions_hit": 10,
+   "regions": 10,
+   "entry_count": 252
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_vertices_bound",
+   "regions_hit": 3,
+   "regions": 3,
+   "entry_count": 126
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_vertices_into",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 126
+  },
+  {
+   "file": "src/repair.rs",
+   "function": "meshoptimizer_rs::repair::weld_vertices_into::{closure#0}",
+   "regions_hit": 11,
+   "regions": 13,
+   "entry_count": 126
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+{
+  "case": "million-smooth",
+  "op": "meshlets-flex",
+  "arm": "candidate",
+  "rep": 1,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "1f4a5db09fb81ea0cd494ff06c9846f04fa49ecdb3726dd5ed163d981e5988ab",
+  "binary_sha256": "423e196bd402cc1a372dce701e5516443df16c66b16a112f2d615bf4a3968df3",
+  "process_wall": 2.7396198499482125,
+  "instructions": 3950856286,
+  "instructions_per_call": 3950856286.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 1.200281279,
+  "peak_rss_kib": 109964,
+  "output_sha256": "496a2216a6b2257a56d7a7e5d338ca3836c78e6c92c8310741356f2fe5dd3e07",
+  "output_bytes": 5819348
+}

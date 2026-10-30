@@ -1,0 +1,9 @@
+{
+  "target_env": "CARGO_TARGET_DIR",
+  "target_basename": "meshopt-0216-simplify",
+  "removed": true,
+  "logical_bytes_before": 1888217557,
+  "scratch_retained": true,
+  "all_measured_and_proof_binaries_retained_and_verified": true,
+  "no_queued_jobs_canceled": true
+}

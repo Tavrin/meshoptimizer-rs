@@ -1,0 +1,17 @@
+[
+  {
+    "check": "public-text",
+    "exit": 0,
+    "output": "PASS: public text contains no private machine paths or project names\n"
+  },
+  {
+    "check": "unsafe-inventory",
+    "exit": 0,
+    "output": "PASS: one allow, 29 individually documented blocks; no unsafe fn/impl\n"
+  },
+  {
+    "check": "whitespace",
+    "exit": 0,
+    "output": ""
+  }
+]

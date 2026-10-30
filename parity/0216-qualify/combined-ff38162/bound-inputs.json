@@ -1,0 +1,14 @@
+{
+  "binary": "633f96037a316663051ad8e9c6e7176b95638991ae2023f042d822be59d422ba",
+  "inputs": {
+    "medium-seams.bin": "457e8dc4c1f48587ef432214d65b177ffe87da0227393ea8eecf349b8b7844da",
+    "medium-smooth.bin": "75f39da281713d4ed01ddc1d4805bf0c43140852975944a3d23517a9c69f3325",
+    "medium-sparse.bin": "a98437909e3f5945ae359aaacbb64b3691e242bd65d201127f577711ec1a62a4",
+    "million-smooth.bin": "2a07fb3dcb7c54a6a9cd15ed98fde05496097a7f76661de6c221d644b32befe5",
+    "real-214e.bin": "67ef9faa9f30ed710b0c06c6cf5f6f7a37d9ce9069dc8ce3b3a0978d0684e079",
+    "real-a082.bin": "e66aafc5acdb13b838d86a8665145afc57bd3a544e2f4bd6b88270556cd7bd15",
+    "real-b6fd.bin": "db999aa2dd4d864a1dd65ae086a971daa74cb8000cbd458a00e0ec82eabdde86",
+    "tiny-smooth.bin": "f3d80d4ffb0563d9462a43848c478c0eeaf1ef9085a066b4c00729b1247aa34c"
+  },
+  "preparer": "0460eee06f50908c9f715a91afc452fd9e2004f52fa2c857d0a8fd4883382a87"
+}

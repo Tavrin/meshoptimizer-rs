@@ -1,0 +1,18 @@
+[
+  {
+    "step": "build-std",
+    "exit": 0
+  },
+  {
+    "step": "differential-std",
+    "exit": 0
+  },
+  {
+    "step": "build-no-std",
+    "exit": 0
+  },
+  {
+    "step": "differential-no-std",
+    "exit": 0
+  }
+]

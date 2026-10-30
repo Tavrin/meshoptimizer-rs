@@ -1,0 +1,5 @@
+     Locking 3 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.15 (<scratch>/candidate)
+   Compiling meshoptimizer-baseline v0.2.15 (<scratch>/base)
+   Compiling spatial-exact v0.0.0 (<scratch>/exact)
+    Finished `release` profile [optimized] target(s) in 22.14s

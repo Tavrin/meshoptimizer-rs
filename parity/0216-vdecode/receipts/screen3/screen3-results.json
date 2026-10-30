@@ -1,0 +1,422 @@
+{
+  "cells": [
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "instructions": {
+        "base": 535245.64,
+        "candidate": 535245.8,
+        "cpp-scalar": 494049.14,
+        "cpp-default": 494048.95
+      },
+      "wall_seconds": {
+        "base": 0.00013017035999999998,
+        "candidate": 0.00013154374999999998,
+        "cpp-scalar": 0.0001241351,
+        "cpp-default": 0.00011245643
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 1.0000002989281707,
+        "cpp-scalar": 0.9230325351178946,
+        "cpp-default": 0.923032180140692
+      },
+      "cpp_scalar": 1.0833857538948455,
+      "cpp_default": 1.0833861705403889
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 266900.82,
+        "candidate": 234738.82,
+        "cpp-scalar": 808396.09,
+        "cpp-default": 198242.53
+      },
+      "wall_seconds": {
+        "base": 6.433668e-05,
+        "candidate": 5.236133e-05,
+        "cpp-scalar": 0.00022724034,
+        "cpp-default": 2.885239e-05
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.8794983095218666,
+        "cpp-scalar": 3.028825801284537,
+        "cpp-default": 0.7427572908918002
+      },
+      "cpp_scalar": 0.2903759962520353,
+      "cpp_default": 1.1840991940528605
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 430644.99,
+        "candidate": 430644.9,
+        "cpp-scalar": 396840.16,
+        "cpp-default": 396839.64
+      },
+      "wall_seconds": {
+        "base": 8.985028000000001e-05,
+        "candidate": 0.00011944247999999999,
+        "cpp-scalar": 8.636563e-05,
+        "cpp-default": 8.324896e-05
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999997910111529,
+        "cpp-scalar": 0.9215018616610401,
+        "cpp-default": 0.9215006541699232
+      },
+      "cpp_scalar": 1.0851847756537545,
+      "cpp_default": 1.0851861976288457
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 228420.87,
+        "candidate": 202182.06,
+        "cpp-scalar": 559783.32,
+        "cpp-default": 171344.2
+      },
+      "wall_seconds": {
+        "base": 2.906189e-05,
+        "candidate": 2.680395e-05,
+        "cpp-scalar": 0.00014398155,
+        "cpp-default": 2.6327149999999997e-05
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.8851295417971221,
+        "cpp-scalar": 2.450666263551137,
+        "cpp-default": 0.7501249776344868
+      },
+      "cpp_scalar": 0.3611791433871235,
+      "cpp_default": 1.1799760949013738
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "instructions": {
+        "base": 555607.31,
+        "candidate": 555606.49,
+        "cpp-scalar": 529231.0,
+        "cpp-default": 529231.04
+      },
+      "wall_seconds": {
+        "base": 0.00013210269999999998,
+        "candidate": 0.00012739214,
+        "cpp-scalar": 0.00012380538999999998,
+        "cpp-default": 0.00012242338
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999985241374882,
+        "cpp-scalar": 0.9525270644837267,
+        "cpp-default": 0.95252713647702
+      },
+      "cpp_scalar": 1.049837386698814,
+      "cpp_default": 1.04983730735068
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 318721.98,
+        "candidate": 266495.04,
+        "cpp-scalar": 1041885.97,
+        "cpp-default": 217089.96
+      },
+      "wall_seconds": {
+        "base": 6.782234e-05,
+        "candidate": 6.362934e-05,
+        "cpp-scalar": 0.00026153136,
+        "cpp-default": 3.082891e-05
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.836136371893774,
+        "cpp-scalar": 3.268949226532792,
+        "cpp-default": 0.6811264161950801
+      },
+      "cpp_scalar": 0.2557813884373546,
+      "cpp_default": 1.2275788341386216
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 52042790.9,
+        "candidate": 52042784.9,
+        "cpp-scalar": 48034028.7,
+        "cpp-default": 48034013.9
+      },
+      "wall_seconds": {
+        "base": 0.0155301038,
+        "candidate": 0.014446456399999998,
+        "cpp-scalar": 0.0140150095,
+        "cpp-default": 0.013402188300000001
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999998847102568,
+        "cpp-scalar": 0.922971805879842,
+        "cpp-default": 0.9229715214984752
+      },
+      "cpp_scalar": 1.0834565891825767,
+      "cpp_default": 1.0834569230117994
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 23497992.3,
+        "candidate": 20397422.6,
+        "cpp-scalar": 83354243.2,
+        "cpp-default": 17347864.1
+      },
+      "wall_seconds": {
+        "base": 0.0056758242,
+        "candidate": 0.0051070879,
+        "cpp-scalar": 0.0224416343,
+        "cpp-default": 0.0050753622
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.8680495907729104,
+        "cpp-scalar": 3.5472921318473665,
+        "cpp-default": 0.7382700563741355
+      },
+      "cpp_scalar": 0.24470766954309053,
+      "cpp_default": 1.1757887012730288
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "instructions": {
+        "base": 167342060.6,
+        "candidate": 167342054.7,
+        "cpp-scalar": 175017325.8,
+        "cpp-default": 175017326.4
+      },
+      "wall_seconds": {
+        "base": 0.0851236952,
+        "candidate": 0.08695862130000001,
+        "cpp-scalar": 0.0872230136,
+        "cpp-default": 0.08710709650000001
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999999647428747,
+        "cpp-scalar": 1.0458657265990425,
+        "cpp-default": 1.045865730184513
+      },
+      "cpp_scalar": 0.9561456497811486,
+      "cpp_default": 0.9561456465032595
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 461991696.2,
+        "candidate": 419952834.3,
+        "cpp-scalar": 1227538437.1,
+        "cpp-default": 365787702.2
+      },
+      "wall_seconds": {
+        "base": 0.2047825311,
+        "candidate": 0.1984984384,
+        "cpp-scalar": 0.3837393701,
+        "cpp-default": 0.19233480890000001
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9090051569199612,
+        "cpp-scalar": 2.6570573609803336,
+        "cpp-default": 0.7917625039772306
+      },
+      "cpp_scalar": 0.34210972268381123,
+      "cpp_default": 1.1480780566821365
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "instructions": {
+        "base": 391556720.5,
+        "candidate": 391556718.9,
+        "cpp-scalar": 333344053.6,
+        "cpp-default": 333344028.1
+      },
+      "wall_seconds": {
+        "base": 0.10309715589999999,
+        "candidate": 0.1339020409,
+        "cpp-scalar": 0.1370981459,
+        "cpp-default": 0.094184565
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999999959137464,
+        "cpp-scalar": 0.8513301806551422,
+        "cpp-default": 0.8513301155304779
+      },
+      "cpp_scalar": 1.1746323795829665,
+      "cpp_default": 1.1746324694394605
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 513094026.7,
+        "candidate": 468341401.0,
+        "cpp-scalar": 1414329683.4,
+        "cpp-default": 410931906.5
+      },
+      "wall_seconds": {
+        "base": 0.2146087571,
+        "candidate": 0.2247532197,
+        "cpp-scalar": 0.42908384169999997,
+        "cpp-default": 0.2105695448
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9127788994390957,
+        "cpp-scalar": 2.7564727122168233,
+        "cpp-default": 0.8008900613069639
+      },
+      "cpp_scalar": 0.33114019064785755,
+      "cpp_default": 1.1397056144629159
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "instructions": {
+        "base": 47209399.1,
+        "candidate": 47209392.5,
+        "cpp-scalar": 49347427.7,
+        "cpp-default": 49347434.0
+      },
+      "wall_seconds": {
+        "base": 0.0062214439,
+        "candidate": 0.0067149057,
+        "cpp-scalar": 0.007307907399999999,
+        "cpp-default": 0.006782697799999999
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999998601973309,
+        "cpp-scalar": 1.0452881977055286,
+        "cpp-default": 1.0452883311535308
+      },
+      "cpp_scalar": 0.9566738267899625,
+      "cpp_default": 0.9566737046550384
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 125953029.9,
+        "candidate": 114764699.2,
+        "cpp-scalar": 330727581.4,
+        "cpp-default": 100113922.8
+      },
+      "wall_seconds": {
+        "base": 0.0203441127,
+        "candidate": 0.019891985600000002,
+        "cpp-scalar": 0.065640228,
+        "cpp-default": 0.0182679588
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9111706109104089,
+        "cpp-scalar": 2.625800916917839,
+        "cpp-default": 0.7948512463692625
+      },
+      "cpp_scalar": 0.3470067380355475,
+      "cpp_default": 1.1463410481803638
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "instructions": {
+        "base": 2429.5841,
+        "candidate": 2429.5833,
+        "cpp-scalar": 2154.5419,
+        "cpp-default": 2154.5429
+      },
+      "wall_seconds": {
+        "base": 6.356743e-07,
+        "candidate": 6.540588e-07,
+        "cpp-scalar": 2.838782e-07,
+        "cpp-default": 5.976076e-07
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9999996707255369,
+        "cpp-scalar": 0.8867945340933043,
+        "cpp-default": 0.8867949456863831
+      },
+      "cpp_scalar": 1.1276565565979477,
+      "cpp_default": 1.1276560332124275
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "instructions": {
+        "base": 4390.584,
+        "candidate": 4079.59,
+        "cpp-scalar": 5479.5465,
+        "cpp-default": 2819.5465
+      },
+      "wall_seconds": {
+        "base": 8.784622e-07,
+        "candidate": 9.102730999999999e-07,
+        "cpp-scalar": 1.335375e-06,
+        "cpp-default": 6.765251e-07
+      },
+      "ratios": {
+        "base": 1.0,
+        "candidate": 0.9291679648994303,
+        "cpp-scalar": 1.2480222448767637,
+        "cpp-default": 0.6421802885447585
+      },
+      "cpp_scalar": 0.7445123423991383,
+      "cpp_default": 1.4468958039883366
+    }
+  ],
+  "summary": [
+    {
+      "op": "index-decode",
+      "group": "real",
+      "base": 0.999999940284649,
+      "worst": 0.9999999959137464,
+      "cpp_scalar": 1.024227985411703,
+      "cpp_default": 1.0242279667718088
+    },
+    {
+      "op": "index-decode",
+      "group": "corpus",
+      "base": 0.9999996339023448,
+      "worst": 1.0000002989281707,
+      "cpp_scalar": 1.0856240166615208,
+      "cpp_default": 1.0856243343862024
+    },
+    {
+      "op": "vertex-decode",
+      "group": "real",
+      "base": 0.9109835766341559,
+      "worst": 0.9127788994390957,
+      "cpp_scalar": 0.34002047762419324,
+      "cpp_default": 1.144702547454809
+    },
+    {
+      "op": "vertex-decode",
+      "group": "corpus",
+      "base": 0.8790863671319556,
+      "worst": 0.9291679648994303,
+      "cpp_scalar": 0.34499623849118954,
+      "cpp_default": 1.2388406437370139
+    }
+  ]
+}

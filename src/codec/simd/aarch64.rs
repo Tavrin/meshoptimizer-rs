@@ -273,3 +273,339 @@ pub(super) fn triangles(
     // checks each complete input window and scalar-equivalent bound before use.
     unsafe { triangles_kernel(source, bound, codes, data, count, out) }
 }
+
+#[inline]
+#[target_feature(enable = "neon")]
+fn combine<const CHANNEL: u8>(a: uint8x16_t, b: uint8x16_t) -> uint8x16_t {
+    if CHANNEL == 0 {
+        vaddq_u8(a, b)
+    } else if CHANNEL == 1 {
+        vreinterpretq_u8_u16(vaddq_u16(vreinterpretq_u16_u8(a), vreinterpretq_u16_u8(b)))
+    } else {
+        veorq_u8(a, b)
+    }
+}
+#[inline]
+#[target_feature(enable = "neon")]
+fn delta_prefix<const CHANNEL: u8>(
+    mut r: uint8x16_t,
+    previous: uint8x16_t,
+    rot: u32,
+) -> uint8x16_t {
+    r = if CHANNEL == 0 {
+        veorq_u8(
+            vshrq_n_u8::<1>(r),
+            vsubq_u8(vdupq_n_u8(0), vandq_u8(r, vdupq_n_u8(1))),
+        )
+    } else if CHANNEL == 1 {
+        let v = vreinterpretq_u16_u8(r);
+        vreinterpretq_u8_u16(veorq_u16(
+            vshrq_n_u16::<1>(v),
+            vsubq_u16(vdupq_n_u16(0), vandq_u16(v, vdupq_n_u16(1))),
+        ))
+    } else {
+        let v = vreinterpretq_u32_u8(r);
+        vreinterpretq_u8_u32(vorrq_u32(
+            vshlq_u32(v, vdupq_n_s32(rot as i32)),
+            vshlq_u32(v, vdupq_n_s32(rot as i32 - 32)),
+        ))
+    };
+    let zero = vdupq_n_u8(0);
+    r = combine::<CHANNEL>(r, vextq_u8::<12>(zero, r));
+    r = combine::<CHANNEL>(r, vextq_u8::<8>(zero, r));
+    combine::<CHANNEL>(r, previous)
+}
+#[inline]
+#[target_feature(enable = "neon")]
+fn deltas_kernel<const CHANNEL: u8, const FIXED: usize>(
+    buffer: &[u8],
+    target: &mut [u8],
+    count: usize,
+    stride: usize,
+    last: &[u8],
+    rot: u32,
+) {
+    let stride = if FIXED == 0 { stride } else { FIXED };
+    let mut previous = vreinterpretq_u8_u32(vdupq_n_u32(u32::from_le_bytes(
+        last[..4].try_into().unwrap(),
+    )));
+    let full = count & !15;
+    for start in (0..full).step_by(16) {
+        let planes = core::array::from_fn::<_, 4, _>(|c| {
+            load(buffer[c * count + start..].first_chunk::<16>().unwrap())
+        });
+        let ab0 = vzip1q_u8(planes[0], planes[1]);
+        let cd0 = vzip1q_u8(planes[2], planes[3]);
+        let ab1 = vzip2q_u8(planes[0], planes[1]);
+        let cd1 = vzip2q_u8(planes[2], planes[3]);
+        let records = [
+            vreinterpretq_u8_u16(vzip1q_u16(
+                vreinterpretq_u16_u8(ab0),
+                vreinterpretq_u16_u8(cd0),
+            )),
+            vreinterpretq_u8_u16(vzip2q_u16(
+                vreinterpretq_u16_u8(ab0),
+                vreinterpretq_u16_u8(cd0),
+            )),
+            vreinterpretq_u8_u16(vzip1q_u16(
+                vreinterpretq_u16_u8(ab1),
+                vreinterpretq_u16_u8(cd1),
+            )),
+            vreinterpretq_u8_u16(vzip2q_u16(
+                vreinterpretq_u16_u8(ab1),
+                vreinterpretq_u16_u8(cd1),
+            )),
+        ];
+        for (g, record) in records.into_iter().enumerate() {
+            let r = delta_prefix::<CHANNEL>(record, previous, rot);
+            previous = vreinterpretq_u8_u32(vdupq_laneq_u32::<3>(vreinterpretq_u32_u8(r)));
+            let mut bytes = [0; 16];
+            store(&mut bytes, r);
+            let dst = &mut target[(start + g * 4) * stride..];
+            if stride == 4 {
+                dst[..16].copy_from_slice(&bytes);
+            } else {
+                for (i, word) in bytes.as_chunks::<4>().0.iter().enumerate() {
+                    dst[i * stride..i * stride + 4].copy_from_slice(word);
+                }
+            }
+        }
+    }
+    if full < count {
+        let mut last = [0; 16];
+        store(&mut last, previous);
+        let dst = &mut target[full * stride..];
+        match CHANNEL {
+            0 => crate::codec::vertex::scalar_deltas::<1, false>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+            1 => crate::codec::vertex::scalar_deltas::<2, false>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+            _ => crate::codec::vertex::scalar_deltas::<4, true>(
+                buffer, dst, count, stride, &last, rot, full,
+            ),
+        }
+    }
+}
+#[inline]
+#[target_feature(enable = "neon")]
+fn header_group(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
+    const BITS: [u32; 9] = [0, 2, 4, 8, 0, 1, 2, 4, 8];
+    group_kernel(data, out, BITS[h])
+}
+#[inline]
+#[target_feature(enable = "neon")]
+fn bytes_kernel(
+    data: &[u8],
+    pos: usize,
+    out: &mut [u8],
+    hshift: usize,
+) -> Result<usize, crate::Error> {
+    match hshift {
+        0 => bytes_header_kernel::<0>(data, pos, out),
+        4 => bytes_header_kernel::<4>(data, pos, out),
+        5 => bytes_header_kernel::<5>(data, pos, out),
+        _ => unreachable!(),
+    }
+}
+#[inline]
+#[target_feature(enable = "neon")]
+fn bytes_header_kernel<const H: usize>(
+    data: &[u8],
+    mut pos: usize,
+    out: &mut [u8],
+) -> Result<usize, crate::Error> {
+    let headers = (out.len() / 16).div_ceil(4);
+    let header = data
+        .get(pos..pos + headers)
+        .ok_or(crate::Error::InvalidStream)?;
+    pos += headers;
+    let (blocks, tail) = out.as_chunks_mut::<64>();
+    for (i, block) in blocks.iter_mut().enumerate() {
+        let control = header[i];
+        if let Some(window) = data.get(pos..).and_then(|v| v.first_chunk::<96>()) {
+            if control == 0 && H != 5 {
+                block.fill(0);
+                continue;
+            }
+            if control == 255 && H != 4 {
+                block.copy_from_slice(&window[..64]);
+                pos += 64;
+                continue;
+            }
+            // Each group consumes at most 24 bytes. A single checked 96-byte
+            // array therefore proves all four lookaheads, even full escapes.
+            let chunks = block.as_chunks_mut::<16>().0;
+            let mut used = header_group(
+                window.first_chunk().unwrap(),
+                &mut chunks[0],
+                H + usize::from(control & 3),
+            );
+            used += header_group(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[1],
+                H + usize::from((control >> 2) & 3),
+            );
+            used += header_group(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[2],
+                H + usize::from((control >> 4) & 3),
+            );
+            used += header_group(
+                window[used..].first_chunk().unwrap(),
+                &mut chunks[3],
+                H + usize::from(control >> 6),
+            );
+            pos += used;
+        } else {
+            for (j, chunk) in block.as_chunks_mut::<16>().0.iter_mut().enumerate() {
+                let window = data
+                    .get(pos..)
+                    .and_then(|v| v.first_chunk::<24>())
+                    .ok_or(crate::Error::InvalidStream)?;
+                pos += header_group(window, chunk, H + usize::from((control >> (j * 2)) & 3));
+            }
+        }
+    }
+    for (j, chunk) in tail.as_chunks_mut::<16>().0.iter_mut().enumerate() {
+        let window = data
+            .get(pos..)
+            .and_then(|v| v.first_chunk::<24>())
+            .ok_or(crate::Error::InvalidStream)?;
+        pos += header_group(
+            window,
+            chunk,
+            H + usize::from((header[blocks.len()] >> (j * 2)) & 3),
+        );
+    }
+    Ok(pos)
+}
+
+pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
+    _token: Baseline,
+    output: &mut D,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), crate::Error> {
+    // SAFETY: Baseline proves AArch64 NEON. Every load/store uses an
+    // initialized fixed array behind checked slices; the parser validates
+    // complete group windows and keeps scalar channel commit order.
+    unsafe { vertex_kernel::<1024, 0, D>(output, count, stride, data) }
+}
+#[target_feature(enable = "neon")]
+fn vertex_kernel<
+    const SCRATCH: usize,
+    const FIXED: usize,
+    D: crate::codec::vertex::Destination + ?Sized,
+>(
+    output: &mut D,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), crate::Error> {
+    let stride = if FIXED == 0 { stride } else { FIXED };
+    let version = crate::codec::decode_vertex_version(data)?;
+    let tail = stride + if version == 0 { 0 } else { stride / 4 };
+    let padded = tail.max(if version == 0 { 32 } else { 24 });
+    if data.len() < 1 + padded {
+        return Err(crate::Error::InvalidStream);
+    }
+    let start = data.len() - tail;
+    let channels = &data[start + stride..];
+    let mut last = [0u8; 256];
+    last[..stride].copy_from_slice(&data[start..start + stride]);
+    let block_size = ((8192 / stride) & !15).min(256);
+    let mut pos = 1;
+    // Four planes, each starting j * block and rounded up to 16 lanes.
+    // Up to two 16-record groups fit 128 bytes; full blocks fit 1024.
+    let mut deltas = [0u8; SCRATCH];
+    let mut offset = 0;
+    while offset < count {
+        let block = block_size.min(count - offset);
+        let aligned = block.div_ceil(16) * 16;
+        let controls = if version == 0 {
+            &[][..]
+        } else {
+            let c = data
+                .get(pos..pos + stride / 4)
+                .ok_or(crate::Error::InvalidStream)?;
+            pos += stride / 4;
+            c
+        };
+        // Each bounded block fits 8 KiB. Write directly into its checked
+        // destination slice, avoiding zeroing/copying an extra stack block.
+        let block_output = output.block(offset * stride, (offset + block) * stride);
+        for k in (0..stride).step_by(4) {
+            let control = if version == 0 { 0 } else { controls[k / 4] };
+            for j in 0..4 {
+                let ctrl = (control >> (j * 2)) & 3;
+                let out = &mut deltas[j * block..j * block + aligned];
+                match ctrl {
+                    3 => {
+                        out[..block].copy_from_slice(
+                            data.get(pos..pos + block)
+                                .ok_or(crate::Error::InvalidStream)?,
+                        );
+                        pos += block;
+                    }
+                    2 => out[..block].fill(0),
+                    _ => {
+                        pos = bytes_kernel(
+                            data,
+                            pos,
+                            out,
+                            if version == 0 {
+                                0
+                            } else {
+                                4 + usize::from(ctrl)
+                            },
+                        )?
+                    }
+                }
+            }
+            let channel = if version == 0 { 0 } else { channels[k / 4] };
+            let target = &mut block_output[k..];
+            // k is a four-byte-aligned channel group; only complete records
+            // belong to this group. Extend the target to keep chunk strides
+            // complete without touching bytes beyond this group's four bytes.
+            let target_len = (block - 1) * stride + 4;
+            let target = &mut target[..target_len];
+            match channel & 3 {
+                0 => deltas_kernel::<0, FIXED>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    0,
+                ),
+                1 => deltas_kernel::<1, FIXED>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    0,
+                ),
+                2 => deltas_kernel::<2, FIXED>(
+                    &deltas[..block * 4],
+                    target,
+                    block,
+                    stride,
+                    &last[k..k + 4],
+                    (32 - u32::from(channel >> 4)) & 31,
+                ),
+                _ => return Err(crate::Error::InvalidStream),
+            }
+        }
+        last[..stride].copy_from_slice(&block_output[(block - 1) * stride..]);
+        output.finish_block();
+        offset += block;
+    }
+    if data.len().checked_sub(pos) != Some(padded) {
+        return Err(crate::Error::InvalidStream);
+    }
+    Ok(())
+}

@@ -1,0 +1,18 @@
+{
+  "case": "medium-seams",
+  "op": "meshlets-spatial",
+  "arm": "candidate",
+  "rep": 2,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "f1eb9f9502852b555e666bef1c6660225184ff7998a9ebaa90df723b06858e32",
+  "binary_sha256": "423e196bd402cc1a372dce701e5516443df16c66b16a112f2d615bf4a3968df3",
+  "process_wall": 0.03323563502635807,
+  "instructions": 23629719,
+  "instructions_per_call": 23629719.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.004387897,
+  "peak_rss_kib": 15332,
+  "output_sha256": "85ae8de114b756c342893e5bb74b6ff41d7786cb10e66e4b0f0defe4756b0f09",
+  "output_bytes": 53516
+}

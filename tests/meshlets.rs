@@ -1230,3 +1230,44 @@ fn cached_meshlet_bounds_layouts_and_stack_buckets_match_checked_path() {
         }
     }
 }
+
+#[test]
+fn packed_and_interleaved_uncached_bounds_preserve_bits_and_usage() {
+    let indices = [0, 1, 2, 2, 1, 3].repeat(17);
+    let vertices = [0, 1, 2, 3];
+    let triangles: Vec<u8> = indices.iter().map(|&v| v as u8).collect();
+    for scale in [1., 1e-20, 1e9, f32::MAX, f32::NAN] {
+        let points = [[-0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.25]]
+            .map(|p| p.map(|v| v * scale));
+        let data: Vec<_> = points
+            .iter()
+            .flat_map(|p| [99., p[0], p[1], p[2]])
+            .collect();
+        let packed = Positions::from_packed(&points);
+        let interleaved = Positions::from_interleaved(&data, points.len(), 4, 1).unwrap();
+        for local in [false, true] {
+            let call = |p, w: &mut Workspace| {
+                if local {
+                    compute_meshlet_bounds(&vertices, &triangles, p, w)
+                } else {
+                    compute_cluster_bounds(&indices, p, w)
+                }
+            };
+            let mut unlimited = Workspace::default();
+            let _ = call(packed, &mut unlimited);
+            for max_work in 0..=unlimited.usage().work + 1 {
+                let limits = Limits {
+                    max_bytes: 0,
+                    max_work,
+                };
+                let mut a = Workspace::new(limits);
+                let mut b = Workspace::new(limits);
+                assert_eq!(
+                    bounds_bits(call(packed, &mut a)),
+                    bounds_bits(call(interleaved, &mut b))
+                );
+                assert_eq!(a.usage(), b.usage());
+            }
+        }
+    }
+}

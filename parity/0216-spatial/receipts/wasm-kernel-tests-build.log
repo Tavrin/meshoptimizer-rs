@@ -1,0 +1,13 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+warning: unnecessary `unsafe` block
+   --> src/codec/simd/spatial.rs:171:9
+    |
+171 |         unsafe { sweep(boxes, order, left, right) }
+    |         ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `meshoptimizer-rs` (lib test) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.25s
+  Executable unittests src/lib.rs (<target>/wasm32-wasip1/debug/deps/meshoptimizer_rs-6a0e8d55130c5459.wasm)

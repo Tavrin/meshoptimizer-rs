@@ -1,0 +1,217 @@
+{
+ "target": "parallel_clod",
+ "changed_executable_lines": 235,
+ "changed_lines_hit": 205,
+ "functions": [
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context::<meshoptimizer_rs::clusterlod::dag::build_dag_into::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 7,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_mode::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 48,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_mode::{closure#0}>::{closure#1}",
+   "regions_hit": 0,
+   "regions": 1,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_with_output_mode<parallel_clod::_::__libfuzzer_sys_run::{closure#2}::{closure#0}>::{closure#0}>",
+   "regions_hit": 43,
+   "regions": 48,
+   "entry_count": 200
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_with_output_mode<parallel_clod::_::__libfuzzer_sys_run::{closure#2}::{closure#0}>::{closure#0}>::{closure#1}",
+   "regions_hit": 1,
+   "regions": 1,
+   "entry_count": 122
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::dag::build_dag_into::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 48,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::dag::build_dag_into::{closure#0}>::{closure#1}",
+   "regions_hit": 0,
+   "regions": 1,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_internal::<meshoptimizer_rs::clusterlod::build_mode::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_internal::<meshoptimizer_rs::clusterlod::build_with_output_mode<parallel_clod::_::__libfuzzer_sys_run::{closure#2}::{closure#0}>::{closure#0}>",
+   "regions_hit": 6,
+   "regions": 6,
+   "entry_count": 200
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_mode",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_parallel",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_parallel_with_output::<_>",
+   "regions_hit": 0,
+   "regions": 7,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_parallel_with_output::<parallel_clod::_::__libfuzzer_sys_run::{closure#2}::{closure#0}>",
+   "regions_hit": 7,
+   "regions": 7,
+   "entry_count": 100
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output::<_>",
+   "regions_hit": 0,
+   "regions": 7,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output::<parallel_clod::_::__libfuzzer_sys_run::{closure#2}::{closure#0}>",
+   "regions_hit": 7,
+   "regions": 7,
+   "entry_count": 100
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output_mode::<_>",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output_mode::<parallel_clod::_::__libfuzzer_sys_run::{closure#2}::{closure#0}>",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 200
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::prepare_group",
+   "regions_hit": 36,
+   "regions": 41,
+   "entry_count": 624
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::prepare_group::{closure#0}",
+   "regions_hit": 1,
+   "regions": 1,
+   "entry_count": 1488
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::compute",
+   "regions_hit": 33,
+   "regions": 43,
+   "entry_count": 122
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::compute::{closure#0}",
+   "regions_hit": 2,
+   "regions": 3,
+   "entry_count": 122
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::eligible",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 140
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::fits_serial_work",
+   "regions_hit": 3,
+   "regions": 3,
+   "entry_count": 32
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::fits_serial_work::{closure#0}",
+   "regions_hit": 13,
+   "regions": 26,
+   "entry_count": 32
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::fits_serial_work::{closure#0}::{closure#0}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 126
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::fits_serial_work::{closure#1}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 32
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::level",
+   "regions_hit": 23,
+   "regions": 27,
+   "entry_count": 80
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::level::{closure#0}",
+   "regions_hit": 1,
+   "regions": 1,
+   "entry_count": 122
+  },
+  {
+   "file": "src/clusterlod/parallel.rs",
+   "function": "meshoptimizer_rs::clusterlod::parallel::level::{closure#1}",
+   "regions_hit": 12,
+   "regions": 12,
+   "entry_count": 122
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+{
+  "binary": "fc0adcbb8a6de42ee3efdada7e9cb9568c02a9b43f7dc3e9e634030968663616",
+  "manifest": "[package]\nname=\"combined-proof\"\nversion=\"0.0.0\"\nedition=\"2021\"\n[dependencies]\nbaseline={package=\"meshoptimizer-baseline\",path=\"<target>/base\",default-features=false,features=[\"std\", \"simd\", \"parallel\", \"clusterlod\", \"experimental\", \"parity-internals\"]}\ncandidate={package=\"meshoptimizer-rs\",path=\"<worktree>\",default-features=false,features=[\"std\", \"simd\", \"parallel\", \"clusterlod\", \"experimental\", \"parity-internals\"]}\nrayon=\"=1.11.0\"\n[[bin]]\nname=\"par-spec\"\npath=\"<target>/par-spec.rs\"\n[profile.release]\nlto=\"thin\"\ncodegen-units=1\ndebug-assertions=true\noverflow-checks=true\n",
+  "source_sha256": "724fb50580546794703c5bb47e380d8f98f0c82f0e0988069deb57ea5dccadc8"
+}

@@ -1,0 +1,12 @@
+[package]
+name="decode-differential"
+version="0.0.0"
+edition="2021"
+[dependencies]
+meshoptimizer-rs={path='<repo>',default-features=false,features=["simd","parity-internals"]}
+[[bin]]
+name="differential"
+path="main.rs"
+[profile.release]
+lto="fat"
+codegen-units=1

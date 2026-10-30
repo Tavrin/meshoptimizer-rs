@@ -1,0 +1,19 @@
+{
+  "case": "real-b6fd",
+  "op": "meshlets",
+  "arm": "candidate",
+  "rep": 0,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+  "binary_sha256": "423e196bd402cc1a372dce701e5516443df16c66b16a112f2d615bf4a3968df3",
+  "process_wall": 1.8571060969261453,
+  "instructions": 3445195231,
+  "instructions_per_call": 3445195231.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.807370104,
+  "peak_rss_kib": 165232,
+  "output_sha256": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+  "output_bytes": 10214377,
+  "raw_sha256": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3"
+}

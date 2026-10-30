@@ -1,0 +1,119 @@
+{
+ "target": "bounds_diff",
+ "changed_executable_lines": 37,
+ "changed_lines_hit": 32,
+ "functions": [
+  {
+   "file": "src/codec/simd/bounds.rs",
+   "function": "meshoptimizer_rs::codec::simd::bounds::arch::load",
+   "regions_hit": 3,
+   "regions": 3,
+   "entry_count": 64128
+  },
+  {
+   "file": "src/codec/simd/bounds.rs",
+   "function": "meshoptimizer_rs::codec::simd::bounds::arch::roots",
+   "regions_hit": 9,
+   "regions": 9,
+   "entry_count": 32064
+  },
+  {
+   "file": "src/codec/simd/bounds.rs",
+   "function": "meshoptimizer_rs::codec::simd::bounds::arch::sqrt",
+   "regions_hit": 3,
+   "regions": 3,
+   "entry_count": 64128
+  },
+  {
+   "file": "src/codec/simd/bounds.rs",
+   "function": "meshoptimizer_rs::codec::simd::bounds::arch::store",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 64128
+  },
+  {
+   "file": "src/codec/simd/bounds.rs",
+   "function": "meshoptimizer_rs::codec::simd::bounds::roots",
+   "regions_hit": 7,
+   "regions": 10,
+   "entry_count": 32064
+  },
+  {
+   "file": "src/codec/simd/bounds.rs",
+   "function": "meshoptimizer_rs::codec::simd::bounds::roots::{closure#0}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 256512
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds::<1536: usize, 512: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 96
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds::<384: usize, 128: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 300
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds::<96: usize, 32: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 996
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds_body::<1536: usize, 512: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 96
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds_body::<384: usize, 128: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 300
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds_body::<96: usize, 32: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 996
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::meshlet_bounds::<1536: usize, 512: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 348
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::meshlet_bounds::<384: usize, 128: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 348
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::meshlet_bounds::<96: usize, 32: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 696
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::sqrt8",
+   "regions_hit": 4,
+   "regions": 6,
+   "entry_count": 32064
+  }
+ ]
+}

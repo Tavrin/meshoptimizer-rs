@@ -1,0 +1,136 @@
+{
+  "baseline": "1ecf69abe9f92c17e13dc38fa97be659aee44582",
+  "reference": "4c203430ca565cb59a468a91922c76c208169536",
+  "feature_modes": {
+    "default": [
+      "std",
+      "simd"
+    ],
+    "no-default": []
+  },
+  "proof_counts": {
+    "default": {
+      "corpus": 21,
+      "generated": 160,
+      "noncanonical": 20,
+      "total_cases": 9990,
+      "cpp_checks": 9990,
+      "chunkings": 2703362,
+      "stream_budgets": 2284337,
+      "baseline_comparisons": 164442780,
+      "differences": 0
+    },
+    "no-default": {
+      "corpus": 21,
+      "generated": 160,
+      "noncanonical": 20,
+      "total_cases": 9990,
+      "cpp_checks": 9990,
+      "chunkings": 2703362,
+      "stream_budgets": 2284337,
+      "baseline_comparisons": 164442780,
+      "differences": 0
+    }
+  },
+  "tests": {
+    "all": {
+      "passed": 297,
+      "failed": 0,
+      "ignored": 8
+    },
+    "no-default": {
+      "passed": 251,
+      "failed": 0,
+      "ignored": 8
+    }
+  },
+  "final_exits": {
+    "reference-check": 0,
+    "unchanged-one-shot": 0,
+    "fmt": 0,
+    "fmt-evidence": 0,
+    "test-stream": 0,
+    "test-all": 0,
+    "test-no-default": 0,
+    "clippy": 0,
+    "clippy-no-default": 0,
+    "fmt-check": 0,
+    "boundary": 0,
+    "fuzz-build": 0,
+    "export-native": 0,
+    "build-native": 0,
+    "native-fixtures": 0,
+    "js-fixtures": 0,
+    "build-cpp": 0,
+    "exact-build-default": 0,
+    "exact-default": 0,
+    "exact-build-no-default": 0,
+    "exact-no-default": 0,
+    "public-text": 0
+  },
+  "initial_failure": {
+    "clippy": 101,
+    "receipt": "clippy-attempt1.log",
+    "resolution": "Use fixed-size array chunks in the test helper; full suite rerun passed."
+  },
+  "final_suite_cpu_seconds": 143.97,
+  "cpu_seconds_by_log": {
+    "fuzz-build.log": 1.14,
+    "fmt-evidence.log": 0.01,
+    "exact-build-no-default.log": 1.14,
+    "public-text.log": 0.29,
+    "reference-check.log": 0.0,
+    "export-native.log": 0.01,
+    "clippy-no-default.log": 5.05,
+    "test-stream.log": 0.43,
+    "exact-build-default.log": 1.18,
+    "clippy.log": 1.7,
+    "boundary.log": 3.75,
+    "build-cpp.log": 0.37,
+    "test-all.log": 17.38,
+    "test-no-default.log": 11.6,
+    "unchanged-one-shot.log": 0.0,
+    "native-fixtures.log": 0.0,
+    "fmt-check.log": 0.39,
+    "build-native.log": 4.72,
+    "js-fixtures.log": 0.02,
+    "exact-default.log": 46.79,
+    "fmt.log": 0.47,
+    "exact-no-default.log": 47.53
+  },
+  "fuzz_executed": false,
+  "head": "1ecf69abe9f92c17e13dc38fa97be659aee44582",
+  "branch": "feat/0216-stream",
+  "cleanup": {
+    "dedicated_target_removed": true,
+    "temporary_helper_removed": true
+  },
+  "reference_sources_sha256": {
+    "src/allocator.cpp": "d2cc48691fe2f4c6d097bf7a766389cfb7f83ca14a5f747e3944332656d02254",
+    "src/clusterizer.cpp": "a2775edf77d86a9a5f0ca82f4635ce6ce741bbda79fd9a652ffc8c5dd61d3b0e",
+    "src/indexanalyzer.cpp": "bff37aecb10cefa33f3f6a217413c6ac98899c23e6de5282420c60e6baf786ec",
+    "src/indexcodec.cpp": "2b98ede67ab4731e8ab54da794c46b735d659ea360666fe66bc5725c027fff6e",
+    "src/indexgenerator.cpp": "f362cdcd8af10016333bf699347a9364335987f413f061e5b7e8cafe3b498948",
+    "src/meshletcodec.cpp": "f7bad517cb77a646ba0beef916ac42715c2fe18002f29e12c6cd4ccd5835e678",
+    "src/meshletutils.cpp": "4813a0c9e8648c6de53f317322fa17c9486ff024f186aa9d631e7c60ba96c33e",
+    "src/meshoptimizer.h": "e3688ef553f603391747895a5c221ef1528574cc7f8173782417a96cb531f61b",
+    "src/opacitymap.cpp": "81037b530d10aaac80a43197294aef5b27b3ccf8d1e323c5ccdc0945fc4c5d69",
+    "src/overdrawoptimizer.cpp": "a70412562f991133ce52b2833adee9de0a9029dc45312ada1eb5c2452dc4f3ee",
+    "src/partition.cpp": "cf34f00dd7a550c7b18b31c35d683ac2efb9e1d711bcec411649d311477d4b2d",
+    "src/quantization.cpp": "28282f555d42a118a6735f161b1ba78fcbe0d1810a6a337a399bd8471f79105e",
+    "src/rasterizer.cpp": "2172e0ac82359a19f2880763e2088f51b7ec361b23fb54f743b618691967dbe5",
+    "src/remesher.cpp": "51a06f9d348709b99e2f750710cc607793c8a08c5486193d8622ca2a06f67fb2",
+    "src/simplifier.cpp": "719303b6970398631e30724e8eebc6cd2e7e08b67fe8ab7cbf7eecafdaa08616",
+    "src/spatialorder.cpp": "9005ee0069ed8c56797606de80c0cd951ab55ffb608bc3af83c4e5b2517371b1",
+    "src/stripifier.cpp": "e653e6be3a9b821016a1f6a90b756b971422f1246ebd03e60b478251a288bfd4",
+    "src/tangentspace.cpp": "1ba72a59793887e870e5cc2c31b9b3d38296b436ee2fcdfb2c9e409b480e4079",
+    "src/vcacheoptimizer.cpp": "618429ef4db8ab9b16fde4e73dcf425d89452acbf103085478bc8b1761fa6689",
+    "src/vertexcodec.cpp": "6af26a85ed38daffb97d988e9704ffc257c690af05048304044bfc786699550f",
+    "src/vertexfilter.cpp": "780e7f95024b577b8adcb8ee2a2e442294ebd62a1b6aaf37627fc1ff3cac4ff3",
+    "src/vfetchoptimizer.cpp": "aa534bb8150ca27ae229c58a0dc51f85f9acccbc5d4214f4c82edd91fc08e478",
+    "demo/tests.cpp": "e90c5df545cac717d9eb8b04507fed6a4de3c38173f6f0898ac065624028fe07",
+    "js/meshopt_decoder.test.js": "70488d804844802804fc8d4eb302779ea392f746f97df654cc2fabe0ca72c6ac",
+    "js/meshopt_decoder.mjs": "10b313edaa0e322b0c1b46443f6c8b186b42139fe1eca189d50c09511d0ebedc"
+  },
+  "final_diff_check_exit": 0
+}

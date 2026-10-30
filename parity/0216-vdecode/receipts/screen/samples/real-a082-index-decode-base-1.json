@@ -1,0 +1,18 @@
+{
+  "case": "real-a082",
+  "op": "index-decode",
+  "arm": "base",
+  "rep": 1,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "f631b2a30e79f167c0650f595bed6341193243aaab4d552d4cafa85e68944793",
+  "binary_sha256": "e4b25d0585c053b79217d08062a2e98d796de9d511eead870fe2d581f2179328",
+  "process_wall": 1.3177898650756106,
+  "instructions": 3915567098,
+  "instructions_per_call": 391556709.8,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.0687771284,
+  "peak_rss_kib": 361004,
+  "output_sha256": "6d0022d8b711ba0e03bff59082ab7826d093fa1b31735f772ecfb363c0ec18e6",
+  "output_bytes": 39476700
+}

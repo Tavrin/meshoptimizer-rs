@@ -1,0 +1,11 @@
+   Compiling meshoptimizer-rs v0.2.15 (<scratch>/candidate)
+warning: ignoring -C extra-filename flag due to -o flag
+
+error: couldn't read `<scratch>/candidate/src/../docs/USING.md`: No such file or directory (os error 2)
+   --> <scratch>/candidate/src/lib.rs:157:14
+    |
+157 |     #![doc = include_str!("../docs/USING.md")]
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+error: could not compile `meshoptimizer-rs` (lib) due to 1 previous error; 1 warning emitted

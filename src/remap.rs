@@ -884,13 +884,34 @@ fn remap_vertex_packed<const SIZE: usize>(
     if vertices.stride != SIZE || vertices.offset != 0 || !work.precharge(remap.len(), 1)? {
         return remap_vertex_copy::<SIZE>(destination, vertices, remap, work);
     }
-    let output = destination.as_chunks_mut::<SIZE>().0;
-    for (record, &r) in vertices.data.as_chunks::<SIZE>().0.iter().zip(remap) {
+    remap_vertex_records(
+        destination.as_chunks_mut::<SIZE>().0,
+        vertices.data.as_chunks::<SIZE>().0,
+        remap,
+    );
+    Ok(())
+}
+// Keep each packed monomorph independent of stream validation and metering.
+#[inline(never)]
+fn remap_vertex_records<const SIZE: usize>(
+    output: &mut [[u8; SIZE]],
+    input: &[[u8; SIZE]],
+    remap: &[u32],
+) {
+    let (records, tail) = input[..remap.len()].as_chunks::<4>();
+    let (targets, target_tail) = remap.as_chunks::<4>();
+    for (records, targets) in records.iter().zip(targets) {
+        for (record, &r) in records.iter().zip(targets) {
+            if r != NONE {
+                output[r as usize] = *record;
+            }
+        }
+    }
+    for (record, &r) in tail.iter().zip(target_tail) {
         if r != NONE {
             output[r as usize] = *record;
         }
     }
-    Ok(())
 }
 fn remap_vertex_dispatch(
     destination: &mut [u8],
@@ -1103,6 +1124,36 @@ fn remap_index_copy(
     Ok(())
 }
 
+// Combine checked gathers with validation, without per-index metering or
+// sentinel selection. A failed gather is replayed by the original validator.
+#[inline(always)]
+fn remap_index_gather(output: &mut [u32], input: &[u32], remap: &[u32]) -> bool {
+    let (input4, input_tail) = input.as_chunks::<4>();
+    let (output4, output_tail) = output.as_chunks_mut::<4>();
+    for (out, index) in output4.iter_mut().zip(input4) {
+        let Some(&a) = remap.get(index[0] as usize) else {
+            return false;
+        };
+        let Some(&b) = remap.get(index[1] as usize) else {
+            return false;
+        };
+        let Some(&c) = remap.get(index[2] as usize) else {
+            return false;
+        };
+        let Some(&d) = remap.get(index[3] as usize) else {
+            return false;
+        };
+        *out = [a, b, c, d];
+    }
+    for (out, &index) in output_tail.iter_mut().zip(input_tail) {
+        let Some(&value) = remap.get(index as usize) else {
+            return false;
+        };
+        *out = value;
+    }
+    true
+}
+
 /// Allocate remapped indices.
 ///
 /// # Errors
@@ -1115,6 +1166,48 @@ pub fn remap_index_buffer(
 ) -> Result<Vec<u32>, Error> {
     let mut work = workspace.begin();
     let result = (|| {
+        // Speculate only when the complete logical work and allocation fit.
+        // No workspace state is changed until all indices have been validated.
+        if let Some(input) = indices.filter(|input| {
+            remap.len() <= u32::MAX as usize
+                && input
+                    .len()
+                    .checked_mul(2)
+                    .is_some_and(|n| work.covers(n).unwrap_or(false))
+                && checked_bytes(input.len(), 4).ok().is_some_and(|bytes| {
+                    workspace
+                        .retained_bytes()
+                        .ok()
+                        .and_then(|n| n.checked_add(bytes))
+                        .is_some_and(|n| n <= workspace.limits().max_bytes)
+                })
+        }) {
+            let mut out = Vec::new();
+            // Reservation failure must still give index validation precedence.
+            if out.try_reserve_exact(input.len()).is_ok() {
+                out.resize_with(input.len(), || 0u32);
+                if !remap_index_gather(&mut out, input, remap) {
+                    // Replay only the failed validation; owned writes are unobservable.
+                    validate_indices(Some(input), remap.len(), &mut work)?;
+                }
+                work.add(input.len())?;
+                workspace.charge_owned(checked_bytes(input.len(), 4)?)?;
+                if out.capacity() != input.len() {
+                    workspace.charge_owned(checked_bytes(out.capacity(), 4)?)?;
+                }
+                let missing = out.iter().fold(0u32, |any, &v| any | u32::from(v == NONE));
+                if missing != 0 {
+                    let first = out
+                        .iter()
+                        .position(|&v| v == NONE)
+                        .map_or(out.len(), |i| i + 1);
+                    work.add(first)?;
+                    return Err(Error::InvalidParameter);
+                }
+                work.add(input.len())?;
+                return Ok(out);
+            }
+        }
         validate_indices(indices, remap.len(), &mut work)?;
         let count = indices.map_or(remap.len(), <[u32]>::len);
         let mut budget = Budget::new(workspace);

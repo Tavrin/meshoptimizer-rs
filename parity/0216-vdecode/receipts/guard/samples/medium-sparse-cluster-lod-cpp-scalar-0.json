@@ -1,0 +1,18 @@
+{
+  "case": "medium-sparse",
+  "op": "cluster-lod",
+  "arm": "cpp-scalar",
+  "rep": 0,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "98854d7d658208772f474fd8d86be43d1983c0594cbeee66c33bf97098513141",
+  "binary_sha256": "3dea9545d32cbf40d4e2199293d177b2a61ccef57e95a0e677c2b1b711cf474f",
+  "process_wall": 0.07632483099587262,
+  "instructions": 100750117,
+  "instructions_per_call": 100750117.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.025462426,
+  "peak_rss_kib": 15788,
+  "output_sha256": "e03ab99d0544b437430a644883c043646c0633c024df42330d4337780897cf3d",
+  "output_bytes": 199456
+}

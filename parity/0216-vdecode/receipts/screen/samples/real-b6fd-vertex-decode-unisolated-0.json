@@ -1,0 +1,18 @@
+{
+  "case": "real-b6fd",
+  "op": "vertex-decode",
+  "arm": "unisolated",
+  "rep": 0,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+  "binary_sha256": "c3322f4976364d62b35417d5e6bdf676b714d82ca54415a730e40c31e9f42ed1",
+  "process_wall": 0.43695119593758136,
+  "instructions": 1147647136,
+  "instructions_per_call": 114764713.6,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.0119436272,
+  "peak_rss_kib": 129104,
+  "output_sha256": "ceb29b86b9c05880cb7ffcb2641fbc54004f9969b8efd45fd0782f25a2410745",
+  "output_bytes": 21712128
+}

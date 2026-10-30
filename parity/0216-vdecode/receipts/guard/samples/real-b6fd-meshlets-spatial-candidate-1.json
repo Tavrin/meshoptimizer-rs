@@ -1,0 +1,18 @@
+{
+  "case": "real-b6fd",
+  "op": "meshlets-spatial",
+  "arm": "candidate",
+  "rep": 1,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+  "binary_sha256": "423e196bd402cc1a372dce701e5516443df16c66b16a112f2d615bf4a3968df3",
+  "process_wall": 1.464412561035715,
+  "instructions": 4830948034,
+  "instructions_per_call": 4830948034.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.651783883,
+  "peak_rss_kib": 151228,
+  "output_sha256": "26d7fc425b853a84ad37daecdf9655852a10b4bb4ead41847a37ebcf768375e1",
+  "output_bytes": 10671765
+}

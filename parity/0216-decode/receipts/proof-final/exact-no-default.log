@@ -1,0 +1,6 @@
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+   Compiling meshoptimizer-baseline v0.2.15 (<target-dir>/proof-baseline)
+   Compiling decode-exact v0.0.0 (<target-dir>/proof-source)
+    Finished `release` profile [optimized] target(s) in 14.70s
+     Running `<target-dir>/exact/release/exact`
+exact observations=3505440 differences=0

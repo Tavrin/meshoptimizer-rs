@@ -1,0 +1,19 @@
+{
+  "case": "real-b6fd",
+  "op": "meshlets",
+  "arm": "cpp-scalar",
+  "rep": 0,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+  "binary_sha256": "3dea9545d32cbf40d4e2199293d177b2a61ccef57e95a0e677c2b1b711cf474f",
+  "process_wall": 1.9883620450273156,
+  "instructions": 3427835479,
+  "instructions_per_call": 3427835479.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.718807152,
+  "peak_rss_kib": 169212,
+  "output_sha256": "38280ed86a5bb3c450a82ca823e8ef8eb5a2a0e54bcc522949463e287408dcd3",
+  "output_bytes": 10214377,
+  "raw_sha256": "c9f27bef3283f89e1d3966f3175a2a75a92cc05c7a6cf37c16ad6cfe9967b286"
+}

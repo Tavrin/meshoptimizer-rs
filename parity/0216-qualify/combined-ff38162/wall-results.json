@@ -1,0 +1,20 @@
+[
+  {
+    "case": "real-214e",
+    "four_worker_seconds": 5.243663032,
+    "one_worker_seconds": 8.41445927,
+    "speedup": 1.6046910754275945
+  },
+  {
+    "case": "real-a082",
+    "four_worker_seconds": 5.417362931,
+    "one_worker_seconds": 9.100415168,
+    "speedup": 1.6798607152428937
+  },
+  {
+    "case": "real-b6fd",
+    "four_worker_seconds": 1.348240727,
+    "one_worker_seconds": 2.399845768,
+    "speedup": 1.7799831439152185
+  }
+]

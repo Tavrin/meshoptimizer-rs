@@ -1,0 +1,176 @@
+{"name": "reference", "cpu_seconds_upper_estimate": 1, "command": "bash parity/check-reference.sh"}
+{"name": "export-lod", "cpu_seconds_upper_estimate": 10, "command": "python3 parity/0215-lod-chain/corpus.py <target>/lod-corpus"}
+{"name": "proof-group", "cpu_seconds_upper_estimate": 6000, "basis": "sum of finite lane proof/build timings, with compilation and production-corpus margin"}
+{"name": "exact-lock-all", "cpu_seconds_upper_estimate": 5, "command": "cargo generate-lockfile --offline --manifest-path <target>/exact-all/Cargo.toml"}
+{"name": "exact-build-all", "cpu_seconds_upper_estimate": 1800, "command": "cargo build --offline --locked --release --manifest-path <target>/exact-all/Cargo.toml --features all"}
+{"name": "par-build-all", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/par-all/Cargo.toml"}
+{"name": "exact-remap-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/remap-all"}
+{"name": "exact-remap_cpp-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/remap_cpp-all"}
+{"name": "exact-repair-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/repair-all"}
+{"name": "exact-repair_corpus-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/repair_corpus-all <target>/lod-corpus"}
+{"name": "exact-simplify-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/simplify-all"}
+{"name": "exact-decode-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/decode-all"}
+{"name": "exact-bounds-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/bounds-all"}
+{"name": "exact-vdecode-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/vdecode-all"}
+{"name": "stream-cpp-build", "cpu_seconds_upper_estimate": 60, "command": "c++ -O2 -std=c++11 -DMESHOPTIMIZER_NO_SIMD -I<reference>/src <worktree>/parity/0216-stream/reference.cpp <reference>/src/indexcodec.cpp -o <target>/stream-cpp"}
+{"name": "exact-stream-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/stream-all <worktree>/parity/0216-stream/corpus.tsv <target>/stream-cpp <worktree>/parity/0216-qualify/combined-ff38162/stream-cases-all.tsv"}
+{"name": "exact-geometry-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/geometry-all"}
+{"name": "spatial-size-all", "cpu_seconds_upper_estimate": 10, "command": "<target>/bin/spatial-all"}
+{"name": "exact-spatial-all", "cpu_seconds_upper_estimate": 3600, "command": "<target>/bin/spatial-all"}
+{"name": "exact-par-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/par-all"}
+{"name": "par-lod-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/par-all <target>/lod-corpus"}
+{"name": "par-spec-build-all", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/par-spec-all/Cargo.toml"}
+{"name": "par-spec-lod-all", "cpu_seconds_upper_estimate": 600, "command": "<target>/release/par-spec <target>/lod-corpus"}
+{"name": "par-spec-inputs-all", "cpu_seconds_upper_estimate": 3600, "command": "<target>/release/par-spec <target>/inputs"}
+{"name": "test-all", "cpu_seconds_upper_estimate": 600, "command": "cargo test --offline --locked --all-features"}
+{"name": "clippy-all", "cpu_seconds_upper_estimate": 300, "command": "cargo clippy --offline --locked --all-features --all-targets -- -D warnings"}
+{"name": "lod-identity-lod-all", "cpu_seconds_upper_estimate": 1800, "command": "cargo test --offline --locked --release --all-features --test lod_chain corpus_identity -- --ignored --exact --nocapture"}
+{"name": "lod-identity-inputs-all", "cpu_seconds_upper_estimate": 1800, "command": "cargo test --offline --locked --release --all-features --test lod_chain corpus_identity -- --ignored --exact --nocapture"}
+{"name": "fmt", "cpu_seconds_upper_estimate": 10, "command": "cargo fmt --all -- --check"}
+{"name": "boundary", "cpu_seconds_upper_estimate": 10, "command": "bash parity/check-unsafe-boundary.sh"}
+{"name": "exact-lock-none", "cpu_seconds_upper_estimate": 5, "command": "cargo generate-lockfile --offline --manifest-path <target>/exact-none/Cargo.toml"}
+{"name": "exact-build-none", "cpu_seconds_upper_estimate": 1800, "command": "cargo build --offline --locked --release --manifest-path <target>/exact-none/Cargo.toml"}
+{"name": "par-build-none", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/par-none/Cargo.toml"}
+{"name": "exact-remap-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/remap-none"}
+{"name": "exact-remap_cpp-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/remap_cpp-none"}
+{"name": "exact-repair-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/repair-none"}
+{"name": "exact-repair_corpus-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/repair_corpus-none <target>/lod-corpus"}
+{"name": "exact-simplify-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/simplify-none"}
+{"name": "exact-decode-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/decode-none"}
+{"name": "exact-bounds-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/bounds-none"}
+{"name": "exact-vdecode-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/vdecode-none"}
+{"name": "exact-stream-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/stream-none <worktree>/parity/0216-stream/corpus.tsv <target>/stream-cpp <worktree>/parity/0216-qualify/combined-ff38162/stream-cases-none.tsv"}
+{"name": "exact-geometry-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/geometry-none"}
+{"name": "spatial-size-none", "cpu_seconds_upper_estimate": 10, "command": "<target>/bin/spatial-none"}
+{"name": "exact-spatial-none", "cpu_seconds_upper_estimate": 3600, "command": "<target>/bin/spatial-none"}
+{"name": "exact-par-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/par-none"}
+{"name": "par-lod-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/bin/par-none <target>/lod-corpus"}
+{"name": "par-spec-build-none", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/par-spec-none/Cargo.toml"}
+{"name": "par-spec-lod-none", "cpu_seconds_upper_estimate": 600, "command": "<target>/release/par-spec <target>/lod-corpus"}
+{"name": "par-spec-inputs-none", "cpu_seconds_upper_estimate": 3600, "command": "<target>/release/par-spec <target>/inputs"}
+{"name": "test-none", "cpu_seconds_upper_estimate": 600, "command": "cargo test --offline --locked --no-default-features"}
+{"name": "clippy-none", "cpu_seconds_upper_estimate": 300, "command": "cargo clippy --offline --locked --no-default-features --all-targets -- -D warnings"}
+{"name": "lod-identity-lod-none", "cpu_seconds_upper_estimate": 1800, "command": "cargo test --offline --locked --release --no-default-features --test lod_chain corpus_identity -- --ignored --exact --nocapture"}
+{"name": "lod-identity-inputs-none", "cpu_seconds_upper_estimate": 1800, "command": "cargo test --offline --locked --release --no-default-features --test lod_chain corpus_identity -- --ignored --exact --nocapture"}
+{"name": "build-and-differential-group", "cpu_seconds_upper_estimate": 6000, "basis": "retained decoder differential about 90-120 CPU seconds per mode; spatial differential about 76; compile and matrix margin"}
+{"name": "adapt-simplify", "cpu_seconds_upper_estimate": 2, "command": "python3 <worktree>/parity/0216-qualify/additional_driver.py <target>/canonical/parity/peers/src/main.rs"}
+{"name": "adapt-spatial", "cpu_seconds_upper_estimate": 2, "command": "python3 <worktree>/parity/0216-qualify/prepare_driver.py <target>/canonical/parity/peers/src/main.rs"}
+{"name": "adapt-remap", "cpu_seconds_upper_estimate": 2, "command": "python3 <worktree>/parity/0215-basics/prepare_driver.py <target>/canonical/parity/peers"}
+{"name": "build-base-scalar", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features ours"}
+{"name": "build-train-scalar", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features ours"}
+{"name": "build-base-default", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features ours"}
+{"name": "build-train-default", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features ours"}
+{"name": "build-cpp-scalar", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features cpp"}
+{"name": "build-cpp-default", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features cpp"}
+{"name": "build-optimesh", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features rust"}
+{"name": "build-parallel", "cpu_seconds_upper_estimate": 600, "command": "cargo build --offline --release --manifest-path <target>/canonical/parity/peers/Cargo.toml --features ours"}
+{"name": "build-cost", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/cost/Cargo.toml"}
+{"name": "protocol-cpp", "cpu_seconds_upper_estimate": 180, "command": "c++ -std=c++17 -O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off -I<reference>/src <worktree>/parity/reference.cpp <reference>/src/vcacheoptimizer.cpp <reference>/src/overdrawoptimizer.cpp <reference>/src/allocator.cpp <reference>/src/simplifier.cpp <reference>/src/indexgenerator.cpp <reference>/src/vfetchoptimizer.cpp <reference>/src/quantization.cpp -o <target>/proof/0216b-protocol/cpp-reference"}
+{"name": "protocol-build-all", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/proof/0216b-protocol/Cargo.toml"}
+{"name": "protocol-build-none", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/proof/0216b-protocol/Cargo.toml"}
+{"name": "protocol-differential", "cpu_seconds_upper_estimate": 300, "command": "python3 <worktree>/parity/0216-qualify/protocol-modes.py"}
+{"name": "p03-build-all", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/p03/Cargo.toml --features all"}
+{"name": "p03-build-none", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/p03/Cargo.toml"}
+{"name": "p03-cpp-scalar", "cpu_seconds_upper_estimate": 300, "command": "c++ -std=c++17 -O3 -fno-fast-math -ffp-contract=off -DMESHOPTIMIZER_NO_SIMD -I<reference>/src -I<reference>/demo <target>/p03/reference.cpp <reference>/src/clusterizer.cpp <reference>/src/meshletutils.cpp <reference>/src/spatialorder.cpp <reference>/src/partition.cpp <reference>/src/allocator.cpp <reference>/src/simplifier.cpp <reference>/src/indexgenerator.cpp -o <target>/bin/p03-cpp-scalar"}
+{"name": "p03-cpp-default", "cpu_seconds_upper_estimate": 300, "command": "c++ -std=c++17 -O3 -fno-fast-math -ffp-contract=off -I<reference>/src -I<reference>/demo <target>/p03/reference.cpp <reference>/src/clusterizer.cpp <reference>/src/meshletutils.cpp <reference>/src/spatialorder.cpp <reference>/src/partition.cpp <reference>/src/allocator.cpp <reference>/src/simplifier.cpp <reference>/src/indexgenerator.cpp -o <target>/bin/p03-cpp-default"}
+{"name": "decode-diff-build-all", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-decode/build_differential.py"}
+{"name": "decode-diff-all", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-decode/differential.py"}
+{"name": "decode-diff-build-none", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-decode/build_differential.py"}
+{"name": "decode-diff-none", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-decode/differential.py"}
+{"name": "vdecode-diff-build-all", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-vdecode/build_differential.py"}
+{"name": "vdecode-diff-all", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-vdecode/differential.py"}
+{"name": "vdecode-diff-build-none", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-vdecode/build_differential.py"}
+{"name": "vdecode-diff-none", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-vdecode/differential.py"}
+{"name": "measure-inputs-corpus", "cpu_seconds_upper_estimate": 6000, "basis": "retained full release matrix instruction counts and lane timings; one production mesh or five synthetic meshes, including warmup/setup margin"}
+{"name": "measure-simplify", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-attributes", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-sloppy", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-update", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-prune", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-points", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cache", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-overdraw", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-fetch", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-flex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-spatial", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-lod", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-vertex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-index", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlet-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-inputs-real-214e", "cpu_seconds_upper_estimate": 6000, "basis": "retained full release matrix instruction counts and lane timings; one production mesh or five synthetic meshes, including warmup/setup margin"}
+{"name": "measure-simplify", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-attributes", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-sloppy", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-update", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-prune", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-points", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cache", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-overdraw", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-fetch", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-flex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-spatial", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-lod", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-vertex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-index", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlet-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-inputs-real-a082", "cpu_seconds_upper_estimate": 6000, "basis": "retained full release matrix instruction counts and lane timings; one production mesh or five synthetic meshes, including warmup/setup margin"}
+{"name": "measure-simplify", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-attributes", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-sloppy", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-update", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-prune", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-points", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cache", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-overdraw", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-fetch", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-flex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-spatial", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-lod", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-vertex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-index", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlet-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-inputs-real-b6fd", "cpu_seconds_upper_estimate": 6000, "basis": "retained full release matrix instruction counts and lane timings; one production mesh or five synthetic meshes, including warmup/setup margin"}
+{"name": "measure-simplify", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-attributes", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-sloppy", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-update", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-prune", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-simplify-points", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cache", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-overdraw", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-fetch", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-flex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlets-spatial", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-lod", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-vertex-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-encode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-index-decode", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-vertex", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-remap-index", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-cluster-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "measure-meshlet-bounds", "per_sample_cpu_seconds_upper_estimate": 1200, "per_job_cpu_seconds_upper_estimate": 7200, "method": "retained lane campaigns; tiny=1000, medium=3, large=1"}
+{"name": "assemble-report", "cpu_seconds_upper_estimate": 5, "command": "/usr/bin/python3 <worktree>/parity/0216-qualify/combined-ff38162/report.py"}
+{"name": "final-source-diff", "cpu_seconds_upper_estimate": 1, "command": "git diff --exit-code -- src Cargo.toml Cargo.lock"}
+{"name": "final-reference", "cpu_seconds_upper_estimate": 1, "command": "bash parity/check-reference.sh"}
+{"name": "final-public-text", "cpu_seconds_upper_estimate": 10, "command": "bash parity/tools/check_public_text.sh"}
+{"name": "final-whitespace", "cpu_seconds_upper_estimate": 1, "command": "git diff --check"}

@@ -1,0 +1,18 @@
+{
+  "case": "medium-seams",
+  "op": "remap-vertex",
+  "arm": "base",
+  "rep": 1,
+  "repetitions": 100,
+  "exit": 0,
+  "input_sha256": "f1eb9f9502852b555e666bef1c6660225184ff7998a9ebaa90df723b06858e32",
+  "binary_sha256": "92358716b5203ff51ad83c346f8c28eeb0240f15f07b3730be4b1f291453c12d",
+  "process_wall": 0.020007512997835875,
+  "instructions": 9475795,
+  "instructions_per_call": 94757.95,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 8.61299e-06,
+  "peak_rss_kib": 15032,
+  "output_sha256": "40181fe48f545db608fae497e78a4d60a395e341bf7ba0bbce33fad35c7a4867",
+  "output_bytes": 55404
+}

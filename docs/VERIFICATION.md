@@ -28,6 +28,12 @@ checks. These checks are bounded: a compile check or short smoke run does not es
 per-target release fuzz budgets or execution on every supported platform. See the
 [SIMD verification record](https://github.com/Tavrin/meshoptimizer-rs/blob/release/0.2.0/parity/SIMD_RESULTS.md).
 
+For vertex decoding on arm64, Rust NEON must match Rust scalar on every status
+and destination byte. C++ scalar supplies the status and successful-output oracle;
+inherited failure-write differences are counted. Upstream C++ NEON diverges from
+its own scalar decoder on malformed streams, so those ISA divergences are recorded
+with examples as disclosure only. x86 still requires zero C++ ISA divergences.
+
 A malformed meshlet tail is accepted by scalar upstream and Rust but rejected by upstream SSE. Rust
 follows the scalar oracle; the expanded strict sweep still fails on that upstream discrepancy. Two
 Stride-32 cluster-LOD test setups are invalid because their protect masks exceed the layout. AVX2, AVX-512

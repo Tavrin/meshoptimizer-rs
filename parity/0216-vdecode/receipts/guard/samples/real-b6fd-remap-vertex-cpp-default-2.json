@@ -1,0 +1,18 @@
+{
+  "case": "real-b6fd",
+  "op": "remap-vertex",
+  "arm": "cpp-default",
+  "rep": 2,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b",
+  "binary_sha256": "bf9b25296b8791ba176784e1246306b18f1c3c599b5c5bad21dc36ba19d5ea86",
+  "process_wall": 0.40259469393640757,
+  "instructions": 235226980,
+  "instructions_per_call": 23522698.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.0036433778,
+  "peak_rss_kib": 121628,
+  "output_sha256": "bc1435847e6edec0f9c06674068d36a2105b02c31d1372e57b02c6496f38254c",
+  "output_bytes": 8553204
+}

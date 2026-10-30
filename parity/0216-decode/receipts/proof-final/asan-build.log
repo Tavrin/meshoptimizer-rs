@@ -1,0 +1,3 @@
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+   Compiling meshopt-codec-fuzz v0.0.0 (<repo>/fuzz/codec)
+    Finished `release` profile [optimized + debuginfo] target(s) in 37.89s

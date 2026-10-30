@@ -1,0 +1,87 @@
+diff --git a/src/simplify.rs b/src/simplify.rs
+index 20af4e2..ad93c25 100644
+--- a/src/simplify.rs
++++ b/src/simplify.rs
+@@ -1535,7 +1535,9 @@ impl State {
+                         } else {
+                             read(j)?
+                         };
+-                        if candidate == v {
++                        // The candidate was read in full above. Eager independent
++                        // comparisons avoid a short-circuit branch per component.
++                        if (candidate[0] == v[0]) & (candidate[1] == v[1]) & (candidate[2] == v[2]) {
+                             break;
+                         }
+                         bucket = (bucket + probe + 1) & mask;
+diff --git a/src/simplify_extra.rs b/src/simplify_extra.rs
+index 5ac1e72..ca14557 100644
+--- a/src/simplify_extra.rs
++++ b/src/simplify_extra.rs
+@@ -1098,20 +1098,38 @@ pub fn simplify_with_update(
+         )?;
+         let mut lo = [f32::MAX; 3];
+         let mut hi = [-f32::MAX; 3];
+-        for i in 0..s.p.len() {
+-            work.add(1)?;
+-            let source = if s.sparse.is_empty() {
+-                i
+-            } else {
+-                s.sparse[i] as usize
+-            };
+-            let p = positions.as_view().at(source)?;
+-            for k in 0..3 {
+-                if lo[k] > p[k] {
+-                    lo[k] = p[k];
++        let packed = positions
++            .as_view()
++            .packed_values()
++            .filter(|_| s.sparse.is_empty());
++        if let Some(packed) = packed {
++            work.scan(packed.iter(), |p| {
++                for k in 0..3 {
++                    if lo[k] > p[k] {
++                        lo[k] = p[k];
++                    }
++                    if hi[k] < p[k] {
++                        hi[k] = p[k];
++                    }
+                 }
+-                if hi[k] < p[k] {
+-                    hi[k] = p[k];
++                Ok(())
++            })?;
++        } else {
++            for i in 0..s.p.len() {
++                work.add(1)?;
++                let source = if s.sparse.is_empty() {
++                    i
++                } else {
++                    s.sparse[i] as usize
++                };
++                let p = positions.as_view().at(source)?;
++                for k in 0..3 {
++                    if lo[k] > p[k] {
++                        lo[k] = p[k];
++                    }
++                    if hi[k] < p[k] {
++                        hi[k] = p[k];
++                    }
+                 }
+             }
+         }
+@@ -1236,12 +1254,10 @@ fn vertex_ids<P: Copy + Into<V>>(
+ }
+ #[inline(always)]
+ fn grid_integer(value: f32) -> u32 {
+-    // Adding 2^23 rounds to an integer in this bounded positive interval.
+-    // The mantissa gives that integer; correct a rounded-up result to floor.
++    // The grid coordinate is positive and below 1024. Signed truncation
++    // therefore equals floor; the final unsigned cast preserves that integer.
+     debug_assert!((0.5..1024.0).contains(&value));
+-    let rounded = value + 8388608.0;
+-    let integer = rounded.to_bits() & 0x7fffff;
+-    integer - u32::from(rounded - 8388608.0 > value)
++    value as i32 as u32
+ }
+ 
+ fn vertex_ids_kernel<const LOCKS: bool, P: Copy + Into<V>>(

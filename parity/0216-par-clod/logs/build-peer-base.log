@@ -1,0 +1,12 @@
+     Locking 22 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-baseline v0.2.15 (${SCRATCH}/base)
+   Compiling clod-peer v0.0.0 (${SCRATCH}/peer)
+    Finished `release` profile [optimized] target(s) in 25.34s

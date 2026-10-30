@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "target": "meshopt-0216-vdecode",
+  "removed": true,
+  "verified_absent": true,
+  "files_removed": 2432,
+  "apparent_bytes_removed": 1635619094,
+  "queued_jobs_cancelled": 0,
+  "head": "91969326e363f6b311cffcda6c06a1a36da572a6",
+  "branch": "perf/0216-vdecode",
+  "index_unchanged": true,
+  "index_source_unchanged": true
+}

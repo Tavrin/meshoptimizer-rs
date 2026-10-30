@@ -1,0 +1,28 @@
+{
+  "target_deleted": true,
+  "head_unchanged": true,
+  "staged_diff_empty": true,
+  "final_proof_steps": 26,
+  "final_proof_cpu_seconds": 377.09246099999996,
+  "total_proof_cpu_seconds": 972.2291299999998,
+  "baseline": [
+    {
+      "api": "vertex-decode",
+      "x86_instructions": 1.2565568535763096,
+      "wasm_wall": 1.3173530054645624
+    },
+    {
+      "api": "index-decode",
+      "x86_instructions": 1.024228133100382,
+      "wasm_wall": 1.369251079235968
+    }
+  ],
+  "tuning": {
+    "selected_arm": "control",
+    "tuning_verdict": "REJECTED",
+    "real_vertex_geomean": 0.9109835218647034,
+    "worst_case": 1.0146313387755883,
+    "control_worst_case": 1.000001225808505,
+    "gate": "geomean <=0.97, every decode case <=1.01; unchanged-x86 control <=1.01"
+  }
+}

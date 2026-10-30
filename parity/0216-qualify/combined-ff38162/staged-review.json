@@ -1,0 +1,26 @@
+{
+  "upper_cpu_seconds_estimate": 30,
+  "checks": {
+    "full_staged_whitespace": {
+      "exit": 2,
+      "stdout": "parity/0216-qualify/combined-ff38162/logs/lod-identity-inputs-all-1.log:17: new blank line at EOF.\nparity/0216-qualify/combined-ff38162/logs/lod-identity-inputs-none-1.log:17: new blank line at EOF.\nparity/0216-qualify/combined-ff38162/logs/lod-identity-lod-all-1.log:61: new blank line at EOF.\nparity/0216-qualify/combined-ff38162/logs/lod-identity-lod-none-1.log:54: new blank line at EOF.\nparity/0216-qualify/combined-ff38162/logs/test-all-1.log:472: new blank line at EOF.\nparity/0216-qualify/combined-ff38162/logs/test-none-1.log:397: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    "staged_except_raw_logs": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "public_text": {
+      "exit": 0,
+      "stdout": "PASS: public text contains no private machine paths or project names\n",
+      "stderr": ""
+    },
+    "source_unchanged": {
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "cpu_seconds": 1.3523659999999997
+}

@@ -1,0 +1,18 @@
+{
+  "case": "million-smooth",
+  "op": "simplify-prune",
+  "arm": "cpp-scalar",
+  "rep": 1,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "1f4a5db09fb81ea0cd494ff06c9846f04fa49ecdb3726dd5ed163d981e5988ab",
+  "binary_sha256": "3dea9545d32cbf40d4e2199293d177b2a61ccef57e95a0e677c2b1b711cf474f",
+  "process_wall": 0.5132183020468801,
+  "instructions": 223394173,
+  "instructions_per_call": 223394173.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.084894596,
+  "peak_rss_kib": 68856,
+  "output_sha256": "7bdae02fa0d593d5047ea347f782637027bcea47d9ed68385d923db4a5c2ed28",
+  "output_bytes": 12000000
+}

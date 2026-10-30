@@ -1,0 +1,16 @@
+     Locking 6 packages to latest compatible versions
+      Adding crossbeam-deque v0.8.8
+      Adding crossbeam-epoch v0.9.21
+      Adding crossbeam-utils v0.8.23
+      Adding either v1.19.0
+      Adding rayon v1.11.0 (available: v1.12.0)
+      Adding rayon-core v1.13.0
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-rs v0.2.15 (<target>/canonical)
+   Compiling combined-peer v0.0.0 (<target>/canonical/parity/peers)
+    Finished `release` profile [optimized] target(s) in 26.34s

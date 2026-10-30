@@ -9,7 +9,9 @@
 mod kernels;
 #[cfg(target_arch = "aarch64")]
 mod aarch64;
+pub(crate) mod bounds;
 pub(crate) mod dispatch;
+pub(crate) mod spatial;
 #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
 mod wasm32;
 #[cfg(target_arch = "x86_64")]
@@ -331,11 +333,31 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     if let Some(token) = dispatch::ssse3() {
         return Some(arch::vertex(token, output, count, stride, data));
     }
-    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    #[cfg(any(
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    ))]
     if let Some(token) = dispatch::baseline() {
         return Some(arch::vertex(token, output, count, stride, data));
     }
     let _ = (output, count, stride, data);
+    None
+}
+
+// Only the owned destination uses the extra stride-12 monomorphs. The generic
+// vertex dispatcher above remains independent of this optimization.
+#[cfg(target_arch = "x86_64")]
+pub(super) fn vertex_owned(
+    output: &mut alloc::vec::Vec<u8>,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Option<Result<(), crate::Error>> {
+    if stride == 12 {
+        if let Some(token) = dispatch::ssse3() {
+            return Some(x86::vertex_owned(token, output, count, data));
+        }
+    }
     None
 }
 

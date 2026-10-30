@@ -1,0 +1,18 @@
+{
+  "case": "medium-seams",
+  "op": "fetch",
+  "arm": "candidate",
+  "rep": 2,
+  "repetitions": 100,
+  "exit": 0,
+  "input_sha256": "f1eb9f9502852b555e666bef1c6660225184ff7998a9ebaa90df723b06858e32",
+  "binary_sha256": "423e196bd402cc1a372dce701e5516443df16c66b16a112f2d615bf4a3968df3",
+  "process_wall": 0.02423705195542425,
+  "instructions": 44708036,
+  "instructions_per_call": 447080.36,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 6.717997e-05,
+  "peak_rss_kib": 15712,
+  "output_sha256": "0b521887c614a2381a21af4040596ab1e08127517b2ff886e7efbf7b9c1b22af",
+  "output_bytes": 160516
+}

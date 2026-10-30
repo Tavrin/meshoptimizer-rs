@@ -1,0 +1,2300 @@
+--- base
++++ candidate
+@@ -4,18 +4,17 @@
+ push   %r13
+ push   %r12
+ push   %rbx
+-sub    $0x5f8,%rsp
+-mov    %r9,%r14
++sub    $0x608,%rsp
+ mov    %r8,%rbp
+ mov    %rcx,%r13
+-mov    %rdx,%r12
+-mov    %rsi,%r15
+-mov    0x630(%rsp),%rbx
++mov    %rdx,%r15
++mov    %rsi,%r12
++mov    0x640(%rsp),%rbx
+ test   %dil,%dil
+-je     <meshoptimizer_rs::codec::raw+0x194>
++je     <meshoptimizer_rs::codec::raw+0x199>
+ movzbl %dil,%eax
+ cmp    $0x1,%eax
+-jne    <meshoptimizer_rs::codec::raw+0x256>
++jne    <meshoptimizer_rs::codec::raw+0x1fe>
+ movabs $0xaaaaaaaaaaaaaaab,%rdi
+ mov    %r13,%rax
+ mul    %rdi
+@@ -24,27 +23,29 @@
+ mov    %r13,%rax
+ sub    %rcx,%rax
+ cmp    $0x2,%rbp
+-jne    <meshoptimizer_rs::codec::raw+0x2c1>
++jne    <meshoptimizer_rs::codec::raw+0x26d>
+ test   %rax,%rax
+-jne    <meshoptimizer_rs::codec::raw+0x2ca>
++jne    <meshoptimizer_rs::codec::raw+0x276>
+ mov    %r13,%rax
+ mul    %rdi
+ shr    $1,%rdx
+ lea    0x11(%rdx),%rcx
+ mov    $0x7,%al
+ cmp    %rcx,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-movzbl (%r14),%ecx
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++movzbl (%r9),%ecx
+ mov    %ecx,%esi
+ and    $0xf0,%sil
+ cmp    $0xe0,%sil
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
+ and    $0xf,%cl
+ mov    $0x5,%al
+ cmp    $0x1,%cl
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++mov    %r9,%r10
+ lea    0x1(%rdx),%rsi
+ pcmpeqd %xmm0,%xmm0
++movdqa %xmm0,0x270(%rsp)
+ movdqa %xmm0,0x260(%rsp)
+ movdqa %xmm0,0x250(%rsp)
+ movdqa %xmm0,0x240(%rsp)
+@@ -52,43 +53,95 @@
+ movdqa %xmm0,0x220(%rsp)
+ movdqa %xmm0,0x210(%rsp)
+ movdqa %xmm0,0x200(%rsp)
+-movdqa %xmm0,0x1f0(%rsp)
++movdqa %xmm0,0x130(%rsp)
+ movdqa %xmm0,0x120(%rsp)
+ movdqa %xmm0,0x110(%rsp)
+ movdqa %xmm0,0x100(%rsp)
+-movdqa %xmm0,0xf0(%rsp)
+ xor    %r8d,%r8d
+ cmp    $0x1,%cl
+ setne  %r9b
+ lea    -0x10(%rbx),%rax
+ mov    %rax,0x28(%rsp)
+-mov    %r12,%rax
++mov    %r15,%rax
+ mov    %rdx,%rcx
+ mul    %rdi
+ shr    $0x2,%rdx
+ cmp    %rcx,%rdx
+ cmovae %rcx,%rdx
+-mov    %rdx,0x38(%rsp)
++mov    %rdx,0x40(%rsp)
+ test   %rdx,%rdx
+-je     <meshoptimizer_rs::codec::raw+0x1b4f>
++je     <meshoptimizer_rs::codec::raw+0x1b38>
+ mov    %r9b,%r8b
+ lea    0xd(,%r8,2),%rax
+ mov    %rax,0x58(%rsp)
+-mov    %r14,0x30(%rsp)
+-lea    (%r14,%rbx,1),%rax
++mov    %rbx,0x38(%rsp)
++mov    %r10,0x30(%rsp)
++lea    (%r10,%rbx,1),%rax
+ add    $0xfffffffffffffff0,%rax
+-mov    %rax,0x50(%rsp)
+-add    $0x4,%r15
++mov    %rax,0x60(%rsp)
++add    $0x4,%r12
+ xor    %r8d,%r8d
+ xor    %r10d,%r10d
+ movl   $0x0,0x20(%rsp)
+ xor    %r11d,%r11d
+ xor    %edi,%edi
+ mov    0x28(%rsp),%r9
+-jmp    <meshoptimizer_rs::codec::raw+0x656>
++jmp    <meshoptimizer_rs::codec::raw+0x67e>
++mov    %r9,%r14
+ call   <meshoptimizer_rs::codec::simd::dispatch::selected>
+ cmp    $0x2,%al
+-jb     <meshoptimizer_rs::codec::raw+0x204>
++jae    <meshoptimizer_rs::codec::raw+0x27d>
++mov    $0x7,%al
++test   %rbx,%rbx
++je     <meshoptimizer_rs::codec::raw+0x1b46>
++mov    %r14,%rdi
++movzbl (%r14),%esi
++mov    %esi,%ecx
++and    $0xf0,%cl
++cmp    $0xa0,%cl
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
++and    $0xf,%sil
++mov    $0x5,%al
++cmp    $0x1,%sil
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++test   %sil,%sil
++je     <meshoptimizer_rs::codec::raw+0x117f>
++mov    %rbp,%rcx
++shr    $0x2,%rcx
++add    %rbp,%rcx
++cmp    $0x19,%rcx
++mov    $0x18,%eax
++cmovae %rcx,%rax
++jmp    <meshoptimizer_rs::codec::raw+0x118f>
++add    $0x5,%r13
++mov    $0x7,%al
++cmp    $0x2,%rbp
++jne    <meshoptimizer_rs::codec::raw+0x2ed>
++cmp    %r13,%rbx
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++test   %rbx,%rbx
++je     <meshoptimizer_rs::codec::raw+0x1c11>
++movzbl (%r9),%ecx
++mov    %ecx,%edx
++and    $0xf0,%dl
++cmp    $0xd0,%dl
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
++mov    $0x5,%al
++test   $0xe,%cl
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
++dec    %rbx
++movq   $0x0,0x200(%rsp)
++movabs $0x7ffffffffffffffc,%rax
++or     $0x2,%rax
++and    %rax,%r15
++je     <meshoptimizer_rs::codec::raw+0x5d8>
++inc    %r9
++xor    %eax,%eax
++jmp    <meshoptimizer_rs::codec::raw+0x382>
++test   %rax,%rax
++je     <meshoptimizer_rs::codec::raw+0x4b3>
++xor    %eax,%eax
++jmp    <meshoptimizer_rs::codec::raw+0x1b46>
+ cmp    $0x20,%rbp
+ lea    <relocation>(%rip),%rax        # <meshoptimizer_rs::codec::simd::x86::vertex_kernel::<1024, 32, [u8]>>
+ lea    <relocation>(%rip),%rcx        # <meshoptimizer_rs::codec::simd::x86::vertex_kernel::<1024, 0, [u8]>>
+@@ -99,91 +152,46 @@
+ cmp    $0x4,%rbp
+ lea    <relocation>(%rip),%rax        # <meshoptimizer_rs::codec::simd::x86::vertex_kernel::<1024, 4, [u8]>>
+ cmovne %rcx,%rax
+-lea    <relocation>(%rip),%r10        # <meshoptimizer_rs::codec::simd::x86::vertex_kernel::<128, 4, [u8]>>
+-cmovne %rdx,%r10
++lea    <relocation>(%rip),%r11        # <meshoptimizer_rs::codec::simd::x86::vertex_kernel::<128, 4, [u8]>>
++cmovne %rdx,%r11
+ cmp    $0x21,%r13
+-cmovae %rax,%r10
+-mov    %r15,%rdi
+-mov    %r12,%rsi
++cmovae %rax,%r11
++mov    %r12,%rdi
++mov    %r15,%rsi
+ mov    %r13,%rdx
+ mov    %rbp,%rcx
+ mov    %r14,%r8
+ mov    %rbx,%r9
+-call   *%r10
+-cmp    $0xfe,%al
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
+-mov    $0x7,%al
++add    $0x608,%rsp
++pop    %rbx
++pop    %r12
++pop    %r13
++pop    %r14
++pop    %r15
++pop    %rbp
++jmp    *%r11
++cmp    %r13,%rbx
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
+ test   %rbx,%rbx
+-je     <meshoptimizer_rs::codec::raw+0x1b5d>
+-movzbl (%r14),%edi
+-mov    %edi,%ecx
+-and    $0xf0,%cl
+-cmp    $0xa0,%cl
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
+-and    $0xf,%dil
+-mov    $0x5,%al
+-cmp    $0x1,%dil
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
+-test   %dil,%dil
+-je     <meshoptimizer_rs::codec::raw+0x1153>
+-mov    %rbp,%rcx
+-shr    $0x2,%rcx
+-add    %rbp,%rcx
+-cmp    $0x19,%rcx
+-mov    $0x18,%eax
+-cmovae %rcx,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0x1163>
+-add    $0x5,%r13
+-mov    $0x7,%al
+-cmp    $0x2,%rbp
+-jne    <meshoptimizer_rs::codec::raw+0x2d1>
+-cmp    %r13,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-test   %rbx,%rbx
+-je     <meshoptimizer_rs::codec::raw+0x1c04>
+-movzbl (%r14),%ecx
++je     <meshoptimizer_rs::codec::raw+0x1c11>
++movzbl (%r9),%ecx
+ mov    %ecx,%edx
+ and    $0xf0,%dl
+ cmp    $0xd0,%dl
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
+ mov    $0x5,%al
+ test   $0xe,%cl
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
+ dec    %rbx
+-movq   $0x0,0x1f0(%rsp)
++movq   $0x0,0x200(%rsp)
+ movabs $0x7ffffffffffffffc,%rax
+-or     $0x2,%rax
+-and    %rax,%r12
+-je     <meshoptimizer_rs::codec::raw+0x5b4>
+-inc    %r14
++and    %rax,%r15
++je     <meshoptimizer_rs::codec::raw+0x5d8>
++inc    %r9
+ xor    %eax,%eax
+-jmp    <meshoptimizer_rs::codec::raw+0x366>
+-test   %rax,%rax
+-je     <meshoptimizer_rs::codec::raw+0x497>
+-xor    %eax,%eax
+-jmp    <meshoptimizer_rs::codec::raw+0x1b5d>
+-cmp    %r13,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-test   %rbx,%rbx
+-je     <meshoptimizer_rs::codec::raw+0x1c04>
+-movzbl (%r14),%ecx
+-mov    %ecx,%edx
+-and    $0xf0,%dl
+-cmp    $0xd0,%dl
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
+-mov    $0x5,%al
+-test   $0xe,%cl
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
++jmp    <meshoptimizer_rs::codec::raw+0x437>
+ dec    %rbx
+-movq   $0x0,0x1f0(%rsp)
+-movabs $0x7ffffffffffffffc,%rax
+-and    %rax,%r12
+-je     <meshoptimizer_rs::codec::raw+0x5b4>
+-inc    %r14
+-xor    %eax,%eax
+-jmp    <meshoptimizer_rs::codec::raw+0x41b>
+-dec    %rbx
+-inc    %r14
++inc    %r9
+ mov    %edx,%ecx
+ mov    %ecx,%edx
+ shr    $0x2,%edx
+@@ -192,52 +200,52 @@
+ sar    $0x1f,%esi
+ xor    %edx,%esi
+ and    $0x1,%ecx
+-add    0x1f0(%rsp,%rcx,4),%esi
+-mov    %esi,0x1f0(%rsp,%rcx,4)
+-mov    %si,(%r15,%rax,1)
++add    0x200(%rsp,%rcx,4),%esi
++mov    %esi,0x200(%rsp,%rcx,4)
++mov    %si,(%r12,%rax,1)
+ add    $0x2,%rax
+-cmp    %rax,%r12
+-je     <meshoptimizer_rs::codec::raw+0x5b4>
++cmp    %rax,%r15
++je     <meshoptimizer_rs::codec::raw+0x5d8>
+ cmp    $0x5,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5b>
+-movzbl (%r14),%edx
++jb     <meshoptimizer_rs::codec::raw+0x1b44>
++movzbl (%r9),%edx
+ test   %dl,%dl
+-jns    <meshoptimizer_rs::codec::raw+0x32c>
++jns    <meshoptimizer_rs::codec::raw+0x348>
+ and    $0x7f,%edx
+-movzbl 0x1(%r14),%ecx
++movzbl 0x1(%r9),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0x7,%ecx
+ or     %edx,%ecx
+ mov    $0x2,%edx
+ test   %sil,%sil
+-jns    <meshoptimizer_rs::codec::raw+0x3d7>
+-movzbl 0x2(%r14),%edx
++jns    <meshoptimizer_rs::codec::raw+0x3f3>
++movzbl 0x2(%r9),%edx
+ mov    %edx,%esi
+ and    $0x7f,%edx
+ shl    $0xe,%edx
+ or     %edx,%ecx
+ mov    $0x3,%edx
+ test   %sil,%sil
+-jns    <meshoptimizer_rs::codec::raw+0x3d7>
+-movzbl 0x3(%r14),%edx
++jns    <meshoptimizer_rs::codec::raw+0x3f3>
++movzbl 0x3(%r9),%edx
+ mov    %edx,%esi
+ and    $0x7f,%edx
+ shl    $0x15,%edx
+ or     %edx,%ecx
+ mov    $0x4,%edx
+ test   %sil,%sil
+-jns    <meshoptimizer_rs::codec::raw+0x3d7>
+-movzbl 0x4(%r14),%esi
++jns    <meshoptimizer_rs::codec::raw+0x3f3>
++movzbl 0x4(%r9),%esi
+ shl    $0x1c,%esi
+ or     %ecx,%esi
+ mov    $0x5,%edx
+ mov    %esi,%ecx
+ sub    %rdx,%rbx
+-add    %rdx,%r14
+-jmp    <meshoptimizer_rs::codec::raw+0x334>
++add    %rdx,%r9
++jmp    <meshoptimizer_rs::codec::raw+0x350>
+ dec    %rbx
+-inc    %r14
++inc    %r9
+ mov    %edx,%ecx
+ mov    %ecx,%edx
+ shr    $0x2,%edx
+@@ -246,65 +254,67 @@
+ sar    $0x1f,%esi
+ xor    %edx,%esi
+ and    $0x1,%ecx
+-add    0x1f0(%rsp,%rcx,4),%esi
+-mov    %esi,0x1f0(%rsp,%rcx,4)
+-mov    %esi,(%r15,%rax,1)
++add    0x200(%rsp,%rcx,4),%esi
++mov    %esi,0x200(%rsp,%rcx,4)
++mov    %esi,(%r12,%rax,1)
+ add    $0x4,%rax
+-cmp    %rax,%r12
+-je     <meshoptimizer_rs::codec::raw+0x5b4>
++cmp    %rax,%r15
++je     <meshoptimizer_rs::codec::raw+0x5d8>
+ cmp    $0x5,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5b>
+-movzbl (%r14),%edx
++jb     <meshoptimizer_rs::codec::raw+0x1b44>
++movzbl (%r9),%edx
+ test   %dl,%dl
+-jns    <meshoptimizer_rs::codec::raw+0x3e2>
++jns    <meshoptimizer_rs::codec::raw+0x3fe>
+ and    $0x7f,%edx
+-movzbl 0x1(%r14),%ecx
++movzbl 0x1(%r9),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0x7,%ecx
+ or     %edx,%ecx
+ mov    $0x2,%edx
+ test   %sil,%sil
+-jns    <meshoptimizer_rs::codec::raw+0x48c>
+-movzbl 0x2(%r14),%edx
++jns    <meshoptimizer_rs::codec::raw+0x4a8>
++movzbl 0x2(%r9),%edx
+ mov    %edx,%esi
+ and    $0x7f,%edx
+ shl    $0xe,%edx
+ or     %edx,%ecx
+ mov    $0x3,%edx
+ test   %sil,%sil
+-jns    <meshoptimizer_rs::codec::raw+0x48c>
+-movzbl 0x3(%r14),%edx
++jns    <meshoptimizer_rs::codec::raw+0x4a8>
++movzbl 0x3(%r9),%edx
+ mov    %edx,%esi
+ and    $0x7f,%edx
+ shl    $0x15,%edx
+ or     %edx,%ecx
+ mov    $0x4,%edx
+ test   %sil,%sil
+-jns    <meshoptimizer_rs::codec::raw+0x48c>
+-movzbl 0x4(%r14),%esi
++jns    <meshoptimizer_rs::codec::raw+0x4a8>
++movzbl 0x4(%r9),%esi
+ shl    $0x1c,%esi
+ or     %ecx,%esi
+ mov    $0x5,%edx
+ mov    %esi,%ecx
+ sub    %rdx,%rbx
+-add    %rdx,%r14
+-jmp    <meshoptimizer_rs::codec::raw+0x3ea>
++add    %rdx,%r9
++jmp    <meshoptimizer_rs::codec::raw+0x406>
+ lea    0x11(%rdx),%rcx
+ mov    $0x7,%al
+ cmp    %rcx,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-movzbl (%r14),%ecx
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++movzbl (%r9),%ecx
+ mov    %ecx,%esi
+ and    $0xf0,%sil
+ cmp    $0xe0,%sil
+-jne    <meshoptimizer_rs::codec::raw+0x1b5d>
++jne    <meshoptimizer_rs::codec::raw+0x1b46>
+ and    $0xf,%cl
+ mov    $0x5,%al
+ cmp    $0x1,%cl
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++mov    %r9,%r10
+ lea    0x1(%rdx),%rsi
+ pcmpeqd %xmm0,%xmm0
++movdqa %xmm0,0x270(%rsp)
+ movdqa %xmm0,0x260(%rsp)
+ movdqa %xmm0,0x250(%rsp)
+ movdqa %xmm0,0x240(%rsp)
+@@ -312,124 +322,127 @@
+ movdqa %xmm0,0x220(%rsp)
+ movdqa %xmm0,0x210(%rsp)
+ movdqa %xmm0,0x200(%rsp)
+-movdqa %xmm0,0x1f0(%rsp)
++movdqa %xmm0,0x130(%rsp)
+ movdqa %xmm0,0x120(%rsp)
+ movdqa %xmm0,0x110(%rsp)
+ movdqa %xmm0,0x100(%rsp)
+-movdqa %xmm0,0xf0(%rsp)
+ xor    %r8d,%r8d
+ cmp    $0x1,%cl
+ setne  %r9b
+ lea    -0x10(%rbx),%rax
+ mov    %rax,0x28(%rsp)
+-mov    %r12,%rax
++mov    %r15,%rax
+ mov    %rdx,%rcx
+ mul    %rdi
+ shr    $0x3,%rdx
+ cmp    %rcx,%rdx
+ cmovae %rcx,%rdx
+-mov    %rdx,0x38(%rsp)
++mov    %rdx,0x40(%rsp)
+ test   %rdx,%rdx
+-je     <meshoptimizer_rs::codec::raw+0x1b4f>
++je     <meshoptimizer_rs::codec::raw+0x1b38>
+ mov    %r9b,%r8b
+ lea    0xd(,%r8,2),%rax
+ mov    %rax,0x58(%rsp)
+-mov    %r14,0x30(%rsp)
+-lea    (%r14,%rbx,1),%rax
++mov    %rbx,0x38(%rsp)
++mov    %r10,0x30(%rsp)
++lea    (%r10,%rbx,1),%rax
+ add    $0xfffffffffffffff0,%rax
+-mov    %rax,0x50(%rsp)
+-add    $0x8,%r15
++mov    %rax,0x60(%rsp)
++add    $0x8,%r12
+ xor    %r8d,%r8d
+ xor    %r10d,%r10d
+ movl   $0x0,0x20(%rsp)
+ xor    %r11d,%r11d
+ xor    %edi,%edi
+ mov    0x28(%rsp),%r9
+-jmp    <meshoptimizer_rs::codec::raw+0xc1e>
++jmp    <meshoptimizer_rs::codec::raw+0xc48>
+ cmp    $0x4,%rbx
+ sete   %al
+-jmp    <meshoptimizer_rs::codec::raw+0x1b49>
++neg    %al
++or     $0x7,%al
++jmp    <meshoptimizer_rs::codec::raw+0x1b46>
+ mov    %bpl,%r14b
+ add    %r14d,%r11d
+-mov    %ebx,0xf0(%rsp,%r10,4)
++mov    %ebx,0x100(%rsp,%r10,4)
+ mov    %r11d,%ebp
+ not    %eax
+ shr    $0x4,%eax
+ add    %r8d,%eax
+ and    $0xf,%eax
+-mov    0x1f0(%rsp,%rax,8),%r11d
+-mov    0x1f4(%rsp,%rax,8),%r15d
++mov    0x200(%rsp,%rax,8),%r11d
++mov    0x204(%rsp,%rax,8),%r15d
+ add    %r14,%r10
+ mov    $0x2,%eax
+ mov    $0x1,%r12d
+ mov    %r8,%r13
+ inc    %rdi
+-mov    %ebx,0x1f0(%rsp,%r13,8)
+-mov    %r15d,0x1f4(%rsp,%r13,8)
++mov    %ebx,0x200(%rsp,%r13,8)
++mov    %r15d,0x204(%rsp,%r13,8)
+ add    %r8d,%r12d
+ and    $0xf,%r12d
+-mov    %r11d,0x1f0(%rsp,%r12,8)
+-mov    %ebx,0x1f4(%rsp,%r12,8)
++mov    %r11d,0x200(%rsp,%r12,8)
++mov    %ebx,0x204(%rsp,%r12,8)
+ add    %r8d,%eax
+ and    $0xf,%eax
+ and    $0xf,%r10d
++mov    %rdx,%r12
+ mov    %r11w,-0x4(%rdx)
+ mov    %r15w,-0x2(%rdx)
+-mov    %rdx,%r15
+ mov    %bx,(%rdx)
+-add    $0x6,%r15
++add    $0x6,%r12
+ mov    %rax,%r8
+ mov    %ebp,%r11d
+-cmp    %rdi,0x38(%rsp)
+-je     <meshoptimizer_rs::codec::raw+0x1b54>
++cmp    %rdi,0x40(%rsp)
++je     <meshoptimizer_rs::codec::raw+0x1b3d>
+ cmp    %r9,%rsi
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
+-mov    %r15,%rdx
+-mov    0x30(%rsp),%r14
+-movzbl 0x1(%r14,%rdi,1),%eax
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
++mov    %r12,%rdx
++mov    0x30(%rsp),%rcx
++movzbl 0x1(%rcx,%rdi,1),%eax
+ cmp    $0xf0,%al
+-jae    <meshoptimizer_rs::codec::raw+0x6a9>
++jae    <meshoptimizer_rs::codec::raw+0x6d0>
+ mov    %eax,%r15d
+ and    $0xf,%r15d
+ cmp    %r15d,0x58(%rsp)
+-jbe    <meshoptimizer_rs::codec::raw+0x6e3>
++jbe    <meshoptimizer_rs::codec::raw+0x70e>
+ xor    %r14d,%r14d
+ mov    %r11d,%ebx
+ test   %r15b,%r15b
+ sete   %bpl
+-je     <meshoptimizer_rs::codec::raw+0x5c0>
++je     <meshoptimizer_rs::codec::raw+0x5e8>
+ not    %r15d
+ add    %r10d,%r15d
+ and    $0xf,%r15d
+-mov    0xf0(%rsp,%r15,4),%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x5c0>
++mov    0x100(%rsp,%r15,4),%ebx
++jmp    <meshoptimizer_rs::codec::raw+0x5e8>
+ cmp    $0xfe,%al
+-jae    <meshoptimizer_rs::codec::raw+0x705>
++jae    <meshoptimizer_rs::codec::raw+0x735>
+ and    $0xf,%eax
+-mov    0x50(%rsp),%rcx
++mov    0x60(%rsp),%rcx
+ movzbl (%rcx,%rax,1),%r13d
+ lea    0x1(%r11),%r15d
+ xor    %eax,%eax
+ mov    %r13d,%ecx
+ shr    $0x4,%ecx
+ sete   %r12b
+-je     <meshoptimizer_rs::codec::raw+0x748>
++je     <meshoptimizer_rs::codec::raw+0x778>
+ mov    %r10d,%ebx
+ sub    %ecx,%ebx
+ and    $0xf,%ebx
+ mov    %r15d,%ebp
+-mov    0xf0(%rsp,%rbx,4),%ecx
++mov    0x100(%rsp,%rbx,4),%ecx
+ mov    %ecx,%r15d
+-jmp    <meshoptimizer_rs::codec::raw+0x74c>
++jmp    <meshoptimizer_rs::codec::raw+0x77c>
+ cmp    $0xf,%r15b
+-jne    <meshoptimizer_rs::codec::raw+0x7c8>
++jne    <meshoptimizer_rs::codec::raw+0x7f8>
++mov    0x30(%rsp),%r14
+ movzbl (%r14,%rsi,1),%ebp
+ test   %bpl,%bpl
+-js     <meshoptimizer_rs::codec::raw+0x836>
++js     <meshoptimizer_rs::codec::raw+0x866>
+ inc    %rsi
+ mov    %ebp,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x9cc>
+-movzbl (%r14,%rsi,1),%r14d
++jmp    <meshoptimizer_rs::codec::raw+0x9f9>
++movzbl (%rcx,%rsi,1),%r14d
+ xor    %r15d,%r15d
+ cmp    $0xfe,%eax
+ sete   %r15b
+@@ -438,44 +451,44 @@
+ add    %r11d,%r15d
+ mov    %r14d,%r12d
+ shr    $0x4,%r12d
+-je     <meshoptimizer_rs::codec::raw+0x7e3>
++je     <meshoptimizer_rs::codec::raw+0x813>
+ mov    %r10d,%ecx
+ sub    %r12d,%ecx
+ and    $0xf,%ecx
+ mov    %r15d,%ebx
+-mov    0xf0(%rsp,%rcx,4),%ecx
++mov    0x100(%rsp,%rcx,4),%ecx
+ mov    %ecx,%r15d
+-jmp    <meshoptimizer_rs::codec::raw+0x7e7>
++jmp    <meshoptimizer_rs::codec::raw+0x817>
+ lea    0x2(%r11),%ebp
+ xor    %r14d,%r14d
+ mov    %ebp,%ebx
+ test   $0xf,%r13b
+ sete   %cl
+-je     <meshoptimizer_rs::codec::raw+0x76a>
++je     <meshoptimizer_rs::codec::raw+0x79a>
+ mov    %r10d,%ebx
+ sub    %r13d,%ebx
+ and    $0xf,%ebx
+-mov    0xf0(%rsp,%rbx,4),%ebx
++mov    0x100(%rsp,%rbx,4),%ebx
+ mov    %cl,%r14b
+ add    %r14d,%ebp
+-mov    %r11d,0xf0(%rsp,%r10,4)
++mov    %r11d,0x100(%rsp,%r10,4)
+ lea    0x1(%r10),%rcx
+ and    $0xf,%ecx
+-mov    %r15d,0xf0(%rsp,%rcx,4)
++mov    %r15d,0x100(%rsp,%rcx,4)
+ mov    %r12b,%al
+ add    %r10,%rax
+ inc    %rax
+ add    %rax,%r14
+ and    $0xf,%eax
+-mov    %ebx,0xf0(%rsp,%rax,4)
+-mov    %r15d,0x1f0(%rsp,%r8,8)
+-mov    %r11d,0x1f4(%rsp,%r8,8)
++mov    %ebx,0x100(%rsp,%rax,4)
++mov    %r15d,0x200(%rsp,%r8,8)
++mov    %r11d,0x204(%rsp,%r8,8)
+ lea    0x1(%r8),%r13d
+ and    $0xf,%r13d
+ mov    $0x3,%eax
+ mov    $0x2,%r12d
+ mov    %r14,%r10
+-jmp    <meshoptimizer_rs::codec::raw+0x5fd>
++jmp    <meshoptimizer_rs::codec::raw+0x625>
+ movzbl %r15b,%ecx
+ xor    $0x3,%r15b
+ movzbl %r15b,%ebx
+@@ -483,30 +496,30 @@
+ add    %ecx,%ebp
+ sub    %ebx,%ebp
+ mov    %ebp,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x9dd>
++jmp    <meshoptimizer_rs::codec::raw+0xa0a>
+ lea    0x1(%r15),%ebx
+ mov    %r14d,%r13d
+ and    $0xf,%r13b
+-je     <meshoptimizer_rs::codec::raw+0x806>
++je     <meshoptimizer_rs::codec::raw+0x836>
+ mov    %r10d,%ecx
+ sub    %r14d,%ecx
+ and    $0xf,%ecx
+ mov    %ebx,%ebp
+-mov    0xf0(%rsp,%rcx,4),%ecx
++mov    0x100(%rsp,%rcx,4),%ecx
+ mov    %ecx,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x809>
++jmp    <meshoptimizer_rs::codec::raw+0x839>
+ lea    0x1(%rbx),%ebp
+ lea    0x1(%rsi),%r14
+ cmp    $0xfe,%eax
+-je     <meshoptimizer_rs::codec::raw+0x910>
++je     <meshoptimizer_rs::codec::raw+0x940>
+ mov    0x30(%rsp),%r9
+ movzbl 0x1(%r9,%rsi,1),%eax
+ test   %al,%al
+-js     <meshoptimizer_rs::codec::raw+0x856>
++js     <meshoptimizer_rs::codec::raw+0x886>
+ add    $0x2,%rsi
+ mov    %rsi,%r14
+ mov    %eax,%r11d
+-jmp    <meshoptimizer_rs::codec::raw+0x8f2>
++jmp    <meshoptimizer_rs::codec::raw+0x922>
+ and    $0x7f,%ebp
+ movzbl 0x1(%r14,%rsi,1),%ebx
+ mov    %ebx,%ecx
+@@ -514,9 +527,9 @@
+ shl    $0x7,%ebx
+ or     %ebp,%ebx
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0x877>
++js     <meshoptimizer_rs::codec::raw+0x8a7>
+ add    $0x2,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0x9cc>
++jmp    <meshoptimizer_rs::codec::raw+0x9f9>
+ and    $0x7f,%eax
+ movzbl 0x2(%r9,%rsi,1),%r11d
+ mov    %r11d,%ecx
+@@ -524,43 +537,43 @@
+ shl    $0x7,%r11d
+ or     %eax,%r11d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0x895>
++js     <meshoptimizer_rs::codec::raw+0x8c5>
+ add    $0x3,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0x8ef>
++jmp    <meshoptimizer_rs::codec::raw+0x91f>
+ movzbl 0x2(%r14,%rsi,1),%ecx
+ mov    %ecx,%ebp
+ and    $0x7f,%ecx
+ shl    $0xe,%ecx
+ or     %ecx,%ebx
+ test   %bpl,%bpl
+-js     <meshoptimizer_rs::codec::raw+0x8b0>
++js     <meshoptimizer_rs::codec::raw+0x8e0>
+ add    $0x3,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0x9cc>
++jmp    <meshoptimizer_rs::codec::raw+0x9f9>
+ movzbl 0x3(%r9,%rsi,1),%eax
+ mov    %eax,%ecx
+ and    $0x7f,%eax
+ shl    $0xe,%eax
+ or     %eax,%r11d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0x8d2>
++js     <meshoptimizer_rs::codec::raw+0x902>
+ add    $0x4,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0x8ef>
++jmp    <meshoptimizer_rs::codec::raw+0x91f>
+ movzbl 0x3(%r14,%rsi,1),%ecx
+ mov    %ecx,%ebp
+ and    $0x7f,%ecx
+ shl    $0x15,%ecx
+ or     %ecx,%ebx
+ test   %bpl,%bpl
+-js     <meshoptimizer_rs::codec::raw+0x9bb>
++js     <meshoptimizer_rs::codec::raw+0x9e8>
+ add    $0x4,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0x9cc>
++jmp    <meshoptimizer_rs::codec::raw+0x9f9>
+ movzbl 0x4(%r9,%rsi,1),%eax
+ mov    %eax,%ecx
+ and    $0x7f,%eax
+ shl    $0x15,%eax
+ or     %eax,%r11d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0x9f4>
++js     <meshoptimizer_rs::codec::raw+0xa21>
+ add    $0x5,%rsi
+ mov    %rsi,%r14
+ mov    0x28(%rsp),%r9
+@@ -572,20 +585,20 @@
+ add    0x20(%rsp),%r11d
+ mov    %r11d,0x20(%rsp)
+ cmp    $0xf,%r12b
+-jne    <meshoptimizer_rs::codec::raw+0xa43>
++jne    <meshoptimizer_rs::codec::raw+0xa70>
+ cmp    $0xfffffffffffffffa,%r14
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ lea    0x5(%r14),%rax
+-cmp    0x630(%rsp),%rax
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++cmp    0x38(%rsp),%rax
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ mov    0x30(%rsp),%r9
+ movzbl (%r9,%r14,1),%esi
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0x953>
++js     <meshoptimizer_rs::codec::raw+0x980>
+ inc    %r14
+ mov    %r14,%rax
+ mov    %esi,%r15d
+-jmp    <meshoptimizer_rs::codec::raw+0xa22>
++jmp    <meshoptimizer_rs::codec::raw+0xa4f>
+ and    $0x7f,%esi
+ movzbl 0x1(%r9,%r14,1),%r15d
+ mov    %r15d,%ecx
+@@ -593,30 +606,30 @@
+ shl    $0x7,%r15d
+ or     %esi,%r15d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0x97a>
++js     <meshoptimizer_rs::codec::raw+0x9a7>
+ add    $0x2,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xa22>
++jmp    <meshoptimizer_rs::codec::raw+0xa4f>
+ movzbl 0x2(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0xe,%ecx
+ or     %ecx,%r15d
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0x99c>
++js     <meshoptimizer_rs::codec::raw+0x9c9>
+ add    $0x3,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xa22>
++jmp    <meshoptimizer_rs::codec::raw+0xa4f>
+ movzbl 0x3(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0x15,%ecx
+ or     %ecx,%r15d
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xa0e>
++js     <meshoptimizer_rs::codec::raw+0xa3b>
+ add    $0x4,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xa22>
++jmp    <meshoptimizer_rs::codec::raw+0xa4f>
+ movzbl 0x4(%r14,%rsi,1),%ecx
+ add    $0x5,%rsi
+ shl    $0x1c,%ecx
+@@ -629,16 +642,16 @@
+ neg    %ebx
+ xor    %ecx,%ebx
+ add    %ebp,%ebx
+-mov    %ebx,0xf0(%rsp,%r10,4)
++mov    %ebx,0x100(%rsp,%r10,4)
+ mov    $0x1,%r14d
+ mov    %ebx,0x20(%rsp)
+-jmp    <meshoptimizer_rs::codec::raw+0x5ce>
++jmp    <meshoptimizer_rs::codec::raw+0x5f6>
+ add    $0x6,%rsi
+ mov    0x30(%rsp),%rax
+ movzbl 0x4(%rax,%r14,1),%eax
+ shl    $0x1c,%eax
+ or     %r11d,%eax
+-jmp    <meshoptimizer_rs::codec::raw+0x82b>
++jmp    <meshoptimizer_rs::codec::raw+0x85b>
+ mov    0x30(%rsp),%rcx
+ movzbl 0x4(%rcx,%r14,1),%ecx
+ shl    $0x1c,%ecx
+@@ -654,20 +667,20 @@
+ mov    %rax,%r14
+ mov    %r15d,0x20(%rsp)
+ cmp    $0xf,%r13b
+-jne    <meshoptimizer_rs::codec::raw+0xb0b>
++jne    <meshoptimizer_rs::codec::raw+0xb35>
+ cmp    $0xfffffffffffffffa,%r14
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ lea    0x5(%r14),%rax
+-cmp    0x630(%rsp),%rax
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++cmp    0x38(%rsp),%rax
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ mov    0x30(%rsp),%r9
+ movzbl (%r9,%r14,1),%esi
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xa82>
++js     <meshoptimizer_rs::codec::raw+0xaac>
+ inc    %r14
+ mov    %r14,%rax
+ mov    %esi,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0xaf0>
++jmp    <meshoptimizer_rs::codec::raw+0xb1a>
+ and    $0x7f,%esi
+ movzbl 0x1(%r9,%r14,1),%ebx
+ mov    %ebx,%ecx
+@@ -675,30 +688,30 @@
+ shl    $0x7,%ebx
+ or     %esi,%ebx
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0xaa2>
++js     <meshoptimizer_rs::codec::raw+0xacc>
+ add    $0x2,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xaf0>
++jmp    <meshoptimizer_rs::codec::raw+0xb1a>
+ movzbl 0x2(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0xe,%ecx
+ or     %ecx,%ebx
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xac0>
++js     <meshoptimizer_rs::codec::raw+0xaea>
+ add    $0x3,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xaf0>
++jmp    <meshoptimizer_rs::codec::raw+0xb1a>
+ movzbl 0x3(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0x15,%ecx
+ or     %ecx,%ebx
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xade>
++js     <meshoptimizer_rs::codec::raw+0xb08>
+ add    $0x4,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xaf0>
++jmp    <meshoptimizer_rs::codec::raw+0xb1a>
+ mov    0x30(%rsp),%rcx
+ movzbl 0x4(%rcx,%r14,1),%ecx
+ shl    $0x1c,%ecx
+@@ -721,11 +734,11 @@
+ sete   %sil
+ test   %r12b,%r12b
+ sete   %r12b
+-mov    %r11d,0xf0(%rsp,%r10,4)
++mov    %r11d,0x100(%rsp,%r10,4)
+ lea    0x1(%r10),%r13
+ and    $0xf,%r13d
+ or     %cl,%r12b
+-mov    %r15d,0xf0(%rsp,%r13,4)
++mov    %r15d,0x100(%rsp,%r13,4)
+ movzbl %r12b,%ecx
+ add    %r10,%rcx
+ inc    %rcx
+@@ -733,96 +746,97 @@
+ movzbl %sil,%r10d
+ add    %rcx,%r10
+ and    $0xf,%ecx
+-mov    %ebx,0xf0(%rsp,%rcx,4)
+-mov    %r15d,0x1f0(%rsp,%r8,8)
+-mov    %r11d,0x1f4(%rsp,%r8,8)
++mov    %ebx,0x100(%rsp,%rcx,4)
++mov    %r15d,0x200(%rsp,%r8,8)
++mov    %r11d,0x204(%rsp,%r8,8)
+ lea    0x1(%r8),%r13d
+ and    $0xf,%r13d
+ mov    $0x3,%eax
+ mov    $0x2,%r12d
+ mov    %r14,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0x5fd>
++jmp    <meshoptimizer_rs::codec::raw+0x625>
+ mov    %bpl,%r14b
+ add    %r14d,%r11d
+-mov    %ebx,0xf0(%rsp,%r10,4)
++mov    %ebx,0x100(%rsp,%r10,4)
+ mov    %r11d,%ebp
+ not    %eax
+ shr    $0x4,%eax
+ add    %r8d,%eax
+ and    $0xf,%eax
+-mov    0x1f0(%rsp,%rax,8),%r11d
+-mov    0x1f4(%rsp,%rax,8),%r15d
++mov    0x200(%rsp,%rax,8),%r11d
++mov    0x204(%rsp,%rax,8),%r15d
+ add    %r14,%r10
+ mov    $0x2,%eax
+ mov    $0x1,%r12d
+ mov    %r8,%r13
+ inc    %rdi
+-mov    %ebx,0x1f0(%rsp,%r13,8)
+-mov    %r15d,0x1f4(%rsp,%r13,8)
++mov    %ebx,0x200(%rsp,%r13,8)
++mov    %r15d,0x204(%rsp,%r13,8)
+ add    %r8d,%r12d
+ and    $0xf,%r12d
+-mov    %r11d,0x1f0(%rsp,%r12,8)
+-mov    %ebx,0x1f4(%rsp,%r12,8)
++mov    %r11d,0x200(%rsp,%r12,8)
++mov    %ebx,0x204(%rsp,%r12,8)
+ add    %r8d,%eax
+ and    $0xf,%eax
+ and    $0xf,%r10d
++mov    %rdx,%r12
+ mov    %r11d,-0x8(%rdx)
+ mov    %r15d,-0x4(%rdx)
+-mov    %rdx,%r15
+ mov    %ebx,(%rdx)
+-add    $0xc,%r15
++add    $0xc,%r12
+ mov    %rax,%r8
+ mov    %ebp,%r11d
+-cmp    %rdi,0x38(%rsp)
+-je     <meshoptimizer_rs::codec::raw+0x1b54>
++cmp    %rdi,0x40(%rsp)
++je     <meshoptimizer_rs::codec::raw+0x1b3d>
+ cmp    %r9,%rsi
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
+-mov    %r15,%rdx
+-mov    0x30(%rsp),%r14
+-movzbl 0x1(%r14,%rdi,1),%eax
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
++mov    %r12,%rdx
++mov    0x30(%rsp),%rcx
++movzbl 0x1(%rcx,%rdi,1),%eax
+ cmp    $0xf0,%al
+-jae    <meshoptimizer_rs::codec::raw+0xc71>
++jae    <meshoptimizer_rs::codec::raw+0xc9a>
+ mov    %eax,%r15d
+ and    $0xf,%r15d
+ cmp    %r15d,0x58(%rsp)
+-jbe    <meshoptimizer_rs::codec::raw+0xcab>
++jbe    <meshoptimizer_rs::codec::raw+0xcd8>
+ xor    %r14d,%r14d
+ mov    %r11d,%ebx
+ test   %r15b,%r15b
+ sete   %bpl
+-je     <meshoptimizer_rs::codec::raw+0xb8b>
++je     <meshoptimizer_rs::codec::raw+0xbb5>
+ not    %r15d
+ add    %r10d,%r15d
+ and    $0xf,%r15d
+-mov    0xf0(%rsp,%r15,4),%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0xb8b>
++mov    0x100(%rsp,%r15,4),%ebx
++jmp    <meshoptimizer_rs::codec::raw+0xbb5>
+ cmp    $0xfe,%al
+-jae    <meshoptimizer_rs::codec::raw+0xccd>
++jae    <meshoptimizer_rs::codec::raw+0xcff>
+ and    $0xf,%eax
+-mov    0x50(%rsp),%rcx
++mov    0x60(%rsp),%rcx
+ movzbl (%rcx,%rax,1),%r13d
+ lea    0x1(%r11),%r15d
+ xor    %eax,%eax
+ mov    %r13d,%ecx
+ shr    $0x4,%ecx
+ sete   %r12b
+-je     <meshoptimizer_rs::codec::raw+0xd10>
++je     <meshoptimizer_rs::codec::raw+0xd42>
+ mov    %r10d,%ebx
+ sub    %ecx,%ebx
+ and    $0xf,%ebx
+ mov    %r15d,%ebp
+-mov    0xf0(%rsp,%rbx,4),%ecx
++mov    0x100(%rsp,%rbx,4),%ecx
+ mov    %ecx,%r15d
+-jmp    <meshoptimizer_rs::codec::raw+0xd14>
++jmp    <meshoptimizer_rs::codec::raw+0xd46>
+ cmp    $0xf,%r15b
+-jne    <meshoptimizer_rs::codec::raw+0xd90>
++jne    <meshoptimizer_rs::codec::raw+0xdc2>
++mov    0x30(%rsp),%r14
+ movzbl (%r14,%rsi,1),%ebp
+ test   %bpl,%bpl
+-js     <meshoptimizer_rs::codec::raw+0xdfe>
++js     <meshoptimizer_rs::codec::raw+0xe30>
+ inc    %rsi
+ mov    %ebp,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0xf94>
+-movzbl (%r14,%rsi,1),%r14d
++jmp    <meshoptimizer_rs::codec::raw+0xfc3>
++movzbl (%rcx,%rsi,1),%r14d
+ xor    %r15d,%r15d
+ cmp    $0xfe,%eax
+ sete   %r15b
+@@ -831,44 +845,44 @@
+ add    %r11d,%r15d
+ mov    %r14d,%r12d
+ shr    $0x4,%r12d
+-je     <meshoptimizer_rs::codec::raw+0xdab>
++je     <meshoptimizer_rs::codec::raw+0xddd>
+ mov    %r10d,%ecx
+ sub    %r12d,%ecx
+ and    $0xf,%ecx
+ mov    %r15d,%ebx
+-mov    0xf0(%rsp,%rcx,4),%ecx
++mov    0x100(%rsp,%rcx,4),%ecx
+ mov    %ecx,%r15d
+-jmp    <meshoptimizer_rs::codec::raw+0xdaf>
++jmp    <meshoptimizer_rs::codec::raw+0xde1>
+ lea    0x2(%r11),%ebp
+ xor    %r14d,%r14d
+ mov    %ebp,%ebx
+ test   $0xf,%r13b
+ sete   %cl
+-je     <meshoptimizer_rs::codec::raw+0xd32>
++je     <meshoptimizer_rs::codec::raw+0xd64>
+ mov    %r10d,%ebx
+ sub    %r13d,%ebx
+ and    $0xf,%ebx
+-mov    0xf0(%rsp,%rbx,4),%ebx
++mov    0x100(%rsp,%rbx,4),%ebx
+ mov    %cl,%r14b
+ add    %r14d,%ebp
+-mov    %r11d,0xf0(%rsp,%r10,4)
++mov    %r11d,0x100(%rsp,%r10,4)
+ lea    0x1(%r10),%rcx
+ and    $0xf,%ecx
+-mov    %r15d,0xf0(%rsp,%rcx,4)
++mov    %r15d,0x100(%rsp,%rcx,4)
+ mov    %r12b,%al
+ add    %r10,%rax
+ inc    %rax
+ add    %rax,%r14
+ and    $0xf,%eax
+-mov    %ebx,0xf0(%rsp,%rax,4)
+-mov    %r15d,0x1f0(%rsp,%r8,8)
+-mov    %r11d,0x1f4(%rsp,%r8,8)
++mov    %ebx,0x100(%rsp,%rax,4)
++mov    %r15d,0x200(%rsp,%r8,8)
++mov    %r11d,0x204(%rsp,%r8,8)
+ lea    0x1(%r8),%r13d
+ and    $0xf,%r13d
+ mov    $0x3,%eax
+ mov    $0x2,%r12d
+ mov    %r14,%r10
+-jmp    <meshoptimizer_rs::codec::raw+0xbc8>
++jmp    <meshoptimizer_rs::codec::raw+0xbf2>
+ movzbl %r15b,%ecx
+ xor    $0x3,%r15b
+ movzbl %r15b,%ebx
+@@ -876,30 +890,30 @@
+ add    %ecx,%ebp
+ sub    %ebx,%ebp
+ mov    %ebp,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0xfa5>
++jmp    <meshoptimizer_rs::codec::raw+0xfd4>
+ lea    0x1(%r15),%ebx
+ mov    %r14d,%r13d
+ and    $0xf,%r13b
+-je     <meshoptimizer_rs::codec::raw+0xdce>
++je     <meshoptimizer_rs::codec::raw+0xe00>
+ mov    %r10d,%ecx
+ sub    %r14d,%ecx
+ and    $0xf,%ecx
+ mov    %ebx,%ebp
+-mov    0xf0(%rsp,%rcx,4),%ecx
++mov    0x100(%rsp,%rcx,4),%ecx
+ mov    %ecx,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0xdd1>
++jmp    <meshoptimizer_rs::codec::raw+0xe03>
+ lea    0x1(%rbx),%ebp
+ lea    0x1(%rsi),%r14
+ cmp    $0xfe,%eax
+-je     <meshoptimizer_rs::codec::raw+0xed8>
++je     <meshoptimizer_rs::codec::raw+0xf0a>
+ mov    0x30(%rsp),%r9
+ movzbl 0x1(%r9,%rsi,1),%eax
+ test   %al,%al
+-js     <meshoptimizer_rs::codec::raw+0xe1e>
++js     <meshoptimizer_rs::codec::raw+0xe50>
+ add    $0x2,%rsi
+ mov    %rsi,%r14
+ mov    %eax,%r11d
+-jmp    <meshoptimizer_rs::codec::raw+0xeba>
++jmp    <meshoptimizer_rs::codec::raw+0xeec>
+ and    $0x7f,%ebp
+ movzbl 0x1(%r14,%rsi,1),%ebx
+ mov    %ebx,%ecx
+@@ -907,9 +921,9 @@
+ shl    $0x7,%ebx
+ or     %ebp,%ebx
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0xe3f>
++js     <meshoptimizer_rs::codec::raw+0xe71>
+ add    $0x2,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0xf94>
++jmp    <meshoptimizer_rs::codec::raw+0xfc3>
+ and    $0x7f,%eax
+ movzbl 0x2(%r9,%rsi,1),%r11d
+ mov    %r11d,%ecx
+@@ -917,43 +931,43 @@
+ shl    $0x7,%r11d
+ or     %eax,%r11d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0xe5d>
++js     <meshoptimizer_rs::codec::raw+0xe8f>
+ add    $0x3,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0xeb7>
++jmp    <meshoptimizer_rs::codec::raw+0xee9>
+ movzbl 0x2(%r14,%rsi,1),%ecx
+ mov    %ecx,%ebp
+ and    $0x7f,%ecx
+ shl    $0xe,%ecx
+ or     %ecx,%ebx
+ test   %bpl,%bpl
+-js     <meshoptimizer_rs::codec::raw+0xe78>
++js     <meshoptimizer_rs::codec::raw+0xeaa>
+ add    $0x3,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0xf94>
++jmp    <meshoptimizer_rs::codec::raw+0xfc3>
+ movzbl 0x3(%r9,%rsi,1),%eax
+ mov    %eax,%ecx
+ and    $0x7f,%eax
+ shl    $0xe,%eax
+ or     %eax,%r11d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0xe9a>
++js     <meshoptimizer_rs::codec::raw+0xecc>
+ add    $0x4,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0xeb7>
++jmp    <meshoptimizer_rs::codec::raw+0xee9>
+ movzbl 0x3(%r14,%rsi,1),%ecx
+ mov    %ecx,%ebp
+ and    $0x7f,%ecx
+ shl    $0x15,%ecx
+ or     %ecx,%ebx
+ test   %bpl,%bpl
+-js     <meshoptimizer_rs::codec::raw+0xf83>
++js     <meshoptimizer_rs::codec::raw+0xfb2>
+ add    $0x4,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0xf94>
++jmp    <meshoptimizer_rs::codec::raw+0xfc3>
+ movzbl 0x4(%r9,%rsi,1),%eax
+ mov    %eax,%ecx
+ and    $0x7f,%eax
+ shl    $0x15,%eax
+ or     %eax,%r11d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0xfbc>
++js     <meshoptimizer_rs::codec::raw+0xfeb>
+ add    $0x5,%rsi
+ mov    %rsi,%r14
+ mov    0x28(%rsp),%r9
+@@ -965,20 +979,20 @@
+ add    0x20(%rsp),%r11d
+ mov    %r11d,0x20(%rsp)
+ cmp    $0xf,%r12b
+-jne    <meshoptimizer_rs::codec::raw+0x100b>
++jne    <meshoptimizer_rs::codec::raw+0x103a>
+ cmp    $0xfffffffffffffffa,%r14
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ lea    0x5(%r14),%rax
+-cmp    0x630(%rsp),%rax
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++cmp    0x38(%rsp),%rax
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ mov    0x30(%rsp),%r9
+ movzbl (%r9,%r14,1),%esi
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xf1b>
++js     <meshoptimizer_rs::codec::raw+0xf4a>
+ inc    %r14
+ mov    %r14,%rax
+ mov    %esi,%r15d
+-jmp    <meshoptimizer_rs::codec::raw+0xfea>
++jmp    <meshoptimizer_rs::codec::raw+0x1019>
+ and    $0x7f,%esi
+ movzbl 0x1(%r9,%r14,1),%r15d
+ mov    %r15d,%ecx
+@@ -986,30 +1000,30 @@
+ shl    $0x7,%r15d
+ or     %esi,%r15d
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0xf42>
++js     <meshoptimizer_rs::codec::raw+0xf71>
+ add    $0x2,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xfea>
++jmp    <meshoptimizer_rs::codec::raw+0x1019>
+ movzbl 0x2(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0xe,%ecx
+ or     %ecx,%r15d
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xf64>
++js     <meshoptimizer_rs::codec::raw+0xf93>
+ add    $0x3,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xfea>
++jmp    <meshoptimizer_rs::codec::raw+0x1019>
+ movzbl 0x3(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0x15,%ecx
+ or     %ecx,%r15d
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0xfd6>
++js     <meshoptimizer_rs::codec::raw+0x1005>
+ add    $0x4,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0xfea>
++jmp    <meshoptimizer_rs::codec::raw+0x1019>
+ movzbl 0x4(%r14,%rsi,1),%ecx
+ add    $0x5,%rsi
+ shl    $0x1c,%ecx
+@@ -1022,16 +1036,16 @@
+ neg    %ebx
+ xor    %ecx,%ebx
+ add    %ebp,%ebx
+-mov    %ebx,0xf0(%rsp,%r10,4)
++mov    %ebx,0x100(%rsp,%r10,4)
+ mov    $0x1,%r14d
+ mov    %ebx,0x20(%rsp)
+-jmp    <meshoptimizer_rs::codec::raw+0xb99>
++jmp    <meshoptimizer_rs::codec::raw+0xbc3>
+ add    $0x6,%rsi
+ mov    0x30(%rsp),%rax
+ movzbl 0x4(%rax,%r14,1),%eax
+ shl    $0x1c,%eax
+ or     %r11d,%eax
+-jmp    <meshoptimizer_rs::codec::raw+0xdf3>
++jmp    <meshoptimizer_rs::codec::raw+0xe25>
+ mov    0x30(%rsp),%rcx
+ movzbl 0x4(%rcx,%r14,1),%ecx
+ shl    $0x1c,%ecx
+@@ -1047,20 +1061,20 @@
+ mov    %rax,%r14
+ mov    %r15d,0x20(%rsp)
+ cmp    $0xf,%r13b
+-jne    <meshoptimizer_rs::codec::raw+0x10d3>
++jne    <meshoptimizer_rs::codec::raw+0x10ff>
+ cmp    $0xfffffffffffffffa,%r14
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ lea    0x5(%r14),%rax
+-cmp    0x630(%rsp),%rax
+-ja     <meshoptimizer_rs::codec::raw+0x1b5b>
++cmp    0x38(%rsp),%rax
++ja     <meshoptimizer_rs::codec::raw+0x1b44>
+ mov    0x30(%rsp),%r9
+ movzbl (%r9,%r14,1),%esi
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0x104a>
++js     <meshoptimizer_rs::codec::raw+0x1076>
+ inc    %r14
+ mov    %r14,%rax
+ mov    %esi,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x10b8>
++jmp    <meshoptimizer_rs::codec::raw+0x10e4>
+ and    $0x7f,%esi
+ movzbl 0x1(%r9,%r14,1),%ebx
+ mov    %ebx,%ecx
+@@ -1068,30 +1082,30 @@
+ shl    $0x7,%ebx
+ or     %esi,%ebx
+ test   %cl,%cl
+-js     <meshoptimizer_rs::codec::raw+0x106a>
++js     <meshoptimizer_rs::codec::raw+0x1096>
+ add    $0x2,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0x10b8>
++jmp    <meshoptimizer_rs::codec::raw+0x10e4>
+ movzbl 0x2(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0xe,%ecx
+ or     %ecx,%ebx
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0x1088>
++js     <meshoptimizer_rs::codec::raw+0x10b4>
+ add    $0x3,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0x10b8>
++jmp    <meshoptimizer_rs::codec::raw+0x10e4>
+ movzbl 0x3(%r9,%r14,1),%ecx
+ mov    %ecx,%esi
+ and    $0x7f,%ecx
+ shl    $0x15,%ecx
+ or     %ecx,%ebx
+ test   %sil,%sil
+-js     <meshoptimizer_rs::codec::raw+0x10a6>
++js     <meshoptimizer_rs::codec::raw+0x10d2>
+ add    $0x4,%r14
+ mov    %r14,%rax
+-jmp    <meshoptimizer_rs::codec::raw+0x10b8>
++jmp    <meshoptimizer_rs::codec::raw+0x10e4>
+ mov    0x30(%rsp),%rcx
+ movzbl 0x4(%rcx,%r14,1),%ecx
+ shl    $0x1c,%ecx
+@@ -1114,11 +1128,11 @@
+ sete   %sil
+ test   %r12b,%r12b
+ sete   %r12b
+-mov    %r11d,0xf0(%rsp,%r10,4)
++mov    %r11d,0x100(%rsp,%r10,4)
+ lea    0x1(%r10),%r13
+ and    $0xf,%r13d
+ or     %cl,%r12b
+-mov    %r15d,0xf0(%rsp,%r13,4)
++mov    %r15d,0x100(%rsp,%r13,4)
+ movzbl %r12b,%ecx
+ add    %r10,%rcx
+ inc    %rcx
+@@ -1126,33 +1140,35 @@
+ movzbl %sil,%r10d
+ add    %rcx,%r10
+ and    $0xf,%ecx
+-mov    %ebx,0xf0(%rsp,%rcx,4)
+-mov    %r15d,0x1f0(%rsp,%r8,8)
+-mov    %r11d,0x1f4(%rsp,%r8,8)
++mov    %ebx,0x100(%rsp,%rcx,4)
++mov    %r15d,0x200(%rsp,%r8,8)
++mov    %r11d,0x204(%rsp,%r8,8)
+ lea    0x1(%r8),%r13d
+ and    $0xf,%r13d
+ mov    $0x3,%eax
+ mov    $0x2,%r12d
+ mov    %r14,%rsi
+-jmp    <meshoptimizer_rs::codec::raw+0xbc8>
++jmp    <meshoptimizer_rs::codec::raw+0xbf2>
+ cmp    $0x21,%rbp
+ mov    $0x20,%eax
+ cmovae %rbp,%rax
+ mov    %rbp,%rcx
+-mov    %rax,0xe0(%rsp)
++mov    %rax,0xa0(%rsp)
+ lea    0x1(%rax),%rdx
+ mov    $0x7,%al
+ cmp    %rdx,%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++mov    %sil,0x40(%rsp)
+ mov    %rbx,%rsi
+ sub    %rcx,%rsi
+ lea    (%rsi,%rbp,1),%rax
+ mov    %rbx,%rcx
+-mov    %rax,0x60(%rsp)
++mov    %rax,0x68(%rsp)
+ sub    %rax,%rcx
+-mov    %rcx,0xa0(%rsp)
+-jb     <meshoptimizer_rs::codec::raw+0x1bdc>
++mov    %rcx,0xb0(%rsp)
++jb     <meshoptimizer_rs::codec::raw+0x1be9>
+ pxor   %xmm0,%xmm0
++movdqa %xmm0,0x1f0(%rsp)
+ movdqa %xmm0,0x1e0(%rsp)
+ movdqa %xmm0,0x1d0(%rsp)
+ movdqa %xmm0,0x1c0(%rsp)
+@@ -1168,19 +1184,17 @@
+ movdqa %xmm0,0x120(%rsp)
+ movdqa %xmm0,0x110(%rsp)
+ movdqa %xmm0,0x100(%rsp)
+-movdqa %xmm0,0xf0(%rsp)
+ cmp    $0x101,%rbp
+-jae    <meshoptimizer_rs::codec::raw+0x1b9d>
+-mov    %dil,0x38(%rsp)
++jae    <meshoptimizer_rs::codec::raw+0x1baa>
+ lea    (%rsi,%rbp,1),%rax
+ cmp    %rsi,%rax
+-jb     <meshoptimizer_rs::codec::raw+0x1bb4>
+-add    %r14,%rsi
+-lea    0xf0(%rsp),%rdi
++jb     <meshoptimizer_rs::codec::raw+0x1bc1>
++add    %rdi,%rsi
++lea    0x100(%rsp),%rdi
+ mov    %rbp,%rdx
+ call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
+ test   %rbp,%rbp
+-je     <meshoptimizer_rs::codec::raw+0x1c45>
++je     <meshoptimizer_rs::codec::raw+0x1c52>
+ mov    $0x2000,%ax
+ xor    %edx,%edx
+ div    %bp
+@@ -1188,89 +1202,88 @@
+ cmp    $0x100,%eax
+ mov    $0x100,%ecx
+ cmovb  %eax,%ecx
+-mov    %rcx,0xd8(%rsp)
+-lea    0x1f0(%rsp),%rdi
++mov    %rcx,0xf0(%rsp)
++lea    0x200(%rsp),%rdi
+ mov    $0x400,%edx
+ xor    %esi,%esi
+ call   *<relocation>(%rip)        # <memset@GLIBC_2.2.5>
+ test   %r13,%r13
+-je     <meshoptimizer_rs::codec::raw+0x1b30>
+-mov    %r15,0xd0(%rsp)
+-add    %r14,0x60(%rsp)
++je     <meshoptimizer_rs::codec::raw+0x1b58>
++mov    %r12,0xe8(%rsp)
++add    %r14,0x68(%rsp)
+ mov    %rbp,%rax
+ shr    $0x2,%rax
+ mov    %rax,0x98(%rsp)
+ lea    0x3(%rbp),%rax
+ shr    $0x2,%rax
+-mov    %rax,0xe8(%rsp)
+-mov    $0x1,%r15d
+-xor    %eax,%eax
+-mov    %r12,0x88(%rsp)
++mov    %rax,0xf8(%rsp)
++mov    $0x1,%r12d
++xor    %edi,%edi
++mov    %rbx,0x38(%rsp)
+ mov    %r14,0x30(%rsp)
++mov    %r15,0xd0(%rsp)
+ mov    %r13,%rcx
+-mov    %rax,%rdi
+-sub    %rax,%rcx
+-mov    0xd8(%rsp),%rax
++sub    %rdi,%rcx
++mov    0xf0(%rsp),%rax
+ cmp    %rax,%rcx
+ cmovae %rax,%rcx
+ mov    %rcx,0x20(%rsp)
+-movzbl 0x38(%rsp),%edx
+-test   %dl,%dl
+-je     <meshoptimizer_rs::codec::raw+0x1359>
+-mov    %r15,%rcx
++cmpb   $0x0,0x40(%rsp)
++je     <meshoptimizer_rs::codec::raw+0x137d>
++mov    %r12,%rcx
+ mov    $0x7,%al
+ add    0x98(%rsp),%rcx
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
+ cmp    %rbx,%rcx
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
+-add    %r14,%r15
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++add    %r14,%r12
+ mov    0x98(%rsp),%rax
+ mov    %rax,0x90(%rsp)
+-mov    %r15,0xa8(%rsp)
+-mov    %rcx,%r15
+-mov    0x88(%rsp),%r12
+-jmp    <meshoptimizer_rs::codec::raw+0x1372>
++mov    %r12,0xb8(%rsp)
++mov    %rcx,%r12
++jmp    <meshoptimizer_rs::codec::raw+0x1396>
+ movq   $0x0,0x90(%rsp)
+ mov    $0x1,%eax
+-mov    %rax,0xa8(%rsp)
++mov    %rax,0xb8(%rsp)
+ mov    0x20(%rsp),%rax
+ lea    (%rax,%rdi,1),%rsi
+ imul   %rbp,%rdi
+-mov    %rsi,0xc8(%rsp)
++mov    %rsi,0xe0(%rsp)
+ imul   %rbp,%rsi
+ cmp    %rdi,%rsi
+-jb     <meshoptimizer_rs::codec::raw+0x1bcc>
+-cmp    %r12,%rsi
+-ja     <meshoptimizer_rs::codec::raw+0x1bcc>
++jb     <meshoptimizer_rs::codec::raw+0x1bd9>
++cmp    %r15,%rsi
++ja     <meshoptimizer_rs::codec::raw+0x1bd9>
+ mov    0x20(%rsp),%rax
+ lea    0xf(%rax),%ecx
+ and    $0x3f0,%ecx
+ mov    %rcx,0x28(%rsp)
+ mov    %rax,%rcx
+ imul   %rbp,%rcx
+-mov    %rcx,0xb8(%rsp)
+-add    0xd0(%rsp),%rdi
+-mov    %rdi,0xb0(%rsp)
++mov    %rcx,0xc8(%rsp)
++add    0xe8(%rsp),%rdi
++mov    %rdi,0xc0(%rsp)
+ lea    -0x1(%rax),%rcx
+ imul   %rbp,%rcx
+-mov    %rcx,0xc0(%rsp)
++mov    %rcx,0xd8(%rsp)
+ add    $0x4,%rcx
+-mov    %rcx,0x50(%rsp)
++mov    %rcx,0x58(%rsp)
+ lea    0x0(,%rax,4),%rcx
+-mov    %rcx,0x68(%rsp)
+-lea    0x1f0(%rsp,%rax,1),%rcx
++mov    %rcx,0x70(%rsp)
++lea    0x200(%rsp,%rax,1),%rcx
++mov    %rcx,0x88(%rsp)
++lea    0x200(%rsp,%rax,2),%rcx
+ mov    %rcx,0x80(%rsp)
+-lea    0x1f0(%rsp,%rax,2),%rcx
+-mov    %rcx,0x78(%rsp)
+ lea    (%rax,%rax,2),%rax
+ add    %rsp,%rax
+-add    $0x1f0,%rax
+-mov    %rax,0x70(%rsp)
++add    $0x200,%rax
++mov    %rax,0x78(%rsp)
++xor    %r15d,%r15d
+ xor    %r14d,%r14d
+-xor    %ebx,%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x148a>
+-lea    (%rsp,%rbx,1),%rcx
+-add    $0xf0,%rcx
++movzbl 0x40(%rsp),%edx
++jmp    <meshoptimizer_rs::codec::raw+0x14b7>
++lea    (%rsp,%r14,1),%rcx
++add    $0x100,%rcx
+ shr    $0x4,%al
+ neg    %al
+ and    $0x1f,%al
+@@ -1278,54 +1291,54 @@
+ mov    %rcx,(%rsp)
+ mov    %eax,0x8(%rsp)
+ movq   $0x0,0x10(%rsp)
+-lea    0x1f0(%rsp),%rdi
+-mov    0x68(%rsp),%rsi
+-mov    0x50(%rsp),%rcx
++lea    0x200(%rsp),%rdi
++mov    0x70(%rsp),%rsi
++mov    0x58(%rsp),%rcx
+ mov    0x20(%rsp),%r8
+ mov    %rbp,%r9
+ call   <meshoptimizer_rs::codec::vertex::scalar_deltas::<4, true>>
+-inc    %r14
+-add    $0x4,%rbx
+-cmp    %r14,0xe8(%rsp)
+-movzbl 0x38(%rsp),%edx
+-je     <meshoptimizer_rs::codec::raw+0x1ad8>
+-mov    %rbx,0x58(%rsp)
++inc    %r15
++add    $0x4,%r14
++cmp    %r15,0xf8(%rsp)
++movzbl 0x40(%rsp),%edx
++je     <meshoptimizer_rs::codec::raw+0x1ad3>
+ test   %dl,%dl
+-je     <meshoptimizer_rs::codec::raw+0x14b0>
+-cmp    0x90(%rsp),%r14
+-jae    <meshoptimizer_rs::codec::raw+0x1c15>
+-mov    0xa8(%rsp),%rax
+-movzbl (%rax,%r14,1),%ebx
+-jmp    <meshoptimizer_rs::codec::raw+0x14b2>
+-xor    %ebx,%ebx
+-mov    %ebx,%eax
++mov    %r14,0x60(%rsp)
++je     <meshoptimizer_rs::codec::raw+0x14dd>
++cmp    0x90(%rsp),%r15
++jae    <meshoptimizer_rs::codec::raw+0x1c22>
++mov    0xb8(%rsp),%rax
++movzbl (%rax,%r15,1),%r14d
++jmp    <meshoptimizer_rs::codec::raw+0x14e0>
++xor    %r14d,%r14d
++mov    %r14d,%eax
+ and    $0x3,%al
+ movzbl %al,%ecx
+ mov    0x28(%rsp),%rsi
+ cmp    %rsi,0x20(%rsp)
+-ja     <meshoptimizer_rs::codec::raw+0x1923>
++ja     <meshoptimizer_rs::codec::raw+0x1921>
+ cmp    $0x2,%al
+-je     <meshoptimizer_rs::codec::raw+0x150d>
++je     <meshoptimizer_rs::codec::raw+0x1539>
+ cmp    $0x3,%ecx
+-jne    <meshoptimizer_rs::codec::raw+0x1527>
+-mov    %r15,%r12
++jne    <meshoptimizer_rs::codec::raw+0x1553>
++mov    %r12,%rbx
+ mov    $0x7,%al
+-add    0x20(%rsp),%r12
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-cmp    0x630(%rsp),%r12
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
+-add    0x30(%rsp),%r15
+-lea    0x1f0(%rsp),%rdi
+-mov    %r15,%rsi
++add    0x20(%rsp),%rbx
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++cmp    0x38(%rsp),%rbx
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++add    0x30(%rsp),%r12
++lea    0x200(%rsp),%rdi
++mov    %r12,%rsi
+ mov    0x20(%rsp),%rdx
+ call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
+-jmp    <meshoptimizer_rs::codec::raw+0x1583>
+-lea    0x1f0(%rsp),%rdi
++jmp    <meshoptimizer_rs::codec::raw+0x15ac>
++lea    0x200(%rsp),%rdi
+ xor    %esi,%esi
+ mov    0x20(%rsp),%rdx
+ call   *<relocation>(%rip)        # <memset@GLIBC_2.2.5>
+-mov    %r15,%r12
+-jmp    <meshoptimizer_rs::codec::raw+0x1583>
++mov    %r12,%rbx
++jmp    <meshoptimizer_rs::codec::raw+0x15ac>
+ test   %al,%al
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+@@ -1334,43 +1347,43 @@
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rcx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    %r15,%rcx
+-lea    0x1f0(%rsp),%r8
++mov    0x38(%rsp),%rdx
++mov    %r12,%rcx
++lea    0x200(%rsp),%r8
+ mov    0x28(%rsp),%r9
+ call   <meshoptimizer_rs::codec::vertex::bytes>
+-cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-mov    0x48(%rsp),%r12
+-mov    %ebx,%eax
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++mov    0x50(%rsp),%rbx
++mov    %r14d,%eax
+ shr    $0x2,%al
+ and    $0x3,%al
+ cmp    $0x3,%al
+-movzbl 0x38(%rsp),%edx
+-je     <meshoptimizer_rs::codec::raw+0x15b5>
++movzbl 0x40(%rsp),%edx
++je     <meshoptimizer_rs::codec::raw+0x15df>
+ movzbl %al,%ecx
+ cmp    $0x2,%ecx
+-jne    <meshoptimizer_rs::codec::raw+0x15f3>
+-mov    0x80(%rsp),%rdi
++jne    <meshoptimizer_rs::codec::raw+0x161a>
++mov    0x88(%rsp),%rdi
+ xor    %esi,%esi
+ mov    0x20(%rsp),%rdx
+ call   *<relocation>(%rip)        # <memset@GLIBC_2.2.5>
+-jmp    <meshoptimizer_rs::codec::raw+0x164f>
+-mov    %r12,%r15
++jmp    <meshoptimizer_rs::codec::raw+0x1673>
++mov    %rbx,%r12
+ mov    $0x7,%al
+-add    0x20(%rsp),%r15
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-cmp    0x630(%rsp),%r15
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
+-add    0x30(%rsp),%r12
+-mov    0x80(%rsp),%rdi
+-mov    %r12,%rsi
++add    0x20(%rsp),%r12
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++cmp    0x38(%rsp),%r12
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++add    0x30(%rsp),%rbx
++mov    0x88(%rsp),%rdi
++mov    %rbx,%rsi
+ mov    0x20(%rsp),%rdx
+ call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
+-mov    %r15,%r12
+-jmp    <meshoptimizer_rs::codec::raw+0x164f>
++mov    %r12,%rbx
++jmp    <meshoptimizer_rs::codec::raw+0x1673>
+ test   %al,%al
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+@@ -1379,177 +1392,168 @@
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rcx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    %r12,%rcx
++mov    0x38(%rsp),%rdx
++mov    %rbx,%rcx
++mov    0x88(%rsp),%r8
++mov    0x28(%rsp),%r9
++call   <meshoptimizer_rs::codec::vertex::bytes>
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++mov    0x50(%rsp),%rbx
++mov    %r14d,%eax
++shr    $0x4,%al
++and    $0x3,%al
++cmp    $0x3,%al
++je     <meshoptimizer_rs::codec::raw+0x16a1>
++movzbl %al,%ecx
++cmp    $0x2,%ecx
++jne    <meshoptimizer_rs::codec::raw+0x16dc>
++mov    0x80(%rsp),%rdi
++xor    %esi,%esi
++mov    0x20(%rsp),%rdx
++call   *<relocation>(%rip)        # <memset@GLIBC_2.2.5>
++jmp    <meshoptimizer_rs::codec::raw+0x1738>
++mov    %rbx,%r12
++mov    $0x7,%al
++add    0x20(%rsp),%r12
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++cmp    0x38(%rsp),%r12
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++add    0x30(%rsp),%rbx
++mov    0x80(%rsp),%rdi
++mov    %rbx,%rsi
++mov    0x20(%rsp),%rdx
++call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
++mov    %r12,%rbx
++jmp    <meshoptimizer_rs::codec::raw+0x1738>
++test   %al,%al
++lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
++lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
++cmove  %rcx,%rax
++cmpb   $0x0,0x40(%rsp)
++lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
++cmove  %rcx,%rax
++mov    %rax,(%rsp)
++lea    0x48(%rsp),%rdi
++mov    0x30(%rsp),%rsi
++mov    0x38(%rsp),%rdx
++mov    %rbx,%rcx
+ mov    0x80(%rsp),%r8
+ mov    0x28(%rsp),%r9
+ call   <meshoptimizer_rs::codec::vertex::bytes>
+-cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-mov    0x48(%rsp),%r12
+-mov    %ebx,%eax
+-shr    $0x4,%al
+-and    $0x3,%al
+-cmp    $0x3,%al
+-je     <meshoptimizer_rs::codec::raw+0x16a6>
+-movzbl %al,%ecx
+-cmp    $0x2,%ecx
+-jne    <meshoptimizer_rs::codec::raw+0x1722>
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++mov    0x50(%rsp),%rbx
++shr    $0x6,%r14b
++cmp    $0x3,%r14b
++je     <meshoptimizer_rs::codec::raw+0x1765>
++movzbl %r14b,%eax
++cmp    $0x2,%eax
++jne    <meshoptimizer_rs::codec::raw+0x179a>
+ mov    0x78(%rsp),%rdi
+ xor    %esi,%esi
+ mov    0x20(%rsp),%rdx
+ call   *<relocation>(%rip)        # <memset@GLIBC_2.2.5>
+-shr    $0x6,%bl
+-cmp    $0x3,%bl
+-je     <meshoptimizer_rs::codec::raw+0x16e7>
+-movzbl %bl,%eax
+-cmp    $0x2,%eax
+-jne    <meshoptimizer_rs::codec::raw+0x178f>
+-mov    0x70(%rsp),%rdi
+-xor    %esi,%esi
+-mov    0x20(%rsp),%rdx
+-call   *<relocation>(%rip)        # <memset@GLIBC_2.2.5>
+-mov    %r12,%r15
+-jmp    <meshoptimizer_rs::codec::raw+0x17eb>
+-mov    %r12,%r15
++mov    %rbx,%r12
++jmp    <meshoptimizer_rs::codec::raw+0x17f4>
++mov    %rbx,%r12
+ mov    $0x7,%al
+-add    0x20(%rsp),%r15
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-cmp    0x630(%rsp),%r15
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
+-add    0x30(%rsp),%r12
++add    0x20(%rsp),%r12
++jb     <meshoptimizer_rs::codec::raw+0x1b46>
++cmp    0x38(%rsp),%r12
++ja     <meshoptimizer_rs::codec::raw+0x1b46>
++add    0x30(%rsp),%rbx
+ mov    0x78(%rsp),%rdi
+-mov    %r12,%rsi
++mov    %rbx,%rsi
+ mov    0x20(%rsp),%rdx
+ call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
+-mov    %r15,%r12
+-shr    $0x6,%bl
+-cmp    $0x3,%bl
+-jne    <meshoptimizer_rs::codec::raw+0x1680>
+-mov    %r12,%r15
+-mov    $0x7,%al
+-add    0x20(%rsp),%r15
+-jb     <meshoptimizer_rs::codec::raw+0x1b5d>
+-cmp    0x630(%rsp),%r15
+-ja     <meshoptimizer_rs::codec::raw+0x1b5d>
+-add    0x30(%rsp),%r12
+-mov    0x70(%rsp),%rdi
+-mov    %r12,%rsi
+-mov    0x20(%rsp),%rdx
+-call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
+-jmp    <meshoptimizer_rs::codec::raw+0x17eb>
+-test   %al,%al
++jmp    <meshoptimizer_rs::codec::raw+0x17f4>
++test   %r14b,%r14b
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+ cmove  %rcx,%rax
+-cmpb   $0x0,0x38(%rsp)
++cmpb   $0x0,0x40(%rsp)
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rcx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    %r12,%rcx
++mov    0x38(%rsp),%rdx
++mov    %rbx,%rcx
+ mov    0x78(%rsp),%r8
+ mov    0x28(%rsp),%r9
+ call   <meshoptimizer_rs::codec::vertex::bytes>
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++mov    0x50(%rsp),%r12
+ cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-mov    0x48(%rsp),%r12
+-shr    $0x6,%bl
+-cmp    $0x3,%bl
+-jne    <meshoptimizer_rs::codec::raw+0x1680>
+-jmp    <meshoptimizer_rs::codec::raw+0x16e7>
+-test   %bl,%bl
+-lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+-lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+-cmove  %rcx,%rax
+-cmpb   $0x0,0x38(%rsp)
+-lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+-cmove  %rcx,%rax
+-mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
+-mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    %r12,%rcx
+-mov    0x70(%rsp),%r8
+-mov    0x28(%rsp),%r9
+-call   <meshoptimizer_rs::codec::vertex::bytes>
+-cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-mov    0x48(%rsp),%r15
+-cmpb   $0x0,0x38(%rsp)
+-mov    0x88(%rsp),%r12
+-mov    0xb8(%rsp),%rsi
+-mov    0x58(%rsp),%rbx
+-je     <meshoptimizer_rs::codec::raw+0x182c>
+-cmp    0xa0(%rsp),%r14
+-jae    <meshoptimizer_rs::codec::raw+0x1c2d>
+-mov    0x60(%rsp),%rax
+-movzbl (%rax,%r14,1),%eax
+-mov    %rsi,%rdx
+-sub    %rbx,%rdx
+-jae    <meshoptimizer_rs::codec::raw+0x183a>
+-jmp    <meshoptimizer_rs::codec::raw+0x1b8a>
++mov    0xc8(%rsp),%rsi
++mov    0x60(%rsp),%r14
++je     <meshoptimizer_rs::codec::raw+0x1822>
++cmp    0xb0(%rsp),%r15
++jae    <meshoptimizer_rs::codec::raw+0x1c3a>
++mov    0x68(%rsp),%rax
++movzbl (%rax,%r15,1),%eax
++jmp    <meshoptimizer_rs::codec::raw+0x1824>
+ xor    %eax,%eax
+ mov    %rsi,%rdx
+-sub    %rbx,%rdx
+-jb     <meshoptimizer_rs::codec::raw+0x1b8a>
+-cmp    %rdx,0x50(%rsp)
+-ja     <meshoptimizer_rs::codec::raw+0x1b76>
+-mov    0xb0(%rsp),%rcx
+-lea    (%rcx,%rbx,1),%rdx
++sub    %r14,%rdx
++jb     <meshoptimizer_rs::codec::raw+0x1b97>
++cmp    %rdx,0x58(%rsp)
++ja     <meshoptimizer_rs::codec::raw+0x1b83>
++mov    0xc0(%rsp),%rcx
++lea    (%rcx,%r14,1),%rdx
+ mov    %eax,%ecx
+ and    $0x3,%cl
+ movzbl %cl,%ecx
+-lea    <relocation>(%rip),%rsi        # <libm::math::generic::sqrt::RSQRT_TAB+0x4c2>
++lea    <relocation>(%rip),%rsi        # <libm::math::generic::sqrt::RSQRT_TAB+0x4e2>
+ movslq (%rsi,%rcx,4),%rcx
+ add    %rsi,%rcx
+ jmp    *%rcx
+-mov    %rdx,%r12
+-add    %rsp,%rbx
+-add    $0xf0,%rbx
++mov    %rdx,0xa8(%rsp)
++mov    %r14,%rbx
++add    %rsp,%r14
++add    $0x100,%r14
+ call   <meshoptimizer_rs::codec::simd::dispatch::selected>
+ test   %al,%al
+-je     <meshoptimizer_rs::codec::raw+0x18e2>
+-mov    %rbx,(%rsp)
+-lea    0x1f0(%rsp),%rdi
+-mov    0x68(%rsp),%rsi
+-mov    %r12,%rdx
+-mov    0x50(%rsp),%rcx
++je     <meshoptimizer_rs::codec::raw+0x18e5>
++mov    %r14,(%rsp)
++lea    0x200(%rsp),%rdi
++mov    0x70(%rsp),%rsi
++mov    0xa8(%rsp),%rdx
++mov    0x58(%rsp),%rcx
+ mov    0x20(%rsp),%r8
+ mov    %rbp,%r9
+ call   <meshoptimizer_rs::codec::simd::x86::deltas_kernel::<0, 0>>
+-jmp    <meshoptimizer_rs::codec::raw+0x1911>
+-lea    (%rsp,%rbx,1),%rax
+-add    $0xf0,%rax
++jmp    <meshoptimizer_rs::codec::raw+0x1919>
++lea    (%rsp,%r14,1),%rax
++add    $0x100,%rax
+ mov    %rax,(%rsp)
+ movq   $0x0,0x8(%rsp)
+-lea    0x1f0(%rsp),%rdi
+-mov    0x68(%rsp),%rsi
+-mov    0x50(%rsp),%rcx
++lea    0x200(%rsp),%rdi
++mov    0x70(%rsp),%rsi
++mov    0x58(%rsp),%rcx
+ mov    0x20(%rsp),%r8
+ mov    %rbp,%r9
+ call   <meshoptimizer_rs::codec::vertex::scalar_deltas::<2, false>>
+-jmp    <meshoptimizer_rs::codec::raw+0x1470>
+-mov    %rbx,(%rsp)
++jmp    <meshoptimizer_rs::codec::raw+0x149d>
++mov    %r14,(%rsp)
+ movq   $0x0,0x8(%rsp)
+-lea    0x1f0(%rsp),%rdi
+-mov    0x68(%rsp),%rsi
+-mov    %r12,%rdx
+-mov    0x50(%rsp),%rcx
++lea    0x200(%rsp),%rdi
++mov    0x70(%rsp),%rsi
++mov    0xa8(%rsp),%rdx
++mov    0x58(%rsp),%rcx
+ mov    0x20(%rsp),%r8
+ mov    %rbp,%r9
+ call   <meshoptimizer_rs::codec::vertex::scalar_deltas::<1, false>>
+-mov    0x88(%rsp),%r12
+-mov    0x58(%rsp),%rbx
+-jmp    <meshoptimizer_rs::codec::raw+0x1470>
++mov    %rbx,%r14
++jmp    <meshoptimizer_rs::codec::raw+0x149d>
+ cmp    $0x2,%al
+-je     <meshoptimizer_rs::codec::raw+0x1c6b>
++je     <meshoptimizer_rs::codec::raw+0x1c5f>
+ cmp    $0x3,%ecx
+-je     <meshoptimizer_rs::codec::raw+0x1c52>
++je     <meshoptimizer_rs::codec::raw+0x1c78>
+ test   %al,%al
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+@@ -1558,118 +1562,111 @@
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rcx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    %r15,%rcx
+-lea    0x1f0(%rsp),%r8
++mov    0x38(%rsp),%rdx
++mov    %r12,%rcx
++lea    0x200(%rsp),%r8
+ mov    0x28(%rsp),%r9
+ call   <meshoptimizer_rs::codec::vertex::bytes>
+-cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-mov    %ebx,%eax
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++mov    %r14d,%eax
+ shr    $0x2,%al
+ and    $0x3,%al
+ cmp    $0x2,%al
+-movzbl 0x38(%rsp),%edx
+-je     <meshoptimizer_rs::codec::raw+0x1c6b>
++movzbl 0x40(%rsp),%edx
++je     <meshoptimizer_rs::codec::raw+0x1c5f>
+ movzbl %al,%ecx
+ cmp    $0x3,%ecx
+-je     <meshoptimizer_rs::codec::raw+0x1c52>
++je     <meshoptimizer_rs::codec::raw+0x1c78>
+ test   %al,%al
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+ cmove  %rcx,%rax
+-mov    0x48(%rsp),%rcx
++mov    0x50(%rsp),%rcx
+ test   %dl,%dl
+ lea    <relocation>(%rip),%rdx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rdx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    0x80(%rsp),%r8
++mov    0x38(%rsp),%rdx
++mov    0x88(%rsp),%r8
+ mov    0x28(%rsp),%r9
+ call   <meshoptimizer_rs::codec::vertex::bytes>
+-cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-mov    %ebx,%eax
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++mov    %r14d,%eax
+ shr    $0x4,%al
+ and    $0x3,%al
+ cmp    $0x2,%al
+-movzbl 0x38(%rsp),%edx
+-je     <meshoptimizer_rs::codec::raw+0x1c6b>
++movzbl 0x40(%rsp),%edx
++je     <meshoptimizer_rs::codec::raw+0x1c5f>
+ movzbl %al,%ecx
+ cmp    $0x3,%ecx
+-je     <meshoptimizer_rs::codec::raw+0x1c52>
++je     <meshoptimizer_rs::codec::raw+0x1c78>
+ test   %al,%al
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+ cmove  %rcx,%rax
+-mov    0x48(%rsp),%rcx
++mov    0x50(%rsp),%rcx
+ test   %dl,%dl
+ lea    <relocation>(%rip),%rdx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rdx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-mov    0x78(%rsp),%r8
++mov    0x38(%rsp),%rdx
++mov    0x80(%rsp),%r8
+ mov    0x28(%rsp),%r9
+ call   <meshoptimizer_rs::codec::vertex::bytes>
+-cmpb   $0x0,0x40(%rsp)
+-jne    <meshoptimizer_rs::codec::raw+0x1b6f>
+-shr    $0x6,%bl
+-cmp    $0x2,%bl
+-movzbl 0x38(%rsp),%edx
+-je     <meshoptimizer_rs::codec::raw+0x1c6b>
+-movzbl %bl,%eax
++cmpb   $0x0,0x48(%rsp)
++jne    <meshoptimizer_rs::codec::raw+0x1b7c>
++shr    $0x6,%r14b
++cmp    $0x2,%r14b
++movzbl 0x40(%rsp),%edx
++je     <meshoptimizer_rs::codec::raw+0x1c5f>
++movzbl %r14b,%eax
+ cmp    $0x3,%eax
+-je     <meshoptimizer_rs::codec::raw+0x1c52>
+-test   %bl,%bl
++je     <meshoptimizer_rs::codec::raw+0x1c78>
++test   %r14b,%r14b
+ lea    <relocation>(%rip),%rax        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x390>
+ lea    <relocation>(%rip),%rcx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x4b0>
+ cmove  %rcx,%rax
+-mov    0x48(%rsp),%rcx
++mov    0x50(%rsp),%rcx
+ test   %dl,%dl
+ lea    <relocation>(%rip),%rdx        # <anon.a243a2cefe40099c5384ecefc2bb7996.415.llvm.6308452637081725772+0x90>
+ cmove  %rdx,%rax
+ mov    %rax,(%rsp)
+-lea    0x40(%rsp),%rdi
++lea    0x48(%rsp),%rdi
+ mov    0x30(%rsp),%rsi
+-mov    0x630(%rsp),%rdx
+-jmp    <meshoptimizer_rs::codec::raw+0x17cc>
+-mov    0xb8(%rsp),%rdx
+-mov    0xc0(%rsp),%rdi
++mov    0x38(%rsp),%rdx
++jmp    <meshoptimizer_rs::codec::raw+0x17d5>
++mov    0xc8(%rsp),%rdx
++mov    0xd8(%rsp),%rdi
+ cmp    %rdx,%rdi
+ mov    0x30(%rsp),%r14
+-ja     <meshoptimizer_rs::codec::raw+0x1bf4>
+-mov    0xb0(%rsp),%rsi
++ja     <meshoptimizer_rs::codec::raw+0x1c01>
++mov    0xc0(%rsp),%rsi
+ add    %rdi,%rsi
+-lea    0xf0(%rsp),%rdi
++lea    0x100(%rsp),%rdi
+ mov    %rbp,%rdx
+ call   *<relocation>(%rip)        # <memcpy@GLIBC_2.14>
+-mov    0xc8(%rsp),%rcx
+-mov    %rcx,%rax
+-cmp    %r13,%rcx
+-mov    0x630(%rsp),%rbx
+-jb     <meshoptimizer_rs::codec::raw+0x12ef>
+-jmp    <meshoptimizer_rs::codec::raw+0x1b36>
+-mov    $0x1,%r15d
+-sub    %r15,%rbx
+-setae  %cl
+-cmp    0xe0(%rsp),%rbx
+-sete   %al
+-and    %cl,%al
+-neg    %al
+-or     $0x7,%al
+-jmp    <meshoptimizer_rs::codec::raw+0x1b5d>
++mov    0xe0(%rsp),%rax
++mov    %rax,%rdi
++cmp    %r13,%rax
++mov    0x38(%rsp),%rbx
++mov    0xd0(%rsp),%r15
++mov    0xa0(%rsp),%rax
++jb     <meshoptimizer_rs::codec::raw+0x1320>
++jmp    <meshoptimizer_rs::codec::raw+0x1b66>
+ mov    0x28(%rsp),%r9
+ mov    $0xff,%al
+ cmp    %r9,%rsi
+-je     <meshoptimizer_rs::codec::raw+0x1b5d>
++je     <meshoptimizer_rs::codec::raw+0x1b46>
+ mov    $0x7,%al
+-add    $0x5f8,%rsp
++add    $0x608,%rsp
+ pop    %rbx
+ pop    %r12
+ pop    %r13
+@@ -1677,57 +1674,68 @@
+ pop    %r15
+ pop    %rbp
+ ret
+-movzbl 0x41(%rsp),%eax
+-jmp    <meshoptimizer_rs::codec::raw+0x1b5d>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2218>
++mov    $0x1,%r12d
++mov    0xa0(%rsp),%rax
++sub    %r12,%rbx
++setae  %cl
++cmp    %rax,%rbx
++sete   %dl
++mov    $0x7,%al
++test   %dl,%cl
++je     <meshoptimizer_rs::codec::raw+0x1b46>
++mov    $0xff,%al
++jmp    <meshoptimizer_rs::codec::raw+0x1b46>
++movzbl 0x49(%rsp),%eax
++jmp    <meshoptimizer_rs::codec::raw+0x1b46>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21d0>
+ xor    %edi,%edi
+-mov    0x50(%rsp),%rsi
++mov    0x58(%rsp),%rsi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2230>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21e8>
+ mov    %rsi,%rdx
+-mov    %rbx,%rdi
++mov    %r14,%rdi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2290>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2248>
+ mov    $0x100,%edx
+ xor    %edi,%edi
+ mov    %rbp,%rsi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2278>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2230>
+ mov    %rsi,%rdi
+-mov    0x60(%rsp),%rsi
++mov    0x68(%rsp),%rsi
+ mov    %rbx,%rdx
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x5a10>
+-mov    %r12,%rdx
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x5a58>
++mov    %r15,%rdx
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x22a8>
+-mov    0x60(%rsp),%rdi
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2260>
++mov    0x68(%rsp),%rdi
+ mov    %rbx,%rsi
+ mov    %rbx,%rdx
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21d0>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2188>
+ mov    %rdx,%rsi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rdx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x5230>
++lea    <relocation>(%rip),%rdx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x5248>
+ xor    %edi,%edi
+ xor    %esi,%esi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x250>
+-lea    <relocation>(%rip),%rdx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21e8>
+-mov    %r14,%rdi
++lea    <relocation>(%rip),%rdx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21a0>
++mov    %r15,%rdi
+ mov    0x90(%rsp),%rsi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x250>
+-lea    <relocation>(%rip),%rdx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2200>
+-mov    %r14,%rdi
+-mov    0xa0(%rsp),%rsi
++lea    <relocation>(%rip),%rdx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21b8>
++mov    %r15,%rdi
++mov    0xb0(%rsp),%rsi
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x250>
+-lea    <relocation>(%rip),%rdi        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x21b8>
++lea    <relocation>(%rip),%rdi        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2170>
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x438>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2248>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2218>
+ xor    %edi,%edi
+ mov    0x20(%rsp),%rsi
+ mov    0x28(%rsp),%rdx
+ call   *<relocation>(%rip)        # <_DYNAMIC+0x370>
+-lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2260>
++lea    <relocation>(%rip),%rcx        # <anon.07bf7b68542f29918c2fe01e2698508b.1766.llvm.13623703653819427234+0x2200>
+ xor    %edi,%edi
+ mov    0x20(%rsp),%rsi
+ mov    0x28(%rsp),%rdx

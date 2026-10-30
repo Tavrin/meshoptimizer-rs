@@ -1,0 +1,20 @@
+{
+  "architecture": "x86_64",
+  "count": 1,
+  "stride": 4,
+  "source": "a1a802ffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "results": {
+    "rust-scalar": {
+      "status": 0,
+      "destination": "00000000cccccccccccccc"
+    },
+    "cpp-scalar": {
+      "status": 0,
+      "destination": "00000000cccccccccccccc"
+    },
+    "cpp-default": {
+      "status": 0,
+      "destination": "00000000cccccccccccccc"
+    }
+  }
+}

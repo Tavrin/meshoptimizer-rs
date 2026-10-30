@@ -1,5 +1,14 @@
 # Qualification evidence
 
+The **0.2.16 combined train qualification** against v0.2.15 is recorded in
+`REPORT.md`, `TABLE.md`, and `combined-ff38162/`. Its registration, exact
+counts, C++ differentials, source-identical arm64 CI receipts, raw counters,
+cost disclosures, and final verification are retained together there.
+
+The files described below belong to the **earlier qualification against a
+different baseline**. Its report is preserved in `REPORT-pre-train.md`.
+Those historical proof gaps and measurements are not current train receipts.
+
 `REGISTRATION.md` specifies the campaign and its retained continuation after an
 adapter failure. `results.json`, `counts.jsonl` and the two campaign bindings
 record the 88 measured cases. The raw inputs, binaries, logs, outputs, failed

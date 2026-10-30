@@ -5,6 +5,8 @@
 //! changes them. Callback identifiers retain the demo's refinement semantics.
 #![allow(clippy::too_many_arguments)]
 mod dag;
+#[cfg(feature = "parallel")]
+mod parallel;
 mod support;
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, MeshletSettings, Positions, VertexFlags, Workspace};
@@ -849,20 +851,74 @@ fn validate(mesh: &Mesh<'_>, c: Config, ctx: &mut Context<'_>) -> Result<(), Err
     }
     Ok(())
 }
+struct Prepared {
+    merged_idx: Vec<u32>,
+    gb: Vec<LodBounds>,
+    simplified: Vec<u32>,
+    bounds: LodBounds,
+    stuck: bool,
+}
+fn prepare_group(
+    group: &[Pending],
+    idx: &[u32],
+    mesh: &Mesh<'_>,
+    locks: &[support::VertexFlags],
+    c: Config,
+    ctx: &mut Context<'_>,
+) -> Result<Prepared, Error> {
+    let n = group.iter().map(|cl| cl.count).sum();
+    let mut merged_idx = ctx.alloc::<u32>(n)?;
+    let mut write = 0;
+    let mut gb = ctx.alloc::<LodBounds>(group.len())?;
+    for (i, cl) in group.iter().enumerate() {
+        merged_idx[write..write + cl.count].copy_from_slice(&idx[cl.offset..cl.offset + cl.count]);
+        write += cl.count;
+        gb[i] = cl.bounds;
+    }
+    let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
+    let mut bounds = merged(&gb, ctx)?;
+    let (simplified, error) = simplify(&merged_idx, mesh, locks, c, target, ctx)?;
+    let stuck = simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    if stuck {
+        bounds.error = f32::MAX;
+    } else {
+        bounds.error = finite(
+            (bounds.error * c.simplify_error_merge_previous).max(error)
+                + error * c.simplify_error_merge_additive,
+        )?;
+    }
+    Ok(Prepared {
+        merged_idx,
+        gb,
+        simplified,
+        bounds,
+        stuck,
+    })
+}
 fn build_internal(
+    parallel: bool,
     c: Config,
     mesh: Mesh<'_>,
     callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
-    build_in_context(c, mesh, callback, &mut ctx)
+    build_in_context_mode(c, mesh, callback, &mut ctx, parallel)
 }
 fn build_in_context(
+    c: Config,
+    mesh: Mesh<'_>,
+    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
+    ctx: &mut Context<'_>,
+) -> Result<(), Error> {
+    build_in_context_mode(c, mesh, callback, ctx, false)
+}
+fn build_in_context_mode(
     c: Config,
     mut mesh: Mesh<'_>,
     callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
+    _parallel: bool,
 ) -> Result<(), Error> {
     validate(&mesh, c, ctx)?;
     let mut moderate = ctx.moderate;
@@ -925,33 +981,55 @@ fn build_in_context(
         let mut pending = ctx.alloc::<Pending>(idx.len() / 3)?;
         let mut pi = ctx.alloc::<u32>(idx.len())?;
         let (mut pc, mut ic) = (0, 0);
+        #[cfg(feature = "parallel")]
+        let mut computed = if _parallel && parallel::eligible(c, ctx.workspace.limits()) {
+            let remaining_work = ctx.remaining_limits()?.max_work;
+            parallel::level(
+                c,
+                &mesh,
+                &locks,
+                &clusters,
+                &idx,
+                &group_offsets,
+                moderate,
+                remaining_work,
+            )
+            .map(Vec::into_iter)
+        } else {
+            None
+        };
         for pair in group_offsets.windows(2) {
             let group = &clusters[pair[0] as usize..pair[1] as usize];
-            let n = group.iter().map(|cl| cl.count).sum();
-            let mut merged_idx = ctx.alloc::<u32>(n)?;
-            let mut write = 0;
-            let mut gb = ctx.alloc::<LodBounds>(group.len())?;
-            for (i, cl) in group.iter().enumerate() {
-                merged_idx[write..write + cl.count]
-                    .copy_from_slice(&idx[cl.offset..cl.offset + cl.count]);
-                write += cl.count;
-                gb[i] = cl.bounds;
-            }
-            let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
-            let mut bounds = merged(&gb, ctx)?;
-            let (simplified, error) = simplify(&merged_idx, &mesh, &locks, c, target, ctx)?;
-            if simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold {
-                bounds.error = f32::MAX;
+            #[cfg(feature = "parallel")]
+            let speculative = computed.as_mut().and_then(|items| items.next());
+            #[cfg(not(feature = "parallel"))]
+            let speculative: Option<Prepared> = None;
+            #[cfg(feature = "parallel")]
+            let (prepared, clustered) = if let Some(item) = speculative {
+                ctx.absorb(item.usage.bytes, item.usage.work, item.live)?;
+                (item.prepared, item.clustered)
+            } else {
+                (prepare_group(group, &idx, &mesh, &locks, c, ctx)?, None)
+            };
+            #[cfg(not(feature = "parallel"))]
+            let (prepared, _clustered) = (
+                prepare_group(group, &idx, &mesh, &locks, c, ctx)?,
+                speculative,
+            );
+            let Prepared {
+                merged_idx,
+                gb,
+                simplified,
+                mut bounds,
+                stuck,
+            } = prepared;
+            if stuck {
                 output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
                 ctx.free(merged_idx)?;
                 ctx.free(gb)?;
                 ctx.free(simplified)?;
                 continue;
             }
-            bounds.error = finite(
-                (bounds.error * c.simplify_error_merge_previous).max(error)
-                    + error * c.simplify_error_merge_additive,
-            )?;
             let refined = output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
             if c.simplify_dilate_borders {
                 dilate(
@@ -968,6 +1046,25 @@ fn build_in_context(
                 // Use the checked flex/bounds path for this and later levels.
                 moderate = false;
             }
+            #[cfg(feature = "parallel")]
+            let (new, ni) = if let Some(item) = clustered {
+                ctx.absorb(item.usage.bytes, item.usage.work, item.live)?;
+                let (mut new, ni) = item.output;
+                for cl in &mut new {
+                    cl.refined = refined;
+                }
+                (new, ni)
+            } else {
+                clusterize(
+                    &simplified,
+                    Positions::from_packed(mesh.positions),
+                    c,
+                    refined,
+                    moderate,
+                    ctx,
+                )?
+            };
+            #[cfg(not(feature = "parallel"))]
             let (new, ni) = clusterize(
                 &simplified,
                 Positions::from_packed(mesh.positions),
@@ -1023,10 +1120,20 @@ fn build_in_context(
 pub fn build_with_output(
     c: Config,
     mesh: Mesh<'_>,
+    output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    build_with_output_mode(false, c, mesh, output, workspace)
+}
+fn build_with_output_mode(
+    parallel: bool,
+    c: Config,
+    mesh: Mesh<'_>,
     mut output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     build_internal(
+        parallel,
         c,
         mesh,
         &mut |g, clusters, _positions, ctx| {
@@ -1052,8 +1159,17 @@ pub fn build(
     mesh: Mesh<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<GroupOutput>, Error> {
+    build_mode(false, c, mesh, workspace)
+}
+fn build_mode(
+    parallel: bool,
+    c: Config,
+    mesh: Mesh<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutput>, Error> {
     let mut result = Vec::new();
     build_internal(
+        parallel,
         c,
         mesh,
         &mut |g, clusters, _positions, ctx| {
@@ -1201,4 +1317,54 @@ fn hierarchy_in_context(
     ctx.free(row)?;
     nodes.truncate(offset);
     Ok(nodes)
+}
+
+/// Opt-in intra-mesh parallel builder, not in C++ meshoptimizer.
+///
+/// Uses the current Rayon pool. Partitioning, boundary locks, callback emission
+/// and assembly stay serial; each group's arithmetic and reduction order are
+/// unchanged. Refined identifiers index the returned group list.
+///
+/// Parallel execution requires both limits to be maximal (`usize::MAX` bytes,
+/// `u64::MAX` work) and border dilation disabled. All finite limits (including
+/// defaults), dilation, a speculative group failure, or insufficient remaining
+/// work for a conservative level bound select serial execution.
+/// Single-group levels also run serially. This preserves serial error and
+/// callback prefixes. `Usage` describes the serial logical peak and work;
+/// simultaneous worker scratch, queued results and Rayon infrastructure are
+/// additional physical memory, excluded from that logical measurement.
+///
+/// # Errors
+/// Same as [`build`].
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its pool or a worker panics.
+#[cfg(feature = "parallel")]
+pub fn build_parallel(
+    c: Config,
+    mesh: Mesh<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutput>, Error> {
+    build_mode(true, c, mesh, workspace)
+}
+
+/// Opt-in parallel variant of [`build_with_output`], not in C++ meshoptimizer.
+///
+/// Fallback and memory rules are those of [`build_parallel`]. Callbacks run on
+/// the calling thread in serial order and need not be `Send` or `Sync`. Their
+/// returned IDs and errors take effect before any later callback is emitted.
+///
+/// # Errors
+/// Same as [`build_with_output`], including callback errors.
+///
+/// # Panics
+/// Panics if the callback or a worker panics, or Rayon cannot initialize its pool.
+#[cfg(feature = "parallel")]
+pub fn build_parallel_with_output(
+    c: Config,
+    mesh: Mesh<'_>,
+    output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    build_with_output_mode(true, c, mesh, output, workspace)
 }

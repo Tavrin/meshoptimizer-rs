@@ -1,0 +1,1 @@
+error: package collision in the lockfile: packages meshoptimizer-rs v0.2.15 (<repo>) and meshoptimizer-rs v0.2.15 (<target-dir>/frozen-base) are different, but only one can be written to lockfile unambiguously

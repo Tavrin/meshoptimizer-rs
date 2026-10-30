@@ -42,7 +42,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
-          targets: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown, wasm32-wasip1
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -51,10 +51,21 @@ jobs:
           echo "MESHOPT_ARTIFACTS=$RUNNER_TEMP/simd-artifacts" >> "$GITHUB_ENV"
           cargo fetch --locked --manifest-path parity/codec/Cargo.toml
       - run: cargo test --locked --all-features
+      - name: Execute the simd128 geometry kernel against the scalar backend
+        run: cargo test --locked --target wasm32-wasip1 --lib codec::simd::bounds -- --test-threads=1
+        env:
+          RUSTFLAGS: -C target-feature=+simd128
+          CARGO_TARGET_WASM32_WASIP1_RUNNER: node parity/simd/wasi_runner.mjs
       - run: cargo clippy --locked --all-features --target wasm32-unknown-unknown -- -D warnings
       - run: cargo clippy --locked --all-features --target wasm32-unknown-unknown -- -D warnings
         env:
           RUSTFLAGS: -C target-feature=+simd128
+      - name: Execute wasm simd128 spatial kernel tests against scalar
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo test --locked --target wasm32-wasip1 --lib -- meshlet_spatial::simd_tests
+        env:
+          RUSTFLAGS: -C target-feature=+simd128
+          CARGO_TARGET_WASM32_WASIP1_RUNNER: node ${{ github.workspace }}/parity/0216-spatial/wasi.cjs
       - run: python3 parity/simd/qualify.py build
       - run: python3 parity/simd/qualify.py fixtures
       - run: python3 parity/simd/qualify.py sweep --cases 1000

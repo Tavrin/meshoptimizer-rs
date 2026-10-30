@@ -1692,3 +1692,96 @@ fn fetch_indices_constructor_retains_first_failing_visit() {
         assert_eq!(w.usage().work, charged);
     }
 }
+
+#[test]
+fn owned_index_remap_keeps_validation_ahead_of_sentinels_and_storage() {
+    let mut ws = Workspace::default();
+    assert_eq!(
+        remap_index_buffer(Some(&[0, 2]), &[u32::MAX, 7], &mut ws),
+        Err(Error::IndexOutOfBounds)
+    );
+    assert_eq!(ws.usage(), Usage { work: 2, bytes: 0 });
+    assert_eq!(
+        remap_index_buffer(Some(&[1, 0, 1]), &[u32::MAX, 7], &mut ws),
+        Err(Error::InvalidParameter)
+    );
+    assert_eq!(ws.usage(), Usage { work: 5, bytes: 12 });
+    ws.set_limits(Limits {
+        max_work: 6,
+        max_bytes: 11,
+    });
+    assert_eq!(
+        remap_index_buffer(Some(&[1, 0, 1]), &[u32::MAX, 7], &mut ws),
+        Err(Error::LimitExceeded)
+    );
+    assert_eq!(ws.usage(), Usage { work: 3, bytes: 0 });
+}
+
+#[test]
+fn owned_index_remap_keeps_every_work_boundary() {
+    for max_work in 0..=7 {
+        let mut ws = Workspace::new(Limits {
+            max_work,
+            max_bytes: 12,
+        });
+        let result = remap_index_buffer(Some(&[1, 0, 1]), &[4, 7], &mut ws);
+        assert_eq!(
+            result,
+            if max_work < 6 {
+                Err(Error::LimitExceeded)
+            } else {
+                Ok(vec![7, 4, 7])
+            }
+        );
+        assert_eq!(
+            ws.usage(),
+            Usage {
+                work: max_work.min(6),
+                bytes: if max_work < 3 { 0 } else { 12 }
+            }
+        );
+    }
+}
+
+#[test]
+fn packed_vertex_remap_keeps_last_source_for_duplicate_targets() {
+    for size in [4, 8, 12, 16] {
+        let data: Vec<u8> = (0..size * 4).map(|i| i as u8).collect();
+        let stream = VertexStream::new(&data, 4, size, size, 0).unwrap();
+        let mut ws = Workspace::default();
+        let out = remap_vertex_buffer(stream, &[2, u32::MAX, 0, 2], &mut ws).unwrap();
+        assert_eq!(&out[size * 2..], &data[size * 3..]);
+        assert_eq!(&out[..size], &data[size * 2..size * 3]);
+    }
+}
+
+#[test]
+fn packed_vertex_remap_zeroes_owned_holes() {
+    for size in [4, 8, 12, 16] {
+        let data = vec![7; size * 3];
+        let stream = VertexStream::new(&data, 3, size, size, 0).unwrap();
+        let out =
+            remap_vertex_buffer(stream, &[2, u32::MAX, 2], &mut Workspace::default()).unwrap();
+        assert_eq!(&out[..size * 2], vec![0; size * 2]);
+        assert_eq!(&out[size * 2..], vec![7; size]);
+    }
+}
+
+#[test]
+fn packed_vertex_remap_preserves_caller_holes_and_tail() {
+    for size in [4, 8, 12, 16] {
+        let data = vec![7; size * 3 + 3];
+        let stream = VertexStream::new(&data, 3, size, size, 0).unwrap();
+        let mut out = vec![0x5a; size * 3 + 5];
+        remap_vertex_buffer_into(
+            &mut out,
+            stream,
+            &[2, u32::MAX, 2],
+            &mut Workspace::default(),
+        )
+        .unwrap();
+        assert_eq!(&out[..size * 2], vec![0x5a; size * 2]);
+        assert_eq!(&out[size * 2..size * 3], vec![7; size]);
+        assert_eq!(&out[size * 3..], [0x5a; 5]);
+    }
+}

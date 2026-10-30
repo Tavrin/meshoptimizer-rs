@@ -4,7 +4,7 @@
 //! (scalar build). Differential runs against the C++ library, seeded sweeps,
 //! fuzzing and a wasm32 identity check prove this on the recorded inputs.
 //!
-//! The crate is safe Rust except for one module, `codec::simd`, which holds the SIMD kernels for vertex decoding, EXT filters and meshlet decoding. Every `unsafe` block there has a written safety argument, and every SIMD path must produce the same bytes as the scalar safe-Rust path, which is the reference and the fallback. Build with `default-features = false` (adding `std` if needed) to compile no `unsafe` code; output is identical. Cargo feature unification applies: if any other crate in the dependency graph enables `simd`, the module is compiled for the whole graph. Simplification, optimization, index decoding and all encoders contain no `unsafe` in either configuration. See the [safety audit](https://github.com/Tavrin/meshoptimizer-rs/blob/main/src/codec/simd/SAFETY.md).
+//! The crate is safe Rust except for one module, `codec::simd`, which holds the SIMD kernels for vertex decoding, EXT filters, meshlet decoding and spatial meshlet box sweeps. Every `unsafe` block there has a written safety argument, and every SIMD path must produce the same bytes as the scalar safe-Rust path, which is the reference and the fallback. Build with `default-features = false` (adding `std` if needed) to compile no `unsafe` code; output is identical. Cargo feature unification applies: if any other crate in the dependency graph enables `simd`, the module is compiled for the whole graph. Simplification, optimization, index decoding and all encoders contain no `unsafe` in either configuration. See the [safety audit](https://github.com/Tavrin/meshoptimizer-rs/blob/main/src/codec/simd/SAFETY.md).
 //!
 //! The crate needs no C++ toolchain.
 //! It supports `no_std` with `alloc`. Invalid input returns a typed [`Error`]
@@ -29,6 +29,7 @@
 //! - [Per-mesh LOD chain](guide#per-mesh-lod-chain).
 //! - [Meshlets with bounds](guide#meshlets-with-bounds).
 //! - [Vertex and index encode and decode](guide#vertex-and-index-encode-and-decode).
+//! - [Streaming index sequences](guide#streaming-index-sequences) (an extension, not in C++ meshoptimizer).
 //! - [Untrusted input with Limits](guide#untrusted-input-with-limits).
 //! - [Parallel workers](guide#parallel-workers).
 //! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
@@ -172,7 +173,13 @@ mod opacity;
 mod overdraw;
 mod quantize;
 mod remap;
+mod repair;
 mod sanitize;
+pub use repair::{
+    fill_holes, fill_holes_bound, fill_holes_into, orient_faces, orient_faces_bound,
+    orient_faces_into, weld_vertices, weld_vertices_bound, weld_vertices_into, FillHolesReport,
+    FilledMesh, HoleLoop, OrientReport, OrientedMesh, WeldPolicy, WeldReport, WeldedVertices,
+};
 
 mod lod_chain;
 mod raster;

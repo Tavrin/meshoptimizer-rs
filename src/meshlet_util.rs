@@ -1,8 +1,18 @@
 // Port of meshoptimizer 1.3 meshletutils.cpp (MIT, Arseny Kapoulkine).
-use crate::math::{sqrt8, LANES};
+use crate::math::LANES;
+
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, Positions, Workspace};
 use alloc::vec::Vec;
+
+#[inline(always)]
+fn sqrt8(values: [f32; LANES]) -> [f32; LANES] {
+    #[cfg(feature = "simd")]
+    if let Some(result) = crate::codec::bounds_roots(values) {
+        return result;
+    }
+    crate::math::sqrt8(values)
+}
 
 /// A borrowed positions view whose bounds-validation scan is cached once.
 ///
@@ -426,11 +436,7 @@ fn cluster_bounds_body<const M: usize, const N: usize>(
         }
         *c = v;
     }
-    if ctx.moderate {
-        bounds::<false, N>(indices, &corners[..n], p, ctx)
-    } else {
-        bounds::<true, N>(indices, &corners[..n], p, ctx)
-    }
+    meshlet_bounds_result::<N>(indices, &corners[..n], p, ctx)
 }
 #[cfg(feature = "clusterlod")]
 pub(crate) fn compute_cluster_bounds_validated(
@@ -475,11 +481,7 @@ fn cluster_bounds<const M: usize, const N: usize>(
         }
         *c = v;
     }
-    if ctx.moderate {
-        bounds::<false, N>(indices, &corners[..n], p, ctx)
-    } else {
-        bounds::<true, N>(indices, &corners[..n], p, ctx)
-    }
+    meshlet_bounds_result::<N>(indices, &corners[..n], p, ctx)
 }
 /// `meshopt_computeMeshletBounds`: bounds of byte-local triangles.
 ///
@@ -550,11 +552,7 @@ fn meshlet_bounds<const M: usize, const N: usize>(
         indices[i] = vertices[v as usize];
         n = n.max(v as usize + 1);
     }
-    if ctx.moderate {
-        bounds::<false, N>(&indices[..triangles.len()], &vertices[..n], p, ctx)
-    } else {
-        bounds::<true, N>(&indices[..triangles.len()], &vertices[..n], p, ctx)
-    }
+    meshlet_bounds_result::<N>(&indices[..triangles.len()], &vertices[..n], p, ctx)
 }
 fn meshlet_bounds_body<const M: usize, const N: usize>(
     vertices: &[u32],

@@ -12,17 +12,21 @@
 //! The checked EXT helper accepts vertex version 0 and index versions 0 and 1. Caller-buffer codecs allocate no heap storage. They
 //! preserve unused destination bytes; a malformed body or filter, or an
 //! encoder capacity failure, can modify the used prefix. Allocating
-//! operations use fallible reservation and Workspace limits. Decoder work
+//! operations use fallible reservation and Workspace limits. One-shot decoder work
 //! charges source bytes plus decoded bytes once before raw decoding, and one
 //! visit per four-byte word before filtering, including validation. Encoder
 //! work charges input bytes plus at most the bound's output bytes; filter
 //! encoders charge input floats plus output words. Fixed block arrays on the
 //! stack and caller buffers are excluded from storage limits, consistently
 //! with the geometry APIs.
+//! [`IndexSequenceDecoder`] additionally accepts arriving sequence bytes with
+//! a whole-stream work budget and provisional output until EOF validation.
 
 mod encode;
 #[cfg(feature = "simd")]
-mod simd;
+pub(crate) mod simd;
+#[cfg(feature = "simd")]
+pub(crate) use simd::bounds::roots as bounds_roots;
 
 /// Diagnostic dispatch control; outside semver. Overrides only lower detected ISA.
 #[cfg(all(feature = "simd", feature = "parity-internals"))]
@@ -34,6 +38,7 @@ mod filter_encode;
 mod index;
 mod index_encode;
 mod meshlet;
+mod sequence_stream;
 mod vertex;
 mod vertex_encode;
 use crate::{workspace::checked_bytes, Error, Workspace};
@@ -50,6 +55,7 @@ pub use meshlet::{
     decode_meshlet, decode_meshlet_into, decode_meshlet_raw, decode_meshlet_raw_into,
     encode_meshlet, encode_meshlet_bound, encode_meshlet_into, DecodedMeshlet, RawMeshlet,
 };
+pub use sequence_stream::{IndexSequenceDecoder, Progress, Status};
 
 /// EXT compression mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -338,6 +344,9 @@ fn allocate(
                 source,
             )?;
         } else {
+            #[cfg(all(feature = "simd", target_arch = "x86_64"))]
+            vertex::decode_owned(&mut out, count, stride, source)?;
+            #[cfg(not(all(feature = "simd", target_arch = "x86_64")))]
             vertex::decode(&mut out, count, stride, source)?;
         }
     } else if mode == Mode::Indices {

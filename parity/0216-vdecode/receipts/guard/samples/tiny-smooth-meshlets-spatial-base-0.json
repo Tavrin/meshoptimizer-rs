@@ -1,0 +1,18 @@
+{
+  "case": "tiny-smooth",
+  "op": "meshlets-spatial",
+  "arm": "base",
+  "rep": 0,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "f4e48de832bfbce945c5afee1aa701fd725e4f10ea251d30477b7b571ec9f5b4",
+  "binary_sha256": "92358716b5203ff51ad83c346f8c28eeb0240f15f07b3730be4b1f291453c12d",
+  "process_wall": 0.01781536196358502,
+  "instructions": 475554,
+  "instructions_per_call": 47555.4,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 5.7258e-06,
+  "peak_rss_kib": 15276,
+  "output_sha256": "ec35e4697fbb031f55106847f9f839be628aa251e80a0b86aa20133a05a4cd5e",
+  "output_bytes": 220
+}

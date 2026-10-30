@@ -1,0 +1,18 @@
+{
+  "case": "real-a082",
+  "op": "fetch",
+  "arm": "cpp-scalar",
+  "rep": 1,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "f631b2a30e79f167c0650f595bed6341193243aaab4d552d4cafa85e68944793",
+  "binary_sha256": "3dea9545d32cbf40d4e2199293d177b2a61ccef57e95a0e677c2b1b711cf474f",
+  "process_wall": 3.6486087610246614,
+  "instructions": 3320296552,
+  "instructions_per_call": 332029655.2,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.20530690210000002,
+  "peak_rss_kib": 560328,
+  "output_sha256": "d19daf7f02f5c4b46de72f47730ae83677628be550de34a52c261368b241ea15",
+  "output_bytes": 126324592
+}

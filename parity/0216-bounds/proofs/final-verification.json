@@ -1,0 +1,10 @@
+{
+  "branch": "perf/0216-bounds",
+  "head": "0454a96bef54f6fedf496ff6aa3862e7efbb7257",
+  "frozen_source_binding": "proofs/source-binding.json",
+  "final_source_binding_exit": 0,
+  "final_raw_gate_exit": 0,
+  "final_format_exit": 0,
+  "final_public_text_exit": 0,
+  "unchanged_kd_sha256": "314a1641adacee8cc32ce1f89fd9ac868f30ec0c298d35d0a067f33139c1ac7c"
+}

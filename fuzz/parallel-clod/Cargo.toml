@@ -1,0 +1,19 @@
+[package]
+name = "meshopt-parallel-clod-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[package.metadata]
+cargo-fuzz = true
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../..", features = ["parallel", "clusterlod"] }
+rayon = "=1.11.0"
+[workspace]
+members = ["."]
+[[bin]]
+name = "parallel_clod"
+path = "target.rs"
+test = false
+doc = false
+bench = false

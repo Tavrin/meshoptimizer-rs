@@ -1,0 +1,158 @@
+[
+  {
+    "step": "format",
+    "exit": 0,
+    "wall_seconds": 0.5420963120413944,
+    "cpu_seconds": 0.46157299999999996
+  },
+  {
+    "step": "audit-inventory",
+    "exit": 0,
+    "wall_seconds": 0.0294000250287354,
+    "cpu_seconds": 0.028965000000000005
+  },
+  {
+    "step": "fmt",
+    "exit": 0,
+    "wall_seconds": 0.3939347079722211,
+    "cpu_seconds": 0.39466799999999996
+  },
+  {
+    "step": "all-features",
+    "exit": 0,
+    "wall_seconds": 12.772838236007374,
+    "cpu_seconds": 29.994344
+  },
+  {
+    "step": "no-default",
+    "exit": 0,
+    "wall_seconds": 3.9275011139689013,
+    "cpu_seconds": 10.814136999999995
+  },
+  {
+    "step": "no-std-simd",
+    "exit": 0,
+    "wall_seconds": 6.751295753987506,
+    "cpu_seconds": 6.535677000000003
+  },
+  {
+    "step": "clippy",
+    "exit": 0,
+    "wall_seconds": 1.5117809000075795,
+    "cpu_seconds": 2.466101999999996
+  },
+  {
+    "step": "aarch64-default",
+    "exit": 0,
+    "wall_seconds": 0.4543410370242782,
+    "cpu_seconds": 0.21506000000000824
+  },
+  {
+    "step": "aarch64-build",
+    "exit": 0,
+    "wall_seconds": 0.06331786199007183,
+    "cpu_seconds": 0.06136199999999903
+  },
+  {
+    "step": "aarch64-build-no-std-simd",
+    "exit": 0,
+    "wall_seconds": 0.05898930301191285,
+    "cpu_seconds": 0.059633000000005154
+  },
+  {
+    "step": "aarch64-no-std-simd",
+    "exit": 0,
+    "wall_seconds": 0.05931709101423621,
+    "cpu_seconds": 0.05725399999999503
+  },
+  {
+    "step": "unsafe-free",
+    "exit": 0,
+    "wall_seconds": 0.05070453800726682,
+    "cpu_seconds": 0.0447900000000061
+  },
+  {
+    "step": "boundary",
+    "exit": 0,
+    "wall_seconds": 3.6424497420084663,
+    "cpu_seconds": 3.672115
+  },
+  {
+    "step": "package",
+    "exit": 0,
+    "wall_seconds": 1.0180231200065464,
+    "cpu_seconds": 0.7836279999999949
+  },
+  {
+    "step": "public-text",
+    "exit": 0,
+    "wall_seconds": 0.05488189100287855,
+    "cpu_seconds": 0.29131899999999966
+  },
+  {
+    "step": "exact-default",
+    "exit": 0,
+    "wall_seconds": 18.58113298099488,
+    "cpu_seconds": 30.303196000000007
+  },
+  {
+    "step": "exact-no-default",
+    "exit": 0,
+    "wall_seconds": 16.84262922499329,
+    "cpu_seconds": 27.91224799999999
+  },
+  {
+    "step": "build-differential",
+    "exit": 0,
+    "wall_seconds": 16.95290652103722,
+    "cpu_seconds": 16.913883
+  },
+  {
+    "step": "cpp-differential",
+    "exit": 0,
+    "wall_seconds": 74.77777328796219,
+    "cpu_seconds": 77.75176800000003
+  },
+  {
+    "step": "build-differential-no-std",
+    "exit": 0,
+    "wall_seconds": 19.317636723979376,
+    "cpu_seconds": 19.12900500000002
+  },
+  {
+    "step": "cpp-differential-no-std",
+    "exit": 0,
+    "wall_seconds": 68.2170311009977,
+    "cpu_seconds": 73.453871
+  },
+  {
+    "step": "wasm-build",
+    "exit": 0,
+    "wall_seconds": 0.08669091499177739,
+    "cpu_seconds": 0.0700170000000142
+  },
+  {
+    "step": "wasm-execution",
+    "exit": 0,
+    "wall_seconds": 3.299825102032628,
+    "cpu_seconds": 3.339372999999995
+  },
+  {
+    "step": "miri",
+    "exit": 0,
+    "wall_seconds": 3.4165351369883865,
+    "cpu_seconds": 3.299644999999984
+  },
+  {
+    "step": "asan-build",
+    "exit": 0,
+    "wall_seconds": 37.93714697001269,
+    "cpu_seconds": 38.671797999999946
+  },
+  {
+    "step": "asan-fuzz",
+    "exit": 0,
+    "wall_seconds": 1.7315557610127144,
+    "cpu_seconds": 1.631069999999994
+  }
+]

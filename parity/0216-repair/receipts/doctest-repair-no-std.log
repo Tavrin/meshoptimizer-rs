@@ -1,0 +1,45 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+   Doc-tests meshoptimizer_rs
+
+running 38 tests
+test src/lib.rs - MigrationDoctests (line 315) ... ignored
+test src/lib.rs - MigrationDoctests (line 329) ... ignored
+test src/lib.rs - MigrationDoctests (line 348) ... ignored
+test src/lib.rs - MigrationDoctests (line 373) ... ignored
+test src/lib.rs - MigrationDoctests (line 392) ... ignored
+test src/lib.rs - ReadmeDoctests (line 210) ... ok
+test src/lib.rs - ReadmeDoctests (line 180) ... ok
+test src/lib.rs - ReadmeDoctests (line 243) ... ok
+test src/lib.rs - ReadmeDoctests (line 276) ... ok
+test src/cache.rs - cache::optimize_vertex_cache_with_table (line 107) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/lib.rs - guide (line 646) ... ok
+test src/lib.rs - MigrationDoctests (line 353) ... ok
+test src/lib.rs - guide (line 569) ... ok
+test src/lib.rs - (line 73) ... ok
+test src/lib.rs - guide (line 232) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/lib.rs - MigrationDoctests (line 319) ... ok
+test src/lib.rs - guide (line 320) ... ok
+test src/lib.rs - guide (line 447) ... ok
+test src/lib.rs - guide (line 765) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - guide (line 687) ... ok
+test src/lib.rs - guide (line 522) ... ok
+test src/lib.rs - guide (line 722) ... ok
+test src/lib.rs - MigrationDoctests (line 379) ... ok
+test src/lib.rs - MigrationDoctests (line 334) ... ok
+test src/lib.rs - (line 58) ... ok
+test src/lib.rs - guide (line 269) ... ok
+test src/lib.rs - guide (line 184) ... ok
+test src/lib.rs - (line 39) ... ok
+test src/lib.rs - guide (line 807) ... ok
+test src/lib.rs - guide (line 376) ... ok
+test src/lib.rs - MigrationDoctests (line 395) ... ok
+test src/lib.rs - (line 102) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+test src/lib.rs - guide (line 602) ... ok
+
+test result: ok. 33 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.31s
+

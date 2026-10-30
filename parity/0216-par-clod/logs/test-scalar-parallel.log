@@ -1,0 +1,12 @@
+   Compiling meshoptimizer-rs v0.2.15 (${WORKTREE})
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.65s
+     Running tests/clusterlod_parallel.rs (${TARGET}/debug/deps/clusterlod_parallel-324cc742e0626c55)
+
+running 4 tests
+test allocating_groups_keep_refinement_indices ... ok
+test callback_failure_keeps_prefix_and_reusable_workspace ... ok
+test finite_budgets_and_dilation_keep_serial_failures_and_positions ... ok
+test ordered_output_bits_ids_and_usage_across_pools ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+

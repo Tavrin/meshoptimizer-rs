@@ -1,0 +1,10 @@
+{"stage": "prepare", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "prepare", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "proof_group", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "differential_group", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "measure_inputs corpus", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "measure_inputs real-214e", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "measure_inputs real-a082", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "measure_inputs real-b6fd", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "disclosure_group", "upper_cpu_seconds_estimate": 7200, "basis": "finite lane matrices and retained campaign timings; per-command tighter estimates in sizes.jsonl"}
+{"stage": "finish", "upper_cpu_seconds_estimate": 60, "basis": "hash and text verification only"}

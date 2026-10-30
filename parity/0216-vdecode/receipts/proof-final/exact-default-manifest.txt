@@ -1,0 +1,15 @@
+[package]
+name="decode-exact"
+version="0.0.0"
+edition="2021"
+[features]
+default=["baseline/std","candidate/std","baseline/simd","candidate/simd"]
+[dependencies]
+baseline={package="meshoptimizer-baseline",path="../proof-baseline",default-features=false}
+candidate={package="meshoptimizer-rs",path='<repo>',default-features=false}
+[[bin]]
+name="exact"
+path="exact.rs"
+[profile.release]
+lto="fat"
+codegen-units=1
