@@ -778,3 +778,62 @@ or clusters would be separate APIs.
   total work and peak bytes, on success and on failure.
 - **Failure:** the result is atomic. `LodChainError::level` is the zero-based
   failing level, or `None` for a failure of the call as a whole.
+
+
+## Hidden-surface removal
+
+This extension is not in C++ meshoptimizer and needs no Cargo feature.
+Use it on opaque, static imported geometry before simplification. The default
+rasterizes 26 orthographic views into an 8x8 tiled item/depth buffer using
+fixed-point edges. `pixel_size` is the world-space pixel width; zero selects
+longest referenced mesh side / 128. The square view spans twice that side;
+resolution is ceil(2*side / pixel_size), from 1 to 2048. Finer requests return
+`InvalidParameter`. Fully covered pixels certify occlusion with conservative
+depth bounds; uncertain pixels retain geometry. Every triangle visible over at
+least a pixel-area from a tested direction is retained, including partially
+visible triangles. The outward coverage rule additionally retains smaller
+slivers and preserves the existing lattice-sample guarantee. Coarse meshes and
+small openings can leave many uncertain triangles, which are retained. A final
+BVH sample check only for raster-hidden candidates preserves the original
+floating-point sample behavior, including shared-edge rounding misses; it only
+restores faces. It can be expensive on meshes with many hidden candidates.
+Finite cameras use BVH rays from a barycentric lattice (denominator 2: six
+boundary points plus centroid); every visible tested sample keeps the triangle.
+Use more subdivisions for finer finite-camera sampling. Faces are two-sided, and
+coplanar contacts do not occlude each other. A support surface visible from below
+remains present with outside views. Restrict views to reachable camera positions
+when that is the intended visibility domain.
+
+```rust
+use meshoptimizer_rs::{remove_hidden_triangles, remove_hidden_triangles_into,
+    HiddenOptions, HiddenViews, Positions, Workspace};
+let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.]];
+let indices = [0,1,2, 1,2,0];
+let cameras = [[0.,0.,5.], [2.,2.,3.]];
+let mut options = HiddenOptions::default();
+options.views = HiddenViews::Points(&cameras);
+options.subdivisions = 4;
+options.tolerance = 1e-6; // world units; near contacts retain more geometry
+let mut workspace = Workspace::default();
+let mesh = remove_hidden_triangles(&indices, Positions::from_packed(&positions),
+    options, &mut workspace)?;
+assert_eq!(mesh.report.duplicate, 1);
+let mut output = [u32::MAX; 9];
+let report = remove_hidden_triangles_into(&mut output, &indices,
+    Positions::from_packed(&positions), options, &mut workspace)?;
+assert_eq!(&output[..report.index_count()], mesh.indices);
+assert_eq!(&output[report.index_count()..], &[u32::MAX; 6]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`HiddenViews::Bounds { min, max }` samples eight box corners and its center,
+not every point in the volume. Reports distinguish exact same-winding duplicates,
+occluded faces with exact reverse-wound counterparts, and other occluded faces.
+Back-to-back walls that can be seen are retained. Indices and winding remain in
+input order. The caller-buffer form leaves all storage untouched on error.
+Limits meter sorting, projections, raster rectangles and buffer initialization;
+finite cameras also meter BVH construction, node visits and intersections, which
+can still approach quadratic work. Outside views execute serially with identical
+output regardless of the `parallel` feature or thread-pool size. Occlusion is measured against
+the original mesh; removing its sampled-hidden surfaces does not guarantee
+identical continuous visibility of the filtered mesh.

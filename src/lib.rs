@@ -35,6 +35,8 @@
 //! - [Lower peak memory with Retention::Lean](guide#lower-peak-memory-with-retentionlean).
 //! - [Mesh repair](guide#mesh-repair) (an extension, not in C++ meshoptimizer).
 //!
+//! - [Hidden-surface removal](guide#hidden-surface-removal) (an extension, not in C++ meshoptimizer).
+//!
 //! # Simplify a mesh
 //!
 //! ```
@@ -159,6 +161,11 @@ pub mod guide {
 }
 
 mod budget;
+mod hidden;
+pub use hidden::{
+    remove_hidden_triangles, remove_hidden_triangles_into, HiddenOptions, HiddenReport,
+    HiddenViews, VisibleMesh,
+};
 
 mod analyze;
 mod cache;

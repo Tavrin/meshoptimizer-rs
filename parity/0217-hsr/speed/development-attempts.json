@@ -1,0 +1,51 @@
+{
+  "attempts": [
+    {
+      "log": "initial-tests.log",
+      "tests_exit": 101,
+      "passed": 15,
+      "failed": 3,
+      "reason": "triangle-wide depth bounds and incomplete shared-edge coverage"
+    },
+    {
+      "log": "second-tests.log",
+      "tests_exit": 101,
+      "passed": 15,
+      "failed": 3,
+      "reason": "single partial candidate missed front-surface junctions"
+    },
+    {
+      "log": "third-tests-probe.log",
+      "tests_exit": 101,
+      "wrapper_exit": 0,
+      "probe_exit": 0,
+      "passed": 15,
+      "failed": 3,
+      "reason": "nearest partial candidate still cannot cover multi-face junctions; mixed diagnostic command"
+    },
+    {
+      "log": "fourth-tests-probe.log",
+      "tests_exit": 101,
+      "passed": 17,
+      "failed": 1,
+      "reason": "edge-on query used global depth extrema"
+    },
+    {
+      "log": "fifth-tests-probe.log",
+      "tests_exit": 101,
+      "probe_exit": 0,
+      "passed": 17,
+      "failed": 1,
+      "reason": "confirmed edge-on depth range residual"
+    },
+    {
+      "log": "sixth-tests-probe.log",
+      "tests_exit": 0,
+      "probe_exit": 0,
+      "passed": 18,
+      "failed": 0,
+      "reason": "bounded polygon clipping resolves edge-on depths; final checks follow after raster allocation fast path"
+    }
+  ],
+  "no_failed_attempt_counted_as_pass": true
+}

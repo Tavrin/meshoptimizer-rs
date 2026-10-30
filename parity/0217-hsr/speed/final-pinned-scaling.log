@@ -1,0 +1,1 @@
+PASS pinned scaling {'32768': {'seconds': 0.001999871, 'work': 983040}, '262144': {'seconds': 0.02999805, 'work': 8650752}, 'work_ratio': 8.8, 'wall_ratio': 14.99999249951622}

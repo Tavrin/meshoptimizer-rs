@@ -1,0 +1,237 @@
+heavy: waiting (class script:<private-path> reserving 5G, cap 9G, declared 4G, full declaration or higher history reservation: class escalation): bash -c cargo fmt --all && rustfmt --edition 2021 parity/0217-hsr/speed/bench.rs && python3 parity/0217-hsr/speed/checks.py && python3 parity/0217-hsr/speed/campaign.py
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=5242880; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=16451244 - unused_kb=13234524 - margin_kb=2097152 = free_kb=1119568; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=15944020 - unused_kb=13166476 - margin_kb=2097152 = free_kb=680392; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 4G admissible, 17G reserved for running jobs; will start automatically [capacity: available_kb=16598512 - unused_kb=9523284 - margin_kb=2097152 = free_kb=4978076; need_kb=5242880; normal_slots=2/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=16152628 - unused_kb=13076556 - margin_kb=2097152 = free_kb=978920; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=15165428 - unused_kb=12361560 - margin_kb=2097152 = free_kb=706716; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: running (5G reserved, cap 9G, 14G available): bash -c cargo fmt --all && rustfmt --edition 2021 parity/0217-hsr/speed/bench.rs && python3 parity/0217-hsr/speed/checks.py && python3 parity/0217-hsr/speed/campaign.py
+fmt 0 
+clippy-all 0    Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+    Checking either v1.18.0
+    Checking rayon v1.11.0
+    Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 8.27s
+
+clippy-none 0     Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.08s
+
+tests-all 0 uide (line 523) ... ok
+test src/lib.rs - MigrationDoctests (line 335) ... ok
+test src/lib.rs - guide (line 962) ... ok
+test src/lib.rs - MigrationDoctests (line 380) ... ok
+test src/lib.rs - guide (line 691) ... ok
+test src/hidden.rs - hidden::remove_hidden_triangles (line 135) ... ok
+test src/lib.rs - guide (line 377) ... ok
+test src/lib.rs - guide (line 270) ... ok
+test src/lib.rs - MigrationDoctests (line 354) ... ok
+test src/lib.rs - guide (line 653) ... ok
+test src/lib.rs - MigrationDoctests (line 396) ... ok
+test src/lib.rs - guide (line 321) ... ok
+test src/lib.rs - (line 61) ... ok
+test src/lib.rs - guide (line 233) ... ok
+test src/lib.rs - guide (line 781) ... ok
+test src/lib.rs - (line 76) ... ok
+test src/lib.rs - (line 105) ... ok
+test src/lib.rs - (line 42) ... ok
+test src/lib.rs - guide (line 741) ... ok
+test src/lib.rs - guide (line 813) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/parallel.rs - parallel (line 24) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/parallel.rs - parallel (line 33) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/parallel.rs - parallel::simplify_lod_chain (line 135) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+
+test result: ok. 40 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.74s
+
+
+tests-none 0 line 233) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - guide (line 864) ... ok
+test src/lib.rs - guide (line 813) ... ok
+test src/lib.rs - (line 61) ... ok
+test src/hidden.rs - hidden::remove_hidden_triangles (line 135) ... ok
+test src/lib.rs - guide (line 558) ... ok
+test src/lib.rs - guide (line 270) ... ok
+test src/lib.rs - MigrationDoctests (line 335) ... ok
+test src/lib.rs - guide (line 741) ... ok
+test src/lib.rs - MigrationDoctests (line 320) ... ok
+test src/lib.rs - MigrationDoctests (line 396) ... ok
+test src/cache.rs - cache::optimize_vertex_cache_with_table (line 107) ... ok
+test src/lib.rs - (line 76) ... ok
+test src/lib.rs - guide (line 448) ... ok
+test src/lib.rs - (line 42) ... ok
+test src/lib.rs - MigrationDoctests (line 354) ... ok
+test src/lib.rs - guide (line 907) ... ok
+test src/lib.rs - guide (line 962) ... ok
+test src/lib.rs - guide (line 377) ... ok
+test src/lib.rs - MigrationDoctests (line 380) ... ok
+test src/lib.rs - (line 105) ... ok
+test src/lib.rs - guide (line 523) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/lib.rs - guide (line 653) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+
+test result: ok. 37 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+
+wasm-all 0    Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+warning: enum `Level` is never used
+ --> src/codec/simd/dispatch.rs:7:10
+  |
+7 | pub enum Level {
+  |          ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: static `DETECTED` is never used
+  --> src/codec/simd/dispatch.rs:21:8
+   |
+21 | static DETECTED: AtomicU8 = AtomicU8::new(255);
+   |        ^^^^^^^^
+
+warning: function `detected_level` is never used
+  --> src/codec/simd/dispatch.rs:24:8
+   |
+24 | pub fn detected_level() -> Level {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `from_byte` is never used
+  --> src/codec/simd/dispatch.rs:33:4
+   |
+33 | fn from_byte(n: u8) -> Level {
+   |    ^^^^^^^^^
+
+warning: function `detect` is never used
+  --> src/codec/simd/dispatch.rs:43:4
+   |
+43 | fn detect() -> Level {
+   |    ^^^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 5 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.56s
+
+wasm-none 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.66s
+
+boundary 0 PASS: one allow, 37 individually documented blocks; no unsafe fn/impl
+PASS: published package contains exactly one unsafe-code allowance
+PASS: published package includes all 37 audited unsafe blocks
+
+exact-build-all 0      Locking 9 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-all)
+    Finished `release` profile [optimized] target(s) in 13.18s
+
+exact-all 0 PASS 87272 exact observations; 9 fixtures, 46 API/policy combinations; all work limits, byte boundaries, cold/repeat/after-failure
+
+exact-build-none 0      Locking 3 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-none)
+    Finished `release` profile [optimized] target(s) in 7.55s
+
+exact-none 0 PASS 87272 exact observations; 9 fixtures, 46 API/policy combinations; all work limits, byte boundaries, cold/repeat/after-failure
+
+hidden-release 0 timizer-rs v0.2.16 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 21.94s
+     Running tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 18 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+HSR scaling work N=2816 8N=25600 ratio=9.090909090909092
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test opening_exposes_inside_from_outside ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+
+public-text 0 PASS: public text contains no private machine paths or project names
+
+build-before 0      Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<target>/speed/old)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-before)
+    Finished `release` profile [optimized] target(s) in 16.32s
+
+build-after 0      Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-after)
+    Finished `release` profile [optimized] target(s) in 16.68s
+
+build-none 0      Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-none)
+    Finished `release` profile [optimized] target(s) in 15.34s
+
+build-parallel 0      Locking 8 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-parallel)
+    Finished `release` profile [optimized] target(s) in 19.77s
+
+scaling-32768-0 0 RESULT 0.004598165 {"input":32768,"output":32768,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":983040,"bytes":4259840}
+READY
+COUNTED 0.003944184
+
+scaling-262144-0 0 RESULT 0.037503509 {"input":262144,"output":262144,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":8650752,"bytes":34078720}
+READY
+COUNTED 0.032398712
+
+scaling-262144-1 0 RESULT 0.036067847 {"input":262144,"output":262144,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":8650752,"bytes":34078720}
+READY
+COUNTED 0.031838196
+
+scaling-32768-1 0 RESULT 0.004594107 {"input":32768,"output":32768,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":983040,"bytes":4259840}
+READY
+COUNTED 0.003612690
+
+scaling-32768-2 0 RESULT 0.004532310 {"input":32768,"output":32768,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":983040,"bytes":4259840}
+READY
+COUNTED 0.003618080
+
+scaling-262144-2 0 RESULT 0.035900112 {"input":262144,"output":262144,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":8650752,"bytes":34078720}
+READY
+COUNTED 0.029998022
+
+oracle-build 0 
+Traceback (most recent call last):
+  File "<worktree>/parity/0217-hsr/speed/campaign.py", line 87, in <module>
+    actual_tris=set(struct.iter_unpack('<III',data));assert expected_tris<=actual_tris,(case,s,arm)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (4, 2, 'after')

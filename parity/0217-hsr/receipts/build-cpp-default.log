@@ -1,0 +1,4 @@
+     Locking 14 packages to latest compatible versions
+   Compiling meshopt v0.7.0
+   Compiling hsr-driver v0.0.0 (<target>/campaign/build-cpp-default)
+    Finished `release` profile [optimized] target(s) in 3.53s
