@@ -1,0 +1,133 @@
+{
+ "target": "remap",
+ "changed_executable_lines": 77,
+ "changed_lines_hit": 65,
+ "functions": [
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}",
+   "regions_hit": 25,
+   "regions": 41,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#0}",
+   "regions_hit": 6,
+   "regions": 6,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#0}::{closure#0}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#0}::{closure#1}",
+   "regions_hit": 3,
+   "regions": 3,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#0}::{closure#1}::{closure#0}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#0}::{closure#1}::{closure#1}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#2}",
+   "regions_hit": 3,
+   "regions": 3,
+   "entry_count": 180672
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#3}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 38050
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_buffer::{closure#0}::{closure#4}",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 50
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_index_gather",
+   "regions_hit": 19,
+   "regions": 26,
+   "entry_count": 682
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_packed::<12: usize>",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 216
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_packed::<16: usize>",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 216
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_packed::<4: usize>",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 384
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_packed::<8: usize>",
+   "regions_hit": 5,
+   "regions": 5,
+   "entry_count": 216
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_records::<12: usize>",
+   "regions_hit": 8,
+   "regions": 9,
+   "entry_count": 144
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_records::<16: usize>",
+   "regions_hit": 8,
+   "regions": 9,
+   "entry_count": 144
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_records::<4: usize>",
+   "regions_hit": 8,
+   "regions": 9,
+   "entry_count": 240
+  },
+  {
+   "file": "src/remap.rs",
+   "function": "meshoptimizer_rs::remap::remap_vertex_records::<8: usize>",
+   "regions_hit": 8,
+   "regions": 9,
+   "entry_count": 72
+  }
+ ]
+}
