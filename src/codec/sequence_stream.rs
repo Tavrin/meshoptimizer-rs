@@ -46,6 +46,10 @@ pub struct Progress {
 /// per declared index, then `push` charges one unit per consumed input byte,
 /// independently of chunking. Empty calls cost nothing. Unlike one-shot
 /// decoding, resources cannot be preflighted against an unknown source length.
+/// Under work limits, a malformed stream can therefore report its own decoding
+/// error before `LimitExceeded`, because work is charged per consumed byte
+/// rather than for the whole input up front; a valid stream that runs out of
+/// work always reports `LimitExceeded`.
 ///
 /// Every error is terminal and is repeated by later calls and `finish`.
 /// An error may follow provisional writes in that call; no progress receipt

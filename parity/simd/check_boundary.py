@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Audit Rust code tokens, excluding nested comments and all string literals."""
+import hashlib
 import re
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
@@ -7,6 +8,13 @@ MODULE = ROOT / 'src/codec/simd'
 # These unpublished oracle drivers call the peer meshopt crate's C++ FFI.
 # Neither is part of our library; the independent package audit stays strict.
 PEER_FFI_DRIVERS = {ROOT / 'parity/compare/src/main.rs', ROOT / 'parity/encoders/src/main.rs', ROOT / 'parity/028-L1/src/main.rs', ROOT / 'parity/peers/src/main.rs'}
+# The combined qualification retained its extended C++ oracle after its gate
+# ran. Pin that unpublished receipt to the consumer hash in peer-bindings.json;
+# no other receipt source or later modification inherits this exemption.
+RETAINED_PEER_FFI_DRIVERS = {
+    ROOT / 'parity/0216-qualify/combined-ff38162/peer-driver.rs':
+        '14f1621c915b737fc2f4f1c57f7f8d96cca3fe6c1909ac77cc6cba5e35e2fb66',
+}
 
 def code(source):
     chars = list(source); i = 0
@@ -48,6 +56,9 @@ def main():
     allows=[];blocks=[]
     for file in sorted(files):
         if file in PEER_FFI_DRIVERS:
+            continue
+        if file in RETAINED_PEER_FFI_DRIVERS:
+            assert hashlib.sha256(file.read_bytes()).hexdigest() == RETAINED_PEER_FFI_DRIVERS[file], f'retained peer driver changed: {file}'
             continue
         source=code(file.read_text());inside=file.is_relative_to(MODULE)
         for m in re.finditer(r'\bunsafe\b(?:\s*\{)?',source):

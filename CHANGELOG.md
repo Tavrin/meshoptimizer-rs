@@ -1,5 +1,6 @@
 # Changelog
 
+[0.2.16]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.15...v0.2.16
 [0.2.15]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.14...v0.2.15
 
 All notable changes to this project are documented in this file.
@@ -7,11 +8,38 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.2.16] - 2026-10-30
 
 ### Added
 
-- Opt-in `clusterlod::build_parallel` and `build_parallel_with_output` use the current Rayon pool for independent groups within one mesh (`parallel` + `clusterlod`). Outputs, callback order and logical usage match the serial builder; finite budgets and border dilation use serial execution.
+- `weld_vertices`, `orient_faces` and `fill_holes` provide opt-in mesh repair with change reports and caller-buffer variants.
+- `clusterlod::build_parallel` and `build_parallel_with_output` use the current Rayon pool for groups within one mesh (`parallel` + `clusterlod`). Outputs, callback order and logical usage match the serial builder; finite budgets and border dilation use serial execution.
+- `codec::IndexSequenceDecoder` decodes arriving index-sequence bytes into caller buffers. Output is provisional until `finish()` validates EOF.
+- Full NEON vertex decoding on AArch64 with the `simd` feature.
+
+### Performance
+
+Instruction-count ratios on three real meshes (0.2.16 / comparison).
+Scalar vs scalar C++ 1.3 and default vs default C++ 1.3 use matching builds.
+For entries marked scalar and default, both builds have the listed ratios.
+
+- `remap_vertex_buffer` (scalar and default): 0.779× vs 0.2.15; 1.087× vs C++ 1.3.
+- `remap_index_buffer` (scalar and default): 0.885× vs 0.2.15; 1.437× vs C++ 1.3.
+- `simplify_with_update` (scalar and default): 0.940× vs 0.2.15; 1.203× vs C++ 1.3.
+- `build_meshlets_spatial` (default): 0.937× vs 0.2.15; 1.083× vs default C++ 1.3.
+- `compute_cluster_bounds` (default): 0.932× vs 0.2.15; 1.081× vs default C++ 1.3.
+- `compute_meshlet_bounds` (default): 0.933× vs 0.2.15; 1.104× vs default C++ 1.3.
+- `decode_vertex_buffer` (default): 0.911× vs 0.2.15; 1.145× vs default C++ 1.3.
+
+### Deliberate differences from C++
+
+- Failed vertex decoding can leave different destination prefixes from C++; successful decoded bytes and error status match the recorded x86 C++ comparisons.
+- Rust NEON follows Rust scalar and C++ scalar on the recorded arm64 CI inputs; C++ NEON ISA divergences are disclosed in the qualification report.
+- Streaming index-sequence decoding reports header errors immediately and charges work per consumed byte, so malformed-input errors can precede the one-shot decoder's length or work-limit errors.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
+
+See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for both builds, corpus ratios, parallel wall times, method and host.
 
 ## [0.2.15] - 2026-10-29
 

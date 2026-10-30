@@ -524,6 +524,50 @@ a worker panics. Its outer error is result-slot
 `SizeOverflow` or `AllocationFailed`; item errors stay in input order and do not
 cancel other items. Limits apply separately to each item, with no aggregate cap.
 
+## Parallel groups within one cluster LOD mesh
+
+Enable `parallel` and `clusterlod` for the opt-in `clusterlod::build_parallel`
+(or `build_parallel_with_output`). This extension is not in C++ meshoptimizer.
+Choose an existing Rayon pool and explicitly opt out of finite logical limits:
+
+```rust
+# #[cfg(all(feature = "parallel", feature = "clusterlod"))]
+# {
+use meshoptimizer_rs::{clusterlod, Limits, Workspace};
+let mut positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+let indices = [0, 1, 2];
+let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+let mut workspace = Workspace::new(Limits {
+    max_bytes: usize::MAX,
+    max_work: u64::MAX,
+});
+let config = clusterlod::default_config(128)?; // dilation disabled
+let groups = pool.install(|| clusterlod::build_parallel(config, clusterlod::Mesh {
+    indices: &indices,
+    positions: &mut positions,
+    attributes: None,
+    vertex_lock: None,
+    attribute_weights: &[],
+    attribute_protect_mask: 0,
+}, &mut workspace))?;
+assert!(!groups.is_empty());
+assert_eq!(groups[0].clusters[0].indices, indices);
+# }
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+Partitioning and boundary locks run serially each level; groups use the existing
+serial kernels and assemble in ordinal order. Callbacks run serially on the
+calling thread, including their custom IDs and failure prefixes. Dilation,
+any finite work/storage limit (including `Limits::default()`), single-group
+levels, and speculative worker failures use the serial algorithm. Existing
+`build` and batch APIs retain their behavior.
+
+`Usage` reports identical logical serial work and peak storage. Concurrent
+worker scratch, held speculative results, and Rayon infrastructure consume
+additional physical memory. Select a pool size that fits the mesh and available
+memory. No parallel speedup is guaranteed.
+
 ## Lower peak memory with Retention::Lean
 
 ```text
@@ -552,7 +596,6 @@ assert!(lod.indices.len() <= indices.len());
 
 Returns the same simplification result and errors as the first recipe. Lean is
 opt-in: it lowers peak memory, but later calls reallocate scratch and run slower.
-See the measured [memory and time results](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/PERFORMANCE.md).
 
 ## Mesh repair
 
@@ -598,6 +641,54 @@ reason. `sanitize_into` writes to a caller buffer of at least
 `sanitize_bound(indices.len())` indices and leaves it unchanged on any error.
 Sanitation does not weld vertices, fill holes or fix orientation; the result is
 not guaranteed to be manifold or closed.
+
+### Tolerance welding, orientation and small holes
+
+These are opt-in calls, like `sanitize`; they are extensions, not in C++
+meshoptimizer.
+Welding returns original representatives without moving or compacting vertices.
+Choose an explicit seam policy; use `WeldPolicy::AttributeEquality` to compare
+UVs, normals, materials or other caller attributes. Every merged vertex lies
+within tolerance of its representative; nearby chains do not merge transitively.
+Always apply the remap and sanitize faces again before proceeding.
+
+```rust
+use meshoptimizer_rs::{weld_vertices, orient_faces, fill_holes, sanitize,
+    Positions, SanitizeOptions, WeldPolicy, Workspace};
+let vertices = [[0.,0.,0.], [1.,0.,0.], [1.,1.,0.], [0.,1.,0.], [0.001,0.,0.]];
+let uv_classes = [0, 0, 0, 0, 0];
+let mut workspace = Workspace::default();
+let positions = Positions::from_packed(&vertices);
+let welded = weld_vertices(positions, 0.01,
+    WeldPolicy::AttributeEquality(&|a,b| uv_classes[a as usize] == uv_classes[b as usize]),
+    &mut workspace)?;
+assert_eq!(welded.remap, [0,1,2,3,0]);
+let indices: Vec<u32> = [4,1,2,0,3,2].map(|v| welded.remap[v]).to_vec();
+let clean = sanitize(&indices, positions, SanitizeOptions::EMPTY, &mut workspace)?;
+let oriented = orient_faces(&clean.indices, vertices.len(), &mut workspace)?;
+assert_eq!(oriented.report.flipped_faces, [1]);
+assert!(oriented.report.conflicts.is_empty());
+let filled = fill_holes(&oriented.indices, positions, 4, &mut workspace)?;
+assert_eq!(filled.report.filled.len(), 1);
+assert_eq!(filled.report.output_triangles, 4);
+assert!(filled.indices.iter().all(|&v| v < vertices.len() as u32));
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`orient_faces` preserves each component's lowest face as its winding seed;
+it does not choose outward orientation. Inspect `conflicts` and
+`ambiguous_components` before relying on the result. Non-manifold edges never
+provide propagation links. `fill_holes` appends deterministic ear triangles for
+simple, approximately planar boundary loops within the inclusive edge limit.
+It reports oversized, non-simple and ambiguous components separately, uses no
+new vertices, and does not test intersections with other mesh surfaces. Intended
+openings can also be filled: the caller must choose whether to invoke it.
+
+Each API has an `_into` variant and a bound function. Caller-buffer variants
+stage decisions in checked heap scratch and leave the entire destination
+unchanged on any error, including limits and insufficient capacity. Reports
+list original face/vertex indices, so callers can inspect changes. Added faces
+have no inherited material or face attributes; assign those explicitly.
 
 ## Mesh topology analysis
 
@@ -687,91 +778,3 @@ or clusters would be separate APIs.
   total work and peak bytes, on success and on failure.
 - **Failure:** the result is atomic. `LodChainError::level` is the zero-based
   failing level, or `None` for a failure of the call as a whole.
-
-### Tolerance welding, orientation and small holes
-
-These are opt-in calls, like `sanitize`; they are extensions, not in C++
-meshoptimizer.
-Welding returns original representatives without moving or compacting vertices.
-Choose an explicit seam policy; use `WeldPolicy::AttributeEquality` to compare
-UVs, normals, materials or other caller attributes. Every merged vertex lies
-within tolerance of its representative; nearby chains do not merge transitively.
-Always apply the remap and sanitize faces again before proceeding.
-
-```rust
-use meshoptimizer_rs::{weld_vertices, orient_faces, fill_holes, sanitize,
-    Positions, SanitizeOptions, WeldPolicy, Workspace};
-let vertices = [[0.,0.,0.], [1.,0.,0.], [1.,1.,0.], [0.,1.,0.], [0.001,0.,0.]];
-let uv_classes = [0, 0, 0, 0, 0];
-let mut workspace = Workspace::default();
-let positions = Positions::from_packed(&vertices);
-let welded = weld_vertices(positions, 0.01,
-    WeldPolicy::AttributeEquality(&|a,b| uv_classes[a as usize] == uv_classes[b as usize]),
-    &mut workspace)?;
-assert_eq!(welded.remap, [0,1,2,3,0]);
-let indices: Vec<u32> = [4,1,2,0,3,2].map(|v| welded.remap[v]).to_vec();
-let clean = sanitize(&indices, positions, SanitizeOptions::EMPTY, &mut workspace)?;
-let oriented = orient_faces(&clean.indices, vertices.len(), &mut workspace)?;
-assert_eq!(oriented.report.flipped_faces, [1]);
-assert!(oriented.report.conflicts.is_empty());
-let filled = fill_holes(&oriented.indices, positions, 4, &mut workspace)?;
-assert_eq!(filled.report.filled.len(), 1);
-assert_eq!(filled.report.output_triangles, 4);
-assert!(filled.indices.iter().all(|&v| v < vertices.len() as u32));
-# Ok::<(), meshoptimizer_rs::Error>(())
-```
-
-`orient_faces` preserves each component's lowest face as its winding seed;
-it does not choose outward orientation. Inspect `conflicts` and
-`ambiguous_components` before relying on the result. Non-manifold edges never
-provide propagation links. `fill_holes` appends deterministic ear triangles for
-simple, approximately planar boundary loops within the inclusive edge limit.
-It reports oversized, non-simple and ambiguous components separately, uses no
-new vertices, and does not test intersections with other mesh surfaces. Intended
-openings can also be filled: the caller must choose whether to invoke it.
-
-Each API has an `_into` variant and a bound function. Caller-buffer variants
-stage decisions in checked heap scratch and leave the entire destination
-unchanged on any error, including limits and insufficient capacity. Reports
-list original face/vertex indices, so callers can inspect changes. Added faces
-have no inherited material or face attributes; assign those explicitly.
-
-### Parallel groups within one cluster LOD mesh
-
-Enable `parallel` and `clusterlod` for the opt-in `clusterlod::build_parallel`
-(or `build_parallel_with_output`). This extension is not in C++ meshoptimizer.
-Choose an existing Rayon pool and explicitly opt out of finite logical limits:
-
-```rust
-# #[cfg(all(feature = "parallel", feature = "clusterlod"))]
-# fn example(mut positions: Vec<[f32; 3]>, indices: Vec<u32>) -> Result<(), Box<dyn std::error::Error>> {
-use meshoptimizer_rs::{clusterlod, Limits, Workspace};
-let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
-let mut workspace = Workspace::new(Limits {
-    max_bytes: usize::MAX,
-    max_work: u64::MAX,
-});
-let config = clusterlod::default_config(128)?; // dilation disabled
-let groups = pool.install(|| clusterlod::build_parallel(config, clusterlod::Mesh {
-    indices: &indices,
-    positions: &mut positions,
-    attributes: None,
-    vertex_lock: None,
-    attribute_weights: &[],
-    attribute_protect_mask: 0,
-}, &mut workspace))?;
-# let _ = groups;
-# Ok(()) }
-```
-
-Partitioning and boundary locks run serially each level; groups use the existing
-serial kernels and assemble in ordinal order. Callbacks run serially on the
-calling thread, including their custom IDs and failure prefixes. Dilation,
-any finite work/storage limit (including `Limits::default()`), single-group
-levels, and speculative worker failures use the serial algorithm. Existing
-`build` and batch APIs retain their behavior.
-
-`Usage` reports identical logical serial work and peak storage. Concurrent
-worker scratch, held speculative results, and Rayon infrastructure consume
-additional physical memory. Select a pool size that fits the mesh and available
-memory. No parallel speedup is guaranteed.

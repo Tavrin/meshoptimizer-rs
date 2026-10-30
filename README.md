@@ -3,8 +3,8 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/Tavrin/meshoptimizer-rs/ci.yml?branch=main&label=CI)](https://github.com/Tavrin/meshoptimizer-rs/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/meshoptimizer-rs.svg)](https://crates.io/crates/meshoptimizer-rs)
 [![docs.rs](https://img.shields.io/docsrs/meshoptimizer-rs)](https://docs.rs/meshoptimizer-rs)
-[![License: MIT](https://img.shields.io/crates/l/meshoptimizer-rs)](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/LICENSE)
-[![MSRV: 1.88](https://img.shields.io/badge/MSRV-1.88-blue)](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/Cargo.toml)
+[![License: MIT](https://img.shields.io/crates/l/meshoptimizer-rs)](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/LICENSE)
+[![MSRV: 1.88](https://img.shields.io/badge/MSRV-1.88-blue)](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/Cargo.toml)
 
 `meshoptimizer-rs` is a Rust port of [meshoptimizer](https://github.com/zeux/meshoptimizer) 1.3 for asset pipelines without a C++ toolchain and for wasm applications.
 It checks untrusted meshes with per-call work and byte limits and supports `no_std` with `alloc`.
@@ -18,9 +18,9 @@ The minimum Rust version is 1.88. The library name is `meshoptimizer_rs`.
 
 ## Usage
 
-Task recipes: [the `guide` module](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html) ([source](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/USING.md)).
+Task recipes: [the `guide` module](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html) ([source](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/docs/USING.md)).
 
-Coming from the `meshopt` crate? See [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/MIGRATING_FROM_MESHOPT.md).
+Coming from the `meshopt` crate? See [docs/MIGRATING_FROM_MESHOPT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/docs/MIGRATING_FROM_MESHOPT.md).
 
 Every operation takes a `&mut Workspace` and returns `Result<_, meshoptimizer_rs::Error>`. Most
 have an allocating form, a caller-buffer `_into` form and, where it applies, an `_in_place` form.
@@ -163,12 +163,16 @@ Call `workspace.set_retention(Retention::Lean)` for lower peak memory in long si
 
 These opt-in APIs extend C++ meshoptimizer.
 
-- `codec::IndexSequenceDecoder` incrementally decodes arriving index-sequence bytes into caller buffers with a whole-stream work limit. Output remains provisional until `finish()` validates EOF.
-- [`sanitize`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#mesh-repair) removes invalid, repeated-index and duplicate triangles and reports counts by reason.
-- [`analyze_mesh`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#mesh-topology-analysis) reports boundary edges, non-manifold topology, orientation conflicts and connected components.
-- [`VertexScoreTable` and `optimize_vertex_cache_with_table`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#tuning-for-a-specific-gpu-cache) accept caller-defined vertex-cache scores.
-- [Typed vertex layouts](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#typed-rust-vertex-fields) build position and attribute views from initialized Rust struct fields.
-- [`build_lod_chain`](https://docs.rs/meshoptimizer-rs/0.2.15/meshoptimizer_rs/guide/index.html#one-call-lod-chain) builds successive or independent simplification levels with whole-call limits and per-level errors.
+- [`codec::IndexSequenceDecoder`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#streaming-index-sequences) incrementally decodes arriving index-sequence bytes into caller buffers with a whole-stream work limit. Output remains provisional until `finish()` validates EOF.
+- [`weld_vertices`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#tolerance-welding-orientation-and-small-holes) maps nearby vertices to original representatives with an explicit seam policy.
+- [`orient_faces`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#tolerance-welding-orientation-and-small-holes) propagates winding across two-face edges and reports unresolved conflicts.
+- [`fill_holes`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#tolerance-welding-orientation-and-small-holes) triangulates small planar boundary loops using existing vertices and reports refused loops.
+- [`clusterlod::build_parallel`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#parallel-groups-within-one-cluster-lod-mesh) processes groups within one mesh using the current Rayon pool (`parallel` + `clusterlod`).
+- [`sanitize`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#mesh-repair) removes invalid, repeated-index and duplicate triangles and reports counts by reason.
+- [`analyze_mesh`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#mesh-topology-analysis) reports boundary edges, non-manifold topology, orientation conflicts and connected components.
+- [`VertexScoreTable` and `optimize_vertex_cache_with_table`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#tuning-for-a-specific-gpu-cache) accept caller-defined vertex-cache scores.
+- [Typed vertex layouts](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#typed-rust-vertex-fields) build position and attribute views from initialized Rust struct fields.
+- [`build_lod_chain`](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#one-call-lod-chain) builds successive or independent simplification levels with whole-call limits and per-level errors.
 
 ## Features
 
@@ -176,7 +180,7 @@ These opt-in APIs extend C++ meshoptimizer.
 |---|---|---|
 | `std` | yes | `std::error::Error` for `Error`. |
 | `simd` | yes | SIMD vertex, filter and meshlet decoding for SSE2/SSSE3/SSE4.1, NEON and wasm simd128. |
-| `parallel` | no | Rayon batch APIs in the `parallel` module; enables `std`. |
+| `parallel` | no | Rayon batch APIs and, with `clusterlod`, parallel groups within one mesh; enables `std`. |
 | `clusterlod` | no | The `clusterlod` module, a port of upstream `demo/clusterlod.h`. |
 | `experimental` | no | Upstream experimental functions, including normal generation and remeshing. |
 
@@ -186,55 +190,63 @@ contains no `unsafe` code. Cargo feature unification applies: if another depende
 
 ## Correctness and performance
 
-Output matches scalar C++ meshoptimizer 1.3 at commit
+On the recorded x86-64 differential inputs, successful outputs match scalar
+and default C++ meshoptimizer 1.3 at commit
 `4c203430ca565cb59a468a91922c76c208169536`, whose `src` tree equals tag v1.3,
-on the recorded differential inputs. SIMD decoding matches the scalar bytes.
-These checks do not prove equivalence for every input; see
-[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/VERIFICATION.md)
-and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/UPSTREAM.md).
+for matching settings. Failed vertex decodes can leave different destination
+prefixes; the recorded error statuses agree. Arm64 CI checks Rust
+NEON against Rust scalar and C++ scalar; C++ NEON divergences are disclosed
+separately. These checks do not prove equivalence for every input; see
+[docs/VERIFICATION.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/docs/VERIFICATION.md)
+and [UPSTREAM.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/UPSTREAM.md).
 
-The table gives instruction-count ratios for 0.2.15 on three real meshes,
-scalar vs scalar, as geometric means of per-mesh ratios (0.2.15 / comparison).
-The comparisons are `meshopt` 0.7.0 (C++ meshoptimizer 1.3, SIMD disabled) and
-optimesh 1.1.0 (SIMD disabled). Values below 1 mean fewer instructions;
-these are not wall-time measurements or measurements of the default SIMD build.
+The table gives 0.2.16 instruction-count ratios on three real meshes as
+geometric means of per-mesh ratios (0.2.16 / comparison). Both comparisons are
+shown: scalar vs scalar C++ 1.3 and default vs default C++ 1.3, via `meshopt`
+0.7.0. optimesh 1.1.0 is scalar in both columns. Values below 1 mean fewer
+instructions; instruction counts do not establish wall-time speedups.
 
-| Function | vs `meshopt` 0.7.0 (scalar C++ 1.3) | vs optimesh 1.1.0 (scalar) |
-|---|---:|---:|
-| `simplify` | 1.137 | 0.898 |
-| `simplify_with_attributes` | 1.095 | 0.926 |
-| `simplify_sloppy` | 1.275 | 0.706 |
-| `simplify_with_update` | 1.280 | 1.008 |
-| `simplify_prune` | 0.995 | 0.763 |
-| `simplify_points` | 1.014 | 0.632 |
-| `optimize_vertex_cache` | 1.254 | 0.919 |
-| `optimize_overdraw` | 1.090 | 0.884 |
-| `optimize_vertex_fetch` | 0.952 | 0.716 |
-| `build_meshlets` | 1.001 | 0.784 |
-| `build_meshlets_flex` | 1.002 | 0.784 |
-| `build_meshlets_spatial` | 0.965 | 0.835 |
-| cluster LOD | 1.189 | — |
-| `encode_vertex_buffer` | 0.554 | 0.455 |
-| `decode_vertex_buffer` | 1.061 | 0.544 |
-| `encode_index_buffer` | 0.771 | 0.712 |
-| `decode_index_buffer` | 0.994 | 0.907 |
-| `remap_vertex_buffer` | 1.394 | 0.453 |
-| `remap_index_buffer` | 1.625 | 0.975 |
+| Function | scalar vs scalar C++ 1.3 | default vs default C++ 1.3 | scalar vs optimesh 1.1.0 | default vs optimesh 1.1.0 |
+|---|---:|---:|---:|---:|
+| `simplify` | 1.138 | 1.138 | 0.899 | 0.899 |
+| `simplify_with_attributes` | 1.096 | 1.096 | 0.927 | 0.927 |
+| `simplify_sloppy` | 1.275 | 1.275 | 0.706 | 0.706 |
+| `simplify_with_update` | 1.203 | 1.203 | 0.947 | 0.947 |
+| `simplify_prune` | 0.995 | 0.995 | 0.763 | 0.763 |
+| `simplify_points` | 1.014 | 1.014 | 0.632 | 0.632 |
+| `optimize_vertex_cache` | 1.254 | 1.254 | 0.919 | 0.919 |
+| `optimize_overdraw` | 1.090 | 1.090 | 0.884 | 0.884 |
+| `optimize_vertex_fetch` | 0.952 | 0.952 | 0.716 | 0.716 |
+| `build_meshlets` | 1.001 | 1.001 | 0.784 | 0.784 |
+| `build_meshlets_flex` | 1.002 | 1.002 | 0.784 | 0.784 |
+| `build_meshlets_spatial` | 0.965 | 1.083 | 0.835 | 0.783 |
+| cluster LOD | 1.189 | 1.188 | — | — |
+| `encode_vertex_buffer` | 0.554 | 0.554 | 0.455 | 0.455 |
+| `decode_vertex_buffer` | 1.061 | 1.145 | 0.544 | 0.174 |
+| `encode_index_buffer` | 0.771 | 0.771 | 0.712 | 0.712 |
+| `decode_index_buffer` | 0.994 | 1.024 | 0.907 | 0.934 |
+| `remap_vertex_buffer` | 1.087 | 1.087 | 0.353 | 0.353 |
+| `remap_index_buffer` | 1.437 | 1.437 | 0.863 | 0.863 |
+| `compute_cluster_bounds` | 1.138 | 1.081 | 0.734 | 0.697 |
+| `compute_meshlet_bounds` | 1.162 | 1.104 | 0.731 | 0.695 |
 
-Cluster LOD has no optimesh comparison. See
-[docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/PERFORMANCE.md)
-for the real-mesh and corpus tables, the comparison with 0.2.14, method and host.
-Planned work is in [docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/docs/ROADMAP.md).
+Cluster LOD has no optimesh comparison. In separate CPU-only wall measurements,
+parallel cluster LOD had a 1.605–1.780× speedup with four workers versus one
+on these three meshes (one-worker time / four-worker time).
+See [docs/PERFORMANCE.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/docs/PERFORMANCE.md)
+for real-mesh and corpus tables, the comparison with 0.2.15, parallel wall times,
+method and host.
+Planned work is in [docs/ROADMAP.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/docs/ROADMAP.md).
 
 ## Known exceptions
 
 - A malformed meshlet tail is accepted by scalar upstream and by this crate, but rejected by upstream SSE.
 - AVX2, AVX-512 and 32-bit ARM SIMD are not implemented; index and sequence decoding is scalar.
-- The scalar instruction counts above do not qualify SIMD performance, other architectures or per-case wall-time limits.
+- The instruction counts above describe the listed x86-64 workloads; they do not establish performance on other architectures or per-case wall-time limits.
 
 ## Licence and acknowledgements
 
-MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.15/LICENSE). meshoptimizer
+MIT; see [LICENSE](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/LICENSE). meshoptimizer
 is written by Arseny Kapoulkine. This independent port keeps upstream's licence notice and credits
 its algorithms; it is not affiliated with or endorsed by the upstream project. UPSTREAM.md records
 provenance and intentional API differences.
