@@ -1,0 +1,18 @@
+{
+  "case": "real-214e",
+  "op": "remap-vertex",
+  "arm": "base",
+  "rep": 2,
+  "repetitions": 10,
+  "exit": 0,
+  "input_sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7",
+  "binary_sha256": "92358716b5203ff51ad83c346f8c28eeb0240f15f07b3730be4b1f291453c12d",
+  "process_wall": 1.1414340760093182,
+  "instructions": 1232238186,
+  "instructions_per_call": 123223818.6,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.0162503607,
+  "peak_rss_kib": 409076,
+  "output_sha256": "368bc2b447233e7e2bef87a7dbca6e90616bdef883051cd21700e4f05574fb8e",
+  "output_bytes": 28949016
+}

@@ -1,0 +1,18 @@
+{
+  "case": "medium-seams",
+  "op": "simplify",
+  "arm": "cpp-scalar",
+  "rep": 2,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "f1eb9f9502852b555e666bef1c6660225184ff7998a9ebaa90df723b06858e32",
+  "binary_sha256": "3dea9545d32cbf40d4e2199293d177b2a61ccef57e95a0e677c2b1b711cf474f",
+  "process_wall": 0.028982952004298568,
+  "instructions": 14178477,
+  "instructions_per_call": 14178477.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.005139109,
+  "peak_rss_kib": 15520,
+  "output_sha256": "fde60f434f03505489f1dd92d7792527cb0e9a467024ac078d23be9dea945e07",
+  "output_bytes": 49144
+}

@@ -1,0 +1,5 @@
+{
+  "build-differential-no-std-differential": "6d447645765ba2c8cff0a8cdd793efb21a650bf2ef8fa7ef18aff24a471132b5",
+  "build-differential-no-std-cpp-scalar-exact": "a78a263a2394ca8df783625a7c3077fe4407061f96706fb91ce6d8a2ce9de1b3",
+  "build-differential-no-std-cpp-default-exact": "be6a07afb03a468ee0f104d510a09f187722f004bb5114268d937952876d93be"
+}

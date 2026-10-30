@@ -1,0 +1,8 @@
+     Locking 3 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.15 (<repo>)
+   Compiling meshoptimizer-baseline v0.2.15 (<target-dir>/proof-baseline)
+   Compiling decode-exact v0.0.0 (<target-dir>/proof-source)
+    Finished `release` profile [optimized] target(s) in 18.89s
+     Running `<target-dir>/exact/release/exact`
+exact observations=5114700 differences=0

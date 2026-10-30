@@ -271,6 +271,22 @@ fn bytes(data: &[u8], mut pos: usize, out: &mut [u8], bits: &[u32]) -> Result<us
     }
     Ok(pos)
 }
+// Separate owned dispatch keeps stride-12 specialization out of the slice
+// monomorph in the shared raw decoder (which also contains triangle decoding).
+#[cfg(all(feature = "simd", target_arch = "x86_64"))]
+#[inline(never)]
+pub(super) fn decode_owned(
+    output: &mut Vec<u8>,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), Error> {
+    if let Some(result) = super::simd::vertex_owned(output, count, stride, data) {
+        return result;
+    }
+    decode(output, count, stride, data)
+}
+
 pub(super) fn decode<D: Destination + ?Sized>(
     output: &mut D,
     count: usize,

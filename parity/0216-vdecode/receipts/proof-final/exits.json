@@ -1,0 +1,128 @@
+[
+  {
+    "step": "format",
+    "exit": 0,
+    "wall_seconds": 0.9015965489670634,
+    "cpu_seconds": 0.8663369999999999
+  },
+  {
+    "step": "audit",
+    "exit": 0,
+    "wall_seconds": 0.10328678705263883,
+    "cpu_seconds": 0.098446
+  },
+  {
+    "step": "all-features",
+    "exit": 0,
+    "wall_seconds": 168.13717725896277,
+    "cpu_seconds": 253.032821
+  },
+  {
+    "step": "no-default",
+    "exit": 0,
+    "wall_seconds": 12.527695233002305,
+    "cpu_seconds": 28.758916999999983
+  },
+  {
+    "step": "no-std-simd",
+    "exit": 0,
+    "wall_seconds": 7.296479883021675,
+    "cpu_seconds": 9.608768000000012
+  },
+  {
+    "step": "clippy",
+    "exit": 0,
+    "wall_seconds": 3.8894711940083653,
+    "cpu_seconds": 7.487135000000038
+  },
+  {
+    "step": "fmt",
+    "exit": 0,
+    "wall_seconds": 0.5093714810209349,
+    "cpu_seconds": 0.47599000000003855
+  },
+  {
+    "step": "boundary",
+    "exit": 0,
+    "wall_seconds": 4.778517990023829,
+    "cpu_seconds": 4.824643000000002
+  },
+  {
+    "step": "reference",
+    "exit": 0,
+    "wall_seconds": 0.015720643918029964,
+    "cpu_seconds": 0.010255999999966292
+  },
+  {
+    "step": "exact-default",
+    "exit": 0,
+    "wall_seconds": 21.07051131897606,
+    "cpu_seconds": 20.884319999999985
+  },
+  {
+    "step": "exact-no-default",
+    "exit": 0,
+    "wall_seconds": 22.01473477703985,
+    "cpu_seconds": 21.408882
+  },
+  {
+    "step": "build-differential",
+    "exit": 0,
+    "wall_seconds": 20.554097605054267,
+    "cpu_seconds": 19.522935000000032
+  },
+  {
+    "step": "cpp-differential",
+    "exit": 0,
+    "wall_seconds": 90.77745057607535,
+    "cpu_seconds": 91.07597399999999
+  },
+  {
+    "step": "build-differential-no-std",
+    "exit": 0,
+    "wall_seconds": 19.52863083605189,
+    "cpu_seconds": 19.474487000000018
+  },
+  {
+    "step": "cpp-differential-no-std",
+    "exit": 0,
+    "wall_seconds": 132.04783001809847,
+    "cpu_seconds": 112.26680899999997
+  },
+  {
+    "step": "unsafe-free",
+    "exit": 0,
+    "wall_seconds": 2.444223194033839,
+    "cpu_seconds": 2.400053000000028
+  },
+  {
+    "step": "package",
+    "exit": 0,
+    "wall_seconds": 5.1581028799992055,
+    "cpu_seconds": 7.189516999999967
+  },
+  {
+    "step": "miri",
+    "exit": 0,
+    "wall_seconds": 6.866010576952249,
+    "cpu_seconds": 6.20431600000002
+  },
+  {
+    "step": "asan-build",
+    "exit": 0,
+    "wall_seconds": 42.05469185102265,
+    "cpu_seconds": 43.104090999999954
+  },
+  {
+    "step": "asan-fuzz",
+    "exit": 0,
+    "wall_seconds": 2.0157820070162416,
+    "cpu_seconds": 1.950065000000066
+  },
+  {
+    "step": "public-text",
+    "exit": 0,
+    "wall_seconds": 0.07974458206444979,
+    "cpu_seconds": 0.379504000000054
+  }
+]

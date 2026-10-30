@@ -1,0 +1,18 @@
+{
+  "case": "medium-sparse",
+  "op": "index-encode",
+  "arm": "cpp-default",
+  "rep": 2,
+  "repetitions": 100,
+  "exit": 0,
+  "input_sha256": "98854d7d658208772f474fd8d86be43d1983c0594cbeee66c33bf97098513141",
+  "binary_sha256": "bf9b25296b8791ba176784e1246306b18f1c3c599b5c5bad21dc36ba19d5ea86",
+  "process_wall": 0.04665698099415749,
+  "instructions": 139468847,
+  "instructions_per_call": 1394688.47,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.00020736835,
+  "peak_rss_kib": 15068,
+  "output_sha256": "4f4524f1279e44b6cc34e48d889570088b773c552ee23b29829e0453224a0246",
+  "output_bytes": 24783
+}

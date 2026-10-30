@@ -1,0 +1,18 @@
+{
+  "case": "real-214e",
+  "op": "overdraw",
+  "arm": "candidate",
+  "rep": 2,
+  "repetitions": 1,
+  "exit": 0,
+  "input_sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7",
+  "binary_sha256": "423e196bd402cc1a372dce701e5516443df16c66b16a112f2d615bf4a3968df3",
+  "process_wall": 4.585348282940686,
+  "instructions": 1080317527,
+  "instructions_per_call": 1080317527.0,
+  "running_percent": 100.0,
+  "wall_seconds_per_call": 0.330892592,
+  "peak_rss_kib": 431696,
+  "output_sha256": "5064f2ce1a3b775921cd1e3375fb1f12cd920f8216f7f680762fb599b2d28afb",
+  "output_bytes": 34212012
+}

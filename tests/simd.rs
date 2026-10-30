@@ -161,6 +161,54 @@ fn vertex_versions_channels_boundaries_and_malformed_results() {
         }
     }
 }
+// Both stride-12 scratch monomorphs must retain scalar failure writes.
+#[test]
+fn vertex_stride_twelve_owned_and_failed_channel_match_scalar() {
+    for count in [1, 15, 16, 17, 31, 32, 33, 47, 48, 49, 255, 256, 257] {
+        let vertices: Vec<u8> = (0..count * 12).map(|i| (i * 73 + 19) as u8).collect();
+        for version in 0..=1 {
+            let encoded = encode_vertex_buffer(
+                &vertices,
+                count,
+                12,
+                VertexEncoding::new(version, 2).unwrap(),
+                &mut Workspace::default(),
+            )
+            .unwrap();
+            let mut malformed = encoded.clone();
+            if version == 1 {
+                // Reject the third channel after the first two have committed.
+                *malformed.last_mut().unwrap() = 3;
+            } else {
+                malformed.pop();
+            }
+            for source in [&encoded, &malformed] {
+                let observe = |level| {
+                    with_level(level, || {
+                        let mut workspace = Workspace::default();
+                        let owned = decode_vertex_buffer(count, 12, source, &mut workspace);
+                        let owned_usage = workspace.usage();
+                        let mut output = vec![0xcc; count * 12 + 7];
+                        let into = decode_vertex_buffer_into(
+                            &mut output,
+                            count,
+                            12,
+                            source,
+                            &mut workspace,
+                        );
+                        assert_eq!(&output[count * 12..], &[0xcc; 7]);
+                        (owned, owned_usage, into, output, workspace.usage())
+                    })
+                    .unwrap()
+                };
+                let expected = observe(Level::Scalar);
+                for level in levels() {
+                    assert_eq!(observe(level), expected, "{count}/{version}/{level:?}");
+                }
+            }
+        }
+    }
+}
 #[test]
 fn meshlet_controls_widths_partial_groups_and_tail_preservation() {
     let mut w = Workspace::default();

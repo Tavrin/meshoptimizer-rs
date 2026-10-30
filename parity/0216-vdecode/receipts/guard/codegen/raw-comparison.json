@@ -1,0 +1,23 @@
+{
+  "candidate": {
+    "lines": 1734,
+    "sha256": "59847c8e4601acdc5f9c3df41154402a64f51d248bfd515621a0687111f1f226",
+    "base_identical": false,
+    "instruction_sha256": "7e0ad7e7893a6e0e5fc1d59e8fca32dc1c14ce9682030753e684eb2120594abf",
+    "base_instruction_identity": true
+  },
+  "control": {
+    "lines": 1734,
+    "sha256": "54dcdc89767cb1e04f500f62e99085fdb1d8da7b5acf14300588c6c2b4cc603f",
+    "base_identical": false,
+    "instruction_sha256": "7e0ad7e7893a6e0e5fc1d59e8fca32dc1c14ce9682030753e684eb2120594abf",
+    "base_instruction_identity": true
+  },
+  "base": {
+    "lines": 1734,
+    "sha256": "9f8afce8798f3300bdecbecf08e62e7bd5de8b3ea791d9de98901e43a40945e6",
+    "base_identical": true,
+    "instruction_sha256": "7e0ad7e7893a6e0e5fc1d59e8fca32dc1c14ce9682030753e684eb2120594abf",
+    "base_instruction_identity": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "binary_sha256": "10ddc09839b27592f0a86ea7b4d77a9a6d74557044337d2503b4f2aad8dd84ae",
+  "sources": {
+    "fuzz/codec/Cargo.toml": "b1124e57637638d334303eaace14ccc822f0b4071e82b9155173061dd89c3f88",
+    "fuzz/codec/Cargo.lock": "2669eacea06ba1f1f713e814c04d24c12d48413d13fd692f429a363133d04362",
+    "fuzz/codec/src.rs": "dc10ed68b61980d059ba753472595a846fa674b38af1b31ebb5de8be21a2ba8a",
+    "fuzz/codec/fuzz_targets/simd.rs": "74f10c3f6fd37e5120d832ded7776f4a9e8ca5ca1daca6f93daa2cc234c00ff6"
+  },
+  "nightly": "rustc 1.101.0-nightly (282215592 2026-10-04)"
+}

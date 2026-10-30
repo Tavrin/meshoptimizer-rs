@@ -1,0 +1,6 @@
+{
+  "public_text_exit": 0,
+  "public_text_output": "PASS: public text contains no private machine paths or project names\n",
+  "diff_check_exit": 0,
+  "source_binding_exit": 0
+}

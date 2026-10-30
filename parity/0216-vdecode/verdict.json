@@ -1,0 +1,8 @@
+{
+  "verdict": "SHIPS",
+  "vertex_real_geomean": 0.9109834988611936,
+  "index_real_geomean": 0.99999999347443,
+  "worst_index_case": 1.000000124897971,
+  "worst_other_case": 1.00018505784109,
+  "samples": 1872
+}

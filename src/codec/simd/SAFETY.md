@@ -75,13 +75,14 @@ charge. The rejected KD distance experiments are recorded in the P3 proofs.
 | `src/codec/simd/x86.rs:954` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT for every private kernel choice. All retain checked layout, group lookahead and bounded destinations; stack scratch is at most 1,280 bytes; memory operations are array-backed. |
 | `src/codec/simd/x86.rs:1141` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
 | `src/codec/simd/x86.rs:1169` | token-authorized target_feature call: Sse41 proves SSSE3/SSE4.1; every input load is checked and array-backed, and complete groups and tails use counted output slices. |
+| `src/codec/simd/x86.rs:1399` | token-authorized target_feature call: Ssse3 proves SSSE3 and POPCNT; this private entry is selected only for validated stride 12. Existing kernels retain checked input windows, initialized bounded scratch and array-backed memory accesses. |
 | `src/codec/simd/spatial.rs:30` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; SSE loadu permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/spatial.rs:57` | token-authorized target_feature call: Baseline proves SSE2; the sweep uses checked indices and fixed-array loads only. |
 | `src/codec/simd/spatial.rs:89` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; NEON load permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/spatial.rs:115` | token-authorized target_feature call: Baseline proves AArch64 NEON; the sweep uses checked indices and fixed-array loads only. |
 | `src/codec/simd/spatial.rs:147` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; wasm load permits unaligned addresses and retains no pointer. |
 
-Inventory: **36 unsafe blocks**, one module-level allowance. The token-aware
+Inventory: **37 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
 for repository sources and the published package. The unsafe-free build is
 checked with --no-default-features and RUSTFLAGS=-Funsafe_code.

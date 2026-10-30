@@ -1379,3 +1379,22 @@ fn meshlet_output_kernel<const TS: usize, S: MeshletSink>(
         Err(crate::Error::InvalidStream)
     })
 }
+
+// Keep this selector separate from vertex<D>: changing that generic selector
+// changes the slice decoder inlined into the shared vertex/index dispatcher.
+pub(super) fn vertex_owned(
+    _token: Ssse3,
+    output: &mut alloc::vec::Vec<u8>,
+    count: usize,
+    data: &[u8],
+) -> Result<(), crate::Error> {
+    let kernel = if count <= 32 {
+        vertex_kernel::<128, 12, alloc::vec::Vec<u8>>
+    } else {
+        vertex_kernel::<1024, 12, alloc::vec::Vec<u8>>
+    };
+    // SAFETY: Ssse3 proves SSSE3 and POPCNT; this private entry is selected
+    // only for validated stride 12. Existing kernels retain checked input
+    // windows, initialized bounded scratch and array-backed memory accesses.
+    unsafe { kernel(output, count, 12, data) }
+}
