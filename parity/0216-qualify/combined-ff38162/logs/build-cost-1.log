@@ -1,0 +1,4 @@
+     Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.15 (<worktree>)
+   Compiling qualify-cost v0.0.0 (<target>/cost)
+    Finished `release` profile [optimized] target(s) in 15.80s

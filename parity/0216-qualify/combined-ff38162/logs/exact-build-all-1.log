@@ -1,0 +1,25 @@
+   Compiling crossbeam-utils v0.8.23
+   Compiling proc-macro2 v1.0.107
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling autocfg v1.5.1
+   Compiling rayon-core v1.13.0
+   Compiling num-traits v0.2.19
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling libm v0.2.16
+   Compiling cc v1.10.0
+   Compiling syn v3.0.9
+   Compiling either v1.19.0
+   Compiling thiserror v2.0.21
+   Compiling rayon v1.11.0
+   Compiling thiserror-impl v2.0.21
+   Compiling meshopt v0.7.0
+   Compiling float-cmp v0.10.0
+   Compiling bitflags v2.13.2
+   Compiling meshoptimizer-rs v0.2.15 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.15 (<target>/base)
+   Compiling combined-proof v0.0.0 (<target>/exact-all)
+    Finished `release` profile [optimized] target(s) in 1m 04s

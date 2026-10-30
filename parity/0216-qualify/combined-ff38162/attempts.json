@@ -1,0 +1,10 @@
+[
+  {
+    "stage": "prepare",
+    "attempt": 1,
+    "exit": 1,
+    "reason": "The old 0.2.15 scratch inputs directory contains broken symlinks; tiny-smooth.bin could not be opened.",
+    "builds_or_comparisons_run": 0,
+    "recovery": "Removed only this run's incomplete, unbuilt target (archived base plus empty inputs). Retry uses the retained simplify-lane input copy, checked against the unchanged 0.2.15 manifest before any build."
+  }
+]

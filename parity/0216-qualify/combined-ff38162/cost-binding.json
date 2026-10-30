@@ -1,0 +1,5 @@
+{
+  "binary": "d3d3eee1fe68ff6bd50f63fe2b4acd8027c8dcadbe69fa53f7cf751b0103b7f2",
+  "manifest": "[package]\nname=\"qualify-cost\"\nversion=\"0.0.0\"\nedition=\"2021\"\n[dependencies]\nmeshoptimizer-rs={path=\"<worktree>\"}\n[[bin]]\nname=\"cost\"\npath=\"<worktree>/parity/0216-qualify/combined-ff38162/cost.rs\"\n[profile.release]\nlto=\"thin\"\ncodegen-units=1\n",
+  "source": "fa68f3c2f729ba75845776e69d3e139b0ec9c5e89e4173f21ed994a95c11e5e9"
+}

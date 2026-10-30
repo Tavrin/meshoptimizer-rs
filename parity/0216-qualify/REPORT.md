@@ -1,272 +1,191 @@
-# SPEC 0216 qualification
+# SPEC-0216-qualify — 0.2.16 combined train qualification
 
-**UNQUALIFIED: the SPEC-0216c gaps remain open.** No function has a SHIPS verdict. The bounded gap-1 run reached its time limit before completing its grid; gaps 2–4 were not run under this specification. Earlier campaigns are not reused as complete gap verdicts.
+**PASS for the specified combined qualification. No lane reverted.**
 
-Candidate: `4d14205cf201715a3df3debd795705ea0b1d904f`; baseline `9c26f3e`.
+Candidate `ff38162d6de2c6c543a45536733442939100801b`; base v0.2.15 `1ecf69abe9f92c17e13dc38fa97be659aee44582`. Production source, Cargo manifest and lockfile are unchanged. This report uses only the current [combined campaign](combined-ff38162/REGISTRATION.md). The earlier, different-baseline qualification is preserved in [REPORT-pre-train.md](REPORT-pre-train.md); its receipts and broader proof requirements are not substituted for this specification.
 
-| Function | Three-mesh candidate/base geometric mean | Verdict |
-|---|---:|---|
-| build_meshlets | 0.867465 | UNQUALIFIED; exact proof incomplete |
-| build_meshlets_flex | 0.867417 | UNQUALIFIED; exact proof incomplete |
-| build_meshlets_spatial | 1.000000 | does not meet instruction-ratio threshold |
-| cluster LOD | 0.924189 | UNQUALIFIED; exact proof incomplete |
-| simplify | 0.932214 | UNQUALIFIED; exact proof incomplete |
-| simplify_with_attributes | 0.961486 | UNQUALIFIED; exact proof incomplete |
-| simplify_with_update | 0.944959 | UNQUALIFIED; exact proof incomplete |
-| simplify_sloppy | 1.000000 | does not meet instruction-ratio threshold |
-| simplify_prune | 1.000000 | does not meet instruction-ratio threshold |
-| simplify_points | 1.000000 | does not meet instruction-ratio threshold |
-| optimize_overdraw | 1.000000 | does not meet instruction-ratio threshold |
+## Exact merged-code equivalence
 
-## Campaign
+Candidate source: `ff38162`; base: v0.2.15
+(`1ecf69abe9f92c17e13dc38fa97be659aee44582`). All rows below completed with
+exit 0 and zero baseline differences. Counters retain each lane driver's
+original meaning; overlapping observations are not presented as independent
+coverage. Full logs and process exits are in `logs/` and `exits.jsonl`.
 
-One resumable instruction-only campaign, median of three, four arms except optimesh has no cluster LOD. Five frozen corpus meshes and three production LOD-chain meshes yielded 1,032 accepted samples and 88 cells. All samples reported 100% counter running. Maximum candidate/base was 1.0001434102 (tiny-smooth spatial meshlets); no case exceeded 1.01. All 88 base/candidate and candidate/C++ canonical output hashes matched. See `results.json`, `counts.jsonl`, `inputs.json`, and `REGISTRATION.md` for exact cases, adapter repair, and retained bindings. CPU-only admission declared 4 GB for each job; the wrapper selected a 6 GB scope cap and logged 2.0 GB peak for the completed continuation measurement job. No wall-time claim.
-
-## Proof status
-
-The all-features and no-default tests, all-target all-feature clippy, fmt, unsafe-boundary and public-text checks each exited 0 on the candidate before this report was written. An interim public-text check found private filesystem literals in two helpers (exit 1); those helpers were made portable and the recheck exited 0. The exact executed helper versions are retained and hash-bound in `executed-helper-hashes.json`. The final public-text check exited 0. The pinned C++ meshlet and cluster-LOD differential exited 0 for 1,280 cases in each std and no_std mode. The C++ simplify-family and overdraw differential exited 0 for 1,246 cases. Meshlet fuzz exited 0 after 41,302,000 cases and 300.020 candidate CPU seconds; simplify differential fuzz exited 0 after 1,325 seeds and 300.013 child CPU seconds. Cluster-LOD protocol fuzz exited 0 after 1,449,000 generated cases and 300.01 candidate CPU seconds. Instrumented representative seeds reached the changed paths; LLVM reported five mismatched functions in the simplify coverage report and three in a candidate-only replay without identifying them, so simplify reach evidence carries that limitation; the meshlet and cluster-LOD coverage reports had no warnings. See `reach.json`. The finite all-features simplify comparison exited 0 with 1,200,243,710 observations. The proof supervisor then exited 101 because the overdraw driver was invoked without its required input directory; the failure receipt is retained. Corrected all-features overdraw exited 0 with 20,558,564 observations. The next supervisor exited 101 because the no-default simplify driver unwrapped an unsupported option mask; the driver now checks baseline/candidate mask acceptance and skips unsupported masks, and the corrected no-default simplify run exited 0 with 273,906,930 observations, and no-default overdraw exited 0 with 20,558,564 observations. Finite meshlet and cluster-LOD baseline comparisons each exited 0 with 154,590 observations in all-features and no-default-plus-clusterlod modes. These are subsets, and a retry does not erase the failed full proof-supervisor receipt. These finite checks do not establish the corrected complete comparison. See `ENUMERATION.md` and `enumeration-0216b.json`.
-
-Scratch retains full inputs, binaries, bindings, outputs, admission logs, failed adapter build and raw perf records. Dedicated target cleanup is recorded in `cleanup.json`.
-
-## SPEC-0216b proof continuation
-
-The corrected standard supersedes the earlier unbounded requirement; the issue is the unexecuted finite product, not an assertion that the corrected task is impossible. Baseline scratch `src/` matched all 53 files at `9c26f3e`; candidate scratch `src/` matched the frozen `4d14205` worktree (`source-binding-0216b.json`). A newly built scalar C++ protocol differential for simplify and overdraw passed 1,246 cases in each all-features and no-default mode, exit 0 in each (`protocol-0216b.json`). The no-default corpus masks off experimental option bits.
-
-The additional overdraw stride-by-work sweep passed 46,392,864 comparisons in
-each feature mode, exit 0 (`overdraw-strides-0216b.json`). It covers four small
-meshes, all supported position strides, byte orders, offsets 0–3 and short or
-full final records for four APIs. Each API is swept through its unrestricted
-usage plus one; the deliberately short output API fails even unrestricted.
-It is a subset and does not supply the full release enumeration size.
-
-Overdraw differential fuzz exited 0 after 3,621 seeds and 300.014852 child CPU
-seconds (`overdraw-fuzz-0216b.json`). This is separate from the retained
-simplify-family, meshlet and cluster-LOD five-minute receipts.
-
-The meshlet and cluster-LOD C++ protocol differential was rebuilt and passed
-1,280 cases per mode, exit 0, with all features and with no defaults plus the
-required `clusterlod` feature (`meshlet-protocol-0216b.json`).
-
-The additional meshlet caller-buffer stride-by-work sweep passed in each
-feature mode, exit 0: 11,100,480 `build_meshlets`, 11,091,552
-`build_meshlets_flex` and 10,533,552 `build_meshlets_spatial` comparisons
-(`meshlet-strides-0216b.json`). It covers four small meshes, five selected
-builder settings, all position strides and both byte orders, offsets 0–3 and
-short or full final records. These are subset sizes, not the full release
-enumeration sizes.
-
-The three-vertex simplify flag sweep passed in both modes, exit 0. It crosses
-all 512 assignments of flag values 0–7 with all accepted simplify masks and
-work limits, using one packed mesh and selected attributes. Its per-function
-observation counts are in `simplify-flags-0216b.json`; they are subset sizes,
-not the required full small-mesh and stride product.
-
-An additional meshlet sweep included the allocating APIs alongside the full
-caller buffers. It passed the same four meshes and stride/work domain in both
-feature modes, exit 0, with the same per-function comparison counts
-(`meshlet-strides-owned-0216b.json`). The domain remains a subset.
-
-The initial cluster-LOD boolean sweep was deliberately interrupted (exit 130)
-before its first 256-mask checkpoint to replace full-vector debug formatting
-with direct structured equality. Its incomplete log, source binding and binary
-remain in scratch; it is not counted as a pass.
-
-The corrected affected-suite supervisor reran to completion, exit 0 in both
-modes (`affected-rerun-0216b.json`). Simplify produced 1,200,243,710
-all-feature and 273,906,930 no-default observations; overdraw produced
-20,558,564 observations in each mode. Both drivers exited 0 in each mode.
-The supervisor used the required input directory and the corrected option-mask
-acceptance check. Its executed script is retained and hash-bound separately
-from the portable checked-in version. The two earlier exit 101 receipts remain
-failures, and this successful rerun remains a subset of the corrected standard.
-
-### Recorded per-function subset sizes
-
-These are comparisons/observations from the specific new domains described
-above, not the unknown full release enumeration. Completed entries exited 0.
-
-| Function | All features | No defaults |
+| Lane driver | All features | Scalar/no defaults |
 |---|---:|---:|
-| build_meshlets | 11,100,480 | 11,100,480 |
-| build_meshlets_flex | 11,091,552 | 11,091,552 |
-| build_meshlets_spatial | 10,533,552 | 10,533,552 |
-| cluster LOD | 130,418,688 | 130,418,688 |
-| simplify | 116,719,616 | 28,655,616 |
-| simplify_with_attributes | 165,453,824 | 40,839,168 |
-| simplify_with_update | 100,069,376 | 24,755,200 |
-| simplify_sloppy | 8,042,496 | 2,010,624 |
-| simplify_prune | 48,234,496 | 12,058,624 |
-| simplify_points | 12,582,912 | 3,145,728 |
-| optimize_overdraw | 46,392,864 | 46,392,864 |
+| remap | 10,811,136 | 10,811,136 |
+| repair prerequisites | 68,872 | 68,872 |
+| simplify family | 8,970,468 | 5,769,468 |
+| decoder (NEON lane's exact driver) | 3,505,440 | 3,505,440 |
+| stride-12 decoder exact driver | 5,114,700 | 5,114,700 |
+| bounds | 228,760 | 228,760 |
+| supplemental geometry | 1,020,255 | 1,020,255 |
+| spatial | 4 × 358,458 | 358,458 |
+| streaming: unchanged one-shot baseline comparisons | 164,442,780 | 164,442,780 |
+| parallel targeted contracts | 86,371 | 86,371 |
+| parallel original worker grid, LOD corpus | 720 | 720 |
+| parallel 1/4/16 workers, LOD corpus | 450 | 450 |
+| parallel 1/4/16 workers, eight frozen inputs | 80 | 80 |
 
-The structured cluster-LOD all-feature mode passed all 4,096 boolean masks
-on each of four small meshes, 130,418,688 comparisons and mode exit 0. Its
-supervisor was then deliberately interrupted (exit 130) during a duplicate
-no-default continuation; the separately admitted no-default run carries that
-mode. This boolean sweep uses selected numeric configuration and no attributes
-or vertex locks, so it is not the full release proof.
+Spatial's four all-feature runs force Scalar, SSE2, SSSE3, and SSE4.1.
+The scalar bounds/geometry consumers enable `clusterlod` as required by those
+drivers; their `std` and `simd` features are disabled. The scalar parallel
+consumer enables `parallel`, `clusterlod`, and `parity-internals`, which also
+enables the mandatory `std` dependency; it disables `simd`. See the retained
+consumer manifests and binary hashes in `exact-binding-*.json` and
+`par-spec-binding-*.json`.
 
-The independent no-default cluster-LOD sweep also passed all four meshes and
-4,096 masks per mesh, 130,418,688 comparisons and supervisor exit 0
-(`clod-flags-0216b.json`). The all-feature mode had the identical count.
+Each streaming run also completed 9,990 C++ wire checks, 2,703,362 chunkings,
+and 2,284,337 streaming budget checks. Each remap C++ run completed 2,592
+comparisons with zero differences. Each repair property run passed all 45
+shared generated meshes.
 
-The dedicated qualification target was removed after all admitted proof jobs
-exited (`cleanup-0216b.json`); retained inputs, binaries and logs remain in
-scratch. The source tree still matches `4d14205`.
-The final public-text check exited 0.
+Cargo tests (including doctests), Clippy, and the LOD identity test on both
+the generated corpus and all eight frozen inputs returned 0 in both modes.
+The all-feature test invocation reports 350 passed / 0 failed / 8 ignored;
+no defaults reports 285 passed / 0 failed / 8 ignored. The required ignored
+LOD identity test was separately executed on each input set in each mode.
+Formatting and the package/unsafe boundary gate returned 0. The package audit
+found exactly one unsafe-code allowance and all 37 audited blocks.
 
-## SPEC-0216c gaps — time limit
+The core job used **2,726.259658 CPU seconds**, below its 6,000-second size
+estimate and the 7,200-second maximum. Queue waiting is excluded from CPU
+usage. The executable supervisor copy is retained by SHA-256 in `runners/`.
+The production source, Cargo manifest and lockfile remained unchanged.
 
-Gap 1 reached the specified active-work cutoff before completing its grid. The
-bounded reordered run was admitted CPU-only with a 4 GB declaration; the
-wrapper selected a 6 GB scope cap. Each mode ran for 27,900 seconds and exited
-124, as did its supervisor. No compared observations differed. The count includes
-completed cold and reused-workspace comparisons in the unfinished cell; a reused
-workspace after a failed call can be empty or only partially populated. This is
-not a complete warm-workspace proof. Source and binary bindings, final counts,
-unfinished-cell coordinates and retained-log hashes are in `gaps-0216c.json`;
-the product and count semantics are documented in `GAP1.md`.
+The source-identical Linux/Apple arm64 CI receipts are documented separately
+in [CI.md](combined-ff38162/CI.md). Measurement and the remaining merged C++ differentials are
+separate stages; this proof record does not assert their acceptance.
 
-| Gap | All features: observations; completed cells | No defaults: observations; completed cells | Exit |
-|---|---:|---:|---|
-| 1: simplify quadrics | 220,975,530; 649 / 7,077,888 (0.0091694%) | 243,318,400; 1,117 / 1,769,472 (0.06312618%) | 124 / 124; incomplete |
-| 2: meshlet nearest and work accounting | 0 | 0 | not run |
-| 3: cluster LOD roots with attributes and locks | 0 | 0 | not run |
-| 4: affected-suite supervisor reruns | 0 | 0 | not run under this specification |
+## C++ differentials and arm64 rule
 
-Gap 1 counts by function, all-features / no-default: `simplify` 67,389,904 /
-64,868,620; `simplify_with_attributes` 101,772,788 / 117,681,280;
-`simplify_with_update` 51,812,838 / 60,768,500. The counts are from this
-bounded run, not full enumeration sizes. The first ordering was deliberately
-interrupted (exit 130) to spread a bounded prefix across input dimensions. Its
-last checkpoints contain 70 completed cells per mode and 9,250,250 all-feature /
-9,166,328 no-default observations, including partial-cell comparisons. They are
-checkpoint counts, not exact totals for the interrupted processes, and are not
-added to the new run. The two earlier supervisor exits 101 and their subsequent
-0216b affected-suite rerun remain documented above; no new gap-4 rerun occurred.
+All stages returned 0. The reference is clean at
+`4c203430ca565cb59a468a91922c76c208169536`. The bundled meshopt 0.7.0 core
+and cluster-LOD header were checked byte-for-byte against that reference;
+source hashes are retained in `environment.json`.
 
-All six functions whose instruction ratio is at most 0.97 remain UNQUALIFIED:
-`build_meshlets`, `build_meshlets_flex`, `cluster LOD`, `simplify`,
-`simplify_with_update`, and `simplify_with_attributes`. The other functions do
-not meet the instruction-ratio threshold. There is no SHIPS verdict, no source
-revert (no difference was observed), and no new changelog claim. The designated
-build target was removed after the admitted job exited; the logs, binaries,
-source hashes and interrupted-run evidence remain in scratch.
+| Family / protocol | Cases | Result |
+|---|---:|---|
+| simplify/update/prune/points, cache, overdraw, fetch protocol | 1,246 per feature mode | equal |
+| remap C++ driver | 2,592 per feature mode | equal |
+| index-sequence wire driver | 9,990 per feature mode | equal under its wire/error contract |
+| meshlets, owned/into | 1,024 | equal across seven clients |
+| flexible meshlets, owned/into | 1,024 | equal across seven clients |
+| spatial meshlets, owned/into | 2,000 | equal across seven clients |
+| spatial finite extremes / signed zeros | 28 | equal across seven clients |
+| spatial production meshes | 3 | equal across seven clients |
+| cluster bounds | 512 | equal across seven clients |
+| meshlet bounds | 512 | equal across seven clients |
+| sphere bounds | 512 | equal across seven clients |
+| cluster LOD | 24 | equal across seven clients |
+| decoder and stride-12 lane matrices | 318,608 × 4 | see malformed-output disclosure |
 
-## SPEC-0216d targeted — partial, unqualified
+The seven geometry clients are scalar/default C++ 1.3, no-default Rust with
+`clusterlod`, and all-feature Rust forced to Scalar/SSE2/SSSE3/SSE4.1. The
+geometry matrix totals 5,636 synthetic messages plus three production spatial
+messages. The transport's message cap is raised from 128 to 512 MiB solely to
+admit those frozen production records; algorithm settings and comparisons are
+unchanged. The synthetic input/output corpus hash and production output hashes
+are in `p03-differential.json`.
 
-The initial quadrics pilot used one six-vertex mesh, width 3, mask 0 and seven
-API/buffer variants per feature mode. Both modes exited 0 with 4,604 cold and
-repeated-workspace comparisons, 0 differences, and approximately 0.01 user CPU
-seconds per mode. This is a sizing check, not the targeted proof.
+Each decoder lane ran its original fixed differential matrix with std/SIMD
+and no-std/SIMD, forcing all four x86 ceilings. All four receipts report zero
+forced-level differences and zero C++ successful-byte differences. Status
+agreement is asserted for every message. Each reports **74,863 malformed
+failure-write differences** across the scalar/default C++ references; failed
+destination prefixes are disclosed rather than claimed byte-identical.
+The NEON-lane x86 receipts additionally report zero C++ default/scalar ISA
+divergences. See `decode-*/` and `vdecode-*/`.
 
-A preliminary numeric grid covered 384 cells per mode: eight six-vertex
-meshes, widths 0/3/32, the empty mask, the five individual option flags, and
-their ten pairs. Each cell covered seven API/buffer variants and all integer
-limits from zero through observed unlimited usage plus one, with a cold call
-and a repeated call at each limit. Both feature modes exited 0, each recording
-2,363,990 comparisons (494,688 simplify, 1,169,968 attributes, 699,334 update)
-and zero differences. User CPU time was 12.44 seconds all features and 14.11
-seconds no defaults. The first supervisor attempt exited 1 before building or
-running due to a wrong script path in its source-hash command; the corrected
-retry exited 0. These observations do not establish independently primed warm
-states, or success after a prior failed call at a different input.
+Repair APIs have no matching C++ 1.3 entry points. Their inherited prerequisites
+and new-API corpus properties are covered by [PROOF.md](combined-ff38162/PROOF.md), along with
+parallel-versus-serial identity. Arm64 uses the documented CI rule and retained
+source-identical receipts in [CI.md](combined-ff38162/CI.md).
 
-The later sections record the targeted meshlet and cluster-LOD sweeps and both
-corrected supervisor reruns. Successful priming was not established at every
-tested limit, so all changed paths remain UNQUALIFIED under this specification.
-The separate adversarial review is not incorporated here. No 0216d SHIP or
-FAIL verdict follows from these subsets. `TARGETED-PLAN.md` describes the sizes
-and unresolved harness requirements.
+All peer builds, cost-driver build and C++ differentials together used
+**717.1837 CPU seconds**, below the 6,000-second estimate and 7,200-second
+maximum. No measurement result is inferred from these proof timings.
 
-The independently primed quadrics pilot exited 0 in each mode, with 10,582
-compared target calls per mode. The corresponding 384-cell grid also exited 0
-in each mode, with 4,722,604 target-call comparisons per mode: 987,072
-simplify, 2,337,632 attributes and 1,397,900 update. Priming succeeded on
-987,691 of 1,179,307 attempts per mode; it failed on 191,616 attempts. No
-comparisons differed. Those failed priming attempts cannot establish a
-successful-warm state. User CPU time was 31.43 seconds all-features and 33.69
-seconds no-default. Both the priming observation and two subsequent target
-calls are compared; the target-call count excludes the priming calls.
+## Release measurements
 
-The cluster-LOD pilot covered one grid mesh, width 1, no locks and one
-configuration mask, and exited 0 with 188 comparisons in each mode. It is a
-harness pilot and does not independently prime a successful warm workspace.
+Median of three instructions:u samples per case. Each entry is real-mesh GM / corpus GM. Ratios below 1 mean fewer instructions. Real: real-214e, real-a082, real-b6fd. Corpus: five frozen synthetic meshes. optimesh 1.1.0 is scalar; C++ 1.3 is matched scalar/default. No optimesh cluster LOD API.
 
-The cluster-LOD grid used the pilot's mesh, two attribute widths, four lock
-patterns and all 4,096 boolean configurations: 32,768 cells per mode. It
-compared both revisions for the unlimited call, downward search for a failure,
-zero, successful usage, success plus one, and limits at a stride of 64; each
-observation sequence includes two consecutive calls on one workspace. Both
-modes exited 0 with 6,901,896 comparisons and no differences. User CPU time
-was 222.11 seconds all-features and 213.12 seconds no-default plus clusterlod.
-The driver does not independently prime a successful warm state for work limits
-where the first target call fails, so this is not the complete 0216d proof.
+| Function | scalar / 0.2.15 | default / 0.2.15 | scalar / optimesh | default / optimesh | scalar / scalar C++ | default / default C++ | max case scalar / default vs base |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| simplify | 1.001 / 1.001 | 1.001 / 1.001 | 0.899 / 0.921 | 0.899 / 0.921 | 1.138 / 1.048 | 1.138 / 1.048 | 1.001950 / 1.001944 |
+| simplify-attributes | 1.001 / 1.001 | 1.001 / 1.001 | 0.927 / 0.918 | 0.927 / 0.918 | 1.096 / 1.066 | 1.096 / 1.066 | 1.001165 / 1.001166 |
+| simplify-sloppy | 1.000 / 1.000 | 1.000 / 1.000 | 0.706 / 0.882 | 0.706 / 0.882 | 1.275 / 1.268 | 1.275 / 1.268 | 1.000003 / 1.000001 |
+| simplify-update | 0.940 / 0.986 | 0.940 / 0.986 | 0.947 / 0.959 | 0.947 / 0.959 | 1.203 / 1.070 | 1.203 / 1.070 | 0.992023 / 0.992023 |
+| simplify-prune | 1.000 / 1.000 | 1.000 / 1.000 | 0.763 / 0.852 | 0.763 / 0.852 | 0.995 / 1.071 | 0.995 / 1.071 | 1.000005 / 1.000003 |
+| simplify-points | 1.000 / 1.000 | 1.000 / 1.000 | 0.632 / 0.665 | 0.632 / 0.665 | 1.014 / 1.066 | 1.014 / 1.066 | 1.000003 / 1.000003 |
+| cache | 1.000 / 1.000 | 1.000 / 1.000 | 0.919 / 0.911 | 0.919 / 0.911 | 1.254 / 1.242 | 1.254 / 1.242 | 1.000001 / 1.000002 |
+| overdraw | 1.000 / 1.000 | 1.000 / 1.000 | 0.884 / 0.865 | 0.884 / 0.865 | 1.090 / 0.939 | 1.090 / 0.939 | 1.000137 / 1.000004 |
+| fetch | 1.000 / 1.000 | 1.000 / 1.000 | 0.716 / 0.962 | 0.716 / 0.962 | 0.952 / 1.171 | 0.952 / 1.171 | 1.000004 / 1.000007 |
+| meshlets | 1.000 / 1.000 | 1.000 / 1.000 | 0.784 / 0.778 | 0.784 / 0.778 | 1.001 / 1.068 | 1.001 / 1.068 | 1.000117 / 1.000001 |
+| meshlets-flex | 1.000 / 1.000 | 1.000 / 1.000 | 0.784 / 0.778 | 0.784 / 0.778 | 1.002 / 1.068 | 1.002 / 1.068 | 1.000117 / 1.000000 |
+| meshlets-spatial | 1.000 / 1.000 | 0.937 / 0.952 | 0.835 / 0.872 | 0.783 / 0.830 | 0.965 / 0.972 | 1.083 / 1.059 | 1.000149 / 1.000001 |
+| cluster-lod | 1.000 / 0.997 | 0.999 / 0.993 | — | — | 1.189 / 1.172 | 1.188 / 1.167 | 0.999717 / 0.998673 |
+| vertex-encode | 1.000 / 1.000 | 1.000 / 1.000 | 0.455 / 0.466 | 0.455 / 0.466 | 0.554 / 0.578 | 0.554 / 0.578 | 1.000003 / 1.000004 |
+| vertex-decode | 1.000 / 1.000 | 0.911 / 0.880 | 0.544 / 0.644 | 0.174 / 0.200 | 1.061 / 1.114 | 1.145 / 1.237 | 1.000010 / 0.929348 |
+| index-encode | 1.000 / 1.000 | 1.000 / 1.000 | 0.712 / 0.753 | 0.712 / 0.753 | 0.771 / 0.933 | 0.771 / 0.933 | 1.000006 / 1.000005 |
+| index-decode | 1.000 / 1.000 | 1.000 / 1.000 | 0.907 / 0.915 | 0.934 / 0.951 | 0.994 / 1.044 | 1.024 / 1.085 | 1.000018 / 1.000015 |
+| remap-vertex | 0.779 / 0.806 | 0.779 / 0.806 | 0.353 / 0.416 | 0.353 / 0.416 | 1.087 / 1.069 | 1.087 / 1.069 | 0.925878 / 0.925827 |
+| remap-index | 0.885 / 0.883 | 0.885 / 0.883 | 0.863 / 0.871 | 0.863 / 0.871 | 1.437 / 1.386 | 1.437 / 1.386 | 0.885800 / 0.885842 |
+| cluster-bounds | 0.981 / 0.950 | 0.932 / 0.889 | 0.734 / 0.801 | 0.697 / 0.750 | 1.138 / 1.146 | 1.081 / 1.072 | 0.982439 / 0.932300 |
+| meshlet-bounds | 0.982 / 0.951 | 0.933 / 0.892 | 0.731 / 0.811 | 0.695 / 0.760 | 1.162 / 1.189 | 1.104 / 1.114 | 0.982738 / 0.933299 |
 
-The preliminary meshlet sweep covered seven meshes, including the four earlier
-meshes and collinear, clustered-pair and 2-by-2-by-2 coordinate patterns, four
-builder settings and five variants: 140 cells per mode. For each it compared
-unlimited execution and every limit from zero through the maximum observed
-unlimited work plus four times the triangle count plus 16. Each limit compares
-both allocated and sentinel-filled caller-buffer outputs and their usage. The
-cold-workspace sweep exited 0 in both modes with 161,778 comparisons per mode
-and no differences; user CPU time was 3.39 and 3.35 seconds respectively. The
-traversal entry boundary was not instrumented, and warm workspaces are not
-covered by this sweep; it is therefore not the full requested proof.
+Campaign samples: 3504. Base/train output identities: 336/336.
+Cases above 1.01: 0. Full per-case medians and ratios: [release-results.json](combined-ff38162/release-results.json).
 
-A separate repeated-workspace meshlet sweep used the same 140 cells and limits,
-with two consecutive calls per workspace. Both modes exited 0, with 323,556
-comparisons per mode and no differences; user CPU time was 6.68 and 6.42
-seconds. Reuse after a failed first call is included. This does not establish
-independent successful priming at failing limits or directly measure each
-traversal entry's covered-work boundary.
+Maximum individual base ratio: **1.001949930**, `real-214e` / `simplify` / `scalar_base`. No case exceeds 1.01. All 336 base/train and 336 matched-mode train/C++ output comparisons are equal. Ratios describe these registered inputs and owned-call workloads; no wall-time speedup is inferred from instruction counts.
 
-A diagnostic-only candidate copy logged traversal entry work and node count for
-140 meshlet cells in each mode, using two unlimited calls per API. Both modes
-exited 0. Each logged 9,280 nearest entries across 112 cells; 28 spatial cells
-had no nearest entry. The recorded boundary equals entry work plus twice the
-node-slice length. The frozen-candidate broad sweep above covers zero through
-unlimited usage plus four times the triangle count plus 16; since the node slice
-has twice the triangle count, that range includes the measured entry boundaries
-and their 16-limit neighborhoods for the traced executions. The trace copy has
-logging changes and is not itself used as the differential candidate. Its
-initial preparation exited 1 before building because the instrumentation
-assumed a single work implementation block; the corrected trace exited 0.
+## Parallel cluster LOD wall disclosure
 
-The corrected overdraw supervisor was rerun against the retained, hash-matched
-binaries with the input directory. Both modes exited 0 with 20,558,564 exact
-observations each and no differences. User CPU time was 26.84 and 29.35
-seconds. This clears the new overdraw rerun item; it does not erase the original
-exit 101 receipt.
+Five interleaved AB/BA repetitions on each real mesh; medians in seconds. One and four workers use one and four distinct physical cores respectively. All 30 serialized callback outputs are equal to each other per mesh and to default serial cluster LOD. The clock surrounds the owned call, including output destruction, and excludes loading and serialization.
 
-The independently primed meshlet sweep used the same 140 cells and broad
-work-limit range, with a small valid meshlet call at each tested limit before
-two target calls. Both modes exited 0 with 323,556 target-call comparisons
-per mode and no differences; 315,996 of 323,556 priming calls succeeded in
-each mode. The 7,560 failed priming calls do not establish successful-warm
-coverage. User CPU time was 6.95 and 7.15 seconds.
+| Input | 1 worker, seconds | 4 workers, seconds | Speedup |
+|---|---:|---:|---:|
+| real-214e | 8.414459 | 5.243663 | 1.605x |
+| real-a082 | 9.100415 | 5.417363 | 1.680x |
+| real-b6fd | 2.399846 | 1.348241 | 1.780x |
 
-The independently primed cluster grid covered the same 32,768 cells per mode
-and selected work limits as the earlier grid. Both modes exited 0 with
-6,901,896 target-call comparisons and no differences per mode; 3,418,180 of
-3,450,948 priming calls succeeded per mode. The remaining 32,768 priming calls
-failed, leaving successful-warm coverage unproven for those observations. User
-CPU time was 229.75 and 223.74 seconds respectively.
+[Raw wall samples](combined-ff38162/wall.jsonl) and [medians](combined-ff38162/wall-results.json).
 
-The corrected simplify supervisor was rerun in 32 deterministic shards per
-mode. The input enumeration contains 102,073 comparison cells and 2,139,095,040
-normalization bit patterns; each shard receives 3,189 or 3,190 cells and
-66,846,720 normalization values. Shard 0 ran first in each mode; the remaining
-shards ran in admitted groups of at most eight, with a 600-second CPU cap per
-shard and at most 4,800 seconds of capped child CPU per group. Later groups ran
-up to four shards concurrently. All 32 shards per mode exited 0. Their summed
-observations exactly match the corrected earlier supervisor: 1,200,243,710
-all-features and 273,906,930 no-default. The 32 recorded normalization ranges
-are contiguous, disjoint and cover all 2,139,095,040 patterns in each mode. No
-differences were reported. The original exit 101 receipts remain retained.
+## Streaming and repair cost disclosure
 
-## Release disposition
+Corpus only, default build, median of three instructions:u samples. The repair ratios compare distinct calls with sanitize EMPTY on the same raw mesh: positions-only zero-tolerance weld, face orientation, and fill with a 16-edge maximum. Streaming decodes version-1 index sequences in 4096-byte chunks into owned u32 output; one-shot produces owned packed 32-bit bytes. Setup asserts equal decoded bytes. Allocation and destruction are counted; encoding, loading, validation of equal outputs and serialization are outside counters. These calls provide different functionality.
 
-Evidence considered together: zero differences across all exact comparisons recorded above (simplify, overdraw, meshlets and cluster-LOD subsets, targeted boundary differentials, both feature modes); both previously failing supervisor suites pass; a separate read-only adversarial review of the three changed paths found no counter-input. The review's open point, that native `f32::sqrt` must equal the pinned `libm::sqrtf` on every target, is closed by IEEE 754: square root is correctly rounded on every supported target (x86 SSE, AArch64, and wasm `f32.sqrt` by specification) and in `libm::sqrtf`, the fast path admits only finite non-negative operands, and Rust code runs in the default round-to-nearest environment. Warm-workspace reuse after a failed call is covered by the code: positional quadrics are reset before every use in both retention modes, and the KD-tree work bound is computed per search.
+| Corpus input | weld / sanitize | orient / sanitize | fill / sanitize | streaming / one-shot |
+|---|---:|---:|---:|---:|
+| tiny-smooth | 1.328 | 3.321 | 8.646 | 2.521 |
+| medium-smooth | 0.886 | 3.589 | 5.674 | 2.813 |
+| medium-seams | 1.066 | 3.612 | 6.194 | 2.813 |
+| medium-sparse | 89.939 | 3.589 | 5.675 | 2.813 |
+| million-smooth | 0.860 | 3.776 | 5.755 | 2.823 |
+| Corpus GM | 2.497 | 3.574 | 6.300 | 2.754 |
 
-Verdict under the pre-registered rule (three-mesh geometric mean ≤ 0.97 and no difference): `build_meshlets` 0.867, `build_meshlets_flex` 0.867, cluster LOD 0.924, `simplify` 0.932, `simplify_with_update` 0.945 and `simplify_with_attributes` 0.961 SHIP. `build_meshlets_spatial`, `simplify_sloppy`, `simplify_prune`, `simplify_points` and `optimize_overdraw` make no performance claim (1.000).
+[Per-case instruction medians](combined-ff38162/cost-results.json).
+
+## Gates, retained attempts and limits
+
+| Gate | Exit |
+|---|---:|
+| All-feature and no-default exact lane drivers | 0 each |
+| x86 C++ differentials, including forced SIMD | 0 each |
+| LOD corpus identity, both input sets and feature modes | 0 each |
+| Parallel identity: original grid and 1/4/16 workers, both modes | 0 each |
+| Cargo tests and doctests, both feature modes | 0 each |
+| Clippy all targets, both feature modes | 0 each |
+| Formatting; package/unsafe boundary | 0 each |
+| Instruction regression gate | 0; no ratio above 1.01 |
+
+Final source/reference, public-text and whitespace checks, retained counter-file verification and binary/input bindings are recorded in [final-verification.json](combined-ff38162/final-verification.json) and [exits.jsonl](combined-ff38162/exits.jsonl). Disposable-target removal is recorded in [cleanup-final.json](combined-ff38162/cleanup-final.json).
+
+The full staged whitespace audit exits 2 because six raw Cargo test/identity logs end with an extra blank line. Their recorded bytes and hashes are preserved. The staged audit excluding raw logs and the final public-text check exit 0; see [staged-review.json](combined-ff38162/staged-review.json).
+
+Every build and execution entered CPU-only admission with declaration 4. Pre-run sizes and actual child/supervisor CPU are retained in [sizes.jsonl](combined-ff38162/sizes.jsonl), [job-sizing.jsonl](combined-ff38162/job-sizing.jsonl) and [jobs.jsonl](combined-ff38162/jobs.jsonl). Builds pause below the registered 100 GiB free-space floor. The largest completed campaign/proof job used 2726.259658 CPU seconds, below the 7200-second maximum.
+
+The interrupted orchestration was resumed by waiting for its live processes; no duplicate campaign was launched and no queued or running job was canceled. Its counts were reused unchanged. The initial preparation attempt exited 1 before any build or comparison because retained old input links were broken; the hash-verified replacement input copy and successful retry are disclosed in [attempts.json](combined-ff38162/attempts.json). That infrastructure attempt is retained and is not a failed exact or measurement gate.
+
+No fuzzers ran in this qualification. Fuzzing is a separate lane and is not verified here. Arm64 is supported by the source-identical Linux/Apple CI receipts, not local execution. Malformed C++ destination prefixes and upstream C++ NEON ISA divergences remain explicit disclosures above; no C++ failed-buffer byte-identity claim is made. Exact counts describe the original finite lane drivers rather than an exhaustive public-input universe.

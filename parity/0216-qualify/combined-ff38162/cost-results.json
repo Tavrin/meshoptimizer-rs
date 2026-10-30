@@ -1,0 +1,95 @@
+{
+  "cases": [
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "fill": 90648.367,
+        "orient": 34820.203,
+        "sanitize": 10484.066,
+        "sequence-one-shot": 2678.015,
+        "sequence-stream": 6750.778,
+        "weld": 13926.039
+      },
+      "repair_vs_sanitize": {
+        "fill": 8.646298773777273,
+        "orient": 3.3212498853021337,
+        "weld": 1.3283051632830238
+      },
+      "stream_vs_one_shot": 2.5208141104512114
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "fill": 25338123.333333332,
+        "orient": 16027858.666666666,
+        "sanitize": 4465504.333333333,
+        "sequence-one-shot": 542999.3333333334,
+        "sequence-stream": 1527381.6666666667,
+        "weld": 3958035.3333333335
+      },
+      "repair_vs_sanitize": {
+        "fill": 5.674190739037837,
+        "orient": 3.5892605784803853,
+        "weld": 0.8863579649420712
+      },
+      "stream_vs_one_shot": 2.8128610348201777
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "fill": 27615751.333333332,
+        "orient": 16102131.0,
+        "sanitize": 4458184.0,
+        "sequence-one-shot": 542999.0,
+        "sequence-stream": 1527309.3333333333,
+        "weld": 4753672.0
+      },
+      "repair_vs_sanitize": {
+        "fill": 6.194394698229892,
+        "orient": 3.6118139134679055,
+        "weld": 1.066279902309999
+      },
+      "stream_vs_one_shot": 2.8127295507603756
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "fill": 25340610.666666668,
+        "orient": 16027787.333333334,
+        "sanitize": 4465500.0,
+        "sequence-one-shot": 542999.0,
+        "sequence-stream": 1527363.3333333333,
+        "weld": 401623389.6666667
+      },
+      "repair_vs_sanitize": {
+        "fill": 5.6747532564475796,
+        "orient": 3.589248087186952,
+        "weld": 89.93917582950772
+      },
+      "stream_vs_one_shot": 2.812828998457333
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "fill": 4251452383.0,
+        "orient": 2789336668.0,
+        "sanitize": 738705561.0,
+        "sequence-one-shot": 65914014.0,
+        "sequence-stream": 186068645.0,
+        "weld": 635304526.0
+      },
+      "repair_vs_sanitize": {
+        "fill": 5.7552732881078175,
+        "orient": 3.7759789762838945,
+        "weld": 0.8600240197731502
+      },
+      "stream_vs_one_shot": 2.822899618888329
+    }
+  ],
+  "corpus_gm": {
+    "fill": 6.300125422662645,
+    "orient": 3.5744809812943137,
+    "stream": 2.753792215919425,
+    "weld": 2.4971667526545986
+  }
+}

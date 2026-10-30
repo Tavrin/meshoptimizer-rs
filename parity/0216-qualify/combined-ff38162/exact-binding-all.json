@@ -1,0 +1,16 @@
+{
+  "binaries": {
+    "bounds": "b0a6fdd7738e65922a693d24a3a8cd91c35695e81f0f6fcd4e882ca770326b87",
+    "decode": "f9afb0b25f874a2d6bd86440fdca9b0e08c9b20820c085fd54917b216b1de8f1",
+    "geometry": "491119dcfa2627a03e12a5aad2f679ce7ba288b3903ecae44c8c2a520ad4d86a",
+    "remap": "b060c296afef31fc01f187992b660a32f1ac8212fc6a1bb7e876c9c7c45f4119",
+    "remap_cpp": "a2aba41e157a6f45fc99673a03d710dab15f8b83f8bb2253ac1164c5173d15c7",
+    "repair": "c60769bd12c535aac65842695af50efa96604ebb47c66bd6aade0df6cddf64c3",
+    "repair_corpus": "11af0645607b09ddbc6e10a2e702458edf75b22f7014e6f69967cef7ab0932c3",
+    "simplify": "d0c74d0c5092a7a29bc3431bb44977a6fa17ff08445fddb7af574ac161d44420",
+    "spatial": "3f437b1ee3a3746e8e64ffd2bbf15c2dc7b9445db0d40f3e63ab6ceccc619589",
+    "stream": "3dc7411a80bbf59725a50226a7f0ab1a063d18676cb6912117cc0bd478f66697",
+    "vdecode": "0ac8b2b3ff7432440404e6ce2f87a1e5e3fe00add5ab3642f3fd53de7084f5cb"
+  },
+  "manifest": "[package]\nname=\"combined-proof\"\nversion=\"0.0.0\"\nedition=\"2021\"\n[features]\nall=[]\n[dependencies]\nbaseline={package=\"meshoptimizer-baseline\",path=\"<target>/base\",default-features=false,features=[\"std\", \"simd\", \"parallel\", \"clusterlod\", \"experimental\", \"parity-internals\"]}\ncandidate={package=\"meshoptimizer-rs\",path=\"<worktree>\",default-features=false,features=[\"std\", \"simd\", \"parallel\", \"clusterlod\", \"experimental\", \"parity-internals\"]}\nmeshopt=\"=0.7.0\"\n[[bin]]\nname=\"remap\"\npath=\"<worktree>/parity/0216-remap/exact.rs\"\n[[bin]]\nname=\"spatial\"\npath=\"<worktree>/parity/0216-spatial/exact.rs\"\n[[bin]]\nname=\"repair\"\npath=\"<worktree>/parity/0216-repair/exact.rs\"\n[[bin]]\nname=\"simplify\"\npath=\"<worktree>/parity/0216-simplify/exact.rs\"\n[[bin]]\nname=\"decode\"\npath=\"<worktree>/parity/0216-decode/exact.rs\"\n[[bin]]\nname=\"bounds\"\npath=\"<worktree>/parity/0216-bounds/exact.rs\"\n[[bin]]\nname=\"vdecode\"\npath=\"<worktree>/parity/0216-vdecode/exact.rs\"\n[[bin]]\nname=\"stream\"\npath=\"<worktree>/parity/0216-stream/exact.rs\"\n[[bin]]\nname=\"remap_cpp\"\npath=\"<worktree>/parity/0216-remap/cpp-differential.rs\"\n[[bin]]\nname=\"repair_corpus\"\npath=\"<worktree>/parity/0216-repair/corpus.rs\"\n[[bin]]\nname=\"geometry\"\npath=\"<worktree>/parity/0215-toward-cpp/geometry-exact.rs\"\n[profile.release]\nlto=\"thin\"\ncodegen-units=1\ndebug-assertions=true\noverflow-checks=true\n"
+}

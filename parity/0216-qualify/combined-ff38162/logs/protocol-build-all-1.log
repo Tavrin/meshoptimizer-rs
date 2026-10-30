@@ -1,0 +1,7 @@
+     Locking 8 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-rs v0.2.15 (<worktree>)
+   Compiling meshoptimizer-parity v0.0.0 (<target>/proof/0216b-protocol)
+    Finished `release` profile [optimized] target(s) in 24.43s

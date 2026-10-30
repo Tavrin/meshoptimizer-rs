@@ -1,0 +1,13 @@
+{
+  "binaries": {
+    "p03-all": "c454dcd8fc1d08b9b51e49eae4fc410f075a3d730cd23f7fe227ef0b05533a63",
+    "p03-cpp-default": "1283d3e363dfa16a4f406db42903f9c16dff16e1d45feeb188e41d85ee15d53b",
+    "p03-cpp-scalar": "9087b72d3f7b0a970045619d5e7ecfd13cbf68bb7d65a616391c2f7fd69ee0a6",
+    "p03-none": "45006d5f0e56dac2fea1667f1b0110af7373d4d9697b1441fb481e9dc7aa80e4"
+  },
+  "sources": {
+    "src/lib.rs": "ea36cb615ef33f8511d3eb59e83f394a781b37d2be054223d2645d1ba8a1cfeb",
+    "src/main.rs": "8fe6f9f5f988e70be90dca15bc732560d2c3098984990025e97b675d65a5b6da"
+  },
+  "transport": "0eb90bf9b838e40a09831293c47596419ba60a3a970af81f4524a256a8798621"
+}

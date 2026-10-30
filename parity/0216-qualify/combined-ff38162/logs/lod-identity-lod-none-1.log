@@ -1,0 +1,54 @@
+   Compiling meshoptimizer-rs v0.2.15 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 21.23s
+     Running tests/lod_chain.rs (<target>/release/deps/lod_chain-b5778ead1fcec8b1)
+
+running 1 test
+PASS <target>/lod-corpus/04-js-encoder-reorderMesh-topology.bin
+PASS <target>/lod-corpus/05-grid-threshold--1.0.bin
+PASS <target>/lod-corpus/06-grid-threshold-0.0.bin
+PASS <target>/lod-corpus/07-grid-threshold-0.5.bin
+PASS <target>/lod-corpus/08-grid-threshold-1.0.bin
+PASS <target>/lod-corpus/09-grid-threshold-1.01.bin
+PASS <target>/lod-corpus/10-grid-threshold-1.05.bin
+PASS <target>/lod-corpus/11-grid-threshold-1.1.bin
+PASS <target>/lod-corpus/12-grid-threshold-2.0.bin
+PASS <target>/lod-corpus/13-disconnected-with-unused-vertex.bin
+PASS <target>/lod-corpus/14-duplicate-triangles.bin
+PASS <target>/lod-corpus/16-million-indices-grid.bin
+PASS <target>/lod-corpus/17-sphere-shared-0.bin
+PASS <target>/lod-corpus/18-sphere-split-normal-uv-color-tangent-0.bin
+PASS <target>/lod-corpus/19-sphere-shared-1.bin
+PASS <target>/lod-corpus/20-sphere-split-normal-uv-color-tangent-1.bin
+PASS <target>/lod-corpus/21-sphere-shared-2.bin
+PASS <target>/lod-corpus/22-sphere-split-normal-uv-color-tangent-2.bin
+PASS <target>/lod-corpus/23-sphere-shared-3.bin
+PASS <target>/lod-corpus/24-sphere-split-normal-uv-color-tangent-3.bin
+PASS <target>/lod-corpus/25-sphere-shared-4.bin
+PASS <target>/lod-corpus/26-sphere-split-normal-uv-color-tangent-4.bin
+PASS <target>/lod-corpus/27-sphere-shared-5.bin
+PASS <target>/lod-corpus/28-sphere-split-normal-uv-color-tangent-5.bin
+PASS <target>/lod-corpus/29-sphere-shared-6.bin
+PASS <target>/lod-corpus/30-sphere-split-normal-uv-color-tangent-6.bin
+PASS <target>/lod-corpus/31-sphere-shared-7.bin
+PASS <target>/lod-corpus/32-sphere-split-normal-uv-color-tangent-7.bin
+PASS <target>/lod-corpus/33-sphere-shared-8.bin
+PASS <target>/lod-corpus/34-sphere-split-normal-uv-color-tangent-8.bin
+PASS <target>/lod-corpus/35-sphere-shared-9.bin
+PASS <target>/lod-corpus/36-sphere-split-normal-uv-color-tangent-9.bin
+PASS <target>/lod-corpus/37-sphere-shared-10.bin
+PASS <target>/lod-corpus/38-sphere-split-normal-uv-color-tangent-10.bin
+PASS <target>/lod-corpus/39-sphere-shared-11.bin
+PASS <target>/lod-corpus/40-sphere-split-normal-uv-color-tangent-11.bin
+PASS <target>/lod-corpus/41-sphere-shared-12.bin
+PASS <target>/lod-corpus/42-sphere-split-normal-uv-color-tangent-12.bin
+PASS <target>/lod-corpus/43-sphere-shared-13.bin
+PASS <target>/lod-corpus/44-sphere-split-normal-uv-color-tangent-13.bin
+PASS <target>/lod-corpus/45-sphere-shared-14.bin
+PASS <target>/lod-corpus/46-sphere-split-normal-uv-color-tangent-14.bin
+PASS <target>/lod-corpus/47-sphere-shared-15.bin
+PASS <target>/lod-corpus/48-sphere-split-normal-uv-color-tangent-15.bin
+PASS <target>/lod-corpus/49-nonmanifold-shared-edge.bin
+test corpus_identity ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 10 filtered out; finished in 1.53s
+

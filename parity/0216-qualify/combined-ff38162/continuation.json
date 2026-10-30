@@ -1,0 +1,18 @@
+{
+  "completed_at_utc": "2026-10-30T08:40:47.162076+00:00",
+  "original_pids_waited": [
+    2379757,
+    2380358
+  ],
+  "original_batch_pid_waited": 3300563,
+  "wait_exit": 0,
+  "duplicate_campaign_launched": false,
+  "campaign_processes_canceled": false,
+  "first_observed_retained_rows": 2824,
+  "retained_prefix_sha256": "88902e2970a2426a2665dfe25a112412eef1f302a9c086baad22da89e8308920",
+  "completed_instruction_rows": 3594,
+  "completed_counts_sha256": "1e9fe770bf68ac9a9fa01bc48f4e77b2896d820df912a9a033aa3428f446827f",
+  "completed_wall_rows": 30,
+  "campaign_result": "zero instruction regressions; all required stages exit 0",
+  "orchestration_interruption": "model-capacity error; live measurement processes continued"
+}

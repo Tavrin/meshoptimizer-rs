@@ -1,0 +1,26 @@
+   Compiling meshoptimizer-baseline v0.2.15 (<target>/base)
+   Compiling meshoptimizer-rs v0.2.15 (<worktree>)
+   Compiling combined-proof v0.0.0 (<target>/exact-none)
+warning: unexpected `cfg` condition value: `all`
+   --> <worktree>/parity/0216-spatial/exact.rs:107:11
+    |
+107 |     #[cfg(feature = "all")]
+    |           ^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `all` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `all`
+   --> <worktree>/parity/0216-spatial/exact.rs:112:15
+    |
+112 |     #[cfg(not(feature = "all"))]
+    |               ^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `all` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: `combined-proof` (bin "spatial") generated 2 warnings
+    Finished `release` profile [optimized] target(s) in 1m 05s
