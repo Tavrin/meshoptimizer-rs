@@ -33,6 +33,15 @@ Native arm64 CI must execute forced scalar/NEON comparisons, including errors,
 partial writes and destination tails; local cross-compilation is not identity
 or performance evidence.
 
+Geometry kernels take eight independent roots in initialized four-float
+windows. Only nonnegative finite operands use hardware sqrt; all other bit
+patterns retain the pinned scalar backend, including negative zero and NaNs.
+Sphere expansion, cone math and strict tie decisions keep their original
+order. SSE2, NEON and simd128 use exact IEEE sqrt, with no FMA, reciprocal
+estimate or approximate root. Diagnostic ceilings also apply to geometry.
+Geometry batching adds bounded stack arrays and no heap allocation or workspace
+charge. The rejected KD distance experiments are recorded in the P3 proofs.
+
 | Block (source line) | Kind and safety argument |
 |---|---|
 | `src/codec/simd/aarch64.rs:66` | fixed-array memory access: the initialized array supplies 16 readable bytes; vld1q_u8 permits byte alignment and the pointer is not retained. |
@@ -43,6 +52,13 @@ or performance evidence.
 | `src/codec/simd/aarch64.rs:141` | token-authorized target_feature call: Baseline proves this backend's ISA; the kernel uses only values and the already audited fixed-array store helper. |
 | `src/codec/simd/aarch64.rs:274` | token-authorized target_feature call: the dispatch token proves this kernel's ISA, and the kernel checks each complete input window and scalar-equivalent bound before use. |
 | `src/codec/simd/aarch64.rs:495` | token-authorized target_feature call: Baseline proves AArch64 NEON. Every load/store uses an initialized fixed array behind checked slices; the parser validates complete group windows and keeps scalar channel commit order. |
+| `src/codec/simd/bounds.rs:21` | token-authorized target_feature call: Baseline proves the selected backend's ISA. Both complete initialized arrays are accessed only through fixed four-float windows. |
+| `src/codec/simd/bounds.rs:63` | fixed-array memory access: v supplies exactly 16 initialized readable bytes. loadu permits unaligned input and retains no pointer. |
+| `src/codec/simd/bounds.rs:70` | fixed-array memory access: v supplies exactly 16 exclusive writable bytes. storeu permits unaligned output and retains no pointer. |
+| `src/codec/simd/bounds.rs:87` | fixed-array memory access: v supplies 16 initialized readable bytes, with the alignment permitted by vld1q_f32. The pointer is not retained. |
+| `src/codec/simd/bounds.rs:94` | fixed-array memory access: v supplies 16 exclusive writable bytes, with the alignment permitted by vst1q_f32. The pointer is not retained. |
+| `src/codec/simd/bounds.rs:111` | fixed-array memory access: v supplies 16 initialized readable bytes. v128_load permits unaligned input and retains no pointer. |
+| `src/codec/simd/bounds.rs:118` | fixed-array memory access: v supplies 16 exclusive writable bytes. v128_store permits unaligned output and retains no pointer. |
 | `src/codec/simd/wasm32.rs:58` | fixed-array memory access: the initialized array supplies 16 readable bytes; v128_load permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/wasm32.rs:65` | fixed-array memory access: the exclusive array supplies 16 writable bytes; v128_store permits unaligned addresses and retains no pointer. |
 | `src/codec/simd/x86.rs:10` | fixed-array memory access: the borrowed initialized array supplies exactly 16 readable bytes; loadu has no alignment requirement and retains no pointer. |
@@ -65,7 +81,7 @@ or performance evidence.
 | `src/codec/simd/spatial.rs:115` | token-authorized target_feature call: Baseline proves AArch64 NEON; the sweep uses checked indices and fixed-array loads only. |
 | `src/codec/simd/spatial.rs:147` | fixed-array memory access: four initialized floats supply exactly 16 readable bytes; wasm load permits unaligned addresses and retains no pointer. |
 
-Inventory: **29 unsafe blocks**, one module-level allowance. The token-aware
+Inventory: **36 unsafe blocks**, one module-level allowance. The token-aware
 boundary gate checks code tokens and exact file/line inventory independently
 for repository sources and the published package. The unsafe-free build is
 checked with --no-default-features and RUSTFLAGS=-Funsafe_code.

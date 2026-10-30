@@ -1,0 +1,8 @@
+{
+  "target_environment_variable": "CARGO_TARGET_DIR",
+  "dedicated_target": "meshopt-0216-bounds",
+  "removed": true,
+  "external_evidence_retained": true,
+  "aarch64_rlib_sha256": "4aa3001034990d156da8a7bc55bb309fbac659045f6fae501f1921b82853661b",
+  "elapsed_seconds": 0.16629560699220747
+}

@@ -1,0 +1,172 @@
+{
+  "proof_directory": "proof.5GfyCo",
+  "core_exits": {
+    "bind-start": 0,
+    "all": 0,
+    "no-default": 0,
+    "clippy": 0,
+    "fmt": 0,
+    "boundary": 0,
+    "public-text": 0,
+    "build-exact-default": 0,
+    "exact-default": 0,
+    "geometry-default": 0,
+    "build-exact-scalar": 0,
+    "exact-scalar": 0,
+    "geometry-scalar": 0,
+    "unsafe-free": 0,
+    "bind-end": 0
+  },
+  "tests": {
+    "all": {
+      "suites": 14,
+      "passed": 297,
+      "failed": 0,
+      "ignored": 8
+    },
+    "no-default": {
+      "suites": 14,
+      "passed": 250,
+      "failed": 0,
+      "ignored": 8
+    },
+    "exact-default": "PASS 228760 exact comparisons",
+    "exact-scalar": "PASS 228760 exact comparisons",
+    "geometry-default": "listed (64, 124, 41, 0.75, 2.0) compared 1020255 differences 0",
+    "geometry-scalar": "listed (64, 124, 41, 0.75, 2.0) compared 1020255 differences 0"
+  },
+  "times": {
+    "bind-start": {
+      "user": 0.03,
+      "sys": 0.01,
+      "elapsed": 0.08
+    },
+    "bind-end": {
+      "user": 0.04,
+      "sys": 0.0,
+      "elapsed": 0.05
+    },
+    "fmt": {
+      "user": 0.38,
+      "sys": 0.05,
+      "elapsed": 0.48
+    },
+    "boundary": {
+      "user": 3.93,
+      "sys": 0.08,
+      "elapsed": 4.01
+    },
+    "exact-scalar": {
+      "user": 7.07,
+      "sys": 0.0,
+      "elapsed": 7.04
+    },
+    "clippy": {
+      "user": 0.04,
+      "sys": 0.1,
+      "elapsed": 0.13
+    },
+    "unsafe-free": {
+      "user": 0.08,
+      "sys": 0.11,
+      "elapsed": 2.97
+    },
+    "no-default": {
+      "user": 7.9,
+      "sys": 3.75,
+      "elapsed": 4.88
+    },
+    "geometry-default": {
+      "user": 59.87,
+      "sys": 0.02,
+      "elapsed": 59.97
+    },
+    "exact-default": {
+      "user": 6.59,
+      "sys": 0.0,
+      "elapsed": 6.6
+    },
+    "all": {
+      "user": 13.27,
+      "sys": 6.28,
+      "elapsed": 10.78
+    },
+    "build-exact-default": {
+      "user": 41.06,
+      "sys": 1.94,
+      "elapsed": 28.05
+    },
+    "geometry-scalar": {
+      "user": 48.89,
+      "sys": 0.01,
+      "elapsed": 49.09
+    },
+    "public-text": {
+      "user": 0.22,
+      "sys": 0.09,
+      "elapsed": 0.07
+    },
+    "build-exact-scalar": {
+      "user": 31.3,
+      "sys": 1.49,
+      "elapsed": 29.96
+    }
+  },
+  "binary_sha256": {
+    "exact-default": "dab3fc8cea3d76028c038a8230b0ff81af2ca6ae6722bf50619ec9c7441d4ce3",
+    "exact-scalar": "49f39c23e77c5358b8f77374327f3476319662b8b97c8e2027108f4323b790ca",
+    "geometry-default": "ab3c136b506679f48b4f6c8514b524d929c638eee38b7c575d2a8c781203399f",
+    "geometry-scalar": "c21eff7930e1cf7fa753507b22c029302012ff70a5a8fde9211b279cd11da0db"
+  },
+  "supplement": {
+    "miri": {
+      "user": 71.41,
+      "sys": 0.74,
+      "elapsed": 80.16
+    },
+    "msrv-scalar": {
+      "user": 0.04,
+      "sys": 0.04,
+      "elapsed": 2.44
+    },
+    "asan": {
+      "user": 6.76,
+      "sys": 1.2,
+      "elapsed": 8.27
+    },
+    "msrv-default": {
+      "user": 3.76,
+      "sys": 0.73,
+      "elapsed": 4.6
+    }
+  },
+  "source_files": 97,
+  "stage_exits": [
+    {
+      "stage": "screen",
+      "exit": 0,
+      "log": "stage-screen.iJF87r.log"
+    },
+    {
+      "stage": "build",
+      "exit": 0,
+      "log": "stage-build.B7z26l.log"
+    },
+    {
+      "stage": "proof",
+      "exit": 1,
+      "log": "stage-proof.JmnRtH.log"
+    },
+    {
+      "stage": "proof",
+      "exit": 0,
+      "log": "stage-proof.bGbgwh.log"
+    }
+  ],
+  "aarch64_compile_exit": 0,
+  "aarch64_runtime": "unavailable",
+  "final_proof_stage_log_sha256": "5b41a1a828cc31cc75eceb9985465334a1ab7149f91aa795b127ea11af016f32",
+  "supplement_recipe_sha256": "f02506b6fa1ae1336cc4f917706f45b5499d365212729eb4c4a5105eb7169fdc",
+  "exact_comparisons_per_mode": 228760,
+  "geometry_comparisons_per_mode": 1020255
+}

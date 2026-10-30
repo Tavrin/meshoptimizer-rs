@@ -1,0 +1,10 @@
+{
+  "base-default": {
+    "binary_sha256": "adad599069ac8d2d7be6ecf467792c560d432608822a16b2c4718f0e3d2da6c8",
+    "symbol": "0000000000098440 0000000000000226 t <meshoptimizer_rs::meshlet::Covered>::nearest"
+  },
+  "candidate-default": {
+    "binary_sha256": "541a477988a313156bcb799814063404f982f79a02290612962a572aa4bcc815",
+    "symbol": "00000000000aa740 0000000000000702 t <meshoptimizer_rs::meshlet::Covered>::nearest"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "samples": 240,
+  "candidate": "candidate2-default",
+  "metrics": {
+    "meshlets": {
+      "real_gm": 1.1564492544399336,
+      "corpus_gm": 1.0041880041325217,
+      "worst": 1.1607927338609743,
+      "verdict": "NO-GAIN",
+      "ratios": {
+        "tiny-smooth": 1.005382285622654,
+        "medium-smooth": 1.0032281117157062,
+        "medium-seams": 1.006047826121744,
+        "medium-sparse": 1.0032153529959387,
+        "million-smooth": 1.0030704267280954,
+        "real-214e": 1.1607927338609743,
+        "real-a082": 1.1515351338769262,
+        "real-b6fd": 1.1570386526477558
+      }
+    },
+    "meshlets-flex": {
+      "real_gm": 1.1563591483378133,
+      "corpus_gm": 1.0041710973552662,
+      "worst": 1.1606970553936418,
+      "verdict": "NO-GAIN",
+      "ratios": {
+        "tiny-smooth": 1.0052637668064306,
+        "medium-smooth": 1.003229269474966,
+        "medium-seams": 1.0060485693546828,
+        "medium-sparse": 1.003215325311828,
+        "million-smooth": 1.0031023690436807,
+        "real-214e": 1.1606970553936418,
+        "real-a082": 1.1514514788240526,
+        "real-b6fd": 1.1569476204998936
+      }
+    },
+    "cluster-lod": {
+      "real_gm": 1.0509964796930473,
+      "corpus_gm": 0.9955840079044488,
+      "worst": 1.0523598244167478,
+      "verdict": "NO-GAIN",
+      "ratios": {
+        "tiny-smooth": 0.9816130691558379,
+        "medium-smooth": 0.9987509544345858,
+        "medium-seams": 0.9998022508400819,
+        "medium-sparse": 0.9988066473398871,
+        "million-smooth": 0.9990713063542105,
+        "real-214e": 1.0523598244167478,
+        "real-a082": 1.049865013640757,
+        "real-b6fd": 1.0507661192530198
+      }
+    },
+    "cluster-bounds": {
+      "real_gm": 0.9316391379356619,
+      "corpus_gm": 0.8890269815425872,
+      "worst": 0.9322961306486658,
+      "verdict": "SHIPS",
+      "ratios": {
+        "tiny-smooth": 0.8724152018542418,
+        "medium-smooth": 0.8917974373166071,
+        "medium-seams": 0.8970313811788312,
+        "medium-sparse": 0.8917882458694262,
+        "million-smooth": 0.892310254881045,
+        "real-214e": 0.9322961306486658,
+        "real-a082": 0.931299502632857,
+        "real-b6fd": 0.9313221279426641
+      }
+    },
+    "meshlet-bounds": {
+      "real_gm": 0.9327029470544658,
+      "corpus_gm": 0.8919650318599758,
+      "worst": 0.9332957975090617,
+      "verdict": "SHIPS",
+      "ratios": {
+        "tiny-smooth": 0.8746070350592059,
+        "medium-smooth": 0.8949887430961426,
+        "medium-seams": 0.8999409763141353,
+        "medium-sparse": 0.8949888922488612,
+        "million-smooth": 0.895523388848723,
+        "real-214e": 0.9332957975090617,
+        "real-a082": 0.9323946238778459,
+        "real-b6fd": 0.9324187024057947
+      }
+    }
+  }
+}
