@@ -1,0 +1,203 @@
+{
+ "target": "clod",
+ "changed_executable_lines": 78,
+ "changed_lines_hit": 57,
+ "functions": [
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context::<meshoptimizer_rs::clusterlod::dag::build_dag_into::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 7,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_mode::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 12,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_with_output_mode<meshopt_qualify_fuzz::clod::{closure#4}::{closure#1}>::{closure#0}>",
+   "regions_hit": 11,
+   "regions": 12,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::build_with_output_mode<meshopt_qualify_fuzz::clod::{closure#5}::{closure#1}>::{closure#0}>",
+   "regions_hit": 11,
+   "regions": 12,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_in_context_mode::<meshoptimizer_rs::clusterlod::dag::build_dag_into::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 12,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_internal::<meshoptimizer_rs::clusterlod::build_mode::{closure#0}>",
+   "regions_hit": 0,
+   "regions": 6,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_internal::<meshoptimizer_rs::clusterlod::build_with_output_mode<meshopt_qualify_fuzz::clod::{closure#4}::{closure#1}>::{closure#0}>",
+   "regions_hit": 6,
+   "regions": 6,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_internal::<meshoptimizer_rs::clusterlod::build_with_output_mode<meshopt_qualify_fuzz::clod::{closure#5}::{closure#1}>::{closure#0}>",
+   "regions_hit": 6,
+   "regions": 6,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_mode",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output::<_>",
+   "regions_hit": 0,
+   "regions": 7,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output::<meshopt_qualify_fuzz::clod::{closure#4}::{closure#1}>",
+   "regions_hit": 7,
+   "regions": 7,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output::<meshopt_qualify_fuzz::clod::{closure#5}::{closure#1}>",
+   "regions_hit": 7,
+   "regions": 7,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output_mode::<_>",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output_mode::<meshopt_qualify_fuzz::clod::{closure#4}::{closure#1}>",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::build_with_output_mode::<meshopt_qualify_fuzz::clod::{closure#5}::{closure#1}>",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 174
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::prepare_group",
+   "regions_hit": 35,
+   "regions": 41,
+   "entry_count": 538
+  },
+  {
+   "file": "src/clusterlod/mod.rs",
+   "function": "meshoptimizer_rs::clusterlod::prepare_group::{closure#0}",
+   "regions_hit": 1,
+   "regions": 1,
+   "entry_count": 4174
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds::<1536: usize, 512: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds::<384: usize, 128: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds::<96: usize, 32: usize>",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 2248
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds_body::<1536: usize, 512: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds_body::<384: usize, 128: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::cluster_bounds_body::<96: usize, 32: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::meshlet_bounds::<1536: usize, 512: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::meshlet_bounds::<384: usize, 128: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::meshlet_bounds::<96: usize, 32: usize>",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  },
+  {
+   "file": "src/meshlet_util.rs",
+   "function": "meshoptimizer_rs::meshlet_util::sqrt8",
+   "regions_hit": 4,
+   "regions": 6,
+   "entry_count": 7282
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+[package]
+name = "meshopt-0216-seedgen"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+meshoptimizer-rs = { path = "../../..", default-features = false, features = ["std", "simd"] }
+
+[workspace]
+members = ["."]

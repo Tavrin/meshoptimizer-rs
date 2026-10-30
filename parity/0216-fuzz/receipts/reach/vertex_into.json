@@ -1,0 +1,35 @@
+{
+ "target": "vertex_into",
+ "changed_executable_lines": 36,
+ "changed_lines_hit": 0,
+ "functions": [
+  {
+   "file": "src/codec/mod.rs",
+   "function": "meshoptimizer_rs::codec::allocate",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/codec/simd/mod.rs",
+   "function": "meshoptimizer_rs::codec::simd::vertex_owned",
+   "regions_hit": 0,
+   "regions": 11,
+   "entry_count": 0
+  },
+  {
+   "file": "src/codec/simd/x86.rs",
+   "function": "meshoptimizer_rs::codec::simd::x86::vertex_owned",
+   "regions_hit": 0,
+   "regions": 9,
+   "entry_count": 0
+  },
+  {
+   "file": "src/codec/vertex.rs",
+   "function": "meshoptimizer_rs::codec::vertex::decode_owned",
+   "regions_hit": 0,
+   "regions": 12,
+   "entry_count": 0
+  }
+ ]
+}

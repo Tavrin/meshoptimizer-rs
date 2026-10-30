@@ -1,0 +1,42 @@
+{
+ "target": "simplify",
+ "changed_executable_lines": 9,
+ "changed_lines_hit": 9,
+ "functions": [
+  {
+   "file": "src/simplify.rs",
+   "function": "meshoptimizer_rs::simplify::run",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 232
+  },
+  {
+   "file": "src/simplify.rs",
+   "function": "meshoptimizer_rs::simplify::run_state",
+   "regions_hit": 2,
+   "regions": 2,
+   "entry_count": 6050
+  },
+  {
+   "file": "src/simplify_extra.rs",
+   "function": "meshoptimizer_rs::simplify::extra::simplify_with_update::{closure#0}",
+   "regions_hit": 4,
+   "regions": 5,
+   "entry_count": 2938
+  },
+  {
+   "file": "src/simplify_extra.rs",
+   "function": "meshoptimizer_rs::simplify::extra::simplify_with_update::{closure#0}::{closure#3}",
+   "regions_hit": 1,
+   "regions": 1,
+   "entry_count": 165032
+  },
+  {
+   "file": "src/simplify_extra.rs",
+   "function": "meshoptimizer_rs::simplify::extra::sparse_run",
+   "regions_hit": 4,
+   "regions": 4,
+   "entry_count": 2880
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "target": "simplify_extra",
+ "changed_executable_lines": 9,
+ "changed_lines_hit": 0,
+ "functions": [
+  {
+   "file": "src/simplify.rs",
+   "function": "meshoptimizer_rs::simplify::run",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/simplify.rs",
+   "function": "meshoptimizer_rs::simplify::run_state",
+   "regions_hit": 0,
+   "regions": 2,
+   "entry_count": 0
+  },
+  {
+   "file": "src/simplify_extra.rs",
+   "function": "meshoptimizer_rs::simplify::extra::simplify_with_update::{closure#0}",
+   "regions_hit": 0,
+   "regions": 5,
+   "entry_count": 0
+  },
+  {
+   "file": "src/simplify_extra.rs",
+   "function": "meshoptimizer_rs::simplify::extra::simplify_with_update::{closure#0}::{closure#3}",
+   "regions_hit": 0,
+   "regions": 1,
+   "entry_count": 0
+  },
+  {
+   "file": "src/simplify_extra.rs",
+   "function": "meshoptimizer_rs::simplify::extra::sparse_run",
+   "regions_hit": 0,
+   "regions": 4,
+   "entry_count": 0
+  }
+ ]
+}
