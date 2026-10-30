@@ -1,0 +1,28 @@
+fmt	0	0.445
+clippy-all	0	0.313
+clippy-none	0	2.403
+tests-all	0	116.252
+tests-none	0	4.096
+wasm-all	0	5.213
+wasm-none	0	3.463
+boundary	0	3.867
+exact-build-all	0	11.784
+exact-all	0	0.067
+exact-build-none	0	6.942
+exact-none	0	0.066
+hidden-release	0	22.047
+public-text	0	0.217
+build-base	101	0.015
+build-base	101	11.091
+build-base	0	3.150
+build-candidate	0	14.587
+build-candidate-none	0	13.497
+build-cpp-scalar	0	6.174
+build-cpp-default	0	3.551
+oracle-build	0	0.547
+reference-check	0	0.012
+final-format	0
+final-whitespace	0
+final-public-text	0
+campaign-final	0
+finish	0

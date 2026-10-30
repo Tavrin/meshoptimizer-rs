@@ -1,0 +1,8 @@
+{
+  "attempt1": {
+    "exit": 1,
+    "reason": "Final public-text check found hard-coded machine paths in evaluation harness sources; preceding native gates passed",
+    "logs": "checks-attempt1"
+  },
+  "remediation": "HSR_SCENES and HSR_EVAL_REPORT environment inputs; repeat complete gates"
+}

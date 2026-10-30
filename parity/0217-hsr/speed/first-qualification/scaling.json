@@ -1,0 +1,58 @@
+{
+  "summary": {
+    "32768": {
+      "seconds": 0.00361808,
+      "work": 983040
+    },
+    "262144": {
+      "seconds": 0.031838196,
+      "work": 8650752
+    },
+    "work_ratio": 8.8,
+    "wall_ratio": 8.799749038163888
+  },
+  "rows": [
+    {
+      "n": 32768,
+      "rep": 0,
+      "seconds": 0.003944184,
+      "work": 983040,
+      "output_sha256": "66f5d2f101e26ebd241d5eb9ba6b5fec8d11f7db64b34b287a8ae8c6c11329d6"
+    },
+    {
+      "n": 262144,
+      "rep": 0,
+      "seconds": 0.032398712,
+      "work": 8650752,
+      "output_sha256": "525878305bfb0db8c33817e51a57389c25476d91b974129b44ed8520ef6ee13b"
+    },
+    {
+      "n": 262144,
+      "rep": 1,
+      "seconds": 0.031838196,
+      "work": 8650752,
+      "output_sha256": "525878305bfb0db8c33817e51a57389c25476d91b974129b44ed8520ef6ee13b"
+    },
+    {
+      "n": 32768,
+      "rep": 1,
+      "seconds": 0.00361269,
+      "work": 983040,
+      "output_sha256": "66f5d2f101e26ebd241d5eb9ba6b5fec8d11f7db64b34b287a8ae8c6c11329d6"
+    },
+    {
+      "n": 32768,
+      "rep": 2,
+      "seconds": 0.00361808,
+      "work": 983040,
+      "output_sha256": "66f5d2f101e26ebd241d5eb9ba6b5fec8d11f7db64b34b287a8ae8c6c11329d6"
+    },
+    {
+      "n": 262144,
+      "rep": 2,
+      "seconds": 0.029998022,
+      "work": 8650752,
+      "output_sha256": "525878305bfb0db8c33817e51a57389c25476d91b974129b44ed8520ef6ee13b"
+    }
+  ]
+}

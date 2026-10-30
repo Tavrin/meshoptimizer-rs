@@ -1,0 +1,219 @@
+{
+  "cache": [
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base": 29531.7,
+        "candidate": 29548.1,
+        "cpp-scalar": 24192.4,
+        "cpp-default": 24198.0
+      },
+      "candidate_vs_base": 1.0005553354530894
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base": 10427812.8,
+        "candidate": 10427797.3,
+        "cpp-scalar": 8525262.7,
+        "cpp-default": 8525269.8
+      },
+      "candidate_vs_base": 0.999998513590501
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base": 9189144.3,
+        "candidate": 9189131.9,
+        "cpp-scalar": 7417153.2,
+        "cpp-default": 7417154.7
+      },
+      "candidate_vs_base": 0.9999986505816434
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base": 10492251.1,
+        "candidate": 10492235.1,
+        "cpp-scalar": 8596321.9,
+        "cpp-default": 8596325.6
+      },
+      "candidate_vs_base": 0.9999984750650888
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base": 1294050477.2,
+        "candidate": 1294051559.0,
+        "cpp-scalar": 1058993822.7,
+        "cpp-default": 1058993713.0
+      },
+      "candidate_vs_base": 1.0000008359797543
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base": 2285091676.0,
+        "candidate": 2285091553.0,
+        "cpp-scalar": 1803470683.0,
+        "cpp-default": 1803470600.0
+      },
+      "candidate_vs_base": 0.9999999461728379
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base": 2638705484.0,
+        "candidate": 2638705015.0,
+        "cpp-scalar": 2079323925.0,
+        "cpp-default": 2079326116.0
+      },
+      "candidate_vs_base": 0.9999998222613312
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base": 659682696.0,
+        "candidate": 659682799.0,
+        "cpp-scalar": 519836992.0,
+        "cpp-default": 519837041.0
+      },
+      "candidate_vs_base": 1.0000001561356704
+    }
+  ],
+  "hidden": [
+    {
+      "case": "tiny-smooth",
+      "report": {
+        "input": 32,
+        "output": 32,
+        "removed": 0,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 0,
+        "work": 1868,
+        "bytes": 7232
+      },
+      "removed_share": 0.0,
+      "median_wall_seconds": 0.0,
+      "median_instructions": 136929.0
+    },
+    {
+      "case": "medium-smooth",
+      "report": {
+        "input": 8192,
+        "output": 8192,
+        "removed": 0,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 0,
+        "work": 1563332,
+        "bytes": 1851392
+      },
+      "removed_share": 0.0,
+      "median_wall_seconds": 0.00499967,
+      "median_instructions": 73405857.0
+    },
+    {
+      "case": "medium-seams",
+      "report": {
+        "input": 8192,
+        "output": 8192,
+        "removed": 0,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 0,
+        "work": 1542164,
+        "bytes": 1851392
+      },
+      "removed_share": 0.0,
+      "median_wall_seconds": 0.004999669,
+      "median_instructions": 68736217.0
+    },
+    {
+      "case": "medium-sparse",
+      "report": {
+        "input": 8192,
+        "output": 8192,
+        "removed": 0,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 0,
+        "work": 1563332,
+        "bytes": 1851392
+      },
+      "removed_share": 0.0,
+      "median_wall_seconds": 0.00499967,
+      "median_instructions": 73405858.0
+    },
+    {
+      "case": "million-smooth",
+      "report": {
+        "input": 1000000,
+        "output": 1000000,
+        "removed": 0,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 0,
+        "work": 344372691,
+        "bytes": 226000000
+      },
+      "removed_share": 0.0,
+      "median_wall_seconds": 1.075929013,
+      "median_instructions": 13759148753.0
+    },
+    {
+      "case": "real-214e",
+      "report": {
+        "input": 2851001,
+        "output": 2780726,
+        "removed": 70275,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 70275,
+        "work": 7213088239,
+        "bytes": 644326226
+      },
+      "removed_share": 0.024649237232817527,
+      "median_wall_seconds": 58.992143849,
+      "median_instructions": 735123832612.0
+    },
+    {
+      "case": "real-a082",
+      "report": {
+        "input": 3289725,
+        "output": 3202433,
+        "removed": 87292,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 87292,
+        "work": 9083058847,
+        "bytes": 743477850
+      },
+      "removed_share": 0.02653474074580702,
+      "median_wall_seconds": 77.953930603,
+      "median_instructions": 931689809765.0
+    },
+    {
+      "case": "real-b6fd",
+      "report": {
+        "input": 822435,
+        "output": 803792,
+        "removed": 18643,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 18643,
+        "work": 1911061507,
+        "bytes": 185870310
+      },
+      "removed_share": 0.02266805279444576,
+      "median_wall_seconds": 16.873903099,
+      "median_instructions": 195994101842.0
+    }
+  ],
+  "hsr_comparison": "N/A: extension absent from v0.2.16 and upstream C++ 1.3",
+  "cache_regression_gate": true,
+  "cpu": 0,
+  "median_repetitions": 3,
+  "campaign_cpu_seconds": 1526.82
+}

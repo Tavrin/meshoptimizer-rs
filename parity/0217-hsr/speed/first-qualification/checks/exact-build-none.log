@@ -1,0 +1,5 @@
+     Locking 3 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-none)
+    Finished `release` profile [optimized] target(s) in 7.55s

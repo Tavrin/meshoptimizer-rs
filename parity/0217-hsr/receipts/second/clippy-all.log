@@ -1,0 +1,29 @@
+    Checking meshoptimizer-rs v0.2.16 (<worktree>)
+error: using `chunks_exact` with a constant chunk size
+  --> tests/hidden.rs:63:10
+   |
+63 |         .chunks_exact(3)
+   |          ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<3>().0.iter()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+   = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: using `chunks_exact` with a constant chunk size
+  --> tests/hidden.rs:65:23
+   |
+65 |     assert!(m.indices.chunks_exact(3).any(|t| t == [12, 9, 10]));
+   |                       ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<3>().0.iter()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+
+error: using `chunks_exact` with a constant chunk size
+   --> tests/hidden.rs:114:36
+    |
+114 |     assert!(run(&p, &i, o).indices.chunks_exact(3).any(|t| t[0] >= 8));
+    |                                    ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<3>().0.iter()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+
+error: could not compile `meshoptimizer-rs` (test "hidden") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

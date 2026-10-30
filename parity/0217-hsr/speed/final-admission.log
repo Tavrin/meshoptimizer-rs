@@ -1,0 +1,86 @@
+heavy: waiting (class script:/usr/bin/python3.12, reserving 9G, cap 9G, declared 4G, full declaration or higher history reservation: class escalation): python3 parity/0217-hsr/speed/final.py
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=9437184; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — needs 9G RAM, 0G admissible, 14G reserved for running jobs; will start automatically [capacity: available_kb=14022860 - unused_kb=11885532 - margin_kb=2097152 = free_kb=40176; need_kb=9437184; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — landing budget protected: RAM, job slot or exclusive side capacity unavailable [capacity: available_kb=12225552 - unused_kb=7278640 - margin_kb=2097152 = free_kb=2849760; need_kb=9437184; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — landing budget protected: RAM, job slot or exclusive side capacity unavailable [capacity: available_kb=18516060 - unused_kb=15730080 - margin_kb=2097152 = free_kb=688828; need_kb=9437184; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — landing budget protected: RAM, job slot or exclusive side capacity unavailable [capacity: available_kb=16752912 - unused_kb=13960904 - margin_kb=2097152 = free_kb=694856; need_kb=9437184; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — landing budget protected: RAM, job slot or exclusive side capacity unavailable [capacity: available_kb=17569340 - unused_kb=10463792 - margin_kb=2097152 = free_kb=5008396; need_kb=9437184; normal_slots=2/6; lane_slots=0/2]
+heavy: waiting — landing budget protected: RAM, job slot or exclusive side capacity unavailable [capacity: available_kb=18479420 - unused_kb=18152112 - margin_kb=2097152 = free_kb=-1769844; need_kb=9437184; normal_slots=2/6; lane_slots=0/2]
+heavy: waiting — queued behind an aged waiter (pid 3202180); no head-safe duration slot (unknown history, resources or protected priority) [capacity: available_kb=18607580 - unused_kb=18403200 - margin_kb=2097152 = free_kb=-1892772; need_kb=9437184; normal_slots=2/6; lane_slots=0/2]
+heavy: waiting — queued behind an aged waiter (pid 3221186); no head-safe duration slot (unknown history, resources or protected priority) [capacity: available_kb=18981476 - unused_kb=11056476 - margin_kb=2097152 = free_kb=5827848; need_kb=9437184; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — needs 9G RAM, 5G admissible, 14G reserved for running jobs; will start automatically [capacity: available_kb=18610228 - unused_kb=11043804 - margin_kb=2097152 = free_kb=5469272; need_kb=9437184; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — needs 9G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=17135648 - unused_kb=15595652 - margin_kb=2097152 = free_kb=-557156; need_kb=9437184; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — queued behind an aged waiter (pid 3221186); no head-safe duration slot (unknown history, resources or protected priority) [capacity: available_kb=12115496 - unused_kb=13054484 - margin_kb=2097152 = free_kb=-3036140; need_kb=9437184; normal_slots=4/6; lane_slots=0/2]
+heavy: running (9G reserved, cap 9G, 10G available): python3 parity/0217-hsr/speed/final.py
+final-format 0 
+final-clippy-all 0     Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.54s
+
+final-clippy-none 0     Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.62s
+
+final-hidden-all 0 ing tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 20 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+HSR scaling work N=2816 8N=25600 ratio=9.090909090909092
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test original_sample_rounding_seam_can_only_restore_triangles ... ok
+test opening_exposes_inside_from_outside ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+test hidden_candidate_and_finite_view_limits_preserve_destination_and_recover ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+
+final-hidden-none 0 ished `release` profile [optimized] target(s) in 18.28s
+     Running tests/hidden.rs (<target>/release/deps/hidden-4e4134c98b024422)
+
+running 19 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+HSR scaling work N=2816 8N=25600 ratio=9.090909090909092
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test original_sample_rounding_seam_can_only_restore_triangles ... ok
+test opening_exposes_inside_from_outside ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+test hidden_candidate_and_finite_view_limits_preserve_destination_and_recover ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+
+final-pinned-scaling 0 PASS pinned scaling {'32768': {'seconds': 0.001999871, 'work': 983040}, '262144': {'seconds': 0.02999805, 'work': 8650752}, 'work_ratio': 8.8, 'wall_ratio': 14.99999249951622}
+
+final-proof-binding 0 PASS source binding, proof update and unchanged algorithm source checks
+
+final-format-check 0 
+final-whitespace 0 
+final-public-text 0 PASS: public text contains no private machine paths or project names
+
+PASS final gates; target cleanup waits until this admitted job exits

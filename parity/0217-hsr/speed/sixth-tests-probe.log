@@ -1,0 +1,43 @@
+heavy: waiting (class script:<private-path> reserving 5G, cap 9G, declared 4G, full declaration or higher history reservation: class escalation): bash -c cargo fmt --all && cargo test --locked --release --all-features --test hidden -- --nocapture && python3 parity/0217-hsr/speed/probe.py
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=5242880; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -4G admissible, 16G reserved for running jobs; will start automatically [capacity: available_kb=18944028 - unused_kb=21861896 - margin_kb=2097152 = free_kb=-5015020; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -5G admissible, 16G reserved for running jobs; will start automatically [capacity: available_kb=17884428 - unused_kb=21230756 - margin_kb=2097152 = free_kb=-5443480; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -4G admissible, 16G reserved for running jobs; will start automatically [capacity: available_kb=17083332 - unused_kb=19770356 - margin_kb=2097152 = free_kb=-4784176; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — queued behind pid 1989919; no head-safe duration slot (unknown history, resources or protected priority) [capacity: available_kb=16284288 - unused_kb=19601108 - margin_kb=2097152 = free_kb=-5413972; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -13G admissible, 31G reserved for running jobs; will start automatically [capacity: available_kb=15935112 - unused_kb=27495200 - margin_kb=2097152 = free_kb=-13657240; need_kb=5242880; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=18527456 - unused_kb=15586120 - margin_kb=2097152 = free_kb=844184; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=18627028 - unused_kb=15473560 - margin_kb=2097152 = free_kb=1056316; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: running (5G reserved, cap 9G, 14G available): bash -c cargo fmt --all && cargo test --locked --release --all-features --test hidden -- --nocapture && python3 parity/0217-hsr/speed/probe.py
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 21.23s
+     Running tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 18 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+HSR scaling work N=199552 8N=223232 ratio=1.1186658114175754
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test opening_exposes_inside_from_outside ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-probe v0.0.0 (<target>/probe)
+    Finished `release` profile [optimized] target(s) in 15.10s
+RESULT 0.834533364 {"input":3289725,"output":3289725,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":121916433,"bytes":427664250}
+READY
+COUNTED 0.818569250

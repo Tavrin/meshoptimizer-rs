@@ -1,0 +1,18 @@
+{
+  "exit": 1,
+  "scene": 4,
+  "subdivisions": 2,
+  "arm": "after",
+  "missing_kept_triangle": [
+    3,
+    4,
+    5
+  ],
+  "reason": "legacy shared-edge ray rounding reported a sample visible despite enclosure; restore-only compatibility check added",
+  "hashes": {
+    "scenes/4.bin": "d39bf56b1dc402f8a59e607ac0c91948e7230f0e41f9730dccb25e25353ac655",
+    "oracle.out": "5c47dc5a9add95c62ebcc971f365a3377af807d6a6b9ee7057c96a89edbf1d92",
+    "after.out": "09e55682e691068719dbc2a5521f684e0f5ba04b687642d3b5d273efe386c7db",
+    "before.out": "5c47dc5a9add95c62ebcc971f365a3377af807d6a6b9ee7057c96a89edbf1d92"
+  }
+}
