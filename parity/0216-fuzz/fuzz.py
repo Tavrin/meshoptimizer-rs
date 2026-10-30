@@ -1,6 +1,6 @@
 """Pre-release fuzz driver for meshoptimizer-rs 0.2.16.
 
-Usage (inside the admission wrapper: moss-heavy.sh 4 with MOSS_HEAVY_GPU=0):
+Usage (inside a CPU-only job-admission wrapper; set PARITY_RUNNER_ACTIVE=1):
   fuzz.py build             build every target group (cargo-fuzz, nightly, -O -a,
                             coverage + trace-compares, no sanitizer)
   (seeds.py SEEDGEN_BIN writes the seed corpora under $FUZZ_SCRATCH/seeds)
@@ -29,7 +29,7 @@ import sys
 import threading
 import time
 
-assert os.environ.get('PARITY_RUNNER_ACTIVE') or os.environ.get('MOSS_HEAVY_ACTIVE'), 'run inside moss-heavy.sh'
+assert os.environ.get('PARITY_RUNNER_ACTIVE'), 'run inside a job-admission wrapper (set PARITY_RUNNER_ACTIVE=1)'
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 S = Path(os.environ['FUZZ_SCRATCH'])

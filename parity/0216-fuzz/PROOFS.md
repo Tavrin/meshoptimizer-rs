@@ -4,8 +4,8 @@ Tree: `train/0.2.16` @ `ff38162` plus the fuzz sources in this directory and the
 three repair targets in `parity/0216-repair/fuzz` (no change under `src/`).
 Toolchain: nightly `rustc 1.101.0-nightly (282215592 2026-10-04)`, cargo-fuzz
 0.13.2, libfuzzer-sys 0.4.13, `-O -a --sanitizer none`. Host: AMD Ryzen 9 7945HX
-(x86-64, SSE2/SSSE3/SSE4.1/AVX2 present). Run through `moss-heavy.sh 4` with
-`MOSS_HEAVY_GPU=0` and a private `CARGO_TARGET_DIR`.
+(x86-64, SSE2/SSSE3/SSE4.1/AVX2 present). Run through a CPU-only job-admission wrapper
+with a private `CARGO_TARGET_DIR`.
 
 **Verdict: 15 targets, 47,211 CPU-s, 0 crashes, 0 timeouts, 0 OOM, 0 slow units.
 Every target reaches the new or changed code (table below). No source defect was

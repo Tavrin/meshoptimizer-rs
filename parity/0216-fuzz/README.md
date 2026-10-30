@@ -45,7 +45,7 @@ target such as `parallel_clod` consumes its cap in fewer wall seconds).
 
 ## Commands
 
-Inside the CPU-only admission wrapper (`moss-heavy.sh 4`, `MOSS_HEAVY_GPU=0`),
+Inside a CPU-only job-admission wrapper (set `PARITY_RUNNER_ACTIVE=1`),
 with `FUZZ_SCRATCH` (holding `base/`) and a private `CARGO_TARGET_DIR`:
 
 ```sh
