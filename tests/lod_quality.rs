@@ -484,3 +484,82 @@ fn cancelling_interpolated_normals_are_rejected() {
         Err(Error::NumericalFailure)
     );
 }
+
+#[test]
+fn long_degenerate_segments_measure_residual_without_reconstructing_point() {
+    let mut options = LodQualityOptions::default();
+    options.samples_per_unit_area = 0.;
+    for extent in [2., 1e20_f32, f32::MAX] {
+        for axis in 0..3 {
+            let mut target = [[0.; 3]; 3];
+            target[0][axis] = -extent;
+            target[1][axis] = extent;
+            target[2][axis] = extent;
+            for reverse in [false, true] {
+                if reverse {
+                    target.swap(0, 1);
+                }
+                for (position, offset, expected) in [
+                    (1., 0., 0.),
+                    (-1., 0., 0.),
+                    (1., 3., 3.),
+                    (extent, 0., 0.),
+                    (extent, 3., 3.),
+                ] {
+                    let mut point = [0.; 3];
+                    point[axis] = position;
+                    point[(axis + 1) % 3] = offset;
+                    let q = measure_lod_quality(
+                        mesh(&IX, &[point; 3]),
+                        mesh(&IX, &target),
+                        &options,
+                        &mut Workspace::default(),
+                    )
+                    .unwrap();
+                    close(q.source_to_level.max, expected);
+                    close(q.source_to_level.rms, expected);
+                    if expected == 0. {
+                        assert_eq!(q.source_to_level.max, 0.);
+                        assert_eq!(q.source_to_level.rms, 0.);
+                    }
+                }
+            }
+        }
+    }
+    // Outside a short segment, the nearest point is its endpoint.
+    let q = measure(
+        (&IX, &[[5., 4., 0.]; 3]),
+        (&IX, &[[0., 0., 0.], [2., 0., 0.], [2., 0., 0.]]),
+    );
+    close(q.source_to_level.max, 5.);
+    close(q.source_to_level.rms, 5.);
+}
+
+#[test]
+fn camera_extreme_inputs_preserve_positive_thresholds_or_report_range_error() {
+    let tiny = f64::from_bits(1);
+    for fov in [tiny, f64::from_bits(3), f64::MIN_POSITIVE, 1e-10] {
+        let camera = LodCamera::new(fov, 1., 1.).unwrap();
+        close(camera.switch_distance(fov).unwrap(), 1.);
+        assert_eq!(camera.switch_distance(0.), Ok(0.));
+    }
+    let fov = core::f64::consts::FRAC_PI_2;
+    for tolerance in [tiny, f64::MIN_POSITIVE, 1., f64::MAX] {
+        let camera = LodCamera::new(fov, 1., tolerance).unwrap();
+        close(camera.switch_distance(tolerance).unwrap(), 0.5);
+    }
+    let small = LodCamera::new(fov, 1., tiny).unwrap();
+    assert_eq!(
+        small.switch_distance(f64::MAX),
+        Err(Error::NumericalFailure)
+    );
+    let large = LodCamera::new(fov, 1., f64::MAX).unwrap();
+    assert_eq!(large.switch_distance(tiny), Err(Error::NumericalFailure));
+    assert_eq!(large.switch_distance(0.), Ok(0.));
+    let subnormal = LodCamera::new(fov, 1., 1.)
+        .unwrap()
+        .switch_distance(1e-310)
+        .unwrap();
+    assert!(subnormal > 0. && subnormal < f64::MIN_POSITIVE);
+    assert!((subnormal / 5e-311 - 1.).abs() < 2e-7);
+}

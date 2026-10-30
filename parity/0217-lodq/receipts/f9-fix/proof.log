@@ -1,0 +1,21 @@
+oracle-build 0 
+proof-build-default 0      Locking 3 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling lodq-proof v0.0.0 (<target>/proof/driver)
+    Finished `release` profile [optimized] target(s) in 18.84s
+
+exact-default 0 exact base/candidate observations=91290; every work limit, byte boundaries, cold/warm/after-failure; differences=0
+
+cpp-oracle-default 0 256 exhaustive C++ oracle cases; 1024 distance statistics and 512 sample counts; differences 0 (tolerance 1e-7)
+
+proof-build-scalar 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling lodq-proof v0.0.0 (<target>/proof/driver)
+    Finished `release` profile [optimized] target(s) in 16.45s
+
+exact-scalar 0 exact base/candidate observations=91290; every work limit, byte boundaries, cold/warm/after-failure; differences=0
+
+cpp-oracle-scalar 0 256 exhaustive C++ oracle cases; 1024 distance statistics and 512 sample counts; differences 0 (tolerance 1e-7)
+

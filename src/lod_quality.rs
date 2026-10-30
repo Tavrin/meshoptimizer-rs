@@ -85,6 +85,7 @@ pub struct LodQuality {
 #[non_exhaustive]
 pub struct LodCamera {
     /// Vertical field of view in radians, strictly between zero and pi.
+    /// All positive finite values below pi are valid, including subnormals.
     pub vertical_fov: f64,
     /// Positive viewport height in pixels.
     pub viewport_height: f64,
@@ -115,7 +116,8 @@ impl LodCamera {
     /// measuring camera-to-center distance). Sampled error can miss extrema.
     /// # Errors
     /// `InvalidParameter` for invalid camera or negative/non-finite deviation;
-    /// `NumericalFailure` if the result cannot be represented as finite `f64`.
+    /// `NumericalFailure` if the result overflows or a positive threshold
+    /// underflows to zero. A zero deviation always returns zero.
     pub fn switch_distance(&self, deviation: f64) -> Result<f64, Error> {
         if !self.vertical_fov.is_finite()
             || self.vertical_fov <= 0.0
@@ -133,12 +135,19 @@ impl LodCamera {
             return Ok(0.0);
         }
         // Logs avoid overflow/underflow in intermediate products of valid inputs.
+        // For tiny angles, 2*tan(fov/2) rounds to fov; avoid halving a
+        // subnormal before taking its logarithm. The relative approximation
+        // error below this cutoff is smaller than f64 precision.
+        let log_scale = if self.vertical_fov < 1e-8 {
+            libm::log(self.vertical_fov)
+        } else {
+            libm::log(2.0) + libm::log(libm::tan(self.vertical_fov / 2.0))
+        };
         let log = libm::log(deviation) + libm::log(self.viewport_height)
-            - libm::log(2.0)
-            - libm::log(libm::tan(self.vertical_fov / 2.0))
+            - log_scale
             - libm::log(self.pixel_tolerance);
         let distance = libm::exp(log);
-        if !distance.is_finite() {
+        if !distance.is_finite() || distance == 0.0 {
             return Err(Error::NumericalFailure);
         }
         Ok(distance)
@@ -561,8 +570,21 @@ fn closest(t: [V; 3], p: V) -> (f64, V) {
         let mut w = [0.0; 3];
         w[a] = 1.0 - s;
         w[b] = s;
-        let delta = sub(p, blend(t, w));
-        let d = dot(delta, delta);
+        // Measure the residual directly, rather than reconstructing a world
+        // point from rounded weights (which can erase small offsets on long
+        // segments). Endpoints use their direct distance; interiors use the
+        // perpendicular distance to the line, relative to the nearer endpoint.
+        let d = if s == 0.0 {
+            let delta = sub(p, t[a]);
+            dot(delta, delta)
+        } else if s == 1.0 {
+            let delta = sub(p, t[b]);
+            dot(delta, delta)
+        } else {
+            let offset = sub(p, if s <= 0.5 { t[a] } else { t[b] });
+            let perpendicular = cross(offset, edge);
+            dot(perpendicular, perpendicular) / len
+        };
         if d < best.0 {
             best = (d, w);
         }

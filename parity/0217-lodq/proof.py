@@ -3,7 +3,7 @@ import hashlib,io,json,os,shutil,subprocess,tarfile,resource,time
 from pathlib import Path
 assert os.environ.get('MOSS_HEAVY_ACTIVE') and os.environ['MOSS_HEAVY_GPU']=='0'
 os.environ.update(CARGO_BUILD_JOBS='2', CARGO_INCREMENTAL='0', LC_ALL='C')
-r=Path.cwd();lane=r/'parity/0217-lodq';out=lane/'receipts';t=Path(os.environ['CARGO_TARGET_DIR']);s=t/'proof';s.mkdir(exist_ok=True,parents=True)
+r=Path.cwd();lane=r/'parity/0217-lodq';out=Path(os.environ.get('LODQ_RECEIPTS', lane/'receipts'));t=Path(os.environ['CARGO_TARGET_DIR']);s=t/'proof';s.mkdir(exist_ok=True,parents=True)
 def run(name,cmd,env=None):
  before=resource.getrusage(resource.RUSAGE_CHILDREN);start=time.monotonic()
  p=subprocess.run(cmd,capture_output=True,text=True,env=env)
@@ -27,7 +27,7 @@ edition = "2021"
 default = ["baseline/std", "baseline/simd", "candidate/std", "candidate/simd"]
 [dependencies]
 baseline = {{package="meshoptimizer-baseline", path="{base}", default-features=false}}
-candidate = {{package="meshoptimizer-rs", path="{r}", default-features=false, features=["lod-quality"]}}
+candidate = {{package="meshoptimizer-rs", path="{r}", default-features=false}}
 [[bin]]
 name="exact-lodq"
 path="{lane/'exact.rs'}"
