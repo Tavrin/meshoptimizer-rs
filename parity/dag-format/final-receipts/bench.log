@@ -1,0 +1,8 @@
+   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+    Finished `release` profile [optimized] target(s) in 21.60s
+     Running `<local-path> <local-path> <local-path> <local-path>
+mesh,vertices,indices,clusters,pages,raw_geometry,stored_geometry,file_bytes,write_ms,read_ms,page_decode_us
+
+thread 'main' (732096) panicked at examples/dag_format_bench.rs:10:33:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
