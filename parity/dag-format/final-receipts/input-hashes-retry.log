@@ -1,0 +1,17 @@
+[
+  {
+    "mesh": "real-214e",
+    "bytes": 173195277,
+    "sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7"
+  },
+  {
+    "mesh": "real-a082",
+    "bytes": 172123526,
+    "sha256": "f631b2a30e79f167c0650f595bed6341193243aaab4d552d4cafa85e68944793"
+  },
+  {
+    "mesh": "real-b6fd",
+    "bytes": 47798293,
+    "sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b"
+  }
+]

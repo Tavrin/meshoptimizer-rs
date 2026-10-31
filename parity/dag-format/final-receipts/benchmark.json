@@ -1,0 +1,69 @@
+{
+  "schema": "dag-format-benchmark/1",
+  "passes": 5,
+  "unit": "milliseconds except per-page microseconds",
+  "measurements": [
+    {
+      "mesh": "real-214e",
+      "vertices": 6798441,
+      "indices": 8553003,
+      "clusters": 112328,
+      "pages": 971,
+      "raw_geometry_bytes": 284412568,
+      "stored_geometry_bytes": 126636673,
+      "file_bytes": 134065713,
+      "write_ms": 1547.463,
+      "read_ms": 357.754,
+      "page_decode_us": 367.662
+    },
+    {
+      "mesh": "real-a082",
+      "vertices": 7237324,
+      "indices": 9869175,
+      "clusters": 124773,
+      "pages": 1088,
+      "raw_geometry_bytes": 318647036,
+      "stored_geometry_bytes": 141856935,
+      "file_bytes": 150109831,
+      "write_ms": 1701.658,
+      "read_ms": 381.055,
+      "page_decode_us": 355.208
+    },
+    {
+      "mesh": "real-b6fd",
+      "vertices": 1809344,
+      "indices": 2467305,
+      "clusters": 31011,
+      "pages": 283,
+      "raw_geometry_bytes": 79671496,
+      "stored_geometry_bytes": 36829591,
+      "file_bytes": 38880999,
+      "write_ms": 445.512,
+      "read_ms": 108.886,
+      "page_decode_us": 371.869
+    }
+  ],
+  "input_hashes": [
+    {
+      "mesh": "real-214e",
+      "bytes": 173195277,
+      "sha256": "011834ce876a1e89dce926237ae537a103b1bff7666e52cafa40f3d27410eaf7"
+    },
+    {
+      "mesh": "real-a082",
+      "bytes": 172123526,
+      "sha256": "f631b2a30e79f167c0650f595bed6341193243aaab4d552d4cafa85e68944793"
+    },
+    {
+      "mesh": "real-b6fd",
+      "bytes": 47798293,
+      "sha256": "f397ec8ec0ad7bd425e8ae0930ea18b05a50259b5105f629bedbd25ae7ae156b"
+    }
+  ],
+  "hardware": {
+    "cpu": "AMD Ryzen 9 7945HX",
+    "logical_cpus": 32,
+    "affinity_pinned": false,
+    "concurrent_shared_host": true
+  }
+}

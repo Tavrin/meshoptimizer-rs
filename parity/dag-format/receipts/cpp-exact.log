@@ -1,0 +1,260 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+error[E0425]: cannot find function `build_meshlets_flex_validated` in module `crate::meshlet`
+    --> <local-path>:233:29
+     |
+ 233 |               crate::meshlet::build_meshlets_flex_validated(
+     |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+    ::: <local-path>:2084:1
+     |
+2084 | / pub fn build_meshlets_flex_into(
+2085 | |     descriptors: &mut [Meshlet],
+2086 | |     vertices: &mut [u32],
+2087 | |     triangles: &mut [u8],
+...    |
+2111 | | }
+     | |_- similarly named function `build_meshlets_flex_into` defined here
+     |
+note: found an item that was configured out
+    --> <local-path>:1954:15
+     |
+1953 | #[cfg(feature = "clusterlod")]
+     |       ---------------------- the item is gated behind the `clusterlod` feature
+1954 | pub(crate) fn build_meshlets_flex_validated(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+     |
+ 233 -             crate::meshlet::build_meshlets_flex_validated(
+ 233 +             crate::meshlet::build_meshlets_flex_into(
+     |
+
+error[E0425]: cannot find function `build_meshlets_spatial_validated` in module `crate::meshlet`
+    --> <local-path>:254:33
+     |
+ 254 |                   crate::meshlet::build_meshlets_spatial_validated(
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+    ::: <local-path>:2116:1
+     |
+2116 | / pub fn build_meshlets_spatial_into(
+2117 | |     descriptors: &mut [Meshlet],
+2118 | |     vertices: &mut [u32],
+2119 | |     triangles: &mut [u8],
+...    |
+2141 | | }
+     | |_- similarly named function `build_meshlets_spatial_into` defined here
+     |
+note: found an item that was configured out
+    --> <local-path>:2006:15
+     |
+2005 | #[cfg(feature = "clusterlod")]
+     |       ---------------------- the item is gated behind the `clusterlod` feature
+2006 | pub(crate) fn build_meshlets_spatial_validated(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+     |
+ 254 -                 crate::meshlet::build_meshlets_spatial_validated(
+ 254 +                 crate::meshlet::build_meshlets_spatial_into(
+     |
+
+error[E0425]: cannot find function `build_meshlets_flex_validated` in module `crate::meshlet`
+    --> <local-path>:264:33
+     |
+ 264 |                   crate::meshlet::build_meshlets_flex_validated(
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+    ::: <local-path>:2084:1
+     |
+2084 | / pub fn build_meshlets_flex_into(
+2085 | |     descriptors: &mut [Meshlet],
+2086 | |     vertices: &mut [u32],
+2087 | |     triangles: &mut [u8],
+...    |
+2111 | | }
+     | |_- similarly named function `build_meshlets_flex_into` defined here
+     |
+note: found an item that was configured out
+    --> <local-path>:1954:15
+     |
+1953 | #[cfg(feature = "clusterlod")]
+     |       ---------------------- the item is gated behind the `clusterlod` feature
+1954 | pub(crate) fn build_meshlets_flex_validated(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+     |
+ 264 -                 crate::meshlet::build_meshlets_flex_validated(
+ 264 +                 crate::meshlet::build_meshlets_flex_into(
+     |
+
+error[E0425]: cannot find function `compute_cluster_bounds_validated` in module `crate::meshlet_util`
+   --> <local-path>:950:34
+    |
+950 |               crate::meshlet_util::compute_cluster_bounds_validated(
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+   ::: <local-path>:371:1
+    |
+371 | / pub fn compute_cluster_bounds(
+372 | |     indices: &[u32],
+373 | |     p: Positions<'_>,
+374 | |     workspace: &mut Workspace,
+...   |
+387 | | }
+    | |_- similarly named function `compute_cluster_bounds` defined here
+    |
+note: found an item that was configured out
+   --> <local-path>:442:15
+    |
+441 | #[cfg(feature = "clusterlod")]
+    |       ---------------------- the item is gated behind the `clusterlod` feature
+442 | pub(crate) fn compute_cluster_bounds_validated(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+    |
+950 -             crate::meshlet_util::compute_cluster_bounds_validated(
+950 +             crate::meshlet_util::compute_cluster_bounds(
+    |
+
+error[E0599]: no method named `grow` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:187:17
+    |
+187 |             ctx.grow(&mut groups, 1)?;
+    |                 ^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `filled` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:221:43
+    |
+221 |                         let mut new = ctx.filled(size, u32::MAX)?;
+    |                                           ^^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:206:13
+    |
+206 |         ctx.child(|ws| crate::compute_sphere_bounds(Positions::from_packed(&p), Some(r), ws))?;
+    |             ^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:232:30
+    |
+232 |         let mut result = ctx.child(|ws| {
+    |                          ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:252:13
+    |
+252 |         ctx.child(|ws| {
+    |         ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:284:17
+    |
+284 |             ctx.child(|ws| {
+    |             ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `filled` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:315:25
+    |
+315 |     let mut table = ctx.filled(size, u64::MAX)?;
+    |                         ^^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `grow` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:319:9
+    |
+319 |     ctx.grow(&mut local_indices, indices.len())?;
+    |         ^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `grow` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:320:9
+    |
+320 |     ctx.grow(&mut local_positions, indices.len())?;
+    |         ^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `grow` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:321:9
+    |
+321 |     ctx.grow(&mut originals, indices.len())?;
+    |         ^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:408:25
+    |
+408 |     let mut parts = ctx.child(|ws| {
+    |                     ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:424:17
+    |
+424 |             ctx.child(|ws| crate::spatial_sort_remap(Positions::from_packed(&centers), ws))?;
+    |                 ^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `remaining_limits` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:522:26
+    |
+522 |         let limits = ctx.remaining_limits()?;
+    |                          ^^^^^^^^^^^^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `absorb` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:541:13
+    |
+541 |         ctx.absorb(
+    |         ----^^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `remaining_limits` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:564:26
+    |
+564 |         let limits = ctx.remaining_limits()?;
+    |                          ^^^^^^^^^^^^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `absorb` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:570:13
+    |
+570 |         ctx.absorb(
+    |         ----^^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:768:25
+    |
+768 |             let b = ctx.child(|ws| {
+    |                     ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+   --> <local-path>:949:21
+    |
+949 |         let b = ctx.child(|ws| {
+    |                 ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `grow` found for mutable reference `&mut processing::Context<'_>` in the current scope
+    --> <local-path>:1182:17
+     |
+1182 |             ctx.grow(&mut result, 1)?;
+     |                 ^^^^ method not found in `&mut processing::Context<'_>`
+
+error[E0599]: no method named `child` found for mutable reference `&mut processing::Context<'_>` in the current scope
+    --> <local-path>:1288:29
+     |
+1288 |             let order = ctx.child(|ws| {
+     |                         ----^^^^^ method not found in `&mut processing::Context<'_>`
+
+Some errors have detailed explanations: E0425, E0599.
+For more information about an error, try `rustc --explain E0425`.
+error: could not compile `meshoptimizer-rs` (lib) due to 24 previous errors
+Traceback (most recent call last):
+  File "<local-path>", line 663, in <module>
+    main()
+  File "<local-path>", line 643, in main
+    differential(args)
+  File "<local-path>", line 350, in differential
+    binaries, identities = build(reference, target)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<local-path>", line 103, in build
+    return build_locked(reference, target, wasm)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<local-path>", line 117, in build_locked
+    command(["cargo", "build", "--offline", "--locked", "--release", "--manifest-path", ROOT / "parity/Cargo.toml"])
+  File "<local-path>", line 41, in command
+    return subprocess.run([str(a) for a in args], check=True, env=ENV, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cargo', 'build', '--offline', '--locked', '--release', '--manifest-path', '<local-path>']' returned non-zero exit status 101.

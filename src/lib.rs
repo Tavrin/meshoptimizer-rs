@@ -19,7 +19,8 @@
 //! Coverage includes vertex processing, simplification, meshlets, codecs,
 //! analyzers, opacity maps, tangents, normals, remeshing, parallel batches
 //! and SIMD decoding.
-//! Cluster-LOD requires `clusterlod`; batches require `parallel` and `std`.
+//! Cluster-LOD building requires `clusterlod`; DAG serialization is always available.
+//! Batches require `parallel` and `std`.
 //! Normal generation and remeshing require `experimental`.
 //!
 //! # Recipes
@@ -129,6 +130,7 @@
 //! - `std` (default): implements `std::error::Error` for [`Error`]. Disable
 //!   default features for `no_std`; an allocator is still required.
 //! - `clusterlod`: the cluster-LOD builder from upstream's `demo/clusterlod.h`.
+//!   DAG serialization and flat record types are always available.
 //!   It reproduces the pinned demo exactly; it is not a stable upstream API.
 //! - `experimental`: upstream functions and options marked experimental.
 //! - `parallel`: ordered Rayon batch APIs for independent meshes and buffer
@@ -273,6 +275,9 @@ mod partition;
 pub use partition::*;
 
 #[cfg(feature = "clusterlod")]
+pub mod clusterlod;
+#[cfg(not(feature = "clusterlod"))]
+#[path = "clusterlod/format_only.rs"]
 pub mod clusterlod;
 #[cfg(feature = "parallel")]
 pub mod parallel;

@@ -1,0 +1,25 @@
+   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.58s
+     Running tests/dag_format.rs (<local-path>)
+
+running 4 tests
+test emit_seed_if_requested ... ok
+test empty_and_page_limits ... ok
+test rejects_truncations_and_corrupt_tables ... FAILED
+test rejects_cycles_nonmonotonic_errors_and_bad_page_geometry ... ok
+
+failures:
+
+---- rejects_truncations_and_corrupt_tables stdout ----
+
+thread 'rejects_truncations_and_corrupt_tables' (622644) panicked at tests/dag_format.rs:58:9:
+offset 68
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rejects_truncations_and_corrupt_tables
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test dag_format`

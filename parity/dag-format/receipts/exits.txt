@@ -1,0 +1,14 @@
+fmt=0
+clippy=101
+all=101
+default=101
+none=101
+wasm=101
+wasm-wasi=101
+native-identity=101
+wasm-identity=1
+identity=1
+public-text=1
+reference=0
+bench=101
+cpp-exact=1

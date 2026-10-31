@@ -1,0 +1,7 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+   Compiling meshoptimizer-parity v0.0.0 (<local-path>)
+   Compiling meshoptimizer-smoke v0.0.0 (<local-path>)
+    Finished `release` profile [optimized] target(s) in 28.39s
+     Running `<local-path> 600`
+seed=217 executions=53608094 accepted=5107128 cpu_seconds=600 wall_seconds=600.064303483 crashes=0

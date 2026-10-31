@@ -1,17 +1,20 @@
 //! Pure-Rust port of the pinned upstream `demo/clusterlod.h` (MIT, Arseny Kapoulkine).
 //!
-//! This optional module follows the demo output, not a stable meshoptimizer library
+//! This module follows the demo output, not a stable meshoptimizer library
 //! contract. Positions are explicit mutable packed XYZ because border dilation
 //! changes them. Callback identifiers retain the demo's refinement semantics.
 #![allow(clippy::too_many_arguments)]
 mod dag;
+mod flat;
+pub use flat::{FlatDagCluster, FlatDagGroup};
+pub mod dag_format;
 #[cfg(feature = "parallel")]
 mod parallel;
 mod support;
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, MeshletSettings, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
-pub use dag::{build_dag_into, DagBuffers, DagCounts, FlatDagCluster, FlatDagGroup};
+pub use dag::{build_dag_into, DagBuffers, DagCounts};
 
 /// Complete configuration of the upstream cluster-LOD demo.
 #[derive(Clone, Copy, Debug)]

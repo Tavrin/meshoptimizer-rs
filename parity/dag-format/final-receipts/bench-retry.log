@@ -1,0 +1,6 @@
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running `<local-path> <local-path> <local-path> <local-path>
+mesh,vertices,indices,clusters,pages,raw_geometry,stored_geometry,file_bytes,write_ms,read_ms,page_decode_us
+real-214e,6798441,8553003,112328,971,284412568,126636673,134065713,1547.463,357.754,367.662
+real-a082,7237324,9869175,124773,1088,318647036,141856935,150109831,1701.658,381.055,355.208
+real-b6fd,1809344,2467305,31011,283,79671496,36829591,38880999,445.512,108.886,371.869

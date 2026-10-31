@@ -119,6 +119,13 @@ several meshes at once. Each `DagBuildInput` holds the `config`, `mesh`, `node_w
 `destination` arguments above. It returns one `Result<DagCounts, Error>` per input, in input
 order, and each item has its own limits.
 
+`clusterlod::dag_format::write` serializes those prefixes into versioned little-endian
+MDAG files with independently decodable geometry pages (default capacity 128 KiB).
+`dag_format::Reader::read` validates tables, refinement links and geometry;
+`decode_page` decodes one fetched page. This extension is not in C++ meshoptimizer
+and is available without Cargo features. See [DAG_FORMAT.md](docs/DAG_FORMAT.md)
+for the wire layout, resource limits and compatibility policy.
+
 ### Vertex and index compression
 
 The `codec` module implements the codecs used by `EXT_meshopt_compression`, plus index sequence
