@@ -44,7 +44,7 @@ pub struct CharacterInputs<'a> {
     /// One vertex-length delta array per full-weight blend shape.
     pub blend_shapes: &'a [&'a [[f32; 3]]],
     /// Optional sample poses: one model-space affine skin matrix per bone.
-    /// Matrices already include inverse bind transforms; rows multiply [x,y,z,1].
+    /// Matrices already include inverse bind transforms; rows multiply `[x, y, z, 1]`.
     /// These poses are measured separately, without blend shapes.
     pub joint_poses: &'a [&'a [[[f32; 4]; 3]]],
 }
