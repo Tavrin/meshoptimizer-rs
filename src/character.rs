@@ -219,7 +219,9 @@ fn prepare(
         )
         .ok_or(Error::SizeOverflow)?;
     if width > 32 {
-        return Err(Error::InvalidLayout);
+        // The former fixed-width rejection hid valid real-character streams.
+        // Meter importance/shape validation as well as the per-vertex work below.
+        m.charge(width)?;
     }
     m.charge(
         n.checked_mul(width.checked_add(1).ok_or(Error::SizeOverflow)?)
@@ -293,15 +295,20 @@ fn prepare(
     Ok((a, width))
 }
 fn view(a: &[f32], n: usize, width: usize) -> Result<Attributes<'_>, Error> {
-    Attributes::from_interleaved(a, n, width, width, 0)
+    if width <= 32 {
+        Attributes::from_interleaved(a, n, width, width, 0)
+    } else {
+        Attributes::from_character_packed(a, n, width)
+    }
 }
 /// Simplify with exact dense bone-weight and full blend-target position channels.
 /// This extension is not in C++ meshoptimizer. The summed attribute energy is a
 /// pose-aware surrogate, not a maximum-pose geometric error guarantee. Bone IDs
 /// are channel identities, never numeric attributes. Influence order is irrelevant
 /// except for floating-point summation of duplicates. No streams are rewritten.
-/// At most 32 channels (bone count + 3 * blend count) are supported; excess is
-/// rejected, never projected or truncated. Empty deformation inputs use plain simplify.
+/// Exact channels (bone count + 3 * blend count) are bounded by workspace memory
+/// and work limits, never projected or truncated. Public attribute constructors
+/// retain their 32-component limit. Empty deformation inputs use plain simplify.
 ///
 /// ```
 /// use meshoptimizer_rs::*;
@@ -325,6 +332,18 @@ pub fn simplify_character(
 ) -> Result<SimplifiedMesh, Error> {
     run(workspace, |m, ws| {
         let (a, width) = prepare(positions, data, options, m, ws)?;
+        let mut wide_weights = Vec::new();
+        if width > 32 {
+            m.charge(width)?;
+            wide_weights = m.alloc(width, ws)?;
+            wide_weights.resize(width, 1.0);
+        }
+        let small_weights = [1.; 32];
+        let weights = if width <= 32 {
+            &small_weights[..width]
+        } else {
+            wide_weights.as_slice()
+        };
         m.call(ws, |ws| {
             if width == 0 {
                 crate::simplify(indices, positions, settings, ws)
@@ -333,7 +352,7 @@ pub fn simplify_character(
                     indices,
                     positions,
                     view(&a, positions.len(), width)?,
-                    &[1.; 32][..width],
+                    weights,
                     None,
                     settings,
                     ws,
@@ -364,12 +383,23 @@ pub fn build_character_lod_chain(
             return Err(Error::InvalidParameter);
         }
         let (a, width) = prepare(positions, data, options, m, ws)?;
+        let mut wide_weights = Vec::new();
+        if width > 32 {
+            m.charge(width)?;
+            wide_weights = m.alloc(width, ws)?;
+            wide_weights.resize(width, 1.0);
+        }
+        let small_weights = [1.; 32];
+        let weights = if width <= 32 {
+            &small_weights[..width]
+        } else {
+            wide_weights.as_slice()
+        };
         let mut co = *chain_options;
-        let weights = [1.; 32];
         if width != 0 {
             co.attributes = Some(LodChainAttributes::new(
                 view(&a, positions.len(), width)?,
-                &weights[..width],
+                weights,
             ));
         }
         let chain = m.call(ws, |ws| {

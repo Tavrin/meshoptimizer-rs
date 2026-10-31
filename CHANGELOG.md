@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Opt-in `simplify_character` and `build_character_lod_chain` with exact bone-weight importance channels, full blend-target position metrics, and F9 quality reports in bind, blend, and supplied linear skinning poses. The bounded metric accepts up to 32 total channels and supports `no_std` without new features.
+- Opt-in `simplify_character` and `build_character_lod_chain` with exact bone-weight importance channels, full blend-target position metrics, and F9 quality reports in bind, blend, and supplied linear skinning poses. The metric retains exact channels within workspace memory/work limits, including rigs and morph sets above 32 channels, and supports `no_std` without new features.
 
 ## [0.2.16] - 2026-10-30
 
