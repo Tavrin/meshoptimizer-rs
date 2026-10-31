@@ -1,0 +1,5 @@
+     Locking 2 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<target>/profile/reference)
+   Compiling hsr-profile v0.0.0 (<target>/profile)
+    Finished `release` profile [optimized + debuginfo] target(s) in 23.02s

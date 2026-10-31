@@ -1,0 +1,20 @@
+     Locking 8 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed2 v0.0.0 (<target>/speed2/build-none)
+error[E0277]: `?` couldn't convert the error: `meshoptimizer_rs::Error: std::error::Error` is not satisfied
+  --> <worktree>/parity/0217-hsr/speed2/bench.rs:51:89
+   |
+13 | fn main() -> Result<()> {
+   |              ---------- required `meshoptimizer_rs::Error: std::error::Error` because of this
+...
+51 |         let r = m::remove_hidden_triangles(&i, m::Positions::from_packed(&p), o, &mut w)?;
+   |                 ------------------------------------------------------------------------^ the trait `std::error::Error` is not implemented for `meshoptimizer_rs::Error`
+   |                 |
+   |                 this has type `Result<_, meshoptimizer_rs::Error>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+   = note: required for `Box<dyn std::error::Error>` to implement `From<meshoptimizer_rs::Error>`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `hsr-speed2` (bin "hsr-speed2") due to 1 previous error

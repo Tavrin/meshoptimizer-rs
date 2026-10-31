@@ -1,0 +1,4 @@
+RESULT 8.425453550 {"input":124619,"output":98911,"removed":25708,"duplicate":0,"back_to_back":0,"occluded":25708,"work":2235726993,"bytes":28413132}
+READY
+PROFILE raster=0.070995 query=0.081995 outside=0.158990 candidates=25708
+PROFILE rays=8.233466

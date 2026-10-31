@@ -1,0 +1,83 @@
+[
+  {
+    "scene": "breakfast_room",
+    "samples": [
+      {
+        "phase": "warm",
+        "seconds": 2.768820396,
+        "input": 269764,
+        "output": 155018,
+        "duplicate": 480,
+        "back_to_back": 0,
+        "occluded": 114266,
+        "work": 2439570483,
+        "bytes": 61508688
+      },
+      {
+        "phase": "measured",
+        "seconds": 2.207856783,
+        "input": 269764,
+        "output": 155018,
+        "duplicate": 480,
+        "back_to_back": 0,
+        "occluded": 114266,
+        "work": 2439570483,
+        "bytes": 61508688
+      }
+    ]
+  },
+  {
+    "scene": "conference",
+    "samples": [
+      {
+        "phase": "warm",
+        "seconds": 0.817946943,
+        "input": 124619,
+        "output": 98911,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 25708,
+        "work": 1264046261,
+        "bytes": 28415628
+      },
+      {
+        "phase": "measured",
+        "seconds": 0.638958553,
+        "input": 124619,
+        "output": 98911,
+        "duplicate": 0,
+        "back_to_back": 0,
+        "occluded": 25708,
+        "work": 1264046261,
+        "bytes": 28415628
+      }
+    ]
+  },
+  {
+    "scene": "living_room",
+    "samples": [
+      {
+        "phase": "warm",
+        "seconds": 1.495902965,
+        "input": 580637,
+        "output": 576956,
+        "duplicate": 4,
+        "back_to_back": 42,
+        "occluded": 3635,
+        "work": 3502523163,
+        "bytes": 132387732
+      },
+      {
+        "phase": "measured",
+        "seconds": 1.121927224,
+        "input": 580637,
+        "output": 576956,
+        "duplicate": 4,
+        "back_to_back": 42,
+        "occluded": 3635,
+        "work": 3502523163,
+        "bytes": 132387732
+      }
+    ]
+  }
+]

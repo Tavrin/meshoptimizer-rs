@@ -1,0 +1,27 @@
+[
+  {
+    "check": "diff",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "check": "public-text",
+    "exit": 0,
+    "output": "PASS: public text contains no private machine paths or project names\n"
+  },
+  {
+    "check": "format",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "check": "shell",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "check": "git-state",
+    "exit": 0,
+    "output": "PASS unchanged HEAD, branch and index\n"
+  }
+]

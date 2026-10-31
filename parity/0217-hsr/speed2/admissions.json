@@ -1,0 +1,7 @@
+{
+  "profile": 0,
+  "initial_validation_and_campaign": 101,
+  "campaign_retry": 0,
+  "reason": "Retained initial no-default benchmark error conversion failure; fixed in harness only",
+  "canceled_jobs": 0
+}

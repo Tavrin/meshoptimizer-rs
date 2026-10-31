@@ -1,0 +1,36 @@
+build-iterate	0	24.634
+iterate-breakfast_room	0	6.423
+iterate-conference	0	2.146
+iterate-living_room	0	5.550
+build-before	0	19.271
+build-prior	0	19.530
+build-after	0	16.988
+build-none	0	15.497
+build-parallel	0	18.458
+oracle-build	0	0.648
+build-before	0	20.348
+build-serial	0	3.717
+build-before-parallel	0	26.554
+build-parallel	0	18.960
+build-none	101	12.350
+build-before	0	5.891
+build-serial	0	4.356
+build-before-parallel	0	4.885
+build-parallel	0	3.960
+build-none	0	3.203
+breakfast_room-before	0
+breakfast_room-serial	0
+breakfast_room-before-parallel	0
+breakfast_room-parallel	0
+breakfast_room-none	0
+conference-before	0
+conference-serial	0
+conference-before-parallel	0
+conference-parallel	0
+conference-none	0
+living_room-before	0
+living_room-serial	0
+living_room-before-parallel	0
+living_room-parallel	0
+living_room-none	0
+hidden-overflow	0	42.324

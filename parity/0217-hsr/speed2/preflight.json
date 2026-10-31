@@ -1,0 +1,9 @@
+{
+  "head": "06fccefc778251696f1f2eb714aa12f92033ceff",
+  "branch": "perf/0217-hsr-speed",
+  "reference": "f9859cc",
+  "reference_hidden_sha256": "4edc7ce5d3e43aaf1da3650f3be8c93e48f7ee821a1ce0f95d696c8988ae31f1",
+  "starting_hidden_sha256": "4edc7ce5d3e43aaf1da3650f3be8c93e48f7ee821a1ce0f95d696c8988ae31f1",
+  "target_was_absent": true,
+  "git_state_changes": "none; integration remains operator-owned"
+}

@@ -1,0 +1,18 @@
+{
+  "hidden_sha256": "29d22e8e06c0d7d41bbb482c6f7112ee2a8fa0186312c3ae8f07c5ce91057e09",
+  "reference_hidden_sha256": "4edc7ce5d3e43aaf1da3650f3be8c93e48f7ee821a1ce0f95d696c8988ae31f1",
+  "patch_sha256": "47aed070ff664831f579b258cb36b042c3b20ba085512e614f391f6b5dec3599",
+  "report_name": "0217-F8-SPEED2.md",
+  "report_sha256": "d13022eab60140a108acb478d2bba115810829e8cf5bff6c6049df1329e56833",
+  "harness_sha256": {
+    "bench.rs": "aaf80c29afefa4de5a8ccb483a7ed1b6facb6e653540a3ebe4f19efcbba7fa74",
+    "campaign.py": "4201bd80dd46635a4afc19ad4f0a0406a892afd03e997c51f654a76c3840d617",
+    "campaign.sh": "be2360e6944f34ffe24ec69c286c779be5c7ce3977b2eb1818536dc4890513a2",
+    "checks.py": "7ab0e19717d37b3a703d54ccf06202efda0323d10570bc0deff4dd30b93815bc",
+    "iterate.py": "576bc0f1d2f645bea89560b2a74bab8ba73384f7a8e172bd639d8b680c234b70",
+    "iterate.sh": "323dd8b3732cfa610c6cfee8f90bb0edec00620186b536d744fa0795bc6512fd",
+    "oracle.py": "ca0f1a4577be2bbcbdcaadc668fc93ba06e6c84d1a8da314209d55f6583fd1cb",
+    "profile.py": "0f40b72f4f8183767a65187baadfd4805633d33087dbb96c1980274692cd0502",
+    "support.py": "4978853a5bddb458c5c1c9b0063e917adf42772e58dca8adb6b5018431e9c415"
+  }
+}
