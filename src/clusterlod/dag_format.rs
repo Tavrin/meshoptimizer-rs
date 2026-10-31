@@ -7,6 +7,12 @@ use alloc::vec::Vec;
 
 /// Default maximum geometry page size, 128 KiB.
 pub const DEFAULT_PAGE_SIZE: usize = 128 * 1024;
+/// Vertex codec version pinned by format v1 (independent of library defaults).
+pub const V1_VERTEX_CODEC_VERSION: u8 = 1;
+/// Vertex codec compression level pinned by format v1.
+pub const V1_VERTEX_CODEC_LEVEL: u8 = 2;
+/// Index-sequence codec version pinned by format v1.
+pub const V1_INDEX_CODEC_VERSION: u8 = 1;
 /// Format failures; not in C++ meshoptimizer.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -341,6 +347,11 @@ impl<'a> Reader<'a> {
             {
                 return Err(Error::Invalid);
             }
+            if (w[9] & 1 != 0 && codec::decode_vertex_version(vb)? != V1_VERTEX_CODEC_VERSION)
+                || (w[9] & 2 != 0 && codec::decode_index_version(ib)? != V1_INDEX_CODEC_VERSION)
+            {
+                return Err(Error::Unsupported);
+            }
             let vertices = if w[9] & 1 != 0 {
                 codec::decode_vertex_buffer(nv, 16, vb, workspace)?
             } else {
@@ -380,6 +391,28 @@ impl<'a> Reader<'a> {
                 .iter()
                 .any(|&i| size(i).map_or(true, |i| i >= nv))
             {
+                return Err(Error::Invalid);
+            }
+            // Local ids must appear in first-occurrence order and all be used.
+            let mut seen = 0usize;
+            for &i in &geometry.indices {
+                let i = size(i)?;
+                if i > seen {
+                    return Err(Error::Invalid);
+                }
+                if i == seen {
+                    seen = add(seen, 1)?;
+                }
+            }
+            if seen != nv {
+                return Err(Error::Invalid);
+            }
+            // Snapshot ids are unique within a cluster.
+            let mut ids = Vec::new();
+            ids.try_reserve_exact(nv).map_err(|_| Error::Allocation)?;
+            ids.extend(geometry.vertices.iter().map(|v| v.0));
+            ids.sort_unstable();
+            if ids.windows(2).any(|p| p[0] == p[1]) {
                 return Err(Error::Invalid);
             }
             out.push(geometry);
@@ -466,14 +499,22 @@ pub fn write(
         }
         let raw = add(vb.len(), ib.len())?;
         let mut flags = 0;
-        let encoded =
-            codec::encode_vertex_buffer(&vb, nv, 16, codec::VertexEncoding::default(), workspace)?;
+        let encoded = codec::encode_vertex_buffer(
+            &vb,
+            nv,
+            16,
+            codec::VertexEncoding::new(V1_VERTEX_CODEC_VERSION, V1_VERTEX_CODEC_LEVEL)?,
+            workspace,
+        )?;
         if encoded.len() < vb.len() {
             vb = encoded;
             flags |= 1;
         }
-        let encoded =
-            codec::encode_index_sequence(&local, codec::IndexEncoding::default(), workspace)?;
+        let encoded = codec::encode_index_sequence(
+            &local,
+            codec::IndexEncoding::new(V1_INDEX_CODEC_VERSION)?,
+            workspace,
+        )?;
         if encoded.len() < ib.len() {
             ib = encoded;
             flags |= 2;

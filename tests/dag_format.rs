@@ -124,3 +124,38 @@ fn rejects_cycles_nonmonotonic_errors_and_bad_page_geometry() {
     page[4..8].copy_from_slice(&f32::NAN.to_bits().to_le_bytes());
     assert!(reader.decode_page(1, &page, &mut ws).is_err());
 }
+
+/// Single-cluster file with raw (uncompressed) streams, built from the writer's tables.
+fn forge(ids: [u32; 3], indices: [u32; 3]) -> Vec<u8> {
+    let mut out = seed()[..144].to_vec();
+    let pos = [[0f32; 3], [1., 0., 0.], [0., 1., 0.]];
+    let mut payload = Vec::new();
+    for (id, p) in ids.iter().zip(pos) {
+        payload.extend(id.to_le_bytes());
+        for f in p {
+            payload.extend(f.to_bits().to_le_bytes());
+        }
+    }
+    for i in indices {
+        payload.extend(i.to_le_bytes());
+    }
+    let put = |b: &mut Vec<u8>, at: usize, v: usize| {
+        b[at..at + 4].copy_from_slice(&u32::try_from(v).unwrap().to_le_bytes())
+    };
+    put(&mut out, 28, 144 + payload.len());
+    put(&mut out, 80, 48);
+    put(&mut out, 84, 12);
+    put(&mut out, 100, 0);
+    put(&mut out, 132, payload.len());
+    out.extend(payload);
+    out
+}
+
+#[test]
+fn rejects_non_canonical_vertex_order_duplicate_ids_and_unused_vertices() {
+    let mut ws = Workspace::default();
+    assert!(Reader::read(&forge([0, 1, 2], [0, 1, 2]), &mut ws).is_ok());
+    assert!(Reader::read(&forge([0, 1, 2], [2, 1, 0]), &mut ws).is_err());
+    assert!(Reader::read(&forge([0, 0, 2], [0, 1, 2]), &mut ws).is_err());
+    assert!(Reader::read(&forge([0, 1, 2], [0, 1, 1]), &mut ws).is_err());
+}

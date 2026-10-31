@@ -77,17 +77,21 @@ fit in emission order; a cluster larger than the capacity fails with `Limit`.
 Each cluster stores its vertex stream immediately followed by its index stream.
 Clusters exactly fill their page with no gaps, overlaps or unreferenced bytes.
 Raw vertices have four words: original flat snapshot vertex ID, position XYZ.
-Vertices are remapped to local IDs in first-index-occurrence order. Snapshot IDs
+Vertices are remapped to local IDs in first-index-occurrence order; readers
+reject pages whose index stream violates that order, repeats a snapshot ID
+within a cluster, or leaves a vertex record unreferenced. Snapshot IDs
 are opaque labels, not offsets into an external vertex buffer; positions are
 self-contained, finite and bit-exact. Cross-cluster deduplication is deliberately
 absent so every page can decode independently. Index streams are local u32 values.
 
-A compressed vertex stream uses the crate's existing default vertex encoding
-with stride 16. A compressed index stream uses its default index-sequence
-encoding with stride 4. Sequence encoding preserves triangle/index order exactly.
+A compressed vertex stream uses vertex codec version 1 at level 2 with stride
+16. A compressed index stream uses index-sequence codec version 1 with stride 4.
+These are pinned by named constants (`V1_VERTEX_CODEC_VERSION`,
+`V1_VERTEX_CODEC_LEVEL`, `V1_INDEX_CODEC_VERSION`) and do not follow library
+defaults; readers reject any other codec version for format v1. Sequence encoding preserves triangle/index order exactly.
 Each codec is used only if strictly smaller than the raw stream. Stored and raw
 sizes are recorded independently. Compression selection and bytes are deterministic
-for v1; changes to writer defaults require a format version decision.
+for v1; changing a pinned codec setting requires a format version decision.
 
 ## Compatibility, validation and resource bounds
 
