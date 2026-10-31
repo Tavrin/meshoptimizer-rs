@@ -422,7 +422,7 @@ pub(super) fn prune(
     cutoff: f32,
     work: &mut Work,
 ) -> Result<(usize, f32), Error> {
-    let mut write = 0;
+    let mut write_generic = 0;
     let mut next = f32::MAX;
     units!(work, (0..count).step_by(3).len(), |m| prune_triangles(
         out,
@@ -430,10 +430,10 @@ pub(super) fn prune(
         components,
         errors,
         cutoff,
-        (&mut write, &mut next),
+        (&mut write_generic, &mut next),
         m
     ))?;
-    Ok((write, next))
+    Ok((write_generic, next))
 }
 #[inline(always)]
 fn prune_triangles<M: super::Meter>(
@@ -442,7 +442,7 @@ fn prune_triangles<M: super::Meter>(
     components: &[u32],
     errors: &[f32],
     cutoff: f32,
-    (write, next): (&mut usize, &mut f32),
+    (write_generic, next): (&mut usize, &mut f32),
     m: &mut M,
 ) -> Result<(), Error> {
     for i in (0..count).step_by(3) {
@@ -452,8 +452,8 @@ fn prune_triangles<M: super::Meter>(
             if *next > error {
                 *next = error;
             }
-            out.copy_within(i..i + 3, *write);
-            *write += 3;
+            out.copy_within(i..i + 3, *write_generic);
+            *write_generic += 3;
         }
     }
     Ok(())
@@ -465,7 +465,20 @@ fn prune_triangles<M: super::Meter>(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for invalid error/positions; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn simplify_prune(
+#[inline]
+pub fn simplify_prune_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        simplify_prune_u32(indices, positions, target_error, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn simplify_prune_u32(
     indices: &[u32],
     positions: Positions<'_>,
     target_error: f32,
@@ -1049,7 +1062,24 @@ fn solve_records<const LIMITED: bool>(s: &mut State, work: &mut Work) -> Result<
 /// # Errors
 /// Same errors as [`crate::simplify_with_attributes`]. `InvalidLayout` for incompatible mutable views.
 #[allow(clippy::too_many_arguments)]
-pub fn simplify_with_update(
+#[inline]
+pub fn simplify_with_update_generic<I: crate::Index>(
+    indices: &mut [I],
+    positions: &mut crate::PositionsMut<'_>,
+    attributes: Option<&mut crate::AttributesMut<'_>>,
+    weights: &[f32],
+    flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        simplify_with_update_u32(
+            indices, positions, attributes, weights, flags, settings, workspace,
+        )
+    })
+}
+
+fn simplify_with_update_u32(
     indices: &mut [u32],
     positions: &mut crate::PositionsMut<'_>,
     mut attributes: Option<&mut crate::AttributesMut<'_>>,
@@ -1355,14 +1385,36 @@ fn interpolate(y: f32, x0: f32, y0: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> 
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidLayout` for mismatched locks; `InvalidParameter` for invalid targets/error/positions; `UnknownFlags` for unsupported locks; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn simplify_sloppy(
+#[inline]
+pub fn simplify_sloppy_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    locks: Option<&[VertexFlags]>,
+    target_index_count: usize,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        simplify_sloppy_u32(
+            indices,
+            positions,
+            locks,
+            target_index_count,
+            target_error,
+            workspace,
+        )
+        .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn simplify_sloppy_u32(
     indices: &[u32],
     positions: Positions<'_>,
     locks: Option<&[VertexFlags]>,
     target_index_count: usize,
     target_error: f32,
     workspace: &mut Workspace,
-) -> Result<SimplifiedMesh, Error> {
+) -> Result<SimplifiedMeshGeneric, Error> {
     Ok(simplify_sloppy_kernel::<false>(
         indices,
         positions,
@@ -1536,7 +1588,7 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
     target_error: f32,
     destination: Option<&mut [u32]>,
     workspace: &mut Workspace,
-) -> Result<(SimplifiedMesh, usize), Error> {
+) -> Result<(SimplifiedMeshGeneric, usize), Error> {
     let mut work = workspace.begin();
     let result = (|| {
         topology(indices, positions.len(), &mut work)?;
@@ -1688,7 +1740,7 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
                 cache,
             });
             return Ok((
-                SimplifiedMesh {
+                SimplifiedMeshGeneric {
                     indices: Vec::new(),
                     error: 1.0,
                 },
@@ -1830,7 +1882,7 @@ fn simplify_sloppy_kernel<const CALLER: bool>(
             cache,
         });
         Ok((
-            SimplifiedMesh {
+            SimplifiedMeshGeneric {
                 indices: owned,
                 error: sqrt(error),
             },
@@ -1855,7 +1907,24 @@ fn color_at(colors: &Option<Positions<'_>>, i: usize) -> Result<[f32; 3], Error>
 /// `InvalidLayout` for mismatched colors; `InvalidParameter` for invalid target, weight or positions;
 /// `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn simplify_points(
+pub fn simplify_points_generic<I: crate::Index>(
+    positions: Positions<'_>,
+    colors: Option<Positions<'_>>,
+    color_weight: f32,
+    target_vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    simplify_points_u32(
+        positions,
+        colors,
+        color_weight,
+        target_vertex_count,
+        workspace,
+    )
+    .and_then(|value| I::from_vec(value, workspace))
+}
+
+fn simplify_points_u32(
     positions: Positions<'_>,
     colors: Option<Positions<'_>>,
     color_weight: f32,
@@ -2194,7 +2263,32 @@ fn simplify_points_kernel_impl<const COLORS: bool, const RESERVOIR: usize>(
 ///
 /// # Errors
 /// Same errors as [`simplify_sloppy`]. `BufferTooSmall` if the destination cannot hold the required prefix.
-pub fn simplify_sloppy_into(
+#[inline]
+pub fn simplify_sloppy_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    locks: Option<&[VertexFlags]>,
+    target_index_count: usize,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            simplify_sloppy_into_u32(
+                destination,
+                indices,
+                positions,
+                locks,
+                target_index_count,
+                target_error,
+                workspace,
+            )
+        })
+    })
+}
+
+fn simplify_sloppy_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -2225,7 +2319,22 @@ pub fn simplify_sloppy_into(
 ///
 /// # Errors
 /// Same errors as [`simplify_prune`]. `BufferTooSmall` if the destination cannot hold the required prefix.
-pub fn simplify_prune_into(
+#[inline]
+pub fn simplify_prune_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            simplify_prune_into_u32(destination, indices, positions, target_error, workspace)
+        })
+    })
+}
+
+fn simplify_prune_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -2249,7 +2358,28 @@ pub fn simplify_prune_into(
 ///
 /// # Errors
 /// Same errors as [`simplify_points`]. `BufferTooSmall` if the destination cannot hold the required prefix.
-pub fn simplify_points_into(
+#[inline]
+pub fn simplify_points_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    positions: Positions<'_>,
+    colors: Option<Positions<'_>>,
+    color_weight: f32,
+    target_vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_mut(destination, workspace, |destination, workspace| {
+        simplify_points_into_u32(
+            destination,
+            positions,
+            colors,
+            color_weight,
+            target_vertex_count,
+            workspace,
+        )
+    })
+}
+
+fn simplify_points_into_u32(
     destination: &mut [u32],
     positions: Positions<'_>,
     colors: Option<Positions<'_>>,
@@ -2270,6 +2400,126 @@ pub fn simplify_points_into(
         workspace,
     )?
     .1)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_prune_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_prune(
+    indices: &[u32],
+    positions: Positions<'_>,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    simplify_prune_generic::<u32>(indices, positions, target_error, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_with_update_generic`] for selectable index widths.
+#[inline]
+#[allow(clippy::too_many_arguments)]
+pub fn simplify_with_update(
+    indices: &mut [u32],
+    positions: &mut crate::PositionsMut<'_>,
+    attributes: Option<&mut crate::AttributesMut<'_>>,
+    weights: &[f32],
+    flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    simplify_with_update_generic::<u32>(
+        indices, positions, attributes, weights, flags, settings, workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`simplify_sloppy_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_sloppy(
+    indices: &[u32],
+    positions: Positions<'_>,
+    locks: Option<&[VertexFlags]>,
+    target_index_count: usize,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMesh, Error> {
+    simplify_sloppy_generic::<u32>(
+        indices,
+        positions,
+        locks,
+        target_index_count,
+        target_error,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`simplify_points_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_points(
+    positions: Positions<'_>,
+    colors: Option<Positions<'_>>,
+    color_weight: f32,
+    target_vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    simplify_points_generic::<u32>(
+        positions,
+        colors,
+        color_weight,
+        target_vertex_count,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`simplify_sloppy_into_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_sloppy_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    locks: Option<&[VertexFlags]>,
+    target_index_count: usize,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    simplify_sloppy_into_generic::<u32>(
+        destination,
+        indices,
+        positions,
+        locks,
+        target_index_count,
+        target_error,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`simplify_prune_into_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_prune_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    target_error: f32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    simplify_prune_into_generic::<u32>(destination, indices, positions, target_error, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_points_into_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_points_into(
+    destination: &mut [u32],
+    positions: Positions<'_>,
+    colors: Option<Positions<'_>>,
+    color_weight: f32,
+    target_vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    simplify_points_into_generic::<u32>(
+        destination,
+        positions,
+        colors,
+        color_weight,
+        target_vertex_count,
+        workspace,
+    )
 }
 
 #[cfg(test)]
@@ -2312,6 +2562,7 @@ mod solve_tests {
         }
     }
 }
+
 #[cfg(test)]
 mod bounds_tests {
     use super::*;

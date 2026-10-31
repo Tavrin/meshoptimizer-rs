@@ -98,9 +98,9 @@ pub struct VertexRemap {
 }
 /// Fetch-ordered initialized vertex bytes and rewritten indices.
 #[derive(Debug)]
-pub struct FetchedMesh {
+pub struct FetchedMeshGeneric<I: crate::Index = u32> {
     /// Rewritten topology.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Used tightly packed vertex records.
     pub vertices: Vec<u8>,
     /// Number of used vertices.
@@ -108,9 +108,9 @@ pub struct FetchedMesh {
 }
 /// Unique first-corner indices and source vertices for provoking-vertex rendering.
 #[derive(Debug)]
-pub struct ProvokingMesh {
+pub struct ProvokingMeshGeneric<I: crate::Index = u32> {
     /// Rotated and rewritten triangle indices.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Output vertex to original vertex mapping, including clones.
     pub reorder: Vec<u32>,
 }
@@ -572,19 +572,41 @@ fn shadow_single<const SIZE: usize>(
 /// # Errors
 /// `IndexOutOfBounds` for invalid references;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_vertex_remap(
+#[inline]
+pub fn generate_vertex_remap_generic<I: crate::Index>(
+    indices: Option<&[I]>,
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_vertex_remap_u32(indices, vertices, workspace)
+    })
+}
+
+fn generate_vertex_remap_u32(
     indices: Option<&[u32]>,
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<VertexRemap, Error> {
-    generate_vertex_remap_multi(indices, &[vertices], workspace)
+    generate_vertex_remap_multi_generic(indices, &[vertices], workspace)
 }
 /// Generate compact numbering from one through sixteen initialized key streams.
 ///
 /// # Errors
 /// `InvalidLayout` for absent or mismatched streams; `IndexOutOfBounds` for invalid references;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_vertex_remap_multi(
+#[inline]
+pub fn generate_vertex_remap_multi_generic<I: crate::Index>(
+    indices: Option<&[I]>,
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_vertex_remap_multi_u32(indices, streams, workspace)
+    })
+}
+
+fn generate_vertex_remap_multi_u32(
     indices: Option<&[u32]>,
     streams: &[VertexStream<'_>],
     workspace: &mut Workspace,
@@ -693,7 +715,18 @@ fn custom_equal(equal: &mut impl FnMut(u32, u32) -> bool, a: u32, b: u32) -> boo
 ///
 /// # Panics
 /// Panics if the supplied callback panics.
-pub fn generate_vertex_remap_custom(
+pub fn generate_vertex_remap_custom_generic<I: crate::Index>(
+    indices: Option<&[I]>,
+    positions: Positions<'_>,
+    equal: impl FnMut(u32, u32) -> bool,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_vertex_remap_custom_u32(indices, positions, equal, workspace)
+    })
+}
+
+fn generate_vertex_remap_custom_u32(
     indices: Option<&[u32]>,
     positions: Positions<'_>,
     mut equal: impl FnMut(u32, u32) -> bool,
@@ -726,7 +759,15 @@ pub fn generate_vertex_remap_custom(
 /// # Errors
 /// `NumericalFailure` if bounded hash probing finds no slot.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_position_remap(
+pub fn generate_position_remap_generic<I: crate::Index>(
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    generate_position_remap_u32(positions, workspace)
+        .and_then(|value| I::from_vec(value, workspace))
+}
+
+fn generate_position_remap_u32(
     positions: Positions<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<u32>, Error> {
@@ -798,7 +839,19 @@ pub(crate) fn weld_position(
 ///
 /// # Errors
 /// Same errors as [`generate_vertex_remap_multi`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_vertex_remap_multi_into(
+#[inline]
+pub fn generate_vertex_remap_multi_into_generic<I: crate::Index>(
+    destination: &mut [u32],
+    indices: Option<&[I]>,
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_vertex_remap_multi_into_u32(destination, indices, streams, workspace)
+    })
+}
+
+fn generate_vertex_remap_multi_into_u32(
     destination: &mut [u32],
     indices: Option<&[u32]>,
     streams: &[VertexStream<'_>],
@@ -829,13 +882,25 @@ pub fn generate_vertex_remap_multi_into(
 ///
 /// # Errors
 /// Same errors as [`generate_vertex_remap`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_vertex_remap_into(
+#[inline]
+pub fn generate_vertex_remap_into_generic<I: crate::Index>(
+    destination: &mut [u32],
+    indices: Option<&[I]>,
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_vertex_remap_into_u32(destination, indices, vertices, workspace)
+    })
+}
+
+fn generate_vertex_remap_into_u32(
     destination: &mut [u32],
     indices: Option<&[u32]>,
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<usize, Error> {
-    generate_vertex_remap_multi_into(destination, indices, &[vertices], workspace)
+    generate_vertex_remap_multi_into_generic(destination, indices, &[vertices], workspace)
 }
 
 #[inline(always)]
@@ -1010,7 +1075,21 @@ pub fn remap_vertex_buffer(
 ///
 /// # Errors
 /// Same errors as [`remap_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
-pub fn remap_index_buffer_into(
+#[inline]
+pub fn remap_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: Option<&[I]>,
+    remap: &[u32],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            remap_index_buffer_into_u32(destination, indices, remap, workspace)
+        })
+    })
+}
+
+fn remap_index_buffer_into_u32(
     destination: &mut [u32],
     indices: Option<&[u32]>,
     remap: &[u32],
@@ -1159,7 +1238,19 @@ fn remap_index_gather(output: &mut [u32], input: &[u32], remap: &[u32]) -> bool 
 /// # Errors
 /// `InvalidParameter` if unindexed remapping exceeds the remap length; `IndexOutOfBounds` for invalid references;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn remap_index_buffer(
+#[inline]
+pub fn remap_index_buffer_generic<I: crate::Index>(
+    indices: Option<&[I]>,
+    remap: &[u32],
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        remap_index_buffer_u32(indices, remap, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn remap_index_buffer_u32(
     indices: Option<&[u32]>,
     remap: &[u32],
     workspace: &mut Workspace,
@@ -1225,7 +1316,7 @@ fn filter_triangle<const LIMITED: bool>(
     remap: &[u32],
     table: &mut [[u32; 3]],
     out: &mut [u32],
-    write: &mut usize,
+    write_generic: &mut usize,
     budget: (&mut Work, &mut usize),
 ) -> Result<(), Error> {
     let (work, visits) = budget;
@@ -1260,8 +1351,8 @@ fn filter_triangle<const LIMITED: bool>(
         }
         if table[bucket] == [NONE; 3] {
             table[bucket] = key;
-            out[*write..*write + 3].copy_from_slice(source);
-            *write += 3;
+            out[*write_generic..*write_generic + 3].copy_from_slice(source);
+            *write_generic += 3;
             return Ok(());
         }
         bucket = (bucket + probe + 1) & mask;
@@ -1280,7 +1371,7 @@ fn filter_triangles(
     table.fill([NONE; 3]);
     let source = indices.as_chunks::<3>().0;
     let bound = table.len().checked_add(1).ok_or(Error::SizeOverflow)?;
-    let mut write = 0;
+    let mut write_generic = 0;
     let mut begin = 0;
     while begin < source.len() {
         let count = work.batch(source.len() - begin, bound)?;
@@ -1291,7 +1382,7 @@ fn filter_triangles(
                 remap,
                 table,
                 out,
-                &mut write,
+                &mut write_generic,
                 (work, &mut visits),
             )?;
             begin += 1;
@@ -1303,7 +1394,7 @@ fn filter_triangles(
                         remap,
                         table,
                         out,
-                        &mut write,
+                        &mut write_generic,
                         (work, &mut visits),
                     )?;
                 }
@@ -1314,7 +1405,7 @@ fn filter_triangles(
             begin += count;
         }
     }
-    Ok(write)
+    Ok(write_generic)
 }
 
 fn shadow_filter<const FILTER: bool>(
@@ -1377,9 +1468,9 @@ fn shadow_filter<const FILTER: bool>(
             return Ok((owned, indices.len()));
         }
         generate_streams(remap, Some(indices), table, streams, false, &mut work)?;
-        let write = filter_triangles(out, indices, remap, triangles, &mut work)?;
-        owned.truncate(write);
-        Ok((owned, write))
+        let write_generic = filter_triangles(out, indices, remap, triangles, &mut work)?;
+        owned.truncate(write_generic);
+        Ok((owned, write_generic))
     })();
     workspace.finish(&work);
     result
@@ -1389,12 +1480,24 @@ fn shadow_filter<const FILTER: bool>(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_shadow_index_buffer(
+#[inline]
+pub fn generate_shadow_index_buffer_generic<I: crate::Index>(
+    indices: &[I],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        generate_shadow_index_buffer_u32(indices, vertices, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn generate_shadow_index_buffer_u32(
     indices: &[u32],
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<u32>, Error> {
-    generate_shadow_index_buffer_multi(indices, &[vertices], workspace)
+    generate_shadow_index_buffer_multi_generic(indices, &[vertices], workspace)
 }
 /// Multi-stream shadow indices, preserving original vertex numbering.
 ///
@@ -1402,7 +1505,19 @@ pub fn generate_shadow_index_buffer(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidLayout` for absent or mismatched streams;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_shadow_index_buffer_multi(
+#[inline]
+pub fn generate_shadow_index_buffer_multi_generic<I: crate::Index>(
+    indices: &[I],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        generate_shadow_index_buffer_multi_u32(indices, streams, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn generate_shadow_index_buffer_multi_u32(
     indices: &[u32],
     streams: &[VertexStream<'_>],
     workspace: &mut Workspace,
@@ -1416,12 +1531,24 @@ pub fn generate_shadow_index_buffer_multi(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `NumericalFailure` if bounded hash probing finds no slot.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn filter_index_buffer(
+#[inline]
+pub fn filter_index_buffer_generic<I: crate::Index>(
+    indices: &[I],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        filter_index_buffer_u32(indices, vertices, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn filter_index_buffer_u32(
     indices: &[u32],
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<u32>, Error> {
-    filter_index_buffer_multi(indices, &[vertices], workspace)
+    filter_index_buffer_multi_generic(indices, &[vertices], workspace)
 }
 /// Multi-stream triangle filtering.
 ///
@@ -1429,7 +1556,19 @@ pub fn filter_index_buffer(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidLayout` for absent or mismatched streams; `NumericalFailure` if bounded hash probing finds no slot.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn filter_index_buffer_multi(
+#[inline]
+pub fn filter_index_buffer_multi_generic<I: crate::Index>(
+    indices: &[I],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        filter_index_buffer_multi_u32(indices, streams, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn filter_index_buffer_multi_u32(
     indices: &[u32],
     streams: &[VertexStream<'_>],
     workspace: &mut Workspace,
@@ -1716,7 +1855,19 @@ fn edge_lookup_kernel<const LIMITED: bool>(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `NumericalFailure` if bounded hash probing finds no slot.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_adjacency_index_buffer(
+#[inline]
+pub fn generate_adjacency_index_buffer_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        generate_adjacency_index_buffer_u32(indices, positions, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn generate_adjacency_index_buffer_u32(
     indices: &[u32],
     positions: Positions<'_>,
     workspace: &mut Workspace,
@@ -1729,7 +1880,19 @@ pub fn generate_adjacency_index_buffer(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `NumericalFailure` if bounded hash probing finds no slot.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_tessellation_index_buffer(
+#[inline]
+pub fn generate_tessellation_index_buffer_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        generate_tessellation_index_buffer_u32(indices, positions, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn generate_tessellation_index_buffer_u32(
     indices: &[u32],
     positions: Positions<'_>,
     workspace: &mut Workspace,
@@ -1742,11 +1905,23 @@ pub fn generate_tessellation_index_buffer(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn generate_provoking_index_buffer(
+#[inline]
+pub fn generate_provoking_index_buffer_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<ProvokingMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        generate_provoking_index_buffer_u32(indices, vertex_count, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn generate_provoking_index_buffer_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
-) -> Result<ProvokingMesh, Error> {
+) -> Result<ProvokingMeshGeneric, Error> {
     Ok(provoking(indices, vertex_count, None, workspace)?.0)
 }
 #[inline(always)]
@@ -1756,7 +1931,7 @@ fn provoking_triangle(
     remap: &mut [u32],
     valence: &mut [u8],
     reorder: &mut [u32],
-    write: &mut usize,
+    write_generic: &mut usize,
 ) {
     let mut tri = tri;
     let rank = |i: u32| {
@@ -1773,22 +1948,27 @@ fn provoking_triangle(
         tri = [tri[2], tri[0], tri[1]];
     }
     if remap[tri[0] as usize] == NONE {
-        remap[tri[0] as usize] = *write as u32;
+        remap[tri[0] as usize] = *write_generic as u32;
     }
-    reorder[*write] = tri[0];
-    *destination = [*write as u32, tri[1], tri[2]];
-    *write += 1;
+    reorder[*write_generic] = tri[0];
+    *destination = [*write_generic as u32, tri[1], tri[2]];
+    *write_generic += 1;
     for i in tri {
         valence[i as usize] = valence[i as usize].wrapping_sub(1);
     }
 }
 #[inline(always)]
-fn provoking_corner(index: &mut u32, remap: &mut [u32], reorder: &mut [u32], write: &mut usize) {
+fn provoking_corner(
+    index: &mut u32,
+    remap: &mut [u32],
+    reorder: &mut [u32],
+    write_generic: &mut usize,
+) {
     let r = &mut remap[*index as usize];
     if *r == NONE {
-        *r = *write as u32;
-        reorder[*write] = *index;
-        *write += 1;
+        *r = *write_generic as u32;
+        reorder[*write_generic] = *index;
+        *write_generic += 1;
     }
     *index = *r;
 }
@@ -1797,7 +1977,7 @@ fn provoking(
     vertex_count: usize,
     destination: Option<(&mut [u32], &mut [u32])>,
     workspace: &mut Workspace,
-) -> Result<(ProvokingMesh, usize), Error> {
+) -> Result<(ProvokingMeshGeneric, usize), Error> {
     let mut work = workspace.begin();
     let result = (|| {
         topology(indices, vertex_count, &mut work)?;
@@ -1839,7 +2019,7 @@ fn provoking(
                 valence[i as usize] = valence[i as usize].wrapping_add(1);
             }
         }
-        let mut write = 0;
+        let mut write_generic = 0;
         if work.precharge(indices.len() / 3, 1)? {
             for (&tri, dest) in indices
                 .as_chunks::<3>()
@@ -1847,7 +2027,7 @@ fn provoking(
                 .iter()
                 .zip(out.as_chunks_mut::<3>().0)
             {
-                provoking_triangle(tri, dest, remap, valence, reorder, &mut write);
+                provoking_triangle(tri, dest, remap, valence, reorder, &mut write_generic);
             }
         } else {
             for (&tri, dest) in indices
@@ -1857,30 +2037,30 @@ fn provoking(
                 .zip(out.as_chunks_mut::<3>().0)
             {
                 work.add(1)?;
-                provoking_triangle(tri, dest, remap, valence, reorder, &mut write);
+                provoking_triangle(tri, dest, remap, valence, reorder, &mut write_generic);
             }
         }
         let corners = indices.len() / 3 * 2;
         if work.precharge(corners, 1)? {
             for tri in out.as_chunks_mut::<3>().0 {
-                provoking_corner(&mut tri[1], remap, reorder, &mut write);
-                provoking_corner(&mut tri[2], remap, reorder, &mut write);
+                provoking_corner(&mut tri[1], remap, reorder, &mut write_generic);
+                provoking_corner(&mut tri[2], remap, reorder, &mut write_generic);
             }
         } else {
             for tri in out.as_chunks_mut::<3>().0 {
                 for i in &mut tri[1..] {
                     work.add(1)?;
-                    provoking_corner(i, remap, reorder, &mut write);
+                    provoking_corner(i, remap, reorder, &mut write_generic);
                 }
             }
         }
-        owned_reorder.truncate(write);
+        owned_reorder.truncate(write_generic);
         Ok((
-            ProvokingMesh {
+            ProvokingMeshGeneric {
                 indices: owned,
                 reorder: owned_reorder,
             },
-            write,
+            write_generic,
         ))
     })();
     workspace.finish(&work);
@@ -1893,22 +2073,25 @@ fn provoking(
 /// Invalid input is retained so operations can preserve error precedence,
 /// logical work usage and caller-buffer writes, including on short budgets.
 #[derive(Clone, Copy, Debug)]
-pub struct FetchIndices<'a> {
-    indices: &'a [u32],
+pub struct FetchIndicesGeneric<'a, I: crate::Index = u32> {
+    indices: &'a [I],
     vertex_count: usize,
     visits: usize,
     error: Option<Error>,
 }
-impl<'a> FetchIndices<'a> {
+impl<'a, I: crate::Index> FetchIndicesGeneric<'a, I> {
     /// Cache validation of an arbitrary index sequence and its vertex count.
     ///
     /// Errors are deferred to the fetch-remap operation, where the original
     /// validation visits are charged to its [`Workspace`] in constant time
     /// when they fit. Short budgets replay the original charged prefix.
-    pub fn new(indices: &'a [u32], vertex_count: usize) -> Self {
+    pub fn new_generic(indices: &'a [I], vertex_count: usize) -> Self {
         let (visits, error) = if vertex_count > u32::MAX as usize {
             (0, Some(Error::SizeOverflow))
-        } else if let Some(at) = indices.iter().position(|&i| i as usize >= vertex_count) {
+        } else if let Some(at) = indices
+            .iter()
+            .position(|&i| i.to_u32() as usize >= vertex_count)
+        {
             (at + 1, Some(Error::IndexOutOfBounds))
         } else {
             (indices.len(), None)
@@ -1940,8 +2123,23 @@ impl<'a> FetchIndices<'a> {
 /// # Errors
 /// `IndexOutOfBounds` for invalid references;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn optimize_vertex_fetch_remap_with_indices(
-    source: FetchIndices<'_>,
+pub fn optimize_vertex_fetch_remap_with_indices_generic<I: crate::Index>(
+    source: FetchIndicesGeneric<'_, I>,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    I::with_input(source.indices, workspace, |indices, workspace| {
+        let source = FetchIndicesGeneric {
+            indices,
+            vertex_count: source.vertex_count,
+            visits: source.visits,
+            error: source.error,
+        };
+        optimize_vertex_fetch_remap_with_indices_u32(source, workspace)
+    })
+}
+
+fn optimize_vertex_fetch_remap_with_indices_u32(
+    source: FetchIndicesGeneric<'_>,
     workspace: &mut Workspace,
 ) -> Result<VertexRemap, Error> {
     let mut work = workspace.begin();
@@ -1968,9 +2166,25 @@ pub fn optimize_vertex_fetch_remap_with_indices(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_fetch_remap_with_indices`]. `BufferTooSmall` if an output buffer is too short.
-pub fn optimize_vertex_fetch_remap_with_indices_into(
+pub fn optimize_vertex_fetch_remap_with_indices_into_generic<I: crate::Index>(
     destination: &mut [u32],
-    source: FetchIndices<'_>,
+    source: FetchIndicesGeneric<'_, I>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(source.indices, workspace, |indices, workspace| {
+        let source = FetchIndicesGeneric {
+            indices,
+            vertex_count: source.vertex_count,
+            visits: source.visits,
+            error: source.error,
+        };
+        optimize_vertex_fetch_remap_with_indices_into_u32(destination, source, workspace)
+    })
+}
+
+fn optimize_vertex_fetch_remap_with_indices_into_u32(
+    destination: &mut [u32],
+    source: FetchIndicesGeneric<'_>,
     workspace: &mut Workspace,
 ) -> Result<usize, Error> {
     let mut work = workspace.begin();
@@ -2001,7 +2215,18 @@ pub fn optimize_vertex_fetch_remap_with_indices_into(
 /// # Errors
 /// `IndexOutOfBounds` for invalid references;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn optimize_vertex_fetch_remap(
+#[inline]
+pub fn optimize_vertex_fetch_remap_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_fetch_remap_u32(indices, vertex_count, workspace)
+    })
+}
+
+fn optimize_vertex_fetch_remap_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
@@ -2032,7 +2257,19 @@ pub fn optimize_vertex_fetch_remap(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_fetch_remap`]. `BufferTooSmall` if an output buffer is too short.
-pub fn optimize_vertex_fetch_remap_into(
+#[inline]
+pub fn optimize_vertex_fetch_remap_into_generic<I: crate::Index>(
+    destination: &mut [u32],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_fetch_remap_into_u32(destination, indices, vertex_count, workspace)
+    })
+}
+
+fn optimize_vertex_fetch_remap_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -2161,7 +2398,7 @@ fn fetch_owned<const SIZE: usize>(
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
     work: &mut Work,
-) -> Result<FetchedMesh, Error> {
+) -> Result<FetchedMeshGeneric, Error> {
     let (mut out, mut records, owned) = {
         let mut budget = Budget::new(workspace);
         let out = budget.copied(indices)?;
@@ -2177,7 +2414,7 @@ fn fetch_owned<const SIZE: usize>(
         fetch_owned_kernel::<SIZE, false>(&mut records, vertices, &[], remap, &mut out, work)?
     };
     debug_assert_eq!(records.len(), vertex_count);
-    Ok(FetchedMesh {
+    Ok(FetchedMeshGeneric {
         indices: out,
         vertices: records.into_flattened(),
         vertex_count,
@@ -2219,11 +2456,23 @@ fn fetch_owned_kernel<const SIZE: usize, const PACKED: bool>(
 /// # Errors
 /// `IndexOutOfBounds` for invalid references;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn optimize_vertex_fetch(
+#[inline]
+pub fn optimize_vertex_fetch_generic<I: crate::Index>(
+    indices: &[I],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<FetchedMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_fetch_u32(indices, vertices, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_fetch_u32(
     indices: &[u32],
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
-) -> Result<FetchedMesh, Error> {
+) -> Result<FetchedMeshGeneric, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         validate_indices(Some(indices), vertices.count, &mut work)?;
@@ -2253,7 +2502,7 @@ pub fn optimize_vertex_fetch(
             &mut work,
         )?;
         bytes.truncate(next * vertices.size);
-        Ok(FetchedMesh {
+        Ok(FetchedMeshGeneric {
             indices: out,
             vertices: bytes,
             vertex_count: next,
@@ -2267,7 +2516,19 @@ pub fn optimize_vertex_fetch(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_fetch`]. `BufferTooSmall` if destination storage is insufficient.
-pub fn optimize_vertex_fetch_into(
+#[inline]
+pub fn optimize_vertex_fetch_into_generic<I: crate::Index>(
+    destination: &mut [u8],
+    indices: &mut [I],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_fetch_into_u32(destination, indices, vertices, workspace)
+    })
+}
+
+fn optimize_vertex_fetch_into_u32(
     destination: &mut [u8],
     indices: &mut [u32],
     vertices: VertexStream<'_>,
@@ -2298,19 +2559,47 @@ pub fn optimize_vertex_fetch_into(
 ///
 /// # Errors
 /// Same errors as [`filter_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
-pub fn filter_index_buffer_into(
+#[inline]
+pub fn filter_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            filter_index_buffer_into_u32(destination, indices, vertices, workspace)
+        })
+    })
+}
+
+fn filter_index_buffer_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<usize, Error> {
-    filter_index_buffer_multi_into(destination, indices, &[vertices], workspace)
+    filter_index_buffer_multi_into_generic(destination, indices, &[vertices], workspace)
 }
 /// Caller-buffer multi-stream filtering; late work exhaustion can leave partial output.
 ///
 /// # Errors
 /// Same errors as [`filter_index_buffer_multi`]. `BufferTooSmall` if an output buffer is too short.
-pub fn filter_index_buffer_multi_into(
+#[inline]
+pub fn filter_index_buffer_multi_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            filter_index_buffer_multi_into_u32(destination, indices, streams, workspace)
+        })
+    })
+}
+
+fn filter_index_buffer_multi_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     streams: &[VertexStream<'_>],
@@ -2322,19 +2611,47 @@ pub fn filter_index_buffer_multi_into(
 ///
 /// # Errors
 /// Same errors as [`generate_shadow_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_shadow_index_buffer_into(
+#[inline]
+pub fn generate_shadow_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            generate_shadow_index_buffer_into_u32(destination, indices, vertices, workspace)
+        })
+    })
+}
+
+fn generate_shadow_index_buffer_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<usize, Error> {
-    generate_shadow_index_buffer_multi_into(destination, indices, &[vertices], workspace)
+    generate_shadow_index_buffer_multi_into_generic(destination, indices, &[vertices], workspace)
 }
 /// Caller-buffer multi-stream shadow indices; late work exhaustion can leave partial output.
 ///
 /// # Errors
 /// Same errors as [`generate_shadow_index_buffer_multi`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_shadow_index_buffer_multi_into(
+#[inline]
+pub fn generate_shadow_index_buffer_multi_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            generate_shadow_index_buffer_multi_into_u32(destination, indices, streams, workspace)
+        })
+    })
+}
+
+fn generate_shadow_index_buffer_multi_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     streams: &[VertexStream<'_>],
@@ -2346,7 +2663,21 @@ pub fn generate_shadow_index_buffer_multi_into(
 ///
 /// # Errors
 /// Same errors as [`generate_adjacency_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_adjacency_index_buffer_into(
+#[inline]
+pub fn generate_adjacency_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            generate_adjacency_index_buffer_into_u32(destination, indices, positions, workspace)
+        })
+    })
+}
+
+fn generate_adjacency_index_buffer_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -2359,7 +2690,21 @@ pub fn generate_adjacency_index_buffer_into(
 ///
 /// # Errors
 /// Same errors as [`generate_tessellation_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_tessellation_index_buffer_into(
+#[inline]
+pub fn generate_tessellation_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            generate_tessellation_index_buffer_into_u32(destination, indices, positions, workspace)
+        })
+    })
+}
+
+fn generate_tessellation_index_buffer_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -2402,7 +2747,17 @@ fn remap_into<const OUTLINE: bool>(
 ///
 /// # Errors
 /// Same errors as [`generate_position_remap`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_position_remap_into(
+pub fn generate_position_remap_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(destination, workspace, |destination, workspace| {
+        generate_position_remap_into_u32(destination, positions, workspace)
+    })
+}
+
+fn generate_position_remap_into_u32(
     destination: &mut [u32],
     positions: Positions<'_>,
     workspace: &mut Workspace,
@@ -2437,7 +2792,19 @@ pub fn generate_position_remap_into(
 ///
 /// # Panics
 /// Panics if the supplied callback panics.
-pub fn generate_vertex_remap_custom_into(
+pub fn generate_vertex_remap_custom_into_generic<I: crate::Index>(
+    destination: &mut [u32],
+    indices: Option<&[I]>,
+    positions: Positions<'_>,
+    equal: impl FnMut(u32, u32) -> bool,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_vertex_remap_custom_into_u32(destination, indices, positions, equal, workspace)
+    })
+}
+
+fn generate_vertex_remap_custom_into_u32(
     destination: &mut [u32],
     indices: Option<&[u32]>,
     positions: Positions<'_>,
@@ -2471,7 +2838,28 @@ pub fn generate_vertex_remap_custom_into(
 ///
 /// # Errors
 /// Same errors as [`generate_provoking_index_buffer`]. `BufferTooSmall` if an output buffer is too short.
-pub fn generate_provoking_index_buffer_into(
+#[inline]
+pub fn generate_provoking_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    reorder: &mut [u32],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            generate_provoking_index_buffer_into_u32(
+                destination,
+                reorder,
+                indices,
+                vertex_count,
+                workspace,
+            )
+        })
+    })
+}
+
+fn generate_provoking_index_buffer_into_u32(
     destination: &mut [u32],
     reorder: &mut [u32],
     indices: &[u32],
@@ -2486,3 +2874,351 @@ pub fn generate_provoking_index_buffer_into(
     )?
     .1)
 }
+
+/// The source-compatible u32 entry point; see [`generate_vertex_remap_generic`] for selectable index widths.
+#[inline]
+pub fn generate_vertex_remap(
+    indices: Option<&[u32]>,
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    generate_vertex_remap_generic::<u32>(indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_vertex_remap_multi_generic`] for selectable index widths.
+#[inline]
+pub fn generate_vertex_remap_multi(
+    indices: Option<&[u32]>,
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    generate_vertex_remap_multi_generic::<u32>(indices, streams, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_vertex_remap_custom_generic`] for selectable index widths.
+#[inline]
+pub fn generate_vertex_remap_custom(
+    indices: Option<&[u32]>,
+    positions: Positions<'_>,
+    equal: impl FnMut(u32, u32) -> bool,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    generate_vertex_remap_custom_generic::<u32>(indices, positions, equal, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_position_remap_generic`] for selectable index widths.
+#[inline]
+pub fn generate_position_remap(
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    generate_position_remap_generic::<u32>(positions, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_vertex_remap_multi_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_vertex_remap_multi_into(
+    destination: &mut [u32],
+    indices: Option<&[u32]>,
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    generate_vertex_remap_multi_into_generic::<u32>(destination, indices, streams, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_vertex_remap_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_vertex_remap_into(
+    destination: &mut [u32],
+    indices: Option<&[u32]>,
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    generate_vertex_remap_into_generic::<u32>(destination, indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`remap_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn remap_index_buffer_into(
+    destination: &mut [u32],
+    indices: Option<&[u32]>,
+    remap: &[u32],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    remap_index_buffer_into_generic::<u32>(destination, indices, remap, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`remap_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn remap_index_buffer(
+    indices: Option<&[u32]>,
+    remap: &[u32],
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    remap_index_buffer_generic::<u32>(indices, remap, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_shadow_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn generate_shadow_index_buffer(
+    indices: &[u32],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    generate_shadow_index_buffer_generic::<u32>(indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_shadow_index_buffer_multi_generic`] for selectable index widths.
+#[inline]
+pub fn generate_shadow_index_buffer_multi(
+    indices: &[u32],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    generate_shadow_index_buffer_multi_generic::<u32>(indices, streams, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`filter_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn filter_index_buffer(
+    indices: &[u32],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    filter_index_buffer_generic::<u32>(indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`filter_index_buffer_multi_generic`] for selectable index widths.
+#[inline]
+pub fn filter_index_buffer_multi(
+    indices: &[u32],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    filter_index_buffer_multi_generic::<u32>(indices, streams, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_adjacency_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn generate_adjacency_index_buffer(
+    indices: &[u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    generate_adjacency_index_buffer_generic::<u32>(indices, positions, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_tessellation_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn generate_tessellation_index_buffer(
+    indices: &[u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    generate_tessellation_index_buffer_generic::<u32>(indices, positions, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_provoking_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn generate_provoking_index_buffer(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<ProvokingMesh, Error> {
+    generate_provoking_index_buffer_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_with_indices_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_fetch_remap_with_indices(
+    source: FetchIndices<'_>,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    optimize_vertex_fetch_remap_with_indices_generic::<u32>(source, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_with_indices_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_fetch_remap_with_indices_into(
+    destination: &mut [u32],
+    source: FetchIndices<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    optimize_vertex_fetch_remap_with_indices_into_generic::<u32>(destination, source, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_fetch_remap(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<VertexRemap, Error> {
+    optimize_vertex_fetch_remap_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_fetch_remap_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    optimize_vertex_fetch_remap_into_generic::<u32>(destination, indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_fetch_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_fetch(
+    indices: &[u32],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<FetchedMesh, Error> {
+    optimize_vertex_fetch_generic::<u32>(indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_fetch_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_fetch_into(
+    destination: &mut [u8],
+    indices: &mut [u32],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    optimize_vertex_fetch_into_generic::<u32>(destination, indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`filter_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn filter_index_buffer_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    filter_index_buffer_into_generic::<u32>(destination, indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`filter_index_buffer_multi_into_generic`] for selectable index widths.
+#[inline]
+pub fn filter_index_buffer_multi_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    filter_index_buffer_multi_into_generic::<u32>(destination, indices, streams, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_shadow_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_shadow_index_buffer_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertices: VertexStream<'_>,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    generate_shadow_index_buffer_into_generic::<u32>(destination, indices, vertices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_shadow_index_buffer_multi_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_shadow_index_buffer_multi_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    streams: &[VertexStream<'_>],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    generate_shadow_index_buffer_multi_into_generic::<u32>(destination, indices, streams, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_adjacency_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_adjacency_index_buffer_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    generate_adjacency_index_buffer_into_generic::<u32>(destination, indices, positions, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_tessellation_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_tessellation_index_buffer_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    generate_tessellation_index_buffer_into_generic::<u32>(
+        destination,
+        indices,
+        positions,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`generate_position_remap_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_position_remap_into(
+    destination: &mut [u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    generate_position_remap_into_generic::<u32>(destination, positions, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`generate_vertex_remap_custom_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_vertex_remap_custom_into(
+    destination: &mut [u32],
+    indices: Option<&[u32]>,
+    positions: Positions<'_>,
+    equal: impl FnMut(u32, u32) -> bool,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    generate_vertex_remap_custom_into_generic::<u32>(
+        destination,
+        indices,
+        positions,
+        equal,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`generate_provoking_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn generate_provoking_index_buffer_into(
+    destination: &mut [u32],
+    reorder: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    generate_provoking_index_buffer_into_generic::<u32>(
+        destination,
+        reorder,
+        indices,
+        vertex_count,
+        workspace,
+    )
+}
+
+impl<'a> FetchIndicesGeneric<'a, u32> {
+    /// Source-compatible u32 operation.
+    #[inline]
+    pub fn new(indices: &'a [u32], vertex_count: usize) -> Self {
+        Self::new_generic(indices, vertex_count)
+    }
+}
+
+/// The source-compatible u32 form of [`FetchedMeshGeneric`].
+pub type FetchedMesh = FetchedMeshGeneric<u32>;
+
+/// The source-compatible u32 form of [`ProvokingMeshGeneric`].
+pub type ProvokingMesh = ProvokingMeshGeneric<u32>;
+
+/// The source-compatible u32 form of [`FetchIndicesGeneric`].
+pub type FetchIndices<'a> = FetchIndicesGeneric<'a, u32>;

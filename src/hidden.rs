@@ -94,9 +94,9 @@ impl HiddenReport {
 /// Filtered mesh in original triangle order. Not in C++ meshoptimizer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct VisibleMesh {
+pub struct VisibleMeshGeneric<I: crate::Index = u32> {
     /// Original indices of retained triangles; positions are unchanged.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Disjoint removal counts.
     pub report: HiddenReport,
 }
@@ -149,12 +149,25 @@ pub struct VisibleMesh {
 /// invalid index, `NumericalFailure` for a non-finite referenced position,
 /// `InvalidParameter` for invalid options/views, and the usual `SizeOverflow`,
 /// `LimitExceeded` or `AllocationFailed`. No partial result is returned.
-pub fn remove_hidden_triangles(
+#[inline]
+pub fn remove_hidden_triangles_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    options: HiddenOptions<'_>,
+    workspace: &mut Workspace,
+) -> Result<VisibleMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        remove_hidden_triangles_u32(indices, positions, options, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn remove_hidden_triangles_u32(
     indices: &[u32],
     positions: Positions<'_>,
     options: HiddenOptions<'_>,
     workspace: &mut Workspace,
-) -> Result<VisibleMesh, Error> {
+) -> Result<VisibleMeshGeneric, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         let mut budget = Budget::new(workspace);
@@ -166,7 +179,7 @@ pub fn remove_hidden_triangles(
                 out.extend_from_slice(t);
             }
         }
-        Ok(VisibleMesh {
+        Ok(VisibleMeshGeneric {
             indices: out,
             report,
         })
@@ -180,7 +193,22 @@ pub fn remove_hidden_triangles(
 /// destination unchanged; success writes [`HiddenReport::index_count`] entries
 /// and preserves the tail. Options, sampling and errors are identical to the
 /// owned form, with `BufferTooSmall` when the retained indices do not fit.
-pub fn remove_hidden_triangles_into(
+#[inline]
+pub fn remove_hidden_triangles_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    options: HiddenOptions<'_>,
+    workspace: &mut Workspace,
+) -> Result<HiddenReport, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            remove_hidden_triangles_into_u32(destination, indices, positions, options, workspace)
+        })
+    })
+}
+
+fn remove_hidden_triangles_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -1215,6 +1243,32 @@ fn outside_visibility(
     budget.release(visible);
     Ok(())
 }
+
+/// The source-compatible u32 entry point; see [`remove_hidden_triangles_generic`] for selectable index widths.
+#[inline]
+pub fn remove_hidden_triangles(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: HiddenOptions<'_>,
+    workspace: &mut Workspace,
+) -> Result<VisibleMesh, Error> {
+    remove_hidden_triangles_generic::<u32>(indices, positions, options, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`remove_hidden_triangles_into_generic`] for selectable index widths.
+#[inline]
+pub fn remove_hidden_triangles_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: HiddenOptions<'_>,
+    workspace: &mut Workspace,
+) -> Result<HiddenReport, Error> {
+    remove_hidden_triangles_into_generic::<u32>(destination, indices, positions, options, workspace)
+}
+
+/// The source-compatible u32 form of [`VisibleMeshGeneric`].
+pub type VisibleMesh = VisibleMeshGeneric<u32>;
 
 #[cfg(test)]
 mod tests {

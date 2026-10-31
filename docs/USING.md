@@ -879,3 +879,34 @@ can still approach quadratic work. Outside views execute serially with identical
 output regardless of the `parallel` feature or thread-pool size. Occlusion is measured against
 the original mesh; removing its sampled-hidden surfaces does not guarantee
 identical continuous visibility of the filtered mesh.
+
+## 16-bit vertex indices
+
+Existing names retain their exact u32 signatures. Add `_generic` to any
+index-processing function or width-aware method name to select an index width.
+These additions accept a sealed `Index` element type: `u16` or
+`u32`. The width-aware input and result structs have a `Generic` suffix,
+for example `MeshletsGeneric<u16>` and `LodQualityMeshGeneric`. Original
+struct names remain concrete u32 types, preserving standalone literal inference.
+`parallel::EncodeInputGeneric` is the width-aware descriptor enum; the original
+`EncodeInput` enum and its variant imports remain available. Remap tables, face identifiers, offsets and packed
+local triangle words retain their documented metadata types.
+
+```rust
+use meshoptimizer_rs::{optimize_vertex_cache_generic, Error, Workspace};
+let indices = [0u16, 1, 2];
+let ordered: Vec<u16> = optimize_vertex_cache_generic(&indices, 3, &mut Workspace::default())?;
+assert_eq!(ordered, indices);
+# Ok::<(), Error>(())
+```
+
+For output-only operations, select the element type with a return annotation
+or a turbofish, for example `simplify_points_generic::<u16>`. Annotate otherwise
+unconstrained integer literals (`0u32` or `0u16`). The u32 adapter borrows
+buffers directly and moves owned output without conversion. The u16 adapter
+uses fallible temporary u32 storage charged to workspace limits. An output
+index above 65,535 returns `Error::IndexOverflow`; it is never truncated.
+Caller-buffer tails are preserved. A failed narrowing conversion leaves its
+index destination unchanged; mutable vertex data follows each operation's
+existing partial-mutation contract. Byte-oriented index decoders retain their
+explicit element-width argument and check two-byte output for overflow.

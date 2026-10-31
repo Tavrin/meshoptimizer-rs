@@ -1,6 +1,6 @@
 use crate::{
-    simplify, simplify_scale, simplify_with_attributes, Attributes, Error, Limits, Positions,
-    SimplifyOptions, SimplifySettings, Usage, VertexFlags, Workspace,
+    simplify_generic, simplify_scale, simplify_with_attributes_generic, Attributes, Error, Limits,
+    Positions, SimplifyOptions, SimplifySettings, Usage, VertexFlags, Workspace,
 };
 use alloc::vec::Vec;
 use core::fmt;
@@ -113,9 +113,9 @@ impl<'a> LodChainOptions<'a> {
 /// clusters) would be separate APIs rather than fields here.
 #[derive(Debug)]
 #[non_exhaustive]
-pub struct LodLevel {
+pub struct LodLevelGeneric<I: crate::Index = u32> {
     /// Indices referencing the original vertices.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// The error the simplifier returned for this level, unmodified. It is per
     /// level: in successive mode it is relative to this level's input (the
     /// previous level), not to the source and not cumulative. With attributes it
@@ -138,9 +138,9 @@ pub struct LodLevel {
 /// The generated levels in target order.
 #[derive(Debug)]
 #[non_exhaustive]
-pub struct LodChain {
+pub struct LodChainGeneric<I: crate::Index = u32> {
     /// Generated levels.
-    pub levels: Vec<LodLevel>,
+    pub levels: Vec<LodLevelGeneric<I>>,
 }
 /// A failed [`build_lod_chain`] call: the underlying [`Error`] and the level it
 /// occurred in.
@@ -221,12 +221,12 @@ impl Meter {
 /// # Errors
 /// [`LodChainError`] with `InvalidParameter` for invalid targets or caps, and the
 /// simplification, allocation and limit errors of the failing level.
-pub fn build_lod_chain(
-    indices: &[u32],
+pub fn build_lod_chain_generic<I: crate::Index>(
+    indices: &[I],
     positions: Positions<'_>,
     options: &LodChainOptions<'_>,
     workspace: &mut Workspace,
-) -> Result<LodChain, LodChainError> {
+) -> Result<LodChainGeneric<I>, LodChainError> {
     let limits = workspace.limits();
     let mut meter = Meter {
         limit: limits.max_work,
@@ -242,14 +242,14 @@ pub fn build_lod_chain(
     result
 }
 
-fn build(
-    indices: &[u32],
+fn build<I: crate::Index>(
+    indices: &[I],
     positions: Positions<'_>,
     options: &LodChainOptions<'_>,
     workspace: &mut Workspace,
     limits: Limits,
     meter: &mut Meter,
-) -> Result<LodChain, LodChainError> {
+) -> Result<LodChainGeneric<I>, LodChainError> {
     let whole = |error: Error| LodChainError { level: None, error };
     let at = |level: usize| {
         move |error: Error| LodChainError {
@@ -304,9 +304,9 @@ fn build(
         }
         prev = t;
     }
-    let mut levels: Vec<LodLevel> = Vec::new();
+    let mut levels: Vec<LodLevelGeneric<I>> = Vec::new();
     let metadata = len
-        .checked_mul(core::mem::size_of::<LodLevel>())
+        .checked_mul(core::mem::size_of::<LodLevelGeneric<I>>())
         .ok_or(Error::SizeOverflow)
         .map_err(whole)?;
     if metadata > limits.max_bytes {
@@ -320,7 +320,7 @@ fn build(
     // by each level's own accounting under the reduced limit below.
     let mut used = levels
         .capacity()
-        .checked_mul(core::mem::size_of::<LodLevel>())
+        .checked_mul(core::mem::size_of::<LodLevelGeneric<I>>())
         .ok_or(Error::SizeOverflow)
         .map_err(whole)?;
     meter.peak = used;
@@ -350,7 +350,7 @@ fn build(
                 .map_err(at(i))?,
         });
         let result = match (options.attributes, options.vertex_flags) {
-            (Some(a), flags) => simplify_with_attributes(
+            (Some(a), flags) => simplify_with_attributes_generic(
                 input,
                 positions,
                 a.attributes,
@@ -359,10 +359,11 @@ fn build(
                 settings,
                 workspace,
             ),
-            (None, Some(flags)) => {
+            (None, Some(flags)) => I::with_input(input, workspace, |input, workspace| {
                 crate::simplify::simplify_flagged(input, positions, flags, settings, workspace)
-            }
-            (None, None) => simplify(input, positions, settings, workspace),
+                    .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+            }),
+            (None, None) => simplify_generic(input, positions, settings, workspace),
         };
         let error_limited = workspace.lod_error_limited;
         let usage = workspace.usage();
@@ -389,13 +390,13 @@ fn build(
                 result
                     .indices
                     .capacity()
-                    .checked_mul(4)
+                    .checked_mul(core::mem::size_of::<I>())
                     .ok_or(Error::SizeOverflow)
                     .map_err(at(i))?,
             )
             .ok_or(Error::SizeOverflow)
             .map_err(at(i))?;
-        levels.push(LodLevel {
+        levels.push(LodLevelGeneric {
             triangle_count: result.indices.len() / 3,
             target_reached: result.indices.len() <= target(i),
             stopped_at_error_limit: result.indices.len() > target(i) && error_limited,
@@ -404,13 +405,13 @@ fn build(
             scale,
         });
     }
-    Ok(LodChain { levels })
+    Ok(LodChainGeneric { levels })
 }
 
 /// The largest axis range of the vertices `input` references, as sparse
 /// simplification computes it. An index outside `positions` cannot occur after a
 /// successful simplify call.
-fn sparse_scale(input: &[u32], positions: Positions<'_>) -> Result<f32, Error> {
+fn sparse_scale<I: crate::Index>(input: &[I], positions: Positions<'_>) -> Result<f32, Error> {
     if input.is_empty() {
         return Ok(0.0);
     }
@@ -418,7 +419,7 @@ fn sparse_scale(input: &[u32], positions: Positions<'_>) -> Result<f32, Error> {
     let mut hi = [f32::NEG_INFINITY; 3];
     for &index in input {
         let p = positions
-            .get(index as usize)
+            .get(index.to_u32() as usize)
             .ok_or(Error::IndexOutOfBounds)?;
         for k in 0..3 {
             lo[k] = lo[k].min(p[k]);
@@ -427,3 +428,20 @@ fn sparse_scale(input: &[u32], positions: Positions<'_>) -> Result<f32, Error> {
     }
     Ok((hi[0] - lo[0]).max(hi[1] - lo[1]).max(hi[2] - lo[2]))
 }
+
+/// The source-compatible u32 entry point; see [`build_lod_chain_generic`] for selectable index widths.
+#[inline]
+pub fn build_lod_chain(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: &LodChainOptions<'_>,
+    workspace: &mut Workspace,
+) -> Result<LodChain, LodChainError> {
+    build_lod_chain_generic::<u32>(indices, positions, options, workspace)
+}
+
+/// The source-compatible u32 form of [`LodLevelGeneric`].
+pub type LodLevel = LodLevelGeneric<u32>;
+
+/// The source-compatible u32 form of [`LodChainGeneric`].
+pub type LodChain = LodChainGeneric<u32>;

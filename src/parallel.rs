@@ -46,8 +46,8 @@
 use crate::codec::{self, BufferView, IndexEncoding, VertexEncoding};
 use crate::workspace::checked_bytes;
 use crate::{
-    Attributes, Error, Limits, MeshletSettings, Meshlets, Positions, SimplifiedMesh,
-    SimplifySettings, VertexFlags, Workspace,
+    Attributes, Error, Limits, MeshletSettings, Meshlets, MeshletsGeneric, Positions,
+    SimplifiedMesh, SimplifiedMeshGeneric, SimplifySettings, VertexFlags, Workspace,
 };
 use alloc::vec::Vec;
 use core::mem::size_of;
@@ -112,9 +112,9 @@ pub struct LodAttributes<'a> {
 
 /// One chain. Each level simplifies the preceding level's topology.
 #[derive(Clone, Copy, Debug)]
-pub struct LodChainInput<'a> {
+pub struct LodChainInputGeneric<'a, I: crate::Index = u32> {
     /// Original triangle topology.
-    pub indices: &'a [u32],
+    pub indices: &'a [I],
     /// Full vertex positions; returned indices keep their original references.
     pub positions: Positions<'a>,
     /// Per-level settings, in execution order. Targets are index counts relative
@@ -148,17 +148,17 @@ pub struct LodChainInput<'a> {
 ///
 /// # Errors
 /// Same errors as [`crate::simplify_with_attributes`]. Limits apply to cumulative work and peak live storage for the chain.
-pub fn simplify_lod_chain(
-    input: &LodChainInput<'_>,
+pub fn simplify_lod_chain_generic<I: crate::Index>(
+    input: &LodChainInputGeneric<'_, I>,
     workspace: &mut Workspace,
-) -> Result<Vec<SimplifiedMesh>, Error> {
+) -> Result<Vec<SimplifiedMeshGeneric<I>>, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         let limits = workspace.limits();
         workspace.release_unused();
-        let mut levels =
-            crate::budget::Budget::new(workspace).reserved::<SimplifiedMesh>(input.levels.len())?;
-        let mut live = checked_bytes(levels.capacity(), size_of::<SimplifiedMesh>())?;
+        let mut levels = crate::budget::Budget::new(workspace)
+            .reserved::<SimplifiedMeshGeneric<I>>(input.levels.len())?;
+        let mut live = checked_bytes(levels.capacity(), size_of::<SimplifiedMeshGeneric<I>>())?;
         let mut spent = 0u64;
         for &settings in input.levels {
             work.add(1)?;
@@ -175,8 +175,8 @@ pub fn simplify_lod_chain(
             });
             let indices = levels.last().map_or(input.indices, |level| &level.indices);
             let result = match input.attributes {
-                None => crate::simplify(indices, input.positions, settings, &mut child),
-                Some(a) => crate::simplify_with_attributes(
+                None => crate::simplify_generic(indices, input.positions, settings, &mut child),
+                Some(a) => crate::simplify_with_attributes_generic(
                     indices,
                     input.positions,
                     a.attributes,
@@ -196,7 +196,7 @@ pub fn simplify_lod_chain(
             )?;
             let level = result?;
             live = live
-                .checked_add(checked_bytes(level.indices.capacity(), 4)?)
+                .checked_add(checked_bytes(level.indices.capacity(), size_of::<I>())?)
                 .ok_or(Error::SizeOverflow)?;
             levels.push(level);
         }
@@ -215,16 +215,16 @@ pub fn simplify_lod_chain(
 ///
 /// # Panics
 /// Panics if Rayon cannot initialize its thread pool or a worker panics.
-pub fn simplify_lod_chains_batch(
-    inputs: &[LodChainInput<'_>],
+pub fn simplify_lod_chains_batch_generic<I: crate::Index>(
+    inputs: &[LodChainInputGeneric<'_, I>],
     limits: Limits,
-) -> BatchResult<Vec<SimplifiedMesh>> {
-    batch(inputs, limits, simplify_lod_chain)
+) -> BatchResult<Vec<SimplifiedMeshGeneric<I>>> {
+    batch(inputs, limits, simplify_lod_chain_generic)
 }
 
 /// An independent buffer to encode. Configuration is local to each descriptor.
 #[derive(Clone, Copy, Debug)]
-pub enum EncodeInput<'a> {
+pub enum EncodeInputGeneric<'a, I: crate::Index = u32> {
     /// Initialized vertex bytes, including supplied padding.
     Vertices {
         /// Exact count times stride bytes.
@@ -238,26 +238,26 @@ pub enum EncodeInput<'a> {
     },
     /// Triangle-list indices.
     Triangles {
-        /// Topology in u32 form.
-        indices: &'a [u32],
+        /// Topology in the selected index width.
+        indices: &'a [I],
         /// Format version.
         encoding: IndexEncoding,
     },
     /// General index sequence.
     Sequence {
-        /// Values in u32 form.
-        indices: &'a [u32],
+        /// Values in the selected index width.
+        indices: &'a [I],
         /// Format version.
         encoding: IndexEncoding,
     },
 }
-impl EncodeInput<'_> {
+impl<I: crate::Index> EncodeInputGeneric<'_, I> {
     /// Encode this descriptor through the corresponding sequential codec API.
     ///
     /// # Errors
     /// The selected [`crate::codec`] encoder's errors: `InvalidLayout`, `InvalidTopology`,
     /// `SizeOverflow`, `LimitExceeded` or `AllocationFailed`, for invalid input or exhausted resources.
-    pub fn encode(self, workspace: &mut Workspace) -> Result<Vec<u8>, Error> {
+    pub fn encode_generic(self, workspace: &mut Workspace) -> Result<Vec<u8>, Error> {
         match self {
             Self::Vertices {
                 vertices,
@@ -266,10 +266,10 @@ impl EncodeInput<'_> {
                 encoding,
             } => codec::encode_vertex_buffer(vertices, count, stride, encoding, workspace),
             Self::Triangles { indices, encoding } => {
-                codec::encode_index_buffer(indices, encoding, workspace)
+                codec::encode_index_buffer_generic(indices, encoding, workspace)
             }
             Self::Sequence { indices, encoding } => {
-                codec::encode_index_sequence(indices, encoding, workspace)
+                codec::encode_index_sequence_generic(indices, encoding, workspace)
             }
         }
     }
@@ -283,8 +283,13 @@ impl EncodeInput<'_> {
 ///
 /// # Panics
 /// Panics if Rayon cannot initialize its thread pool or a worker panics.
-pub fn encode_buffers_batch(inputs: &[EncodeInput<'_>], limits: Limits) -> BatchResult<Vec<u8>> {
-    batch(inputs, limits, |input, workspace| input.encode(workspace))
+pub fn encode_buffers_batch_generic<I: crate::Index>(
+    inputs: &[EncodeInputGeneric<'_, I>],
+    limits: Limits,
+) -> BatchResult<Vec<u8>> {
+    batch(inputs, limits, |input, workspace| {
+        input.encode_generic(workspace)
+    })
 }
 
 /// One checked EXT buffer view and its compressed bytes.
@@ -343,9 +348,9 @@ pub enum MeshletBuilder {
 
 /// Mesh and builder settings for one independent clustering operation.
 #[derive(Clone, Copy, Debug)]
-pub struct MeshletInput<'a> {
+pub struct MeshletInputGeneric<'a, I: crate::Index = u32> {
     /// Triangle topology.
-    pub indices: &'a [u32],
+    pub indices: &'a [I],
     /// Full vertex positions.
     pub positions: Positions<'a>,
     /// Maximum vertices and triangles per meshlet.
@@ -353,12 +358,12 @@ pub struct MeshletInput<'a> {
     /// Sequential algorithm and its parameters.
     pub builder: MeshletBuilder,
 }
-impl MeshletInput<'_> {
+impl<I: crate::Index> MeshletInputGeneric<'_, I> {
     /// Run this descriptor through the selected sequential meshlet builder.
     ///
     /// # Errors
     /// Same errors as [`crate::build_meshlets`]. The selected builder validates its own parameters.
-    pub fn build(self, workspace: &mut Workspace) -> Result<Meshlets, Error> {
+    pub fn build_generic(self, workspace: &mut Workspace) -> Result<MeshletsGeneric<I>, Error> {
         let Self {
             indices,
             positions,
@@ -367,16 +372,16 @@ impl MeshletInput<'_> {
         } = self;
         match builder {
             MeshletBuilder::Scan => {
-                crate::build_meshlets_scan(indices, positions.len(), settings, workspace)
+                crate::build_meshlets_scan_generic(indices, positions.len(), settings, workspace)
             }
             MeshletBuilder::Standard { cone_weight } => {
-                crate::build_meshlets(indices, positions, settings, cone_weight, workspace)
+                crate::build_meshlets_generic(indices, positions, settings, cone_weight, workspace)
             }
             MeshletBuilder::Flex {
                 min_triangles,
                 cone_weight,
                 split_factor,
-            } => crate::build_meshlets_flex(
+            } => crate::build_meshlets_flex_generic(
                 indices,
                 positions,
                 settings,
@@ -388,7 +393,7 @@ impl MeshletInput<'_> {
             MeshletBuilder::Spatial {
                 min_triangles,
                 fill_weight,
-            } => crate::build_meshlets_spatial(
+            } => crate::build_meshlets_spatial_generic(
                 indices,
                 positions,
                 settings,
@@ -408,17 +413,22 @@ impl MeshletInput<'_> {
 ///
 /// # Panics
 /// Panics if Rayon cannot initialize its thread pool or a worker panics.
-pub fn build_meshlets_batch(inputs: &[MeshletInput<'_>], limits: Limits) -> BatchResult<Meshlets> {
-    batch(inputs, limits, |input, workspace| input.build(workspace))
+pub fn build_meshlets_batch_generic<I: crate::Index>(
+    inputs: &[MeshletInputGeneric<'_, I>],
+    limits: Limits,
+) -> BatchResult<MeshletsGeneric<I>> {
+    batch(inputs, limits, |input, workspace| {
+        input.build_generic(workspace)
+    })
 }
 
 /// One independent cluster-LOD build, including its exclusive mutable positions.
 #[cfg(feature = "clusterlod")]
-pub struct ClusterLodInput<'a> {
+pub struct ClusterLodInputGeneric<'a, I: crate::Index = u32> {
     /// Complete pinned-demo configuration.
     pub config: crate::clusterlod::Config,
     /// Mesh input; dilation can mutate positions even when this item fails.
-    pub mesh: crate::clusterlod::Mesh<'a>,
+    pub mesh: crate::clusterlod::MeshGeneric<'a, I>,
 }
 
 /// Build independent cluster-LOD DAGs in parallel using [`crate::clusterlod::build`].
@@ -435,19 +445,19 @@ pub struct ClusterLodInput<'a> {
 /// # Panics
 /// Panics if Rayon cannot initialize its thread pool or a worker panics.
 #[cfg(feature = "clusterlod")]
-pub fn build_cluster_lod_batch(
-    inputs: &mut [ClusterLodInput<'_>],
+pub fn build_cluster_lod_batch_generic<I: crate::Index>(
+    inputs: &mut [ClusterLodInputGeneric<'_, I>],
     limits: Limits,
-) -> BatchResult<Vec<crate::clusterlod::GroupOutput>> {
+) -> BatchResult<Vec<crate::clusterlod::GroupOutputGeneric<I>>> {
     let mut result = slots(inputs.len())?;
     result
         .par_iter_mut()
         .zip(inputs.par_iter_mut())
         .for_each(|(out, input)| {
             *out = item(limits, |workspace| {
-                crate::clusterlod::build(
+                crate::clusterlod::build_generic(
                     input.config,
-                    crate::clusterlod::Mesh {
+                    crate::clusterlod::MeshGeneric {
                         indices: input.mesh.indices,
                         positions: &mut *input.mesh.positions,
                         attributes: input.mesh.attributes,
@@ -521,15 +531,15 @@ pub fn build_cluster_hierarchies_batch(
 
 /// One canonical caller-buffer DAG build, including exclusive positions and output.
 #[cfg(feature = "clusterlod")]
-pub struct DagBuildInput<'a> {
+pub struct DagBuildInputGeneric<'a, I: crate::Index = u32> {
     /// Complete pinned-demo configuration.
     pub config: crate::clusterlod::Config,
     /// Mesh input; dilation may mutate positions even on failure.
-    pub mesh: crate::clusterlod::Mesh<'a>,
+    pub mesh: crate::clusterlod::MeshGeneric<'a, I>,
     /// Maximum children per spatial node, at least two.
     pub node_width: usize,
     /// Caller storage; publish only successful returned prefixes.
-    pub destination: crate::clusterlod::DagBuffers<'a>,
+    pub destination: crate::clusterlod::DagBuffersGeneric<'a, I>,
 }
 
 /// Build independent DAGs into caller buffers, retaining ordered item results.
@@ -547,8 +557,8 @@ pub struct DagBuildInput<'a> {
 /// # Panics
 /// Panics if Rayon cannot initialize its thread pool or a worker panics.
 #[cfg(feature = "clusterlod")]
-pub fn build_dags_batch_into(
-    inputs: &mut [DagBuildInput<'_>],
+pub fn build_dags_batch_into_generic<I: crate::Index>(
+    inputs: &mut [DagBuildInputGeneric<'_, I>],
     limits: Limits,
 ) -> BatchResult<crate::clusterlod::DagCounts> {
     let mut result = slots(inputs.len())?;
@@ -557,9 +567,9 @@ pub fn build_dags_batch_into(
         .zip(inputs.par_iter_mut())
         .for_each(|(out, input)| {
             *out = item(limits, |workspace| {
-                crate::clusterlod::build_dag_into(
+                crate::clusterlod::build_dag_into_generic(
                     input.config,
-                    crate::clusterlod::Mesh {
+                    crate::clusterlod::MeshGeneric {
                         indices: input.mesh.indices,
                         positions: &mut *input.mesh.positions,
                         attributes: input.mesh.attributes,
@@ -568,7 +578,7 @@ pub fn build_dags_batch_into(
                         attribute_protect_mask: input.mesh.attribute_protect_mask,
                     },
                     input.node_width,
-                    crate::clusterlod::DagBuffers {
+                    crate::clusterlod::DagBuffersGeneric {
                         vertex_source: &mut *input.destination.vertex_source,
                         vertex_positions: &mut *input.destination.vertex_positions,
                         indices: &mut *input.destination.indices,
@@ -581,4 +591,132 @@ pub fn build_dags_batch_into(
             });
         });
     Ok(result)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_lod_chain_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_lod_chain(
+    input: &LodChainInput<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<SimplifiedMesh>, Error> {
+    simplify_lod_chain_generic::<u32>(input, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_lod_chains_batch_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_lod_chains_batch(
+    inputs: &[LodChainInput<'_>],
+    limits: Limits,
+) -> BatchResult<Vec<SimplifiedMesh>> {
+    simplify_lod_chains_batch_generic::<u32>(inputs, limits)
+}
+
+/// The source-compatible u32 entry point; see [`encode_buffers_batch_generic`] for selectable index widths.
+#[inline]
+pub fn encode_buffers_batch(inputs: &[EncodeInput<'_>], limits: Limits) -> BatchResult<Vec<u8>> {
+    batch(inputs, limits, |input, workspace| input.encode(workspace))
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_batch_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_batch(inputs: &[MeshletInput<'_>], limits: Limits) -> BatchResult<Meshlets> {
+    build_meshlets_batch_generic::<u32>(inputs, limits)
+}
+
+/// The source-compatible u32 entry point; see [`build_cluster_lod_batch_generic`] for selectable index widths.
+#[cfg(feature = "clusterlod")]
+#[inline]
+pub fn build_cluster_lod_batch(
+    inputs: &mut [ClusterLodInput<'_>],
+    limits: Limits,
+) -> BatchResult<Vec<crate::clusterlod::GroupOutput>> {
+    build_cluster_lod_batch_generic::<u32>(inputs, limits)
+}
+
+/// The source-compatible u32 entry point; see [`build_dags_batch_into_generic`] for selectable index widths.
+#[cfg(feature = "clusterlod")]
+#[inline]
+pub fn build_dags_batch_into(
+    inputs: &mut [DagBuildInput<'_>],
+    limits: Limits,
+) -> BatchResult<crate::clusterlod::DagCounts> {
+    build_dags_batch_into_generic::<u32>(inputs, limits)
+}
+
+impl MeshletInputGeneric<'_, u32> {
+    /// Source-compatible u32 operation.
+    #[inline]
+    pub fn build(self, workspace: &mut Workspace) -> Result<Meshlets, Error> {
+        self.build_generic(workspace)
+    }
+}
+
+/// The source-compatible u32 form of [`LodChainInputGeneric`].
+pub type LodChainInput<'a> = LodChainInputGeneric<'a, u32>;
+
+/// The source-compatible u32 form of [`MeshletInputGeneric`].
+pub type MeshletInput<'a> = MeshletInputGeneric<'a, u32>;
+
+/// The source-compatible u32 form of [`ClusterLodInputGeneric`].
+#[cfg(feature = "clusterlod")]
+pub type ClusterLodInput<'a> = ClusterLodInputGeneric<'a, u32>;
+
+/// The source-compatible u32 form of [`DagBuildInputGeneric`].
+#[cfg(feature = "clusterlod")]
+pub type DagBuildInput<'a> = DagBuildInputGeneric<'a, u32>;
+
+/// An independent u32 buffer to encode; the source-compatible descriptor.
+#[derive(Clone, Copy, Debug)]
+pub enum EncodeInput<'a> {
+    /// Initialized vertex bytes, including supplied padding.
+    Vertices {
+        /// Exact count times stride bytes.
+        vertices: &'a [u8],
+        /// Number of vertex records.
+        count: usize,
+        /// Record stride in bytes.
+        stride: usize,
+        /// Format version and compression level.
+        encoding: VertexEncoding,
+    },
+    /// Triangle-list indices.
+    Triangles {
+        /// Topology in u32 form.
+        indices: &'a [u32],
+        /// Format version.
+        encoding: IndexEncoding,
+    },
+    /// General index sequence.
+    Sequence {
+        /// Values in u32 form.
+        indices: &'a [u32],
+        /// Format version.
+        encoding: IndexEncoding,
+    },
+}
+
+impl EncodeInput<'_> {
+    /// Encode this u32 descriptor through the shared generic implementation.
+    pub fn encode(self, workspace: &mut Workspace) -> Result<Vec<u8>, Error> {
+        let generic = match self {
+            Self::Vertices {
+                vertices,
+                count,
+                stride,
+                encoding,
+            } => EncodeInputGeneric::Vertices {
+                vertices,
+                count,
+                stride,
+                encoding,
+            },
+            Self::Triangles { indices, encoding } => {
+                EncodeInputGeneric::Triangles { indices, encoding }
+            }
+            Self::Sequence { indices, encoding } => {
+                EncodeInputGeneric::Sequence { indices, encoding }
+            }
+        };
+        generic.encode_generic(workspace)
+    }
 }

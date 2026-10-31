@@ -1,0 +1,966 @@
+{
+  "cpu": 0,
+  "event": "instructions:u",
+  "cells": [
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets",
+      "base": 60062.77,
+      "candidate": 60085.59,
+      "ratio": 1.0003799358571042
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-flex",
+      "base": 60093.04,
+      "candidate": 60109.19,
+      "ratio": 1.0002687499251162
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-spatial",
+      "base": 47015.17,
+      "candidate": 47038.9,
+      "ratio": 1.0005047307071313
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cluster-lod",
+      "base": 96687.43,
+      "candidate": 96686.9,
+      "ratio": 0.9999945184187852
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify",
+      "base": 110591.83,
+      "candidate": 110590.56,
+      "ratio": 0.9999885163307272
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-attributes",
+      "base": 124999.65,
+      "candidate": 125007.3,
+      "ratio": 1.0000612001713605
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-update",
+      "base": 120640.79,
+      "candidate": 120640.34,
+      "ratio": 0.9999962699183254
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-sloppy",
+      "base": 19056.59,
+      "candidate": 19064.94,
+      "ratio": 1.0004381686335277
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-prune",
+      "base": 14667.3,
+      "candidate": 14665.93,
+      "ratio": 0.9999065949424912
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-points",
+      "base": 9573.29,
+      "candidate": 9572.09,
+      "ratio": 0.9998746512431984
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "overdraw",
+      "base": 15636.47,
+      "candidate": 15636.1,
+      "ratio": 0.9999763373702633
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cache",
+      "base": 29389.58,
+      "candidate": 29389.95,
+      "ratio": 1.000012589496005
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "fetch",
+      "base": 3262.28,
+      "candidate": 3254.9,
+      "ratio": 0.997737778486212
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-encode",
+      "base": 4692.37,
+      "candidate": 4691.81,
+      "ratio": 0.9998806573224193
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "base": 2481.28,
+      "candidate": 2481.08,
+      "ratio": 0.9999193964405467
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-encode",
+      "base": 18394.37,
+      "candidate": 18394.0,
+      "ratio": 0.999979885149641
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "base": 4137.54,
+      "candidate": 4136.82,
+      "ratio": 0.9998259835554459
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets",
+      "base": 27146577.0,
+      "candidate": 27146550.0,
+      "ratio": 0.9999990053994653
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-flex",
+      "base": 27146806.0,
+      "candidate": 27146803.0,
+      "ratio": 0.9999998894897617
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-spatial",
+      "base": 23558155.0,
+      "candidate": 23558125.0,
+      "ratio": 0.9999987265556237
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cluster-lod",
+      "base": 112816518.0,
+      "candidate": 112816504.0,
+      "ratio": 0.9999998759046969
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify",
+      "base": 11982926.0,
+      "candidate": 11982870.0,
+      "ratio": 0.9999953266839835
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-attributes",
+      "base": 28168415.0,
+      "candidate": 28168389.0,
+      "ratio": 0.9999990769803697
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-update",
+      "base": 15131821.0,
+      "candidate": 15131775.0,
+      "ratio": 0.9999969600486287
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-sloppy",
+      "base": 3901856.0,
+      "candidate": 3901845.0,
+      "ratio": 0.9999971808288158
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-prune",
+      "base": 1950269.0,
+      "candidate": 1950222.0,
+      "ratio": 0.9999759007603567
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-points",
+      "base": 915183.0,
+      "candidate": 915198.0,
+      "ratio": 1.00001639016459
+    },
+    {
+      "case": "medium-smooth",
+      "op": "overdraw",
+      "base": 1582682.0,
+      "candidate": 1582619.0,
+      "ratio": 0.9999601941514468
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cache",
+      "base": 10585141.0,
+      "candidate": 10585085.0,
+      "ratio": 0.9999947095650403
+    },
+    {
+      "case": "medium-smooth",
+      "op": "fetch",
+      "base": 427405.0,
+      "candidate": 427334.0,
+      "ratio": 0.999833881213369
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-encode",
+      "base": 1142642.0,
+      "candidate": 1142605.0,
+      "ratio": 0.9999676189042588
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "base": 436010.0,
+      "candidate": 435972.0,
+      "ratio": 0.9999128460356413
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-encode",
+      "base": 1232496.0,
+      "candidate": 1232468.0,
+      "ratio": 0.9999772818735314
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "base": 207570.0,
+      "candidate": 207506.0,
+      "ratio": 0.9996916702799056
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets",
+      "base": 20791389.0,
+      "candidate": 20791337.0,
+      "ratio": 0.9999974989645954
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-flex",
+      "base": 20791734.0,
+      "candidate": 20791698.0,
+      "ratio": 0.9999982685426815
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-spatial",
+      "base": 23629303.0,
+      "candidate": 23629293.0,
+      "ratio": 0.999999576796658
+    },
+    {
+      "case": "medium-seams",
+      "op": "cluster-lod",
+      "base": 109022336.0,
+      "candidate": 109022339.0,
+      "ratio": 1.000000027517297
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify",
+      "base": 15249369.0,
+      "candidate": 15249328.0,
+      "ratio": 0.999997311364162
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-attributes",
+      "base": 28434994.0,
+      "candidate": 28434957.0,
+      "ratio": 0.999998698786432
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-update",
+      "base": 17634522.0,
+      "candidate": 17634486.0,
+      "ratio": 0.9999979585497129
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-sloppy",
+      "base": 7079508.0,
+      "candidate": 7079471.0,
+      "ratio": 0.9999947736481123
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-prune",
+      "base": 2118219.0,
+      "candidate": 2118182.0,
+      "ratio": 0.9999825324954597
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-points",
+      "base": 3535951.0,
+      "candidate": 3535894.0,
+      "ratio": 0.9999838798671136
+    },
+    {
+      "case": "medium-seams",
+      "op": "overdraw",
+      "base": 1583692.0,
+      "candidate": 1583638.0,
+      "ratio": 0.9999659024608321
+    },
+    {
+      "case": "medium-seams",
+      "op": "cache",
+      "base": 9289033.0,
+      "candidate": 9288997.0,
+      "ratio": 0.9999961244620403
+    },
+    {
+      "case": "medium-seams",
+      "op": "fetch",
+      "base": 452324.0,
+      "candidate": 452289.0,
+      "ratio": 0.999922621837444
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-encode",
+      "base": 1435129.0,
+      "candidate": 1435082.0,
+      "ratio": 0.9999672503308065
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "base": 540615.0,
+      "candidate": 540559.0,
+      "ratio": 0.9998964142689345
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-encode",
+      "base": 1580046.0,
+      "candidate": 1580009.0,
+      "ratio": 0.9999765829602429
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "base": 240115.0,
+      "candidate": 240058.0,
+      "ratio": 0.9997626137475792
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets",
+      "base": 27259007.0,
+      "candidate": 27258993.0,
+      "ratio": 0.9999994864082906
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-flex",
+      "base": 27259038.0,
+      "candidate": 27259034.0,
+      "ratio": 0.9999998532596786
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-spatial",
+      "base": 23631432.0,
+      "candidate": 23631421.0,
+      "ratio": 0.9999995345182636
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cluster-lod",
+      "base": 114637302.0,
+      "candidate": 114637229.0,
+      "ratio": 0.9999993632090189
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify",
+      "base": 12964484.0,
+      "candidate": 12964428.0,
+      "ratio": 0.999995680506837
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-attributes",
+      "base": 24935630.0,
+      "candidate": 24935601.0,
+      "ratio": 0.9999988370055218
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-update",
+      "base": 16290951.0,
+      "candidate": 16290887.0,
+      "ratio": 0.9999960714386779
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-sloppy",
+      "base": 4776570.0,
+      "candidate": 4776542.0,
+      "ratio": 0.999994138053038
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-prune",
+      "base": 2610733.0,
+      "candidate": 2610677.0,
+      "ratio": 0.9999785500853592
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-points",
+      "base": 1421471.0,
+      "candidate": 1421424.0,
+      "ratio": 0.9999669356603125
+    },
+    {
+      "case": "medium-sparse",
+      "op": "overdraw",
+      "base": 1598483.0,
+      "candidate": 1598437.0,
+      "ratio": 0.9999712227155372
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cache",
+      "base": 10649531.0,
+      "candidate": 10649468.0,
+      "ratio": 0.9999940842465269
+    },
+    {
+      "case": "medium-sparse",
+      "op": "fetch",
+      "base": 427499.0,
+      "candidate": 427446.0,
+      "ratio": 0.9998760231018085
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-encode",
+      "base": 1394263.0,
+      "candidate": 1394226.0,
+      "ratio": 0.9999734626824351
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "base": 560972.0,
+      "candidate": 560935.0,
+      "ratio": 0.9999340430538423
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-encode",
+      "base": 2131450.0,
+      "candidate": 2131413.0,
+      "ratio": 0.9999826409251917
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "base": 271866.0,
+      "candidate": 271838.0,
+      "ratio": 0.9998970080848654
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets",
+      "base": 3942628418.0,
+      "candidate": 3942628330.0,
+      "ratio": 0.9999999776798646
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-flex",
+      "base": 3950841751.0,
+      "candidate": 3950841726.0,
+      "ratio": 0.9999999936722346
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-spatial",
+      "base": 4871596494.0,
+      "candidate": 4871596734.0,
+      "ratio": 1.000000049265164
+    },
+    {
+      "case": "million-smooth",
+      "op": "cluster-lod",
+      "base": 14810622843.0,
+      "candidate": 14810622058.0,
+      "ratio": 0.9999999469975025
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify",
+      "base": 2419675314.0,
+      "candidate": 2419675274.0,
+      "ratio": 0.9999999834688564
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-attributes",
+      "base": 3977431643.0,
+      "candidate": 3977431956.0,
+      "ratio": 1.0000000786939987
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-update",
+      "base": 2815092677.0,
+      "candidate": 2815092748.0,
+      "ratio": 1.0000000252211945
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-sloppy",
+      "base": 408963224.0,
+      "candidate": 408963199.0,
+      "ratio": 0.999999938869809
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-prune",
+      "base": 233991559.0,
+      "candidate": 233991489.0,
+      "ratio": 0.9999997008439095
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-points",
+      "base": 132367053.0,
+      "candidate": 132366978.0,
+      "ratio": 0.9999994333937464
+    },
+    {
+      "case": "million-smooth",
+      "op": "overdraw",
+      "base": 189429193.0,
+      "candidate": 189429198.0,
+      "ratio": 1.0000000263950868
+    },
+    {
+      "case": "million-smooth",
+      "op": "cache",
+      "base": 1313285271.0,
+      "candidate": 1313285626.0,
+      "ratio": 1.0000002703144608
+    },
+    {
+      "case": "million-smooth",
+      "op": "fetch",
+      "base": 51483409.0,
+      "candidate": 51483369.0,
+      "ratio": 0.9999992230506725
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-encode",
+      "base": 136821996.0,
+      "candidate": 136821933.0,
+      "ratio": 0.9999995395477201
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "base": 52050281.0,
+      "candidate": 52050226.0,
+      "ratio": 0.9999989433294317
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-encode",
+      "base": 148084977.0,
+      "candidate": 148084909.0,
+      "ratio": 0.9999995408041965
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "base": 20402194.0,
+      "candidate": 20402143.0,
+      "ratio": 0.9999975002688436
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets",
+      "base": 13272835973.0,
+      "candidate": 13272844286.0,
+      "ratio": 1.0000006263167884
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-flex",
+      "base": 13280737724.0,
+      "candidate": 13280738624.0,
+      "ratio": 1.0000000677673198
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-spatial",
+      "base": 18531883997.0,
+      "candidate": 18531844608.0,
+      "ratio": 0.9999978745280292
+    },
+    {
+      "case": "real-214e",
+      "op": "cluster-lod",
+      "base": 78085506135.0,
+      "candidate": 78085470945.0,
+      "ratio": 0.9999995493401818
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify",
+      "base": 3156671222.0,
+      "candidate": 3156665157.0,
+      "ratio": 0.9999980786722552
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-attributes",
+      "base": 5272402639.0,
+      "candidate": 5272443792.0,
+      "ratio": 1.0000078053598744
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-update",
+      "base": 3971379682.0,
+      "candidate": 3971375773.0,
+      "ratio": 0.9999990157073075
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-sloppy",
+      "base": 2947581319.0,
+      "candidate": 2947575247.0,
+      "ratio": 0.9999979400059429
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-prune",
+      "base": 1506424546.0,
+      "candidate": 1506424670.0,
+      "ratio": 1.0000000823141129
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-points",
+      "base": 1111436133.0,
+      "candidate": 1111436344.0,
+      "ratio": 1.0000001898444668
+    },
+    {
+      "case": "real-214e",
+      "op": "overdraw",
+      "base": 1080317012.0,
+      "candidate": 1080316982.0,
+      "ratio": 0.9999999722303734
+    },
+    {
+      "case": "real-214e",
+      "op": "cache",
+      "base": 2257897416.0,
+      "candidate": 2257897360.0,
+      "ratio": 0.9999999751981646
+    },
+    {
+      "case": "real-214e",
+      "op": "fetch",
+      "base": 288539457.0,
+      "candidate": 288539383.0,
+      "ratio": 0.9999997435359421
+    },
+    {
+      "case": "real-214e",
+      "op": "index-encode",
+      "base": 707961198.0,
+      "candidate": 707961141.0,
+      "ratio": 0.9999999194871129
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "base": 167346818.0,
+      "candidate": 167346783.0,
+      "ratio": 0.9999997908535075
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-encode",
+      "base": 2575259312.0,
+      "candidate": 2575257789.0,
+      "ratio": 0.9999994086032452
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "base": 419957582.0,
+      "candidate": 419957559.0,
+      "ratio": 0.999999945232564
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets",
+      "base": 14272845619.0,
+      "candidate": 14272850980.0,
+      "ratio": 1.0000003756083504
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-flex",
+      "base": 14280796222.0,
+      "candidate": 14280748150.0,
+      "ratio": 0.9999966338011373
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-spatial",
+      "base": 21535709417.0,
+      "candidate": 21535714586.0,
+      "ratio": 1.0000002400199548
+    },
+    {
+      "case": "real-a082",
+      "op": "cluster-lod",
+      "base": 88272573409.0,
+      "candidate": 88272566257.0,
+      "ratio": 0.9999999189782316
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify",
+      "base": 5751876266.0,
+      "candidate": 5751872966.0,
+      "ratio": 0.9999994262741674
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-attributes",
+      "base": 8420267235.0,
+      "candidate": 8420276551.0,
+      "ratio": 1.0000011063781873
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-update",
+      "base": 6585932858.0,
+      "candidate": 6585934339.0,
+      "ratio": 1.000000224873231
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-sloppy",
+      "base": 2910436474.0,
+      "candidate": 2910437275.0,
+      "ratio": 1.0000002752164519
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-prune",
+      "base": 1641567936.0,
+      "candidate": 1641567398.0,
+      "ratio": 0.9999996722645538
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-points",
+      "base": 1182169337.0,
+      "candidate": 1182169299.0,
+      "ratio": 0.9999999678557049
+    },
+    {
+      "case": "real-a082",
+      "op": "overdraw",
+      "base": 1174445117.0,
+      "candidate": 1174444432.0,
+      "ratio": 0.9999994167458401
+    },
+    {
+      "case": "real-a082",
+      "op": "cache",
+      "base": 2609755043.0,
+      "candidate": 2609756773.0,
+      "ratio": 1.000000662897464
+    },
+    {
+      "case": "real-a082",
+      "op": "fetch",
+      "base": 317149128.0,
+      "candidate": 317148816.0,
+      "ratio": 0.9999990162356681
+    },
+    {
+      "case": "real-a082",
+      "op": "index-encode",
+      "base": 1412360401.0,
+      "candidate": 1412360376.0,
+      "ratio": 0.9999999822991356
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "base": 391561425.0,
+      "candidate": 391561394.0,
+      "ratio": 0.9999999208297906
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-encode",
+      "base": 2946391664.0,
+      "candidate": 2946392094.0,
+      "ratio": 1.000000145941222
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "base": 468346139.0,
+      "candidate": 468346018.0,
+      "ratio": 0.9999997416440749
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets",
+      "base": 3445186193.0,
+      "candidate": 3445186310.0,
+      "ratio": 1.0000000339604287
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-flex",
+      "base": 3447160857.0,
+      "candidate": 3447161209.0,
+      "ratio": 1.0000001021130185
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-spatial",
+      "base": 4830946756.0,
+      "candidate": 4830946422.0,
+      "ratio": 0.9999999308624133
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cluster-lod",
+      "base": 21871139152.0,
+      "candidate": 21871132446.0,
+      "ratio": 0.9999996933858839
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify",
+      "base": 1435411054.0,
+      "candidate": 1435411702.0,
+      "ratio": 1.0000004514386303
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-attributes",
+      "base": 2102432251.0,
+      "candidate": 2102432243.0,
+      "ratio": 0.9999999961948833
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-update",
+      "base": 1641303181.0,
+      "candidate": 1641303143.0,
+      "ratio": 0.9999999768476656
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-sloppy",
+      "base": 818980813.0,
+      "candidate": 818981342.0,
+      "ratio": 1.000000645924778
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-prune",
+      "base": 409252837.0,
+      "candidate": 409252823.0,
+      "ratio": 0.9999999657913183
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-points",
+      "base": 462404325.0,
+      "candidate": 462404333.0,
+      "ratio": 1.0000000173008763
+    },
+    {
+      "case": "real-b6fd",
+      "op": "overdraw",
+      "base": 293621762.0,
+      "candidate": 293621738.0,
+      "ratio": 0.9999999182621893
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cache",
+      "base": 652442902.0,
+      "candidate": 652442845.0,
+      "ratio": 0.9999999126360333
+    },
+    {
+      "case": "real-b6fd",
+      "op": "fetch",
+      "base": 78662561.0,
+      "candidate": 78662509.0,
+      "ratio": 0.9999993389485501
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-encode",
+      "base": 185403168.0,
+      "candidate": 185403131.0,
+      "ratio": 0.9999998004349095
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "base": 47214254.0,
+      "candidate": 47214208.0,
+      "ratio": 0.9999990257179537
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-encode",
+      "base": 689522379.0,
+      "candidate": 689522329.0,
+      "ratio": 0.9999999274860374
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "base": 114774436.0,
+      "candidate": 114774380.0,
+      "ratio": 0.999999512086472
+    }
+  ],
+  "schema": 1,
+  "passed": true,
+  "maximum_ratio": 1.01,
+  "repetitions": 3,
+  "sample_count": 816,
+  "case_count": 8,
+  "operation_count": 17,
+  "cpp_exact_cells": 136
+}

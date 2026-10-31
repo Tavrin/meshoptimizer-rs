@@ -100,7 +100,27 @@ fn cache_simple(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported analyzer settings; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline(always)]
-pub fn analyze_vertex_cache(
+pub fn analyze_vertex_cache_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    cache_size: u32,
+    warp_size: u32,
+    primgroup_size: u32,
+    workspace: &mut Workspace,
+) -> Result<VertexCacheStatistics, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        analyze_vertex_cache_u32(
+            indices,
+            vertex_count,
+            cache_size,
+            warp_size,
+            primgroup_size,
+            workspace,
+        )
+    })
+}
+
+fn analyze_vertex_cache_u32(
     indices: &[u32],
     vertex_count: usize,
     cache_size: u32,
@@ -317,7 +337,19 @@ fn fetch_run<const CHARGE: bool, const CHECK: bool>(
 /// # Errors
 /// `IndexOutOfBounds` for invalid vertex references;
 /// `InvalidParameter` for unsupported analyzer settings; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn analyze_vertex_fetch(
+#[inline]
+pub fn analyze_vertex_fetch_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    vertex_size: usize,
+    workspace: &mut Workspace,
+) -> Result<VertexFetchStatistics, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        analyze_vertex_fetch_u32(indices, vertex_count, vertex_size, workspace)
+    })
+}
+
+fn analyze_vertex_fetch_u32(
     indices: &[u32],
     vertex_count: usize,
     vertex_size: usize,
@@ -379,4 +411,35 @@ pub fn analyze_vertex_fetch(
     })();
     workspace.finish(&work);
     result
+}
+
+/// The source-compatible u32 entry point; see [`analyze_vertex_cache_generic`] for selectable index widths.
+#[inline]
+pub fn analyze_vertex_cache(
+    indices: &[u32],
+    vertex_count: usize,
+    cache_size: u32,
+    warp_size: u32,
+    primgroup_size: u32,
+    workspace: &mut Workspace,
+) -> Result<VertexCacheStatistics, Error> {
+    analyze_vertex_cache_generic::<u32>(
+        indices,
+        vertex_count,
+        cache_size,
+        warp_size,
+        primgroup_size,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`analyze_vertex_fetch_generic`] for selectable index widths.
+#[inline]
+pub fn analyze_vertex_fetch(
+    indices: &[u32],
+    vertex_count: usize,
+    vertex_size: usize,
+    workspace: &mut Workspace,
+) -> Result<VertexFetchStatistics, Error> {
+    analyze_vertex_fetch_generic::<u32>(indices, vertex_count, vertex_size, workspace)
 }

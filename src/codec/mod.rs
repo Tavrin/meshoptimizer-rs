@@ -46,14 +46,17 @@ use alloc::vec::Vec;
 pub use encode::{
     encode_filter_color, encode_filter_color_into, encode_filter_exp, encode_filter_exp_into,
     encode_filter_oct, encode_filter_oct_into, encode_filter_quat, encode_filter_quat_into,
-    encode_index_buffer, encode_index_buffer_bound, encode_index_buffer_into,
-    encode_index_sequence, encode_index_sequence_bound, encode_index_sequence_into,
-    encode_vertex_buffer, encode_vertex_buffer_bound, encode_vertex_buffer_into, ExpMode,
-    IndexEncoding, VertexEncoding,
+    encode_index_buffer, encode_index_buffer_bound, encode_index_buffer_generic,
+    encode_index_buffer_into, encode_index_buffer_into_generic, encode_index_sequence,
+    encode_index_sequence_bound, encode_index_sequence_generic, encode_index_sequence_into,
+    encode_index_sequence_into_generic, encode_vertex_buffer, encode_vertex_buffer_bound,
+    encode_vertex_buffer_into, ExpMode, IndexEncoding, VertexEncoding,
 };
 pub use meshlet::{
-    decode_meshlet, decode_meshlet_into, decode_meshlet_raw, decode_meshlet_raw_into,
-    encode_meshlet, encode_meshlet_bound, encode_meshlet_into, DecodedMeshlet, RawMeshlet,
+    decode_meshlet, decode_meshlet_into, decode_meshlet_raw, decode_meshlet_raw_generic,
+    decode_meshlet_raw_into, decode_meshlet_raw_into_generic, encode_meshlet, encode_meshlet_bound,
+    encode_meshlet_generic, encode_meshlet_into, encode_meshlet_into_generic, DecodedMeshlet,
+    RawMeshlet, RawMeshletGeneric,
 };
 pub use sequence_stream::{IndexSequenceDecoder, Progress, Status};
 

@@ -82,7 +82,14 @@ fn remap_into(out: &mut [u32], p: Positions<'_>, ctx: &mut Context<'_>) -> Resul
 /// # Errors
 /// `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn spatial_sort_remap(p: Positions<'_>, workspace: &mut Workspace) -> Result<Vec<u32>, Error> {
+pub fn spatial_sort_remap_generic<I: crate::Index>(
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    spatial_sort_remap_u32(p, workspace).and_then(|value| I::from_vec(value, workspace))
+}
+
+fn spatial_sort_remap_u32(p: Positions<'_>, workspace: &mut Workspace) -> Result<Vec<u32>, Error> {
     let mut ctx = Context::new(workspace)?;
     ctx.positions(p)?;
     let mut out = ctx.alloc(p.len())?;
@@ -93,7 +100,18 @@ pub fn spatial_sort_remap(p: Positions<'_>, workspace: &mut Workspace) -> Result
 ///
 /// # Errors
 /// Same errors as [`spatial_sort_remap`]. `BufferTooSmall` if the destination cannot hold the result.
-pub fn spatial_sort_remap_into(
+#[inline]
+pub fn spatial_sort_remap_into_generic<I: crate::Index>(
+    out: &mut [I],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(out, workspace, |out, workspace| {
+        spatial_sort_remap_into_u32(out, p, workspace)
+    })
+}
+
+fn spatial_sort_remap_into_u32(
     out: &mut [u32],
     p: Positions<'_>,
     workspace: &mut Workspace,
@@ -156,7 +174,19 @@ fn triangles_into(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn spatial_sort_triangles(
+#[inline]
+pub fn spatial_sort_triangles_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        spatial_sort_triangles_u32(indices, p, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn spatial_sort_triangles_u32(
     indices: &[u32],
     p: Positions<'_>,
     workspace: &mut Workspace,
@@ -172,7 +202,21 @@ pub fn spatial_sort_triangles(
 ///
 /// # Errors
 /// Same errors as [`spatial_sort_triangles`]. `BufferTooSmall` if the destination cannot hold the result.
-pub fn spatial_sort_triangles_into(
+#[inline]
+pub fn spatial_sort_triangles_into_generic<I: crate::Index>(
+    out: &mut [I],
+    indices: &[I],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(out, workspace, |out, workspace| {
+            spatial_sort_triangles_into_u32(out, indices, p, workspace)
+        })
+    })
+}
+
+fn spatial_sort_triangles_into_u32(
     out: &mut [u32],
     indices: &[u32],
     p: Positions<'_>,
@@ -190,12 +234,23 @@ pub fn spatial_sort_triangles_into(
 ///
 /// # Errors
 /// Same errors as [`spatial_sort_triangles`].
-pub fn spatial_sort_triangles_in_place(
+#[inline]
+pub fn spatial_sort_triangles_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        spatial_sort_triangles_in_place_u32(indices, p, workspace)
+    })
+}
+
+fn spatial_sort_triangles_in_place_u32(
     indices: &mut [u32],
     p: Positions<'_>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = spatial_sort_triangles(indices, p, workspace)?;
+    let result = spatial_sort_triangles_generic(indices, p, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -295,7 +350,15 @@ fn cluster_into(
 ///
 /// # Errors
 /// Same errors as [`spatial_sort_remap`]. `InvalidParameter` if the cluster size is zero.
-pub fn spatial_cluster_points(
+pub fn spatial_cluster_points_generic<I: crate::Index>(
+    p: Positions<'_>,
+    size: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    spatial_cluster_points_u32(p, size, workspace).and_then(|value| I::from_vec(value, workspace))
+}
+
+fn spatial_cluster_points_u32(
     p: Positions<'_>,
     size: usize,
     workspace: &mut Workspace,
@@ -313,7 +376,19 @@ pub fn spatial_cluster_points(
 ///
 /// # Errors
 /// Same errors as [`spatial_cluster_points`]. `BufferTooSmall` if the destination cannot hold the result.
-pub fn spatial_cluster_points_into(
+#[inline]
+pub fn spatial_cluster_points_into_generic<I: crate::Index>(
+    out: &mut [I],
+    p: Positions<'_>,
+    size: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(out, workspace, |out, workspace| {
+        spatial_cluster_points_into_u32(out, p, size, workspace)
+    })
+}
+
+fn spatial_cluster_points_into_u32(
     out: &mut [u32],
     p: Positions<'_>,
     size: usize,
@@ -328,4 +403,72 @@ pub fn spatial_cluster_points_into(
     }
     ctx.positions(p)?;
     cluster_into(&mut out[..p.len()], p, size, &mut ctx)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_sort_remap_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_sort_remap(p: Positions<'_>, workspace: &mut Workspace) -> Result<Vec<u32>, Error> {
+    spatial_sort_remap_generic::<u32>(p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_sort_remap_into_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_sort_remap_into(
+    out: &mut [u32],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    spatial_sort_remap_into_generic::<u32>(out, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_sort_triangles_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_sort_triangles(
+    indices: &[u32],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    spatial_sort_triangles_generic::<u32>(indices, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_sort_triangles_into_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_sort_triangles_into(
+    out: &mut [u32],
+    indices: &[u32],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    spatial_sort_triangles_into_generic::<u32>(out, indices, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_sort_triangles_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_sort_triangles_in_place(
+    indices: &mut [u32],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    spatial_sort_triangles_in_place_generic::<u32>(indices, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_cluster_points_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_cluster_points(
+    p: Positions<'_>,
+    size: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    spatial_cluster_points_generic::<u32>(p, size, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`spatial_cluster_points_into_generic`] for selectable index widths.
+#[inline]
+pub fn spatial_cluster_points_into(
+    out: &mut [u32],
+    p: Positions<'_>,
+    size: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    spatial_cluster_points_into_generic::<u32>(out, p, size, workspace)
 }

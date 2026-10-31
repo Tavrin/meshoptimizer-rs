@@ -189,7 +189,18 @@ fn check_counts(vertex_count: usize, triangle_count: usize) -> Result<(), Error>
 /// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported counts;
 /// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 /// `BufferTooSmall` if the destination is too short.
-pub fn encode_meshlet_into(
+pub fn encode_meshlet_into_generic<I: crate::Index>(
+    destination: &mut [u8],
+    vertices: &[I],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        encode_meshlet_into_u32(destination, vertices, triangles, workspace)
+    })
+}
+
+fn encode_meshlet_into_u32(
     destination: &mut [u8],
     vertices: &[u32],
     triangles: &[u8],
@@ -221,7 +232,17 @@ pub fn encode_meshlet_into(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported counts;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn encode_meshlet(
+pub fn encode_meshlet_generic<I: crate::Index>(
+    vertices: &[I],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        encode_meshlet_u32(vertices, triangles, workspace)
+    })
+}
+
+fn encode_meshlet_u32(
     vertices: &[u32],
     triangles: &[u8],
     workspace: &mut Workspace,
@@ -394,7 +415,7 @@ fn decode_bytes<const VS: usize, const TS: usize>(
         s,
         triangle_count,
         |i, r| {
-            // Truncating u16 references, as upstream.
+            // The width check above validated every reference.
             vertices[i].copy_from_slice(&r.to_le_bytes()[..VS]);
         },
         |i, tri| {
@@ -647,7 +668,7 @@ pub fn decode_meshlet_into(
     result
 }
 
-/// Decode one meshlet (meshopt_decodeMeshletRaw) into u32 vertex references
+/// Decode one meshlet (meshopt_decodeMeshletRaw) into vertex references of the selected index width
 /// and packed triangles (a | b << 8 | c << 16), without heap allocation.
 /// Exactly the counted elements are written; no SIMD padding is required.
 ///
@@ -655,7 +676,27 @@ pub fn decode_meshlet_into(
 /// `InvalidParameter` for unsupported counts;  `InvalidStream` for malformed data;
 /// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 /// `BufferTooSmall` if either destination is too short.
-pub fn decode_meshlet_raw_into(
+pub fn decode_meshlet_raw_into_generic<I: crate::Index>(
+    vertices: &mut [I],
+    vertex_count: usize,
+    triangles: &mut [u32],
+    triangle_count: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(vertices, workspace, |vertices, workspace| {
+        decode_meshlet_raw_into_u32(
+            vertices,
+            vertex_count,
+            triangles,
+            triangle_count,
+            source,
+            workspace,
+        )
+    })
+}
+
+fn decode_meshlet_raw_into_u32(
     vertices: &mut [u32],
     vertex_count: usize,
     triangles: &mut [u32],
@@ -693,9 +734,9 @@ pub struct DecodedMeshlet {
 
 /// Allocated output of [`decode_meshlet_raw`].
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct RawMeshlet {
+pub struct RawMeshletGeneric<I: crate::Index = u32> {
     /// Vertex references.
-    pub vertices: Vec<u32>,
+    pub vertices: Vec<I>,
     /// Packed triangles, a | b << 8 | c << 16.
     pub triangles: Vec<u32>,
 }
@@ -753,19 +794,33 @@ pub fn decode_meshlet(
 /// # Errors
 /// `InvalidParameter` for unsupported counts;  `InvalidStream` for malformed data;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn decode_meshlet_raw(
+pub fn decode_meshlet_raw_generic<I: crate::Index>(
     vertex_count: usize,
     triangle_count: usize,
     source: &[u8],
     workspace: &mut Workspace,
-) -> Result<RawMeshlet, Error> {
+) -> Result<RawMeshletGeneric<I>, Error> {
+    decode_meshlet_raw_u32(vertex_count, triangle_count, source, workspace).and_then(|value| {
+        Ok(RawMeshletGeneric {
+            vertices: I::from_vec(value.vertices, workspace)?,
+            triangles: value.triangles,
+        })
+    })
+}
+
+fn decode_meshlet_raw_u32(
+    vertex_count: usize,
+    triangle_count: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<RawMeshletGeneric, Error> {
     let mut work = workspace.begin();
     check_counts(vertex_count, triangle_count)?;
     let bytes = checked_bytes(vertex_count + triangle_count, 4)?;
     workspace.account_codec(bytes)?;
     work.add(source.len() + bytes)?;
     let s = stream(source, vertex_count, triangle_count)?;
-    let mut out = RawMeshlet {
+    let mut out = RawMeshletGeneric {
         vertices: allocate(vertex_count)?,
         triangles: allocate(triangle_count)?,
     };
@@ -778,6 +833,61 @@ pub fn decode_meshlet_raw(
     )?)?;
     Ok(out)
 }
+
+/// The source-compatible u32 entry point; see [`encode_meshlet_into_generic`] for selectable index widths.
+#[inline]
+pub fn encode_meshlet_into(
+    destination: &mut [u8],
+    vertices: &[u32],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    encode_meshlet_into_generic::<u32>(destination, vertices, triangles, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`encode_meshlet_generic`] for selectable index widths.
+#[inline]
+pub fn encode_meshlet(
+    vertices: &[u32],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    encode_meshlet_generic::<u32>(vertices, triangles, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`decode_meshlet_raw_into_generic`] for selectable index widths.
+#[inline]
+pub fn decode_meshlet_raw_into(
+    vertices: &mut [u32],
+    vertex_count: usize,
+    triangles: &mut [u32],
+    triangle_count: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    decode_meshlet_raw_into_generic::<u32>(
+        vertices,
+        vertex_count,
+        triangles,
+        triangle_count,
+        source,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`decode_meshlet_raw_generic`] for selectable index widths.
+#[inline]
+pub fn decode_meshlet_raw(
+    vertex_count: usize,
+    triangle_count: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<RawMeshlet, Error> {
+    decode_meshlet_raw_generic::<u32>(vertex_count, triangle_count, source, workspace)
+}
+
+/// The source-compatible u32 form of [`RawMeshletGeneric`].
+pub type RawMeshlet = RawMeshletGeneric<u32>;
 
 #[cfg(all(test, feature = "simd"))]
 mod tests {

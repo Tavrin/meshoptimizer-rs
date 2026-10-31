@@ -118,7 +118,20 @@ impl Scores for VertexScoreTable {
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`].
-pub fn optimize_vertex_cache_with_table(
+#[inline]
+pub fn optimize_vertex_cache_with_table_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_with_table_u32(indices, vertex_count, table, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_with_table_u32(
     indices: &[u32],
     vertex_count: usize,
     table: &VertexScoreTable,
@@ -157,7 +170,28 @@ pub fn optimize_vertex_cache_with_table(
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_with_table`], plus `BufferTooSmall`
 /// if the destination is shorter than the input.
-pub fn optimize_vertex_cache_with_table_into(
+#[inline]
+pub fn optimize_vertex_cache_with_table_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_with_table_into_u32(
+                destination,
+                indices,
+                vertex_count,
+                table,
+                workspace,
+            )
+        })
+    })
+}
+
+fn optimize_vertex_cache_with_table_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -193,7 +227,19 @@ pub fn optimize_vertex_cache_with_table_into(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn optimize_vertex_cache(
+#[inline]
+pub fn optimize_vertex_cache_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_u32(indices, vertex_count, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
@@ -230,7 +276,21 @@ pub fn optimize_vertex_cache(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_vertex_cache_into(
+#[inline]
+pub fn optimize_vertex_cache_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_into_u32(destination, indices, vertex_count, workspace)
+        })
+    })
+}
+
+fn optimize_vertex_cache_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -261,12 +321,23 @@ pub fn optimize_vertex_cache_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`].
-pub fn optimize_vertex_cache_in_place(
+#[inline]
+pub fn optimize_vertex_cache_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_in_place_u32(indices, vertex_count, workspace)
+    })
+}
+
+fn optimize_vertex_cache_in_place_u32(
     indices: &mut [u32],
     vertex_count: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_vertex_cache(indices, vertex_count, workspace)?;
+    let result = optimize_vertex_cache_generic(indices, vertex_count, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -489,7 +560,19 @@ fn cache_loop<S: Scores, const FAST: bool>(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`].
-pub fn optimize_vertex_cache_strip(
+#[inline]
+pub fn optimize_vertex_cache_strip_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_strip_u32(indices, vertex_count, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_strip_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
@@ -522,7 +605,21 @@ pub fn optimize_vertex_cache_strip(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_strip`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_vertex_cache_strip_into(
+#[inline]
+pub fn optimize_vertex_cache_strip_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_strip_into_u32(destination, indices, vertex_count, workspace)
+        })
+    })
+}
+
+fn optimize_vertex_cache_strip_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -551,12 +648,23 @@ pub fn optimize_vertex_cache_strip_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_strip`].
-pub fn optimize_vertex_cache_strip_in_place(
+#[inline]
+pub fn optimize_vertex_cache_strip_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_strip_in_place_u32(indices, vertex_count, workspace)
+    })
+}
+
+fn optimize_vertex_cache_strip_in_place_u32(
     indices: &mut [u32],
     vertex_count: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_vertex_cache_strip(indices, vertex_count, workspace)?;
+    let result = optimize_vertex_cache_strip_generic(indices, vertex_count, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -564,7 +672,20 @@ pub fn optimize_vertex_cache_strip_in_place(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`]. `InvalidParameter` if the cache size is below three.
-pub fn optimize_vertex_cache_fifo(
+#[inline]
+pub fn optimize_vertex_cache_fifo_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_fifo_u32(indices, vertex_count, cache_size, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_fifo_u32(
     indices: &[u32],
     vertex_count: usize,
     cache_size: u32,
@@ -596,7 +717,28 @@ pub fn optimize_vertex_cache_fifo(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_fifo`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_vertex_cache_fifo_into(
+#[inline]
+pub fn optimize_vertex_cache_fifo_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_fifo_into_u32(
+                destination,
+                indices,
+                vertex_count,
+                cache_size,
+                workspace,
+            )
+        })
+    })
+}
+
+fn optimize_vertex_cache_fifo_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -629,13 +771,25 @@ pub fn optimize_vertex_cache_fifo_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_fifo`].
-pub fn optimize_vertex_cache_fifo_in_place(
+#[inline]
+pub fn optimize_vertex_cache_fifo_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_fifo_in_place_u32(indices, vertex_count, cache_size, workspace)
+    })
+}
+
+fn optimize_vertex_cache_fifo_in_place_u32(
     indices: &mut [u32],
     vertex_count: usize,
     cache_size: u32,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_vertex_cache_fifo(indices, vertex_count, cache_size, workspace)?;
+    let result = optimize_vertex_cache_fifo_generic(indices, vertex_count, cache_size, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -885,4 +1039,135 @@ impl<'a, const FAST: bool> CacheWork<'a, FAST> {
         self.work
             .refund_cache(self.reserved.saturating_sub(self.spent));
     }
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_with_table_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_with_table(
+    indices: &[u32],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_with_table_generic::<u32>(indices, vertex_count, table, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_with_table_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_with_table_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_with_table_into_generic::<u32>(
+        destination,
+        indices,
+        vertex_count,
+        table,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_into_generic::<u32>(destination, indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_in_place(
+    indices: &mut [u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_in_place_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_strip_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_strip(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_strip_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_strip_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_strip_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_strip_into_generic::<u32>(destination, indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_strip_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_strip_in_place(
+    indices: &mut [u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_strip_in_place_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_fifo_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_fifo(
+    indices: &[u32],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_fifo_generic::<u32>(indices, vertex_count, cache_size, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_fifo_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_fifo_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_fifo_into_generic::<u32>(
+        destination,
+        indices,
+        vertex_count,
+        cache_size,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_fifo_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_fifo_in_place(
+    indices: &mut [u32],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_fifo_in_place_generic::<u32>(indices, vertex_count, cache_size, workspace)
 }

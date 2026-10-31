@@ -184,7 +184,19 @@ pub struct MeshAnalysis {
 /// fans, components and boundary components use union-find with union by size. Scratch
 /// storage is proportional to the analyzed triangles, never to the position
 /// count; each list holds at most the list limit.
-pub fn analyze_mesh(
+#[inline]
+pub fn analyze_mesh_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    options: AnalyzeOptions,
+    workspace: &mut Workspace,
+) -> Result<MeshAnalysis, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        analyze_mesh_u32(indices, positions, options, workspace)
+    })
+}
+
+fn analyze_mesh_u32(
     indices: &[u32],
     positions: Positions<'_>,
     options: AnalyzeOptions,
@@ -711,4 +723,15 @@ fn list(
         }
     }
     Ok(lists)
+}
+
+/// The source-compatible u32 entry point; see [`analyze_mesh_generic`] for selectable index widths.
+#[inline]
+pub fn analyze_mesh(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: AnalyzeOptions,
+    workspace: &mut Workspace,
+) -> Result<MeshAnalysis, Error> {
+    analyze_mesh_generic::<u32>(indices, positions, options, workspace)
 }

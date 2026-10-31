@@ -767,7 +767,20 @@ fn run(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported resolution; `UnknownFlags` for unsupported options; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn remesh_bound(
+#[inline]
+pub fn remesh_bound_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    resolution: usize,
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        remesh_bound_u32(indices, positions, resolution, options, workspace)
+    })
+}
+
+fn remesh_bound_u32(
     indices: &[u32],
     positions: Positions<'_>,
     resolution: usize,
@@ -782,7 +795,28 @@ pub fn remesh_bound(
 ///
 /// # Errors
 /// Same errors as [`remesh_bound`]. `InvalidLayout` if destination length is not a multiple of three.
-pub fn remesh_into(
+#[inline]
+pub fn remesh_into_generic<I: crate::Index>(
+    destination: &mut [[f32; 3]],
+    indices: &[I],
+    positions: Positions<'_>,
+    resolution: usize,
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        remesh_into_u32(
+            destination,
+            indices,
+            positions,
+            resolution,
+            options,
+            workspace,
+        )
+    })
+}
+
+fn remesh_into_u32(
     destination: &mut [[f32; 3]],
     indices: &[u32],
     positions: Positions<'_>,
@@ -808,14 +842,27 @@ pub fn remesh_into(
 ///
 /// # Errors
 /// Same errors as [`remesh_bound`].
-pub fn remesh(
+#[inline]
+pub fn remesh_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    resolution: usize,
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<[f32; 3]>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        remesh_u32(indices, positions, resolution, options, workspace)
+    })
+}
+
+fn remesh_u32(
     indices: &[u32],
     positions: Positions<'_>,
     resolution: usize,
     options: u32,
     workspace: &mut Workspace,
 ) -> Result<Vec<[f32; 3]>, Error> {
-    let bound = remesh_bound(indices, positions, resolution, options, workspace)?;
+    let bound = remesh_bound_generic(indices, positions, resolution, options, workspace)?;
     let capacity = bound.checked_mul(3).ok_or(Error::SizeOverflow)?;
     let output_bytes = checked_bytes(capacity, core::mem::size_of::<[f32; 3]>())?;
     if output_bytes > workspace.limits().max_bytes {
@@ -833,4 +880,48 @@ pub fn remesh(
     )?;
     output.truncate(count * 3);
     Ok(output)
+}
+
+/// The source-compatible u32 entry point; see [`remesh_bound_generic`] for selectable index widths.
+#[inline]
+pub fn remesh_bound(
+    indices: &[u32],
+    positions: Positions<'_>,
+    resolution: usize,
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    remesh_bound_generic::<u32>(indices, positions, resolution, options, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`remesh_into_generic`] for selectable index widths.
+#[inline]
+pub fn remesh_into(
+    destination: &mut [[f32; 3]],
+    indices: &[u32],
+    positions: Positions<'_>,
+    resolution: usize,
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    remesh_into_generic::<u32>(
+        destination,
+        indices,
+        positions,
+        resolution,
+        options,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`remesh_generic`] for selectable index widths.
+#[inline]
+pub fn remesh(
+    indices: &[u32],
+    positions: Positions<'_>,
+    resolution: usize,
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<[f32; 3]>, Error> {
+    remesh_generic::<u32>(indices, positions, resolution, options, workspace)
 }

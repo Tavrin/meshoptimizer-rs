@@ -345,7 +345,35 @@ fn measure_triangles<const CHARGE: bool>(
 /// `InvalidParameter` for invalid texture/UV settings; `InvalidLayout` for a short UV view; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[allow(clippy::too_many_arguments)]
-pub fn opacity_map_measure(
+#[inline]
+pub fn opacity_map_measure_generic<I: crate::Index>(
+    indices: &[I],
+    uvs: &[f32],
+    vertex_count: usize,
+    uv_stride: usize,
+    texture_width: u32,
+    texture_height: u32,
+    max_level: u8,
+    target_edge: f32,
+    workspace: &mut Workspace,
+) -> Result<OpacityMapMeasure, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        opacity_map_measure_u32(
+            indices,
+            uvs,
+            vertex_count,
+            uv_stride,
+            texture_width,
+            texture_height,
+            max_level,
+            target_edge,
+            workspace,
+        )
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn opacity_map_measure_u32(
     indices: &[u32],
     uvs: &[f32],
     vertex_count: usize,
@@ -447,7 +475,41 @@ pub fn opacity_map_measure(
 /// # Errors
 /// Same errors as [`opacity_map_measure`]. `BufferTooSmall` if an output buffer is too short.
 #[allow(clippy::too_many_arguments)]
-pub fn opacity_map_measure_into(
+#[inline]
+pub fn opacity_map_measure_into_generic<I: crate::Index>(
+    levels: &mut [u8],
+    sources: &mut [u32],
+    omm_indices: &mut [i32],
+    indices: &[I],
+    uvs: &[f32],
+    vertex_count: usize,
+    uv_stride: usize,
+    texture_width: u32,
+    texture_height: u32,
+    max_level: u8,
+    target_edge: f32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        opacity_map_measure_into_u32(
+            levels,
+            sources,
+            omm_indices,
+            indices,
+            uvs,
+            vertex_count,
+            uv_stride,
+            texture_width,
+            texture_height,
+            max_level,
+            target_edge,
+            workspace,
+        )
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn opacity_map_measure_into_u32(
     levels: &mut [u8],
     sources: &mut [u32],
     omm_indices: &mut [i32],
@@ -465,7 +527,7 @@ pub fn opacity_map_measure_into(
     if levels.len() < triangles || sources.len() < triangles || omm_indices.len() < triangles {
         return Err(Error::BufferTooSmall);
     }
-    let result = opacity_map_measure(
+    let result = opacity_map_measure_generic(
         indices,
         uvs,
         vertex_count,
@@ -512,6 +574,7 @@ fn special_index(data: &[u8], level: u8, states: u8) -> i32 {
 /// # Errors
 /// `InvalidParameter` for unsupported states/levels; `InvalidLayout` for mismatched or out-of-range entries;
 /// `IndexOutOfBounds` for invalid opacity references; `BufferTooSmall` if compacted data exceeds capacity; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
+#[inline]
 pub fn opacity_map_compact(
     data: &mut [u8],
     levels: &mut [u8],
@@ -1114,4 +1177,64 @@ fn raster_state_core<const CHARGE_WORK: bool, const STATES: u8>(
         )?;
     }
     Ok(())
+}
+
+/// The source-compatible u32 entry point; see [`opacity_map_measure_generic`] for selectable index widths.
+#[inline]
+#[allow(clippy::too_many_arguments)]
+pub fn opacity_map_measure(
+    indices: &[u32],
+    uvs: &[f32],
+    vertex_count: usize,
+    uv_stride: usize,
+    texture_width: u32,
+    texture_height: u32,
+    max_level: u8,
+    target_edge: f32,
+    workspace: &mut Workspace,
+) -> Result<OpacityMapMeasure, Error> {
+    opacity_map_measure_generic::<u32>(
+        indices,
+        uvs,
+        vertex_count,
+        uv_stride,
+        texture_width,
+        texture_height,
+        max_level,
+        target_edge,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`opacity_map_measure_into_generic`] for selectable index widths.
+#[inline]
+#[allow(clippy::too_many_arguments)]
+pub fn opacity_map_measure_into(
+    levels: &mut [u8],
+    sources: &mut [u32],
+    omm_indices: &mut [i32],
+    indices: &[u32],
+    uvs: &[f32],
+    vertex_count: usize,
+    uv_stride: usize,
+    texture_width: u32,
+    texture_height: u32,
+    max_level: u8,
+    target_edge: f32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    opacity_map_measure_into_generic::<u32>(
+        levels,
+        sources,
+        omm_indices,
+        indices,
+        uvs,
+        vertex_count,
+        uv_stride,
+        texture_width,
+        texture_height,
+        max_level,
+        target_edge,
+        workspace,
+    )
 }

@@ -23,7 +23,7 @@ pub(super) struct Computed {
 
 fn compute(
     c: Config,
-    mesh: &Mesh<'_>,
+    mesh: &MeshGeneric<'_>,
     locks: &[support::VertexFlags],
     group: &[Pending],
     idx: &[u32],
@@ -85,7 +85,7 @@ fn compute(
 
 pub(super) fn level(
     c: Config,
-    mesh: &Mesh<'_>,
+    mesh: &MeshGeneric<'_>,
     locks: &[support::VertexFlags],
     clusters: &[Pending],
     idx: &[u32],

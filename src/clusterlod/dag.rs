@@ -5,13 +5,13 @@ use super::*;
 /// Caller capacity is excluded from [`Workspace`] limits. A late error may
 /// write prefixes and dilation may mutate mesh positions. Discard failed output
 /// and retain fresh source positions for retries; no allocating fallback occurs.
-pub struct DagBuffers<'a> {
+pub struct DagBuffersGeneric<'a, I: crate::Index = u32> {
     /// Source vertex identifiers, in first-occurrence order across the mesh.
     pub vertex_source: &'a mut [u32],
     /// Bit-exact position snapshots at emission, before later dilation.
     pub vertex_positions: &'a mut [[f32; 3]],
     /// Flat topology referencing the snapshot vertex prefix.
-    pub indices: &'a mut [u32],
+    pub indices: &'a mut [I],
     /// Clusters in emission order.
     pub clusters: &'a mut [FlatDagCluster],
     /// Groups in callback order.
@@ -47,7 +47,7 @@ fn hash(key: [u32; 4]) -> usize {
     }
     h as usize
 }
-fn key(dst: &DagBuffers<'_>, i: usize) -> [u32; 4] {
+fn key(dst: &DagBuffersGeneric<'_>, i: usize) -> [u32; 4] {
     let p = dst.vertex_positions[i];
     [
         dst.vertex_source[i],
@@ -59,7 +59,7 @@ fn key(dst: &DagBuffers<'_>, i: usize) -> [u32; 4] {
 fn slot(
     table: &[u32],
     k: [u32; 4],
-    dst: &DagBuffers<'_>,
+    dst: &DagBuffersGeneric<'_>,
     ctx: &mut Context<'_>,
 ) -> Result<usize, Error> {
     let mut at = hash(k) & (table.len() - 1);
@@ -103,11 +103,41 @@ fn depth(nodes: &[Node], i: usize, d: u32, ctx: &mut Context<'_>) -> Result<u32,
 ///
 /// # Errors
 /// Same errors as [`super::build`]. `InvalidParameter` for node width below two; `BufferTooSmall` if a caller buffer is too short.
-pub fn build_dag_into(
+pub fn build_dag_into_generic<I: crate::Index>(
     config: Config,
-    mesh: Mesh<'_>,
+    mesh: MeshGeneric<'_, I>,
     node_width: usize,
-    destination: DagBuffers<'_>,
+    destination: DagBuffersGeneric<'_, I>,
+    workspace: &mut Workspace,
+) -> Result<DagCounts, Error> {
+    I::with_input(mesh.indices, workspace, |indices, workspace| {
+        let mesh = MeshGeneric {
+            indices,
+            positions: mesh.positions,
+            attributes: mesh.attributes,
+            vertex_lock: mesh.vertex_lock,
+            attribute_weights: mesh.attribute_weights,
+            attribute_protect_mask: mesh.attribute_protect_mask,
+        };
+        I::with_mut(destination.indices, workspace, |indices, workspace| {
+            let destination = DagBuffersGeneric {
+                indices,
+                vertex_source: destination.vertex_source,
+                vertex_positions: destination.vertex_positions,
+                clusters: destination.clusters,
+                groups: destination.groups,
+                nodes: destination.nodes,
+            };
+            build_dag_into_u32(config, mesh, node_width, destination, workspace)
+        })
+    })
+}
+
+fn build_dag_into_u32(
+    config: Config,
+    mesh: MeshGeneric<'_>,
+    node_width: usize,
+    destination: DagBuffersGeneric<'_>,
     workspace: &mut Workspace,
 ) -> Result<DagCounts, Error> {
     let mut ctx = Context::new(workspace)?;
@@ -234,3 +264,18 @@ pub fn build_dag_into(
     dst.nodes[..nodes.len()].copy_from_slice(&nodes);
     Ok(counts)
 }
+
+/// The source-compatible u32 entry point; see [`build_dag_into_generic`] for selectable index widths.
+#[inline]
+pub fn build_dag_into(
+    config: Config,
+    mesh: Mesh<'_>,
+    node_width: usize,
+    destination: DagBuffers<'_>,
+    workspace: &mut Workspace,
+) -> Result<DagCounts, Error> {
+    build_dag_into_generic::<u32>(config, mesh, node_width, destination, workspace)
+}
+
+/// The source-compatible u32 form of [`DagBuffersGeneric`].
+pub type DagBuffers<'a> = DagBuffersGeneric<'a, u32>;

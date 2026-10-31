@@ -273,7 +273,18 @@ fn analyze(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn analyze_overdraw(
+#[inline]
+pub fn analyze_overdraw_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<OverdrawStatistics, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        analyze_overdraw_u32(indices, positions, workspace)
+    })
+}
+
+fn analyze_overdraw_u32(
     indices: &[u32],
     positions: Positions<'_>,
     workspace: &mut Workspace,
@@ -287,12 +298,43 @@ pub fn analyze_overdraw(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn analyze_coverage(
+#[inline]
+pub fn analyze_coverage_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<CoverageStatistics, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        analyze_coverage_u32(indices, positions, workspace)
+    })
+}
+
+fn analyze_coverage_u32(
     indices: &[u32],
     positions: Positions<'_>,
     workspace: &mut Workspace,
 ) -> Result<CoverageStatistics, Error> {
     Ok(analyze(indices, positions, workspace, true)?.1)
+}
+
+/// The source-compatible u32 entry point; see [`analyze_overdraw_generic`] for selectable index widths.
+#[inline]
+pub fn analyze_overdraw(
+    indices: &[u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<OverdrawStatistics, Error> {
+    analyze_overdraw_generic::<u32>(indices, positions, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`analyze_coverage_generic`] for selectable index widths.
+#[inline]
+pub fn analyze_coverage(
+    indices: &[u32],
+    positions: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<CoverageStatistics, Error> {
+    analyze_coverage_generic::<u32>(indices, positions, workspace)
 }
 
 #[cfg(test)]

@@ -1,0 +1,97 @@
+{
+  "baseline": "b89cc4fe03efe346e4695594f1ca4e4688a8c8f1",
+  "unchanged_files": [
+    {
+      "file": "examples/dag_format_bench.rs",
+      "sha256": "27d8467aa37acf03d1b0f06d6d759c0cc7fe1c1eb15701945aa0c7f1b041677d"
+    },
+    {
+      "file": "examples/dag_identity.rs",
+      "sha256": "52a6af3fa98e25fd62b016cf62971e92e62550bc62e4fa2420485f9e76daff25"
+    },
+    {
+      "file": "examples/lod_chain.rs",
+      "sha256": "fe35bb40313ba9bac0aedbd5857f33aa40ac5b1767b01942d5c96842d29c8c86"
+    },
+    {
+      "file": "examples/meshlets.rs",
+      "sha256": "cfd556445cde0146f192d19684dcc23d1328903dca9e8f5baacd55ca3438f82c"
+    },
+    {
+      "file": "examples/untrusted_input.rs",
+      "sha256": "876c395faf9949edd0576d6c01b002c82ce909a2c68a4add31697c31159628d5"
+    },
+    {
+      "file": "tests/api.rs",
+      "sha256": "3c5d32b36f4254113834d454c45cf9daf2754cfcc8d10ec659609d70f7e04bfb"
+    },
+    {
+      "file": "tests/clusterlod_parallel.rs",
+      "sha256": "74690d7ceacd5a0a35d6e1c81180dc705a2032b3d0ea577f861a82460af805d5"
+    },
+    {
+      "file": "tests/codec.rs",
+      "sha256": "eebdc6a1054cb2576a18f153dc9dcda6bc7468e331daa373d72410443de3243f"
+    },
+    {
+      "file": "tests/codec04.rs",
+      "sha256": "6532fd0a672d621238cd7f4e7c20da77f3cb54117b2202918273582e68b05fce"
+    },
+    {
+      "file": "tests/dag_format.rs",
+      "sha256": "6a30aa65ee2c8f2feff4fc0ba8effcf0d5510cbd4846febfb42274114441b7ed"
+    },
+    {
+      "file": "tests/hidden.rs",
+      "sha256": "0a075ff1b898521511f9ac63ce4d275af8677d65f0896450374392abc1cc31ee"
+    },
+    {
+      "file": "tests/lod_chain.rs",
+      "sha256": "7698cd99e20c6bae526d158c33035a50f4d196dae04d4cf55724e72086a06750"
+    },
+    {
+      "file": "tests/lod_quality.rs",
+      "sha256": "99ff2c17b4877bf1139c9319796e1233364464e1bf731392509dc4b12013e069"
+    },
+    {
+      "file": "tests/mesh_analysis.rs",
+      "sha256": "4b23d08a27fbf0307ed29cd0da318a37bf5a28874562ef86eb70802a6e73473d"
+    },
+    {
+      "file": "tests/meshlets.rs",
+      "sha256": "db05dfee549463f3939aca0b93f7f3ff350e04513e23e26e197f0b1397185500"
+    },
+    {
+      "file": "tests/p05.rs",
+      "sha256": "33bee17cfd2d0ba6d0819819fc78550458a13ba894d1072255739c6cbe14c22c"
+    },
+    {
+      "file": "tests/parallel.rs",
+      "sha256": "52cb056f9e39a0b8350b288f3fdd8fb0a2ae5a5db40f5867c24ce03c6f6ccdf3"
+    },
+    {
+      "file": "tests/preprocessing.rs",
+      "sha256": "f42c4d7070b67396dda718669b9c52cc88575d9af9537553c5ea9e67e7d8a4be"
+    },
+    {
+      "file": "tests/repair.rs",
+      "sha256": "7387fc45869182befaaf955812c6fb79b7e9db52e1384beb3c4d27c25e89205a"
+    },
+    {
+      "file": "tests/sanitize.rs",
+      "sha256": "7212d50860734de9ed5558e7a409bcc63ea1c271220addd0a4fe77a9b9c8d014"
+    },
+    {
+      "file": "tests/sequence_stream.rs",
+      "sha256": "a6109dfdbeb612aa1fb6bf6cdb75c5adae30b28c89d7a22433c452ed65985651"
+    },
+    {
+      "file": "tests/simd.rs",
+      "sha256": "6547ceb89380e9e8b5bb92bf4f35be0d2f48775dd70ccff2ce78629ae2fffe5c"
+    },
+    {
+      "file": "tests/vertex_layout.rs",
+      "sha256": "247c59981887de4485e5bb731e533804a3e96f5d2b71ad554de67ca07014a8de"
+    }
+  ]
+}

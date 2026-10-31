@@ -23,6 +23,20 @@
 //! Batches require `parallel` and `std`.
 //! Normal generation and remeshing require `experimental`.
 //!
+//! # Index widths
+//!
+//! Existing names keep their u32 signatures. Add `_generic` to index-processing
+//! function and width-aware method names to select the sealed [`Index`] trait
+//! (`u16` or `u32`). For example, [`optimize_vertex_cache_generic`] accepts
+//! `&[u16]` and returns `Vec<u16>`. Output-only calls take a type argument,
+//! such as `simplify_points_generic::<u16>`. Narrowing returns
+//! [`Error::IndexOverflow`] instead of truncating.
+//! Width-aware structs use a `Generic` suffix, such as [`MeshletsGeneric`].
+//! Original struct names remain concrete u32 forms.
+//! Existing byte-oriented codec layouts retain their upstream conversion rules;
+//! the typed index APIs check narrowing.
+//! See the [16-bit recipe](guide#16-bit-vertex-indices).
+//!
 //! # Recipes
 //!
 //! - [Non-packed positions](guide#non-packed-positions).
@@ -166,14 +180,17 @@ pub mod guide {
 mod budget;
 mod hidden;
 pub use hidden::{
-    remove_hidden_triangles, remove_hidden_triangles_into, HiddenOptions, HiddenReport,
-    HiddenViews, VisibleMesh,
+    remove_hidden_triangles, remove_hidden_triangles_generic, remove_hidden_triangles_into,
+    remove_hidden_triangles_into_generic, HiddenOptions, HiddenReport, HiddenViews, VisibleMesh,
+    VisibleMeshGeneric,
 };
 
 mod analyze;
 mod cache;
 pub mod codec;
 mod error;
+mod index;
+pub use index::Index;
 mod input;
 mod math;
 mod mesh_analysis;
@@ -186,23 +203,26 @@ mod remap;
 mod repair;
 mod sanitize;
 pub use repair::{
-    fill_holes, fill_holes_bound, fill_holes_into, orient_faces, orient_faces_bound,
-    orient_faces_into, weld_vertices, weld_vertices_bound, weld_vertices_into, FillHolesReport,
-    FilledMesh, HoleLoop, OrientReport, OrientedMesh, WeldPolicy, WeldReport, WeldedVertices,
+    fill_holes, fill_holes_bound, fill_holes_generic, fill_holes_into, fill_holes_into_generic,
+    orient_faces, orient_faces_bound, orient_faces_generic, orient_faces_into,
+    orient_faces_into_generic, weld_vertices, weld_vertices_bound, weld_vertices_into,
+    weld_vertices_into_generic, FillHolesReport, FilledMesh, FilledMeshGeneric, HoleLoop,
+    OrientReport, OrientedMesh, OrientedMeshGeneric, WeldPolicy, WeldReport, WeldedVertices,
 };
 
 mod lod_quality;
 pub use lod_quality::{
-    measure_lod_chain_quality, measure_lod_quality, LodCamera, LodDistance, LodNormalDeviation,
-    LodQuality, LodQualityLevel, LodQualityMesh, LodQualityOptions,
+    measure_lod_chain_quality, measure_lod_chain_quality_generic, measure_lod_quality,
+    measure_lod_quality_generic, LodCamera, LodDistance, LodNormalDeviation, LodQuality,
+    LodQualityLevel, LodQualityMesh, LodQualityMeshGeneric, LodQualityOptions,
 };
 mod lod_chain;
 mod raster;
 #[cfg(feature = "experimental")]
 mod remesh;
 pub use lod_chain::{
-    build_lod_chain, LodChain, LodChainAttributes, LodChainError, LodChainOptions, LodErrors,
-    LodLevel, LodTargets,
+    build_lod_chain, build_lod_chain_generic, LodChain, LodChainAttributes, LodChainError,
+    LodChainGeneric, LodChainOptions, LodErrors, LodLevel, LodLevelGeneric, LodTargets,
 };
 mod simplify;
 mod strip;
@@ -210,22 +230,32 @@ mod tangent;
 mod vertex_layout;
 mod workspace;
 pub use simplify::{
-    simplify, simplify_into, simplify_points, simplify_points_into, simplify_prune,
-    simplify_prune_into, simplify_scale, simplify_sloppy, simplify_sloppy_into,
-    simplify_with_attributes, simplify_with_attributes_into, simplify_with_update, SimplifiedMesh,
-    SimplifyOptions, SimplifyResult, SimplifySettings,
+    simplify, simplify_generic, simplify_into, simplify_into_generic, simplify_points,
+    simplify_points_generic, simplify_points_into, simplify_points_into_generic, simplify_prune,
+    simplify_prune_generic, simplify_prune_into, simplify_prune_into_generic, simplify_scale,
+    simplify_sloppy, simplify_sloppy_generic, simplify_sloppy_into, simplify_sloppy_into_generic,
+    simplify_with_attributes, simplify_with_attributes_generic, simplify_with_attributes_into,
+    simplify_with_attributes_into_generic, simplify_with_update, simplify_with_update_generic,
+    SimplifiedMesh, SimplifiedMeshGeneric, SimplifyOptions, SimplifyResult, SimplifySettings,
 };
 pub use vertex_layout::{VertexFieldSnapshot, VertexLayout, VertexLayoutError};
 
 pub use analyze::{
-    analyze_vertex_cache, analyze_vertex_fetch, VertexCacheStatistics, VertexFetchStatistics,
+    analyze_vertex_cache, analyze_vertex_cache_generic, analyze_vertex_fetch,
+    analyze_vertex_fetch_generic, VertexCacheStatistics, VertexFetchStatistics,
 };
 pub use cache::{
-    optimize_vertex_cache, optimize_vertex_cache_fifo, optimize_vertex_cache_fifo_in_place,
-    optimize_vertex_cache_fifo_into, optimize_vertex_cache_in_place, optimize_vertex_cache_into,
-    optimize_vertex_cache_strip, optimize_vertex_cache_strip_in_place,
-    optimize_vertex_cache_strip_into, optimize_vertex_cache_with_table,
-    optimize_vertex_cache_with_table_into, VertexScoreTable,
+    optimize_vertex_cache, optimize_vertex_cache_fifo, optimize_vertex_cache_fifo_generic,
+    optimize_vertex_cache_fifo_in_place, optimize_vertex_cache_fifo_in_place_generic,
+    optimize_vertex_cache_fifo_into, optimize_vertex_cache_fifo_into_generic,
+    optimize_vertex_cache_generic, optimize_vertex_cache_in_place,
+    optimize_vertex_cache_in_place_generic, optimize_vertex_cache_into,
+    optimize_vertex_cache_into_generic, optimize_vertex_cache_strip,
+    optimize_vertex_cache_strip_generic, optimize_vertex_cache_strip_in_place,
+    optimize_vertex_cache_strip_in_place_generic, optimize_vertex_cache_strip_into,
+    optimize_vertex_cache_strip_into_generic, optimize_vertex_cache_with_table,
+    optimize_vertex_cache_with_table_generic, optimize_vertex_cache_with_table_into,
+    optimize_vertex_cache_with_table_into_generic, VertexScoreTable,
 };
 pub use error::Error;
 pub use input::{
@@ -233,32 +263,49 @@ pub use input::{
     VertexFlags,
 };
 pub use mesh_analysis::{
-    analyze_mesh, AnalysisLists, AnalyzeOptions, BoundaryComponent, MeshAnalysis,
+    analyze_mesh, analyze_mesh_generic, AnalysisLists, AnalyzeOptions, BoundaryComponent,
+    MeshAnalysis,
 };
-pub use overdraw::{optimize_overdraw, optimize_overdraw_in_place, optimize_overdraw_into};
+pub use overdraw::{
+    optimize_overdraw, optimize_overdraw_generic, optimize_overdraw_in_place,
+    optimize_overdraw_in_place_generic, optimize_overdraw_into, optimize_overdraw_into_generic,
+};
 pub use quantize::{
     compute_position_exponent, dequantize_half, quantize_float, quantize_half, quantize_snorm,
     quantize_unorm,
 };
 pub use remap::*;
 pub use sanitize::{
-    sanitize, sanitize_bound, sanitize_into, SanitizeOptions, SanitizeReport, SanitizedMesh,
+    sanitize, sanitize_bound, sanitize_generic, sanitize_into, sanitize_into_generic,
+    SanitizeOptions, SanitizeReport, SanitizedMesh, SanitizedMeshGeneric,
 };
 
 #[cfg(feature = "experimental")]
-pub use normal::{generate_normals, generate_normals_into};
-pub use opacity::{
-    opacity_map_compact, opacity_map_entry_size, opacity_map_measure, opacity_map_measure_into,
-    opacity_map_rasterize, opacity_map_rasterize_into, OpacityMapMeasure,
+pub use normal::{
+    generate_normals, generate_normals_generic, generate_normals_into,
+    generate_normals_into_generic,
 };
-pub use raster::{analyze_coverage, analyze_overdraw, CoverageStatistics, OverdrawStatistics};
+pub use opacity::{
+    opacity_map_compact, opacity_map_entry_size, opacity_map_measure, opacity_map_measure_generic,
+    opacity_map_measure_into, opacity_map_measure_into_generic, opacity_map_rasterize,
+    opacity_map_rasterize_into, OpacityMapMeasure,
+};
+pub use raster::{
+    analyze_coverage, analyze_coverage_generic, analyze_overdraw, analyze_overdraw_generic,
+    CoverageStatistics, OverdrawStatistics,
+};
 #[cfg(feature = "experimental")]
-pub use remesh::{remesh, remesh_bound, remesh_into, REMESH_SHELL, REMESH_SOLVE};
+pub use remesh::{
+    remesh, remesh_bound, remesh_bound_generic, remesh_generic, remesh_into, remesh_into_generic,
+    REMESH_SHELL, REMESH_SOLVE,
+};
 pub use strip::{
-    stripify, stripify_bound, stripify_into, unstripify, unstripify_bound, unstripify_into,
+    stripify, stripify_bound, stripify_generic, stripify_into, stripify_into_generic, unstripify,
+    unstripify_bound, unstripify_generic, unstripify_into, unstripify_into_generic,
 };
 pub use tangent::{
-    generate_tangents, generate_tangents_into, TANGENT_COMPATIBLE, TANGENT_ZERO_FALLBACK,
+    generate_tangents, generate_tangents_generic, generate_tangents_into,
+    generate_tangents_into_generic, TANGENT_COMPATIBLE, TANGENT_ZERO_FALLBACK,
 };
 pub use workspace::{Limits, Retention, Usage, Workspace};
 
@@ -287,3 +334,8 @@ pub use remap::optimize_vertex_fetch_into as optimize_vertex_fetch_in_place;
 /// Explicit destructive spelling for update simplification with mutable views.
 /// This is the same checked operation as `simplify_with_update`.
 pub use simplify::simplify_with_update as simplify_with_update_in_place;
+
+/// Selectable index-width fetch optimization.
+pub use remap::optimize_vertex_fetch_into_generic as optimize_vertex_fetch_in_place_generic;
+/// Selectable index-width update simplification.
+pub use simplify::simplify_with_update_generic as simplify_with_update_in_place_generic;

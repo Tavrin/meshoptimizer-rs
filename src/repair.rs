@@ -89,7 +89,20 @@ pub const fn weld_vertices_bound(vertex_count: usize) -> usize {
 /// budgeted scratch, so the caller-buffer form still requires heap storage.
 /// # Errors
 /// Same as [`weld_vertices`], plus `BufferTooSmall` after planning the mapping.
-pub fn weld_vertices_into(
+#[inline]
+pub fn weld_vertices_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    positions: Positions<'_>,
+    tolerance: f32,
+    policy: WeldPolicy<'_>,
+    workspace: &mut Workspace,
+) -> Result<WeldReport, Error> {
+    I::with_mut(destination, workspace, |destination, workspace| {
+        weld_vertices_into_u32(destination, positions, tolerance, policy, workspace)
+    })
+}
+
+fn weld_vertices_into_u32(
     destination: &mut [u32],
     positions: Positions<'_>,
     tolerance: f32,
@@ -238,9 +251,9 @@ pub struct OrientReport {
 /// Oriented indices with original face order; not in C++ meshoptimizer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct OrientedMesh {
+pub struct OrientedMeshGeneric<I: crate::Index = u32> {
     /// Original triangles, with corners 1 and 2 exchanged for reported flips.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Changes and unresolved components.
     pub report: OrientReport,
 }
@@ -259,11 +272,23 @@ pub struct OrientedMesh {
 /// `IndexOutOfBounds` for invalid references, or resource errors as in
 /// [`weld_vertices`]. Input topology should first be sanitized. Scratch and
 /// reports are linear in index count; sorted edges cost `O(n log n)` work.
-pub fn orient_faces(
+#[inline]
+pub fn orient_faces_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<OrientedMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        orient_faces_u32(indices, vertex_count, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn orient_faces_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
-) -> Result<OrientedMesh, Error> {
+) -> Result<OrientedMeshGeneric, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         let mut budget = Budget::new(workspace);
@@ -271,7 +296,7 @@ pub fn orient_faces(
         work.add(indices.len())?;
         let mut out = budget.copied(indices)?;
         apply_flips(&mut out, &flip);
-        Ok(OrientedMesh {
+        Ok(OrientedMeshGeneric {
             indices: out,
             report,
         })
@@ -288,7 +313,21 @@ pub const fn orient_faces_bound(index_count: usize) -> usize {
 /// entries unchanged on every error. Reports also use budgeted heap storage.
 /// # Errors
 /// Same as [`orient_faces`], plus `BufferTooSmall` after orientation planning.
-pub fn orient_faces_into(
+#[inline]
+pub fn orient_faces_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<OrientReport, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            orient_faces_into_u32(destination, indices, vertex_count, workspace)
+        })
+    })
+}
+
+fn orient_faces_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -505,9 +544,9 @@ pub struct FillHolesReport {
 /// Original indices plus filled faces; not in C++ meshoptimizer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct FilledMesh {
+pub struct FilledMeshGeneric<I: crate::Index = u32> {
     /// Original triangles followed by fills, using original vertices only.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Exact decisions for each boundary component.
     pub report: FillHolesReport,
 }
@@ -539,12 +578,25 @@ pub struct FilledMesh {
 /// Same topology/resource errors as [`orient_faces`], plus `NumericalFailure`
 /// for non-finite referenced positions. Refused loops are successful report
 /// entries; other loops may still be filled. An error returns no partial mesh.
-pub fn fill_holes(
+#[inline]
+pub fn fill_holes_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    max_edges: usize,
+    workspace: &mut Workspace,
+) -> Result<FilledMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        fill_holes_u32(indices, positions, max_edges, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn fill_holes_u32(
     indices: &[u32],
     positions: Positions<'_>,
     max_edges: usize,
     workspace: &mut Workspace,
-) -> Result<FilledMesh, Error> {
+) -> Result<FilledMeshGeneric, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         let mut budget = Budget::new(workspace);
@@ -557,7 +609,7 @@ pub fn fill_holes(
         let mut out = budget.reserved(n)?;
         out.extend_from_slice(indices);
         out.extend_from_slice(&added);
-        Ok(FilledMesh {
+        Ok(FilledMeshGeneric {
             indices: out,
             report,
         })
@@ -581,7 +633,22 @@ pub fn fill_holes_bound(index_count: usize) -> Result<usize, Error> {
 /// and reports are staged in budgeted heap storage before any write.
 /// # Errors
 /// Same as [`fill_holes`], plus `BufferTooSmall` after planning all loops.
-pub fn fill_holes_into(
+#[inline]
+pub fn fill_holes_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    max_edges: usize,
+    workspace: &mut Workspace,
+) -> Result<FillHolesReport, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            fill_holes_into_u32(destination, indices, positions, max_edges, workspace)
+        })
+    })
+}
+
+fn fill_holes_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -996,3 +1063,65 @@ fn triangulate(
     }
     Ok(LoopResult::Filled)
 }
+
+/// The source-compatible u32 entry point; see [`weld_vertices_into_generic`] for selectable index widths.
+#[inline]
+pub fn weld_vertices_into(
+    destination: &mut [u32],
+    positions: Positions<'_>,
+    tolerance: f32,
+    policy: WeldPolicy<'_>,
+    workspace: &mut Workspace,
+) -> Result<WeldReport, Error> {
+    weld_vertices_into_generic::<u32>(destination, positions, tolerance, policy, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`orient_faces_generic`] for selectable index widths.
+#[inline]
+pub fn orient_faces(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<OrientedMesh, Error> {
+    orient_faces_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`orient_faces_into_generic`] for selectable index widths.
+#[inline]
+pub fn orient_faces_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<OrientReport, Error> {
+    orient_faces_into_generic::<u32>(destination, indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`fill_holes_generic`] for selectable index widths.
+#[inline]
+pub fn fill_holes(
+    indices: &[u32],
+    positions: Positions<'_>,
+    max_edges: usize,
+    workspace: &mut Workspace,
+) -> Result<FilledMesh, Error> {
+    fill_holes_generic::<u32>(indices, positions, max_edges, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`fill_holes_into_generic`] for selectable index widths.
+#[inline]
+pub fn fill_holes_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    max_edges: usize,
+    workspace: &mut Workspace,
+) -> Result<FillHolesReport, Error> {
+    fill_holes_into_generic::<u32>(destination, indices, positions, max_edges, workspace)
+}
+
+/// The source-compatible u32 form of [`OrientedMeshGeneric`].
+pub type OrientedMesh = OrientedMeshGeneric<u32>;
+
+/// The source-compatible u32 form of [`FilledMeshGeneric`].
+pub type FilledMesh = FilledMeshGeneric<u32>;
