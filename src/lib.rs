@@ -191,6 +191,12 @@ pub use repair::{
     FilledMesh, HoleLoop, OrientReport, OrientedMesh, WeldPolicy, WeldReport, WeldedVertices,
 };
 
+mod character;
+pub use character::{
+    build_character_lod_chain, simplify_character, CharacterInputs, CharacterLodChain,
+    CharacterOptions, CharacterSkin,
+};
+
 mod lod_quality;
 pub use lod_quality::{
     measure_lod_chain_quality, measure_lod_quality, LodCamera, LodDistance, LodNormalDeviation,
