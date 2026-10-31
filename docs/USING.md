@@ -879,3 +879,64 @@ can still approach quadratic work. Outside views execute serially with identical
 output regardless of the `parallel` feature or thread-pool size. Occlusion is measured against
 the original mesh; removing its sampled-hidden surfaces does not guarantee
 identical continuous visibility of the filtered mesh.
+
+## Character LODs
+
+`simplify_character` and `build_character_lod_chain` are opt-in extensions
+not in C++ meshoptimizer. Existing simplification entry points are unchanged.
+Pass `CharacterInputs` with an optional `CharacterSkin`, borrowed blend-shape
+delta arrays, and optional joint sample matrices. Four or eight vertex-major
+influences are supported. Weights must be nonnegative and sum to one within
+0.001; duplicate bone IDs are summed, including importance. Each importance
+and global metric weight must be finite and nonnegative.
+
+The metric uses one channel per bone with value
+`weight * bone_importance * skin_weight`, plus three channels per blend target
+containing `(rest_position + delta) / rest_extent * blend_shape_weight`.
+The rest geometry contributes the usual position quadrics. Constant-position
+meshes use extent one. Bone identity is exact: integer IDs never become scalar
+attributes. This implementation supports at most 32 total channels
+`bone_count + 3 * blend_count`; excess returns `InvalidLayout`. There is no
+truncation or hashing. Partition larger rigs before calling this bounded API.
+
+The existing attribute quadrics sum residual energies across the rest and target
+positions. This penalizes changes in bone influence and in any full-weight
+blend target. The returned simplifier error includes the attribute terms; it
+is not a maximum geometric error across poses. A high importance increases a
+bone channel's squared contribution. It is a soft preference, not a vertex lock.
+`LodChainOptions::vertex_flags` can enforce locks in the chain API. The chain's
+existing `attributes` option must be absent; character channels occupy it.
+
+```rust
+use meshoptimizer_rs::*;
+let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
+let delta = [[0.,0.,0.], [0.,0.,0.], [0.,0.,1.], [0.,0.,1.]];
+let shapes = [delta.as_slice()];
+let mut character = CharacterInputs::new();
+character.blend_shapes = &shapes;
+let chain_options = LodChainOptions::new(
+    LodTargets::Ratios(&[0.5]), LodErrors::Uniform(1.0));
+let result = build_character_lod_chain(
+    &[0,1,2,2,1,3], Positions::from_packed(&positions), &character,
+    &CharacterOptions::default(), &chain_options,
+    &LodQualityOptions::default(), &mut Workspace::default())?;
+assert_eq!(result.quality.len(), 2); // bind, full blend target
+# Ok::<(), Error>(())
+```
+
+`CharacterLodChain::quality` is pose-major then level-major. It contains the F9
+report against the original source for the bind pose, every blend target at
+weight one, then each caller joint pose. Joint matrices are row-major affine
+3-by-4 model-space skin transforms, already including inverse bind transforms.
+Joint samples use linear blend skinning of rest positions. They affect quality
+reports, not collapse costs. Morph and joint samples are separate: combined
+poses, intermediate animation times, and simultaneous blend weights require
+caller analysis. F9 maxima are deterministic sampled lower estimates, not
+continuous Hausdorff bounds. Normals are not supplied by this API.
+
+Levels retain original vertex indices; apply the original skin and blend
+streams when rendering them. Whole-call limits include prepared channels,
+retained outputs, reports, pose buffers, and nested simplifier/quality work.
+Failures return no partial result. See
+[character measurements](../parity/0217-character/RESULTS.md) for the measured
+tradeoffs and reproducible public-model comparison procedure.
