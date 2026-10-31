@@ -210,6 +210,12 @@ pub use repair::{
     OrientReport, OrientedMesh, OrientedMeshGeneric, WeldPolicy, WeldReport, WeldedVertices,
 };
 
+mod character;
+pub use character::{
+    build_character_lod_chain, simplify_character, CharacterInputs, CharacterLodChain,
+    CharacterOptions, CharacterSkin,
+};
+
 mod lod_quality;
 pub use lod_quality::{
     measure_lod_chain_quality, measure_lod_chain_quality_generic, measure_lod_quality,

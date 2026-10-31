@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Additive `_generic` functions and width-aware methods support u16 and u32 through sealed `Index`, with checked narrowing and generic topology results. Width-aware input and result types use a `Generic` suffix; existing names retain their u32 signatures and inference.
+- Opt-in `simplify_character` and `build_character_lod_chain` with exact bone-weight importance channels, full blend-target position metrics, and F9 quality reports in bind, blend, and supplied linear skinning poses. The bounded metric accepts up to 32 total channels and supports `no_std` without new features.
 
 ## [0.2.16] - 2026-10-30
 
