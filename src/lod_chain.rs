@@ -227,13 +227,33 @@ pub fn build_lod_chain(
     options: &LodChainOptions<'_>,
     workspace: &mut Workspace,
 ) -> Result<LodChain, LodChainError> {
+    build_lod_chain_internal(indices, positions, options, workspace, false)
+}
+
+// Character selection clamps a single level to its kept input size. Public
+// count lists still require strictly decreasing targets below the source.
+pub(crate) fn build_lod_chain_internal(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: &LodChainOptions<'_>,
+    workspace: &mut Workspace,
+    allow_equal: bool,
+) -> Result<LodChain, LodChainError> {
     let limits = workspace.limits();
     let mut meter = Meter {
         limit: limits.max_work,
         spent: 0,
         peak: 0,
     };
-    let result = build(indices, positions, options, workspace, limits, &mut meter);
+    let result = build(
+        indices,
+        positions,
+        options,
+        workspace,
+        limits,
+        &mut meter,
+        allow_equal,
+    );
     workspace.set_lod_limits(limits);
     workspace.set_lod_usage(Usage {
         bytes: meter.peak,
@@ -242,6 +262,7 @@ pub fn build_lod_chain(
     result
 }
 
+#[allow(clippy::too_many_arguments)]
 fn build(
     indices: &[u32],
     positions: Positions<'_>,
@@ -249,6 +270,7 @@ fn build(
     workspace: &mut Workspace,
     limits: Limits,
     meter: &mut Meter,
+    allow_equal: bool,
 ) -> Result<LodChain, LodChainError> {
     let whole = |error: Error| LodChainError { level: None, error };
     let at = |level: usize| {
@@ -290,7 +312,7 @@ fn build(
         let e = cap(i);
         let order_ok = match options.targets {
             // Strictly decreasing counts below the source count.
-            LodTargets::Counts(_) => t < prev,
+            LodTargets::Counts(_) => t < prev || (allow_equal && len == 1 && t == prev),
             // Ratios must decrease strictly; their rounded counts may coincide.
             LodTargets::Ratios(v) => {
                 let r = v[i];

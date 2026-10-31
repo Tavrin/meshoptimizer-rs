@@ -126,12 +126,118 @@ fn main() -> Result<(), Box<dyn StdError>> {
     let unit = vec![1.; nb];
     let mut data = CharacterInputs::new();
     data.blend_shapes = &shape_refs;
-    println!("ratio,method,vertices,triangles,bind,animation_max,animation_p95,morph_max,morph_p95,ms,worst_pose,status");
     let ratios = if ni / 3 >= 10000 {
         vec![0.5, 0.25, 0.1, 0.05]
     } else {
         vec![0.5, 0.25, 0.1]
     };
+    if std::env::args().any(|arg| arg == "--best-of") {
+        // Full character chains meter every sampled pose together, unlike the
+        // original harness's separate quality calls. Keep the default byte cap.
+        ws = Workspace::new(Limits {
+            max_work: 1 << 42,
+            ..Limits::default()
+        });
+        data.skin = if nb == 0 {
+            None
+        } else {
+            Some(CharacterSkin::new(&joints, &weights, influences, &unit))
+        };
+        let sample_refs: Vec<_> = samples.iter().map(Vec::as_slice).collect();
+        data.sample_poses = &sample_refs;
+        println!(
+            "target,chosen,triangles,plain_max,character_max,selected_max,character_ms,bestof_ms"
+        );
+        for ratio in ratios {
+            let counts = [((ni / 3) as f64 * ratio) as usize * 3];
+            let mut co =
+                LodChainOptions::new(LodTargets::Counts(&counts), LodErrors::Uniform(100.));
+            let attr_weights = vec![1.; aw];
+            if aw != 0 {
+                co.attributes = Some(LodChainAttributes::new(
+                    Attributes::from_interleaved(&attr, p.len(), aw, aw, 0)?,
+                    &attr_weights,
+                ));
+            }
+            let extent = samples
+                .iter()
+                .chain(std::iter::once(&p))
+                .map(|s| simplify_scale(Positions::from_packed(s)))
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter()
+                .fold(0.0f32, f32::max);
+            let mut qo = LodQualityOptions::default();
+            qo.samples_per_unit_area = if extent > 0. {
+                1e-6 / f64::from(extent).powi(2)
+            } else {
+                0.
+            };
+            let mut character_co = co;
+            character_co.attributes = None;
+            eprintln!("target {ratio}: character chain");
+            let start = Instant::now();
+            let character = build_character_lod_chain(
+                &indices,
+                Positions::from_packed(&p),
+                &data,
+                &CharacterOptions::default(),
+                &character_co,
+                &qo,
+                &mut ws,
+            )?;
+            let character_ms = start.elapsed().as_secs_f64() * 1000.;
+            eprintln!(
+                "target {ratio}: character {character_ms:.3} ms, usage {:?}",
+                ws.usage()
+            );
+            let mut options = CharacterOptions::default();
+            options.best_of = true;
+            eprintln!("target {ratio}: best-of chain");
+            let start = Instant::now();
+            let selected = build_character_lod_chain(
+                &indices,
+                Positions::from_packed(&p),
+                &data,
+                &options,
+                &co,
+                &qo,
+                &mut ws,
+            )?;
+            let bestof_ms = start.elapsed().as_secs_f64() * 1000.;
+            eprintln!(
+                "target {ratio}: best-of {bestof_ms:.3} ms, usage {:?}",
+                ws.usage()
+            );
+            let report = selected.selections[0];
+            let max = selected
+                .quality
+                .iter()
+                .fold(0.0f64, |v, q| v.max(q[0].symmetric.max));
+            let char_max = character
+                .quality
+                .iter()
+                .fold(0.0f64, |v, q| v.max(q[0].symmetric.max));
+            assert_eq!(char_max, report.character_max);
+            assert!(max <= report.plain_max && max <= report.character_max);
+            let chosen = match report.method {
+                CharacterLodMethod::Plain => "plain",
+                CharacterLodMethod::Character => "character",
+                _ => unreachable!(),
+            };
+            println!(
+                "{ratio},{chosen},{},{:.17},{:.17},{max:.17},{character_ms:.6},{bestof_ms:.6}",
+                selected.chain.levels[0].triangle_count, report.plain_max, report.character_max
+            );
+            let out: Vec<_> = selected.chain.levels[0]
+                .indices
+                .iter()
+                .flat_map(|v| v.to_le_bytes())
+                .collect();
+            std::fs::write(format!("{path}.{ratio}.bestof.indices"), out)?;
+        }
+        return Ok(());
+    }
+    println!("ratio,method,vertices,triangles,bind,animation_max,animation_p95,morph_max,morph_p95,ms,worst_pose,status");
     for ratio in ratios {
         let settings = SimplifySettings {
             target_index_count: ((ni / 3) as f64 * ratio) as usize * 3,
