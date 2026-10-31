@@ -513,6 +513,7 @@ fn hit(t: &Triangle, o: Point, d: Point, max: f64, epsilon: f64) -> bool {
     let distance = dot(e2, r) / determinant;
     u >= 0.0 && v >= 0.0 && u + v <= 1.0 && distance > epsilon && distance < max - epsilon
 }
+#[derive(Clone, Copy)]
 struct Ray {
     origin: Point,
     direction: Point,
@@ -524,6 +525,7 @@ fn blocked(
     id: usize,
     triangles: &[Triangle],
     nodes: &[Node],
+    witness: &mut [Option<(usize, usize)>; 4],
     work: &mut Work,
 ) -> Result<bool, Error> {
     let Ray {
@@ -532,6 +534,22 @@ fn blocked(
         distance: max,
         epsilon,
     } = ray;
+    for slot in 0..witness.len() {
+        let Some((triangle, leaf)) = witness[slot] else {
+            continue;
+        };
+        work.add(2)?;
+        let t = &triangles[triangle];
+        // The same hit and box predicates as the traversal below. Every
+        // ancestor encloses this leaf: monotone floating-point subtraction
+        // and division make its slab interval a superset of the leaf's.
+        // Thus a successful leaf witness proves the original traversal would
+        // return true too, including shared-edge rounding behavior.
+        if t.id != id && hit(t, o, d, max, epsilon) && box_hit(&nodes[leaf], o, d, max, epsilon) {
+            witness.swap(0, slot);
+            return Ok(true);
+        }
+    }
     let mut at = 0;
     while at < nodes.len() {
         work.add(1)?;
@@ -540,9 +558,14 @@ fn blocked(
             at = node.end;
             continue;
         }
-        for t in &triangles[node.start..node.start + node.count] {
+        for (offset, t) in triangles[node.start..node.start + node.count]
+            .iter()
+            .enumerate()
+        {
             work.add(1)?;
             if t.id != id && hit(t, o, d, max, epsilon) {
+                witness.rotate_right(1);
+                witness[0] = Some((node.start + offset, at));
                 return Ok(true);
             }
         }
@@ -571,6 +594,13 @@ fn finite_visibility(
         build(triangles, 0, &mut nodes, work)?;
     }
     let s = options.subdivisions;
+    // Four nearby blockers avoid alternating BVH searches around wall seams.
+    let mut witnesses = budget.filled(view_count, [None; 4])?;
+    work.add(26)?;
+    // Outside directions do not depend on the sample. Preserve the original
+    // normalization and reuse it rather than repeating sqrt at every sample.
+    let outside =
+        core::array::from_fn::<_, 26, _>(|view| direction(HiddenViews::Outside, view, [0.; 3]));
     for t in triangles.iter() {
         if !keep[t.id] {
             continue;
@@ -592,9 +622,13 @@ fn finite_visibility(
                 let sample = core::array::from_fn(|k| {
                     t.p[0][k] * (1.0 - u - v) + t.p[1][k] * u + t.p[2][k] * v
                 });
-                for view in 0..view_count {
+                for (view, witness) in witnesses.iter_mut().enumerate() {
                     work.add(1)?;
-                    let (d, distance) = direction(options.views, view, sample);
+                    let (d, distance) = if matches!(options.views, HiddenViews::Outside) {
+                        outside[view]
+                    } else {
+                        direction(options.views, view, sample)
+                    };
                     if !blocked(
                         Ray {
                             origin: sample,
@@ -605,6 +639,7 @@ fn finite_visibility(
                         t.id,
                         triangles,
                         &nodes,
+                        witness,
                         work,
                     )? {
                         visible = true;
@@ -622,6 +657,7 @@ fn finite_visibility(
             }
         }
     }
+    budget.release(witnesses);
     budget.release(nodes);
     Ok(())
 }
@@ -1183,6 +1219,88 @@ fn outside_visibility(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cached_witness_matches_full_traversal_and_checks_leaf() -> Result<(), Error> {
+        let mut ws = Workspace::default();
+        let mut work = ws.begin();
+        let mut triangles = Vec::new();
+        for id in 0..64 {
+            let x = (id % 8) as f64;
+            let y = (id / 8) as f64;
+            triangles.push(Triangle {
+                p: [[x, y, 1.], [x + 2., y, 1.], [x, y + 2., 1.]],
+                id,
+            });
+        }
+        let mut nodes = Vec::new();
+        build(&mut triangles, 0, &mut nodes, &mut work)?;
+        let mut witness = [None; 4];
+        let mut cached_hits = 0;
+        for step in 0..256 {
+            let origin = [(step % 16) as f64 * 0.5, (step / 16) as f64 * 0.5, 0.];
+            for view in 0..28 {
+                let ray = Ray {
+                    origin,
+                    direction: if view < 26 {
+                        direction(HiddenViews::Outside, view, origin).0
+                    } else if view == 26 {
+                        [0.1, 0.2, 1.]
+                    } else {
+                        [-0.2, 0.1, 1.]
+                    },
+                    distance: if step % 2 == 0 { f64::INFINITY } else { 2. },
+                    epsilon: 1e-12,
+                };
+                for id in [usize::MAX, step % 64] {
+                    let expected = blocked(ray, id, &triangles, &nodes, &mut [None; 4], &mut work)?;
+                    for _ in 0..2 {
+                        cached_hits += usize::from(witness[0].is_some() && expected);
+                        assert_eq!(
+                            blocked(ray, id, &triangles, &nodes, &mut witness, &mut work)?,
+                            expected
+                        );
+                    }
+                }
+            }
+        }
+        assert!(cached_hits > 0);
+        // A triangle hit alone is insufficient: the legacy box predicate must
+        // also accept. This deliberately inconsistent fixture exercises that guard.
+        let t = Triangle {
+            p: [[0., 0., 1.], [2., 0., 1.], [0., 2., 1.]],
+            id: 0,
+        };
+        let node = Node {
+            min: [10.; 3],
+            max: [11.; 3],
+            start: 0,
+            count: 1,
+            end: 1,
+        };
+        let ray = Ray {
+            origin: [0.5, 0.5, 0.],
+            direction: [0., 0., 1.],
+            distance: f64::INFINITY,
+            epsilon: 1e-12,
+        };
+        assert!(hit(
+            &t,
+            ray.origin,
+            ray.direction,
+            ray.distance,
+            ray.epsilon
+        ));
+        assert!(!blocked(
+            ray,
+            usize::MAX,
+            &[t],
+            &[node],
+            &mut [Some((0, 0)); 4],
+            &mut work
+        )?);
+        Ok(())
+    }
 
     #[test]
     fn raster_size_validation_precedes_arithmetic() {

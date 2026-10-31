@@ -1,0 +1,15 @@
+build-iterate	0	24.634
+iterate-breakfast_room	0	6.423
+iterate-conference	0	2.146
+iterate-living_room	0	5.550
+build-before	0	19.271
+build-prior	0	19.530
+build-after	0	16.988
+build-none	0	15.497
+build-parallel	0	18.458
+oracle-build	0	0.648
+build-before	0	20.348
+build-serial	0	3.717
+build-before-parallel	0	26.554
+build-parallel	0	18.960
+build-none	101	12.350

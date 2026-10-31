@@ -1,0 +1,77 @@
+[
+  {
+    "scene": "breakfast_room",
+    "arm": "before",
+    "median": 63.112905813
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "serial",
+    "median": 2.957808124
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "before-parallel",
+    "median": 49.464450743
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "parallel",
+    "median": 1.465892929
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "none",
+    "median": 2.691825379
+  },
+  {
+    "scene": "conference",
+    "arm": "before",
+    "median": 11.691241582
+  },
+  {
+    "scene": "conference",
+    "arm": "serial",
+    "median": 0.707954074
+  },
+  {
+    "scene": "conference",
+    "arm": "before-parallel",
+    "median": 7.732747234
+  },
+  {
+    "scene": "conference",
+    "arm": "parallel",
+    "median": 0.378393375
+  },
+  {
+    "scene": "conference",
+    "arm": "none",
+    "median": 0.730952583
+  },
+  {
+    "scene": "living_room",
+    "arm": "before",
+    "median": 1.906876298
+  },
+  {
+    "scene": "living_room",
+    "arm": "serial",
+    "median": 0.902941425
+  },
+  {
+    "scene": "living_room",
+    "arm": "before-parallel",
+    "median": 1.607003013
+  },
+  {
+    "scene": "living_room",
+    "arm": "parallel",
+    "median": 0.889859993
+  },
+  {
+    "scene": "living_room",
+    "arm": "none",
+    "median": 0.907941101
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "exit": 101,
+  "stage": "build-none",
+  "cause": "benchmark used std error conversion on no-default dependency Error",
+  "library_source_changed": false,
+  "binary_sha256": {
+    "before": "96265355c5e44e47b814c7077f4ba86958dfe27ccb5d0412770c585610f88556",
+    "serial": "8aa8320d7fedb26f7b942df2c8e0c338984f5bccef548184c8f761f95b8ef418",
+    "before-parallel": "51dff33cf2e1f8a2ea3e44f897c41c33aec263013c0b18066ff9c0b1ff24fbe8",
+    "parallel": "e7357802f9f8f7067581659f934d5a6abf2e7ad19bfb09b1e2a05ad8c41b45a3"
+  }
+}

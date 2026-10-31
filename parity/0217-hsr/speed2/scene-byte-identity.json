@@ -1,0 +1,20 @@
+[
+  {
+    "scene": "breakfast_room",
+    "indices": 465054,
+    "output_sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311",
+    "exact_bytes": true
+  },
+  {
+    "scene": "conference",
+    "indices": 296733,
+    "output_sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512",
+    "exact_bytes": true
+  },
+  {
+    "scene": "living_room",
+    "indices": 1730868,
+    "output_sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7",
+    "exact_bytes": true
+  }
+]

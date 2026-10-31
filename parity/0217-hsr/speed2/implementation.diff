@@ -1,0 +1,507 @@
+diff --git a/src/hidden.rs b/src/hidden.rs
+index e4666515..4ff5b41d 100644
+--- a/src/hidden.rs
++++ b/src/hidden.rs
+@@ -513,6 +513,7 @@ fn hit(t: &Triangle, o: Point, d: Point, max: f64, epsilon: f64) -> bool {
+     let distance = dot(e2, r) / determinant;
+     u >= 0.0 && v >= 0.0 && u + v <= 1.0 && distance > epsilon && distance < max - epsilon
+ }
++#[derive(Clone, Copy)]
+ struct Ray {
+     origin: Point,
+     direction: Point,
+@@ -524,6 +525,7 @@ fn blocked(
+     id: usize,
+     triangles: &[Triangle],
+     nodes: &[Node],
++    witness: &mut [Option<(usize, usize)>; 4],
+     work: &mut Work,
+ ) -> Result<bool, Error> {
+     let Ray {
+@@ -532,6 +534,22 @@ fn blocked(
+         distance: max,
+         epsilon,
+     } = ray;
++    for slot in 0..witness.len() {
++        let Some((triangle, leaf)) = witness[slot] else {
++            continue;
++        };
++        work.add(2)?;
++        let t = &triangles[triangle];
++        // The same hit and box predicates as the traversal below. Every
++        // ancestor encloses this leaf: monotone floating-point subtraction
++        // and division make its slab interval a superset of the leaf's.
++        // Thus a successful leaf witness proves the original traversal would
++        // return true too, including shared-edge rounding behavior.
++        if t.id != id && hit(t, o, d, max, epsilon) && box_hit(&nodes[leaf], o, d, max, epsilon) {
++            witness.swap(0, slot);
++            return Ok(true);
++        }
++    }
+     let mut at = 0;
+     while at < nodes.len() {
+         work.add(1)?;
+@@ -540,9 +558,14 @@ fn blocked(
+             at = node.end;
+             continue;
+         }
+-        for t in &triangles[node.start..node.start + node.count] {
++        for (offset, t) in triangles[node.start..node.start + node.count]
++            .iter()
++            .enumerate()
++        {
+             work.add(1)?;
+             if t.id != id && hit(t, o, d, max, epsilon) {
++                witness.rotate_right(1);
++                witness[0] = Some((node.start + offset, at));
+                 return Ok(true);
+             }
+         }
+@@ -571,6 +594,13 @@ fn finite_visibility(
+         build(triangles, 0, &mut nodes, work)?;
+     }
+     let s = options.subdivisions;
++    // Four nearby blockers avoid alternating BVH searches around wall seams.
++    let mut witnesses = budget.filled(view_count, [None; 4])?;
++    work.add(26)?;
++    // Outside directions do not depend on the sample. Preserve the original
++    // normalization and reuse it rather than repeating sqrt at every sample.
++    let outside =
++        core::array::from_fn::<_, 26, _>(|view| direction(HiddenViews::Outside, view, [0.; 3]));
+     for t in triangles.iter() {
+         if !keep[t.id] {
+             continue;
+@@ -592,9 +622,13 @@ fn finite_visibility(
+                 let sample = core::array::from_fn(|k| {
+                     t.p[0][k] * (1.0 - u - v) + t.p[1][k] * u + t.p[2][k] * v
+                 });
+-                for view in 0..view_count {
++                for (view, witness) in witnesses.iter_mut().enumerate() {
+                     work.add(1)?;
+-                    let (d, distance) = direction(options.views, view, sample);
++                    let (d, distance) = if matches!(options.views, HiddenViews::Outside) {
++                        outside[view]
++                    } else {
++                        direction(options.views, view, sample)
++                    };
+                     if !blocked(
+                         Ray {
+                             origin: sample,
+@@ -605,6 +639,7 @@ fn finite_visibility(
+                         t.id,
+                         triangles,
+                         &nodes,
++                        witness,
+                         work,
+                     )? {
+                         visible = true;
+@@ -622,6 +657,7 @@ fn finite_visibility(
+             }
+         }
+     }
++    budget.release(witnesses);
+     budget.release(nodes);
+     Ok(())
+ }
+@@ -1184,6 +1220,88 @@ fn outside_visibility(
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn cached_witness_matches_full_traversal_and_checks_leaf() -> Result<(), Error> {
++        let mut ws = Workspace::default();
++        let mut work = ws.begin();
++        let mut triangles = Vec::new();
++        for id in 0..64 {
++            let x = (id % 8) as f64;
++            let y = (id / 8) as f64;
++            triangles.push(Triangle {
++                p: [[x, y, 1.], [x + 2., y, 1.], [x, y + 2., 1.]],
++                id,
++            });
++        }
++        let mut nodes = Vec::new();
++        build(&mut triangles, 0, &mut nodes, &mut work)?;
++        let mut witness = [None; 4];
++        let mut cached_hits = 0;
++        for step in 0..256 {
++            let origin = [(step % 16) as f64 * 0.5, (step / 16) as f64 * 0.5, 0.];
++            for view in 0..28 {
++                let ray = Ray {
++                    origin,
++                    direction: if view < 26 {
++                        direction(HiddenViews::Outside, view, origin).0
++                    } else if view == 26 {
++                        [0.1, 0.2, 1.]
++                    } else {
++                        [-0.2, 0.1, 1.]
++                    },
++                    distance: if step % 2 == 0 { f64::INFINITY } else { 2. },
++                    epsilon: 1e-12,
++                };
++                for id in [usize::MAX, step % 64] {
++                    let expected = blocked(ray, id, &triangles, &nodes, &mut [None; 4], &mut work)?;
++                    for _ in 0..2 {
++                        cached_hits += usize::from(witness[0].is_some() && expected);
++                        assert_eq!(
++                            blocked(ray, id, &triangles, &nodes, &mut witness, &mut work)?,
++                            expected
++                        );
++                    }
++                }
++            }
++        }
++        assert!(cached_hits > 0);
++        // A triangle hit alone is insufficient: the legacy box predicate must
++        // also accept. This deliberately inconsistent fixture exercises that guard.
++        let t = Triangle {
++            p: [[0., 0., 1.], [2., 0., 1.], [0., 2., 1.]],
++            id: 0,
++        };
++        let node = Node {
++            min: [10.; 3],
++            max: [11.; 3],
++            start: 0,
++            count: 1,
++            end: 1,
++        };
++        let ray = Ray {
++            origin: [0.5, 0.5, 0.],
++            direction: [0., 0., 1.],
++            distance: f64::INFINITY,
++            epsilon: 1e-12,
++        };
++        assert!(hit(
++            &t,
++            ray.origin,
++            ray.direction,
++            ray.distance,
++            ray.epsilon
++        ));
++        assert!(!blocked(
++            ray,
++            usize::MAX,
++            &[t],
++            &[node],
++            &mut [Some((0, 0)); 4],
++            &mut work
++        )?);
++        Ok(())
++    }
++
+     #[test]
+     fn raster_size_validation_precedes_arithmetic() {
+         for size in [0, 2049, i64::MAX as usize, usize::MAX] {
+diff --git a/parity/0217-hsr/speed2/bench.rs b/parity/0217-hsr/speed2/bench.rs
+new file mode 100644
+index 00000000..3421651a
+--- /dev/null
++++ b/parity/0217-hsr/speed2/bench.rs
+@@ -0,0 +1,65 @@
++use meshoptimizer_rs as m;
++use std::{
++    error::Error,
++    io::{self, BufRead, Read, Write},
++    time::Instant,
++};
++type Result<T> = std::result::Result<T, Box<dyn Error>>;
++fn word(f: &mut impl Read) -> Result<u32> {
++    let mut b = [0; 4];
++    f.read_exact(&mut b)?;
++    Ok(u32::from_le_bytes(b))
++}
++fn main() -> Result<()> {
++    let a: Vec<String> = std::env::args().collect();
++    let mut f = std::fs::File::open(&a[1])?;
++    let nv = usize::try_from(word(&mut f)?)?;
++    let ni = usize::try_from(word(&mut f)?)?;
++    let mut p = Vec::with_capacity(nv);
++    for _ in 0..nv {
++        p.push([
++            f32::from_bits(word(&mut f)?),
++            f32::from_bits(word(&mut f)?),
++            f32::from_bits(word(&mut f)?),
++        ]);
++    }
++    let i = (0..ni).map(|_| word(&mut f)).collect::<Result<Vec<_>>>()?;
++    let mut o = m::HiddenOptions::default();
++    if let Ok(v) = std::env::var("HSR_PIXEL_SIZE") {
++        o.pixel_size = v.parse()?;
++    }
++    if let Ok(v) = std::env::var("HSR_SUBDIVISIONS") {
++        o.subdivisions = v.parse()?;
++    }
++    let mut w = m::Workspace::new(m::Limits {
++        max_bytes: 3 << 30,
++        ..m::Limits::default()
++    });
++    #[cfg(feature = "parallel")]
++    let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
++    // Parsing, warmup and output encoding are outside every measured interval.
++    for line in std::iter::once(Ok(String::from("warm"))).chain(io::stdin().lock().lines()) {
++        let line = line?;
++        if line == "stop" {
++            break;
++        }
++        let start = Instant::now();
++        #[cfg(feature = "parallel")]
++        let r = pool
++            .install(|| m::remove_hidden_triangles(&i, m::Positions::from_packed(&p), o, &mut w));
++        #[cfg(not(feature = "parallel"))]
++        let r = m::remove_hidden_triangles(&i, m::Positions::from_packed(&p), o, &mut w);
++        let r = r.map_err(|error| io::Error::other(format!("{error:?}")))?;
++        let seconds = start.elapsed().as_secs_f64();
++        std::fs::write(
++            &a[2],
++            r.indices
++                .iter()
++                .flat_map(|v| v.to_le_bytes())
++                .collect::<Vec<_>>(),
++        )?;
++        println!("{{\"phase\":\"{line}\",\"seconds\":{seconds:.9},\"input\":{},\"output\":{},\"duplicate\":{},\"back_to_back\":{},\"occluded\":{},\"work\":{},\"bytes\":{}}}", r.report.input_triangles, r.report.output_triangles, r.report.duplicate, r.report.enclosed_back_to_back, r.report.occluded, w.usage().work, w.usage().bytes);
++        io::stdout().flush()?;
++    }
++    Ok(())
++}
+diff --git a/parity/0217-hsr/speed2/campaign.py b/parity/0217-hsr/speed2/campaign.py
+new file mode 100644
+index 00000000..8e6ee007
+--- /dev/null
++++ b/parity/0217-hsr/speed2/campaign.py
+@@ -0,0 +1,55 @@
++"""Same-host interleaved resident timings, pinned reference and exact indices."""
++from support import *
++import platform,statistics,sys
++# Preserve oracle build receipts before the timing arms reuse these labels.
++oracle_logs=RECEIPT/'oracle-builds';oracle_logs.mkdir(exist_ok=True)
++for name in ['build-before.log','build-prior.log','build-after.log','build-none.log','build-parallel.log','oracle-build.log']:
++    path=RECEIPT/name
++    if path.exists():
++        assert not (oracle_logs/name).exists()
++        shutil.move(path,oracle_logs/name)
++quick='--quick' in sys.argv
++arms=[('before',reference(),['std','simd']),('serial',ROOT,['std','simd'])]
++if not quick:arms += [('before-parallel',reference(),['std','simd','parallel']),('parallel',ROOT,['std','simd','parallel']),('none',ROOT,[])]
++binaries={arm:build(arm,source,features) for arm,source,features in arms}
++cpus=sorted(os.sched_getaffinity(0));serial_cpu=cpus[0];pool_cpus=cpus[:4]
++rows=[];identity=[]
++for scene in ['breakfast_room','conference','living_room']:
++    mesh=SCENES/(scene+'.bin')
++    meta=next(v for v in json.loads((ROOT/'parity/0217-hsr/eval/scenes.json').read_text()) if v['name']==scene)
++    assert sha(mesh)==meta['mesh_sha256']
++    peers={};expected=None
++    for arm,binary in binaries.items():
++        out=SCRATCH/(scene+'-'+arm+'.out')
++        affinity=','.join(map(str,pool_cpus)) if 'parallel' in arm else str(serial_cpu)
++        p=subprocess.Popen(['taskset','-c',affinity,str(binary),str(mesh),str(out)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=dict(os.environ,RAYON_NUM_THREADS='4',HSR_PIXEL_SIZE='0'))
++        line=p.stdout.readline()
++        if not line:raise RuntimeError((scene,arm,p.wait(),p.stderr.read()))
++        data=json.loads(line);print(scene,arm,'warm',data,flush=True)
++        digest=sha(out)
++        if expected is None:expected=digest
++        assert digest==expected,(scene,arm,digest,expected)
++        peers[arm]=(p,out)
++        identity.append(dict(scene=scene,arm=arm,phase='warm',sha256=digest,report=data))
++    for rep in range(1 if quick else 3):
++        order=list(peers)
++        if rep==1:order.reverse()
++        for arm in order:
++            p,out=peers[arm];p.stdin.write('measured\n');p.stdin.flush()
++            line=p.stdout.readline()
++            if not line:raise RuntimeError((scene,arm,p.wait(),p.stderr.read()))
++            data=json.loads(line);digest=sha(out);assert digest==expected
++            rows.append(dict(scene=scene,arm=arm,rep=rep,output_sha256=digest,**data))
++            print(scene,arm,rep,data['seconds'],flush=True)
++            (RECEIPT/('quick-samples.json' if quick else 'samples.json')).write_text(json.dumps(rows,indent=2)+'\n')
++    for arm,(p,out) in peers.items():
++        stdout,stderr=p.communicate('stop\n');(RECEIPT/(scene+'-'+arm+'.stderr')).write_text(stderr)
++        with (RECEIPT/'exits.tsv').open('a') as f:f.write(f'{scene}-{arm}\t{p.returncode}\n')
++        assert p.returncode==0,(scene,arm,stderr)
++summary=[dict(scene=scene,arm=arm,median=statistics.median(r['seconds'] for r in rows if r['scene']==scene and r['arm']==arm)) for scene in ['breakfast_room','conference','living_room'] for arm in binaries]
++(RECEIPT/('quick-summary.json' if quick else 'summary.json')).write_text(json.dumps(summary,indent=2)+'\n')
++(RECEIPT/'identity.json').write_text(json.dumps(identity,indent=2)+'\n')
++(RECEIPT/'environment.json').write_text(json.dumps(dict(cpu=serial_cpu,pool_cpus=pool_cpus,rayon_threads=4,platform=platform.platform(),rustc=subprocess.check_output(['rustc','-vV'],text=True),binary_sha256={k:sha(v) for k,v in binaries.items()},source_sha256={str(p.relative_to(ROOT)):sha(p) for p in (ROOT/'src').rglob('*.rs')},timing='one warmup, three resident calls; interleaved arms with reversed middle repetition; parsing and serialization excluded; shared-host wall time; overflow checks enabled',reference='f9859cc'),indent=2)+'\n')
++print(summary,flush=True)
++# Retain the evaluation's maximum-grid/extreme-coordinate overflow check.
++run('hidden-overflow',['cargo','test','--locked','--release','--all-features','--test','hidden'],env=dict(os.environ,CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS='true'))
+diff --git a/parity/0217-hsr/speed2/campaign.sh b/parity/0217-hsr/speed2/campaign.sh
+new file mode 100644
+index 00000000..51f3b932
+--- /dev/null
++++ b/parity/0217-hsr/speed2/campaign.sh
+@@ -0,0 +1,3 @@
++#!/usr/bin/env bash
++set -euo pipefail
++python3 parity/0217-hsr/speed2/campaign.py
+diff --git a/parity/0217-hsr/speed2/checks.py b/parity/0217-hsr/speed2/checks.py
+new file mode 100644
+index 00000000..3516f936
+--- /dev/null
++++ b/parity/0217-hsr/speed2/checks.py
+@@ -0,0 +1,7 @@
++"""Repeat existing full gates with a separate receipt directory."""
++from support import *
++assert not (RECEIPT/'checks/exits.tsv').exists(), 'Refusing to overwrite retained receipts'
++script=(ROOT/'parity/0217-hsr/eval/checks.py').read_text()
++script=script.replace("receipt=lane/'eval' / 'checks'", "receipt=lane/'speed2' / 'checks'")
++script=script.replace("scratch=target/'proof'", "scratch=target/'speed2-proof'")
++exec(compile(script,str(ROOT/'parity/0217-hsr/eval/checks.py'),'exec'))
+diff --git a/parity/0217-hsr/speed2/iterate.py b/parity/0217-hsr/speed2/iterate.py
+new file mode 100644
+index 00000000..d75bdf59
+--- /dev/null
++++ b/parity/0217-hsr/speed2/iterate.py
+@@ -0,0 +1,14 @@
++from support import *
++import sys
++binary=build('iterate',ROOT,['std','simd'])
++cpu=min(os.sched_getaffinity(0)); rows=[]
++for scene in ['breakfast_room','conference','living_room']:
++    out=SCRATCH/('iterate-'+scene+'.out')
++    log=run('iterate-'+scene,['taskset','-c',cpu,binary,SCENES/(scene+'.bin'),out],input='measured\nstop\n')
++    samples=[json.loads(line) for line in log.splitlines() if line.startswith('{')]
++    rows.append(dict(scene=scene,samples=samples))
++    expected=SCENES/(scene+'-default-0.out')
++    assert out.read_bytes()==expected.read_bytes(),scene
++    print('IDENTICAL',scene,sha(out),flush=True)
++
++(RECEIPT/'iterate.json').write_text(json.dumps(rows,indent=2)+'\n')
+diff --git a/parity/0217-hsr/speed2/iterate.sh b/parity/0217-hsr/speed2/iterate.sh
+new file mode 100644
+index 00000000..9fb34c62
+--- /dev/null
++++ b/parity/0217-hsr/speed2/iterate.sh
+@@ -0,0 +1,17 @@
++#!/usr/bin/env bash
++set -euo pipefail
++cargo fmt --all
++cargo test --locked --all-features --test hidden
++python3 parity/0217-hsr/speed2/iterate.py
++if python3 - <<'PYGATE'
++import json,sys
++from pathlib import Path
++rows=json.loads(Path('parity/0217-hsr/speed2/iterate.json').read_text())
++limits={'breakfast_room':5.0,'conference':2.0}
++sys.exit(0 if all(r['samples'][-1]['seconds'] <= limits.get(r['scene'],float('inf')) for r in rows) else 1)
++PYGATE
++then
++    python3 parity/0217-hsr/speed2/checks.py
++    python3 parity/0217-hsr/speed2/oracle.py
++    python3 parity/0217-hsr/speed2/campaign.py
++fi
+diff --git a/parity/0217-hsr/speed2/oracle.py b/parity/0217-hsr/speed2/oracle.py
+new file mode 100644
+index 00000000..1756cd3c
+--- /dev/null
++++ b/parity/0217-hsr/speed2/oracle.py
+@@ -0,0 +1,10 @@
++"""Reuse the independent oracle and fixed 80-scene corpus without overwriting receipts."""
++from support import *
++assert not (RECEIPT/'oracle.json').exists(), 'Refusing to overwrite retained receipts'
++script=(ROOT/'parity/0217-hsr/eval/oracle.py').read_text()
++script=script.replace("receipt=lane/'eval'", "receipt=lane/'speed2'")
++script=script.replace("scratch=target/'speed'", "scratch=target/'speed2-oracle'")
++script=script.replace("'HEAD:src/hidden.rs'", "'f9859cc:src/hidden.rs'")
++script=script.replace("else receipt/'bench.rs'", "else lane/'eval/bench.rs'")
++script=script.split('# Same complete merged scenes/densities')[0]
++exec(compile(script,str(ROOT/'parity/0217-hsr/eval/oracle.py'),'exec'))
+diff --git a/parity/0217-hsr/speed2/profile.py b/parity/0217-hsr/speed2/profile.py
+new file mode 100644
+index 00000000..e1587c47
+--- /dev/null
++++ b/parity/0217-hsr/speed2/profile.py
+@@ -0,0 +1,41 @@
++"""Admitted phase profile of the pinned reference, without editing its source."""
++import io,json,os,subprocess,tarfile,time
++from pathlib import Path
++root=Path.cwd(); receipt=root/'parity/0217-hsr/speed2'; target=Path(os.environ['CARGO_TARGET_DIR']); scratch=target/'profile'; scratch.mkdir(parents=True)
++assert os.environ.get('MOSS_HEAVY_ACTIVE')
++base=scratch/'reference';base.mkdir()
++raw=subprocess.check_output(['git','archive','f9859cc','Cargo.toml','Cargo.lock','src','docs','README.md'])
++with tarfile.open(fileobj=io.BytesIO(raw)) as archive: archive.extractall(base,filter='data')
++p=base/'src/hidden.rs';s=p.read_text()
++s=s.replace('    let mut min = [f64::INFINITY; 3];\n    let mut max', '    let mut min = [f64::INFINITY; 3];\n    let mut max')
++s=s.replace('    let guard = epsilon + side * 1e-12;', '    let guard = epsilon + side * 1e-12;\n    let raster_start = std::time::Instant::now();\n    let mut raster_time = 0.0;\n    let mut query_time = 0.0;')
++s=s.replace('        work.add(occluders.len())?;', '        let phase = std::time::Instant::now();\n        work.add(occluders.len())?;')
++s=s.replace('        work.add(triangles.len())?;\n        for t in triangles.iter() {\n            if !keep[t.id] || visible[t.id]', '        raster_time += phase.elapsed().as_secs_f64();\n        let phase = std::time::Instant::now();\n        work.add(triangles.len())?;\n        for t in triangles.iter() {\n            if !keep[t.id] || visible[t.id]')
++s=s.replace('    budget.release(depth);', '        query_time += phase.elapsed().as_secs_f64();\n    }\n    budget.release(depth);',1).replace('        }\n    }\n        query_time', '        }\n        query_time',1)
++s=s.replace('    if remaining != 0 {\n        // Preserve', '    eprintln!("PROFILE raster={raster_time:.6} query={query_time:.6} outside={:.6} candidates={remaining}", raster_start.elapsed().as_secs_f64());\n    let ray_start = std::time::Instant::now();\n    if remaining != 0 {\n        // Preserve')
++s=s.replace('    work.add(keep.len())?;\n    for (k, v)', '    eprintln!("PROFILE rays={:.6}", ray_start.elapsed().as_secs_f64());\n    work.add(keep.len())?;\n    for (k, v)')
++p.write_text(s)
++(scratch/'Cargo.toml').write_text(f'''[package]
++name="hsr-profile"
++version="0.0.0"
++edition="2021"
++[dependencies]
++meshoptimizer-rs={{path={json.dumps(str(base))}}}
++[[bin]]
++name="hsr-profile"
++path={json.dumps(str(root/'parity/0217-hsr/eval/bench.rs'))}
++[profile.release]
++lto="fat"
++codegen-units=1
++debug=1
++''')
++def run(name,args,**kw):
++    p=subprocess.run(list(map(str,args)),capture_output=True,text=True,**kw)
++    (receipt/(name+'.log')).write_text((p.stdout+p.stderr).replace(str(root),'<worktree>').replace(str(target),'<target>').replace(str(Path(os.environ['HSR_SCENES'])),'<scenes>'))
++    with (receipt/'profile-exits.tsv').open('a') as f:f.write(f'{name}\t{p.returncode}\n')
++    print(name,p.returncode,p.stdout+p.stderr,flush=True)
++    if p.returncode:raise SystemExit(p.returncode)
++run('profile-build',['cargo','build','--release','--offline','--manifest-path',scratch/'Cargo.toml'])
++cpu=min(os.sched_getaffinity(0))
++for scene in ['breakfast_room','conference','living_room']:
++    run('profile-'+scene,['taskset','-c',cpu,target/'release/hsr-profile','hidden',Path(os.environ['HSR_SCENES'])/(scene+'.bin'),scratch/(scene+'.out')],input='stop\n')
+diff --git a/parity/0217-hsr/speed2/support.py b/parity/0217-hsr/speed2/support.py
+new file mode 100644
+index 00000000..e4ed2afa
+--- /dev/null
++++ b/parity/0217-hsr/speed2/support.py
+@@ -0,0 +1,47 @@
++"""Shared admitted harness helpers. Scene/binary artifacts stay outside the repo."""
++import hashlib,io,json,os,shutil,subprocess,tarfile,time
++from pathlib import Path
++ROOT=Path.cwd(); RECEIPT=ROOT/'parity/0217-hsr/speed2'
++TARGET=Path(os.environ['CARGO_TARGET_DIR']); SCRATCH=TARGET/'speed2';SCRATCH.mkdir(parents=True,exist_ok=True)
++SCENES=Path(os.environ['HSR_SCENES'])
++assert os.environ.get('MOSS_HEAVY_ACTIVE')
++os.environ.update(CARGO_BUILD_JOBS='2',CARGO_INCREMENTAL='0',LC_ALL='C',GIT_OPTIONAL_LOCKS='0',RUSTDOCFLAGS='-D warnings')
++def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
++def run(name,args,**kwargs):
++    assert not (RECEIPT/(name+'.log')).exists(), 'Refusing to overwrite a retained receipt'
++    start=time.monotonic();p=subprocess.run(list(map(str,args)),text=True,capture_output=True,**kwargs)
++    (RECEIPT/(name+'.log')).write_text((p.stdout+p.stderr).replace(str(ROOT),'<worktree>').replace(str(TARGET),'<target>').replace(str(SCENES),'<scenes>'))
++    with (RECEIPT/'exits.tsv').open('a') as f:f.write(f'{name}\t{p.returncode}\t{time.monotonic()-start:.3f}\n')
++    print(name,p.returncode,(p.stdout+p.stderr)[-1500:],flush=True)
++    if p.returncode:raise SystemExit(p.returncode)
++    return p.stdout
++
++def build(arm,source,features):
++    folder=SCRATCH/('build-'+arm);folder.mkdir(exist_ok=True)
++    (folder/'Cargo.toml').write_text(f'''[package]
++name="hsr-speed2"
++version="0.0.0"
++edition="2021"
++[features]
++parallel=["dep:rayon"]
++[dependencies]
++rayon={{version="=1.11.0",optional=true}}
++meshoptimizer-rs={{path={json.dumps(str(source))},default-features=false,features={json.dumps(features)}}}
++[[bin]]
++name="hsr-speed2"
++path={json.dumps(str(RECEIPT/'bench.rs'))}
++[profile.release]
++lto="fat"
++codegen-units=1
++overflow-checks=true
++''')
++    run('build-'+arm,['cargo','build','--release','--offline','--manifest-path',folder/'Cargo.toml']+(['--features','parallel'] if 'parallel' in features else []))
++    dest=SCRATCH/('driver-'+arm);shutil.copy2(TARGET/'release/hsr-speed2',dest);return dest
++
++def reference():
++    base=SCRATCH/'reference'
++    if not base.exists():
++        base.mkdir()
++        raw=subprocess.check_output(['git','archive','f9859cc','Cargo.toml','Cargo.lock','src','docs','README.md'])
++        with tarfile.open(fileobj=io.BytesIO(raw)) as archive:archive.extractall(base,filter='data')
++    return base

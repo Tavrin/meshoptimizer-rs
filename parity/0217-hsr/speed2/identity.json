@@ -1,0 +1,257 @@
+[
+  {
+    "scene": "breakfast_room",
+    "arm": "before",
+    "phase": "warm",
+    "sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311",
+    "report": {
+      "phase": "warm",
+      "seconds": 66.297699258,
+      "input": 269764,
+      "output": 155018,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 6492902900,
+      "bytes": 61506192
+    }
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "serial",
+    "phase": "warm",
+    "sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311",
+    "report": {
+      "phase": "warm",
+      "seconds": 2.865814094,
+      "input": 269764,
+      "output": 155018,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 2439570483,
+      "bytes": 61508688
+    }
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "before-parallel",
+    "phase": "warm",
+    "sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311",
+    "report": {
+      "phase": "warm",
+      "seconds": 57.262013295,
+      "input": 269764,
+      "output": 155018,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 6492902900,
+      "bytes": 61506192
+    }
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "parallel",
+    "phase": "warm",
+    "sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311",
+    "report": {
+      "phase": "warm",
+      "seconds": 2.345233163,
+      "input": 269764,
+      "output": 155018,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 2439570483,
+      "bytes": 61508688
+    }
+  },
+  {
+    "scene": "breakfast_room",
+    "arm": "none",
+    "phase": "warm",
+    "sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311",
+    "report": {
+      "phase": "warm",
+      "seconds": 2.979806698,
+      "input": 269764,
+      "output": 155018,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 2439570483,
+      "bytes": 61508688
+    }
+  },
+  {
+    "scene": "conference",
+    "arm": "before",
+    "phase": "warm",
+    "sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512",
+    "report": {
+      "phase": "warm",
+      "seconds": 13.172145513,
+      "input": 124619,
+      "output": 98911,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 2235726993,
+      "bytes": 28413132
+    }
+  },
+  {
+    "scene": "conference",
+    "arm": "serial",
+    "phase": "warm",
+    "sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512",
+    "report": {
+      "phase": "warm",
+      "seconds": 0.762950507,
+      "input": 124619,
+      "output": 98911,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 1264046261,
+      "bytes": 28415628
+    }
+  },
+  {
+    "scene": "conference",
+    "arm": "before-parallel",
+    "phase": "warm",
+    "sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512",
+    "report": {
+      "phase": "warm",
+      "seconds": 6.92838033,
+      "input": 124619,
+      "output": 98911,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 2235726993,
+      "bytes": 28413132
+    }
+  },
+  {
+    "scene": "conference",
+    "arm": "parallel",
+    "phase": "warm",
+    "sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512",
+    "report": {
+      "phase": "warm",
+      "seconds": 0.375794926,
+      "input": 124619,
+      "output": 98911,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 1264046261,
+      "bytes": 28415628
+    }
+  },
+  {
+    "scene": "conference",
+    "arm": "none",
+    "phase": "warm",
+    "sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512",
+    "report": {
+      "phase": "warm",
+      "seconds": 0.662956994,
+      "input": 124619,
+      "output": 98911,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 1264046261,
+      "bytes": 28415628
+    }
+  },
+  {
+    "scene": "living_room",
+    "arm": "before",
+    "phase": "warm",
+    "sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7",
+    "report": {
+      "phase": "warm",
+      "seconds": 1.975871823,
+      "input": 580637,
+      "output": 576956,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3613936897,
+      "bytes": 132385236
+    }
+  },
+  {
+    "scene": "living_room",
+    "arm": "serial",
+    "phase": "warm",
+    "sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7",
+    "report": {
+      "phase": "warm",
+      "seconds": 0.9449387,
+      "input": 580637,
+      "output": 576956,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3502523163,
+      "bytes": 132387732
+    }
+  },
+  {
+    "scene": "living_room",
+    "arm": "before-parallel",
+    "phase": "warm",
+    "sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7",
+    "report": {
+      "phase": "warm",
+      "seconds": 1.682890829,
+      "input": 580637,
+      "output": 576956,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3613936897,
+      "bytes": 132385236
+    }
+  },
+  {
+    "scene": "living_room",
+    "arm": "parallel",
+    "phase": "warm",
+    "sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7",
+    "report": {
+      "phase": "warm",
+      "seconds": 0.836945706,
+      "input": 580637,
+      "output": 576956,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3502523163,
+      "bytes": 132387732
+    }
+  },
+  {
+    "scene": "living_room",
+    "arm": "none",
+    "phase": "warm",
+    "sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7",
+    "report": {
+      "phase": "warm",
+      "seconds": 0.898941684,
+      "input": 580637,
+      "output": 576956,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3502523163,
+      "bytes": 132387732
+    }
+  }
+]
