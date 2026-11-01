@@ -1,0 +1,4 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<repo>)
+   Compiling meshopt-simd-qualification v0.0.0 (<repo>/parity/simd)
+    Finished `release` profile [optimized] target(s) in 19.99s

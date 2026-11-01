@@ -334,7 +334,7 @@ pub(super) fn group(_token: Ssse3, data: &[u8; 24], out: &mut [u8; 16], bits: u3
     // SAFETY: Ssse3 is constructed only after SSSE3 AND POPCNT detection (or
     // compile-time features in no_std); the kernel's complete input is typed.
     unsafe {
-        group_kernel(
+        group_kernel::<false>(
             data,
             out,
             match bits {
@@ -350,7 +350,13 @@ pub(super) fn group(_token: Ssse3, data: &[u8; 24], out: &mut [u8; 16], bits: u3
 }
 #[inline]
 #[target_feature(enable = "ssse3,popcnt")]
-fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
+fn group_kernel<const AVX512: bool>(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
+    if AVX512 {
+        // SAFETY: true is instantiated only by Avx512-token entry points;
+        // detection proves SSSE3/POPCNT and AVX-512 F/BW/VL/VBMI/VBMI2.
+        // Both arrays are complete, initialized, checked windows.
+        return group_avx512_kernel(data, out, h);
+    }
     // Derive consumption from the original packed bits, independently of the
     // SIMD escape/shuffle chain, as upstream SIMD_LATENCYOPT does on x64.
     let n = GROUP_SHIFT[h];
@@ -394,7 +400,7 @@ pub(super) fn bytes(
     // SAFETY: Ssse3 proves SSSE3 and POPCNT. The kernel checks a complete
     // 24-byte window before each group and writes checked output chunks only.
     unsafe {
-        bytes_kernel(
+        bytes_kernel::<false>(
             data,
             pos,
             out,
@@ -410,22 +416,22 @@ pub(super) fn bytes(
 }
 #[inline]
 #[target_feature(enable = "ssse3,popcnt")]
-fn bytes_kernel(
+fn bytes_kernel<const AVX512: bool>(
     data: &[u8],
     pos: usize,
     out: &mut [u8],
     hshift: usize,
 ) -> Result<usize, crate::Error> {
     match hshift {
-        0 => bytes_header_kernel::<0>(data, pos, out),
-        4 => bytes_header_kernel::<4>(data, pos, out),
-        5 => bytes_header_kernel::<5>(data, pos, out),
+        0 => bytes_header_kernel::<0, AVX512>(data, pos, out),
+        4 => bytes_header_kernel::<4, AVX512>(data, pos, out),
+        5 => bytes_header_kernel::<5, AVX512>(data, pos, out),
         _ => unreachable!(),
     }
 }
 #[inline]
 #[target_feature(enable = "ssse3,popcnt")]
-fn bytes_header_kernel<const H: usize>(
+fn bytes_header_kernel<const H: usize, const AVX512: bool>(
     data: &[u8],
     mut pos: usize,
     out: &mut [u8],
@@ -451,22 +457,22 @@ fn bytes_header_kernel<const H: usize>(
             // Each group consumes at most 24 bytes. A single checked 96-byte
             // array therefore proves all four lookaheads, even full escapes.
             let chunks = block.as_chunks_mut::<16>().0;
-            let mut used = group_kernel(
+            let mut used = group_kernel::<AVX512>(
                 window.first_chunk().unwrap(),
                 &mut chunks[0],
                 H + usize::from(control & 3),
             );
-            used += group_kernel(
+            used += group_kernel::<AVX512>(
                 window[used..].first_chunk().unwrap(),
                 &mut chunks[1],
                 H + usize::from((control >> 2) & 3),
             );
-            used += group_kernel(
+            used += group_kernel::<AVX512>(
                 window[used..].first_chunk().unwrap(),
                 &mut chunks[2],
                 H + usize::from((control >> 4) & 3),
             );
-            used += group_kernel(
+            used += group_kernel::<AVX512>(
                 window[used..].first_chunk().unwrap(),
                 &mut chunks[3],
                 H + usize::from(control >> 6),
@@ -478,7 +484,11 @@ fn bytes_header_kernel<const H: usize>(
                     .get(pos..)
                     .and_then(|v| v.first_chunk::<24>())
                     .ok_or(crate::Error::InvalidStream)?;
-                pos += group_kernel(window, chunk, H + usize::from((control >> (j * 2)) & 3));
+                pos += group_kernel::<AVX512>(
+                    window,
+                    chunk,
+                    H + usize::from((control >> (j * 2)) & 3),
+                );
             }
         }
     }
@@ -487,7 +497,7 @@ fn bytes_header_kernel<const H: usize>(
             .get(pos..)
             .and_then(|v| v.first_chunk::<24>())
             .ok_or(crate::Error::InvalidStream)?;
-        pos += group_kernel(
+        pos += group_kernel::<AVX512>(
             window,
             chunk,
             H + usize::from((header[blocks.len()] >> (j * 2)) & 3),
@@ -941,12 +951,12 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     data: &[u8],
 ) -> Result<(), crate::Error> {
     let kernel = match (count <= 32, stride) {
-        (true, 4) => vertex_kernel::<128, 4, D>,
-        (false, 4) => vertex_kernel::<1024, 4, D>,
-        (true, 32) => vertex_kernel::<128, 32, D>,
-        (false, 32) => vertex_kernel::<1024, 32, D>,
-        (true, _) => vertex_kernel::<128, 0, D>,
-        (false, _) => vertex_kernel::<1024, 0, D>,
+        (true, 4) => vertex_kernel::<128, 4, false, D>,
+        (false, 4) => vertex_kernel::<1024, 4, false, D>,
+        (true, 32) => vertex_kernel::<128, 32, false, D>,
+        (false, 32) => vertex_kernel::<1024, 32, false, D>,
+        (true, _) => vertex_kernel::<128, 0, false, D>,
+        (false, _) => vertex_kernel::<1024, 0, false, D>,
     };
     // SAFETY: Ssse3 proves SSSE3 and POPCNT for every private kernel choice.
     // All retain checked layout, group lookahead and bounded destinations;
@@ -957,6 +967,7 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
 fn vertex_kernel<
     const SCRATCH: usize,
     const FIXED: usize,
+    const AVX512: bool,
     D: crate::codec::vertex::Destination + ?Sized,
 >(
     output: &mut D,
@@ -1011,7 +1022,7 @@ fn vertex_kernel<
                     }
                     2 => out[..block].fill(0),
                     _ => {
-                        pos = bytes_kernel(
+                        pos = bytes_kernel::<AVX512>(
                             data,
                             pos,
                             out,
@@ -1389,12 +1400,85 @@ pub(super) fn vertex_owned(
     data: &[u8],
 ) -> Result<(), crate::Error> {
     let kernel = if count <= 32 {
-        vertex_kernel::<128, 12, alloc::vec::Vec<u8>>
+        vertex_kernel::<128, 12, false, alloc::vec::Vec<u8>>
     } else {
-        vertex_kernel::<1024, 12, alloc::vec::Vec<u8>>
+        vertex_kernel::<1024, 12, false, alloc::vec::Vec<u8>>
     };
     // SAFETY: Ssse3 proves SSSE3 and POPCNT; this private entry is selected
     // only for validated stride 12. Existing kernels retain checked input
     // windows, initialized bounded scratch and array-backed memory accesses.
     unsafe { kernel(output, count, 12, data) }
+}
+
+// Upstream SIMD_AVX uses 128-bit VBMI multishift and VBMI2 expand, not
+// 512-bit memory accesses. Keep zero/literal groups explicitly array-backed.
+#[target_feature(enable = "ssse3,popcnt")]
+fn group_avx512_kernel(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
+    const BITS: [u32; 9] = [0, 2, 4, 8, 0, 1, 2, 4, 8];
+    const CTRL: [[u8; 16]; 3] = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        [6, 4, 2, 0, 14, 12, 10, 8, 22, 20, 18, 16, 30, 28, 26, 24],
+        [4, 0, 12, 8, 20, 16, 28, 24, 36, 32, 44, 40, 52, 48, 60, 56],
+    ];
+    let bits = BITS[h];
+    if bits == 0 {
+        out.fill(0);
+        return 0;
+    }
+    if bits == 8 {
+        out.copy_from_slice(&data[..16]);
+        return 16;
+    }
+    let control = load(&CTRL[bits.trailing_zeros() as usize]);
+    let packed = load8(data.first_chunk().unwrap());
+    let sent = _mm_set1_epi8(((1 << bits) - 1) as i8);
+    let fields;
+    let packed = _mm_shuffle_epi32::<0x44>(packed);
+    // SAFETY: only the Avx512-token branch calls this kernel. VBMI/VL are
+    // detected, all operands are registers, and no memory or flags are touched.
+    // Assembly preserves Rust 1.88 support (AVX-512 intrinsics require 1.89).
+    unsafe {
+        core::arch::asm!("vpmultishiftqb {result}, {control}, {packed}",
+            result = out(xmm_reg) fields, control = in(xmm_reg) control,
+            packed = in(xmm_reg) packed,
+            options(pure, nomem, nostack, preserves_flags));
+    }
+    let fields = _mm_and_si128(sent, fields);
+    let mask = _mm_movemask_epi8(_mm_cmpeq_epi8(fields, sent)) as u32;
+    let skip = (bits * 2) as usize;
+    let rest = load(data[skip..].first_chunk().unwrap());
+    let mut result = fields;
+    // SAFETY: the token also proves VBMI2/BW/VL. Expand reads registers only;
+    // k1 is declared clobbered, the merge operand is initialized, and no
+    // address or processor flags are touched. Store remains array-backed.
+    unsafe {
+        core::arch::asm!("kmovw k1, {mask:e}", "vpexpandb {result}{{k1}}, {rest}",
+            mask = in(reg) mask, result = inout(xmm_reg) result,
+            rest = in(xmm_reg) rest, out("k1") _,
+            options(pure, nomem, nostack, preserves_flags));
+    }
+    store(out, result);
+    skip + mask.count_ones() as usize
+}
+
+pub(super) fn vertex_avx512<D: crate::codec::vertex::Destination + ?Sized>(
+    _token: super::dispatch::Avx512,
+    output: &mut D,
+    count: usize,
+    stride: usize,
+    data: &[u8],
+) -> Result<(), crate::Error> {
+    let kernel = match (count <= 32, stride) {
+        (true, 4) => vertex_kernel::<128, 4, true, D>,
+        (false, 4) => vertex_kernel::<1024, 4, true, D>,
+        (true, 12) => vertex_kernel::<128, 12, true, D>,
+        (false, 12) => vertex_kernel::<1024, 12, true, D>,
+        (true, 32) => vertex_kernel::<128, 32, true, D>,
+        (false, 32) => vertex_kernel::<1024, 32, true, D>,
+        (true, _) => vertex_kernel::<128, 0, true, D>,
+        (false, _) => vertex_kernel::<1024, 0, true, D>,
+    };
+    // SAFETY: Avx512 proves every feature required by the private group kernel.
+    // The shared vertex parser retains checked windows, scratch and stores.
+    unsafe { kernel(output, count, stride, data) }
 }

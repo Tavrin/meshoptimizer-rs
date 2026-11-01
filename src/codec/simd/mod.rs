@@ -330,6 +330,10 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     data: &[u8],
 ) -> Option<Result<(), crate::Error>> {
     #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::avx512() {
+        return Some(x86::vertex_avx512(token, output, count, stride, data));
+    }
+    #[cfg(target_arch = "x86_64")]
     if let Some(token) = dispatch::ssse3() {
         return Some(arch::vertex(token, output, count, stride, data));
     }
@@ -353,6 +357,9 @@ pub(super) fn vertex_owned(
     stride: usize,
     data: &[u8],
 ) -> Option<Result<(), crate::Error>> {
+    if let Some(token) = dispatch::avx512() {
+        return Some(x86::vertex_avx512(token, output, count, stride, data));
+    }
     if stride == 12 {
         if let Some(token) = dispatch::ssse3() {
             return Some(x86::vertex_owned(token, output, count, data));

@@ -1,0 +1,14 @@
+[
+  {
+    "step": "public-text",
+    "exit": 0
+  },
+  {
+    "step": "diff",
+    "exit": 0
+  },
+  {
+    "step": "boundary-current",
+    "exit": 0
+  }
+]

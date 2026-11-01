@@ -1,0 +1,68 @@
+[
+  {
+    "step": "fmt",
+    "exit": 0,
+    "seconds": 0.5237525599077344,
+    "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "step": "fmt-check",
+    "exit": 0,
+    "seconds": 0.5293592470698059,
+    "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "step": "audit",
+    "exit": 0,
+    "seconds": 0.02853836095891893,
+    "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "step": "clippy",
+    "exit": 0,
+    "seconds": 1.8290040079737082,
+    "raw_log_sha256": "aa157ef751f6bf8ebe6e8b66751c7d3404b16173623d028caf6a43a2ae17a386"
+  },
+  {
+    "step": "boundary",
+    "exit": 0,
+    "seconds": 5.461755910073407,
+    "raw_log_sha256": "598cba4f5b824308de9d99958fe309bef72d97c6794951709e9436e31b15e28c"
+  },
+  {
+    "step": "codec-build",
+    "exit": 0,
+    "seconds": 20.827414719969966,
+    "raw_log_sha256": "c58989ed4e778d28da1ce1eb7b1db6337c8c5a03175d546eda8ae7f607e16cf4"
+  },
+  {
+    "step": "identity",
+    "exit": 0,
+    "seconds": 18.696685521979816,
+    "raw_log_sha256": "a5896a118606b0d7209dee38d4adea8072631af1daf748215c609e16f992fc19"
+  },
+  {
+    "step": "after-build",
+    "exit": 0,
+    "seconds": 0.2225936750182882,
+    "raw_log_sha256": "19fa806319d206235ca5e232b7f8354271c768fbb7c961c7631cffbb4085aa19"
+  },
+  {
+    "step": "observations-build",
+    "exit": 0,
+    "seconds": 15.235988746979274,
+    "raw_log_sha256": "2507956608e4c86be2284ae8d30b3017d337f182180c8cc7c72e934449e4aca9"
+  },
+  {
+    "step": "observations",
+    "exit": 0,
+    "seconds": 3.1927564579527825,
+    "raw_log_sha256": "274383b58ba546045a5be95b8f1919c8ddf109105b00e4d3df9114bfdb43be47"
+  },
+  {
+    "step": "measure",
+    "exit": 0,
+    "seconds": 134.85928140801843,
+    "raw_log_sha256": "fce2726bbc2fb49572b42306a16c03858fa8dadb28f1e3408f6c5da4b0c91fe8"
+  }
+]

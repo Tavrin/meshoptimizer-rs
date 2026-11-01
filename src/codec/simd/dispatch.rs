@@ -17,6 +17,10 @@ pub enum Level {
     Neon = 4,
     /// wasm simd128.
     Wasm = 5,
+    /// x86 AVX2 ceiling (shared SSSE3 codec kernels).
+    Avx2 = 6,
+    /// x86 AVX-512 VBMI/VBMI2 byte groups.
+    Avx512 = 7,
 }
 static DETECTED: AtomicU8 = AtomicU8::new(255);
 
@@ -37,8 +41,17 @@ fn from_byte(n: u8) -> Level {
         3 => Level::Sse41,
         4 => Level::Neon,
         5 => Level::Wasm,
+        6 => Level::Avx2,
+        7 => Level::Avx512,
         _ => Level::Scalar,
     }
+}
+#[cfg(any(test, feature = "parity-internals"))]
+fn is_x86(level: Level) -> bool {
+    matches!(
+        level,
+        Level::Sse2 | Level::Ssse3 | Level::Sse41 | Level::Avx2 | Level::Avx512
+    )
 }
 fn detect() -> Level {
     #[cfg(target_arch = "x86_64")]
@@ -53,7 +66,31 @@ fn detect() -> Level {
             cfg!(all(target_feature = "ssse3", target_feature = "popcnt")),
             cfg!(target_feature = "sse4.1"),
         );
-        return if shuffle && meshlet {
+        #[cfg(feature = "std")]
+        let (avx2, avx512) = (
+            std::is_x86_feature_detected!("avx2"),
+            std::is_x86_feature_detected!("avx512f")
+                && std::is_x86_feature_detected!("avx512bw")
+                && std::is_x86_feature_detected!("avx512vl")
+                && std::is_x86_feature_detected!("avx512vbmi")
+                && std::is_x86_feature_detected!("avx512vbmi2"),
+        );
+        #[cfg(not(feature = "std"))]
+        let (avx2, avx512) = (
+            cfg!(target_feature = "avx2"),
+            cfg!(all(
+                target_feature = "avx512f",
+                target_feature = "avx512bw",
+                target_feature = "avx512vl",
+                target_feature = "avx512vbmi",
+                target_feature = "avx512vbmi2"
+            )),
+        );
+        return if shuffle && meshlet && avx2 && avx512 {
+            Level::Avx512
+        } else if shuffle && meshlet && avx2 {
+            Level::Avx2
+        } else if shuffle && meshlet {
             Level::Sse41
         } else if shuffle {
             Level::Ssse3
@@ -94,7 +131,7 @@ pub(super) fn selected() -> Level {
         if limit == 0 {
             return Level::Scalar;
         }
-        if detected as u8 <= 3 && limit <= 3 {
+        if is_x86(detected) && is_x86(from_byte(limit)) {
             return from_byte((detected as u8).min(limit));
         }
     }
@@ -113,7 +150,8 @@ pub(super) fn selected() -> Level {
 #[cfg(any(test, feature = "parity-internals"))]
 pub fn with_level<R>(level: Level, f: impl FnOnce() -> R) -> Result<R, crate::Error> {
     let detected = detected_level();
-    if level != Level::Scalar && !(level == detected || (detected as u8 <= 3 && level <= detected))
+    if level != Level::Scalar
+        && !(level == detected || (is_x86(detected) && is_x86(level) && level <= detected))
     {
         return Err(crate::Error::InvalidParameter);
     }
@@ -154,9 +192,20 @@ pub(super) fn baseline() -> Option<Baseline> {
 }
 #[cfg(target_arch = "x86_64")]
 pub(super) fn ssse3() -> Option<Ssse3> {
-    matches!(selected(), Level::Ssse3 | Level::Sse41).then_some(Ssse3(()))
+    matches!(
+        selected(),
+        Level::Ssse3 | Level::Sse41 | Level::Avx2 | Level::Avx512
+    )
+    .then_some(Ssse3(()))
 }
 #[cfg(target_arch = "x86_64")]
 pub(super) fn sse41() -> Option<Sse41> {
-    (selected() == Level::Sse41).then_some(Sse41(()))
+    matches!(selected(), Level::Sse41 | Level::Avx2 | Level::Avx512).then_some(Sse41(()))
+}
+
+#[cfg(target_arch = "x86_64")]
+pub(super) struct Avx512(());
+#[cfg(target_arch = "x86_64")]
+pub(super) fn avx512() -> Option<Avx512> {
+    (selected() == Level::Avx512).then_some(Avx512(()))
 }
