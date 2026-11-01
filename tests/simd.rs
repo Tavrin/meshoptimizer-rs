@@ -10,6 +10,8 @@ fn levels() -> Vec<Level> {
         Level::Sse41,
         Level::Neon,
         Level::Wasm,
+        Level::Avx2,
+        Level::Avx512,
     ]
     .into_iter()
     .filter(|&l| with_level(l, || ()).is_ok())
@@ -25,6 +27,8 @@ fn lowering_is_checked_nested_and_unwind_safe() {
         Level::Sse41,
         Level::Neon,
         Level::Wasm,
+        Level::Avx2,
+        Level::Avx512,
     ] {
         if !levels().contains(&l) {
             assert_eq!(with_level(l, || ()), Err(Error::InvalidParameter));

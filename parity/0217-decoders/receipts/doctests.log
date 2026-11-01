@@ -1,0 +1,67 @@
+warning: unnecessary `unsafe` block
+   --> src/codec/simd/x86.rs:358:16
+    |
+358 |         return unsafe { group_avx512_kernel(data, out, h) };
+    |                ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+   Doc-tests meshoptimizer_rs
+
+running 51 tests
+test src/lib.rs - MigrationDoctests (line 333) ... ignored
+test src/lib.rs - MigrationDoctests (line 347) ... ignored
+test src/lib.rs - MigrationDoctests (line 366) ... ignored
+test src/lib.rs - MigrationDoctests (line 391) ... ignored
+test src/lib.rs - MigrationDoctests (line 410) ... ignored
+test src/lib.rs - ReadmeDoctests (line 198) ... ok
+test src/lib.rs - ReadmeDoctests (line 228) ... ok
+test src/lib.rs - ReadmeDoctests (line 261) ... ok
+test src/lib.rs - (line 58) ... ok
+test src/character.rs - character::build_character_lod_chain (line 420) ... ok
+test src/lib.rs - guide (line 338) ... ok
+test src/lib.rs - MigrationDoctests (line 337) ... ok
+test src/lib.rs - ReadmeDoctests (line 301) ... ok
+test src/lib.rs - MigrationDoctests (line 352) ... ok
+test src/lib.rs - guide (line 1024) ... ok
+test src/lib.rs - (line 121) ... ok
+test src/lib.rs - guide (line 637) ... ok
+test src/lib.rs - guide (line 540) ... ok
+test src/lib.rs - guide (line 394) ... ok
+test src/lib.rs - guide (line 1144) ... ok
+test src/lib.rs - MigrationDoctests (line 371) ... ok
+test src/lib.rs - guide (line 575) ... ok
+test src/lib.rs - guide (line 1071) ... ok
+test src/lib.rs - (line 92) ... ok
+test src/lib.rs - MigrationDoctests (line 397) ... ok
+test src/lib.rs - guide (line 202) ... ok
+test src/lib.rs - MigrationDoctests (line 413) ... ok
+test src/lib.rs - guide (line 287) ... ok
+test src/lib.rs - guide (line 250) ... ok
+test src/lib.rs - guide (line 798) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - guide (line 670) ... ok
+test src/clusterlod/dag_format.rs - clusterlod::dag_format::write_generic (line 444) ... ok
+test src/lib.rs - guide (line 708) ... ok
+test src/hidden.rs - hidden::remove_hidden_triangles_generic (line 137) ... ok
+test src/character.rs - character::simplify_character (line 353) ... ok
+test src/lib.rs - guide (line 465) ... ok
+test src/cache.rs - cache::optimize_vertex_cache_with_table_generic (line 107) ... ok
+test src/lib.rs - guide (line 830) ... ok
+test src/lib.rs - (line 77) ... ok
+test src/lib.rs - guide (line 924) ... ok
+test src/lib.rs - guide (line 881) ... ok
+test src/lib.rs - guide (line 758) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain_generic (line 213) ... ok
+test src/lib.rs - guide (line 963) ... ok
+test src/sanitize.rs - sanitize::sanitize_generic (line 141) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh_generic (line 161) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+test src/parallel.rs - parallel (line 24) ... ok
+test src/parallel.rs - parallel::simplify_lod_chain_generic (line 150) ... ok
+test src/parallel.rs - parallel (line 33) ... ok
+
+test result: ok. 46 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.84s
+

@@ -1,0 +1,11 @@
+4 tests passed
+21 tests passed
+19 tests passed
+10 tests passed
+3 tests passed
+21 awaited tests passed
+native fixture functions 52
+19 awaited tests passed
+21 awaited tests passed
+native 0.4 fixture functions 41 decodeIndex16 encodeIndexMemorySafe decodeIndexMemorySafe decodeIndexRejectExtraBytes decodeIndexRejectMalformedHeaders decodeIndexRejectInvalidVersion roundtripIndexTricky encodeIndexEmpty decodeIndexSequence16 encodeIndexSequenceMemorySafe decodeIndexSequenceMemorySafe decodeIndexSequenceRejectExtraBytes decodeIndexSequenceRejectMalformedHeaders decodeIndexSequenceRejectInvalidVersion encodeIndexSequenceEmpty encodeVertexMemorySafe decodeVertexMemorySafe decodeVertexRejectExtraBytes decodeVertexRejectMalformedHeaders decodeVertexBitGroups decodeVertexBitGroupSentinels decodeVertexDeltas decodeVertexBitXor decodeVertexLarge decodeVertexSmall encodeVertexEmpty encodeFilterOct8 encodeFilterOct12 encodeFilterQuat12 encodeFilterExp encodeFilterExpZero encodeFilterExpOverflow encodeFilterExpZeroShared encodeFilterExpAlias encodeFilterExpClamp encodeFilterColor8 encodeFilterColor12 encodeMeshletBound decodeMeshletSafety decodeMeshletBasic decodeMeshletTypical
+{'scalar': 4430, 'sse2': 4430, 'ssse3': 4430, 'sse41': 4430, 'avx2': 4430, 'avx512': 4430, 'wasm': 4430}

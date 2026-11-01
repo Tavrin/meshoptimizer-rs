@@ -1,0 +1,51 @@
+    Checking crossbeam-utils v0.8.23
+    Checking either v1.18.0
+    Checking libm v0.2.16
+    Checking crossbeam-epoch v0.9.21
+    Checking crossbeam-deque v0.8.8
+    Checking rayon-core v1.13.0
+    Checking rayon v1.11.0
+    Checking meshoptimizer-rs v0.2.16 (<repo>)
+error: unnecessary `unsafe` block
+   --> src/codec/simd/x86.rs:358:16
+    |
+358 |         return unsafe { group_avx512_kernel(data, out, h) };
+    |                ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `-D unused-unsafe` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(unused_unsafe)]`
+
+error: this `unsafe` block contains 2 unsafe operations, expected only one
+    --> src/codec/simd/x86.rs:1439:5
+     |
+1439 | /     unsafe {
+1440 | |         core::arch::asm!("vpmultishiftqb {result}, {control}, {packed}",
+1441 | |             result = out(xmm_reg) fields, control = in(xmm_reg) control,
+1442 | |             packed = in(xmm_reg) _mm_shuffle_epi32::<0x44>(packed),
+1443 | |             options(pure, nomem, nostack, preserves_flags));
+1444 | |     }
+     | |_____^
+     |
+note: inline assembly used here
+    --> src/codec/simd/x86.rs:1440:9
+     |
+1440 | /         core::arch::asm!("vpmultishiftqb {result}, {control}, {packed}",
+1441 | |             result = out(xmm_reg) fields, control = in(xmm_reg) control,
+1442 | |             packed = in(xmm_reg) _mm_shuffle_epi32::<0x44>(packed),
+1443 | |             options(pure, nomem, nostack, preserves_flags));
+     | |___________________________________________________________^
+note: unsafe function call occurs here
+    --> src/codec/simd/x86.rs:1442:34
+     |
+1442 |             packed = in(xmm_reg) _mm_shuffle_epi32::<0x44>(packed),
+     |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#multiple_unsafe_ops_per_block
+note: the lint level is defined here
+    --> src/lib.rs:157:5
+     |
+ 157 |     clippy::multiple_unsafe_ops_per_block,
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `meshoptimizer-rs` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `meshoptimizer-rs` (lib test) due to 2 previous errors

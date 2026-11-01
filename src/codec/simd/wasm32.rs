@@ -228,7 +228,8 @@ fn unpack_bytes(a: v128, b: v128) -> v128 {
 }
 #[inline]
 #[target_feature(enable = "simd128")]
-fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
+fn group_kernel<const BITS: u32>(data: &[u8; 24], out: &mut [u8; 16]) -> usize {
+    let bits = BITS;
     if bits == 0 {
         out.fill(0);
         return 0;
@@ -255,11 +256,11 @@ fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
             i8x16_bitmask(i8x16_eq(fields, i8x16_splat(((1 << bits) - 1) as i8))) as usize,
         )
     };
+    let skip = (bits * 2) as usize;
     let lo = mask & 255;
     let hi = mask >> 8;
     let upper = i8x16_add(load(&super::MASKS[hi]), i8x16_splat(lo.count_ones() as i8));
     let shuf = i64x2_shuffle::<0, 2>(load(&super::MASKS[lo]), upper);
-    let skip = (bits * 2) as usize;
     let rest = i8x16_swizzle(load(data[skip..].first_chunk::<16>().unwrap()), shuf);
     let result = if bits == 1 {
         rest
@@ -286,7 +287,14 @@ pub(super) fn filter(
 pub(super) fn group(_token: Baseline, data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
     // SAFETY: Baseline proves simd128 availability; complete initialized
     // input and exclusive output arrays supply all memory used by the kernel.
-    group_kernel(data, out, bits)
+    match bits {
+        0 => group_kernel::<0>(data, out),
+        1 => group_kernel::<1>(data, out),
+        2 => group_kernel::<2>(data, out),
+        4 => group_kernel::<4>(data, out),
+        8 => group_kernel::<8>(data, out),
+        _ => unreachable!(),
+    }
 }
 
 #[cfg(feature = "parity-internals")]
@@ -543,9 +551,17 @@ fn deltas_kernel<const CHANNEL: u8, const FIXED: usize>(
 
 #[inline]
 #[target_feature(enable = "simd128")]
+// Match header codes directly: constant widths eliminate dynamic lookahead
+// bounds and shifts in the dominant mixed-escape groups.
 fn header_group(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
-    const BITS: [u32; 9] = [0, 2, 4, 8, 0, 1, 2, 4, 8];
-    group_kernel(data, out, BITS[h])
+    match h {
+        0 | 4 => group_kernel::<0>(data, out),
+        1 | 6 => group_kernel::<2>(data, out),
+        2 | 7 => group_kernel::<4>(data, out),
+        3 | 8 => group_kernel::<8>(data, out),
+        5 => group_kernel::<1>(data, out),
+        _ => unreachable!(),
+    }
 }
 #[inline]
 #[target_feature(enable = "simd128")]

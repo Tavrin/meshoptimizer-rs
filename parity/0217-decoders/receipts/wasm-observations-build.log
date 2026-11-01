@@ -1,0 +1,5 @@
+     Locking 2 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<repo>)
+   Compiling decode-wasm-proof v0.0.0 (<target-dir>/wasm-proof-source)
+    Finished `release` profile [optimized] target(s) in 16.94s
