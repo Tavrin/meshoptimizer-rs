@@ -345,3 +345,12 @@ pub use simplify::simplify_with_update as simplify_with_update_in_place;
 pub use remap::optimize_vertex_fetch_into_generic as optimize_vertex_fetch_in_place_generic;
 /// Selectable index-width update simplification.
 pub use simplify::simplify_with_update_generic as simplify_with_update_in_place_generic;
+
+mod pipeline;
+pub use pipeline::{
+    process_mesh, ProcessError, ProcessLevel, ProcessOptions, ProcessReport, ProcessSkin,
+    ProcessStage, ProcessStageReport, ProcessedMesh,
+};
+
+#[cfg(feature = "clusterlod")]
+pub use pipeline::ProcessClusters;

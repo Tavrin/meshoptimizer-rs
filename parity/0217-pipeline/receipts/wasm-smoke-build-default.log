@@ -1,0 +1,38 @@
+    Updating crates.io index
+     Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<WORKTREE>)
+warning: enum `Level` is never used
+ --> <WORKTREE>/src/codec/simd/dispatch.rs:7:10
+  |
+7 | pub enum Level {
+  |          ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: static `DETECTED` is never used
+  --> <WORKTREE>/src/codec/simd/dispatch.rs:21:8
+   |
+21 | static DETECTED: AtomicU8 = AtomicU8::new(255);
+   |        ^^^^^^^^
+
+warning: function `detected_level` is never used
+  --> <WORKTREE>/src/codec/simd/dispatch.rs:24:8
+   |
+24 | pub fn detected_level() -> Level {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `from_byte` is never used
+  --> <WORKTREE>/src/codec/simd/dispatch.rs:33:4
+   |
+33 | fn from_byte(n: u8) -> Level {
+   |    ^^^^^^^^^
+
+warning: function `detect` is never used
+  --> <WORKTREE>/src/codec/simd/dispatch.rs:43:4
+   |
+43 | fn detect() -> Level {
+   |    ^^^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 5 warnings
+   Compiling pipeline-wasm-smoke v0.0.0 (<TARGET>/wasm-smoke)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.32s

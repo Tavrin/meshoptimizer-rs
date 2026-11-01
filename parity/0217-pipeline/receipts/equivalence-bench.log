@@ -1,0 +1,144 @@
+equivalent grid-4 indices=96 vertices=25
+sample grid-4 repetition=0 arm=0 ns=0
+sample grid-4 repetition=0 arm=1 ns=999934
+sample grid-4 repetition=1 arm=1 ns=0
+sample grid-4 repetition=1 arm=0 ns=0
+sample grid-4 repetition=2 arm=0 ns=0
+sample grid-4 repetition=2 arm=1 ns=999934
+sample grid-4 repetition=3 arm=1 ns=0
+sample grid-4 repetition=3 arm=0 ns=0
+sample grid-4 repetition=4 arm=0 ns=999934
+sample grid-4 repetition=4 arm=1 ns=0
+sample grid-4 repetition=5 arm=1 ns=0
+sample grid-4 repetition=5 arm=0 ns=999934
+sample grid-4 repetition=6 arm=0 ns=0
+sample grid-4 repetition=6 arm=1 ns=0
+timing grid-4 pipeline_ns=0 manual_ns=0 ratio=NaN samples=7
+equivalent grid-16 indices=1536 vertices=289
+sample grid-16 repetition=0 arm=0 ns=6999538
+sample grid-16 repetition=0 arm=1 ns=7999472
+sample grid-16 repetition=1 arm=1 ns=6999538
+sample grid-16 repetition=1 arm=0 ns=7999472
+sample grid-16 repetition=2 arm=0 ns=7999471
+sample grid-16 repetition=2 arm=1 ns=6999538
+sample grid-16 repetition=3 arm=1 ns=7999472
+sample grid-16 repetition=3 arm=0 ns=6999538
+sample grid-16 repetition=4 arm=0 ns=5999604
+sample grid-16 repetition=4 arm=1 ns=5999603
+sample grid-16 repetition=5 arm=1 ns=6999538
+sample grid-16 repetition=5 arm=0 ns=5999604
+sample grid-16 repetition=6 arm=0 ns=6999538
+sample grid-16 repetition=6 arm=1 ns=5999604
+timing grid-16 pipeline_ns=6999538 manual_ns=6999538 ratio=1.000000 samples=7
+equivalent grid-32 indices=6144 vertices=1089
+sample grid-32 repetition=0 arm=0 ns=26998218
+sample grid-32 repetition=0 arm=1 ns=28998085
+sample grid-32 repetition=1 arm=1 ns=28998085
+sample grid-32 repetition=1 arm=0 ns=27998152
+sample grid-32 repetition=2 arm=0 ns=27998151
+sample grid-32 repetition=2 arm=1 ns=28998085
+sample grid-32 repetition=3 arm=1 ns=28998085
+sample grid-32 repetition=3 arm=0 ns=28998086
+sample grid-32 repetition=4 arm=0 ns=23998415
+sample grid-32 repetition=4 arm=1 ns=24998350
+sample grid-32 repetition=5 arm=1 ns=23998415
+sample grid-32 repetition=5 arm=0 ns=23998415
+sample grid-32 repetition=6 arm=0 ns=23998416
+sample grid-32 repetition=6 arm=1 ns=23998415
+timing grid-32 pipeline_ns=26998218 manual_ns=28998085 ratio=0.931035 samples=7
+equivalent tiny-smooth indices=96 vertices=25
+sample tiny-smooth repetition=0 arm=0 ns=0
+sample tiny-smooth repetition=0 arm=1 ns=0
+sample tiny-smooth repetition=1 arm=1 ns=0
+sample tiny-smooth repetition=1 arm=0 ns=0
+sample tiny-smooth repetition=2 arm=0 ns=0
+sample tiny-smooth repetition=2 arm=1 ns=999934
+sample tiny-smooth repetition=3 arm=1 ns=0
+sample tiny-smooth repetition=3 arm=0 ns=0
+sample tiny-smooth repetition=4 arm=0 ns=0
+sample tiny-smooth repetition=4 arm=1 ns=0
+sample tiny-smooth repetition=5 arm=1 ns=0
+sample tiny-smooth repetition=5 arm=0 ns=999934
+sample tiny-smooth repetition=6 arm=0 ns=0
+sample tiny-smooth repetition=6 arm=1 ns=0
+timing tiny-smooth pipeline_ns=0 manual_ns=0 ratio=NaN samples=7
+equivalent medium-smooth indices=24576 vertices=4225
+sample medium-smooth repetition=0 arm=0 ns=109992738
+sample medium-smooth repetition=0 arm=1 ns=112992538
+sample medium-smooth repetition=1 arm=1 ns=107992870
+sample medium-smooth repetition=1 arm=0 ns=102993200
+sample medium-smooth repetition=2 arm=0 ns=98993463
+sample medium-smooth repetition=2 arm=1 ns=101993266
+sample medium-smooth repetition=3 arm=1 ns=101993266
+sample medium-smooth repetition=3 arm=0 ns=101993265
+sample medium-smooth repetition=4 arm=0 ns=98993464
+sample medium-smooth repetition=4 arm=1 ns=99993397
+sample medium-smooth repetition=5 arm=1 ns=98993464
+sample medium-smooth repetition=5 arm=0 ns=96993595
+sample medium-smooth repetition=6 arm=0 ns=97993530
+sample medium-smooth repetition=6 arm=1 ns=99993398
+timing medium-smooth pipeline_ns=98993464 manual_ns=101993266 ratio=0.970588 samples=7
+equivalent medium-seams indices=24576 vertices=5184
+sample medium-seams repetition=0 arm=0 ns=84994388
+sample medium-seams repetition=0 arm=1 ns=89994058
+sample medium-seams repetition=1 arm=1 ns=89994058
+sample medium-seams repetition=1 arm=0 ns=94993728
+sample medium-seams repetition=2 arm=0 ns=87994190
+sample medium-seams repetition=2 arm=1 ns=86994256
+sample medium-seams repetition=3 arm=1 ns=88994124
+sample medium-seams repetition=3 arm=0 ns=89994058
+sample medium-seams repetition=4 arm=0 ns=85994322
+sample medium-seams repetition=4 arm=1 ns=88994124
+sample medium-seams repetition=5 arm=1 ns=91993926
+sample medium-seams repetition=5 arm=0 ns=96993596
+sample medium-seams repetition=6 arm=0 ns=86994256
+sample medium-seams repetition=6 arm=1 ns=86994256
+timing medium-seams pipeline_ns=87994190 manual_ns=88994124 ratio=0.988764 samples=7
+equivalent medium-sparse indices=24576 vertices=8450
+sample medium-sparse repetition=0 arm=0 ns=97993530
+sample medium-sparse repetition=0 arm=1 ns=99993398
+sample medium-sparse repetition=1 arm=1 ns=98993464
+sample medium-sparse repetition=1 arm=0 ns=97993529
+sample medium-sparse repetition=2 arm=0 ns=98993464
+sample medium-sparse repetition=2 arm=1 ns=100993331
+sample medium-sparse repetition=3 arm=1 ns=99993398
+sample medium-sparse repetition=3 arm=0 ns=96993596
+sample medium-sparse repetition=4 arm=0 ns=95993662
+sample medium-sparse repetition=4 arm=1 ns=97993530
+sample medium-sparse repetition=5 arm=1 ns=99993398
+sample medium-sparse repetition=5 arm=0 ns=97993530
+sample medium-sparse repetition=6 arm=0 ns=95993662
+sample medium-sparse repetition=6 arm=1 ns=101993266
+timing medium-sparse pipeline_ns=97993529 manual_ns=99993398 ratio=0.980000 samples=7
+equivalent million-smooth indices=3000000 vertices=502681
+sample million-smooth repetition=0 arm=0 ns=19536710479
+sample million-smooth repetition=0 arm=1 ns=19742697034
+sample million-smooth repetition=1 arm=1 ns=19768695458
+sample million-smooth repetition=1 arm=0 ns=20582763721
+sample million-smooth repetition=2 arm=0 ns=20426775107
+sample million-smooth repetition=2 arm=1 ns=19888803400
+timing million-smooth pipeline_ns=20426775107 manual_ns=19768695458 ratio=1.033289 samples=3
+equivalent real-214e indices=8553003 vertices=6798441
+sample real-214e repetition=0 arm=0 ns=116781719781
+sample real-214e repetition=0 arm=1 ns=104485429774
+sample real-214e repetition=1 arm=1 ns=102207531154
+sample real-214e repetition=1 arm=0 ns=102214496886
+sample real-214e repetition=2 arm=0 ns=98393713732
+sample real-214e repetition=2 arm=1 ns=98149708202
+timing real-214e pipeline_ns=102214496886 manual_ns=102207531154 ratio=1.000068 samples=3
+equivalent real-a082 indices=9869175 vertices=7237324
+sample real-a082 repetition=0 arm=0 ns=116334485651
+sample real-a082 repetition=0 arm=1 ns=117348407598
+sample real-a082 repetition=1 arm=1 ns=114545579104
+sample real-a082 repetition=1 arm=0 ns=115701496546
+sample real-a082 repetition=2 arm=0 ns=114047597559
+sample real-a082 repetition=2 arm=1 ns=114479564670
+timing real-a082 pipeline_ns=115701496546 manual_ns=114545579104 ratio=1.010091 samples=3
+equivalent real-b6fd indices=2467305 vertices=1809344
+sample real-b6fd repetition=0 arm=0 ns=25823321876
+sample real-b6fd repetition=0 arm=1 ns=25974311896
+sample real-b6fd repetition=1 arm=1 ns=26441281381
+sample real-b6fd repetition=1 arm=0 ns=25827321124
+sample real-b6fd repetition=2 arm=0 ns=25590336383
+sample real-b6fd repetition=2 arm=1 ns=26491277669
+timing real-b6fd pipeline_ns=25823321876 manual_ns=26441281381 ratio=0.976629 samples=3

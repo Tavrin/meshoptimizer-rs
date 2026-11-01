@@ -1023,3 +1023,37 @@ retained outputs, reports, pose buffers, and nested simplifier/quality work.
 Failures return no partial result. See
 [character measurements](../parity/0217-character/RESULTS.md) for the measured
 tradeoffs and reproducible public-model comparison procedure.
+
+## One-call asset pipeline
+
+`process_mesh` is an extension, not in C++ meshoptimizer. Supply complete,
+initialized little-endian vertex records; all bytes participate in welding,
+including UV, normal and skin seams. Defaults sanitize and weld, generate 50%
+and 25% LOD targets with 1% error, then optimize cache, overdraw (1.05) and fetch
+for the source and each LOD. F9 sampled quality compares each output to the
+sanitized, welded, repaired source. It is a sampled estimate, not an error bound.
+Repair, meshlets, cluster LOD (the existing `clusterlod` feature), and codecs are
+opt-in fields on `ProcessOptions`. Cluster results include their own positions,
+including any builder dilation. Skin fields select the character builder;
+attribute weights and offsets select static simplification attributes. Skin
+joints and weights must be part of each vertex record and survive fetch intact.
+
+```rust
+use meshoptimizer_rs::{process_mesh, ProcessOptions, Workspace};
+let positions = [[0.0f32, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+let bytes: Vec<u8> = positions.iter().flatten().flat_map(|v| v.to_le_bytes()).collect();
+let mut options = ProcessOptions::default();
+options.lod = None; // Keep just the optimized source.
+let mesh = process_mesh(&[0, 1, 2], &bytes, 12, 0, &options, &mut Workspace::default())?;
+assert_eq!(mesh.levels.len(), 1);
+assert_eq!(mesh.report.quality.len(), 1);
+# Ok::<(), meshoptimizer_rs::ProcessError>(())
+```
+
+One shared workspace meters the whole call. Limits are restored on success and
+failure. Byte accounting conservatively retains charges for released intermediate
+buffers, so a manually streamed sequence can fit a smaller byte limit. Stage
+reports contain counts, charged work and elapsed nanoseconds (`None` on
+`no_std` and `wasm32-unknown-unknown`); only timing varies between identical calls. Errors identify the stage
+and, for per-level processing, the level. Output is atomic. Empty surfaces have
+`None` quality. Level zero is always the processed source.
