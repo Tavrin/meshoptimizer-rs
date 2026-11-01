@@ -1,0 +1,62 @@
+[
+  {
+    "file": "README.md",
+    "original_blocks": 5,
+    "sha256": "40ff23b9d728ccd7072c76ff6869acf69741888b90b48c64e24758e58c3244a6"
+  },
+  {
+    "file": "docs/MIGRATING_FROM_MESHOPT.md",
+    "original_blocks": 10,
+    "sha256": "23e3e829e444515be92b7deebd440ff85e81b4d1d979e6be0b690500661446ab"
+  },
+  {
+    "file": "docs/USING.md",
+    "original_blocks": 29,
+    "sha256": "db71f7e46d28c6ba488150aa805a5ad5fe65742d72dd6b42518cf9aee4a27fd4"
+  },
+  {
+    "file": "src/cache.rs",
+    "original_blocks": 1,
+    "sha256": "c48a21de2d5e568896ba1218b51242efdc00bbfaf99bb83fc8100e8b2d4f72bb"
+  },
+  {
+    "file": "src/clusterlod/dag_format.rs",
+    "original_blocks": 1,
+    "sha256": "02b35f685858f6bc220c387e7f5555c211f2aa9d7881cf7a06bccf10fa882a7d"
+  },
+  {
+    "file": "src/hidden.rs",
+    "original_blocks": 1,
+    "sha256": "e58a46bac6610262e14cb669c1078bbd52b4a70b855ff3140d26d00ec5e411e4"
+  },
+  {
+    "file": "src/lib.rs",
+    "original_blocks": 4,
+    "sha256": "f3966f5ad2645cb484b51bb0fd27d4cbe282bafcbc8f240abb305522f0e6d76d"
+  },
+  {
+    "file": "src/lod_chain.rs",
+    "original_blocks": 1,
+    "sha256": "6be5855b8a04430d3d01906c489900e0fe085ae409215dba0e21df3906762388"
+  },
+  {
+    "file": "src/mesh_analysis.rs",
+    "original_blocks": 1,
+    "sha256": "52c77555d92b7a9c1ebe4f0a573304f1b5565bb59205a7af5f79bd690623a08c"
+  },
+  {
+    "file": "src/parallel.rs",
+    "original_blocks": 3,
+    "sha256": "a1c3bc278e8677bdaafd4a29eae48adfb42448ce10d3a1ff67363f3e8f48578d"
+  },
+  {
+    "file": "src/sanitize.rs",
+    "original_blocks": 1,
+    "sha256": "11a24e3ead744852dab0dbfbb027bbc0f747da6e7fea478d3abef76df774735f"
+  },
+  {
+    "file": "src/vertex_layout.rs",
+    "original_blocks": 2,
+    "sha256": "103cfc4dc75753d5e413a597a80001555a0431c1c6f38b3862f3b7cd0f52a2b3"
+  }
+]

@@ -15,7 +15,20 @@ use alloc::vec::Vec;
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for a non-finite threshold; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn optimize_overdraw(
+#[inline]
+pub fn optimize_overdraw_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    threshold: f32,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_overdraw_u32(indices, positions, threshold, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_overdraw_u32(
     indices: &[u32],
     positions: Positions<'_>,
     threshold: f32,
@@ -54,7 +67,22 @@ pub fn optimize_overdraw(
 ///
 /// # Errors
 /// Same errors as [`optimize_overdraw`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_overdraw_into(
+#[inline]
+pub fn optimize_overdraw_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    threshold: f32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_overdraw_into_u32(destination, indices, positions, threshold, workspace)
+        })
+    })
+}
+
+fn optimize_overdraw_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -87,13 +115,25 @@ pub fn optimize_overdraw_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_overdraw`].
-pub fn optimize_overdraw_in_place(
+#[inline]
+pub fn optimize_overdraw_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    positions: Positions<'_>,
+    threshold: f32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_overdraw_in_place_u32(indices, positions, threshold, workspace)
+    })
+}
+
+fn optimize_overdraw_in_place_u32(
     indices: &mut [u32],
     positions: Positions<'_>,
     threshold: f32,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_overdraw(indices, positions, threshold, workspace)?;
+    let result = optimize_overdraw_generic(indices, positions, threshold, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -467,7 +507,7 @@ fn kernel(
     // For strided storage, dispatch once if the entire geometry phase fits.
     // Packed reads are already cheap; retain their per-cluster scan so the
     // triangle loop needs no extra cluster-end branch.
-    // Cluster visits can be charged after the scan: all charges fit, and the
+    // ClusterGeneric visits can be charged after the scan: all charges fit, and the
     // number of started clusters preserves usage on the first numerical error.
     if positions.packed_values().is_none() && work.covers(faces + soft_count)? {
         let mut cluster = 0;
@@ -588,6 +628,40 @@ fn emit<M: ClusterMeter>(
         offset += end - start;
     }
     Ok(())
+}
+
+/// The source-compatible u32 entry point; see [`optimize_overdraw_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_overdraw(
+    indices: &[u32],
+    positions: Positions<'_>,
+    threshold: f32,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_overdraw_generic::<u32>(indices, positions, threshold, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_overdraw_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_overdraw_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    threshold: f32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_overdraw_into_generic::<u32>(destination, indices, positions, threshold, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_overdraw_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_overdraw_in_place(
+    indices: &mut [u32],
+    positions: Positions<'_>,
+    threshold: f32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_overdraw_in_place_generic::<u32>(indices, positions, threshold, workspace)
 }
 
 #[cfg(all(test, feature = "std"))]

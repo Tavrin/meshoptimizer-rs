@@ -343,7 +343,7 @@ fn checked<const CHECK: bool>(x: f32) -> Result<f32, Error> {
         Ok(x)
     }
 }
-// Cluster centroid and squared radius, in upstream operation order.
+// ClusterGeneric centroid and squared radius, in upstream operation order.
 #[inline(always)]
 fn group_sphere<const CHECK: bool>(
     p: Positions<'_>,
@@ -572,7 +572,21 @@ fn partition(
 /// `InvalidLayout` for inconsistent counts/positions; `InvalidParameter` for empty clusters or an invalid target;
 /// `IndexOutOfBounds` for invalid references; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn partition_clusters(
+#[inline]
+pub fn partition_clusters_generic<I: crate::Index>(
+    indices: &[I],
+    counts: &[u32],
+    vertex_count: usize,
+    p: Option<Positions<'_>>,
+    target: usize,
+    workspace: &mut Workspace,
+) -> Result<Partitions, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        partition_clusters_u32(indices, counts, vertex_count, p, target, workspace)
+    })
+}
+
+fn partition_clusters_u32(
     indices: &[u32],
     counts: &[u32],
     vertex_count: usize,
@@ -597,7 +611,22 @@ pub fn partition_clusters(
 ///
 /// # Errors
 /// Same errors as [`partition_clusters`]. `BufferTooSmall` if the assignments buffer is too short.
-pub fn partition_clusters_into(
+#[inline]
+pub fn partition_clusters_into_generic<I: crate::Index>(
+    out: &mut [u32],
+    indices: &[I],
+    counts: &[u32],
+    vertex_count: usize,
+    p: Option<Positions<'_>>,
+    target: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        partition_clusters_into_u32(out, indices, counts, vertex_count, p, target, workspace)
+    })
+}
+
+fn partition_clusters_into_u32(
     out: &mut [u32],
     indices: &[u32],
     counts: &[u32],
@@ -619,4 +648,31 @@ pub fn partition_clusters_into(
         target,
         &mut ctx,
     )
+}
+
+/// The source-compatible u32 entry point; see [`partition_clusters_generic`] for selectable index widths.
+#[inline]
+pub fn partition_clusters(
+    indices: &[u32],
+    counts: &[u32],
+    vertex_count: usize,
+    p: Option<Positions<'_>>,
+    target: usize,
+    workspace: &mut Workspace,
+) -> Result<Partitions, Error> {
+    partition_clusters_generic::<u32>(indices, counts, vertex_count, p, target, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`partition_clusters_into_generic`] for selectable index widths.
+#[inline]
+pub fn partition_clusters_into(
+    out: &mut [u32],
+    indices: &[u32],
+    counts: &[u32],
+    vertex_count: usize,
+    p: Option<Positions<'_>>,
+    target: usize,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    partition_clusters_into_generic::<u32>(out, indices, counts, vertex_count, p, target, workspace)
 }

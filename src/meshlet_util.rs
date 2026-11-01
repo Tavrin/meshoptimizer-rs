@@ -66,9 +66,9 @@ pub struct Bounds {
 }
 /// Meshlet-local topology with first-visit vertex references.
 #[derive(Debug, Default, PartialEq, Eq)]
-pub struct LocalMeshlet {
+pub struct LocalMeshletGeneric<I: crate::Index = u32> {
     /// References to the original vertex buffer.
-    pub vertices: Vec<u32>,
+    pub vertices: Vec<I>,
     /// Three local byte indices per triangle.
     pub triangles: Vec<u8>,
 }
@@ -368,7 +368,18 @@ fn bounds<const CHECK: bool, const N: usize>(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for too many indices; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
-pub fn compute_cluster_bounds(
+#[inline]
+pub fn compute_cluster_bounds_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        compute_cluster_bounds_u32(indices, p, workspace)
+    })
+}
+
+fn compute_cluster_bounds_u32(
     indices: &[u32],
     p: Positions<'_>,
     workspace: &mut Workspace,
@@ -393,7 +404,18 @@ pub fn compute_cluster_bounds(
 ///
 /// # Errors
 /// Same errors as [`compute_cluster_bounds`].
-pub fn compute_cluster_bounds_with_positions(
+#[inline]
+pub fn compute_cluster_bounds_with_positions_generic<I: crate::Index>(
+    indices: &[I],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        compute_cluster_bounds_with_positions_u32(indices, p, workspace)
+    })
+}
+
+fn compute_cluster_bounds_with_positions_u32(
     indices: &[u32],
     p: BoundsPositions<'_>,
     workspace: &mut Workspace,
@@ -492,7 +514,19 @@ fn cluster_bounds<const M: usize, const N: usize>(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported meshlet counts; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
-pub fn compute_meshlet_bounds(
+#[inline]
+pub fn compute_meshlet_bounds_generic<I: crate::Index>(
+    vertices: &[I],
+    triangles: &[u8],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        compute_meshlet_bounds_u32(vertices, triangles, p, workspace)
+    })
+}
+
+fn compute_meshlet_bounds_u32(
     vertices: &[u32],
     triangles: &[u8],
     p: Positions<'_>,
@@ -516,7 +550,19 @@ pub fn compute_meshlet_bounds(
 ///
 /// # Errors
 /// Same errors as [`compute_meshlet_bounds`].
-pub fn compute_meshlet_bounds_with_positions(
+#[inline]
+pub fn compute_meshlet_bounds_with_positions_generic<I: crate::Index>(
+    vertices: &[I],
+    triangles: &[u8],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        compute_meshlet_bounds_with_positions_u32(vertices, triangles, p, workspace)
+    })
+}
+
+fn compute_meshlet_bounds_with_positions_u32(
     vertices: &[u32],
     triangles: &[u8],
     p: BoundsPositions<'_>,
@@ -703,13 +749,24 @@ fn extract<const V: usize, const T: usize>(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles; `InvalidParameter` for unsupported meshlet counts;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn extract_meshlet_indices(
+#[inline]
+pub fn extract_meshlet_indices_generic<I: crate::Index>(
+    indices: &[I],
+    workspace: &mut Workspace,
+) -> Result<LocalMeshletGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        extract_meshlet_indices_u32(indices, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn extract_meshlet_indices_u32(
     indices: &[u32],
     workspace: &mut Workspace,
-) -> Result<LocalMeshlet, Error> {
+) -> Result<LocalMeshletGeneric, Error> {
     let mut ctx = Context::new(workspace)?;
     extracted(indices, &mut ctx, |v, t, ctx| {
-        Ok(LocalMeshlet {
+        Ok(LocalMeshletGeneric {
             vertices: ctx.copy(v)?,
             triangles: ctx.copy(t)?,
         })
@@ -742,7 +799,21 @@ fn extracted<R>(
 ///
 /// # Errors
 /// Same errors as [`extract_meshlet_indices`]. `BufferTooSmall` if either output is too short; no output allocation is needed.
-pub fn extract_meshlet_indices_into(
+#[inline]
+pub fn extract_meshlet_indices_into_generic<I: crate::Index>(
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    indices: &[I],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(vertices, workspace, |vertices, workspace| {
+            extract_meshlet_indices_into_u32(vertices, triangles, indices, workspace)
+        })
+    })
+}
+
+fn extract_meshlet_indices_into_u32(
     vertices: &mut [u32],
     triangles: &mut [u8],
     indices: &[u32],
@@ -909,7 +980,19 @@ fn optimize_body<const ADVANCED: bool>(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported meshlet counts or level; `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
-pub fn optimize_meshlet_level_in_place(
+#[inline]
+pub fn optimize_meshlet_level_in_place_generic<I: crate::Index>(
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    level: u8,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(vertices, workspace, |vertices, workspace| {
+        optimize_meshlet_level_in_place_u32(vertices, triangles, level, workspace)
+    })
+}
+
+fn optimize_meshlet_level_in_place_u32(
     vertices: &mut [u32],
     triangles: &mut [u8],
     level: u8,
@@ -935,29 +1018,53 @@ pub fn optimize_meshlet_level_in_place(
 ///
 /// # Errors
 /// Same errors as [`optimize_meshlet_level_in_place`].
-pub fn optimize_meshlet_in_place(
+#[inline]
+pub fn optimize_meshlet_in_place_generic<I: crate::Index>(
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(vertices, workspace, |vertices, workspace| {
+        optimize_meshlet_in_place_u32(vertices, triangles, workspace)
+    })
+}
+
+fn optimize_meshlet_in_place_u32(
     vertices: &mut [u32],
     triangles: &mut [u8],
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    optimize_meshlet_level_in_place(vertices, triangles, 0, workspace)
+    optimize_meshlet_level_in_place_generic(vertices, triangles, 0, workspace)
 }
 /// Allocating `meshopt_optimizeMeshletLevel`; unused vertex suffix stays unchanged.
 ///
 /// # Errors
 /// Same errors as [`optimize_meshlet_level_in_place`]. `AllocationFailed` if output reservation fails.
-pub fn optimize_meshlet_level(
+#[inline]
+pub fn optimize_meshlet_level_generic<I: crate::Index>(
+    vertices: &[I],
+    triangles: &[u8],
+    level: u8,
+    workspace: &mut Workspace,
+) -> Result<LocalMeshletGeneric<I>, Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        optimize_meshlet_level_u32(vertices, triangles, level, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_meshlet_level_u32(
     vertices: &[u32],
     triangles: &[u8],
     level: u8,
     workspace: &mut Workspace,
-) -> Result<LocalMeshlet, Error> {
+) -> Result<LocalMeshletGeneric, Error> {
     let mut ctx = Context::new(workspace)?;
     validate_local(vertices, triangles)?;
     let mut v = ctx.copy(vertices)?;
     let mut t = ctx.copy(triangles)?;
     optimize(&mut v, &mut t, level, &mut ctx)?;
-    Ok(LocalMeshlet {
+    Ok(LocalMeshletGeneric {
         vertices: v,
         triangles: t,
     })
@@ -966,12 +1073,24 @@ pub fn optimize_meshlet_level(
 ///
 /// # Errors
 /// Same errors as [`optimize_meshlet_level_in_place`]. `AllocationFailed` if output reservation fails.
-pub fn optimize_meshlet(
+#[inline]
+pub fn optimize_meshlet_generic<I: crate::Index>(
+    vertices: &[I],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<LocalMeshletGeneric<I>, Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        optimize_meshlet_u32(vertices, triangles, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_meshlet_u32(
     vertices: &[u32],
     triangles: &[u8],
     workspace: &mut Workspace,
-) -> Result<LocalMeshlet, Error> {
-    optimize_meshlet_level(vertices, triangles, 0, workspace)
+) -> Result<LocalMeshletGeneric, Error> {
+    optimize_meshlet_level_generic(vertices, triangles, 0, workspace)
 }
 
 /// Caller-buffer meshlet optimization. Errors leave destinations unchanged;
@@ -979,7 +1098,30 @@ pub fn optimize_meshlet(
 ///
 /// # Errors
 /// Same errors as [`optimize_meshlet_level_in_place`]. `BufferTooSmall` if either destination is too short.
-pub fn optimize_meshlet_level_into(
+#[inline]
+pub fn optimize_meshlet_level_into_generic<I: crate::Index>(
+    out_vertices: &mut [I],
+    out_triangles: &mut [u8],
+    vertices: &[I],
+    triangles: &[u8],
+    level: u8,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        I::with_mut(out_vertices, workspace, |out_vertices, workspace| {
+            optimize_meshlet_level_into_u32(
+                out_vertices,
+                out_triangles,
+                vertices,
+                triangles,
+                level,
+                workspace,
+            )
+        })
+    })
+}
+
+fn optimize_meshlet_level_into_u32(
     out_vertices: &mut [u32],
     out_triangles: &mut [u8],
     vertices: &[u32],
@@ -1010,14 +1152,29 @@ pub fn optimize_meshlet_level_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_meshlet_level_in_place`]. `BufferTooSmall` if either destination is too short.
-pub fn optimize_meshlet_into(
+#[inline]
+pub fn optimize_meshlet_into_generic<I: crate::Index>(
+    out_vertices: &mut [I],
+    out_triangles: &mut [u8],
+    vertices: &[I],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(vertices, workspace, |vertices, workspace| {
+        I::with_mut(out_vertices, workspace, |out_vertices, workspace| {
+            optimize_meshlet_into_u32(out_vertices, out_triangles, vertices, triangles, workspace)
+        })
+    })
+}
+
+fn optimize_meshlet_into_u32(
     out_vertices: &mut [u32],
     out_triangles: &mut [u8],
     vertices: &[u32],
     triangles: &[u8],
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    optimize_meshlet_level_into(
+    optimize_meshlet_level_into_generic(
         out_vertices,
         out_triangles,
         vertices,
@@ -1025,6 +1182,177 @@ pub fn optimize_meshlet_into(
         0,
         workspace,
     )
+}
+
+/// The source-compatible u32 entry point; see [`compute_cluster_bounds_generic`] for selectable index widths.
+#[inline]
+pub fn compute_cluster_bounds(
+    indices: &[u32],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    compute_cluster_bounds_generic::<u32>(indices, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`compute_cluster_bounds_with_positions_generic`] for selectable index widths.
+#[inline]
+pub fn compute_cluster_bounds_with_positions(
+    indices: &[u32],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    compute_cluster_bounds_with_positions_generic::<u32>(indices, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`compute_meshlet_bounds_generic`] for selectable index widths.
+#[inline]
+pub fn compute_meshlet_bounds(
+    vertices: &[u32],
+    triangles: &[u8],
+    p: Positions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    compute_meshlet_bounds_generic::<u32>(vertices, triangles, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`compute_meshlet_bounds_with_positions_generic`] for selectable index widths.
+#[inline]
+pub fn compute_meshlet_bounds_with_positions(
+    vertices: &[u32],
+    triangles: &[u8],
+    p: BoundsPositions<'_>,
+    workspace: &mut Workspace,
+) -> Result<Bounds, Error> {
+    compute_meshlet_bounds_with_positions_generic::<u32>(vertices, triangles, p, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`extract_meshlet_indices_generic`] for selectable index widths.
+#[inline]
+pub fn extract_meshlet_indices(
+    indices: &[u32],
+    workspace: &mut Workspace,
+) -> Result<LocalMeshlet, Error> {
+    extract_meshlet_indices_generic::<u32>(indices, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`extract_meshlet_indices_into_generic`] for selectable index widths.
+#[inline]
+pub fn extract_meshlet_indices_into(
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    indices: &[u32],
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    extract_meshlet_indices_into_generic::<u32>(vertices, triangles, indices, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_meshlet_level_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_meshlet_level_in_place(
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    level: u8,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_meshlet_level_in_place_generic::<u32>(vertices, triangles, level, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_meshlet_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_meshlet_in_place(
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_meshlet_in_place_generic::<u32>(vertices, triangles, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_meshlet_level_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_meshlet_level(
+    vertices: &[u32],
+    triangles: &[u8],
+    level: u8,
+    workspace: &mut Workspace,
+) -> Result<LocalMeshlet, Error> {
+    optimize_meshlet_level_generic::<u32>(vertices, triangles, level, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_meshlet_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_meshlet(
+    vertices: &[u32],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<LocalMeshlet, Error> {
+    optimize_meshlet_generic::<u32>(vertices, triangles, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_meshlet_level_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_meshlet_level_into(
+    out_vertices: &mut [u32],
+    out_triangles: &mut [u8],
+    vertices: &[u32],
+    triangles: &[u8],
+    level: u8,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_meshlet_level_into_generic::<u32>(
+        out_vertices,
+        out_triangles,
+        vertices,
+        triangles,
+        level,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`optimize_meshlet_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_meshlet_into(
+    out_vertices: &mut [u32],
+    out_triangles: &mut [u8],
+    vertices: &[u32],
+    triangles: &[u8],
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_meshlet_into_generic::<u32>(
+        out_vertices,
+        out_triangles,
+        vertices,
+        triangles,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 form of [`LocalMeshletGeneric`].
+/// Meshlet-local topology with first-visit vertex references.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct LocalMeshlet {
+    /// References to the original vertex buffer.
+    pub vertices: Vec<u32>,
+    /// Three local byte indices per triangle.
+    pub triangles: Vec<u8>,
+}
+impl From<LocalMeshletGeneric<u32>> for LocalMeshlet {
+    #[inline]
+    fn from(value: LocalMeshletGeneric<u32>) -> Self {
+        Self {
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
+
+impl From<LocalMeshlet> for LocalMeshletGeneric<u32> {
+    #[inline]
+    fn from(value: LocalMeshlet) -> Self {
+        Self {
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
 }
 
 #[cfg(test)]

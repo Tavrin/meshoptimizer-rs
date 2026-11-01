@@ -14,7 +14,7 @@ mod support;
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, MeshletSettings, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
-pub use dag::{build_dag_into, DagBuffers, DagCounts};
+pub use dag::{build_dag_into, build_dag_into_generic, DagBuffers, DagBuffersGeneric, DagCounts};
 
 /// Complete configuration of the upstream cluster-LOD demo.
 #[derive(Clone, Copy, Debug)]
@@ -119,9 +119,9 @@ pub fn default_config_rt(max_triangles: usize) -> Result<Config, Error> {
     Ok(c)
 }
 /// Explicit borrowed mesh inputs. Weights and attribute components must match.
-pub struct Mesh<'a> {
+pub struct MeshGeneric<'a, I: crate::Index = u32> {
     /// Triangle topology referencing the full vertex array.
-    pub indices: &'a [u32],
+    pub indices: &'a [I],
     /// Mutable positions; only dilation changes these.
     pub positions: &'a mut [[f32; 3]],
     /// Optional checked attribute view.
@@ -145,13 +145,13 @@ pub struct LodBounds {
 }
 /// Cluster emitted by the demo builder.
 #[derive(Debug, Default, PartialEq)]
-pub struct Cluster {
+pub struct ClusterGeneric<I: crate::Index = u32> {
     /// More refined group identifier, or -1 for original geometry.
     pub refined: i32,
     /// Culling bounds; error is not necessarily monotonic across the DAG.
     pub bounds: LodBounds,
     /// Topology referencing the original vertex array.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Number of unique vertex references.
     pub vertex_count: usize,
 }
@@ -165,11 +165,11 @@ pub struct Group {
 }
 /// Owned group record and its emitted clusters.
 #[derive(Debug, Default, PartialEq)]
-pub struct GroupOutput {
+pub struct GroupOutputGeneric<I: crate::Index = u32> {
     /// Group metadata.
     pub group: Group,
     /// Clusters in callback order.
-    pub clusters: Vec<Cluster>,
+    pub clusters: Vec<ClusterGeneric<I>>,
 }
 /// Node in the per-level spatial forest.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -230,10 +230,10 @@ fn clusterize(
         // Upstream switches to sparse adjacency for small groups of a large
         // source mesh. Compacting only the temporary builder input lets the
         // safe Rust builder use group-sized adjacency and live-vertex arrays.
-        let (local_indices, local_positions, originals) = compact_group(indices, p, ctx)?;
+        let (local_indices_generic, local_positions, originals) = compact_group(indices, p, ctx)?;
         let mut result = ctx.child(|ws| {
             crate::meshlet::build_meshlets_flex_validated(
-                &local_indices,
+                &local_indices_generic,
                 Positions::from_packed(&local_positions),
                 s,
                 c.min_triangles,
@@ -246,7 +246,7 @@ fn clusterize(
         for v in &mut result.vertices {
             *v = originals[*v as usize];
         }
-        ctx.free(local_indices)?;
+        ctx.free(local_indices_generic)?;
         ctx.free(local_positions)?;
         ctx.free(originals)?;
         result
@@ -284,7 +284,7 @@ fn clusterize(
         let t = &mut m.triangles[d.triangle_offset as usize..][..d.triangle_count as usize * 3];
         if c.optimize_clusters {
             ctx.child(|ws| {
-                crate::optimize_meshlet_level_in_place(v, t, c.optimize_clusters_level, ws)
+                crate::optimize_meshlet_level_in_place_generic(v, t, c.optimize_clusters_level, ws)
             })?;
         }
         clusters[i] = Pending {
@@ -315,10 +315,10 @@ fn compact_group(
         .and_then(usize::checked_next_power_of_two)
         .ok_or(Error::SizeOverflow)?;
     let mut table = ctx.filled(size, u64::MAX)?;
-    let mut local_indices = ctx.copy::<u32>(&[])?;
+    let mut local_indices_generic = ctx.copy::<u32>(&[])?;
     let mut local_positions = ctx.copy::<[f32; 3]>(&[])?;
     let mut originals = ctx.copy::<u32>(&[])?;
-    ctx.grow(&mut local_indices, indices.len())?;
+    ctx.grow(&mut local_indices_generic, indices.len())?;
     ctx.grow(&mut local_positions, indices.len())?;
     ctx.grow(&mut originals, indices.len())?;
     let mut count = 0usize;
@@ -331,19 +331,19 @@ fn compact_group(
                 table[slot] = ((source as u64) << 32) | count as u64;
                 local_positions.push(p.get(source as usize).ok_or(Error::IndexOutOfBounds)?);
                 originals.push(source);
-                local_indices.push(count as u32);
+                local_indices_generic.push(count as u32);
                 count += 1;
                 break;
             }
             if entry >> 32 == source as u64 {
-                local_indices.push(entry as u32);
+                local_indices_generic.push(entry as u32);
                 break;
             }
             slot = (slot + 1) & (size - 1);
         }
     }
     ctx.free(table)?;
-    Ok((local_indices, local_positions, originals))
+    Ok((local_indices_generic, local_positions, originals))
 }
 fn position_remap(p: Positions<'_>, ctx: &mut Context<'_>) -> Result<Vec<u32>, Error> {
     let mut size = 1usize;
@@ -408,7 +408,7 @@ fn partition(
         }
     }
     let mut parts = ctx.child(|ws| {
-        crate::partition_clusters(
+        crate::partition_clusters_generic(
             &idx[..off],
             &counts,
             remap.len(),
@@ -422,8 +422,9 @@ fn partition(
         for (i, cl) in clusters.iter().enumerate() {
             centers[parts.assignments[i] as usize] = cl.bounds.center;
         }
-        let order =
-            ctx.child(|ws| crate::spatial_sort_remap(Positions::from_packed(&centers), ws))?;
+        let order = ctx.child(|ws| {
+            crate::spatial_sort_remap_generic::<u32>(Positions::from_packed(&centers), ws)
+        })?;
         for v in &mut parts.assignments {
             *v = order[*v as usize];
         }
@@ -495,7 +496,7 @@ fn lock_boundary(
 }
 fn simplify(
     indices: &[u32],
-    mesh: &Mesh<'_>,
+    mesh: &MeshGeneric<'_>,
     locks: &[support::VertexFlags],
     c: Config,
     target: usize,
@@ -661,7 +662,7 @@ fn boundary_area(
     Ok(area)
 }
 fn dilate(
-    mesh: &mut Mesh<'_>,
+    mesh: &mut MeshGeneric<'_>,
     old: &[u32],
     new: &[u32],
     locks: &[support::VertexFlags],
@@ -756,19 +757,28 @@ fn dilate(
 fn output(
     group: &[Pending],
     idx: &[u32],
-    mesh: &Mesh<'_>,
+    mesh: &MeshGeneric<'_>,
     c: Config,
     bounds: LodBounds,
     depth: i32,
-    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
+    callback: &mut impl FnMut(
+        Group,
+        Vec<ClusterGeneric>,
+        &[[f32; 3]],
+        &mut Context<'_>,
+    ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
 ) -> Result<i32, Error> {
-    let mut out = ctx.alloc::<Cluster>(group.len())?;
+    let mut out = ctx.alloc::<ClusterGeneric>(group.len())?;
     for (i, cl) in group.iter().enumerate() {
         let indices = &idx[cl.offset..cl.offset + cl.count];
         let b = if c.optimize_bounds && cl.refined != -1 {
             let b = ctx.child(|ws| {
-                crate::compute_cluster_bounds(indices, Positions::from_packed(mesh.positions), ws)
+                crate::compute_cluster_bounds_generic(
+                    indices,
+                    Positions::from_packed(mesh.positions),
+                    ws,
+                )
             })?;
             LodBounds {
                 center: b.center,
@@ -779,7 +789,7 @@ fn output(
             cl.bounds
         };
         let copy = ctx.copy(indices)?;
-        out[i] = Cluster {
+        out[i] = ClusterGeneric {
             refined: cl.refined,
             bounds: b,
             indices: copy,
@@ -796,7 +806,7 @@ fn output(
         ctx,
     )
 }
-fn validate(mesh: &Mesh<'_>, c: Config, ctx: &mut Context<'_>) -> Result<(), Error> {
+fn validate(mesh: &MeshGeneric<'_>, c: Config, ctx: &mut Context<'_>) -> Result<(), Error> {
     crate::build_meshlets_bound(mesh.indices.len(), c.max_vertices, c.max_triangles)?;
     if c.min_triangles == 0
         || c.min_triangles > c.max_triangles
@@ -864,7 +874,7 @@ struct Prepared {
 fn prepare_group(
     group: &[Pending],
     idx: &[u32],
-    mesh: &Mesh<'_>,
+    mesh: &MeshGeneric<'_>,
     locks: &[support::VertexFlags],
     c: Config,
     ctx: &mut Context<'_>,
@@ -901,8 +911,13 @@ fn prepare_group(
 fn build_internal(
     parallel: bool,
     c: Config,
-    mesh: Mesh<'_>,
-    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
+    mesh: MeshGeneric<'_>,
+    callback: &mut impl FnMut(
+        Group,
+        Vec<ClusterGeneric>,
+        &[[f32; 3]],
+        &mut Context<'_>,
+    ) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
@@ -910,16 +925,26 @@ fn build_internal(
 }
 fn build_in_context(
     c: Config,
-    mesh: Mesh<'_>,
-    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
+    mesh: MeshGeneric<'_>,
+    callback: &mut impl FnMut(
+        Group,
+        Vec<ClusterGeneric>,
+        &[[f32; 3]],
+        &mut Context<'_>,
+    ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
     build_in_context_mode(c, mesh, callback, ctx, false)
 }
 fn build_in_context_mode(
     c: Config,
-    mut mesh: Mesh<'_>,
-    callback: &mut impl FnMut(Group, Vec<Cluster>, &[[f32; 3]], &mut Context<'_>) -> Result<i32, Error>,
+    mut mesh: MeshGeneric<'_>,
+    callback: &mut impl FnMut(
+        Group,
+        Vec<ClusterGeneric>,
+        &[[f32; 3]],
+        &mut Context<'_>,
+    ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
     _parallel: bool,
 ) -> Result<(), Error> {
@@ -1120,19 +1145,38 @@ fn build_in_context_mode(
 ///
 /// # Panics
 /// Panics if the supplied callback panics.
-pub fn build_with_output(
+pub fn build_with_output_generic<I: crate::Index>(
     c: Config,
-    mesh: Mesh<'_>,
-    output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    mesh: MeshGeneric<'_, I>,
+    output: impl FnMut(Group, &[ClusterGeneric<I>]) -> Result<i32, Error>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(mesh.indices, workspace, |indices, workspace| {
+        let mesh = MeshGeneric {
+            indices,
+            positions: mesh.positions,
+            attributes: mesh.attributes,
+            vertex_lock: mesh.vertex_lock,
+            attribute_weights: mesh.attribute_weights,
+            attribute_protect_mask: mesh.attribute_protect_mask,
+        };
+        build_with_output_u32::<I>(c, mesh, output, workspace)
+    })
+}
+
+fn build_with_output_u32<I: crate::Index>(
+    c: Config,
+    mesh: MeshGeneric<'_>,
+    output: impl FnMut(Group, &[ClusterGeneric<I>]) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     build_with_output_mode(false, c, mesh, output, workspace)
 }
-fn build_with_output_mode(
+fn build_with_output_mode<I: crate::Index>(
     parallel: bool,
     c: Config,
-    mesh: Mesh<'_>,
-    mut output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    mesh: MeshGeneric<'_>,
+    mut output: impl FnMut(Group, &[ClusterGeneric<I>]) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     build_internal(
@@ -1140,7 +1184,9 @@ fn build_with_output_mode(
         c,
         mesh,
         &mut |g, clusters, _positions, ctx| {
-            let result = output(g, &clusters);
+            let result = I::with_clusters(&clusters, ctx.bytes(), ctx.workspace, |clusters| {
+                output(g, clusters)
+            });
             for cl in &clusters {
                 ctx.release(&cl.indices)?;
             }
@@ -1157,19 +1203,37 @@ fn build_with_output_mode(
 /// `InvalidLayout` for incompatible attributes/flags; `InvalidParameter` for unsupported configuration;
 /// `InvalidTopology` or `IndexOutOfBounds` for invalid topology; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn build(
+pub fn build_generic<I: crate::Index>(
     c: Config,
-    mesh: Mesh<'_>,
+    mesh: MeshGeneric<'_, I>,
     workspace: &mut Workspace,
-) -> Result<Vec<GroupOutput>, Error> {
+) -> Result<Vec<GroupOutputGeneric<I>>, Error> {
+    I::with_input(mesh.indices, workspace, |indices, workspace| {
+        let mesh = MeshGeneric {
+            indices,
+            positions: mesh.positions,
+            attributes: mesh.attributes,
+            vertex_lock: mesh.vertex_lock,
+            attribute_weights: mesh.attribute_weights,
+            attribute_protect_mask: mesh.attribute_protect_mask,
+        };
+        build_u32(c, mesh, workspace).and_then(|groups| I::from_groups(groups, workspace))
+    })
+}
+
+fn build_u32(
+    c: Config,
+    mesh: MeshGeneric<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutputGeneric>, Error> {
     build_mode(false, c, mesh, workspace)
 }
 fn build_mode(
     parallel: bool,
     c: Config,
-    mesh: Mesh<'_>,
+    mesh: MeshGeneric<'_>,
     workspace: &mut Workspace,
-) -> Result<Vec<GroupOutput>, Error> {
+) -> Result<Vec<GroupOutputGeneric>, Error> {
     let mut result = Vec::new();
     build_internal(
         parallel,
@@ -1182,7 +1246,7 @@ fn build_mode(
             let id = result.len() as i32;
             ctx.tick(1)?;
             ctx.grow(&mut result, 1)?;
-            result.push(GroupOutput { group: g, clusters });
+            result.push(GroupOutputGeneric { group: g, clusters });
             Ok(id)
         },
         workspace,
@@ -1193,11 +1257,11 @@ fn build_mode(
 ///
 /// # Errors
 /// Same errors as [`crate::extract_meshlet_indices`].
-pub fn local_indices(
-    indices: &[u32],
+pub fn local_indices_generic<I: crate::Index>(
+    indices: &[I],
     workspace: &mut Workspace,
-) -> Result<crate::LocalMeshlet, Error> {
-    crate::extract_meshlet_indices(indices, workspace)
+) -> Result<crate::LocalMeshletGeneric<I>, Error> {
+    crate::extract_meshlet_indices_generic(indices, workspace)
 }
 /// `clodBuildHierarchyBound`: checked bound for a per-level spatial forest.
 ///
@@ -1288,7 +1352,11 @@ fn hierarchy_in_context(
                 p[i] = row[i].bounds.center;
             }
             let order = ctx.child(|ws| {
-                crate::spatial_cluster_points(Positions::from_packed(&p), node_width, ws)
+                crate::spatial_cluster_points_generic::<u32>(
+                    Positions::from_packed(&p),
+                    node_width,
+                    ws,
+                )
             })?;
             ctx.tick(n.checked_mul(2).ok_or(Error::SizeOverflow)?)?;
             for i in 0..n {
@@ -1343,11 +1411,30 @@ fn hierarchy_in_context(
 /// # Panics
 /// Panics if Rayon cannot initialize its pool or a worker panics.
 #[cfg(feature = "parallel")]
-pub fn build_parallel(
+pub fn build_parallel_generic<I: crate::Index>(
     c: Config,
-    mesh: Mesh<'_>,
+    mesh: MeshGeneric<'_, I>,
     workspace: &mut Workspace,
-) -> Result<Vec<GroupOutput>, Error> {
+) -> Result<Vec<GroupOutputGeneric<I>>, Error> {
+    I::with_input(mesh.indices, workspace, |indices, workspace| {
+        let mesh = MeshGeneric {
+            indices,
+            positions: mesh.positions,
+            attributes: mesh.attributes,
+            vertex_lock: mesh.vertex_lock,
+            attribute_weights: mesh.attribute_weights,
+            attribute_protect_mask: mesh.attribute_protect_mask,
+        };
+        build_parallel_u32(c, mesh, workspace).and_then(|groups| I::from_groups(groups, workspace))
+    })
+}
+
+#[cfg(feature = "parallel")]
+fn build_parallel_u32(
+    c: Config,
+    mesh: MeshGeneric<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutputGeneric>, Error> {
     build_mode(true, c, mesh, workspace)
 }
 
@@ -1363,11 +1450,272 @@ pub fn build_parallel(
 /// # Panics
 /// Panics if the callback or a worker panics, or Rayon cannot initialize its pool.
 #[cfg(feature = "parallel")]
-pub fn build_parallel_with_output(
+pub fn build_parallel_with_output_generic<I: crate::Index>(
     c: Config,
-    mesh: Mesh<'_>,
-    output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    mesh: MeshGeneric<'_, I>,
+    output: impl FnMut(Group, &[ClusterGeneric<I>]) -> Result<i32, Error>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(mesh.indices, workspace, |indices, workspace| {
+        let mesh = MeshGeneric {
+            indices,
+            positions: mesh.positions,
+            attributes: mesh.attributes,
+            vertex_lock: mesh.vertex_lock,
+            attribute_weights: mesh.attribute_weights,
+            attribute_protect_mask: mesh.attribute_protect_mask,
+        };
+        build_parallel_with_output_u32::<I>(c, mesh, output, workspace)
+    })
+}
+
+#[cfg(feature = "parallel")]
+fn build_parallel_with_output_u32<I: crate::Index>(
+    c: Config,
+    mesh: MeshGeneric<'_>,
+    output: impl FnMut(Group, &[ClusterGeneric<I>]) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     build_with_output_mode(true, c, mesh, output, workspace)
+}
+
+pub(crate) fn convert_groups<I: crate::Index>(
+    groups: Vec<GroupOutputGeneric>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutputGeneric<I>>, Error> {
+    let mut live = crate::workspace::checked_bytes(
+        groups.capacity(),
+        core::mem::size_of::<GroupOutputGeneric>(),
+    )?;
+    for group in &groups {
+        live = live
+            .checked_add(crate::workspace::checked_bytes(
+                group.clusters.capacity(),
+                core::mem::size_of::<ClusterGeneric>(),
+            )?)
+            .ok_or(Error::SizeOverflow)?;
+        for cluster in &group.clusters {
+            live = live
+                .checked_add(crate::workspace::checked_bytes(
+                    cluster.indices.capacity(),
+                    4,
+                )?)
+                .ok_or(Error::SizeOverflow)?;
+        }
+    }
+    let mut budget = crate::budget::Budget::with_bytes(workspace, live);
+    let mut result = budget.reserved(groups.len())?;
+    for group in groups {
+        let mut clusters = budget.reserved(group.clusters.len())?;
+        for cluster in group.clusters {
+            let mut indices = budget.reserved(cluster.indices.len())?;
+            for value in cluster.indices {
+                indices.push(I::from_u32(value)?);
+            }
+            clusters.push(ClusterGeneric {
+                indices,
+                refined: cluster.refined,
+                bounds: cluster.bounds,
+                vertex_count: cluster.vertex_count,
+            });
+        }
+        result.push(GroupOutputGeneric {
+            group: group.group,
+            clusters,
+        });
+    }
+    Ok(result)
+}
+
+/// The source-compatible u32 entry point; see [`build_with_output_generic`] for selectable index widths.
+#[inline]
+pub fn build_with_output(
+    c: Config,
+    mesh: Mesh<'_>,
+    mut output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    build_internal(
+        false,
+        c,
+        mesh.into(),
+        &mut |g, clusters, _positions, ctx| {
+            let clusters: Vec<Cluster> = clusters.into_iter().map(Into::into).collect();
+            let result = output(g, &clusters);
+            for cl in &clusters {
+                ctx.release(&cl.indices)?;
+            }
+            ctx.free(clusters)?;
+            result
+        },
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`build_generic`] for selectable index widths.
+#[inline]
+pub fn build(
+    c: Config,
+    mesh: Mesh<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutput>, Error> {
+    build_generic::<u32>(c, mesh.into(), workspace)
+        .map(|values| values.into_iter().map(Into::into).collect())
+}
+
+/// The source-compatible u32 entry point; see [`local_indices_generic`] for selectable index widths.
+#[inline]
+pub fn local_indices(
+    indices: &[u32],
+    workspace: &mut Workspace,
+) -> Result<crate::LocalMeshlet, Error> {
+    local_indices_generic::<u32>(indices, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`build_parallel_generic`] for selectable index widths.
+#[cfg(feature = "parallel")]
+#[inline]
+pub fn build_parallel(
+    c: Config,
+    mesh: Mesh<'_>,
+    workspace: &mut Workspace,
+) -> Result<Vec<GroupOutput>, Error> {
+    build_parallel_generic::<u32>(c, mesh.into(), workspace)
+        .map(|values| values.into_iter().map(Into::into).collect())
+}
+
+/// The source-compatible u32 entry point; see [`build_parallel_with_output_generic`] for selectable index widths.
+#[cfg(feature = "parallel")]
+#[inline]
+pub fn build_parallel_with_output(
+    c: Config,
+    mesh: Mesh<'_>,
+    mut output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    build_internal(
+        true,
+        c,
+        mesh.into(),
+        &mut |g, clusters, _positions, ctx| {
+            let clusters: Vec<Cluster> = clusters.into_iter().map(Into::into).collect();
+            let result = output(g, &clusters);
+            for cl in &clusters {
+                ctx.release(&cl.indices)?;
+            }
+            ctx.free(clusters)?;
+            result
+        },
+        workspace,
+    )
+}
+
+/// The source-compatible u32 form of [`MeshGeneric`].
+/// Explicit borrowed mesh inputs. Weights and attribute components must match.
+pub struct Mesh<'a> {
+    /// Triangle topology referencing the full vertex array.
+    pub indices: &'a [u32],
+    /// Mutable positions; only dilation changes these.
+    pub positions: &'a mut [[f32; 3]],
+    /// Optional checked attribute view.
+    pub attributes: Option<Attributes<'a>>,
+    /// Optional per-vertex flags.
+    pub vertex_lock: Option<&'a [VertexFlags]>,
+    /// Attribute weights for simplification.
+    pub attribute_weights: &'a [f32],
+    /// Bit K protects discontinuities in component K.
+    pub attribute_protect_mask: u32,
+}
+impl<'a> From<MeshGeneric<'a, u32>> for Mesh<'a> {
+    #[inline]
+    fn from(value: MeshGeneric<'a, u32>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            attributes: value.attributes,
+            vertex_lock: value.vertex_lock,
+            attribute_weights: value.attribute_weights,
+            attribute_protect_mask: value.attribute_protect_mask,
+        }
+    }
+}
+
+impl<'a> From<Mesh<'a>> for MeshGeneric<'a, u32> {
+    #[inline]
+    fn from(value: Mesh<'a>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            attributes: value.attributes,
+            vertex_lock: value.vertex_lock,
+            attribute_weights: value.attribute_weights,
+            attribute_protect_mask: value.attribute_protect_mask,
+        }
+    }
+}
+
+/// The source-compatible u32 form of [`ClusterGeneric`].
+/// Cluster emitted by the demo builder.
+#[derive(Debug, Default, PartialEq)]
+pub struct Cluster {
+    /// More refined group identifier, or -1 for original geometry.
+    pub refined: i32,
+    /// Culling bounds; error is not necessarily monotonic across the DAG.
+    pub bounds: LodBounds,
+    /// Topology referencing the original vertex array.
+    pub indices: Vec<u32>,
+    /// Number of unique vertex references.
+    pub vertex_count: usize,
+}
+impl From<ClusterGeneric<u32>> for Cluster {
+    #[inline]
+    fn from(value: ClusterGeneric<u32>) -> Self {
+        Self {
+            refined: value.refined,
+            bounds: value.bounds,
+            indices: value.indices,
+            vertex_count: value.vertex_count,
+        }
+    }
+}
+
+impl From<Cluster> for ClusterGeneric<u32> {
+    #[inline]
+    fn from(value: Cluster) -> Self {
+        Self {
+            refined: value.refined,
+            bounds: value.bounds,
+            indices: value.indices,
+            vertex_count: value.vertex_count,
+        }
+    }
+}
+
+/// The source-compatible u32 form of [`GroupOutputGeneric`].
+/// Owned group record and its emitted clusters.
+#[derive(Debug, Default, PartialEq)]
+pub struct GroupOutput {
+    /// Group metadata.
+    pub group: Group,
+    /// Clusters in callback order.
+    pub clusters: Vec<Cluster>,
+}
+impl From<GroupOutputGeneric<u32>> for GroupOutput {
+    #[inline]
+    fn from(value: GroupOutputGeneric<u32>) -> Self {
+        Self {
+            group: value.group,
+            clusters: value.clusters.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<GroupOutput> for GroupOutputGeneric<u32> {
+    #[inline]
+    fn from(value: GroupOutput) -> Self {
+        Self {
+            group: value.group,
+            clusters: value.clusters.into_iter().map(Into::into).collect(),
+        }
+    }
 }

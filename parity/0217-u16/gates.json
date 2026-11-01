@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "exit_codes": {
+    "fmt": 0,
+    "clippy": 0,
+    "tests-all": 0,
+    "tests-none": 0,
+    "doctests": 0,
+    "nostd": 0,
+    "wasm-nostd": 0,
+    "rustdoc": 0,
+    "public-text": 0,
+    "u16-corpus-final": 0,
+    "perf-measure-final": 0,
+    "nostd-build": 0,
+    "wasm-nostd-build": 0
+  },
+  "u16_corpus": {
+    "cases": 4,
+    "comparisons": 88,
+    "differences": 0
+  },
+  "api_counts": {
+    "source": 143,
+    "rustdoc": 143
+  }
+}

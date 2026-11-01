@@ -118,9 +118,9 @@ impl SanitizeReport {
 /// Cleaned triangle list from [`sanitize`]. Not in C++ meshoptimizer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
-pub struct SanitizedMesh {
+pub struct SanitizedMeshGeneric<I: crate::Index = u32> {
     /// Kept triangles in input order, with their original corners and winding.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Counts by removal reason.
     pub report: SanitizeReport,
 }
@@ -168,12 +168,25 @@ pub struct SanitizedMesh {
 /// checks, whatever the input: duplicates are found by sorting, not hashing.
 /// Scratch storage is proportional to those triangles, never to the position
 /// count.
-pub fn sanitize(
+#[inline]
+pub fn sanitize_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    options: SanitizeOptions,
+    workspace: &mut Workspace,
+) -> Result<SanitizedMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        sanitize_u32(indices, positions, options, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn sanitize_u32(
     indices: &[u32],
     positions: Positions<'_>,
     options: SanitizeOptions,
     workspace: &mut Workspace,
-) -> Result<SanitizedMesh, Error> {
+) -> Result<SanitizedMeshGeneric, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         let mut budget = Budget::new(workspace);
@@ -182,7 +195,7 @@ pub fn sanitize(
         emit(indices, &keep, &mut work, |triangle| {
             out.extend_from_slice(triangle);
         })?;
-        Ok(SanitizedMesh {
+        Ok(SanitizedMeshGeneric {
             indices: out,
             report,
         })
@@ -210,7 +223,22 @@ pub const fn sanitize_bound(index_count: usize) -> usize {
 /// # Errors
 /// Same errors as [`sanitize`]. `BufferTooSmall` if `destination` is shorter
 /// than the kept index count.
-pub fn sanitize_into(
+#[inline]
+pub fn sanitize_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    options: SanitizeOptions,
+    workspace: &mut Workspace,
+) -> Result<SanitizeReport, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            sanitize_into_u32(destination, indices, positions, options, workspace)
+        })
+    })
+}
+
+fn sanitize_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -518,4 +546,57 @@ fn weld_candidates(
     budget.release(table);
     result?;
     Ok(welded)
+}
+
+/// The source-compatible u32 entry point; see [`sanitize_generic`] for selectable index widths.
+#[inline]
+pub fn sanitize(
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: SanitizeOptions,
+    workspace: &mut Workspace,
+) -> Result<SanitizedMesh, Error> {
+    sanitize_generic::<u32>(indices, positions, options, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`sanitize_into_generic`] for selectable index widths.
+#[inline]
+pub fn sanitize_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    options: SanitizeOptions,
+    workspace: &mut Workspace,
+) -> Result<SanitizeReport, Error> {
+    sanitize_into_generic::<u32>(destination, indices, positions, options, workspace)
+}
+
+/// The source-compatible u32 form of [`SanitizedMeshGeneric`].
+/// Cleaned triangle list from [`sanitize`]. Not in C++ meshoptimizer.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct SanitizedMesh {
+    /// Kept triangles in input order, with their original corners and winding.
+    pub indices: Vec<u32>,
+    /// Counts by removal reason.
+    pub report: SanitizeReport,
+}
+impl From<SanitizedMeshGeneric<u32>> for SanitizedMesh {
+    #[inline]
+    fn from(value: SanitizedMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
+
+impl From<SanitizedMesh> for SanitizedMeshGeneric<u32> {
+    #[inline]
+    fn from(value: SanitizedMesh) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
 }

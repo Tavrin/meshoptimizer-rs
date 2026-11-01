@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Additive `_generic` functions and width-aware methods support u16 and u32 through sealed `Index`, with checked narrowing and generic topology results. Width-aware input and result types use a `Generic` suffix; existing names retain their u32 signatures and inference.
 - Opt-in character chain best-of selection records both worst sampled pose scores and the winning method per level, with plain fallback and deterministic triangle-count/plain tie breaks. Additional pre-evaluated pose samples support authored animation comparisons.
 - Opt-in `simplify_character` and `build_character_lod_chain` with exact bone-weight importance channels, full blend-target position metrics, and F9 quality reports in bind, blend, and supplied linear skinning poses. The metric retains exact channels within workspace memory/work limits, including rigs and morph sets above 32 channels, and supports `no_std` without new features.
 

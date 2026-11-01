@@ -6,8 +6,10 @@ use alloc::vec::Vec;
 mod extra;
 pub(crate) use extra::SloppyScratch;
 pub use extra::{
-    simplify_points, simplify_points_into, simplify_prune, simplify_prune_into, simplify_sloppy,
-    simplify_sloppy_into, simplify_with_update,
+    simplify_points, simplify_points_generic, simplify_points_into, simplify_points_into_generic,
+    simplify_prune, simplify_prune_generic, simplify_prune_into, simplify_prune_into_generic,
+    simplify_sloppy, simplify_sloppy_generic, simplify_sloppy_into, simplify_sloppy_into_generic,
+    simplify_with_update, simplify_with_update_generic,
 };
 
 // Keep the native backend local to simplify; other families retain their
@@ -224,9 +226,9 @@ pub struct SimplifySettings {
 }
 /// Simplified topology referencing the original vertex array.
 #[derive(Debug)]
-pub struct SimplifiedMesh {
+pub struct SimplifiedMeshGeneric<I: crate::Index = u32> {
     /// Remaining triangles, in upstream order. The requested target may not be reached.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
     /// Linear error in the units selected by the settings.
     pub error: f32,
 }
@@ -381,12 +383,25 @@ fn bounds(p: Positions<'_>) -> Result<([f32; 3], f32), Error> {
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for invalid settings or non-finite inputs; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn simplify(
+#[inline]
+pub fn simplify_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        simplify_u32(indices, positions, settings, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn simplify_u32(
     indices: &[u32],
     positions: Positions<'_>,
     settings: SimplifySettings,
     workspace: &mut Workspace,
-) -> Result<SimplifiedMesh, Error> {
+) -> Result<SimplifiedMeshGeneric, Error> {
     allocating(indices, positions, None, &[], None, settings, workspace)
 }
 /// Allocate meshopt_simplifyWithAttributes's result. All three vertex flags are
@@ -396,7 +411,31 @@ pub fn simplify(
 ///
 /// # Errors
 /// Same errors as [`simplify`]. `InvalidLayout` for mismatched attributes, weights or flags.
-pub fn simplify_with_attributes(
+#[inline]
+pub fn simplify_with_attributes_generic<I: crate::Index>(
+    indices: &[I],
+    positions: Positions<'_>,
+    attributes: Attributes<'_>,
+    weights: &[f32],
+    vertex_flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMeshGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        simplify_with_attributes_u32(
+            indices,
+            positions,
+            attributes,
+            weights,
+            vertex_flags,
+            settings,
+            workspace,
+        )
+        .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn simplify_with_attributes_u32(
     indices: &[u32],
     positions: Positions<'_>,
     attributes: Attributes<'_>,
@@ -404,7 +443,7 @@ pub fn simplify_with_attributes(
     vertex_flags: Option<&[VertexFlags]>,
     settings: SimplifySettings,
     workspace: &mut Workspace,
-) -> Result<SimplifiedMesh, Error> {
+) -> Result<SimplifiedMeshGeneric, Error> {
     allocating(
         indices,
         positions,
@@ -422,7 +461,7 @@ pub(crate) fn simplify_flagged(
     flags: &[VertexFlags],
     settings: SimplifySettings,
     workspace: &mut Workspace,
-) -> Result<SimplifiedMesh, Error> {
+) -> Result<SimplifiedMeshGeneric, Error> {
     allocating(
         indices,
         positions,
@@ -441,7 +480,7 @@ fn allocating(
     flags: Option<&[VertexFlags]>,
     settings: SimplifySettings,
     ws: &mut Workspace,
-) -> Result<SimplifiedMesh, Error> {
+) -> Result<SimplifiedMeshGeneric, Error> {
     ws.lod_error_limited = false;
     let mut work = ws.begin();
     let result = (|| {
@@ -465,7 +504,7 @@ fn allocating(
             output_bytes,
         )?;
         out.truncate(r.index_count);
-        Ok(SimplifiedMesh {
+        Ok(SimplifiedMeshGeneric {
             indices: out,
             error: r.error,
         })
@@ -479,7 +518,22 @@ fn allocating(
 ///
 /// # Errors
 /// Same errors as [`simplify`]. `BufferTooSmall` if the destination cannot hold the required prefix.
-pub fn simplify_into(
+#[inline]
+pub fn simplify_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            simplify_into_u32(destination, indices, positions, settings, workspace)
+        })
+    })
+}
+
+fn simplify_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -503,7 +557,35 @@ pub fn simplify_into(
 /// # Errors
 /// Same errors as [`simplify_with_attributes`]. `BufferTooSmall` if the destination cannot hold the required prefix.
 #[allow(clippy::too_many_arguments)]
-pub fn simplify_with_attributes_into(
+#[inline]
+pub fn simplify_with_attributes_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    positions: Positions<'_>,
+    attributes: Attributes<'_>,
+    weights: &[f32],
+    vertex_flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            simplify_with_attributes_into_u32(
+                destination,
+                indices,
+                positions,
+                attributes,
+                weights,
+                vertex_flags,
+                settings,
+                workspace,
+            )
+        })
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn simplify_with_attributes_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     positions: Positions<'_>,
@@ -2605,7 +2687,7 @@ fn normalize_attribute_row<M: Meter>(
     weights: &[f32],
     work: &mut M,
 ) -> Result<(), Error> {
-    let mut write = 0;
+    let mut write_generic = 0;
     if let Some(values) = source.float_record(vertex) {
         work.scan(values.iter().zip(weights), |(&value, &weight)| {
             if weight > 0.0 {
@@ -2613,8 +2695,8 @@ fn normalize_attribute_row<M: Meter>(
                 if !value.is_finite() {
                     return Err(Error::NumericalFailure);
                 }
-                destination[write] = value;
-                write += 1;
+                destination[write_generic] = value;
+                write_generic += 1;
             }
             Ok(())
         })?;
@@ -2626,8 +2708,8 @@ fn normalize_attribute_row<M: Meter>(
                 if !value.is_finite() {
                     return Err(Error::NumericalFailure);
                 }
-                destination[write] = value;
-                write += 1;
+                destination[write_generic] = value;
+                write_generic += 1;
             }
         }
     }
@@ -2896,9 +2978,9 @@ fn run_state(
         metered!(work, update_work, |w| s.update(&mut vertex_error, w))?;
         let cr = &s.cr.0[..n];
         let remap = &s.remap.0[..n];
-        let write = metered!(work, Some(count), |w| (|| {
+        let write_generic = metered!(work, Some(count), |w| (|| {
             let out = &mut out[..count];
-            let mut write = 0;
+            let mut write_generic = 0;
             // Only the charge can fail in this pass: when all its triangles
             // fit, charge them before the first write, as the loop would.
             let charged = w.precharge(count / 3, 3)?;
@@ -2916,13 +2998,13 @@ fn run_state(
                 let r1 = remap[b];
                 let r2 = remap[c];
                 if r0 != r1 && r0 != r2 && r1 != r2 {
-                    out.as_chunks_mut::<3>().0[write] = [a as u32, b as u32, c as u32];
-                    write += 1;
+                    out.as_chunks_mut::<3>().0[write_generic] = [a as u32, b as u32, c as u32];
+                    write_generic += 1;
                 }
             }
-            Ok(write)
+            Ok(write_generic)
         })())?;
-        count = write * 3;
+        count = write_generic * 3;
         if settings.options.contains(SimplifyOptions::PRUNE)
             && count > settings.target_index_count
             && component_next <= vertex_error
@@ -2988,6 +3070,106 @@ fn run_state(
         s,
         PositionBounds { lo, hi },
     ))
+}
+
+/// The source-compatible u32 entry point; see [`simplify_generic`] for selectable index widths.
+#[inline]
+pub fn simplify(
+    indices: &[u32],
+    positions: Positions<'_>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMesh, Error> {
+    simplify_generic::<u32>(indices, positions, settings, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_with_attributes_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_with_attributes(
+    indices: &[u32],
+    positions: Positions<'_>,
+    attributes: Attributes<'_>,
+    weights: &[f32],
+    vertex_flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifiedMesh, Error> {
+    simplify_with_attributes_generic::<u32>(
+        indices,
+        positions,
+        attributes,
+        weights,
+        vertex_flags,
+        settings,
+        workspace,
+    )
+    .map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_into_generic`] for selectable index widths.
+#[inline]
+pub fn simplify_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    simplify_into_generic::<u32>(destination, indices, positions, settings, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`simplify_with_attributes_into_generic`] for selectable index widths.
+#[inline]
+#[allow(clippy::too_many_arguments)]
+pub fn simplify_with_attributes_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    positions: Positions<'_>,
+    attributes: Attributes<'_>,
+    weights: &[f32],
+    vertex_flags: Option<&[VertexFlags]>,
+    settings: SimplifySettings,
+    workspace: &mut Workspace,
+) -> Result<SimplifyResult, Error> {
+    simplify_with_attributes_into_generic::<u32>(
+        destination,
+        indices,
+        positions,
+        attributes,
+        weights,
+        vertex_flags,
+        settings,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 form of [`SimplifiedMeshGeneric`].
+/// Simplified topology referencing the original vertex array.
+#[derive(Debug)]
+pub struct SimplifiedMesh {
+    /// Remaining triangles, in upstream order. The requested target may not be reached.
+    pub indices: Vec<u32>,
+    /// Linear error in the units selected by the settings.
+    pub error: f32,
+}
+impl From<SimplifiedMeshGeneric<u32>> for SimplifiedMesh {
+    #[inline]
+    fn from(value: SimplifiedMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            error: value.error,
+        }
+    }
+}
+
+impl From<SimplifiedMesh> for SimplifiedMeshGeneric<u32> {
+    #[inline]
+    fn from(value: SimplifiedMesh) -> Self {
+        Self {
+            indices: value.indices,
+            error: value.error,
+        }
+    }
 }
 
 #[cfg(test)]

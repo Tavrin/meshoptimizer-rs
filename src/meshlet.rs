@@ -49,11 +49,11 @@ pub struct Meshlet {
 }
 /// Complete tightly packed meshlet output.
 #[derive(Debug, Default, PartialEq, Eq)]
-pub struct Meshlets {
+pub struct MeshletsGeneric<I: crate::Index = u32> {
     /// Meshlet descriptors in construction order.
     pub meshlets: Vec<Meshlet>,
     /// Original vertex references.
-    pub vertices: Vec<u32>,
+    pub vertices: Vec<I>,
     /// Local triangle bytes, without per-meshlet padding.
     pub triangles: Vec<u8>,
 }
@@ -379,45 +379,7 @@ impl Node {
         Ok(())
     }
 }
-#[cfg(test)]
-mod packed_tests {
-    use super::*;
-    #[test]
-    fn packed_children_check_actual_metadata_without_truncation() {
-        let mut node = Node::default();
-        node.set(3, 0x3fffffff).unwrap();
-        assert_eq!(node.meta, u32::MAX);
-        assert_eq!(node.axis(), 3);
-        assert_eq!(node.children(), 0x3fffffff);
-        assert_eq!(node.set(0, 0x40000000), Err(Error::SizeOverflow));
-        assert_eq!(node.meta, u32::MAX);
-    }
-    #[test]
-    fn small_divide_matches_integer_division() {
-        let mut x = 0x9e37_79b9u32;
-        for d in 1..=512usize {
-            for edge in [
-                0,
-                1,
-                d - 1,
-                d,
-                d + 1,
-                (1 << 22) - 1,
-                1 << 22,
-                u32::MAX as usize,
-            ] {
-                assert_eq!(small_divide(edge, d), edge / d);
-            }
-            for _ in 0..512 {
-                x = x.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
-                assert_eq!(small_divide(x as usize, d), x as usize / d);
-                let small = (x >> 10) as usize;
-                assert_eq!(small_divide(small, d), small / d);
-            }
-        }
-        assert_eq!(small_divide(usize::MAX, 7), usize::MAX / 7);
-    }
-}
+
 // Split statistics of one kd range: Welford mean and variance per axis.
 #[derive(Clone, Copy, Default)]
 struct KdSplit {
@@ -1808,7 +1770,7 @@ fn build(
     b: Builder,
     workspace: &mut Workspace,
     trusted_moderate: Option<bool>,
-) -> Result<Meshlets, Error> {
+) -> Result<MeshletsGeneric, Error> {
     let mut ctx = Context::new(workspace)?;
     check(s, b)?;
     ctx.topology(indices, n)?;
@@ -1820,7 +1782,7 @@ fn build(
         }
     }
     let bound = build_meshlets_bound(indices.len(), s.max_vertices, min_triangles(b, s))?;
-    let mut result = Meshlets {
+    let mut result = MeshletsGeneric {
         meshlets: ctx.alloc(bound)?,
         vertices: ctx.alloc(indices.len())?,
         triangles: ctx.alloc(indices.len())?,
@@ -1890,12 +1852,25 @@ fn build_into(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported meshlet limits; `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn build_meshlets_scan(
+#[inline]
+pub fn build_meshlets_scan_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    s: MeshletSettings,
+    workspace: &mut Workspace,
+) -> Result<MeshletsGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        build_meshlets_scan_u32(indices, vertex_count, s, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn build_meshlets_scan_u32(
     indices: &[u32],
     vertex_count: usize,
     s: MeshletSettings,
     workspace: &mut Workspace,
-) -> Result<Meshlets, Error> {
+) -> Result<MeshletsGeneric, Error> {
     build(
         indices,
         vertex_count,
@@ -1912,14 +1887,28 @@ pub fn build_meshlets_scan(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported builder settings; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn build_meshlets(
+#[inline]
+pub fn build_meshlets_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    cone_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletsGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        build_meshlets_u32(indices, p, s, cone_weight, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn build_meshlets_u32(
     indices: &[u32],
     p: Positions<'_>,
     s: MeshletSettings,
     cone_weight: f32,
     workspace: &mut Workspace,
-) -> Result<Meshlets, Error> {
-    build_meshlets_flex(indices, p, s, s.max_triangles, cone_weight, 0., workspace)
+) -> Result<MeshletsGeneric, Error> {
+    build_meshlets_flex_generic(indices, p, s, s.max_triangles, cone_weight, 0., workspace)
 }
 /// `meshopt_buildMeshletsFlex`: variable triangle counts and optional spatial splits.
 ///
@@ -1927,7 +1916,31 @@ pub fn build_meshlets(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported builder settings; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn build_meshlets_flex(
+#[inline]
+pub fn build_meshlets_flex_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    cone_weight: f32,
+    split_factor: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletsGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        build_meshlets_flex_u32(
+            indices,
+            p,
+            s,
+            min_triangles,
+            cone_weight,
+            split_factor,
+            workspace,
+        )
+        .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn build_meshlets_flex_u32(
     indices: &[u32],
     p: Positions<'_>,
     s: MeshletSettings,
@@ -1935,7 +1948,7 @@ pub fn build_meshlets_flex(
     cone_weight: f32,
     split_factor: f32,
     workspace: &mut Workspace,
-) -> Result<Meshlets, Error> {
+) -> Result<MeshletsGeneric, Error> {
     build(
         indices,
         p.len(),
@@ -1960,7 +1973,7 @@ pub(crate) fn build_meshlets_flex_validated(
     split_factor: f32,
     moderate: bool,
     workspace: &mut Workspace,
-) -> Result<Meshlets, Error> {
+) -> Result<MeshletsGeneric, Error> {
     build(
         indices,
         p.len(),
@@ -1981,14 +1994,29 @@ pub(crate) fn build_meshlets_flex_validated(
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `InvalidParameter` for unsupported builder settings; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn build_meshlets_spatial(
+#[inline]
+pub fn build_meshlets_spatial_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletsGeneric<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        build_meshlets_spatial_u32(indices, p, s, min_triangles, fill_weight, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn build_meshlets_spatial_u32(
     indices: &[u32],
     p: Positions<'_>,
     s: MeshletSettings,
     min_triangles: usize,
     fill_weight: f32,
     workspace: &mut Workspace,
-) -> Result<Meshlets, Error> {
+) -> Result<MeshletsGeneric, Error> {
     build(
         indices,
         p.len(),
@@ -2011,7 +2039,7 @@ pub(crate) fn build_meshlets_spatial_validated(
     fill_weight: f32,
     moderate: bool,
     workspace: &mut Workspace,
-) -> Result<Meshlets, Error> {
+) -> Result<MeshletsGeneric, Error> {
     build(
         indices,
         p.len(),
@@ -2029,7 +2057,32 @@ pub(crate) fn build_meshlets_spatial_validated(
 ///
 /// # Errors
 /// Same errors as [`build_meshlets_scan`]. `BufferTooSmall` if any output buffer lacks capacity.
-pub fn build_meshlets_scan_into(
+#[inline]
+pub fn build_meshlets_scan_into_generic<I: crate::Index>(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    indices: &[I],
+    vertex_count: usize,
+    s: MeshletSettings,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(vertices, workspace, |vertices, workspace| {
+            build_meshlets_scan_into_u32(
+                descriptors,
+                vertices,
+                triangles,
+                indices,
+                vertex_count,
+                s,
+                workspace,
+            )
+        })
+    })
+}
+
+fn build_meshlets_scan_into_u32(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -2054,7 +2107,35 @@ pub fn build_meshlets_scan_into(
 ///
 /// # Errors
 /// Same errors as [`build_meshlets`]. `BufferTooSmall` if any output buffer lacks capacity.
-pub fn build_meshlets_into(
+#[inline]
+pub fn build_meshlets_into_generic<I: crate::Index>(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    cone_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(vertices, workspace, |vertices, workspace| {
+            build_meshlets_into_u32(
+                descriptors,
+                vertices,
+                triangles,
+                indices,
+                p,
+                s,
+                cone_weight,
+                workspace,
+            )
+        })
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn build_meshlets_into_u32(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -2064,7 +2145,7 @@ pub fn build_meshlets_into(
     cone_weight: f32,
     workspace: &mut Workspace,
 ) -> Result<MeshletSizes, Error> {
-    build_meshlets_flex_into(
+    build_meshlets_flex_into_generic(
         descriptors,
         vertices,
         triangles,
@@ -2081,7 +2162,39 @@ pub fn build_meshlets_into(
 ///
 /// # Errors
 /// Same errors as [`build_meshlets_flex`]. `BufferTooSmall` if any output buffer lacks capacity.
-pub fn build_meshlets_flex_into(
+#[inline]
+pub fn build_meshlets_flex_into_generic<I: crate::Index>(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    cone_weight: f32,
+    split_factor: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(vertices, workspace, |vertices, workspace| {
+            build_meshlets_flex_into_u32(
+                descriptors,
+                vertices,
+                triangles,
+                indices,
+                p,
+                s,
+                min_triangles,
+                cone_weight,
+                split_factor,
+                workspace,
+            )
+        })
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn build_meshlets_flex_into_u32(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -2113,7 +2226,37 @@ pub fn build_meshlets_flex_into(
 ///
 /// # Errors
 /// Same errors as [`build_meshlets_spatial`]. `BufferTooSmall` if any output buffer lacks capacity.
-pub fn build_meshlets_spatial_into(
+#[inline]
+pub fn build_meshlets_spatial_into_generic<I: crate::Index>(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [I],
+    triangles: &mut [u8],
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(vertices, workspace, |vertices, workspace| {
+            build_meshlets_spatial_into_u32(
+                descriptors,
+                vertices,
+                triangles,
+                indices,
+                p,
+                s,
+                min_triangles,
+                fill_weight,
+                workspace,
+            )
+        })
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn build_meshlets_spatial_into_u32(
     descriptors: &mut [Meshlet],
     vertices: &mut [u32],
     triangles: &mut [u8],
@@ -2138,4 +2281,237 @@ pub fn build_meshlets_spatial_into(
         },
         workspace,
     )
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_scan_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_scan(
+    indices: &[u32],
+    vertex_count: usize,
+    s: MeshletSettings,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build_meshlets_scan_generic::<u32>(indices, vertex_count, s, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets(
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    cone_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build_meshlets_generic::<u32>(indices, p, s, cone_weight, workspace).map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_flex_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_flex(
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    cone_weight: f32,
+    split_factor: f32,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build_meshlets_flex_generic::<u32>(
+        indices,
+        p,
+        s,
+        min_triangles,
+        cone_weight,
+        split_factor,
+        workspace,
+    )
+    .map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_spatial_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_spatial(
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build_meshlets_spatial_generic::<u32>(indices, p, s, min_triangles, fill_weight, workspace)
+        .map(Into::into)
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_scan_into_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_scan_into(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    indices: &[u32],
+    vertex_count: usize,
+    s: MeshletSettings,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    build_meshlets_scan_into_generic::<u32>(
+        descriptors,
+        vertices,
+        triangles,
+        indices,
+        vertex_count,
+        s,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_into_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_into(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    cone_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    build_meshlets_into_generic::<u32>(
+        descriptors,
+        vertices,
+        triangles,
+        indices,
+        p,
+        s,
+        cone_weight,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_flex_into_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_flex_into(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    cone_weight: f32,
+    split_factor: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    build_meshlets_flex_into_generic::<u32>(
+        descriptors,
+        vertices,
+        triangles,
+        indices,
+        p,
+        s,
+        min_triangles,
+        cone_weight,
+        split_factor,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_spatial_into_generic`] for selectable index widths.
+#[inline]
+pub fn build_meshlets_spatial_into(
+    descriptors: &mut [Meshlet],
+    vertices: &mut [u32],
+    triangles: &mut [u8],
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletSizes, Error> {
+    build_meshlets_spatial_into_generic::<u32>(
+        descriptors,
+        vertices,
+        triangles,
+        indices,
+        p,
+        s,
+        min_triangles,
+        fill_weight,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 form of [`MeshletsGeneric`].
+/// Complete tightly packed meshlet output.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct Meshlets {
+    /// Meshlet descriptors in construction order.
+    pub meshlets: Vec<Meshlet>,
+    /// Original vertex references.
+    pub vertices: Vec<u32>,
+    /// Local triangle bytes, without per-meshlet padding.
+    pub triangles: Vec<u8>,
+}
+impl From<MeshletsGeneric<u32>> for Meshlets {
+    #[inline]
+    fn from(value: MeshletsGeneric<u32>) -> Self {
+        Self {
+            meshlets: value.meshlets,
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
+
+impl From<Meshlets> for MeshletsGeneric<u32> {
+    #[inline]
+    fn from(value: Meshlets) -> Self {
+        Self {
+            meshlets: value.meshlets,
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
+
+#[cfg(test)]
+mod packed_tests {
+    use super::*;
+    #[test]
+    fn packed_children_check_actual_metadata_without_truncation() {
+        let mut node = Node::default();
+        node.set(3, 0x3fffffff).unwrap();
+        assert_eq!(node.meta, u32::MAX);
+        assert_eq!(node.axis(), 3);
+        assert_eq!(node.children(), 0x3fffffff);
+        assert_eq!(node.set(0, 0x40000000), Err(Error::SizeOverflow));
+        assert_eq!(node.meta, u32::MAX);
+    }
+    #[test]
+    fn small_divide_matches_integer_division() {
+        let mut x = 0x9e37_79b9u32;
+        for d in 1..=512usize {
+            for edge in [
+                0,
+                1,
+                d - 1,
+                d,
+                d + 1,
+                (1 << 22) - 1,
+                1 << 22,
+                u32::MAX as usize,
+            ] {
+                assert_eq!(small_divide(edge, d), edge / d);
+            }
+            for _ in 0..512 {
+                x = x.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
+                assert_eq!(small_divide(x as usize, d), x as usize / d);
+                let small = (x >> 10) as usize;
+                assert_eq!(small_divide(small, d), small / d);
+            }
+        }
+        assert_eq!(small_divide(usize::MAX, 7), usize::MAX / 7);
+    }
 }

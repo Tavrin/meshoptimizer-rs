@@ -95,13 +95,13 @@ fn floats(v: &mut Vec<u8>, center: [f32; 3], radius: f32) -> Result<(), Error> {
 /// Not in C++ meshoptimizer.
 #[derive(Debug)]
 #[non_exhaustive]
-pub struct Geometry {
+pub struct GeometryGeneric<I: crate::Index = u32> {
     /// Flat DAG cluster identifier.
     pub cluster: u32,
     /// Pairs of flat vertex identifier and bit-exact XYZ position.
     pub vertices: Vec<(u32, [f32; 3])>,
     /// Triangle indices into this cluster's local vertex array.
-    pub indices: Vec<u32>,
+    pub indices: Vec<I>,
 }
 /// Validated resident metadata borrowing the serialized file; not in C++ meshoptimizer.
 #[derive(Debug)]
@@ -289,12 +289,24 @@ impl<'a> Reader<'a> {
     /// Not in C++ meshoptimizer.
     /// # Errors
     /// Invalid identifier, malformed geometry, allocation or codec failure.
+    /// Source-compatible u32 operation.
+    #[inline]
     pub fn decode_page(
         &self,
         p: usize,
         bytes: &[u8],
         workspace: &mut Workspace,
     ) -> Result<Vec<Geometry>, Error> {
+        self.decode_page_generic::<u32>(p, bytes, workspace)
+            .map(|values| values.into_iter().map(Into::into).collect())
+    }
+    /// Select u16 or u32 output through the sealed Index trait.
+    pub fn decode_page_generic<I: crate::Index>(
+        &self,
+        p: usize,
+        bytes: &[u8],
+        workspace: &mut Workspace,
+    ) -> Result<Vec<GeometryGeneric<I>>, Error> {
         let page = self.page(p)?;
         if bytes.len() != size(page[1])? {
             return Err(Error::Invalid);
@@ -365,10 +377,10 @@ impl<'a> Reader<'a> {
             if vertices.len() != mul(nv, 16)? || indices.len() != mul(ni, 4)? {
                 return Err(Error::Invalid);
             }
-            let mut geometry = Geometry {
+            let mut geometry = GeometryGeneric {
                 cluster: uint(c)?,
                 vertices: Vec::new(),
-                indices: words(&indices, 0, ni)?,
+                indices: I::from_vec(words(&indices, 0, ni)?, workspace)?,
             };
             geometry
                 .vertices
@@ -389,14 +401,14 @@ impl<'a> Reader<'a> {
             if geometry
                 .indices
                 .iter()
-                .any(|&i| size(i).map_or(true, |i| i >= nv))
+                .any(|&i| size(i.to_u32()).map_or(true, |i| i >= nv))
             {
                 return Err(Error::Invalid);
             }
             // Local ids must appear in first-occurrence order and all be used.
             let mut seen = 0usize;
             for &i in &geometry.indices {
-                let i = size(i)?;
+                let i = size(i.to_u32())?;
                 if i > seen {
                     return Err(Error::Invalid);
                 }
@@ -438,11 +450,11 @@ impl<'a> Reader<'a> {
 /// ```
 /// # Errors
 /// Invalid DAG/topology, oversized cluster/page/file, allocation or codec failure.
-pub fn write(
+pub fn write_generic<I: crate::Index>(
     groups: &[FlatDagGroup],
     clusters: &[FlatDagCluster],
     positions: &[[f32; 3]],
-    indices: &[u32],
+    indices: &[I],
     page_size: usize,
     workspace: &mut Workspace,
 ) -> Result<Vec<u8>, Error> {
@@ -475,6 +487,7 @@ pub fn write(
         let mut local = Vec::new();
         local.try_reserve_exact(ni).map_err(|_| Error::Allocation)?;
         for &id in src {
+            let id = id.to_u32();
             let next = uint(map.len())?;
             let index = match map.iter().position(|&v| v == id) {
                 Some(i) => uint(i)?,
@@ -510,7 +523,7 @@ pub fn write(
             vb = encoded;
             flags |= 1;
         }
-        let encoded = codec::encode_index_sequence(
+        let encoded = codec::encode_index_sequence_generic(
             &local,
             codec::IndexEncoding::new(V1_INDEX_CODEC_VERSION)?,
             workspace,
@@ -604,4 +617,52 @@ pub fn write(
     push(&mut out, &payload)?;
     Reader::read(&out, workspace)?;
     Ok(out)
+}
+
+/// The source-compatible u32 entry point; see [`write_generic`] for selectable index widths.
+#[inline]
+pub fn write(
+    groups: &[FlatDagGroup],
+    clusters: &[FlatDagCluster],
+    positions: &[[f32; 3]],
+    indices: &[u32],
+    page_size: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    write_generic::<u32>(groups, clusters, positions, indices, page_size, workspace)
+}
+
+/// The source-compatible u32 form of [`GeometryGeneric`].
+/// Decoded whole cluster; vertices carry original flat snapshot identifiers.
+/// Not in C++ meshoptimizer.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct Geometry {
+    /// Flat DAG cluster identifier.
+    pub cluster: u32,
+    /// Pairs of flat vertex identifier and bit-exact XYZ position.
+    pub vertices: Vec<(u32, [f32; 3])>,
+    /// Triangle indices into this cluster's local vertex array.
+    pub indices: Vec<u32>,
+}
+impl From<GeometryGeneric<u32>> for Geometry {
+    #[inline]
+    fn from(value: GeometryGeneric<u32>) -> Self {
+        Self {
+            cluster: value.cluster,
+            vertices: value.vertices,
+            indices: value.indices,
+        }
+    }
+}
+
+impl From<Geometry> for GeometryGeneric<u32> {
+    #[inline]
+    fn from(value: Geometry) -> Self {
+        Self {
+            cluster: value.cluster,
+            vertices: value.vertices,
+            indices: value.indices,
+        }
+    }
 }

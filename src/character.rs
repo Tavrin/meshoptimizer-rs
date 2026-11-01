@@ -646,6 +646,7 @@ fn best_of(
             co.errors = LodErrors::Uniform(cap);
             let chain = m.call(ws, |ws| {
                 crate::lod_chain::build_lod_chain_internal(input, positions, &co, ws, true)
+                    .map(crate::LodChain::from)
                     .map_err(|e| e.error)
             })?;
             m.retain(&chain.levels)?;

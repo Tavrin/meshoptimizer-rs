@@ -268,7 +268,18 @@ fn max_vertices(indices: &[u32]) -> u64 {
 /// # Errors
 /// `InvalidTopology` for incomplete triangles;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn encode_index_buffer(
+#[inline]
+pub fn encode_index_buffer_generic<I: crate::Index>(
+    indices: &[I],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        encode_index_buffer_u32(indices, encoding, workspace)
+    })
+}
+
+fn encode_index_buffer_u32(
     indices: &[u32],
     encoding: IndexEncoding,
     workspace: &mut Workspace,
@@ -292,7 +303,19 @@ pub fn encode_index_buffer(
 /// `InvalidTopology` for incomplete triangles;
 /// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 /// `BufferTooSmall` if the destination cannot hold the encoded stream.
-pub fn encode_index_buffer_into(
+#[inline]
+pub fn encode_index_buffer_into_generic<I: crate::Index>(
+    destination: &mut [u8],
+    indices: &[I],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        encode_index_buffer_into_u32(destination, indices, encoding, workspace)
+    })
+}
+
+fn encode_index_buffer_into_u32(
     destination: &mut [u8],
     indices: &[u32],
     encoding: IndexEncoding,
@@ -316,7 +339,18 @@ pub fn encode_index_buffer_into(
 /// # Errors
 /// `SizeOverflow` for overflowing input/output sizes;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn encode_index_sequence(
+#[inline]
+pub fn encode_index_sequence_generic<I: crate::Index>(
+    indices: &[I],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        encode_index_sequence_u32(indices, encoding, workspace)
+    })
+}
+
+fn encode_index_sequence_u32(
     indices: &[u32],
     encoding: IndexEncoding,
     workspace: &mut Workspace,
@@ -337,7 +371,19 @@ pub fn encode_index_sequence(
 /// `SizeOverflow` for overflowing input/output sizes;
 /// `SizeOverflow` for size overflow or `LimitExceeded` for exhausted limits.
 /// `BufferTooSmall` if the destination cannot hold the encoded stream.
-pub fn encode_index_sequence_into(
+#[inline]
+pub fn encode_index_sequence_into_generic<I: crate::Index>(
+    destination: &mut [u8],
+    indices: &[I],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        encode_index_sequence_into_u32(destination, indices, encoding, workspace)
+    })
+}
+
+fn encode_index_sequence_into_u32(
     destination: &mut [u8],
     indices: &[u32],
     encoding: IndexEncoding,
@@ -674,4 +720,46 @@ pub fn encode_filter_color_into(
         data,
         workspace,
     )
+}
+
+/// The source-compatible u32 entry point; see [`encode_index_buffer_generic`] for selectable index widths.
+#[inline]
+pub fn encode_index_buffer(
+    indices: &[u32],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    encode_index_buffer_generic::<u32>(indices, encoding, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`encode_index_buffer_into_generic`] for selectable index widths.
+#[inline]
+pub fn encode_index_buffer_into(
+    destination: &mut [u8],
+    indices: &[u32],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    encode_index_buffer_into_generic::<u32>(destination, indices, encoding, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`encode_index_sequence_generic`] for selectable index widths.
+#[inline]
+pub fn encode_index_sequence(
+    indices: &[u32],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    encode_index_sequence_generic::<u32>(indices, encoding, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`encode_index_sequence_into_generic`] for selectable index widths.
+#[inline]
+pub fn encode_index_sequence_into(
+    destination: &mut [u8],
+    indices: &[u32],
+    encoding: IndexEncoding,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    encode_index_sequence_into_generic::<u32>(destination, indices, encoding, workspace)
 }

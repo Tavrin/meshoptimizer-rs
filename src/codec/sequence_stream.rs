@@ -103,7 +103,17 @@ impl IndexSequenceDecoder {
     /// `InvalidStream` for a bad header or extra bytes; `UnsupportedVersion`
     /// for a sequence version above 1; `LimitExceeded` for exhausted work.
     /// Errors are sticky; any output already emitted remains provisional.
+    /// Source-compatible u32 operation.
+    #[inline]
     pub fn push(&mut self, input: &[u8], output: &mut [u32]) -> Result<Progress, Error> {
+        self.push_generic::<u32>(input, output)
+    }
+    /// Select u16 or u32 output through the sealed Index trait.
+    pub fn push_generic<I: crate::Index>(
+        &mut self,
+        input: &[u8],
+        output: &mut [I],
+    ) -> Result<Progress, Error> {
         if let Some(error) = self.error {
             return Err(error);
         }
@@ -114,7 +124,11 @@ impl IndexSequenceDecoder {
         result
     }
 
-    fn push_inner(&mut self, input: &[u8], output: &mut [u32]) -> Result<Progress, Error> {
+    fn push_inner<I: crate::Index>(
+        &mut self,
+        input: &[u8],
+        output: &mut [I],
+    ) -> Result<Progress, Error> {
         let mut consumed = 0;
         let mut written = 0;
         let status = loop {
@@ -149,7 +163,7 @@ impl IndexSequenceDecoder {
                     let delta = (value >> 1) ^ 0u32.wrapping_sub(value & 1);
                     let index = self.last[baseline].wrapping_add(delta);
                     self.last[baseline] = index;
-                    output[written] = index;
+                    output[written] = I::from_u32(index)?;
                     written += 1;
                     self.remaining -= 1;
                     self.value = 0;

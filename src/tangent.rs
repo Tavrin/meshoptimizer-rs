@@ -491,7 +491,30 @@ fn accumulate_loop<const CHARGE: bool>(
 /// `InvalidLayout` for incompatible streams; `UnknownFlags` for unsupported options; `NumericalFailure` for non-finite geometry or calculations.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[allow(clippy::too_many_arguments)]
-pub fn generate_tangents(
+#[inline]
+pub fn generate_tangents_generic<I: crate::Index>(
+    indices: Option<&[I]>,
+    index_count: usize,
+    positions: Positions<'_>,
+    normals: &[[f32; 3]],
+    uvs: &[[f32; 2]],
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<[f32; 4]>, Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_tangents_u32(
+            indices,
+            index_count,
+            positions,
+            normals,
+            uvs,
+            options,
+            workspace,
+        )
+    })
+}
+
+fn generate_tangents_u32(
     indices: Option<&[u32]>,
     index_count: usize,
     positions: Positions<'_>,
@@ -713,7 +736,33 @@ fn generate_tangents_core(
 /// # Errors
 /// Same errors as [`generate_tangents`]. `BufferTooSmall` if the destination is too short.
 #[allow(clippy::too_many_arguments)]
-pub fn generate_tangents_into(
+#[inline]
+pub fn generate_tangents_into_generic<I: crate::Index>(
+    destination: &mut [[f32; 4]],
+    indices: Option<&[I]>,
+    index_count: usize,
+    positions: Positions<'_>,
+    normals: &[[f32; 3]],
+    uvs: &[[f32; 2]],
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_optional(indices, workspace, |indices, workspace| {
+        generate_tangents_into_u32(
+            destination,
+            indices,
+            index_count,
+            positions,
+            normals,
+            uvs,
+            options,
+            workspace,
+        )
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn generate_tangents_into_u32(
     destination: &mut [[f32; 4]],
     indices: Option<&[u32]>,
     index_count: usize,
@@ -737,4 +786,52 @@ pub fn generate_tangents_into(
         Some(destination),
     )
     .map(|_| ())
+}
+
+/// The source-compatible u32 entry point; see [`generate_tangents_generic`] for selectable index widths.
+#[inline]
+#[allow(clippy::too_many_arguments)]
+pub fn generate_tangents(
+    indices: Option<&[u32]>,
+    index_count: usize,
+    positions: Positions<'_>,
+    normals: &[[f32; 3]],
+    uvs: &[[f32; 2]],
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<[f32; 4]>, Error> {
+    generate_tangents_generic::<u32>(
+        indices,
+        index_count,
+        positions,
+        normals,
+        uvs,
+        options,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`generate_tangents_into_generic`] for selectable index widths.
+#[inline]
+#[allow(clippy::too_many_arguments)]
+pub fn generate_tangents_into(
+    destination: &mut [[f32; 4]],
+    indices: Option<&[u32]>,
+    index_count: usize,
+    positions: Positions<'_>,
+    normals: &[[f32; 3]],
+    uvs: &[[f32; 2]],
+    options: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    generate_tangents_into_generic::<u32>(
+        destination,
+        indices,
+        index_count,
+        positions,
+        normals,
+        uvs,
+        options,
+        workspace,
+    )
 }
