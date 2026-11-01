@@ -1083,7 +1083,7 @@ pub fn orient_faces(
     vertex_count: usize,
     workspace: &mut Workspace,
 ) -> Result<OrientedMesh, Error> {
-    orient_faces_generic::<u32>(indices, vertex_count, workspace)
+    orient_faces_generic::<u32>(indices, vertex_count, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`orient_faces_into_generic`] for selectable index widths.
@@ -1105,7 +1105,7 @@ pub fn fill_holes(
     max_edges: usize,
     workspace: &mut Workspace,
 ) -> Result<FilledMesh, Error> {
-    fill_holes_generic::<u32>(indices, positions, max_edges, workspace)
+    fill_holes_generic::<u32>(indices, positions, max_edges, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`fill_holes_into_generic`] for selectable index widths.
@@ -1121,7 +1121,61 @@ pub fn fill_holes_into(
 }
 
 /// The source-compatible u32 form of [`OrientedMeshGeneric`].
-pub type OrientedMesh = OrientedMeshGeneric<u32>;
+/// Oriented indices with original face order; not in C++ meshoptimizer.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct OrientedMesh {
+    /// Original triangles, with corners 1 and 2 exchanged for reported flips.
+    pub indices: Vec<u32>,
+    /// Changes and unresolved components.
+    pub report: OrientReport,
+}
+impl From<OrientedMeshGeneric<u32>> for OrientedMesh {
+    #[inline]
+    fn from(value: OrientedMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
+
+impl From<OrientedMesh> for OrientedMeshGeneric<u32> {
+    #[inline]
+    fn from(value: OrientedMesh) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`FilledMeshGeneric`].
-pub type FilledMesh = FilledMeshGeneric<u32>;
+/// Original indices plus filled faces; not in C++ meshoptimizer.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct FilledMesh {
+    /// Original triangles followed by fills, using original vertices only.
+    pub indices: Vec<u32>,
+    /// Exact decisions for each boundary component.
+    pub report: FillHolesReport,
+}
+impl From<FilledMeshGeneric<u32>> for FilledMesh {
+    #[inline]
+    fn from(value: FilledMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
+
+impl From<FilledMesh> for FilledMeshGeneric<u32> {
+    #[inline]
+    fn from(value: FilledMesh) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}

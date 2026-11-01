@@ -98,6 +98,21 @@ fn batch<I: Sync, T: Send>(
         });
     Ok(result)
 }
+#[cfg(feature = "clusterlod")]
+fn batch_mut<I: Send, T: Send>(
+    inputs: &mut [I],
+    limits: Limits,
+    run: impl Fn(&mut I, &mut Workspace) -> Result<T, Error> + Sync,
+) -> BatchResult<T> {
+    let mut result = slots(inputs.len())?;
+    result
+        .par_iter_mut()
+        .zip(inputs.par_iter_mut())
+        .for_each(|(out, input)| {
+            *out = item(limits, |workspace| run(input, workspace));
+        });
+    Ok(result)
+}
 
 /// Optional attributes and flags used at every level of a LOD chain.
 #[derive(Clone, Copy, Debug)]
@@ -599,7 +614,8 @@ pub fn simplify_lod_chain(
     input: &LodChainInput<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<SimplifiedMesh>, Error> {
-    simplify_lod_chain_generic::<u32>(input, workspace)
+    simplify_lod_chain_generic::<u32>(&(*input).into(), workspace)
+        .map(|values| values.into_iter().map(Into::into).collect())
 }
 
 /// The source-compatible u32 entry point; see [`simplify_lod_chains_batch_generic`] for selectable index widths.
@@ -608,7 +624,7 @@ pub fn simplify_lod_chains_batch(
     inputs: &[LodChainInput<'_>],
     limits: Limits,
 ) -> BatchResult<Vec<SimplifiedMesh>> {
-    simplify_lod_chains_batch_generic::<u32>(inputs, limits)
+    batch(inputs, limits, simplify_lod_chain)
 }
 
 /// The source-compatible u32 entry point; see [`encode_buffers_batch_generic`] for selectable index widths.
@@ -620,7 +636,7 @@ pub fn encode_buffers_batch(inputs: &[EncodeInput<'_>], limits: Limits) -> Batch
 /// The source-compatible u32 entry point; see [`build_meshlets_batch_generic`] for selectable index widths.
 #[inline]
 pub fn build_meshlets_batch(inputs: &[MeshletInput<'_>], limits: Limits) -> BatchResult<Meshlets> {
-    build_meshlets_batch_generic::<u32>(inputs, limits)
+    batch(inputs, limits, |input, workspace| input.build(workspace))
 }
 
 /// The source-compatible u32 entry point; see [`build_cluster_lod_batch_generic`] for selectable index widths.
@@ -630,7 +646,20 @@ pub fn build_cluster_lod_batch(
     inputs: &mut [ClusterLodInput<'_>],
     limits: Limits,
 ) -> BatchResult<Vec<crate::clusterlod::GroupOutput>> {
-    build_cluster_lod_batch_generic::<u32>(inputs, limits)
+    batch_mut(inputs, limits, |input, workspace| {
+        crate::clusterlod::build(
+            input.config,
+            crate::clusterlod::Mesh {
+                indices: input.mesh.indices,
+                positions: input.mesh.positions,
+                attributes: input.mesh.attributes,
+                vertex_lock: input.mesh.vertex_lock,
+                attribute_weights: input.mesh.attribute_weights,
+                attribute_protect_mask: input.mesh.attribute_protect_mask,
+            },
+            workspace,
+        )
+    })
 }
 
 /// The source-compatible u32 entry point; see [`build_dags_batch_into_generic`] for selectable index widths.
@@ -640,30 +669,185 @@ pub fn build_dags_batch_into(
     inputs: &mut [DagBuildInput<'_>],
     limits: Limits,
 ) -> BatchResult<crate::clusterlod::DagCounts> {
-    build_dags_batch_into_generic::<u32>(inputs, limits)
+    batch_mut(inputs, limits, |input, workspace| {
+        crate::clusterlod::build_dag_into(
+            input.config,
+            crate::clusterlod::Mesh {
+                indices: input.mesh.indices,
+                positions: input.mesh.positions,
+                attributes: input.mesh.attributes,
+                vertex_lock: input.mesh.vertex_lock,
+                attribute_weights: input.mesh.attribute_weights,
+                attribute_protect_mask: input.mesh.attribute_protect_mask,
+            },
+            input.node_width,
+            crate::clusterlod::DagBuffers {
+                vertex_source: input.destination.vertex_source,
+                vertex_positions: input.destination.vertex_positions,
+                indices: input.destination.indices,
+                clusters: input.destination.clusters,
+                groups: input.destination.groups,
+                nodes: input.destination.nodes,
+            },
+            workspace,
+        )
+    })
 }
 
-impl MeshletInputGeneric<'_, u32> {
+impl MeshletInput<'_> {
     /// Source-compatible u32 operation.
     #[inline]
     pub fn build(self, workspace: &mut Workspace) -> Result<Meshlets, Error> {
-        self.build_generic(workspace)
+        MeshletInputGeneric::from(self)
+            .build_generic(workspace)
+            .map(Into::into)
     }
 }
 
 /// The source-compatible u32 form of [`LodChainInputGeneric`].
-pub type LodChainInput<'a> = LodChainInputGeneric<'a, u32>;
+/// One chain. Each level simplifies the preceding level's topology.
+#[derive(Clone, Copy, Debug)]
+pub struct LodChainInput<'a> {
+    /// Original triangle topology.
+    pub indices: &'a [u32],
+    /// Full vertex positions; returned indices keep their original references.
+    pub positions: Positions<'a>,
+    /// Per-level settings, in execution order. Targets are index counts relative
+    /// to that level's input. Error values are returned unchanged, not accumulated.
+    pub levels: &'a [SimplifySettings],
+    /// None selects plain simplification; Some selects attribute simplification.
+    pub attributes: Option<LodAttributes<'a>>,
+}
+impl<'a> From<LodChainInputGeneric<'a, u32>> for LodChainInput<'a> {
+    #[inline]
+    fn from(value: LodChainInputGeneric<'a, u32>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            levels: value.levels,
+            attributes: value.attributes,
+        }
+    }
+}
+
+impl<'a> From<LodChainInput<'a>> for LodChainInputGeneric<'a, u32> {
+    #[inline]
+    fn from(value: LodChainInput<'a>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            levels: value.levels,
+            attributes: value.attributes,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`MeshletInputGeneric`].
-pub type MeshletInput<'a> = MeshletInputGeneric<'a, u32>;
+/// Mesh and builder settings for one independent clustering operation.
+#[derive(Clone, Copy, Debug)]
+pub struct MeshletInput<'a> {
+    /// Triangle topology.
+    pub indices: &'a [u32],
+    /// Full vertex positions.
+    pub positions: Positions<'a>,
+    /// Maximum vertices and triangles per meshlet.
+    pub settings: MeshletSettings,
+    /// Sequential algorithm and its parameters.
+    pub builder: MeshletBuilder,
+}
+impl<'a> From<MeshletInputGeneric<'a, u32>> for MeshletInput<'a> {
+    #[inline]
+    fn from(value: MeshletInputGeneric<'a, u32>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            settings: value.settings,
+            builder: value.builder,
+        }
+    }
+}
+
+impl<'a> From<MeshletInput<'a>> for MeshletInputGeneric<'a, u32> {
+    #[inline]
+    fn from(value: MeshletInput<'a>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            settings: value.settings,
+            builder: value.builder,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`ClusterLodInputGeneric`].
+/// One independent cluster-LOD build, including its exclusive mutable positions.
 #[cfg(feature = "clusterlod")]
-pub type ClusterLodInput<'a> = ClusterLodInputGeneric<'a, u32>;
+pub struct ClusterLodInput<'a> {
+    /// Complete pinned-demo configuration.
+    pub config: crate::clusterlod::Config,
+    /// Mesh input; dilation can mutate positions even when this item fails.
+    pub mesh: crate::clusterlod::Mesh<'a>,
+}
+#[cfg(feature = "clusterlod")]
+impl<'a> From<ClusterLodInputGeneric<'a, u32>> for ClusterLodInput<'a> {
+    #[inline]
+    fn from(value: ClusterLodInputGeneric<'a, u32>) -> Self {
+        Self {
+            config: value.config,
+            mesh: value.mesh.into(),
+        }
+    }
+}
+
+#[cfg(feature = "clusterlod")]
+impl<'a> From<ClusterLodInput<'a>> for ClusterLodInputGeneric<'a, u32> {
+    #[inline]
+    fn from(value: ClusterLodInput<'a>) -> Self {
+        Self {
+            config: value.config,
+            mesh: value.mesh.into(),
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`DagBuildInputGeneric`].
+/// One canonical caller-buffer DAG build, including exclusive positions and output.
 #[cfg(feature = "clusterlod")]
-pub type DagBuildInput<'a> = DagBuildInputGeneric<'a, u32>;
+pub struct DagBuildInput<'a> {
+    /// Complete pinned-demo configuration.
+    pub config: crate::clusterlod::Config,
+    /// Mesh input; dilation may mutate positions even on failure.
+    pub mesh: crate::clusterlod::Mesh<'a>,
+    /// Maximum children per spatial node, at least two.
+    pub node_width: usize,
+    /// Caller storage; publish only successful returned prefixes.
+    pub destination: crate::clusterlod::DagBuffers<'a>,
+}
+#[cfg(feature = "clusterlod")]
+impl<'a> From<DagBuildInputGeneric<'a, u32>> for DagBuildInput<'a> {
+    #[inline]
+    fn from(value: DagBuildInputGeneric<'a, u32>) -> Self {
+        Self {
+            config: value.config,
+            mesh: value.mesh.into(),
+            node_width: value.node_width,
+            destination: value.destination.into(),
+        }
+    }
+}
+
+#[cfg(feature = "clusterlod")]
+impl<'a> From<DagBuildInput<'a>> for DagBuildInputGeneric<'a, u32> {
+    #[inline]
+    fn from(value: DagBuildInput<'a>) -> Self {
+        Self {
+            config: value.config,
+            mesh: value.mesh.into(),
+            node_width: value.node_width,
+            destination: value.destination.into(),
+        }
+    }
+}
 
 /// An independent u32 buffer to encode; the source-compatible descriptor.
 #[derive(Clone, Copy, Debug)]

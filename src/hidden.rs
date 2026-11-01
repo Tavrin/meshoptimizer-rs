@@ -1252,7 +1252,7 @@ pub fn remove_hidden_triangles(
     options: HiddenOptions<'_>,
     workspace: &mut Workspace,
 ) -> Result<VisibleMesh, Error> {
-    remove_hidden_triangles_generic::<u32>(indices, positions, options, workspace)
+    remove_hidden_triangles_generic::<u32>(indices, positions, options, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`remove_hidden_triangles_into_generic`] for selectable index widths.
@@ -1268,7 +1268,34 @@ pub fn remove_hidden_triangles_into(
 }
 
 /// The source-compatible u32 form of [`VisibleMeshGeneric`].
-pub type VisibleMesh = VisibleMeshGeneric<u32>;
+/// Filtered mesh in original triangle order. Not in C++ meshoptimizer.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct VisibleMesh {
+    /// Original indices of retained triangles; positions are unchanged.
+    pub indices: Vec<u32>,
+    /// Disjoint removal counts.
+    pub report: HiddenReport,
+}
+impl From<VisibleMeshGeneric<u32>> for VisibleMesh {
+    #[inline]
+    fn from(value: VisibleMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
+
+impl From<VisibleMesh> for VisibleMeshGeneric<u32> {
+    #[inline]
+    fn from(value: VisibleMesh) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

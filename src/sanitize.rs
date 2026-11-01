@@ -556,7 +556,7 @@ pub fn sanitize(
     options: SanitizeOptions,
     workspace: &mut Workspace,
 ) -> Result<SanitizedMesh, Error> {
-    sanitize_generic::<u32>(indices, positions, options, workspace)
+    sanitize_generic::<u32>(indices, positions, options, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`sanitize_into_generic`] for selectable index widths.
@@ -572,4 +572,31 @@ pub fn sanitize_into(
 }
 
 /// The source-compatible u32 form of [`SanitizedMeshGeneric`].
-pub type SanitizedMesh = SanitizedMeshGeneric<u32>;
+/// Cleaned triangle list from [`sanitize`]. Not in C++ meshoptimizer.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct SanitizedMesh {
+    /// Kept triangles in input order, with their original corners and winding.
+    pub indices: Vec<u32>,
+    /// Counts by removal reason.
+    pub report: SanitizeReport,
+}
+impl From<SanitizedMeshGeneric<u32>> for SanitizedMesh {
+    #[inline]
+    fn from(value: SanitizedMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}
+
+impl From<SanitizedMesh> for SanitizedMeshGeneric<u32> {
+    #[inline]
+    fn from(value: SanitizedMesh) -> Self {
+        Self {
+            indices: value.indices,
+            report: value.report,
+        }
+    }
+}

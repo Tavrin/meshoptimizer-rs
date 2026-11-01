@@ -1,0 +1,94 @@
+[
+  {
+    "file": "src/repair.rs",
+    "name": "OrientedMesh"
+  },
+  {
+    "file": "src/repair.rs",
+    "name": "FilledMesh"
+  },
+  {
+    "file": "src/lod_quality.rs",
+    "name": "LodQualityMesh"
+  },
+  {
+    "file": "src/sanitize.rs",
+    "name": "SanitizedMesh"
+  },
+  {
+    "file": "src/simplify.rs",
+    "name": "SimplifiedMesh"
+  },
+  {
+    "file": "src/meshlet.rs",
+    "name": "Meshlets"
+  },
+  {
+    "file": "src/hidden.rs",
+    "name": "VisibleMesh"
+  },
+  {
+    "file": "src/parallel.rs",
+    "name": "LodChainInput"
+  },
+  {
+    "file": "src/parallel.rs",
+    "name": "MeshletInput"
+  },
+  {
+    "file": "src/parallel.rs",
+    "name": "ClusterLodInput"
+  },
+  {
+    "file": "src/parallel.rs",
+    "name": "DagBuildInput"
+  },
+  {
+    "file": "src/remap.rs",
+    "name": "FetchedMesh"
+  },
+  {
+    "file": "src/remap.rs",
+    "name": "ProvokingMesh"
+  },
+  {
+    "file": "src/remap.rs",
+    "name": "FetchIndices"
+  },
+  {
+    "file": "src/meshlet_util.rs",
+    "name": "LocalMeshlet"
+  },
+  {
+    "file": "src/lod_chain.rs",
+    "name": "LodLevel"
+  },
+  {
+    "file": "src/lod_chain.rs",
+    "name": "LodChain"
+  },
+  {
+    "file": "src/codec/meshlet.rs",
+    "name": "RawMeshlet"
+  },
+  {
+    "file": "src/clusterlod/dag.rs",
+    "name": "DagBuffers"
+  },
+  {
+    "file": "src/clusterlod/mod.rs",
+    "name": "Mesh"
+  },
+  {
+    "file": "src/clusterlod/mod.rs",
+    "name": "Cluster"
+  },
+  {
+    "file": "src/clusterlod/mod.rs",
+    "name": "GroupOutput"
+  },
+  {
+    "file": "src/clusterlod/dag_format.rs",
+    "name": "Geometry"
+  }
+]

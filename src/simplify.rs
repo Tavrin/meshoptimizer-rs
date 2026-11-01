@@ -3080,7 +3080,7 @@ pub fn simplify(
     settings: SimplifySettings,
     workspace: &mut Workspace,
 ) -> Result<SimplifiedMesh, Error> {
-    simplify_generic::<u32>(indices, positions, settings, workspace)
+    simplify_generic::<u32>(indices, positions, settings, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`simplify_with_attributes_generic`] for selectable index widths.
@@ -3103,6 +3103,7 @@ pub fn simplify_with_attributes(
         settings,
         workspace,
     )
+    .map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`simplify_into_generic`] for selectable index widths.
@@ -3143,7 +3144,33 @@ pub fn simplify_with_attributes_into(
 }
 
 /// The source-compatible u32 form of [`SimplifiedMeshGeneric`].
-pub type SimplifiedMesh = SimplifiedMeshGeneric<u32>;
+/// Simplified topology referencing the original vertex array.
+#[derive(Debug)]
+pub struct SimplifiedMesh {
+    /// Remaining triangles, in upstream order. The requested target may not be reached.
+    pub indices: Vec<u32>,
+    /// Linear error in the units selected by the settings.
+    pub error: f32,
+}
+impl From<SimplifiedMeshGeneric<u32>> for SimplifiedMesh {
+    #[inline]
+    fn from(value: SimplifiedMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            error: value.error,
+        }
+    }
+}
+
+impl From<SimplifiedMesh> for SimplifiedMeshGeneric<u32> {
+    #[inline]
+    fn from(value: SimplifiedMesh) -> Self {
+        Self {
+            indices: value.indices,
+            error: value.error,
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

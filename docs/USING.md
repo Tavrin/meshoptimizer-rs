@@ -887,7 +887,8 @@ index-processing function or width-aware method name to select an index width.
 These additions accept a sealed `Index` element type: `u16` or
 `u32`. The width-aware input and result structs have a `Generic` suffix,
 for example `MeshletsGeneric<u16>` and `LodQualityMeshGeneric`. Original
-struct names remain concrete u32 types, preserving standalone literal inference.
+struct names remain non-generic structs with their original fields and traits, preserving standalone literal inference.
+Conversions between legacy structs and their `Generic<u32>` counterparts move owned index buffers.
 `parallel::EncodeInputGeneric` is the width-aware descriptor enum; the original
 `EncodeInput` enum and its variant imports remain available. Remap tables, face identifiers, offsets and packed
 local triangle words retain their documented metadata types.
@@ -920,20 +921,48 @@ influences are supported. Weights must be nonnegative and sum to one within
 0.001; duplicate bone IDs are summed, including importance. Each importance
 and global metric weight must be finite and nonnegative.
 
+Before simplifying an imported character, merge its triangle primitives in a
+common model space, transforming positions, normals and morph deltas
+consistently. Convert joints and inverse bind matrices to the same space. Weld
+exact coincident vertices with `generate_vertex_remap_multi`, then apply the
+remap to indices and all vertex streams. Include normals, tangents, UVs,
+colors, material boundaries, skin indices and weights, and every morph
+attribute in the equality keys. A rigid morph part mixed with skinned parts
+needs one full influence on its actual node transform, rather than zero skin
+weights; preserve that node's real animation when evaluating poses. Position-
+only welding can merge different deformations or shading seams. Unwelded
+triangle soup can prevent reduction; attribute-preserving welding can still
+leave genuine seams.
+
+Start with unit bone importance. Where authored bone names identify the head,
+hands or fingers, try a higher value (the evaluation uses four), and measure it
+over the asset's real clips and full morph targets. Compare at the triangles
+actually reached: increasing importance can trade bind-pose accuracy or reduction
+for deformation detail, and does not guarantee a lower worst-pose deviation.
+For rigs with opaque names, retain unit importance rather than guessing bone IDs.
+
 The metric uses one channel per bone with value
 `weight * bone_importance * skin_weight`, plus three channels per blend target
 containing `(rest_position + delta) / rest_extent * blend_shape_weight`.
 The rest geometry contributes the usual position quadrics. Constant-position
 meshes use extent one. Bone identity is exact: integer IDs never become scalar
-attributes. This implementation supports at most 32 total channels
-`bone_count + 3 * blend_count`; excess returns `InvalidLayout`. There is no
-truncation or hashing. Partition larger rigs before calling this bounded API.
+attributes. Character calls retain all `bone_count + 3 * blend_count` channels,
+including rigs and morph sets above 32 channels, bounded by `Workspace` memory
+and work limits. There is no truncation or hashing. Prepared attributes and wide
+metric weights are charged to those limits. The general `Attributes` constructors
+retain their C++-compatible 32-component bound; the wider packed view is private
+to character preparation. Existing character calls at 32 channels or fewer retain
+their previous arithmetic and resource accounting.
 
-The existing attribute quadrics sum residual energies across the rest and target
-positions. This penalizes changes in bone influence and in any full-weight
-blend target. The returned simplifier error includes the attribute terms; it
-is not a maximum geometric error across poses. A high importance increases a
-bone channel's squared contribution. It is a soft preference, not a vertex lock.
+The existing attribute quadrics sum residual energies across the rest and
+target positions. This penalizes changes in bone influence and in any full-
+weight blend target. The returned simplifier error includes the attribute
+terms; it is not a maximum geometric error across poses. A high importance
+increases a bone channel's squared contribution. It is a soft preference, not a
+vertex lock. Constant bone weights inside a rigid region have no influence
+gradient, so this knob does not directly preserve all geometry attached to that
+bone. Names alone do not establish that higher importance improves the measured
+maximum.
 `LodChainOptions::vertex_flags` can enforce locks in the chain API. The chain's
 existing `attributes` option must be absent; character channels occupy it.
 
@@ -963,6 +992,13 @@ reports, not collapse costs. Morph and joint samples are separate: combined
 poses, intermediate animation times, and simultaneous blend weights require
 caller analysis. F9 maxima are deterministic sampled lower estimates, not
 continuous Hausdorff bounds. Normals are not supplied by this API.
+
+Choose an error cap and validate the resulting levels in real poses; a ratio
+alone is not an acceptance test. Aggressive targets with a loose error cap can
+remove entire components. Default topology rules can also stall on hard normal
+seams and complex wedges even after exact welding. An explicitly requested
+`SimplifyOptions::PERMISSIVE` can change that tradeoff, but needs a separate
+quality check; character simplification does not enable it implicitly.
 
 Levels retain original vertex indices; apply the original skin and blend
 streams when rendering them. Whole-call limits include prepared channels,

@@ -1232,7 +1232,7 @@ pub fn extract_meshlet_indices(
     indices: &[u32],
     workspace: &mut Workspace,
 ) -> Result<LocalMeshlet, Error> {
-    extract_meshlet_indices_generic::<u32>(indices, workspace)
+    extract_meshlet_indices_generic::<u32>(indices, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`extract_meshlet_indices_into_generic`] for selectable index widths.
@@ -1275,7 +1275,7 @@ pub fn optimize_meshlet_level(
     level: u8,
     workspace: &mut Workspace,
 ) -> Result<LocalMeshlet, Error> {
-    optimize_meshlet_level_generic::<u32>(vertices, triangles, level, workspace)
+    optimize_meshlet_level_generic::<u32>(vertices, triangles, level, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`optimize_meshlet_generic`] for selectable index widths.
@@ -1285,7 +1285,7 @@ pub fn optimize_meshlet(
     triangles: &[u8],
     workspace: &mut Workspace,
 ) -> Result<LocalMeshlet, Error> {
-    optimize_meshlet_generic::<u32>(vertices, triangles, workspace)
+    optimize_meshlet_generic::<u32>(vertices, triangles, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`optimize_meshlet_level_into_generic`] for selectable index widths.
@@ -1327,7 +1327,33 @@ pub fn optimize_meshlet_into(
 }
 
 /// The source-compatible u32 form of [`LocalMeshletGeneric`].
-pub type LocalMeshlet = LocalMeshletGeneric<u32>;
+/// Meshlet-local topology with first-visit vertex references.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct LocalMeshlet {
+    /// References to the original vertex buffer.
+    pub vertices: Vec<u32>,
+    /// Three local byte indices per triangle.
+    pub triangles: Vec<u8>,
+}
+impl From<LocalMeshletGeneric<u32>> for LocalMeshlet {
+    #[inline]
+    fn from(value: LocalMeshletGeneric<u32>) -> Self {
+        Self {
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
+
+impl From<LocalMeshlet> for LocalMeshletGeneric<u32> {
+    #[inline]
+    fn from(value: LocalMeshlet) -> Self {
+        Self {
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
 
 #[cfg(test)]
 mod bounds_root_tests {

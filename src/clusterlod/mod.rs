@@ -1532,10 +1532,24 @@ pub(crate) fn convert_groups<I: crate::Index>(
 pub fn build_with_output(
     c: Config,
     mesh: Mesh<'_>,
-    output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    mut output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    build_with_output_generic::<u32>(c, mesh, output, workspace)
+    build_internal(
+        false,
+        c,
+        mesh.into(),
+        &mut |g, clusters, _positions, ctx| {
+            let clusters: Vec<Cluster> = clusters.into_iter().map(Into::into).collect();
+            let result = output(g, &clusters);
+            for cl in &clusters {
+                ctx.release(&cl.indices)?;
+            }
+            ctx.free(clusters)?;
+            result
+        },
+        workspace,
+    )
 }
 
 /// The source-compatible u32 entry point; see [`build_generic`] for selectable index widths.
@@ -1545,7 +1559,8 @@ pub fn build(
     mesh: Mesh<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<GroupOutput>, Error> {
-    build_generic::<u32>(c, mesh, workspace)
+    build_generic::<u32>(c, mesh.into(), workspace)
+        .map(|values| values.into_iter().map(Into::into).collect())
 }
 
 /// The source-compatible u32 entry point; see [`local_indices_generic`] for selectable index widths.
@@ -1554,7 +1569,7 @@ pub fn local_indices(
     indices: &[u32],
     workspace: &mut Workspace,
 ) -> Result<crate::LocalMeshlet, Error> {
-    local_indices_generic::<u32>(indices, workspace)
+    local_indices_generic::<u32>(indices, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`build_parallel_generic`] for selectable index widths.
@@ -1565,7 +1580,8 @@ pub fn build_parallel(
     mesh: Mesh<'_>,
     workspace: &mut Workspace,
 ) -> Result<Vec<GroupOutput>, Error> {
-    build_parallel_generic::<u32>(c, mesh, workspace)
+    build_parallel_generic::<u32>(c, mesh.into(), workspace)
+        .map(|values| values.into_iter().map(Into::into).collect())
 }
 
 /// The source-compatible u32 entry point; see [`build_parallel_with_output_generic`] for selectable index widths.
@@ -1574,17 +1590,132 @@ pub fn build_parallel(
 pub fn build_parallel_with_output(
     c: Config,
     mesh: Mesh<'_>,
-    output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
+    mut output: impl FnMut(Group, &[Cluster]) -> Result<i32, Error>,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    build_parallel_with_output_generic::<u32>(c, mesh, output, workspace)
+    build_internal(
+        true,
+        c,
+        mesh.into(),
+        &mut |g, clusters, _positions, ctx| {
+            let clusters: Vec<Cluster> = clusters.into_iter().map(Into::into).collect();
+            let result = output(g, &clusters);
+            for cl in &clusters {
+                ctx.release(&cl.indices)?;
+            }
+            ctx.free(clusters)?;
+            result
+        },
+        workspace,
+    )
 }
 
 /// The source-compatible u32 form of [`MeshGeneric`].
-pub type Mesh<'a> = MeshGeneric<'a, u32>;
+/// Explicit borrowed mesh inputs. Weights and attribute components must match.
+pub struct Mesh<'a> {
+    /// Triangle topology referencing the full vertex array.
+    pub indices: &'a [u32],
+    /// Mutable positions; only dilation changes these.
+    pub positions: &'a mut [[f32; 3]],
+    /// Optional checked attribute view.
+    pub attributes: Option<Attributes<'a>>,
+    /// Optional per-vertex flags.
+    pub vertex_lock: Option<&'a [VertexFlags]>,
+    /// Attribute weights for simplification.
+    pub attribute_weights: &'a [f32],
+    /// Bit K protects discontinuities in component K.
+    pub attribute_protect_mask: u32,
+}
+impl<'a> From<MeshGeneric<'a, u32>> for Mesh<'a> {
+    #[inline]
+    fn from(value: MeshGeneric<'a, u32>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            attributes: value.attributes,
+            vertex_lock: value.vertex_lock,
+            attribute_weights: value.attribute_weights,
+            attribute_protect_mask: value.attribute_protect_mask,
+        }
+    }
+}
+
+impl<'a> From<Mesh<'a>> for MeshGeneric<'a, u32> {
+    #[inline]
+    fn from(value: Mesh<'a>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            attributes: value.attributes,
+            vertex_lock: value.vertex_lock,
+            attribute_weights: value.attribute_weights,
+            attribute_protect_mask: value.attribute_protect_mask,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`ClusterGeneric`].
-pub type Cluster = ClusterGeneric<u32>;
+/// Cluster emitted by the demo builder.
+#[derive(Debug, Default, PartialEq)]
+pub struct Cluster {
+    /// More refined group identifier, or -1 for original geometry.
+    pub refined: i32,
+    /// Culling bounds; error is not necessarily monotonic across the DAG.
+    pub bounds: LodBounds,
+    /// Topology referencing the original vertex array.
+    pub indices: Vec<u32>,
+    /// Number of unique vertex references.
+    pub vertex_count: usize,
+}
+impl From<ClusterGeneric<u32>> for Cluster {
+    #[inline]
+    fn from(value: ClusterGeneric<u32>) -> Self {
+        Self {
+            refined: value.refined,
+            bounds: value.bounds,
+            indices: value.indices,
+            vertex_count: value.vertex_count,
+        }
+    }
+}
+
+impl From<Cluster> for ClusterGeneric<u32> {
+    #[inline]
+    fn from(value: Cluster) -> Self {
+        Self {
+            refined: value.refined,
+            bounds: value.bounds,
+            indices: value.indices,
+            vertex_count: value.vertex_count,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`GroupOutputGeneric`].
-pub type GroupOutput = GroupOutputGeneric<u32>;
+/// Owned group record and its emitted clusters.
+#[derive(Debug, Default, PartialEq)]
+pub struct GroupOutput {
+    /// Group metadata.
+    pub group: Group,
+    /// Clusters in callback order.
+    pub clusters: Vec<Cluster>,
+}
+impl From<GroupOutputGeneric<u32>> for GroupOutput {
+    #[inline]
+    fn from(value: GroupOutputGeneric<u32>) -> Self {
+        Self {
+            group: value.group,
+            clusters: value.clusters.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<GroupOutput> for GroupOutputGeneric<u32> {
+    #[inline]
+    fn from(value: GroupOutput) -> Self {
+        Self {
+            group: value.group,
+            clusters: value.clusters.into_iter().map(Into::into).collect(),
+        }
+    }
+}

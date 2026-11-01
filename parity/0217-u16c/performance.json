@@ -1,0 +1,958 @@
+{
+  "cpu": 0,
+  "event": "instructions:u",
+  "cells": [
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets",
+      "base": 60062.63,
+      "candidate": 60102.09,
+      "ratio": 1.0006569808881163
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-flex",
+      "base": 60092.47,
+      "candidate": 60109.09,
+      "ratio": 1.0002765737537498
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "meshlets-spatial",
+      "base": 47014.79,
+      "candidate": 47038.51,
+      "ratio": 1.0005045220876239
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cluster-lod",
+      "base": 96687.5,
+      "candidate": 96653.59,
+      "ratio": 0.9996492824822236
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify",
+      "base": 110591.49,
+      "candidate": 110602.11,
+      "ratio": 1.0000960290886758
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-attributes",
+      "base": 124999.67,
+      "candidate": 125010.2,
+      "ratio": 1.0000842402223942
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-update",
+      "base": 120640.56,
+      "candidate": 120640.37,
+      "ratio": 0.9999984250736237
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-sloppy",
+      "base": 19056.55,
+      "candidate": 19071.08,
+      "ratio": 1.000762467498052
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-prune",
+      "base": 14667.72,
+      "candidate": 14666.35,
+      "ratio": 0.9999065976170803
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "simplify-points",
+      "base": 9573.54,
+      "candidate": 9586.08,
+      "ratio": 1.0013098603024586
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "overdraw",
+      "base": 15636.72,
+      "candidate": 15645.17,
+      "ratio": 1.000540394660773
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "cache",
+      "base": 29389.46,
+      "candidate": 29394.17,
+      "ratio": 1.0001602615359384
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "fetch",
+      "base": 3262.54,
+      "candidate": 3271.08,
+      "ratio": 1.0026175924279856
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-encode",
+      "base": 4692.72,
+      "candidate": 4692.35,
+      "ratio": 0.9999211544690499
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "index-decode",
+      "base": 2481.45,
+      "candidate": 2481.35,
+      "ratio": 0.9999597009812812
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-encode",
+      "base": 18394.26,
+      "candidate": 18393.81,
+      "ratio": 0.9999755358465088
+    },
+    {
+      "case": "tiny-smooth",
+      "op": "vertex-decode",
+      "base": 4137.45,
+      "candidate": 4137.17,
+      "ratio": 0.9999323254661688
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets",
+      "base": 27146561.0,
+      "candidate": 27146548.0,
+      "ratio": 0.9999995211179789
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-flex",
+      "base": 27146791.0,
+      "candidate": 27146762.0,
+      "ratio": 0.9999989317337729
+    },
+    {
+      "case": "medium-smooth",
+      "op": "meshlets-spatial",
+      "base": 23558156.0,
+      "candidate": 23558144.0,
+      "ratio": 0.9999994906222711
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cluster-lod",
+      "base": 112816372.0,
+      "candidate": 112817353.0,
+      "ratio": 1.000008695546423
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify",
+      "base": 11982922.0,
+      "candidate": 11982914.0,
+      "ratio": 0.9999993323832034
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-attributes",
+      "base": 28168397.0,
+      "candidate": 28168398.0,
+      "ratio": 1.0000000355007777
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-update",
+      "base": 15131853.0,
+      "candidate": 15131780.0,
+      "ratio": 0.9999951757395475
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-sloppy",
+      "base": 3901890.0,
+      "candidate": 3901842.0,
+      "ratio": 0.9999876982693002
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-prune",
+      "base": 1950277.0,
+      "candidate": 1950276.0,
+      "ratio": 0.9999994872523237
+    },
+    {
+      "case": "medium-smooth",
+      "op": "simplify-points",
+      "base": 915192.0,
+      "candidate": 915185.0,
+      "ratio": 0.9999923513317424
+    },
+    {
+      "case": "medium-smooth",
+      "op": "overdraw",
+      "base": 1582709.0,
+      "candidate": 1582677.0,
+      "ratio": 0.9999797815012109
+    },
+    {
+      "case": "medium-smooth",
+      "op": "cache",
+      "base": 10585138.0,
+      "candidate": 10585114.0,
+      "ratio": 0.999997732670089
+    },
+    {
+      "case": "medium-smooth",
+      "op": "fetch",
+      "base": 427405.0,
+      "candidate": 427395.0,
+      "ratio": 0.9999766029877984
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-encode",
+      "base": 1142687.0,
+      "candidate": 1142623.0,
+      "ratio": 0.9999439916617586
+    },
+    {
+      "case": "medium-smooth",
+      "op": "index-decode",
+      "base": 436028.0,
+      "candidate": 435999.0,
+      "ratio": 0.9999334905097838
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-encode",
+      "base": 1232509.0,
+      "candidate": 1232521.0,
+      "ratio": 1.0000097362372202
+    },
+    {
+      "case": "medium-smooth",
+      "op": "vertex-decode",
+      "base": 207561.0,
+      "candidate": 207524.0,
+      "ratio": 0.999821739151382
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets",
+      "base": 20791374.0,
+      "candidate": 20791429.0,
+      "ratio": 1.0000026453278172
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-flex",
+      "base": 20791734.0,
+      "candidate": 20791718.0,
+      "ratio": 0.999999230463414
+    },
+    {
+      "case": "medium-seams",
+      "op": "meshlets-spatial",
+      "base": 23629333.0,
+      "candidate": 23629322.0,
+      "ratio": 0.9999995344769148
+    },
+    {
+      "case": "medium-seams",
+      "op": "cluster-lod",
+      "base": 109022308.0,
+      "candidate": 109023447.0,
+      "ratio": 1.000010447403113
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify",
+      "base": 15249355.0,
+      "candidate": 15249338.0,
+      "ratio": 0.999998885198751
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-attributes",
+      "base": 28435032.0,
+      "candidate": 28434988.0,
+      "ratio": 0.9999984526129599
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-update",
+      "base": 17634540.0,
+      "candidate": 17634483.0,
+      "ratio": 0.9999967677070114
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-sloppy",
+      "base": 7079516.0,
+      "candidate": 7079512.0,
+      "ratio": 0.9999994349896236
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-prune",
+      "base": 2118229.0,
+      "candidate": 2118199.0,
+      "ratio": 0.9999858372253425
+    },
+    {
+      "case": "medium-seams",
+      "op": "simplify-points",
+      "base": 3535976.0,
+      "candidate": 3535926.0,
+      "ratio": 0.9999858596325314
+    },
+    {
+      "case": "medium-seams",
+      "op": "overdraw",
+      "base": 1583710.0,
+      "candidate": 1583687.0,
+      "ratio": 0.9999854771391227
+    },
+    {
+      "case": "medium-seams",
+      "op": "cache",
+      "base": 9289032.0,
+      "candidate": 9289027.0,
+      "ratio": 0.999999461730781
+    },
+    {
+      "case": "medium-seams",
+      "op": "fetch",
+      "base": 452351.0,
+      "candidate": 452314.0,
+      "ratio": 0.9999182051106331
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-encode",
+      "base": 1435154.0,
+      "candidate": 1435109.0,
+      "ratio": 0.9999686444799653
+    },
+    {
+      "case": "medium-seams",
+      "op": "index-decode",
+      "base": 540632.0,
+      "candidate": 540587.0,
+      "ratio": 0.999916764083517
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-encode",
+      "base": 1580046.0,
+      "candidate": 1580017.0,
+      "ratio": 0.9999816461039742
+    },
+    {
+      "case": "medium-seams",
+      "op": "vertex-decode",
+      "base": 240115.0,
+      "candidate": 240094.0,
+      "ratio": 0.9999125419070028
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets",
+      "base": 27258988.0,
+      "candidate": 27259015.0,
+      "ratio": 1.000000990498987
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-flex",
+      "base": 27259071.0,
+      "candidate": 27259032.0,
+      "ratio": 0.9999985692835974
+    },
+    {
+      "case": "medium-sparse",
+      "op": "meshlets-spatial",
+      "base": 23631467.0,
+      "candidate": 23631429.0,
+      "ratio": 0.9999983919745651
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cluster-lod",
+      "base": 114637338.0,
+      "candidate": 114638193.0,
+      "ratio": 1.0000074583029832
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify",
+      "base": 12964495.0,
+      "candidate": 12964476.0,
+      "ratio": 0.9999985344589203
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-attributes",
+      "base": 24935638.0,
+      "candidate": 24935630.0,
+      "ratio": 0.99999967917404
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-update",
+      "base": 16290968.0,
+      "candidate": 16290923.0,
+      "ratio": 0.9999972377332028
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-sloppy",
+      "base": 4776588.0,
+      "candidate": 4776557.0,
+      "ratio": 0.999993510011749
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-prune",
+      "base": 2610746.0,
+      "candidate": 2610742.0,
+      "ratio": 0.9999984678708691
+    },
+    {
+      "case": "medium-sparse",
+      "op": "simplify-points",
+      "base": 1421480.0,
+      "candidate": 1421466.0,
+      "ratio": 0.9999901511101106
+    },
+    {
+      "case": "medium-sparse",
+      "op": "overdraw",
+      "base": 1598519.0,
+      "candidate": 1598460.0,
+      "ratio": 0.999963090835955
+    },
+    {
+      "case": "medium-sparse",
+      "op": "cache",
+      "base": 10649536.0,
+      "candidate": 10649508.0,
+      "ratio": 0.9999973707774686
+    },
+    {
+      "case": "medium-sparse",
+      "op": "fetch",
+      "base": 427508.0,
+      "candidate": 427471.0,
+      "ratio": 0.999913451912011
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-encode",
+      "base": 1394281.0,
+      "candidate": 1394226.0,
+      "ratio": 0.9999605531453128
+    },
+    {
+      "case": "medium-sparse",
+      "op": "index-decode",
+      "base": 560990.0,
+      "candidate": 560962.0,
+      "ratio": 0.9999500882368669
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-encode",
+      "base": 2131450.0,
+      "candidate": 2131422.0,
+      "ratio": 0.9999868634028478
+    },
+    {
+      "case": "medium-sparse",
+      "op": "vertex-decode",
+      "base": 271866.0,
+      "candidate": 271847.0,
+      "ratio": 0.9999301126290158
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets",
+      "base": 3942628159.0,
+      "candidate": 3942628344.0,
+      "ratio": 1.000000046923015
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-flex",
+      "base": 3950842418.0,
+      "candidate": 3950842619.0,
+      "ratio": 1.0000000508752258
+    },
+    {
+      "case": "million-smooth",
+      "op": "meshlets-spatial",
+      "base": 4871596070.0,
+      "candidate": 4871595970.0,
+      "ratio": 0.9999999794728466
+    },
+    {
+      "case": "million-smooth",
+      "op": "cluster-lod",
+      "base": 14810623003.0,
+      "candidate": 14810701597.0,
+      "ratio": 1.0000053065964871
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify",
+      "base": 2419675307.0,
+      "candidate": 2419675337.0,
+      "ratio": 1.0000000123983577
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-attributes",
+      "base": 3977431695.0,
+      "candidate": 3977437338.0,
+      "ratio": 1.0000014187547224
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-update",
+      "base": 2815092692.0,
+      "candidate": 2815092790.0,
+      "ratio": 1.0000000348123528
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-sloppy",
+      "base": 408963275.0,
+      "candidate": 408963245.0,
+      "ratio": 0.9999999266437799
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-prune",
+      "base": 233991549.0,
+      "candidate": 233991501.0,
+      "ratio": 0.9999997948643863
+    },
+    {
+      "case": "million-smooth",
+      "op": "simplify-points",
+      "base": 132366996.0,
+      "candidate": 132366978.0,
+      "ratio": 0.9999998640144406
+    },
+    {
+      "case": "million-smooth",
+      "op": "overdraw",
+      "base": 189429196.0,
+      "candidate": 189429164.0,
+      "ratio": 0.9999998310714469
+    },
+    {
+      "case": "million-smooth",
+      "op": "cache",
+      "base": 1313285252.0,
+      "candidate": 1313285166.0,
+      "ratio": 0.9999999345153691
+    },
+    {
+      "case": "million-smooth",
+      "op": "fetch",
+      "base": 51483361.0,
+      "candidate": 51483314.0,
+      "ratio": 0.999999087083689
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-encode",
+      "base": 136821943.0,
+      "candidate": 136821901.0,
+      "ratio": 0.9999996930316944
+    },
+    {
+      "case": "million-smooth",
+      "op": "index-decode",
+      "base": 52050322.0,
+      "candidate": 52050248.0,
+      "ratio": 0.9999985782989008
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-encode",
+      "base": 148084946.0,
+      "candidate": 148084891.0,
+      "ratio": 0.9999996285915518
+    },
+    {
+      "case": "million-smooth",
+      "op": "vertex-decode",
+      "base": 20402212.0,
+      "candidate": 20402220.0,
+      "ratio": 1.0000003921143452
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets",
+      "base": 13272846137.0,
+      "candidate": 13272832827.0,
+      "ratio": 0.9999989972007615
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-flex",
+      "base": 13280743569.0,
+      "candidate": 13280733201.0,
+      "ratio": 0.9999992193208199
+    },
+    {
+      "case": "real-214e",
+      "op": "meshlets-spatial",
+      "base": 18531845961.0,
+      "candidate": 18531849137.0,
+      "ratio": 1.0000001713806606
+    },
+    {
+      "case": "real-214e",
+      "op": "cluster-lod",
+      "base": 78085486238.0,
+      "candidate": 78085974941.0,
+      "ratio": 1.0000062585638323
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify",
+      "base": 3156665411.0,
+      "candidate": 3156666749.0,
+      "ratio": 1.0000004238650049
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-attributes",
+      "base": 5272426073.0,
+      "candidate": 5272404658.0,
+      "ratio": 0.999995938302462
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-update",
+      "base": 3971375764.0,
+      "candidate": 3971374809.0,
+      "ratio": 0.9999997595291766
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-sloppy",
+      "base": 2947576702.0,
+      "candidate": 2947577403.0,
+      "ratio": 1.0000002378224795
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-prune",
+      "base": 1506424996.0,
+      "candidate": 1506424771.0,
+      "ratio": 0.9999998506397593
+    },
+    {
+      "case": "real-214e",
+      "op": "simplify-points",
+      "base": 1111434980.0,
+      "candidate": 1111435053.0,
+      "ratio": 1.0000000656808552
+    },
+    {
+      "case": "real-214e",
+      "op": "overdraw",
+      "base": 1080316974.0,
+      "candidate": 1080316955.0,
+      "ratio": 0.9999999824125693
+    },
+    {
+      "case": "real-214e",
+      "op": "cache",
+      "base": 2257898039.0,
+      "candidate": 2257898139.0,
+      "ratio": 1.0000000442889796
+    },
+    {
+      "case": "real-214e",
+      "op": "fetch",
+      "base": 288539404.0,
+      "candidate": 288539388.0,
+      "ratio": 0.9999999445483017
+    },
+    {
+      "case": "real-214e",
+      "op": "index-encode",
+      "base": 707961216.0,
+      "candidate": 707961165.0,
+      "ratio": 0.9999999279621555
+    },
+    {
+      "case": "real-214e",
+      "op": "index-decode",
+      "base": 167346815.0,
+      "candidate": 167346795.0,
+      "ratio": 0.9999998804877165
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-encode",
+      "base": 2575258604.0,
+      "candidate": 2575258806.0,
+      "ratio": 1.0000000784387244
+    },
+    {
+      "case": "real-214e",
+      "op": "vertex-decode",
+      "base": 419957578.0,
+      "candidate": 419957510.0,
+      "ratio": 0.9999998380788833
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets",
+      "base": 14272847261.0,
+      "candidate": 14272848847.0,
+      "ratio": 1.000000111120085
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-flex",
+      "base": 14280791084.0,
+      "candidate": 14280748347.0,
+      "ratio": 0.9999970073786705
+    },
+    {
+      "case": "real-a082",
+      "op": "meshlets-spatial",
+      "base": 21535712556.0,
+      "candidate": 21535722657.0,
+      "ratio": 1.0000004690348636
+    },
+    {
+      "case": "real-a082",
+      "op": "cluster-lod",
+      "base": 88272586469.0,
+      "candidate": 88273210063.0,
+      "ratio": 1.0000070644129162
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify",
+      "base": 5751870545.0,
+      "candidate": 5751880957.0,
+      "ratio": 1.0000018101937307
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-attributes",
+      "base": 8420266455.0,
+      "candidate": 8420272670.0,
+      "ratio": 1.0000007381001579
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-update",
+      "base": 6585937959.0,
+      "candidate": 6585932313.0,
+      "ratio": 0.999999142718921
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-sloppy",
+      "base": 2910436195.0,
+      "candidate": 2910435704.0,
+      "ratio": 0.9999998312967655
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-prune",
+      "base": 1641566912.0,
+      "candidate": 1641567018.0,
+      "ratio": 1.0000000645724516
+    },
+    {
+      "case": "real-a082",
+      "op": "simplify-points",
+      "base": 1182170319.0,
+      "candidate": 1182172899.0,
+      "ratio": 1.0000021824266423
+    },
+    {
+      "case": "real-a082",
+      "op": "overdraw",
+      "base": 1174443850.0,
+      "candidate": 1174443863.0,
+      "ratio": 1.000000011069069
+    },
+    {
+      "case": "real-a082",
+      "op": "cache",
+      "base": 2609756991.0,
+      "candidate": 2609756062.0,
+      "ratio": 0.9999996440281592
+    },
+    {
+      "case": "real-a082",
+      "op": "fetch",
+      "base": 317148611.0,
+      "candidate": 317148608.0,
+      "ratio": 0.9999999905407122
+    },
+    {
+      "case": "real-a082",
+      "op": "index-encode",
+      "base": 1412360410.0,
+      "candidate": 1412360412.0,
+      "ratio": 1.000000001416069
+    },
+    {
+      "case": "real-a082",
+      "op": "index-decode",
+      "base": 391561608.0,
+      "candidate": 391561642.0,
+      "ratio": 1.000000086831802
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-encode",
+      "base": 2946843502.0,
+      "candidate": 2946391179.0,
+      "ratio": 0.9998465059309417
+    },
+    {
+      "case": "real-a082",
+      "op": "vertex-decode",
+      "base": 468346032.0,
+      "candidate": 468345999.0,
+      "ratio": 0.9999999295392771
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets",
+      "base": 3445188922.0,
+      "candidate": 3445187936.0,
+      "ratio": 0.9999997138037936
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-flex",
+      "base": 3447160285.0,
+      "candidate": 3447160429.0,
+      "ratio": 1.0000000417735144
+    },
+    {
+      "case": "real-b6fd",
+      "op": "meshlets-spatial",
+      "base": 4830951679.0,
+      "candidate": 4830946322.0,
+      "ratio": 0.9999988911087595
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cluster-lod",
+      "base": 21871133449.0,
+      "candidate": 21871287231.0,
+      "ratio": 1.0000070312771105
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify",
+      "base": 1435410358.0,
+      "candidate": 1435410518.0,
+      "ratio": 1.0000001114663826
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-attributes",
+      "base": 2102432121.0,
+      "candidate": 2102432108.0,
+      "ratio": 0.999999993816685
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-update",
+      "base": 1641303160.0,
+      "candidate": 1641303128.0,
+      "ratio": 0.9999999805032972
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-sloppy",
+      "base": 818980314.0,
+      "candidate": 818980171.0,
+      "ratio": 0.9999998253926284
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-prune",
+      "base": 409252680.0,
+      "candidate": 409252660.0,
+      "ratio": 0.999999951130436
+    },
+    {
+      "case": "real-b6fd",
+      "op": "simplify-points",
+      "base": 462404290.0,
+      "candidate": 462404267.0,
+      "ratio": 0.999999950259977
+    },
+    {
+      "case": "real-b6fd",
+      "op": "overdraw",
+      "base": 293621760.0,
+      "candidate": 293621750.0,
+      "ratio": 0.9999999659425787
+    },
+    {
+      "case": "real-b6fd",
+      "op": "cache",
+      "base": 652442915.0,
+      "candidate": 652442865.0,
+      "ratio": 0.9999999233649429
+    },
+    {
+      "case": "real-b6fd",
+      "op": "fetch",
+      "base": 78662580.0,
+      "candidate": 78662560.0,
+      "ratio": 0.9999997457495038
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-encode",
+      "base": 185403177.0,
+      "candidate": 185403218.0,
+      "ratio": 1.0000002211396841
+    },
+    {
+      "case": "real-b6fd",
+      "op": "index-decode",
+      "base": 47214248.0,
+      "candidate": 47214201.0,
+      "ratio": 0.9999990045377828
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-encode",
+      "base": 689522448.0,
+      "candidate": 689522408.0,
+      "ratio": 0.9999999419888357
+    },
+    {
+      "case": "real-b6fd",
+      "op": "vertex-decode",
+      "base": 114774439.0,
+      "candidate": 114774398.0,
+      "ratio": 0.9999996427776049
+    }
+  ]
+}

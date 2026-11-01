@@ -298,6 +298,7 @@ impl<'a> Reader<'a> {
         workspace: &mut Workspace,
     ) -> Result<Vec<Geometry>, Error> {
         self.decode_page_generic::<u32>(p, bytes, workspace)
+            .map(|values| values.into_iter().map(Into::into).collect())
     }
     /// Select u16 or u32 output through the sealed Index trait.
     pub fn decode_page_generic<I: crate::Index>(
@@ -632,4 +633,36 @@ pub fn write(
 }
 
 /// The source-compatible u32 form of [`GeometryGeneric`].
-pub type Geometry = GeometryGeneric<u32>;
+/// Decoded whole cluster; vertices carry original flat snapshot identifiers.
+/// Not in C++ meshoptimizer.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct Geometry {
+    /// Flat DAG cluster identifier.
+    pub cluster: u32,
+    /// Pairs of flat vertex identifier and bit-exact XYZ position.
+    pub vertices: Vec<(u32, [f32; 3])>,
+    /// Triangle indices into this cluster's local vertex array.
+    pub indices: Vec<u32>,
+}
+impl From<GeometryGeneric<u32>> for Geometry {
+    #[inline]
+    fn from(value: GeometryGeneric<u32>) -> Self {
+        Self {
+            cluster: value.cluster,
+            vertices: value.vertices,
+            indices: value.indices,
+        }
+    }
+}
+
+impl From<Geometry> for GeometryGeneric<u32> {
+    #[inline]
+    fn from(value: Geometry) -> Self {
+        Self {
+            cluster: value.cluster,
+            vertices: value.vertices,
+            indices: value.indices,
+        }
+    }
+}

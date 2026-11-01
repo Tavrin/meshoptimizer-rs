@@ -2291,7 +2291,7 @@ pub fn build_meshlets_scan(
     s: MeshletSettings,
     workspace: &mut Workspace,
 ) -> Result<Meshlets, Error> {
-    build_meshlets_scan_generic::<u32>(indices, vertex_count, s, workspace)
+    build_meshlets_scan_generic::<u32>(indices, vertex_count, s, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`build_meshlets_generic`] for selectable index widths.
@@ -2303,7 +2303,7 @@ pub fn build_meshlets(
     cone_weight: f32,
     workspace: &mut Workspace,
 ) -> Result<Meshlets, Error> {
-    build_meshlets_generic::<u32>(indices, p, s, cone_weight, workspace)
+    build_meshlets_generic::<u32>(indices, p, s, cone_weight, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`build_meshlets_flex_generic`] for selectable index widths.
@@ -2326,6 +2326,7 @@ pub fn build_meshlets_flex(
         split_factor,
         workspace,
     )
+    .map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`build_meshlets_spatial_generic`] for selectable index widths.
@@ -2339,6 +2340,7 @@ pub fn build_meshlets_spatial(
     workspace: &mut Workspace,
 ) -> Result<Meshlets, Error> {
     build_meshlets_spatial_generic::<u32>(indices, p, s, min_triangles, fill_weight, workspace)
+        .map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`build_meshlets_scan_into_generic`] for selectable index widths.
@@ -2442,7 +2444,37 @@ pub fn build_meshlets_spatial_into(
 }
 
 /// The source-compatible u32 form of [`MeshletsGeneric`].
-pub type Meshlets = MeshletsGeneric<u32>;
+/// Complete tightly packed meshlet output.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct Meshlets {
+    /// Meshlet descriptors in construction order.
+    pub meshlets: Vec<Meshlet>,
+    /// Original vertex references.
+    pub vertices: Vec<u32>,
+    /// Local triangle bytes, without per-meshlet padding.
+    pub triangles: Vec<u8>,
+}
+impl From<MeshletsGeneric<u32>> for Meshlets {
+    #[inline]
+    fn from(value: MeshletsGeneric<u32>) -> Self {
+        Self {
+            meshlets: value.meshlets,
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
+
+impl From<Meshlets> for MeshletsGeneric<u32> {
+    #[inline]
+    fn from(value: Meshlets) -> Self {
+        Self {
+            meshlets: value.meshlets,
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
 
 #[cfg(test)]
 mod packed_tests {

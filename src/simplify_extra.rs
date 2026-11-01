@@ -2448,6 +2448,7 @@ pub fn simplify_sloppy(
         target_error,
         workspace,
     )
+    .map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`simplify_points_generic`] for selectable index widths.

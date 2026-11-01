@@ -714,7 +714,7 @@ pub fn measure_lod_quality(
     options: &LodQualityOptions,
     workspace: &mut Workspace,
 ) -> Result<LodQuality, Error> {
-    measure_lod_quality_generic::<u32>(source, level, options, workspace)
+    measure_lod_quality_generic::<u32>(source.into(), level.into(), options, workspace)
 }
 
 /// The source-compatible u32 entry point; see [`measure_lod_chain_quality_generic`] for selectable index widths.
@@ -726,16 +726,73 @@ pub fn measure_lod_chain_quality(
     camera: Option<LodCamera>,
     workspace: &mut Workspace,
 ) -> Result<Vec<LodQualityLevel>, Error> {
-    measure_lod_chain_quality_generic::<u32>(source, chain, options, camera, workspace)
+    let source: LodQualityMeshGeneric<'_, u32> = source.into();
+    let mut work = workspace.begin();
+    let result = (|| {
+        validate_options(options)?;
+        if let Some(camera) = camera {
+            camera.switch_distance(0.0)?;
+        }
+        work.add(chain.levels.len())?;
+        let mut budget = Budget::new(workspace);
+        let mut out = budget.reserved(chain.levels.len())?;
+        for level in &chain.levels {
+            let mesh = LodQualityMeshGeneric {
+                indices: &level.indices,
+                ..source
+            };
+            let quality = measure(source, mesh, options, &mut budget, &mut work)?;
+            out.push(LodQualityLevel {
+                quality,
+                switch_distance: camera
+                    .map(|c| c.switch_distance(quality.symmetric.max))
+                    .transpose()?,
+            });
+        }
+        Ok(out)
+    })();
+    workspace.finish(&work);
+    result
 }
 
-impl<'a> LodQualityMeshGeneric<'a, u32> {
+impl<'a> LodQualityMesh<'a> {
     /// Source-compatible u32 operation.
     #[inline]
     pub fn new(indices: &'a [u32], positions: Positions<'a>) -> Self {
-        Self::new_generic(indices, positions)
+        LodQualityMeshGeneric::new_generic(indices, positions).into()
     }
 }
 
 /// The source-compatible u32 form of [`LodQualityMeshGeneric`].
-pub type LodQualityMesh<'a> = LodQualityMeshGeneric<'a, u32>;
+/// A borrowed triangle surface. Only referenced vertices are measured/validated.
+#[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
+pub struct LodQualityMesh<'a> {
+    /// Triangle-list indices; at least one triangle is required.
+    pub indices: &'a [u32],
+    /// Positions in the same world units as the reported distances.
+    pub positions: Positions<'a>,
+    /// Optional per-vertex normals, normalized before interpolation.
+    pub normals: Option<&'a [[f32; 3]]>,
+}
+impl<'a> From<LodQualityMeshGeneric<'a, u32>> for LodQualityMesh<'a> {
+    #[inline]
+    fn from(value: LodQualityMeshGeneric<'a, u32>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            normals: value.normals,
+        }
+    }
+}
+
+impl<'a> From<LodQualityMesh<'a>> for LodQualityMeshGeneric<'a, u32> {
+    #[inline]
+    fn from(value: LodQualityMesh<'a>) -> Self {
+        Self {
+            indices: value.indices,
+            positions: value.positions,
+            normals: value.normals,
+        }
+    }
+}

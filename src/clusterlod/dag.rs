@@ -274,8 +274,59 @@ pub fn build_dag_into(
     destination: DagBuffers<'_>,
     workspace: &mut Workspace,
 ) -> Result<DagCounts, Error> {
-    build_dag_into_generic::<u32>(config, mesh, node_width, destination, workspace)
+    build_dag_into_generic::<u32>(
+        config,
+        mesh.into(),
+        node_width,
+        destination.into(),
+        workspace,
+    )
 }
 
 /// The source-compatible u32 form of [`DagBuffersGeneric`].
-pub type DagBuffers<'a> = DagBuffersGeneric<'a, u32>;
+/// Caller storage. Only successful returned prefixes are results; tails are preserved.
+///
+/// Caller capacity is excluded from [`Workspace`] limits. A late error may
+/// write prefixes and dilation may mutate mesh positions. Discard failed output
+/// and retain fresh source positions for retries; no allocating fallback occurs.
+pub struct DagBuffers<'a> {
+    /// Source vertex identifiers, in first-occurrence order across the mesh.
+    pub vertex_source: &'a mut [u32],
+    /// Bit-exact position snapshots at emission, before later dilation.
+    pub vertex_positions: &'a mut [[f32; 3]],
+    /// Flat topology referencing the snapshot vertex prefix.
+    pub indices: &'a mut [u32],
+    /// Clusters in emission order.
+    pub clusters: &'a mut [FlatDagCluster],
+    /// Groups in callback order.
+    pub groups: &'a mut [FlatDagGroup],
+    /// Per-level spatial forest, with roots first.
+    pub nodes: &'a mut [Node],
+}
+impl<'a> From<DagBuffersGeneric<'a, u32>> for DagBuffers<'a> {
+    #[inline]
+    fn from(value: DagBuffersGeneric<'a, u32>) -> Self {
+        Self {
+            vertex_source: value.vertex_source,
+            vertex_positions: value.vertex_positions,
+            indices: value.indices,
+            clusters: value.clusters,
+            groups: value.groups,
+            nodes: value.nodes,
+        }
+    }
+}
+
+impl<'a> From<DagBuffers<'a>> for DagBuffersGeneric<'a, u32> {
+    #[inline]
+    fn from(value: DagBuffers<'a>) -> Self {
+        Self {
+            vertex_source: value.vertex_source,
+            vertex_positions: value.vertex_positions,
+            indices: value.indices,
+            clusters: value.clusters,
+            groups: value.groups,
+            nodes: value.nodes,
+        }
+    }
+}

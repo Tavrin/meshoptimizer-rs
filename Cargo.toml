@@ -36,3 +36,7 @@ lto = "fat"
 [[example]]
 name = "dag_format_bench"
 required-features = ["clusterlod"]
+
+[[example]]
+name = "character_eval"
+required-features = ["std"]

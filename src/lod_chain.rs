@@ -193,7 +193,7 @@ impl Meter {
 
 /// Build a LOD chain. This extension is not in C++ meshoptimizer.
 ///
-/// Each level is one [`simplify`] (or [`simplify_with_attributes`]) call, so its
+/// Each level is one [`simplify`](crate::simplify) (or [`simplify_with_attributes`](crate::simplify_with_attributes)) call, so its
 /// indices, error and limits behave exactly as the direct call on that level's
 /// input. Ratios are relative to the source, and rounded down to whole triangles
 /// (see [`LodTargets::Ratios`]). In chain mode a target is clamped to the previous
@@ -437,11 +437,88 @@ pub fn build_lod_chain(
     options: &LodChainOptions<'_>,
     workspace: &mut Workspace,
 ) -> Result<LodChain, LodChainError> {
-    build_lod_chain_generic::<u32>(indices, positions, options, workspace)
+    build_lod_chain_generic::<u32>(indices, positions, options, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 form of [`LodLevelGeneric`].
-pub type LodLevel = LodLevelGeneric<u32>;
+/// One simplification result. Errors describe this call, not cumulative chain error.
+///
+/// The index buffer is an owned `Vec<u32>` per level; other outputs (meshlets,
+/// clusters) would be separate APIs rather than fields here.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct LodLevel {
+    /// Indices referencing the original vertices.
+    pub indices: Vec<u32>,
+    /// The error the simplifier returned for this level, unmodified. It is per
+    /// level: in successive mode it is relative to this level's input (the
+    /// previous level), not to the source and not cumulative. With attributes it
+    /// includes the attribute terms. Units follow `ERROR_ABSOLUTE`: relative to
+    /// `scale` unless that flag is set, absolute position units otherwise.
+    pub error: f32,
+    /// Position extent (largest axis range) used to normalize this level's error:
+    /// all positions, or only the vertices this level's input references with
+    /// `SPARSE`.
+    pub scale: f32,
+    /// Number of triangles.
+    pub triangle_count: usize,
+    /// Whether the requested target was reached. A missed target can also result from topology constraints.
+    pub target_reached: bool,
+    /// The simplifier stopped because its next collapse candidate exceeded this
+    /// level's error limit before the target was reached. This does not prove
+    /// that a looser limit would reach the target; topology can still block it.
+    pub stopped_at_error_limit: bool,
+}
+impl From<LodLevelGeneric<u32>> for LodLevel {
+    #[inline]
+    fn from(value: LodLevelGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            error: value.error,
+            scale: value.scale,
+            triangle_count: value.triangle_count,
+            target_reached: value.target_reached,
+            stopped_at_error_limit: value.stopped_at_error_limit,
+        }
+    }
+}
+
+impl From<LodLevel> for LodLevelGeneric<u32> {
+    #[inline]
+    fn from(value: LodLevel) -> Self {
+        Self {
+            indices: value.indices,
+            error: value.error,
+            scale: value.scale,
+            triangle_count: value.triangle_count,
+            target_reached: value.target_reached,
+            stopped_at_error_limit: value.stopped_at_error_limit,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`LodChainGeneric`].
-pub type LodChain = LodChainGeneric<u32>;
+/// The generated levels in target order.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct LodChain {
+    /// Generated levels.
+    pub levels: Vec<LodLevel>,
+}
+impl From<LodChainGeneric<u32>> for LodChain {
+    #[inline]
+    fn from(value: LodChainGeneric<u32>) -> Self {
+        Self {
+            levels: value.levels.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<LodChain> for LodChainGeneric<u32> {
+    #[inline]
+    fn from(value: LodChain) -> Self {
+        Self {
+            levels: value.levels.into_iter().map(Into::into).collect(),
+        }
+    }
+}

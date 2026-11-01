@@ -3025,7 +3025,7 @@ pub fn generate_provoking_index_buffer(
     vertex_count: usize,
     workspace: &mut Workspace,
 ) -> Result<ProvokingMesh, Error> {
-    generate_provoking_index_buffer_generic::<u32>(indices, vertex_count, workspace)
+    generate_provoking_index_buffer_generic::<u32>(indices, vertex_count, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_with_indices_generic`] for selectable index widths.
@@ -3034,7 +3034,7 @@ pub fn optimize_vertex_fetch_remap_with_indices(
     source: FetchIndices<'_>,
     workspace: &mut Workspace,
 ) -> Result<VertexRemap, Error> {
-    optimize_vertex_fetch_remap_with_indices_generic::<u32>(source, workspace)
+    optimize_vertex_fetch_remap_with_indices_generic::<u32>(source.into(), workspace)
 }
 
 /// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_with_indices_into_generic`] for selectable index widths.
@@ -3044,7 +3044,11 @@ pub fn optimize_vertex_fetch_remap_with_indices_into(
     source: FetchIndices<'_>,
     workspace: &mut Workspace,
 ) -> Result<usize, Error> {
-    optimize_vertex_fetch_remap_with_indices_into_generic::<u32>(destination, source, workspace)
+    optimize_vertex_fetch_remap_with_indices_into_generic::<u32>(
+        destination,
+        source.into(),
+        workspace,
+    )
 }
 
 /// The source-compatible u32 entry point; see [`optimize_vertex_fetch_remap_generic`] for selectable index widths.
@@ -3075,7 +3079,7 @@ pub fn optimize_vertex_fetch(
     vertices: VertexStream<'_>,
     workspace: &mut Workspace,
 ) -> Result<FetchedMesh, Error> {
-    optimize_vertex_fetch_generic::<u32>(indices, vertices, workspace)
+    optimize_vertex_fetch_generic::<u32>(indices, vertices, workspace).map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`optimize_vertex_fetch_into_generic`] for selectable index widths.
@@ -3206,19 +3210,109 @@ pub fn generate_provoking_index_buffer_into(
     )
 }
 
-impl<'a> FetchIndicesGeneric<'a, u32> {
+impl<'a> FetchIndices<'a> {
     /// Source-compatible u32 operation.
     #[inline]
     pub fn new(indices: &'a [u32], vertex_count: usize) -> Self {
-        Self::new_generic(indices, vertex_count)
+        FetchIndicesGeneric::new_generic(indices, vertex_count).into()
     }
 }
 
 /// The source-compatible u32 form of [`FetchedMeshGeneric`].
-pub type FetchedMesh = FetchedMeshGeneric<u32>;
+/// Fetch-ordered initialized vertex bytes and rewritten indices.
+#[derive(Debug)]
+pub struct FetchedMesh {
+    /// Rewritten topology.
+    pub indices: Vec<u32>,
+    /// Used tightly packed vertex records.
+    pub vertices: Vec<u8>,
+    /// Number of used vertices.
+    pub vertex_count: usize,
+}
+impl From<FetchedMeshGeneric<u32>> for FetchedMesh {
+    #[inline]
+    fn from(value: FetchedMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            vertices: value.vertices,
+            vertex_count: value.vertex_count,
+        }
+    }
+}
+
+impl From<FetchedMesh> for FetchedMeshGeneric<u32> {
+    #[inline]
+    fn from(value: FetchedMesh) -> Self {
+        Self {
+            indices: value.indices,
+            vertices: value.vertices,
+            vertex_count: value.vertex_count,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`ProvokingMeshGeneric`].
-pub type ProvokingMesh = ProvokingMeshGeneric<u32>;
+/// Unique first-corner indices and source vertices for provoking-vertex rendering.
+#[derive(Debug)]
+pub struct ProvokingMesh {
+    /// Rotated and rewritten triangle indices.
+    pub indices: Vec<u32>,
+    /// Output vertex to original vertex mapping, including clones.
+    pub reorder: Vec<u32>,
+}
+impl From<ProvokingMeshGeneric<u32>> for ProvokingMesh {
+    #[inline]
+    fn from(value: ProvokingMeshGeneric<u32>) -> Self {
+        Self {
+            indices: value.indices,
+            reorder: value.reorder,
+        }
+    }
+}
+
+impl From<ProvokingMesh> for ProvokingMeshGeneric<u32> {
+    #[inline]
+    fn from(value: ProvokingMesh) -> Self {
+        Self {
+            indices: value.indices,
+            reorder: value.reorder,
+        }
+    }
+}
 
 /// The source-compatible u32 form of [`FetchIndicesGeneric`].
-pub type FetchIndices<'a> = FetchIndicesGeneric<'a, u32>;
+/// Borrowed fetch-remap input with its index-validation result cached once.
+///
+/// Construction scans at most `indices.len()` entries, without allocating.
+/// Invalid input is retained so operations can preserve error precedence,
+/// logical work usage and caller-buffer writes, including on short budgets.
+#[derive(Clone, Copy, Debug)]
+pub struct FetchIndices<'a> {
+    indices: &'a [u32],
+    vertex_count: usize,
+    visits: usize,
+    error: Option<Error>,
+}
+impl<'a> From<FetchIndicesGeneric<'a, u32>> for FetchIndices<'a> {
+    #[inline]
+    fn from(value: FetchIndicesGeneric<'a, u32>) -> Self {
+        Self {
+            indices: value.indices,
+            vertex_count: value.vertex_count,
+            visits: value.visits,
+            error: value.error,
+        }
+    }
+}
+
+impl<'a> From<FetchIndices<'a>> for FetchIndicesGeneric<'a, u32> {
+    #[inline]
+    fn from(value: FetchIndices<'a>) -> Self {
+        Self {
+            indices: value.indices,
+            vertex_count: value.vertex_count,
+            visits: value.visits,
+            error: value.error,
+        }
+    }
+}

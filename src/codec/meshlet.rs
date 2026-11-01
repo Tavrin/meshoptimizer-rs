@@ -884,10 +884,37 @@ pub fn decode_meshlet_raw(
     workspace: &mut Workspace,
 ) -> Result<RawMeshlet, Error> {
     decode_meshlet_raw_generic::<u32>(vertex_count, triangle_count, source, workspace)
+        .map(Into::into)
 }
 
 /// The source-compatible u32 form of [`RawMeshletGeneric`].
-pub type RawMeshlet = RawMeshletGeneric<u32>;
+/// Allocated output of [`decode_meshlet_raw`].
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct RawMeshlet {
+    /// Vertex references.
+    pub vertices: Vec<u32>,
+    /// Packed triangles, a | b << 8 | c << 16.
+    pub triangles: Vec<u32>,
+}
+impl From<RawMeshletGeneric<u32>> for RawMeshlet {
+    #[inline]
+    fn from(value: RawMeshletGeneric<u32>) -> Self {
+        Self {
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
+
+impl From<RawMeshlet> for RawMeshletGeneric<u32> {
+    #[inline]
+    fn from(value: RawMeshlet) -> Self {
+        Self {
+            vertices: value.vertices,
+            triangles: value.triangles,
+        }
+    }
+}
 
 #[cfg(all(test, feature = "simd"))]
 mod tests {

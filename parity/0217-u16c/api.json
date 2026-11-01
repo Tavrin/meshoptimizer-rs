@@ -1,0 +1,42 @@
+{
+  "baseline": "b89cc4fe03efe346e4695594f1ca4e4688a8c8f1",
+  "exact_original_function_signatures": 135,
+  "generic_free_functions": 135,
+  "generic_aliases": 2,
+  "generic_methods": [
+    "src/lod_quality.rs::new_generic",
+    "src/parallel.rs::encode_generic",
+    "src/parallel.rs::build_generic",
+    "src/remap.rs::new_generic",
+    "src/codec/sequence_stream.rs::push_generic",
+    "src/clusterlod/dag_format.rs::decode_page_generic"
+  ],
+  "entrypoints": 143,
+  "exact_original_method_signatures": 6,
+  "generic_types": [
+    "OrientedMeshGeneric",
+    "FilledMeshGeneric",
+    "LodQualityMeshGeneric",
+    "SanitizedMeshGeneric",
+    "SimplifiedMeshGeneric",
+    "MeshletsGeneric",
+    "VisibleMeshGeneric",
+    "LodChainInputGeneric",
+    "EncodeInputGeneric",
+    "MeshletInputGeneric",
+    "ClusterLodInputGeneric",
+    "DagBuildInputGeneric",
+    "FetchedMeshGeneric",
+    "ProvokingMeshGeneric",
+    "FetchIndicesGeneric",
+    "LocalMeshletGeneric",
+    "LodLevelGeneric",
+    "LodChainGeneric",
+    "RawMeshletGeneric",
+    "DagBuffersGeneric",
+    "MeshGeneric",
+    "ClusterGeneric",
+    "GroupOutputGeneric",
+    "GeometryGeneric"
+  ]
+}
