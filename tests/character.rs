@@ -35,6 +35,7 @@ fn empty_matches_plain_and_chain_reports() {
         &mut ws,
     )
     .unwrap();
+    assert!(c.selections.is_empty());
     assert_eq!(c.quality.len(), 1);
     assert_eq!(c.quality[0].len(), 1);
 }
@@ -321,5 +322,235 @@ fn wide_morph_chain_and_empty_wide_validation_are_metered() {
         )
         .unwrap_err(),
         Error::LimitExceeded
+    );
+}
+
+#[test]
+fn best_of_ties_use_plain_and_limits_cover_both_candidates() {
+    let mut options = CharacterOptions::default();
+    options.best_of = true;
+    let targets = [3];
+    let co = LodChainOptions::new(LodTargets::Counts(&targets), LodErrors::Uniform(100.));
+    let mut ws = Workspace::default();
+    let build = |ws: &mut Workspace| {
+        build_character_lod_chain(
+            &I,
+            Positions::from_packed(&P),
+            &CharacterInputs::new(),
+            &options,
+            &co,
+            &LodQualityOptions::default(),
+            ws,
+        )
+    };
+    let result = build(&mut ws).unwrap();
+    assert_eq!(result.selections.len(), 1);
+    for r in &result.selections {
+        assert_eq!(r.method, CharacterLodMethod::Plain);
+        assert_eq!(r.plain_max, r.character_max);
+    }
+    let usage = ws.usage();
+    assert!(build(&mut Workspace::new(Limits {
+        max_work: usage.work,
+        ..Limits::default()
+    }))
+    .is_ok());
+    assert_eq!(
+        build(&mut Workspace::new(Limits {
+            max_work: usage.work - 1,
+            ..Limits::default()
+        }))
+        .unwrap_err(),
+        Error::LimitExceeded
+    );
+    assert_eq!(
+        build(&mut Workspace::new(Limits {
+            max_bytes: 0,
+            ..Limits::default()
+        }))
+        .unwrap_err(),
+        Error::LimitExceeded
+    );
+}
+
+#[test]
+fn best_of_matches_candidates_and_continues_from_kept_level() {
+    let mut p = Vec::new();
+    let mut indices = Vec::new();
+    for y in 0..6 {
+        for x in 0..6 {
+            p.push([x as f32, y as f32, ((x * y) % 3) as f32 * 0.1]);
+        }
+    }
+    for y in 0..5 {
+        for x in 0..5 {
+            let a = y * 6 + x;
+            indices.extend_from_slice(&[a, a + 1, a + 6, a + 6, a + 1, a + 7]);
+        }
+    }
+    let shape: Vec<_> = p.iter().map(|v| [0., 0., (v[0] * v[1]).sin()]).collect();
+    let sample: Vec<_> = p.iter().map(|v| [v[0], v[1], v[2] + v[0].cos()]).collect();
+    let shapes = [shape.as_slice()];
+    let samples = [sample.as_slice()];
+    let mut data = CharacterInputs::new();
+    data.blend_shapes = &shapes;
+    data.sample_poses = &samples;
+    let mut options = CharacterOptions::default();
+    options.best_of = true;
+    let co = LodChainOptions::new(LodTargets::Counts(&[75, 30, 12]), LodErrors::Uniform(100.));
+    let qo = LodQualityOptions::default();
+    let result = build_character_lod_chain(
+        &indices,
+        Positions::from_packed(&p),
+        &data,
+        &options,
+        &co,
+        &qo,
+        &mut Workspace::default(),
+    )
+    .unwrap();
+    let full_shape: Vec<_> = p
+        .iter()
+        .zip(&shape)
+        .map(|(p, d)| [p[0] + d[0], p[1] + d[1], p[2] + d[2]])
+        .collect();
+    let mut input = indices.clone();
+    for (i, target) in [75, 30, 12].iter().enumerate() {
+        let settings = SimplifySettings {
+            target_index_count: (*target).min(input.len()),
+            ..settings()
+        };
+        let plain = simplify(
+            &input,
+            Positions::from_packed(&p),
+            settings,
+            &mut Workspace::default(),
+        )
+        .unwrap();
+        let character = simplify_character(
+            &input,
+            Positions::from_packed(&p),
+            &data,
+            &CharacterOptions::default(),
+            settings,
+            &mut Workspace::default(),
+        )
+        .unwrap();
+        let score = |mesh: &SimplifiedMesh| {
+            [&p, &full_shape, &sample]
+                .into_iter()
+                .map(|pose| {
+                    let pos = Positions::from_packed(pose);
+                    measure_lod_quality(
+                        LodQualityMesh::new(&indices, pos),
+                        LodQualityMesh::new(&mesh.indices, pos),
+                        &qo,
+                        &mut Workspace::default(),
+                    )
+                    .unwrap()
+                    .symmetric
+                    .max
+                })
+                .fold(0.0f64, f64::max)
+        };
+        let (ps, cs) = (score(&plain), score(&character));
+        assert_eq!(result.selections[i].plain_max, ps);
+        assert_eq!(result.selections[i].character_max, cs);
+        let character_wins = cs < ps || (cs == ps && character.indices.len() < plain.indices.len());
+        let expected = if character_wins { character } else { plain };
+        assert_eq!(result.chain.levels[i].indices, expected.indices);
+        assert_eq!(
+            result.chain.levels[i].error.to_bits(),
+            expected.error.to_bits()
+        );
+        assert_eq!(
+            result
+                .quality
+                .iter()
+                .map(|q| q[i].symmetric.max)
+                .fold(0.0f64, f64::max),
+            ps.min(cs)
+        );
+        input = expected.indices;
+    }
+    let repeat = build_character_lod_chain(
+        &indices,
+        Positions::from_packed(&p),
+        &data,
+        &options,
+        &co,
+        &qo,
+        &mut Workspace::default(),
+    )
+    .unwrap();
+    for (a, b) in result.chain.levels.iter().zip(repeat.chain.levels) {
+        assert_eq!(a.indices, b.indices);
+    }
+    let bad = [[[f32::NAN, 0., 0.]; 36]];
+    let bad_refs = [bad[0].as_slice()];
+    data.sample_poses = &bad_refs;
+    assert_eq!(
+        build_character_lod_chain(
+            &indices,
+            Positions::from_packed(&p),
+            &data,
+            &options,
+            &co,
+            &qo,
+            &mut Workspace::default()
+        )
+        .unwrap_err(),
+        Error::NumericalFailure
+    );
+}
+
+#[test]
+fn best_of_honors_plain_attributes_locks_and_rounded_ratios() {
+    let flags = [VertexFlags::LOCK; 4];
+    let attrs = [0., 1., 0., 1.];
+    let mut co = LodChainOptions::new(
+        LodTargets::Ratios(&[0.6, 0.5]),
+        LodErrors::PerLevel(&[100., 100.]),
+    );
+    co.vertex_flags = Some(&flags);
+    co.attributes = Some(LodChainAttributes::new(
+        Attributes::from_interleaved(&attrs, 4, 1, 1, 0).unwrap(),
+        &[1.],
+    ));
+    let mut options = CharacterOptions::default();
+    options.best_of = true;
+    for independent in [false, true] {
+        co.independent = independent;
+        let c = build_character_lod_chain(
+            &I,
+            Positions::from_packed(&P),
+            &CharacterInputs::new(),
+            &options,
+            &co,
+            &LodQualityOptions::default(),
+            &mut Workspace::default(),
+        )
+        .unwrap();
+        assert_eq!(c.chain.levels.len(), 2);
+        for (level, selection) in c.chain.levels.iter().zip(c.selections) {
+            assert_eq!(level.indices, I);
+            assert_eq!(selection.method, CharacterLodMethod::Plain);
+            assert_eq!(selection.plain_max, 0.);
+            assert!(!level.target_reached);
+        }
+    }
+    co.targets = LodTargets::Counts(&[3, 3]);
+    assert_eq!(
+        build_character_lod_chain(
+            &I,
+            Positions::from_packed(&P),
+            &CharacterInputs::new(),
+            &options,
+            &co,
+            &LodQualityOptions::default(),
+            &mut Workspace::default()
+        )
+        .unwrap_err(),
+        Error::InvalidParameter
     );
 }
