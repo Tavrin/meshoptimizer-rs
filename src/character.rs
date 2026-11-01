@@ -47,6 +47,8 @@ pub struct CharacterInputs<'a> {
     /// Matrices already include inverse bind transforms; rows multiply `[x, y, z, 1]`.
     /// These poses are measured separately, without blend shapes.
     pub joint_poses: &'a [&'a [[[f32; 4]; 3]]],
+    /// Additional pre-evaluated vertex positions, measured after joint poses.
+    pub sample_poses: &'a [&'a [[f32; 3]]],
 }
 impl<'a> CharacterInputs<'a> {
     /// Empty deformation inputs.
@@ -55,6 +57,7 @@ impl<'a> CharacterInputs<'a> {
             skin: None,
             blend_shapes: &[],
             joint_poses: &[],
+            sample_poses: &[],
         }
     }
 }
@@ -71,12 +74,15 @@ pub struct CharacterOptions {
     pub skin_weight: f32,
     /// Multiplier on normalized full-target position channels.
     pub blend_shape_weight: f32,
+    /// Select the lower worst sampled deviation per chain level (default false).
+    pub best_of: bool,
 }
 impl Default for CharacterOptions {
     fn default() -> Self {
         Self {
             skin_weight: 1.0,
             blend_shape_weight: 1.0,
+            best_of: false,
         }
     }
 }
@@ -86,8 +92,31 @@ impl Default for CharacterOptions {
 pub struct CharacterLodChain {
     /// Indices reference the original vertices and deformation streams.
     pub chain: LodChain,
-    /// Pose-major, then level-major F9 reports: bind, each blend shape, each joint pose.
+    /// Pose-major F9 reports: bind, blend shapes, joint poses, then sample poses.
     pub quality: Vec<Vec<LodQuality>>,
+    /// Per-level candidate scores; empty unless best-of selection is enabled.
+    pub selections: Vec<CharacterLodSelection>,
+}
+
+/// Winning method in best-of selection; not in C++ meshoptimizer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum CharacterLodMethod {
+    /// Plain simplification, with optional chain attributes.
+    Plain,
+    /// Character attribute metric.
+    Character,
+}
+/// Per-level sampled candidate scores; not in C++ meshoptimizer.
+#[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
+pub struct CharacterLodSelection {
+    /// Winner: lower score, then fewer triangles, then plain.
+    pub method: CharacterLodMethod,
+    /// Worst sampled symmetric deviation of the plain candidate.
+    pub plain_max: f64,
+    /// Worst sampled symmetric deviation of the character candidate.
+    pub character_max: f64,
 }
 
 // Whole-call limits include prepared attributes, retained levels, pose buffers,
@@ -242,6 +271,17 @@ fn prepare(
     } else if !data.joint_poses.is_empty() {
         return Err(Error::InvalidParameter);
     }
+    for sample in data.sample_poses {
+        m.charge(sample.len())?;
+        if sample.len() != n {
+            return Err(Error::InvalidLayout);
+        }
+        for p in *sample {
+            for &v in p {
+                finite(v)?;
+            }
+        }
+    }
     for shape in data.blend_shapes {
         if shape.len() != n {
             return Err(Error::InvalidLayout);
@@ -368,7 +408,27 @@ pub fn simplify_character(
 /// Limits cover the whole call. Failure returns no partial chain.
 /// # Errors
 /// Same as [`simplify_character`], chain and quality errors. Existing `attributes`
-/// in chain options are rejected (character channels occupy that metric).
+/// in chain options are rejected unless `options.best_of` is true. In best-of
+/// mode they apply only to the plain candidate; character channels occupy the
+/// character metric. Both candidates use the same input, target, flags and cap.
+/// Scores measure against the original source across all supplied poses. Selection
+/// minimizes the worst symmetric sampled deviation, then triangles, then prefers
+/// plain. Successive levels continue from the winner; independent levels use the
+/// source. This guarantees no worse score than the plain candidate of that level,
+/// not than an independently evolving plain chain or unsampled poses.
+///
+/// ```
+/// use meshoptimizer_rs::*;
+/// let p = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
+/// let mut options = CharacterOptions::default();
+/// options.best_of = true;
+/// let co = LodChainOptions::new(LodTargets::Counts(&[3]), LodErrors::Uniform(100.));
+/// let result = build_character_lod_chain(&[0,1,2,2,1,3], Positions::from_packed(&p),
+///     &CharacterInputs::new(), &options, &co, &LodQualityOptions::default(),
+///     &mut Workspace::default())?;
+/// assert_eq!(result.selections[0].method, CharacterLodMethod::Plain);
+/// # Ok::<(), Error>(())
+/// ```
 pub fn build_character_lod_chain(
     indices: &[u32],
     positions: Positions<'_>,
@@ -379,7 +439,7 @@ pub fn build_character_lod_chain(
     workspace: &mut Workspace,
 ) -> Result<CharacterLodChain, Error> {
     run(workspace, |m, ws| {
-        if chain_options.attributes.is_some() {
+        if !options.best_of && chain_options.attributes.is_some() {
             return Err(Error::InvalidParameter);
         }
         let (a, width) = prepare(positions, data, options, m, ws)?;
@@ -396,11 +456,24 @@ pub fn build_character_lod_chain(
             wide_weights.as_slice()
         };
         let mut co = *chain_options;
+        co.attributes = None;
         if width != 0 {
             co.attributes = Some(LodChainAttributes::new(
                 view(&a, positions.len(), width)?,
                 weights,
             ));
+        }
+        if options.best_of {
+            return best_of(
+                indices,
+                positions,
+                data,
+                chain_options,
+                &co,
+                quality_options,
+                m,
+                ws,
+            );
         }
         let chain = m.call(ws, |ws| {
             crate::build_lod_chain(indices, positions, &co, ws).map_err(|e| e.error)
@@ -409,58 +482,212 @@ pub fn build_character_lod_chain(
         for level in &chain.levels {
             m.retain(&level.indices)?;
         }
-        let count = 1usize
-            .checked_add(data.blend_shapes.len())
-            .and_then(|v| v.checked_add(data.joint_poses.len()))
-            .ok_or(Error::SizeOverflow)?;
-        let mut quality = m.alloc(count, ws)?;
-        let mut posed = m.alloc(positions.len(), ws)?;
-        for pose in 0..count {
-            posed.clear();
-            for i in 0..positions.len() {
-                m.charge(1)?;
-                let rest = positions.get(i).ok_or(Error::InvalidLayout)?;
-                let mut p = rest;
-                if pose > 0 && pose <= data.blend_shapes.len() {
-                    for k in 0..3 {
-                        p[k] = finite(rest[k] + data.blend_shapes[pose - 1][i][k])?;
-                    }
-                } else if pose > data.blend_shapes.len() {
-                    let s = data.skin.ok_or(Error::InvalidParameter)?;
-                    let matrices = data.joint_poses[pose - data.blend_shapes.len() - 1];
-                    p = [0.; 3];
-                    m.charge(s.influences)?;
-                    for k in 0..s.influences {
-                        let j = i * s.influences + k;
-                        let matrix = matrices
-                            [usize::try_from(s.joints[j]).map_err(|_| Error::SizeOverflow)?];
-                        for r in 0..3 {
-                            p[r] = finite(
-                                p[r] + s.weights[j]
-                                    * (matrix[r][0] * rest[0]
-                                        + matrix[r][1] * rest[1]
-                                        + matrix[r][2] * rest[2]
-                                        + matrix[r][3]),
-                            )?;
-                        }
+        let quality = measure(indices, positions, data, &chain, quality_options, m, ws)?;
+        Ok(CharacterLodChain {
+            chain,
+            quality,
+            selections: Vec::new(),
+        })
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn measure(
+    indices: &[u32],
+    positions: Positions<'_>,
+    data: &CharacterInputs<'_>,
+    chain: &LodChain,
+    quality_options: &LodQualityOptions,
+    m: &mut Meter,
+    ws: &mut Workspace,
+) -> Result<Vec<Vec<LodQuality>>, Error> {
+    let count = 1usize
+        .checked_add(data.blend_shapes.len())
+        .and_then(|v| v.checked_add(data.joint_poses.len()))
+        .and_then(|v| v.checked_add(data.sample_poses.len()))
+        .ok_or(Error::SizeOverflow)?;
+    let mut quality = m.alloc(count, ws)?;
+    let mut posed = m.alloc(positions.len(), ws)?;
+    for pose in 0..count {
+        posed.clear();
+        for i in 0..positions.len() {
+            m.charge(1)?;
+            let rest = positions.get(i).ok_or(Error::InvalidLayout)?;
+            let mut p = rest;
+            if pose > data.blend_shapes.len() + data.joint_poses.len() {
+                p = data.sample_poses[pose - data.blend_shapes.len() - data.joint_poses.len() - 1]
+                    [i];
+            } else if pose > 0 && pose <= data.blend_shapes.len() {
+                for k in 0..3 {
+                    p[k] = finite(rest[k] + data.blend_shapes[pose - 1][i][k])?;
+                }
+            } else if pose > data.blend_shapes.len() {
+                let s = data.skin.ok_or(Error::InvalidParameter)?;
+                let matrices = data.joint_poses[pose - data.blend_shapes.len() - 1];
+                p = [0.; 3];
+                m.charge(s.influences)?;
+                for k in 0..s.influences {
+                    let j = i * s.influences + k;
+                    let matrix =
+                        matrices[usize::try_from(s.joints[j]).map_err(|_| Error::SizeOverflow)?];
+                    for r in 0..3 {
+                        p[r] = finite(
+                            p[r] + s.weights[j]
+                                * (matrix[r][0] * rest[0]
+                                    + matrix[r][1] * rest[1]
+                                    + matrix[r][2] * rest[2]
+                                    + matrix[r][3]),
+                        )?;
                     }
                 }
-                posed.push(p);
             }
-            let mut reports = m.alloc(chain.levels.len(), ws)?;
-            for level in &chain.levels {
-                let p = Positions::from_packed(&posed);
-                reports.push(m.call(ws, |ws| {
-                    crate::measure_lod_quality(
-                        LodQualityMesh::new(indices, p),
-                        LodQualityMesh::new(&level.indices, p),
-                        quality_options,
-                        ws,
-                    )
-                })?);
-            }
-            quality.push(reports);
+            posed.push(p);
         }
-        Ok(CharacterLodChain { chain, quality })
+        let mut reports = m.alloc(chain.levels.len(), ws)?;
+        for level in &chain.levels {
+            let p = Positions::from_packed(&posed);
+            reports.push(m.call(ws, |ws| {
+                crate::measure_lod_quality(
+                    LodQualityMesh::new(indices, p),
+                    LodQualityMesh::new(&level.indices, p),
+                    quality_options,
+                    ws,
+                )
+            })?);
+        }
+        quality.push(reports);
+    }
+    Ok(quality)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn best_of(
+    indices: &[u32],
+    positions: Positions<'_>,
+    data: &CharacterInputs<'_>,
+    plain_options: &LodChainOptions<'_>,
+    character_options: &LodChainOptions<'_>,
+    qo: &LodQualityOptions,
+    m: &mut Meter,
+    ws: &mut Workspace,
+) -> Result<CharacterLodChain, Error> {
+    use crate::{LodErrors, LodTargets};
+    let len = match plain_options.targets {
+        LodTargets::Counts(v) => v.len(),
+        LodTargets::Ratios(v) => v.len(),
+    };
+    if len == 0 {
+        return Err(Error::InvalidParameter);
+    }
+    if let LodErrors::PerLevel(v) = plain_options.errors {
+        if v.len() != len {
+            return Err(Error::InvalidParameter);
+        }
+    }
+    let mut targets = m.alloc(len, ws)?;
+    let mut prev = indices.len();
+    let mut prev_ratio = 1.0;
+    for i in 0..len {
+        m.charge(1)?;
+        let t = match plain_options.targets {
+            LodTargets::Counts(v) => {
+                if v[i] >= prev {
+                    return Err(Error::InvalidParameter);
+                }
+                v[i]
+            }
+            LodTargets::Ratios(v) => {
+                let r = v[i];
+                if !r.is_finite() || r < 0. || r >= prev_ratio {
+                    return Err(Error::InvalidParameter);
+                }
+                prev_ratio = r;
+                ((f64::from(r) * (indices.len() / 3) as f64) as usize)
+                    .checked_mul(3)
+                    .ok_or(Error::SizeOverflow)?
+            }
+        };
+        let cap = match plain_options.errors {
+            LodErrors::Uniform(v) => v,
+            LodErrors::PerLevel(v) => v[i],
+        };
+        if !cap.is_finite() || cap < 0. {
+            return Err(Error::InvalidParameter);
+        }
+        targets.push((t, cap));
+        prev = t;
+    }
+    let mut levels: Vec<crate::LodLevel> = m.alloc(len, ws)?;
+    let mut selections = m.alloc(len, ws)?;
+    let count = 1usize
+        .checked_add(data.blend_shapes.len())
+        .and_then(|v| v.checked_add(data.joint_poses.len()))
+        .and_then(|v| v.checked_add(data.sample_poses.len()))
+        .ok_or(Error::SizeOverflow)?;
+    let mut quality = m.alloc(count, ws)?;
+    for _ in 0..count {
+        quality.push(m.alloc(len, ws)?);
+    }
+    for (target, cap) in targets {
+        let input = if plain_options.independent || levels.is_empty() {
+            indices
+        } else {
+            &levels[levels.len() - 1].indices
+        };
+        let base = m.bytes;
+        let counts = [target.min(input.len())];
+        // Fixed-size storage avoids unmetered heap metadata.
+        let mut chains = [None, None];
+        let mut reports = [None, None];
+        let mut scores = [0.; 2];
+        for (j, source) in [plain_options, character_options].iter().enumerate() {
+            let mut co = **source;
+            co.targets = LodTargets::Counts(&counts);
+            co.errors = LodErrors::Uniform(cap);
+            let chain = m.call(ws, |ws| {
+                crate::lod_chain::build_lod_chain_internal(input, positions, &co, ws, true)
+                    .map(crate::LodChain::from)
+                    .map_err(|e| e.error)
+            })?;
+            m.retain(&chain.levels)?;
+            m.retain(&chain.levels[0].indices)?;
+            let q = measure(indices, positions, data, &chain, qo, m, ws)?;
+            scores[j] = q.iter().fold(0.0f64, |v, p| v.max(p[0].symmetric.max));
+            chains[j] = Some(chain);
+            reports[j] = Some(q);
+        }
+        let plain = chains[0].take().ok_or(Error::InvalidParameter)?;
+        let character = chains[1].take().ok_or(Error::InvalidParameter)?;
+        let choose_character = scores[1] < scores[0]
+            || (scores[1] == scores[0]
+                && character.levels[0].triangle_count < plain.levels[0].triangle_count);
+        let j = usize::from(choose_character);
+        let kept = if choose_character { character } else { plain };
+        let mut kept = kept;
+        let mut level = kept.levels.pop().ok_or(Error::InvalidParameter)?;
+        level.target_reached = level.indices.len() <= target;
+        m.bytes = base;
+        m.retain(&level.indices)?;
+        levels.push(level);
+        for (out, mut q) in quality
+            .iter_mut()
+            .zip(reports[j].take().ok_or(Error::InvalidParameter)?)
+        {
+            out.push(q.pop().ok_or(Error::InvalidParameter)?);
+        }
+        selections.push(CharacterLodSelection {
+            method: if choose_character {
+                CharacterLodMethod::Character
+            } else {
+                CharacterLodMethod::Plain
+            },
+            plain_max: scores[0],
+            character_max: scores[1],
+        });
+    }
+    Ok(CharacterLodChain {
+        chain: LodChain { levels },
+        quality,
+        selections,
     })
 }

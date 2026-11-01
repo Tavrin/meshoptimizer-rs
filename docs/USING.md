@@ -964,7 +964,7 @@ gradient, so this knob does not directly preserve all geometry attached to that
 bone. Names alone do not establish that higher importance improves the measured
 maximum.
 `LodChainOptions::vertex_flags` can enforce locks in the chain API. The chain's
-existing `attributes` option must be absent; character channels occupy it.
+existing `attributes` option must be absent in the default mode; character channels occupy it.
 
 ```rust
 use meshoptimizer_rs::*;
@@ -992,6 +992,23 @@ reports, not collapse costs. Morph and joint samples are separate: combined
 poses, intermediate animation times, and simultaneous blend weights require
 caller analysis. F9 maxima are deterministic sampled lower estimates, not
 continuous Hausdorff bounds. Normals are not supplied by this API.
+
+Set `CharacterOptions::best_of = true` to build both candidates per level and
+select by lower worst sampled symmetric deviation, then fewer triangles, then
+plain. `CharacterLodChain::selections` records `method`, `plain_max`, and
+`character_max` per level (empty in default mode). The selected quality report
+remains in `quality`. Successive levels start from the winner; independent mode
+starts each level from the source. Optional chain attributes apply to the plain
+candidate only; both candidates share flags, targets and caps. Default behavior
+is unchanged. Both simplification and quality work count against whole-call limits.
+
+`CharacterInputs::sample_poses` accepts additional pre-evaluated vertex positions,
+including combined morph/animation poses; these follow joint poses in `quality`.
+These samples affect selection and reports, but do not add metric channels.
+The guarantee is against the plain candidate from the same level input under
+these exact samples. It does not compare to a separately evolving plain chain
+or bound unobserved poses. Independent-target corpus results and timing cost are
+recorded in the character measurements.
 
 Choose an error cap and validate the resulting levels in real poses; a ratio
 alone is not an acceptance test. Aggressive targets with a loose error cap can

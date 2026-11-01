@@ -213,7 +213,7 @@ pub use repair::{
 mod character;
 pub use character::{
     build_character_lod_chain, simplify_character, CharacterInputs, CharacterLodChain,
-    CharacterOptions, CharacterSkin,
+    CharacterLodMethod, CharacterLodSelection, CharacterOptions, CharacterSkin,
 };
 
 mod lod_quality;

@@ -248,6 +248,22 @@ fn generic_lod_carriers() -> Result<(), Error> {
     let wide: Vec<u32> = indices.iter().copied().map(u32::from).collect();
     let reference = build_lod_chain_generic(&wide, positions, &options, &mut ws)
         .map_err(|error| error.error)?;
+    // Character best-of permits a clamped target internally; public builders
+    // must still reject a count equal to the source for either index width.
+    let equal_counts = [indices.len()];
+    let equal = LodChainOptions::new(LodTargets::Counts(&equal_counts), LodErrors::Uniform(1.0));
+    assert_eq!(
+        build_lod_chain_generic(&indices, positions, &equal, &mut ws)
+            .unwrap_err()
+            .error,
+        Error::InvalidParameter
+    );
+    assert_eq!(
+        build_lod_chain(&wide, positions, &equal, &mut ws)
+            .unwrap_err()
+            .error,
+        Error::InvalidParameter
+    );
     assert_eq!(
         chain.levels[0].indices,
         narrow(&reference.levels[0].indices)
