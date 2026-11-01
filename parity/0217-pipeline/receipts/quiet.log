@@ -1,0 +1,6 @@
+equivalent grid-4 indices=96 vertices=25
+calibration grid-4 estimated_ns=692213 batch=13002
+cpu grid-4 repetition=0 arm=0 ticks=546 hz=100 wall_ns=5478070786 qualified=true
+sample grid-4 repetition=0 arm=0 ns=5478070786 batch=13002
+cpu grid-4 repetition=0 arm=1 ticks=633 hz=100 wall_ns=6882243895 qualified=false
+REJECT: wall duration or CPU occupancy did not qualify

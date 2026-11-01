@@ -1,0 +1,915 @@
+{
+  "status": "FAIL",
+  "final_gates": {
+    "tests": 0,
+    "default": 0,
+    "no-std": 0,
+    "doctests": 0,
+    "docs": 0,
+    "wasm": 0,
+    "wasm-default": 0,
+    "final-fmt": 0,
+    "final-clippy": 0,
+    "final-pipeline": 0,
+    "final-pipeline-scalar": 0,
+    "final-docs": 0,
+    "final-semver": 0,
+    "final-wasm": 0,
+    "final-retained": 0,
+    "exact-default": 0,
+    "exact-scalar": 0,
+    "cpp-default": 0,
+    "cpp-scalar": 0,
+    "equivalence-bench": 0,
+    "supplement-build": 0,
+    "supplement": 0,
+    "quiet-build": 0,
+    "quiet": 2,
+    "wasm-smoke-build-default": 0,
+    "wasm-smoke-default": 0,
+    "wasm-smoke-build-no-std": 0,
+    "wasm-smoke-no-std": 0,
+    "cpu-qualification": 1,
+    "performance": 1,
+    "final-public": 0
+  },
+  "performance_limit": 1.02,
+  "equivalent_cases": 11,
+  "prior_timings": [
+    {
+      "case": "grid-4",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 211188.413,
+      "manual_ns": 252186.2236,
+      "paired_median_ratio": 0.8324588040419962,
+      "ratio_of_medians": 0.8374304114842219,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 2069887007,
+            "batch": 10000
+          },
+          {
+            "repetition": 1,
+            "ns": 2070886707,
+            "batch": 10000
+          },
+          {
+            "repetition": 2,
+            "ns": 2220878422,
+            "batch": 10000
+          },
+          {
+            "repetition": 3,
+            "ns": 2111884130,
+            "batch": 10000
+          },
+          {
+            "repetition": 4,
+            "ns": 2011889550,
+            "batch": 10000
+          },
+          {
+            "repetition": 5,
+            "ns": 2132882684,
+            "batch": 10000
+          },
+          {
+            "repetition": 6,
+            "ns": 2183879803,
+            "batch": 10000
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 2521862236,
+            "batch": 10000
+          },
+          {
+            "repetition": 1,
+            "ns": 2609857318,
+            "batch": 10000
+          },
+          {
+            "repetition": 2,
+            "ns": 2667853846,
+            "batch": 10000
+          },
+          {
+            "repetition": 3,
+            "ns": 2760848632,
+            "batch": 10000
+          },
+          {
+            "repetition": 4,
+            "ns": 2284874484,
+            "batch": 10000
+          },
+          {
+            "repetition": 5,
+            "ns": 2299873572,
+            "batch": 10000
+          },
+          {
+            "repetition": 6,
+            "ns": 2340871079,
+            "batch": 10000
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "grid-16",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 6210593.35546875,
+      "manual_ns": 6519171.83984375,
+      "paired_median_ratio": 0.9582033933868975,
+      "ratio_of_medians": 0.9526659993085262,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 1618910788,
+            "batch": 256
+          },
+          {
+            "repetition": 1,
+            "ns": 1996889802,
+            "batch": 256
+          },
+          {
+            "repetition": 2,
+            "ns": 1612910942,
+            "batch": 256
+          },
+          {
+            "repetition": 3,
+            "ns": 1587912201,
+            "batch": 256
+          },
+          {
+            "repetition": 4,
+            "ns": 1535915046,
+            "batch": 256
+          },
+          {
+            "repetition": 5,
+            "ns": 1578912547,
+            "batch": 256
+          },
+          {
+            "repetition": 6,
+            "ns": 1589911899,
+            "batch": 256
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 1668907991,
+            "batch": 256
+          },
+          {
+            "repetition": 1,
+            "ns": 1715905355,
+            "batch": 256
+          },
+          {
+            "repetition": 2,
+            "ns": 1659908308,
+            "batch": 256
+          },
+          {
+            "repetition": 3,
+            "ns": 1661908152,
+            "batch": 256
+          },
+          {
+            "repetition": 4,
+            "ns": 1602911299,
+            "batch": 256
+          },
+          {
+            "repetition": 5,
+            "ns": 1807899910,
+            "batch": 256
+          },
+          {
+            "repetition": 6,
+            "ns": 1696905929,
+            "batch": 256
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "grid-32",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 27498469.21875,
+      "manual_ns": 28967132.984375,
+      "paired_median_ratio": 0.9732954308115644,
+      "ratio_of_medians": 0.9492989600863433,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 2288873044,
+            "batch": 64
+          },
+          {
+            "repetition": 1,
+            "ns": 1858896711,
+            "batch": 64
+          },
+          {
+            "repetition": 2,
+            "ns": 1747902835,
+            "batch": 64
+          },
+          {
+            "repetition": 3,
+            "ns": 1759902030,
+            "batch": 64
+          },
+          {
+            "repetition": 4,
+            "ns": 1747902652,
+            "batch": 64
+          },
+          {
+            "repetition": 5,
+            "ns": 1712904476,
+            "batch": 64
+          },
+          {
+            "repetition": 6,
+            "ns": 1833897680,
+            "batch": 64
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 2510860642,
+            "batch": 64
+          },
+          {
+            "repetition": 1,
+            "ns": 1889895043,
+            "batch": 64
+          },
+          {
+            "repetition": 2,
+            "ns": 1797900010,
+            "batch": 64
+          },
+          {
+            "repetition": 3,
+            "ns": 1862896345,
+            "batch": 64
+          },
+          {
+            "repetition": 4,
+            "ns": 1758901994,
+            "batch": 64
+          },
+          {
+            "repetition": 5,
+            "ns": 1759901898,
+            "batch": 64
+          },
+          {
+            "repetition": 6,
+            "ns": 1853896511,
+            "batch": 64
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "tiny-smooth",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 209388.2299,
+      "manual_ns": 227087.2478,
+      "paired_median_ratio": 0.9132540453467066,
+      "ratio_of_medians": 0.9220607142344345,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 2056885125,
+            "batch": 10000
+          },
+          {
+            "repetition": 1,
+            "ns": 2131880751,
+            "batch": 10000
+          },
+          {
+            "repetition": 2,
+            "ns": 2213876094,
+            "batch": 10000
+          },
+          {
+            "repetition": 3,
+            "ns": 2310870436,
+            "batch": 10000
+          },
+          {
+            "repetition": 4,
+            "ns": 1961889946,
+            "batch": 10000
+          },
+          {
+            "repetition": 5,
+            "ns": 2073883477,
+            "batch": 10000
+          },
+          {
+            "repetition": 6,
+            "ns": 2093882299,
+            "batch": 10000
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 2085883447,
+            "batch": 10000
+          },
+          {
+            "repetition": 1,
+            "ns": 2118881541,
+            "batch": 10000
+          },
+          {
+            "repetition": 2,
+            "ns": 2470861632,
+            "batch": 10000
+          },
+          {
+            "repetition": 3,
+            "ns": 2510859307,
+            "batch": 10000
+          },
+          {
+            "repetition": 4,
+            "ns": 2242874120,
+            "batch": 10000
+          },
+          {
+            "repetition": 5,
+            "ns": 2270872478,
+            "batch": 10000
+          },
+          {
+            "repetition": 6,
+            "ns": 2397865138,
+            "batch": 10000
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "medium-smooth",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 122493106.5,
+      "manual_ns": 125617901.625,
+      "paired_median_ratio": 0.9842818192858419,
+      "ratio_of_medians": 0.9751246033839327,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 1959889704,
+            "batch": 16
+          },
+          {
+            "repetition": 1,
+            "ns": 1815897671,
+            "batch": 16
+          },
+          {
+            "repetition": 2,
+            "ns": 1838896332,
+            "batch": 16
+          },
+          {
+            "repetition": 3,
+            "ns": 2199875804,
+            "batch": 16
+          },
+          {
+            "repetition": 4,
+            "ns": 2047884330,
+            "batch": 16
+          },
+          {
+            "repetition": 5,
+            "ns": 1958889201,
+            "batch": 16
+          },
+          {
+            "repetition": 6,
+            "ns": 2394864476,
+            "batch": 16
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 2008886893,
+            "batch": 16
+          },
+          {
+            "repetition": 1,
+            "ns": 1844896081,
+            "batch": 16
+          },
+          {
+            "repetition": 2,
+            "ns": 1974888616,
+            "batch": 16
+          },
+          {
+            "repetition": 3,
+            "ns": 2098881566,
+            "batch": 16
+          },
+          {
+            "repetition": 4,
+            "ns": 2009886426,
+            "batch": 16
+          },
+          {
+            "repetition": 5,
+            "ns": 2196875801,
+            "batch": 16
+          },
+          {
+            "repetition": 6,
+            "ns": 2276871085,
+            "batch": 16
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "medium-seams",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 104556559.1875,
+      "manual_ns": 100244310.6875,
+      "paired_median_ratio": 1.0435331041468432,
+      "ratio_of_medians": 1.0430173889213816,
+      "within_time_target": false,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 1714902856,
+            "batch": 16
+          },
+          {
+            "repetition": 1,
+            "ns": 1730901834,
+            "batch": 16
+          },
+          {
+            "repetition": 2,
+            "ns": 1665905487,
+            "batch": 16
+          },
+          {
+            "repetition": 3,
+            "ns": 1943889595,
+            "batch": 16
+          },
+          {
+            "repetition": 4,
+            "ns": 1672904947,
+            "batch": 16
+          },
+          {
+            "repetition": 5,
+            "ns": 1653905930,
+            "batch": 16
+          },
+          {
+            "repetition": 6,
+            "ns": 1657905667,
+            "batch": 16
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 1537912853,
+            "batch": 16
+          },
+          {
+            "repetition": 1,
+            "ns": 1946889633,
+            "batch": 16
+          },
+          {
+            "repetition": 2,
+            "ns": 1603908971,
+            "batch": 16
+          },
+          {
+            "repetition": 3,
+            "ns": 1729901786,
+            "batch": 16
+          },
+          {
+            "repetition": 4,
+            "ns": 1584909916,
+            "batch": 16
+          },
+          {
+            "repetition": 5,
+            "ns": 1584909883,
+            "batch": 16
+          },
+          {
+            "repetition": 6,
+            "ns": 1784898403,
+            "batch": 16
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "medium-sparse",
+      "campaign": "batched replacement for sub-200ms clock resolution",
+      "sample_pairs": 7,
+      "pipeline_ns": 126242801.9375,
+      "manual_ns": 126430272.5625,
+      "paired_median_ratio": 0.9802274080658633,
+      "ratio_of_medians": 0.9985172014486695,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 1849894661,
+            "batch": 16
+          },
+          {
+            "repetition": 1,
+            "ns": 2019884831,
+            "batch": 16
+          },
+          {
+            "repetition": 2,
+            "ns": 2172876051,
+            "batch": 16
+          },
+          {
+            "repetition": 3,
+            "ns": 2020884572,
+            "batch": 16
+          },
+          {
+            "repetition": 4,
+            "ns": 1982886694,
+            "batch": 16
+          },
+          {
+            "repetition": 5,
+            "ns": 1959887875,
+            "batch": 16
+          },
+          {
+            "repetition": 6,
+            "ns": 2021884284,
+            "batch": 16
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 2253871602,
+            "batch": 16
+          },
+          {
+            "repetition": 1,
+            "ns": 1977887273,
+            "batch": 16
+          },
+          {
+            "repetition": 2,
+            "ns": 2320867552,
+            "batch": 16
+          },
+          {
+            "repetition": 3,
+            "ns": 2068881877,
+            "batch": 16
+          },
+          {
+            "repetition": 4,
+            "ns": 2022884361,
+            "batch": 16
+          },
+          {
+            "repetition": 5,
+            "ns": 1857893750,
+            "batch": 16
+          },
+          {
+            "repetition": 6,
+            "ns": 1993885841,
+            "batch": 16
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "million-smooth",
+      "campaign": "all original and supplemental pairs",
+      "sample_pairs": 7,
+      "pipeline_ns": 21624729802.0,
+      "manual_ns": 21782716581.0,
+      "paired_median_ratio": 1.0270489730417869,
+      "ratio_of_medians": 0.9927471498601876,
+      "within_time_target": false,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 19536710479,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 20582763721,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 20426775107,
+            "batch": 1
+          },
+          {
+            "repetition": 0,
+            "ns": 22052723293,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 23931599036,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 21624729802,
+            "batch": 1
+          },
+          {
+            "repetition": 3,
+            "ns": 23959579816,
+            "batch": 1
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 19742697034,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 19768695458,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 19888803400,
+            "batch": 1
+          },
+          {
+            "repetition": 0,
+            "ns": 23018662227,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 22202704890,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 21782716581,
+            "batch": 1
+          },
+          {
+            "repetition": 3,
+            "ns": 22816651621,
+            "batch": 1
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "real-214e",
+      "campaign": "original",
+      "sample_pairs": 3,
+      "pipeline_ns": 102214496886.0,
+      "manual_ns": 102207531154.0,
+      "paired_median_ratio": 1.0024860545636858,
+      "ratio_of_medians": 1.0000681528251525,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 116781719781,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 102214496886,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 98393713732,
+            "batch": 1
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 104485429774,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 102207531154,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 98149708202,
+            "batch": 1
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "real-a082",
+      "campaign": "original",
+      "sample_pairs": 3,
+      "pipeline_ns": 115701496546.0,
+      "manual_ns": 114545579104.0,
+      "paired_median_ratio": 0.9962266880360247,
+      "ratio_of_medians": 1.0100913317741447,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 116334485651,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 115701496546,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 114047597559,
+            "batch": 1
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 117348407598,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 114545579104,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 114479564670,
+            "batch": 1
+          }
+        ]
+      ],
+      "clock_resolved": true
+    },
+    {
+      "case": "real-b6fd",
+      "campaign": "original",
+      "sample_pairs": 3,
+      "pipeline_ns": 25823321876.0,
+      "manual_ns": 26441281381.0,
+      "paired_median_ratio": 0.9767802381377335,
+      "ratio_of_medians": 0.9766289879792267,
+      "within_time_target": true,
+      "samples": [
+        [
+          {
+            "repetition": 0,
+            "ns": 25823321876,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 25827321124,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 25590336383,
+            "batch": 1
+          }
+        ],
+        [
+          {
+            "repetition": 0,
+            "ns": 25974311896,
+            "batch": 1
+          },
+          {
+            "repetition": 1,
+            "ns": 26441281381,
+            "batch": 1
+          },
+          {
+            "repetition": 2,
+            "ns": 26491277669,
+            "batch": 1
+          }
+        ]
+      ],
+      "clock_resolved": true
+    }
+  ],
+  "controlled_timings": [],
+  "cpu_samples": [
+    {
+      "case": "grid-4",
+      "repetition": 0,
+      "arm": 0,
+      "ticks": 546,
+      "hz": 100,
+      "wall_ns": 5478070786,
+      "observed_cpu_fraction": 0.9967012500009707,
+      "lower_bound": 0.9928690853748718,
+      "qualified": true,
+      "driver_qualified": true
+    },
+    {
+      "case": "grid-4",
+      "repetition": 0,
+      "arm": 1,
+      "ticks": 633,
+      "hz": 100,
+      "wall_ns": 6882243895,
+      "observed_cpu_fraction": 0.919758162682783,
+      "lower_bound": 0.9167189331448207,
+      "qualified": false,
+      "driver_qualified": false
+    }
+  ],
+  "cpu_complete_campaign": false,
+  "target_removed": true,
+  "initial_failures": {
+    "semver": 101,
+    "public": 1
+  },
+  "residuals": [
+    "The 1.02 time target is not qualified. No samples were selected by speed ratio.",
+    "Shared-host paired medians exceed the target for medium-seams and million-smooth.",
+    "The CPU-accounted attempt rejected its first pair; manual CPU occupancy was below 99%."
+  ]
+}
