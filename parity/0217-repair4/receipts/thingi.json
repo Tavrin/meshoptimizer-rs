@@ -1,0 +1,62 @@
+[
+  {
+    "name": "thingi170991",
+    "title": "NASA - Galileo Spacecraft",
+    "author": "moriza",
+    "license": "Creative Commons - Attribution",
+    "thing": "https://www.thingiverse.com/thing:71637",
+    "url": "https://huggingface.co/datasets/Thingi10K/Thingi10K/resolve/2d5d3b2f3cd3711028ad75b12788c13b25559ec6/raw_meshes/170991.stl",
+    "sha256": "e6a83940dee4db97f07c57adef009e021d1480e62780c60ace650fe467365b0c",
+    "vertices": 7991,
+    "triangles": 16681,
+    "conversion": "STL triangles indexed by exact float32 position equality"
+  },
+  {
+    "name": "thingi90248",
+    "title": "Proud Rooster Sliced to Print",
+    "author": "MacGyver",
+    "license": "Creative Commons - Attribution",
+    "thing": "https://www.thingiverse.com/thing:30971",
+    "url": "https://huggingface.co/datasets/Thingi10K/Thingi10K/resolve/2d5d3b2f3cd3711028ad75b12788c13b25559ec6/raw_meshes/90248.stl",
+    "sha256": "bcaca8484f792ed0d5edf195e13bd8160cbd8142b16125ef506b4b94c79da713",
+    "vertices": 16290,
+    "triangles": 32642,
+    "conversion": "STL triangles indexed by exact float32 position equality"
+  },
+  {
+    "name": "thingi83642",
+    "title": "brick 2x3 = 16",
+    "author": "cunicode",
+    "license": "Creative Commons - Attribution",
+    "thing": "https://www.thingiverse.com/thing:28240",
+    "url": "https://huggingface.co/datasets/Thingi10K/Thingi10K/resolve/2d5d3b2f3cd3711028ad75b12788c13b25559ec6/raw_meshes/83642.stl",
+    "sha256": "7a163fbec9d3021e6ff58866e962dbac705954e8cadaff107c6e37ae9613a31f",
+    "vertices": 10304,
+    "triangles": 21123,
+    "conversion": "STL triangles indexed by exact float32 position equality"
+  },
+  {
+    "name": "thingi66345",
+    "title": "Glasses replace",
+    "author": "michelefaini",
+    "license": "Creative Commons - Attribution",
+    "thing": "https://www.thingiverse.com/thing:21294",
+    "url": "https://huggingface.co/datasets/Thingi10K/Thingi10K/resolve/2d5d3b2f3cd3711028ad75b12788c13b25559ec6/raw_meshes/66345.stl",
+    "sha256": "4939c631c60e704d290ef412edc5ed21e6c579d699bd9a93c6b1ebc1acbb7f55",
+    "vertices": 34678,
+    "triangles": 68841,
+    "conversion": "STL triangles indexed by exact float32 position equality"
+  },
+  {
+    "name": "thingi78660",
+    "title": "Mars Globes (Highly & slightly exagerrated)",
+    "author": "neurothing",
+    "license": "Creative Commons - Attribution",
+    "thing": "https://www.thingiverse.com/thing:26311",
+    "url": "https://huggingface.co/datasets/Thingi10K/Thingi10K/resolve/2d5d3b2f3cd3711028ad75b12788c13b25559ec6/raw_meshes/78660.stl",
+    "sha256": "7964dc1b2f19462337eb4a6a8186b36200158e2642d3111d14cb46bcd145ff9a",
+    "vertices": 49706,
+    "triangles": 99522,
+    "conversion": "STL triangles indexed by exact float32 position equality"
+  }
+]

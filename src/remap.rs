@@ -13,7 +13,7 @@ const NONE: u32 = u32::MAX;
 pub struct VertexStream<'a> {
     data: &'a [u8],
     count: usize,
-    size: usize,
+    pub(crate) size: usize,
     stride: usize,
     offset: usize,
 }
@@ -75,7 +75,7 @@ impl<'a> VertexStream<'a> {
         self.count == 0
     }
     #[inline(always)]
-    fn key(self, i: u32) -> &'a [u8] {
+    pub(crate) fn key(self, i: u32) -> &'a [u8] {
         let start = self.offset + i as usize * self.stride;
         &self.data[start..start + self.size]
     }

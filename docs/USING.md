@@ -599,6 +599,57 @@ opt-in: it lowers peak memory, but later calls reallocate scratch and run slower
 
 ## Mesh repair
 
+Fan splitting and crack stitching are opt-in extensions, not in C++ meshoptimizer.
+`split_non_manifold_vertices(indices, records, workspace)` accepts a `VertexStream`
+of complete initialized attribute records and returns packed copies plus indices
+and `SplitVerticesReport`. The lowest-corner fan retains the original index;
+other fans get appended copies, preserving every supplied attribute byte.
+Fans are joined across shared edges as `analyze_mesh` defines them, so afterwards
+`non_manifold_vertices` is zero; edges shared by more than two faces stay shared.
+Unreferenced records remain.
+
+`stitch_cracks(indices, records, positions, tolerance, workspace)` returns packed
+records, indices and `StitchReport` (accepted pairs, T-junction splits, refused
+candidates, remaining boundary length). `None` uses 1e-6 times the largest mesh
+bounds extent; `Some(distance)` selects an absolute Euclidean tolerance, including
+zero. Positions must describe the same vertices as the records. This is a
+position-only seam policy: the winning representative's complete attributes win.
+T-junctions reuse existing vertices, so attributes need no interpolation.
+Caller-provided position views must agree with the position bytes in the records.
+The returned records stay uncompact; downstream fetch optimization can compact them.
+
+A deterministic sorted spatial grid finds near boundary pairs. Candidates are
+accepted only with positive old/new face-normal dot products on changed faces and
+without increasing the counts of edges with more than two faces, equally directed
+two-face edges or surplus vertex fans. Refusals leave the current topology
+unchanged; defects already in the input do not block other stitches.
+This is a conservative local operation, not a general surface reconstruction or
+self-intersection test. The pipeline stitches before splitting so a T-junction can be joined
+before disconnected endpoint fans are separated. Isolated coincident fans
+are refused by stitching and then separated by splitting. Each original boundary vertex can subdivide at
+most one edge per call. Whole-mesh validation can make dense cases expensive;
+all candidate visits, sorting and temporary storage obey workspace limits.
+An exhausted budget returns an error without a partial mesh.
+
+Both APIs have `_generic` forms for u16/u32; appended indices narrow with checked
+`IndexOverflow`. Use `ProcessOptions::split_non_manifold_vertices = true` and
+`ProcessOptions::stitch_cracks = Some(None)` (or `Some(Some(distance))`) to insert
+these stages after orientation and before hole filling and LOD generation.
+They default off. Existing welding and sanitation should precede repair.
+
+```rust
+use meshoptimizer_rs::{split_non_manifold_vertices, VertexStream, Workspace};
+let records = [10u8, 20, 30, 40, 50];
+let result = split_non_manifold_vertices(
+    &[0, 1, 2, 0, 3, 4], VertexStream::packed(&records, 1)?,
+    &mut Workspace::default(),
+)?;
+assert_eq!(result.indices, [0, 1, 2, 5, 3, 4]);
+assert_eq!(result.vertices, [10, 20, 30, 40, 50, 10]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+
 `sanitize` is an extension; it is not in C++ meshoptimizer.
 
 ```text

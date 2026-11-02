@@ -1,0 +1,16 @@
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running `<target>/release/examples/repair4_measure <inputs>/fan3.bin <inputs>/hourglass_ico.bin <inputs>/platonic_shelf.bin <inputs>/thingi/thingi170991.bin <inputs>/thingi/thingi66345.bin <inputs>/thingi/thingi78660.bin <inputs>/thingi/thingi83642.bin <inputs>/thingi/thingi90248.bin <inputs>/triple_vierbein.bin`
+mesh	boundary_before	boundary_after	nm_vertex_before	nm_vertex_after	nm_edge_before	nm_edge_after	repair_us	lod_before	lod_after	pairs	t_splits	refused
+fan3	6	6	0	0	1	1	14	3	3	0	0	0
+hourglass_ico	0	0	1	0	0	0	19	40	40	0	0	0
+platonic_shelf	0	0	0	0	0	0	36	80	80	0	0	0
+thingi170991	306	286	70	0	701	701	980547	1653	1669	0	8	19
+thingi66345	563	497	7	0	0	0	13576669	6884	6887	12	34	382
+thingi78660: dropped 260 degenerate triangles
+thingi78660	244	175	14	0	3	3	6439489	9911	9911	33	13	131
+thingi83642	352	352	239	0	160	160	1241863	2103	2111	0	0	4
+thingi90248	286	284	144	0	0	0	1551118	3247	3264	0	2	46
+triple_vierbein	60	60	0	0	20	20	530	39	39	0	0	0
+bowtie	6	6	1	0	0	0	5	2	2	0	0	0
+gap	6	4	0	0	0	0	4	2	2	2	0	0
+t_junction	7	4	2	0	0	0	5	2	2	0	1	0
