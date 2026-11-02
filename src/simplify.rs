@@ -2071,12 +2071,18 @@ impl State {
         let back = &self.back.0[..n];
         let collapses = &mut self.collapses;
         collapses.clear();
+        // A prepaid meter cannot fail, and every entered triangle visits all
+        // three corners: count triangles and charge three visits each once.
+        let mut entered = 0;
         for t in indices.as_chunks::<3>().0 {
             if count + 3 > capacity {
                 break;
             }
+            entered += 1;
             for e in 0..3 {
-                work.add(1)?;
+                if !M::PREPAID {
+                    work.add(1)?;
+                }
                 let a = t[e] as usize;
                 let b = t[(e + 1) % 3] as usize;
                 let ra = remap[a];
@@ -2118,6 +2124,9 @@ impl State {
                 });
                 count += 1;
             }
+        }
+        if M::PREPAID {
+            work.add(entered * 3)?;
         }
         Ok(count)
     }
@@ -2436,8 +2445,12 @@ impl State {
             // Positional updates need no attribute/volume tables. A shared
             // vertex prefix keeps their bounds and bases outside the loop.
             let quadrics = &mut self.q[..n];
+            // One visit per vertex. A prepaid meter cannot fail: it is charged
+            // the visited prefix once, on error or after the pass.
             for (i, &target) in cr.iter().enumerate() {
-                work.add(1)?;
+                if !M::PREPAID {
+                    work.add(1)?;
+                }
                 let t = target as usize;
                 if t == i {
                     continue;
@@ -2449,10 +2462,16 @@ impl State {
                     let destination = &mut quadrics[r1];
                     destination.add(q);
                     if !destination.finite() {
+                        if M::PREPAID {
+                            work.add(i + 1)?;
+                        }
                         return Err(Error::NumericalFailure);
                     }
                     destination.cache_inverse_weight();
                 }
+            }
+            if M::PREPAID {
+                work.add(n)?;
             }
         } else {
             for i in 0..self.p.len() {
@@ -2495,9 +2514,15 @@ impl State {
                 }
             }
         }
+        // Two infallible passes of one visit per vertex.
+        if M::PREPAID {
+            work.add(n * 2)?;
+        }
         for loops in [&mut self.forward.0[..n], &mut self.back.0[..n]] {
             for i in 0..n {
-                work.add(1)?;
+                if !M::PREPAID {
+                    work.add(1)?;
+                }
                 let l = loops[i] as usize;
                 if l != NONE {
                     let r = cr[l] as usize;
