@@ -15,6 +15,10 @@ pub enum ProcessStage {
     Weld,
     /// Face orientation.
     Orient,
+    /// Split disconnected vertex fans.
+    SplitVertices,
+    /// Stitch boundary cracks.
+    StitchCracks,
     /// Bounded hole filling.
     FillHoles,
     /// Static or character LOD chain.
@@ -130,6 +134,10 @@ pub struct ProcessOptions<'a> {
     pub weld: bool,
     /// Orient faces before LOD generation.
     pub orient: bool,
+    /// Split disconnected fans, copying complete records before hole filling.
+    pub split_non_manifold_vertices: bool,
+    /// Enable crack stitching; inner None uses a bounds-relative tolerance.
+    pub stitch_cracks: Option<Option<f32>>,
     /// Maximum hole boundary edges; None disables filling.
     pub fill_holes: Option<usize>,
     /// Optional LOD chain. Attributes/flags must be absent: use attribute fields below.
@@ -162,6 +170,8 @@ impl Default for ProcessOptions<'_> {
             sanitize: Some(SanitizeOptions::default()),
             weld: true,
             orient: false,
+            split_non_manifold_vertices: false,
+            stitch_cracks: None,
             fill_holes: None,
             lod: Some(LodChainOptions::new(
                 LodTargets::Ratios(&[0.5, 0.25]),
@@ -516,6 +526,44 @@ fn process(
             |ws| orient_faces(&indices, vertices.len() / stride, ws).map(|r| r.indices),
         )?;
         m.hold(&indices)?;
+    }
+    if let Some(tolerance) = o.stitch_cracks {
+        let r = m.call(
+            ProcessStage::StitchCracks,
+            None,
+            [indices.len(), vertices.len() / stride],
+            ws,
+            |ws| {
+                stitch_cracks(
+                    &indices,
+                    VertexStream::packed(&vertices, stride)?,
+                    positions(&vertices, stride, offset)?,
+                    tolerance,
+                    ws,
+                )
+            },
+        )?;
+        indices = r.indices;
+        vertices = r.vertices;
+        m.counts([indices.len(), vertices.len() / stride]);
+        m.hold(&indices)?;
+        m.hold(&vertices)?;
+    }
+    if o.split_non_manifold_vertices {
+        let r = m.call(
+            ProcessStage::SplitVertices,
+            None,
+            [indices.len(), vertices.len() / stride],
+            ws,
+            |ws| {
+                split_non_manifold_vertices(&indices, VertexStream::packed(&vertices, stride)?, ws)
+            },
+        )?;
+        indices = r.indices;
+        vertices = r.vertices;
+        m.counts([indices.len(), vertices.len() / stride]);
+        m.hold(&indices)?;
+        m.hold(&vertices)?;
     }
     if let Some(max_edges) = o.fill_holes {
         indices = m.call(

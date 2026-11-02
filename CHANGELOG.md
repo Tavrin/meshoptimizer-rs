@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `split_non_manifold_vertices` copies full records for disconnected face fans; `stitch_cracks` conservatively merges boundary pairs and subdivides T-junctions with explicit refusal counts. Both provide u32 and `_generic` index forms and optional `process_mesh` stages.
+
 - `process_mesh` composes sanitation, full-record welding, optional repair, static or skinned LODs, cache/overdraw/fetch optimization, F9 quality, optional meshlets/clusters and codecs in one checked workspace call with stage errors and a combined report.
 
 - Additive `_generic` functions and width-aware methods support u16 and u32 through sealed `Index`, with checked narrowing and generic topology results. Width-aware input and result types use a `Generic` suffix; existing names retain their u32 signatures and inference.
