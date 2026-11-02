@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Opt-in character chain best-of selection records both worst sampled pose scores and the winning method per level, with plain fallback and deterministic triangle-count/plain tie breaks. Additional pre-evaluated pose samples support authored animation comparisons.
 - Opt-in `simplify_character` and `build_character_lod_chain` with exact bone-weight importance channels, full blend-target position metrics, and F9 quality reports in bind, blend, and supplied linear skinning poses. The metric retains exact channels within workspace memory/work limits, including rigs and morph sets above 32 channels, and supports `no_std` without new features.
 
+### Performance
+
+- `optimize_vertex_cache` and its strip, table, `_into` and in-place variants skip exhausted cache entries through a per-position live mask and merge the cache with a fixed-width match mask. Output and `Usage` are unchanged; instructions per call fall to 0.70x C++ on the real-mesh geometric mean (from 1.24x) and 1.04x on the corpus (from 1.23x).
+
 ## [0.2.16] - 2026-10-30
 
 ### Added
