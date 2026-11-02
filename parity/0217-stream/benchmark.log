@@ -1,0 +1,10 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 14.85s
+     Running `<target>/release/examples/buffer_stream_bench`
+v0 one-shot vertex=6248.14 triangle=5633.44 MB/s decoded
+v0 chunk=4096 vertex=4439.03 (0.710x) triangle=5164.64 (0.917x)
+v0 chunk=65536 vertex=5470.55 (0.876x) triangle=5137.67 (0.912x)
+v1 one-shot vertex=10385.29 triangle=5917.31 MB/s decoded
+v1 chunk=4096 vertex=7444.96 (0.717x) triangle=5951.68 (1.006x)
+v1 chunk=65536 vertex=8464.81 (0.815x) triangle=5779.90 (0.977x)

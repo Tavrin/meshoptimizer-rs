@@ -1108,3 +1108,44 @@ reports contain counts, charged work and elapsed nanoseconds (`None` on
 `no_std` and `wasm32-unknown-unknown`); only timing varies between identical calls. Errors identify the stage
 and, for per-level processing, the level. Output is atomic. Empty surfaces have
 `None` quality. Level zero is always the processed source.
+
+### Incremental vertex and triangle decoding
+
+`codec::VertexBufferDecoder` and `codec::IndexBufferDecoder` are Rust extensions
+(not in C++ meshoptimizer). Fetch format metadata first, then stream only the
+body. For vertices, supply the header byte and complete padded trailer to
+`VertexBufferDecoder::new(count, stride, header, trailer, body_len, limits)`.
+Trailer length is `max(stride, 32)` for v0 and
+`max(stride + stride / 4, 24)` for v1. For triangles, pass the leading header
+plus one code byte per triangle and the final sixteen-byte codebook to
+`IndexBufferDecoder::new(index_count, prefix, trailer, body_len, limits)`.
+The triangle codes remain borrowed; the caller must retain that separate array.
+
+Call `push(input_chunk, output_chunk)`, advance by `Progress::consumed`, and
+retain `Progress::written` output elements. Vertex output elements are bytes;
+triangle elements are u32 indices (`push_generic` also supports truncating u16,
+as the one-shot triangle codec does). Resubmit unconsumed input, including when
+`NeedOutput` requests more destination space. Empty calls are allowed. After
+all body bytes arrive, drain pending output with empty input and call `finish`.
+Only a successful `finish` commits the provisional output. Extra body bytes,
+incomplete input and undrained output fail validation; terminal errors stick.
+
+Storage is bounded independently of stream length: vertex decoding uses at
+most one 8 KiB decoded block and a 9216-byte compressed scratch buffer, plus
+fixed predictors/trailer state. Triangle decoding uses fixed scratch/FIFOs,
+plus the caller-owned code array (one byte per triangle, required by the
+format's separate code and data streams). Both preflight work as encoded plus
+decoded bytes (triangle construction budgets four bytes per index, including
+when output is later narrowed to u16); fixed storage and caller buffers are excluded from `max_bytes`.
+Vertex parsing needs up to 24 lookahead bytes and triangle parsing up to sixteen,
+so output can lag the last semantic byte by that amount. An incomplete vertex
+block is retried on the next chunk; very small chunks therefore cost more work
+than bulk decoding. Fetching trailers requires a seekable source or container
+that transports trailers separately. A forward-only transport must arrange
+that split before using these APIs.
+Streaming is a memory-bounded interface, not a faster one: on a 65,536-vertex
+stride-32 buffer it decodes at roughly 0.7x to 0.86x of the one-shot
+caller-buffer decoders for vertices (v0 and v1, 4 KiB and 64 KiB chunks) and
+0.9x to 1.0x for triangles, measured as wall-clock throughput on a shared
+machine (about 0.77x to 0.97x counting instructions). Decode whole buffers when
+they fit in memory.

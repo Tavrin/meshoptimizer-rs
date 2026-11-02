@@ -33,12 +33,14 @@ pub(crate) use simd::bounds::roots as bounds_roots;
 #[doc(hidden)]
 pub use simd::dispatch::{detected_level, with_level, Level};
 
+mod buffer_stream;
 mod filter;
 mod filter_encode;
 mod index;
 mod index_encode;
 mod meshlet;
 mod sequence_stream;
+pub use buffer_stream::{IndexBufferDecoder, VertexBufferDecoder};
 mod vertex;
 mod vertex_encode;
 use crate::{workspace::checked_bytes, Error, Workspace};
