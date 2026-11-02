@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Performance
 
 - `optimize_vertex_cache` and its strip, table, `_into` and in-place variants skip exhausted cache entries through a per-position live mask and merge the cache with a fixed-width match mask. Output and `Usage` are unchanged; instructions per call fall to 0.70x C++ on the real-mesh geometric mean (from 1.24x) and 1.04x on the corpus (from 1.23x).
+- `simplify` and its variants charge collapse picking and quadric updates once per pass when the pass's budget is already covered, instead of once per visited corner or vertex. Limits, errors, outputs and `Usage` are unchanged; instructions per call fall to 1.15x C++ on the real-mesh geometric mean (from 1.19x) and 1.05x on the corpus (from 1.08x).
 
 ## [0.2.16] - 2026-10-30
 
