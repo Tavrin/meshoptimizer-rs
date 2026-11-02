@@ -11,7 +11,7 @@ R = Path(__file__).resolve().parents[2]
 A = Path(__file__).resolve().parent
 T = Path(os.environ['CARGO_TARGET_DIR'])
 REF = Path(os.environ['MESHOPT_REFERENCE'])
-LOGS = Path(os.environ.get('QUALIFY_LOGS', '/mnt/linux-extra/moss-scratch/meshopt-0217q/logs'))
+LOGS = Path(os.environ.get('QUALIFY_LOGS', 'qualify-logs'))
 ALL = ['std', 'simd', 'parallel', 'clusterlod', 'experimental', 'parity-internals']
 OPS = ('simplify simplify-attributes simplify-sloppy simplify-update simplify-prune simplify-points cache overdraw fetch '
        'meshlets meshlets-flex meshlets-spatial cluster-lod vertex-encode vertex-decode index-encode index-decode '
@@ -505,7 +505,7 @@ def streaming_costs():
 
 def hsr_costs():
     """Hidden-surface removal on the HSR lane's existing eval meshes: wall seconds (median of 3) and whole-process instructions."""
-    src = Path('/mnt/linux-extra/moss-scratch/meshopt-hsr-eval')
+    src = Path(os.environ['HSR_EVAL_DIR'])
     rows = []
     for name in ['breakfast_room', 'living_room', 'conference']:
         path = src / (name + '.bin')
@@ -524,7 +524,7 @@ def hsr_costs():
 
 def character_costs():
     """Character LOD: single-pass vs best-of times (ms, from the example's own CSV) on the best-of lane's 12 eval inputs, median of 3 runs."""
-    src = Path('/mnt/linux-extra/moss-scratch/meshopt-bestof/inputs')
+    src = Path(os.environ['BESTOF_INPUTS_DIR'])
     rows = []
     for d in sorted(src.iterdir()):
         path = d / (d.name + '.eval.bin')
