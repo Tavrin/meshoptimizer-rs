@@ -1,0 +1,17 @@
+fmt	0
+clippy	0
+tests	0
+no-std	0
+doctests	0
+docs	0
+wasm	0
+semver-tool	0
+semver	0
+reference	0
+unsafe	0
+corpus-wasm	0
+benchmark	0
+fuzz-build	0
+fuzz	0
+fmt-check	0
+public-text	0

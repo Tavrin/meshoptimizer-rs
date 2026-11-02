@@ -1,25 +1,26 @@
 use crate::{workspace::checked_bytes, Error, Limits};
 
-/// The next action for an incremental index-sequence decoder.
+/// The next action for an incremental codec decoder.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Status {
-    /// Supply more compressed bytes. Only [`IndexSequenceDecoder::finish`]
-    /// declares an exhausted input malformed.
+    /// Supply more compressed bytes. This status does not declare EOF;
+    /// call the decoder's `finish` method once the stream ends.
     NeedInput,
-    /// Supply output space for at least one more index.
+    /// Supply output space for at least one more output element.
     NeedOutput,
-    /// All indices and four padding bytes have arrived. Call `finish` at EOF.
+    /// All declared output and format bytes have arrived. Call `finish` at EOF.
     Done,
 }
 
-/// Progress made by one successful [`IndexSequenceDecoder::push`] call.
+/// Progress made by one successful incremental decoder `push` call.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct Progress {
     /// Bytes consumed from this call's input; resubmit its unconsumed suffix.
     pub consumed: usize,
-    /// Indices written to this call's output; its remaining tail is untouched.
+    /// Output elements written; bytes for vertex decoding, indices otherwise.
+    /// The remaining destination tail is untouched.
     pub written: usize,
     /// The next action required by the decoder.
     pub status: Status,

@@ -1,0 +1,10 @@
+{
+  "cpu_seconds": 614.062702,
+  "runs": [
+    {
+      "exit_code": 0,
+      "cpu_seconds": 614.062702,
+      "log": "fuzz-run-0.log"
+    }
+  ]
+}

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `codec::VertexBufferDecoder` and `codec::IndexBufferDecoder`: incremental vertex-buffer and triangle-index decoders with bounded fixed storage (no heap), chunked input and output, trailer-first construction (header and padded trailer, or codes and codebook, supplied separately), sticky errors identical to the one-shot decoders, and EOF validation in `finish`. `Status` and `Progress` are shared with `IndexSequenceDecoder`.
 - `process_mesh` composes sanitation, full-record welding, optional repair, static or skinned LODs, cache/overdraw/fetch optimization, F9 quality, optional meshlets/clusters and codecs in one checked workspace call with stage errors and a combined report.
 
 - Additive `_generic` functions and width-aware methods support u16 and u32 through sealed `Index`, with checked narrowing and generic topology results. Width-aware input and result types use a `Generic` suffix; existing names retain their u32 signatures and inference.

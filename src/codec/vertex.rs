@@ -400,6 +400,98 @@ pub(super) fn decode<D: Destination + ?Sized>(
     Ok(())
 }
 
+// Shared bounded block parser for incremental input.
+pub(super) fn stream_block(
+    data: &[u8],
+    block_output: &mut [u8],
+    block: usize,
+    stride: usize,
+    version: u8,
+    last: &[u8],
+    channels: &[u8],
+) -> Result<usize, Error> {
+    let mut pos = 0;
+    let aligned = block.div_ceil(16) * 16;
+    let mut deltas = [0u8; 1024];
+    let controls = if version == 0 {
+        &[][..]
+    } else {
+        let c = data
+            .get(pos..pos + stride / 4)
+            .ok_or(Error::InvalidStream)?;
+        pos += stride / 4;
+        c
+    };
+    // Each bounded block fits 8 KiB. Write directly into its checked
+    // destination slice, avoiding zeroing/copying an extra stack block.
+
+    for k in (0..stride).step_by(4) {
+        let control = if version == 0 { 0 } else { controls[k / 4] };
+        for j in 0..4 {
+            let ctrl = (control >> (j * 2)) & 3;
+            let out = &mut deltas[j * block..j * block + aligned];
+            match ctrl {
+                3 => {
+                    out[..block]
+                        .copy_from_slice(data.get(pos..pos + block).ok_or(Error::InvalidStream)?);
+                    pos += block;
+                }
+                2 => out[..block].fill(0),
+                _ => {
+                    pos = bytes(
+                        data,
+                        pos,
+                        out,
+                        if version == 0 {
+                            &[0, 2, 4, 8]
+                        } else if ctrl == 0 {
+                            &[0, 1, 2, 4]
+                        } else {
+                            &[1, 2, 4, 8]
+                        },
+                    )?
+                }
+            }
+        }
+        let channel = if version == 0 { 0 } else { channels[k / 4] };
+        let target = &mut block_output[k..];
+        // k is a four-byte-aligned channel group; only complete records
+        // belong to this group. Extend the target to keep chunk strides
+        // complete without touching bytes beyond this group's four bytes.
+        let target_len = (block - 1) * stride + 4;
+        let target = &mut target[..target_len];
+        match channel & 3 {
+            0 => decode_deltas::<1, false>(
+                &deltas[..block * 4],
+                target,
+                block,
+                stride,
+                &last[k..k + 4],
+                0,
+            ),
+            1 => decode_deltas::<2, false>(
+                &deltas[..block * 4],
+                target,
+                block,
+                stride,
+                &last[k..k + 4],
+                0,
+            ),
+            2 => decode_deltas::<4, true>(
+                &deltas[..block * 4],
+                target,
+                block,
+                stride,
+                &last[k..k + 4],
+                (32 - u32::from(channel >> 4)) & 31,
+            ),
+            _ => return Err(Error::InvalidStream),
+        }
+    }
+
+    Ok(pos)
+}
+
 #[cfg(test)]
 mod streaming_tests {
     use super::*;

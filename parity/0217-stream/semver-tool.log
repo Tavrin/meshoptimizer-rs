@@ -1,0 +1,3 @@
+    Updating crates.io index
+     Ignored package `cargo-semver-checks v0.51.0` is already installed, use --force to override
+warning: be sure to add `<target>/tools/bin` to your PATH to be able to run the installed binaries
