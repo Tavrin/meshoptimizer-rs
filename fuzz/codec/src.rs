@@ -266,8 +266,8 @@ fn exercise04(
 
 // All decoder targets compare the exact typed result and successful meaningful
 // bytes under every level this process can execute. Each process covers all ISAs.
-static LEVEL_COUNTS: [std::sync::atomic::AtomicU64; 6] =
-    [const { std::sync::atomic::AtomicU64::new(0) }; 6];
+static LEVEL_COUNTS: [std::sync::atomic::AtomicU64; 8] =
+    [const { std::sync::atomic::AtomicU64::new(0) }; 8];
 fn differential(entry: u8, data: &[u8]) {
     if data.len() < 9 || !matches!(entry, 0..=12 | 23 | 26..=29) {
         return;
@@ -359,6 +359,8 @@ fn differential(entry: u8, data: &[u8]) {
         Level::Sse41,
         Level::Neon,
         Level::Wasm,
+        Level::Avx2,
+        Level::Avx512,
     ] {
         if let Ok(actual) = with_level(l, run) {
             LEVEL_COUNTS[l as usize].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
