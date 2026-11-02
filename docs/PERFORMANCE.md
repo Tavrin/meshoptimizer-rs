@@ -93,6 +93,60 @@ execution. Logical usage matches serial, while concurrent scratch and Rayon
 infrastructure add physical memory use. These timings do not guarantee a
 speedup on other meshes or hosts.
 
+## Parallel vertex codec and spatial meshlets for one large mesh
+
+Median of three calls per cell, wall seconds, on the three real meshes, with
+a Rayon pool of the stated size. Every parallel output was asserted equal to
+the serial bytes (vertex buffers, meshlets, vertices, triangles). The host was
+shared, with a load average of 6.5 to 7.9 on a 16-core, 32-thread CPU; threads
+were not pinned and the 16-worker column shares cores with other work. These
+timings do not guarantee a speedup on other meshes or hosts.
+
+The vertex buffers are the mesh positions as three `f32` (stride 12) and as
+four 16-bit values quantized to the bounding box (stride 8), encoded with the
+default version 1, level 2. Meshlets are `build_meshlets_spatial` with 64
+vertices, 124 triangles, 64 minimum triangles and fill weight 0.5, on a
+workspace with unlimited limits. The 1-worker column calls the parallel
+function inside a one-worker pool, which takes the serial path.
+
+| Mesh, operation | Serial, s | 1 | 2 | 4 | 8 | 16 |
+|---|---:|---:|---:|---:|---:|---:|
+| real-b6fd encode, stride 12 | 0.0438 | 1.02x | 2.15x | 3.90x | 6.42x | 8.32x |
+| real-b6fd encode, stride 8 | 0.0253 | 1.01x | 1.72x | 3.47x | 4.61x | 6.89x |
+| real-b6fd decode, stride 12 | 0.0161 | 1.11x | 1.65x | 1.66x | 2.08x | 2.11x |
+| real-b6fd decode, stride 8 | 0.0048 | 0.53x | 0.65x | 0.81x | 0.86x | 0.91x |
+| real-b6fd spatial meshlets | 0.4988 | 0.95x | 1.71x | 2.90x | 3.35x | 3.83x |
+| real-214e encode, stride 12 | 0.1558 | 0.96x | 1.60x | 2.96x | 5.35x | 7.04x |
+| real-214e encode, stride 8 | 0.1203 | 1.02x | 1.84x | 4.34x | 7.31x | 10.11x |
+| real-214e decode, stride 12 | 0.0559 | 1.00x | 1.12x | 1.49x | 1.83x | 1.83x |
+| real-214e decode, stride 8 | 0.0368 | 1.04x | 0.99x | 1.42x | 1.64x | 1.72x |
+| real-214e spatial meshlets | 2.3155 | 1.03x | 1.70x | 2.64x | 3.19x | 3.20x |
+| real-a082 encode, stride 12 | 0.1725 | 1.03x | 1.76x | 4.02x | 6.81x | 10.77x |
+| real-a082 encode, stride 8 | 0.1276 | 0.99x | 2.09x | 4.09x | 7.87x | 9.85x |
+| real-a082 decode, stride 12 | 0.0607 | 1.00x | 0.97x | 1.27x | 1.45x | 1.56x |
+| real-a082 decode, stride 8 | 0.0400 | 0.99x | 0.97x | 1.30x | 1.50x | 1.59x |
+| real-a082 spatial meshlets | 2.5794 | 1.01x | 1.67x | 2.63x | 3.36x | 3.45x |
+
+Decoding takes the serial path, so it is never slower, unless the pool has at
+least four workers and the output is at least 48 MiB (32 MiB for strides of 8
+or less). The decode rows above were measured before that rule. The smallest
+mesh's decode (21.7 MB at stride 12, 14.5 MB at stride 8) and every 2-worker
+cell now run serially, because a re-measure with warm allocator state showed
+the 21.7 MB stride-12 decode at 0.84x to 0.90x with 4 to 16 workers. The
+remaining parallel cells are the 54 to 87 MB outputs of real-214e and real-a082
+with 4 or more workers, re-measured as 1.15x to 1.78x (median of five). Cells
+below 4 workers run the serial path, so their 0.84x to 1.03x spread is
+measurement noise.
+
+Decoding scales least. Each group's size depends on its escape codes, so the
+block starts come from a serial scan of every group header, which costs about
+a third of a serial decode and bounds the speedup near three; after the scan
+the blocks decode concurrently. A buffer the serial decoder already handles at
+several gigabytes per second (the stride-8 buffer of the smallest mesh) is
+faster serially; the 0.53x cell in that row runs the serial path in a pool of
+one and shows the allocator and page-fault variation of a 5 ms call. Meshlets are bounded by the serial top of the cut recursion
+and the serial emission scan. Encoding is almost entirely concurrent.
+
 ## Repair and streaming costs
 
 Corpus only, default build, median of three `instructions:u` samples.

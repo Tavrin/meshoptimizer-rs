@@ -285,9 +285,31 @@ fn estimate_bits(v: u8) -> usize {
 }
 
 fn estimate_rotate(vertices: &[u8], count: usize, stride: usize, k: usize) -> u8 {
+    pick_rotation(&rotate_sizes(
+        vertices,
+        count,
+        stride,
+        k,
+        0..count.div_ceil(GROUP),
+    ))
+}
+
+/// Encoded-size estimate of each rotation over the sixteen-vertex groups in
+/// `groups`. Group sums are integers, so ranges may be summed in any order.
+fn rotate_sizes(
+    vertices: &[u8],
+    count: usize,
+    stride: usize,
+    k: usize,
+    groups: core::ops::Range<usize>,
+) -> [usize; 8] {
     let mut sizes = [0usize; 8];
-    let mut last = word(vertices, k);
-    for group in vertices[..count * stride].chunks(stride * GROUP) {
+    // The first delta of the buffer is zero; later ranges start from the
+    // vertex before their first group.
+    let before = (groups.start * GROUP).saturating_sub(1);
+    let mut last = word(&vertices[before * stride..], k);
+    let end = (groups.end * GROUP).min(count);
+    for group in vertices[groups.start * GROUP * stride..end * stride].chunks(stride * GROUP) {
         let mut bitg = 0u32;
         for row in group.chunks_exact(stride) {
             let v = word(row, k);
@@ -299,6 +321,10 @@ fn estimate_rotate(vertices: &[u8], count: usize, stride: usize, k: usize) -> u8
             *size += estimate_bits(a) + estimate_bits(b) + estimate_bits(c) + estimate_bits(d);
         }
     }
+    sizes
+}
+
+fn pick_rotation(sizes: &[usize; 8]) -> u8 {
     let mut best = 0;
     for rot in 1..8 {
         if sizes[rot] < sizes[best] {
@@ -320,9 +346,45 @@ fn estimate_channel(
     max_channel: u8,
     rot: u8,
 ) -> u8 {
+    let sizes = channel_sizes(
+        lanes,
+        vertices,
+        count,
+        stride,
+        k,
+        block_size,
+        skip,
+        max_channel,
+        rot,
+        0..sample_count(count, block_size, skip),
+    );
+    pick_channel(&sizes, max_channel, rot)
+}
+
+/// Number of sampled blocks: every `skip`-th block, starting with the first.
+fn sample_count(count: usize, block_size: usize, skip: usize) -> usize {
+    count.div_ceil(block_size * skip)
+}
+
+/// Estimated encoded size of each delta channel over the sampled blocks
+/// numbered `samples`. Block sums are integers, so ranges may be summed in
+/// any order.
+#[allow(clippy::too_many_arguments)]
+fn channel_sizes(
+    lanes: &mut [[u8; BLOCK_MAX]; 4],
+    vertices: &[u8],
+    count: usize,
+    stride: usize,
+    k: usize,
+    block_size: usize,
+    skip: usize,
+    max_channel: u8,
+    rot: u8,
+    samples: core::ops::Range<usize>,
+) -> [usize; 3] {
     let mut sizes = [0usize; 3];
-    let mut i = 0;
-    while i < count {
+    for sample in samples {
+        let i = sample * block_size * skip;
         let block = block_size.min(count - i);
         let aligned = block.div_ceil(GROUP) * GROUP;
         let start = if i == 0 { 0 } else { i - 1 };
@@ -342,8 +404,11 @@ fn estimate_channel(
                 sizes[channel as usize] += total as usize;
             }
         }
-        i += block_size * skip;
     }
+    sizes
+}
+
+fn pick_channel(sizes: &[usize; 3], max_channel: u8, rot: u8) -> u8 {
     let mut best = 0;
     for channel in 1..max_channel as usize {
         if sizes[channel] < sizes[best] {
@@ -520,4 +585,194 @@ pub(super) fn encode(
         pos += stride / 4;
     }
     Ok(pos)
+}
+
+/// Fewest blocks in a parallel work unit; smaller buffers encode serially.
+#[cfg(feature = "parallel")]
+pub(super) const MIN_CHUNK_BLOCKS: usize = 4;
+#[cfg(feature = "parallel")]
+const ROTATE_TASK_GROUPS: usize = 2048;
+#[cfg(feature = "parallel")]
+const CHANNEL_TASK_SAMPLES: usize = 32;
+
+#[cfg(feature = "parallel")]
+fn ranges(total: usize, per: usize) -> impl Iterator<Item = core::ops::Range<usize>> {
+    (0..total)
+        .step_by(per)
+        .map(move |start| start..(start + per).min(total))
+}
+
+#[cfg(feature = "parallel")]
+fn zeroed(len: usize) -> Result<alloc::vec::Vec<u8>, Error> {
+    let mut v = alloc::vec::Vec::new();
+    v.try_reserve_exact(len)
+        .map_err(|_| Error::AllocationFailed)?;
+    v.resize(len, 0);
+    Ok(v)
+}
+
+/// Per-channel-group control bytes (version 1, level above 1), computed with
+/// the estimators split into integer-summed ranges that run concurrently.
+#[cfg(feature = "parallel")]
+fn estimate_channels_parallel(
+    vertices: &[u8],
+    count: usize,
+    stride: usize,
+    level: u8,
+    block: usize,
+) -> [u8; 64] {
+    use rayon::prelude::*;
+    let groups4 = stride / 4;
+    let mut rotations = [0u8; 64];
+    if level >= 3 {
+        let tasks: alloc::vec::Vec<_> = (0..groups4)
+            .flat_map(|g| {
+                ranges(count.div_ceil(GROUP), ROTATE_TASK_GROUPS).map(move |range| (g, range))
+            })
+            .collect();
+        let sums: alloc::vec::Vec<[usize; 8]> = tasks
+            .par_iter()
+            .map(|(g, range)| rotate_sizes(vertices, count, stride, g * 4, range.clone()))
+            .collect();
+        let mut totals = [[0usize; 8]; 64];
+        for ((g, _), sum) in tasks.iter().zip(&sums) {
+            for (total, value) in totals[*g].iter_mut().zip(sum) {
+                *total += value;
+            }
+        }
+        for g in 0..groups4 {
+            rotations[g] = pick_rotation(&totals[g]);
+        }
+    }
+    let max_channel = if level >= 3 { 3 } else { 2 };
+    let tasks: alloc::vec::Vec<_> = (0..groups4)
+        .flat_map(|g| {
+            ranges(sample_count(count, block, 3), CHANNEL_TASK_SAMPLES).map(move |range| (g, range))
+        })
+        .collect();
+    let sums: alloc::vec::Vec<[usize; 3]> = tasks
+        .par_iter()
+        .map(|(g, range)| {
+            let mut lanes = [[0u8; BLOCK_MAX]; 4];
+            channel_sizes(
+                &mut lanes,
+                vertices,
+                count,
+                stride,
+                g * 4,
+                block,
+                3,
+                max_channel,
+                rotations[*g],
+                range.clone(),
+            )
+        })
+        .collect();
+    let mut totals = [[0usize; 3]; 64];
+    for ((g, _), sum) in tasks.iter().zip(&sums) {
+        for (total, value) in totals[*g].iter_mut().zip(sum) {
+            *total += value;
+        }
+    }
+    let mut channels = [0u8; 64];
+    for g in 0..groups4 {
+        channels[g] = pick_channel(&totals[g], max_channel, rotations[g]);
+    }
+    channels
+}
+
+/// Parallel [`encode`] into an exactly sized vector, with the same bytes.
+///
+/// Block bodies depend only on the input (the baseline of a block is the last
+/// input vertex of the previous block) and on the per-channel estimates, so
+/// runs of blocks encode independently and concatenate in order. The
+/// parameters are validated by the caller as for [`encode`].
+#[cfg(feature = "parallel")]
+pub(super) fn encode_parallel(
+    vertices: &[u8],
+    count: usize,
+    stride: usize,
+    version: u8,
+    level: u8,
+) -> Result<alloc::vec::Vec<u8>, Error> {
+    use rayon::prelude::*;
+    let block = block_size(stride);
+    let channels = if version != 0 && level > 1 && count > 1 {
+        estimate_channels_parallel(vertices, count, stride, level, block)
+    } else {
+        [0u8; 64]
+    };
+    let blocks = count.div_ceil(block);
+    let per_block = stride * ((block / GROUP).div_ceil(4) + block) + stride / 4;
+    let chunk_blocks = blocks
+        .div_ceil(rayon::current_num_threads() * 4)
+        .max(MIN_CHUNK_BLOCKS);
+    let pieces: alloc::vec::Vec<Result<alloc::vec::Vec<u8>, Error>> = ranges(blocks, chunk_blocks)
+        .collect::<alloc::vec::Vec<_>>()
+        .into_par_iter()
+        .map(|run| {
+            // Slack beyond the worst case keeps every capacity check passing.
+            let mut buffer = zeroed(run.len() * per_block + 64)?;
+            let mut w = Writer {
+                out: &mut buffer,
+                pos: 0,
+            };
+            let mut lanes = [[0u8; BLOCK_MAX]; 4];
+            let mut offset = run.start * block;
+            let end = (run.end * block).min(count);
+            let mut last = [0u8; 256];
+            let previous = offset.saturating_sub(1);
+            last[..stride].copy_from_slice(&vertices[previous * stride..(previous + 1) * stride]);
+            while offset < end {
+                let size = block.min(count - offset);
+                encode_block(
+                    &mut w,
+                    &mut lanes,
+                    &vertices[offset * stride..(offset + size) * stride],
+                    size,
+                    stride,
+                    &mut last,
+                    &channels,
+                    version,
+                    level,
+                )?;
+                offset += size;
+            }
+            let used = w.pos;
+            buffer.truncate(used);
+            buffer.shrink_to_fit();
+            Ok(buffer)
+        })
+        .collect();
+    let tail = stride + if version == 0 { 0 } else { stride / 4 };
+    let padded = tail.max(if version == 0 { TAIL_V0 } else { TAIL_V1 });
+    let mut total = 1 + padded;
+    for piece in &pieces {
+        match piece {
+            Ok(piece) => total += piece.len(),
+            Err(error) => return Err(*error),
+        }
+    }
+    let mut out = super::vertex_parallel::zeroed(total)?;
+    out[0] = HEADER | version;
+    let (body, rest) = out[1..].split_at_mut(total - 1 - padded);
+    let mut targets = alloc::vec::Vec::new();
+    let mut remaining = body;
+    for piece in pieces.iter().flatten() {
+        let (target, after) = remaining.split_at_mut(piece.len());
+        targets.push((target, piece));
+        remaining = after;
+    }
+    targets
+        .par_iter_mut()
+        .for_each(|(target, piece)| target.copy_from_slice(piece));
+    // The padding stays zero; the first vertex and the channel bytes follow it.
+    let trailer = &mut rest[padded - tail..];
+    if count > 0 {
+        trailer[..stride].copy_from_slice(&vertices[..stride]);
+    }
+    if version != 0 {
+        trailer[stride..].copy_from_slice(&channels[..stride / 4]);
+    }
+    Ok(out)
 }

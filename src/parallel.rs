@@ -14,6 +14,10 @@
 //! infrastructure are excluded. There is no aggregate batch memory limit: all
 //! successful outputs remain live until the caller drops them.
 //!
+//! [`encode_vertex_buffer_parallel`], [`decode_vertex_buffer_parallel`] and
+//! [`build_meshlets_spatial_parallel`] instead split one large input over the
+//! pool, with output byte-identical to the serial function for every pool size.
+//!
 //! Work uses the current Rayon pool (normally the global pool). Use
 //! [`rayon::ThreadPool::install`] to select an existing pool; the crate does not
 //! explicitly create pools. Rayon lazily initializes the global pool on first
@@ -616,6 +620,126 @@ pub fn simplify_lod_chain(
 ) -> Result<Vec<SimplifiedMesh>, Error> {
     simplify_lod_chain_generic::<u32>(&(*input).into(), workspace)
         .map(|values| values.into_iter().map(Into::into).collect())
+}
+
+/// Encode one large vertex buffer on the current Rayon pool. Not in C++ meshoptimizer.
+///
+/// The bytes equal [`codec::encode_vertex_buffer`] for every pool size: the
+/// format's block bodies depend only on the input and the per-channel
+/// estimates, so runs of blocks and the estimators run concurrently and the
+/// results concatenate in order. A pool of one worker, or a buffer of fewer
+/// than eight blocks, takes the serial path unchanged. Limits are accounted as
+/// in the serial encoder (the worst-case bound); the transient per-run buffers
+/// are not additionally accounted.
+///
+/// # Errors
+/// Those of [`codec::encode_vertex_buffer`].
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
+pub fn encode_vertex_buffer_parallel(
+    vertices: &[u8],
+    count: usize,
+    stride: usize,
+    encoding: VertexEncoding,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    codec::encode_vertex_buffer_parallel(vertices, count, stride, encoding, workspace)
+}
+
+/// Decode one large vertex buffer on the current Rayon pool. Not in C++ meshoptimizer.
+///
+/// The output and the error equal [`codec::decode_vertex_buffer`] for every
+/// pool size. Each block starts from the previous block's last vertex, but a
+/// decoded block is linear in that vertex (every channel is a prefix sum or
+/// prefix xor), so runs of blocks decode from a zero baseline concurrently
+/// after a serial scan of the group selectors, and their true baselines are
+/// chained and applied afterwards. A malformed stream is judged by the serial
+/// decoder. The scan of the group headers is serial and costs about a third of
+/// a serial decode, so the serial decoder runs instead (never slower) when the
+/// pool has fewer than four workers, the output is under 48 MiB (32 MiB for
+/// strides of 8 or less, which are highly compressible), or it has fewer than
+/// eight blocks. The output buffer is zero-initialized lazily, so its pages are first touched
+/// by the workers.
+///
+/// # Errors
+/// Those of [`codec::decode_vertex_buffer`].
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
+pub fn decode_vertex_buffer_parallel(
+    count: usize,
+    stride: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    codec::decode_vertex_buffer_parallel(count, stride, source, workspace)
+}
+
+/// Build SAH-spatial meshlets for one large mesh on the current Rayon pool. Not in C++ meshoptimizer.
+///
+/// The meshlets, vertices, triangles and counted work equal
+/// [`crate::build_meshlets_spatial_generic`]'s for every pool size: the box,
+/// sort and recursive cut stages run concurrently on independent subtrees, and
+/// the final meshlet emission, which is a serial scan, runs in the fixed
+/// triangle order. Scan and flex builders keep an open meshlet across the whole
+/// triangle sequence, so no exactly equal parallel form exists for them.
+///
+/// Only a workspace with `max_bytes == usize::MAX` and `max_work == u64::MAX`
+/// uses the concurrent path, as in cluster LOD, because per-worker scratch is
+/// not counted. Any other workspace, or a one-worker pool, runs the serial
+/// builder. [`Workspace::usage`] work matches serial; its bytes count only the
+/// serial algorithm's storage and exclude concurrent scratch.
+///
+/// # Errors
+/// Those of [`crate::build_meshlets_spatial_generic`].
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
+#[inline]
+pub fn build_meshlets_spatial_parallel_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletsGeneric<I>, Error> {
+    crate::meshlet::build_meshlets_spatial_parallel_generic(
+        indices,
+        p,
+        s,
+        min_triangles,
+        fill_weight,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`build_meshlets_spatial_parallel_generic`] for selectable index widths.
+///
+/// # Errors
+/// Those of [`crate::build_meshlets_spatial`].
+///
+/// # Panics
+/// Panics if Rayon cannot initialize its thread pool or a worker panics.
+#[inline]
+pub fn build_meshlets_spatial_parallel(
+    indices: &[u32],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<Meshlets, Error> {
+    build_meshlets_spatial_parallel_generic::<u32>(
+        indices,
+        p,
+        s,
+        min_triangles,
+        fill_weight,
+        workspace,
+    )
+    .map(Into::into)
 }
 
 /// The source-compatible u32 entry point; see [`simplify_lod_chains_batch_generic`] for selectable index widths.

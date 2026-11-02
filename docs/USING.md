@@ -568,6 +568,52 @@ worker scratch, held speculative results, and Rayon infrastructure consume
 additional physical memory. Select a pool size that fits the mesh and available
 memory. No parallel speedup is guaranteed.
 
+## Parallel vertex codec and spatial meshlets for one large mesh
+
+With `parallel`, three opt-in functions in the `parallel` module use the
+current Rayon pool for a single large input. They are not in C++
+meshoptimizer, and each returns exactly the bytes of the serial function for
+every pool size:
+
+- `encode_vertex_buffer_parallel` runs the per-channel estimators and runs of
+  blocks concurrently. Block bodies depend only on the input.
+- `decode_vertex_buffer_parallel` finds block starts with a serial scan of the
+  group selectors, decodes runs of blocks from a zero baseline concurrently,
+  chains each run's last vertex and applies the baselines. This works because
+  every channel is a prefix sum or prefix xor, so a decoded block is linear in
+  its starting vertex. A damaged stream is judged by the serial decoder.
+- `build_meshlets_spatial_parallel` runs box construction, the three axis
+  sorts and the recursive cut on independent subtrees; emission stays a serial
+  scan. Only a workspace with `max_bytes == usize::MAX` and
+  `max_work == u64::MAX` takes the concurrent path, because per-worker scratch
+  is not counted; the work count matches serial. The scan and flex builders keep
+  one open meshlet across the whole triangle sequence and have no exactly
+  equal parallel form. The index codecs carry FIFO and next-vertex state from
+  triangle to triangle with no resynchronization points in the format, so they
+  are not parallelized.
+
+Encoding and spatial meshlets take the serial path for a one-worker pool or a
+buffer of fewer than eight blocks. Decoding takes it for fewer than four
+workers, an output under 48 MiB (32 MiB for strides of 8 or less), or fewer
+than eight blocks.
+Measured speed-ups: `docs/PERFORMANCE.md`.
+
+```rust
+# #[cfg(feature = "parallel")]
+# {
+use meshoptimizer_rs::{codec::VertexEncoding, parallel, Workspace};
+let vertices: Vec<u8> = (0..64_000u32).flat_map(|i| (i * 3).to_le_bytes()).collect();
+let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+let mut workspace = Workspace::default();
+let encoded = pool.install(|| {
+    parallel::encode_vertex_buffer_parallel(&vertices, 64_000, 4, VertexEncoding::DEFAULT, &mut workspace)
+})?;
+let decoded = pool.install(|| parallel::decode_vertex_buffer_parallel(64_000, 4, &encoded, &mut workspace))?;
+assert_eq!(decoded, vertices);
+# }
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
 ## Lower peak memory with Retention::Lean
 
 ```text

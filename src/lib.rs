@@ -148,7 +148,9 @@
 //!   It reproduces the pinned demo exactly; it is not a stable upstream API.
 //! - `experimental`: upstream functions and options marked experimental.
 //! - `parallel`: ordered Rayon batch APIs for independent meshes and buffer
-//!   views; enables `std`. See the `parallel` module for limits and error semantics.
+//!   views, plus parallel vertex encode/decode and spatial meshlet building
+//!   for one large input; enables `std`. See the `parallel` module for limits
+//!   and error semantics.
 #![deny(unsafe_code)]
 #![cfg_attr(not(feature = "simd"), forbid(unsafe_code))]
 #![deny(

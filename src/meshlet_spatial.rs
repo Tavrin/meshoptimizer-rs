@@ -172,8 +172,8 @@ impl Pivot<'_> {
 }
 struct Bvh<'a> {
     boxes: &'a [Box3],
-    axes: [Vec<u32>; 3],
-    boundary: Vec<u8>,
+    axes: [&'a mut [u32]; 3],
+    boundary: &'a mut [u8],
     used: Vec<i16>,
     areas: Vec<f32>,
     counts: Vec<u32>,
@@ -217,6 +217,21 @@ impl Bvh<'_> {
         depth: usize,
         ctx: &mut Context<'_>,
     ) -> Result<(), Error> {
+        if let Next::Cut { axis, split } = self.cut(start, n, depth, ctx)? {
+            self.partition(start, n, axis, split, ctx)?;
+            self.split(start, split, depth + 1, ctx)?;
+            self.split(start + split, n - split, depth + 1, ctx)?;
+        }
+        Ok(())
+    }
+    // Close the node as one meshlet run (or in tail chunks), or choose its cut.
+    fn cut(
+        &mut self,
+        start: usize,
+        n: usize,
+        depth: usize,
+        ctx: &mut Context<'_>,
+    ) -> Result<Next, Error> {
         let s = self.settings;
         if n <= s.max_triangles
             && count(
@@ -228,118 +243,202 @@ impl Bvh<'_> {
             )? <= s.max_vertices
         {
             self.mark(start, n);
-            return Ok(());
+            return Ok(Next::Done);
         }
-        let step = if self.min == s.max_triangles && n > s.max_triangles {
-            s.max_triangles
-        } else {
-            1
-        };
-        let mint = if n <= s.max_triangles && s.max_vertices / 3 < self.min {
-            s.max_vertices / 3
-        } else {
-            self.min
-        };
-        let maxfill = if n <= s.max_triangles {
-            s.max_vertices
-        } else {
-            s.max_triangles
-        };
+        let params = self.sweep_params(n);
+        let mut results = [(0.0, 0); 3];
+        for (k, result) in results.iter_mut().enumerate() {
+            *result = sweep(
+                SweepInput {
+                    boxes: self.boxes,
+                    order: &self.axes[k][start..start + n],
+                    indices: self.indices,
+                    settings: s,
+                    fill: self.fill,
+                    params,
+                },
+                &mut self.areas[..2 * n],
+                &mut self.counts[..n],
+                &mut self.used,
+                ctx,
+            )?;
+        }
+        self.choose(start, n, depth, results, ctx)
+    }
+    fn sweep_params(&self, n: usize) -> SweepParams {
+        let s = self.settings;
+        SweepParams {
+            step: if self.min == s.max_triangles && n > s.max_triangles {
+                s.max_triangles
+            } else {
+                1
+            },
+            mint: if n <= s.max_triangles && s.max_vertices / 3 < self.min {
+                s.max_vertices / 3
+            } else {
+                self.min
+            },
+            maxfill: if n <= s.max_triangles {
+                s.max_vertices
+            } else {
+                s.max_triangles
+            },
+        }
+    }
+    // The cheapest axis cut; no cut (or a too deep one) closes the node in tails.
+    fn choose(
+        &mut self,
+        start: usize,
+        n: usize,
+        depth: usize,
+        results: [(f32, usize); 3],
+        ctx: &mut Context<'_>,
+    ) -> Result<Next, Error> {
         let mut best = None;
         let mut bestcost = f32::MAX;
-        for k in 0..3 {
-            ctx.tick(n)?;
-            let mut left = Box3::empty();
-            let mut right = Box3::empty();
-            // Local slices: no per-iteration reloads or index checks besides boxes.
-            let boxes = self.boxes;
-            let order = &self.axes[k][start..start + n];
-            let (left_areas, right_areas) = self.areas[..2 * n].split_at_mut(n);
-            #[cfg(feature = "simd")]
-            let vectorized =
-                crate::codec::simd::spatial::areas(boxes, order, left_areas, right_areas);
-            #[cfg(not(feature = "simd"))]
-            let vectorized = false;
-            if !vectorized {
-                for i in 0..n {
-                    left_areas[i] = left.merge(&boxes[order[i] as usize]);
-                    right_areas[i] = right.merge(&boxes[order[n - 1 - i] as usize]);
-                }
-            }
-            if n <= s.max_triangles {
-                count(
-                    &self.axes[k][start..start + n],
-                    &mut self.used,
-                    self.indices,
-                    Some(&mut self.counts[..n]),
-                    ctx,
-                )?;
-            }
-            let aligned = n >= mint * 2 && divisible(n, mint, s.max_triangles);
-            let end = if aligned { n - mint } else { n - 1 };
-            ctx.tick((mint - 1..end).step_by(step).len())?;
-            let pivot = Pivot {
-                areas: &self.areas[..2 * n],
-                counts: &self.counts[..n.min(s.max_triangles)],
-                n,
-                step,
-                mint,
-                max: s.max_triangles,
-                aligned,
-                end,
-                maxfill,
-                fill: self.fill,
-            };
-            // Specialize the loop-invariant choices; same visits and costs.
-            let (axiscost, axissplit) = match (n <= s.max_triangles, mint * 2 <= s.max_triangles) {
-                (true, true) => pivot.run::<true, true>(),
-                (true, false) => pivot.run::<true, false>(),
-                (false, true) => pivot.run::<false, true>(),
-                (false, false) => pivot.run::<false, false>(),
-            };
+        for (k, &(axiscost, axissplit)) in results.iter().enumerate() {
             if axissplit != 0 && axiscost < bestcost {
                 best = Some((k, axissplit));
                 bestcost = axiscost;
             }
         }
         let Some((axis, split)) = best else {
-            return self.tail(start, n, ctx);
+            self.tail(start, n, ctx)?;
+            return Ok(Next::Done);
         };
         if depth >= 50 {
-            return self.tail(start, n, ctx);
+            self.tail(start, n, ctx)?;
+            return Ok(Next::Done);
         }
+        Ok(Next::Cut { axis, split })
+    }
+    // Reorder the two other axes so each half keeps its own sorted order.
+    fn partition(
+        &mut self,
+        start: usize,
+        n: usize,
+        axis: usize,
+        split: usize,
+        ctx: &mut Context<'_>,
+    ) -> Result<(), Error> {
         ctx.tick(n * 3)?;
         // Local slices: the stores below cannot alias the builder's fields,
         // so their pointers and lengths stay in registers.
         let sides = &mut self.sides[..];
         let temp = &mut self.temp[..n];
-        let (lower, upper) = self.axes[axis][start..start + n].split_at(split);
-        for &v in lower {
-            sides[v as usize] = 0;
-        }
-        for &v in upper {
-            sides[v as usize] = 1;
-        }
+        mark_sides(&self.axes[axis][start..start + n], split, sides);
         for k in 0..3 {
-            if k == axis {
-                continue;
+            if k != axis {
+                reorder(&mut self.axes[k][start..start + n], split, sides, temp);
             }
-            let order = &mut self.axes[k][start..start + n];
-            let (mut l, mut r) = (0, split);
-            for &v in order.iter() {
-                // Sides are exactly 0/1. Select a destination and update both
-                // cursors, avoiding an unpredictable branch for interleaved axes.
-                let side = sides[v as usize] as usize;
-                let destination = if side == 0 { l } else { r };
-                temp[destination] = v;
-                l += 1 - side;
-                r += side;
-            }
-            order.copy_from_slice(temp);
         }
-        self.split(start, split, depth + 1, ctx)?;
-        self.split(start + split, n - split, depth + 1, ctx)
+        Ok(())
     }
+}
+enum Next {
+    Done,
+    Cut { axis: usize, split: usize },
+}
+#[derive(Clone, Copy)]
+struct SweepParams {
+    step: usize,
+    mint: usize,
+    maxfill: usize,
+}
+struct SweepInput<'a> {
+    boxes: &'a [Box3],
+    order: &'a [u32],
+    indices: &'a [u32],
+    settings: MeshletSettings,
+    fill: f32,
+    params: SweepParams,
+}
+// The best cut along one axis. `areas` holds at least two floats per triangle
+// and `counts` one count per triangle (read only for nodes that fit a meshlet).
+fn sweep(
+    input: SweepInput<'_>,
+    areas: &mut [f32],
+    counts: &mut [u32],
+    used: &mut [i16],
+    ctx: &mut Context<'_>,
+) -> Result<(f32, usize), Error> {
+    let SweepInput {
+        boxes,
+        order,
+        indices,
+        settings: s,
+        fill,
+        params: SweepParams {
+            step,
+            mint,
+            maxfill,
+        },
+    } = input;
+    let n = order.len();
+    ctx.tick(n)?;
+    let mut left = Box3::empty();
+    let mut right = Box3::empty();
+    // Local slices: no per-iteration reloads or index checks besides boxes.
+    let (left_areas, right_areas) = areas[..2 * n].split_at_mut(n);
+    #[cfg(feature = "simd")]
+    let vectorized = crate::codec::simd::spatial::areas(boxes, order, left_areas, right_areas);
+    #[cfg(not(feature = "simd"))]
+    let vectorized = false;
+    if !vectorized {
+        for i in 0..n {
+            left_areas[i] = left.merge(&boxes[order[i] as usize]);
+            right_areas[i] = right.merge(&boxes[order[n - 1 - i] as usize]);
+        }
+    }
+    if n <= s.max_triangles {
+        count(order, used, indices, Some(&mut counts[..n]), ctx)?;
+    }
+    let aligned = n >= mint * 2 && divisible(n, mint, s.max_triangles);
+    let end = if aligned { n - mint } else { n - 1 };
+    ctx.tick((mint - 1..end).step_by(step).len())?;
+    let pivot = Pivot {
+        areas: &areas[..2 * n],
+        counts: &counts[..n.min(s.max_triangles)],
+        n,
+        step,
+        mint,
+        max: s.max_triangles,
+        aligned,
+        end,
+        maxfill,
+        fill,
+    };
+    // Specialize the loop-invariant choices; same visits and costs.
+    Ok(match (n <= s.max_triangles, mint * 2 <= s.max_triangles) {
+        (true, true) => pivot.run::<true, true>(),
+        (true, false) => pivot.run::<true, false>(),
+        (false, true) => pivot.run::<false, true>(),
+        (false, false) => pivot.run::<false, false>(),
+    })
+}
+// Record which half of the cut each triangle of the node falls in.
+fn mark_sides(order: &[u32], split: usize, sides: &mut [u8]) {
+    let (lower, upper) = order.split_at(split);
+    for &v in lower {
+        sides[v as usize] = 0;
+    }
+    for &v in upper {
+        sides[v as usize] = 1;
+    }
+}
+// Stable partition of one axis by the recorded sides.
+fn reorder(order: &mut [u32], split: usize, sides: &[u8], temp: &mut [u32]) {
+    let (mut l, mut r) = (0, split);
+    for &v in order.iter() {
+        // Sides are exactly 0/1. Select a destination and update both
+        // cursors, avoiding an unpredictable branch for interleaved axes.
+        let side = sides[v as usize] as usize;
+        let destination = if side == 0 { l } else { r };
+        temp[destination] = v;
+        l += 1 - side;
+        r += side;
+    }
+    order.copy_from_slice(temp);
 }
 fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> [f32; 3]) {
     for (i, t) in triangles.iter().enumerate() {
@@ -360,6 +459,7 @@ fn fill_boxes(boxes: &mut [Box3], triangles: &[[u32; 3]], read: impl Fn(u32) -> 
         }
     }
 }
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn spatial(
     out: &mut Output<'_>,
     indices: &[u32],
@@ -367,6 +467,7 @@ pub(crate) fn spatial(
     s: MeshletSettings,
     min: usize,
     fill: f32,
+    parallel: bool,
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
     let n = indices.len() / 3;
@@ -376,60 +477,364 @@ pub(crate) fn spatial(
     let mut boxes = ctx.alloc::<Box3>(n)?;
     ctx.tick(n)?;
     let triangles = indices.as_chunks::<3>().0;
-    if let Some(values) = p.packed_values() {
-        fill_boxes(&mut boxes, triangles, |i| values[i as usize]);
-    } else {
-        fill_boxes(&mut boxes, triangles, |i| point(p, i));
+    #[cfg(feature = "parallel")]
+    let sequential = !parallel;
+    #[cfg(not(feature = "parallel"))]
+    let sequential = {
+        let _ = parallel;
+        true
+    };
+    if sequential {
+        if let Some(values) = p.packed_values() {
+            fill_boxes(&mut boxes, triangles, |i| values[i as usize]);
+        } else {
+            fill_boxes(&mut boxes, triangles, |i| point(p, i));
+        }
+    }
+    #[cfg(feature = "parallel")]
+    if !sequential {
+        par::fill_boxes_parallel(&mut boxes, triangles, p);
     }
     let mut axes = [ctx.alloc::<u32>(n)?, ctx.alloc(n)?, ctx.alloc(n)?];
-    let mut temp = ctx.alloc(n)?;
-    // Upstream radixFloat keys without the two low bits fit in u32.
-    let mut keys = ctx.alloc::<u32>(n)?;
-    for (k, axis) in axes.iter_mut().enumerate() {
-        for i in 0..n {
-            axis[i] = i as u32;
-            let c = finite((boxes[i].lo[k] + boxes[i].hi[k]) / 2.)?.to_bits();
-            keys[i] = (c ^ if c & 0x80000000 != 0 {
-                u32::MAX
-            } else {
-                0x80000000
-            }) >> 2;
+    let mut temp = Vec::new();
+    if sequential {
+        temp = ctx.alloc(n)?;
+        // Upstream radixFloat keys without the two low bits fit in u32.
+        let mut keys = ctx.alloc::<u32>(n)?;
+        for (k, axis) in axes.iter_mut().enumerate() {
+            for i in 0..n {
+                axis[i] = i as u32;
+                let c = finite((boxes[i].lo[k] + boxes[i].hi[k]) / 2.)?.to_bits();
+                keys[i] = (c ^ if c & 0x80000000 != 0 {
+                    u32::MAX
+                } else {
+                    0x80000000
+                }) >> 2;
+            }
+            radix::<3, u32>(axis, &mut temp, &keys, ctx)?;
         }
-        radix::<3, u32>(axis, &mut temp, &keys, ctx)?;
+        // The keys are not needed past sorting; release them before the builder's
+        // scratch so peak storage stays comparable with upstream's shared scratch.
+        ctx.free(keys)?;
     }
-    // The keys are not needed past sorting; release them before the builder's
-    // scratch so peak storage stays comparable with upstream's shared scratch.
-    ctx.free(keys)?;
-    let mut used = ctx.alloc::<i16>(p.len())?;
-    used.fill(-1);
-    let mut bvh = Bvh {
-        boxes: &boxes,
-        axes,
-        boundary: ctx.alloc(n)?,
-        used,
-        areas: ctx.alloc(n * 2)?,
-        counts: ctx.alloc(n)?,
-        temp,
-        sides: ctx.alloc(n)?,
-        indices,
-        settings: s,
-        min,
-        fill,
-    };
-    bvh.split(0, n, 0, ctx)?;
-    let count = bvh.boundary.iter().map(|&v| v as usize).sum::<usize>();
+    #[cfg(feature = "parallel")]
+    if !sequential {
+        par::sort_axes(&mut axes, &boxes, ctx)?;
+    }
+    let mut boundary = ctx.alloc::<u8>(n)?;
+    let mut used;
+    if sequential {
+        used = ctx.alloc::<i16>(p.len())?;
+        used.fill(-1);
+        let [a0, a1, a2] = &mut axes;
+        let mut bvh = Bvh {
+            boxes: &boxes,
+            axes: [&mut a0[..], &mut a1[..], &mut a2[..]],
+            boundary: &mut boundary[..],
+            used,
+            areas: ctx.alloc(n * 2)?,
+            counts: ctx.alloc(n)?,
+            temp,
+            sides: ctx.alloc(n)?,
+            indices,
+            settings: s,
+            min,
+            fill,
+        };
+        bvh.split(0, n, 0, ctx)?;
+        used = core::mem::take(&mut bvh.used);
+    } else {
+        #[cfg(feature = "parallel")]
+        {
+            let [a0, a1, a2] = &mut axes;
+            par::split(
+                &par::Env::new(&boxes, indices, s, min, fill, p.len(), n),
+                [&mut a0[..], &mut a1[..], &mut a2[..]],
+                &mut boundary[..],
+                ctx,
+            )?;
+        }
+        used = ctx.alloc::<i16>(p.len())?;
+        used.fill(-1);
+    }
+    let count = boundary.iter().map(|&v| v as usize).sum::<usize>();
     let bound = crate::build_meshlets_bound(indices.len(), s.max_vertices, min)?;
     let mut pending = count;
     for i in 0..n {
-        let mut split = i > 0 && bvh.boundary[i] == 1;
+        let mut split = i > 0 && boundary[i] == 1;
         if split && count > bound && out.count + pending >= bound {
             split = false;
         }
-        let t = &indices.as_chunks::<3>().0[bvh.axes[0][i] as usize];
-        out.append(t, &mut bvh.used, s, split, ctx)?;
-        pending -= bvh.boundary[i] as usize;
+        let t = &indices.as_chunks::<3>().0[axes[0][i] as usize];
+        out.append(t, &mut used, s, split, ctx)?;
+        pending -= boundary[i] as usize;
     }
     Ok(())
+}
+
+/// Parallel front end: the box and sort stages and the recursive cut run on
+/// the current Rayon pool. Each independent subtree owns its slices of the three
+/// ordered axes and of the boundary marks; per-worker scratch replaces the
+/// shared vertex-mark and side arrays. Subtrees do the same computation as the
+/// serial recursion, so the marks, the order and the work count are identical.
+#[cfg(feature = "parallel")]
+mod par {
+    use super::{
+        fill_boxes, finite, mark_sides, point, reorder, sweep, Box3, Bvh, Context, Error, Next,
+        Positions, SweepInput, Vec,
+    };
+    use crate::meshlet::MeshletSettings;
+    use crate::{Limits, Workspace};
+    use rayon::prelude::*;
+    use std::sync::Mutex;
+
+    /// Subtrees of at most this many triangles recurse on one thread.
+    const SEQUENTIAL_TRIANGLES: usize = 2048;
+
+    pub(super) fn fill_boxes_parallel(
+        boxes: &mut [Box3],
+        triangles: &[[u32; 3]],
+        p: Positions<'_>,
+    ) {
+        const CHUNK: usize = 8192;
+        let packed = p.packed_values();
+        boxes
+            .par_chunks_mut(CHUNK)
+            .zip(triangles.par_chunks(CHUNK))
+            .for_each(|(boxes, triangles)| {
+                if let Some(values) = packed {
+                    fill_boxes(boxes, triangles, |i| values[i as usize]);
+                } else {
+                    fill_boxes(boxes, triangles, |i| point(p, i));
+                }
+            });
+    }
+
+    /// The same stable ascending order as three radix passes over the keys:
+    /// sorting `key << 32 | index` breaks ties by index.
+    pub(super) fn sort_axes(
+        axes: &mut [Vec<u32>; 3],
+        boxes: &[Box3],
+        ctx: &mut Context<'_>,
+    ) -> Result<(), Error> {
+        let n = boxes.len();
+        ctx.tick(n.checked_mul(6).ok_or(Error::SizeOverflow)? * 3)?;
+        axes.par_iter_mut().enumerate().try_for_each(|(k, axis)| {
+            let mut packed = boxes
+                .par_iter()
+                .enumerate()
+                .map(|(i, b)| {
+                    let c = finite((b.lo[k] + b.hi[k]) / 2.)?.to_bits();
+                    let key = (c ^ if c & 0x80000000 != 0 {
+                        u32::MAX
+                    } else {
+                        0x80000000
+                    }) >> 2;
+                    Ok((u64::from(key) << 32) | i as u64)
+                })
+                .collect::<Result<Vec<u64>, Error>>()?;
+            packed.par_sort_unstable();
+            axis.par_iter_mut()
+                .zip(packed.par_iter())
+                .for_each(|(a, &v)| *a = v as u32);
+            Ok::<(), Error>(())
+        })
+    }
+
+    /// Shared read-only inputs and the reusable per-worker scratch.
+    pub(super) struct Env<'a> {
+        boxes: &'a [Box3],
+        indices: &'a [u32],
+        settings: MeshletSettings,
+        min: usize,
+        fill: f32,
+        vertices: usize,
+        triangles: usize,
+        pool: Mutex<Vec<(Vec<i16>, Vec<u8>)>>,
+    }
+    impl<'a> Env<'a> {
+        pub(super) fn new(
+            boxes: &'a [Box3],
+            indices: &'a [u32],
+            settings: MeshletSettings,
+            min: usize,
+            fill: f32,
+            vertices: usize,
+            triangles: usize,
+        ) -> Self {
+            Self {
+                boxes,
+                indices,
+                settings,
+                min,
+                fill,
+                vertices,
+                triangles,
+                pool: Mutex::new(Vec::new()),
+            }
+        }
+        fn take(&self) -> (Vec<i16>, Vec<u8>) {
+            let pooled = self.pool.lock().ok().and_then(|mut pool| pool.pop());
+            pooled.unwrap_or_else(|| {
+                (
+                    alloc::vec![-1i16; self.vertices],
+                    alloc::vec![0u8; self.triangles],
+                )
+            })
+        }
+        fn give(&self, scratch: (Vec<i16>, Vec<u8>)) {
+            if let Ok(mut pool) = self.pool.lock() {
+                pool.push(scratch);
+            }
+        }
+        // A node that recurses serially owns its sweep scratch; a larger node
+        // sweeps its axes concurrently with scratch of their own.
+        fn bvh<'b>(&'b self, axes: [&'b mut [u32]; 3], boundary: &'b mut [u8]) -> Bvh<'b> {
+            let n = boundary.len();
+            let leaf = n <= SEQUENTIAL_TRIANGLES;
+            let (used, sides) = self.take();
+            Bvh {
+                boxes: self.boxes,
+                axes,
+                boundary,
+                used,
+                areas: alloc::vec![0.0; if leaf { n * 2 } else { 0 }],
+                counts: alloc::vec![0; if leaf { n } else { 0 }],
+                temp: alloc::vec![0; n],
+                sides,
+                indices: self.indices,
+                settings: self.settings,
+                min: self.min,
+                fill: self.fill,
+            }
+        }
+    }
+
+    fn spent(ctx: &mut Context<'_>) -> u64 {
+        ctx.workspace.finish(&ctx.work);
+        ctx.workspace.usage().work
+    }
+
+    pub(super) fn split(
+        env: &Env<'_>,
+        axes: [&mut [u32]; 3],
+        boundary: &mut [u8],
+        ctx: &mut Context<'_>,
+    ) -> Result<(), Error> {
+        let work = run(env, axes, boundary, 0)?;
+        ctx.tick(usize::try_from(work).map_err(|_| Error::SizeOverflow)?)
+    }
+
+    /// `Bvh::partition` with the two reordered axes on separate workers.
+    fn partition(
+        bvh: &mut Bvh<'_>,
+        axis: usize,
+        split: usize,
+        ctx: &mut Context<'_>,
+    ) -> Result<(), Error> {
+        let n = bvh.boundary.len();
+        ctx.tick(n * 3)?;
+        mark_sides(&bvh.axes[axis][..], split, &mut bvh.sides);
+        let sides = &bvh.sides[..];
+        let [a0, a1, a2] = &mut bvh.axes;
+        let (x, y) = match axis {
+            0 => (a1, a2),
+            1 => (a0, a2),
+            _ => (a0, a1),
+        };
+        let first = &mut bvh.temp[..n];
+        let mut second = alloc::vec![0; n];
+        rayon::join(
+            || reorder(x, split, sides, first),
+            || reorder(y, split, sides, &mut second),
+        );
+        Ok(())
+    }
+
+    /// Cut one subtree and recurse; returns the counted work of the subtree.
+    fn run(
+        env: &Env<'_>,
+        axes: [&mut [u32]; 3],
+        boundary: &mut [u8],
+        depth: usize,
+    ) -> Result<u64, Error> {
+        let n = boundary.len();
+        let mut workspace = Workspace::new(Limits {
+            max_bytes: usize::MAX,
+            max_work: u64::MAX,
+        });
+        let mut ctx = Context::new(&mut workspace)?;
+        let mut bvh = env.bvh(axes, boundary);
+        if n <= SEQUENTIAL_TRIANGLES {
+            bvh.split(0, n, depth, &mut ctx)?;
+            env.give((
+                core::mem::take(&mut bvh.used),
+                core::mem::take(&mut bvh.sides),
+            ));
+            return Ok(spent(&mut ctx));
+        }
+        // Larger than any meshlet, so the node never closes as a single run.
+        let params = bvh.sweep_params(n);
+        let axes = &bvh.axes;
+        let sweep_axis = |k: usize| {
+            let mut workspace = Workspace::new(Limits {
+                max_bytes: usize::MAX,
+                max_work: u64::MAX,
+            });
+            let mut ctx = Context::new(&mut workspace)?;
+            let cost = sweep(
+                SweepInput {
+                    boxes: env.boxes,
+                    order: &axes[k][..],
+                    indices: env.indices,
+                    settings: env.settings,
+                    fill: env.fill,
+                    params,
+                },
+                &mut alloc::vec![0.0; n * 2],
+                &mut alloc::vec![0; env.settings.max_triangles],
+                &mut [],
+                &mut ctx,
+            )?;
+            Ok::<_, Error>((cost, spent(&mut ctx)))
+        };
+        let (first, (second, third)) = rayon::join(
+            || sweep_axis(0),
+            || rayon::join(|| sweep_axis(1), || sweep_axis(2)),
+        );
+        let ((c0, w0), (c1, w1), (c2, w2)) = (first?, second?, third?);
+        ctx.tick(usize::try_from(w0 + w1 + w2).map_err(|_| Error::SizeOverflow)?)?;
+        match bvh.choose(0, n, depth, [c0, c1, c2], &mut ctx)? {
+            Next::Done => {
+                env.give((
+                    core::mem::take(&mut bvh.used),
+                    core::mem::take(&mut bvh.sides),
+                ));
+                Ok(spent(&mut ctx))
+            }
+            Next::Cut { axis, split } => {
+                partition(&mut bvh, axis, split, &mut ctx)?;
+                let work = spent(&mut ctx);
+                let Bvh {
+                    axes: [a0, a1, a2],
+                    boundary,
+                    used,
+                    sides,
+                    ..
+                } = bvh;
+                env.give((used, sides));
+                let (l0, r0) = a0.split_at_mut(split);
+                let (l1, r1) = a1.split_at_mut(split);
+                let (l2, r2) = a2.split_at_mut(split);
+                let (bl, br) = boundary.split_at_mut(split);
+                let (left, right) = rayon::join(
+                    || run(env, [l0, l1, l2], bl, depth + 1),
+                    || run(env, [r0, r1, r2], br, depth + 1),
+                );
+                Ok(work + left? + right?)
+            }
+        }
+    }
 }
 
 #[cfg(all(test, feature = "simd"))]

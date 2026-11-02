@@ -803,3 +803,140 @@ fn hierarchy_small_and_large_batches_preserve_order_and_limits() {
         }
     }
 }
+
+fn attribute_bytes(count: usize, stride: usize) -> Vec<u8> {
+    let mut state = 0x9e37_79b9u32;
+    let mut noise = move || {
+        state ^= state << 13;
+        state ^= state >> 17;
+        state ^= state << 5;
+        state
+    };
+    let mut bytes = Vec::with_capacity(count * stride);
+    for v in 0..count {
+        for k in 0..stride / 4 {
+            let word = match k % 3 {
+                0 => (v as u32).wrapping_mul(3 + k as u32) + (noise() & 7),
+                1 => (((v as f32) * 0.01 + k as f32).sin() * 100.).to_bits(),
+                _ => noise(),
+            };
+            bytes.extend(word.to_le_bytes());
+        }
+    }
+    bytes
+}
+
+#[test]
+fn parallel_vertex_codec_matches_serial_bytes_at_each_thread_count() {
+    for (stride, encoding) in [
+        (4, VertexEncoding::new(0, 2).unwrap()),
+        (12, VertexEncoding::new(1, 0).unwrap()),
+        (12, VertexEncoding::DEFAULT),
+        (28, VertexEncoding::new(1, 5).unwrap()),
+        (64, VertexEncoding::new(1, 9).unwrap()),
+    ] {
+        for count in [0, 1, 4000, 20001] {
+            let vertices = attribute_bytes(count, stride);
+            let mut ws = Workspace::default();
+            let encoded =
+                encode_vertex_buffer(&vertices, count, stride, encoding, &mut ws).unwrap();
+            for pool in pools() {
+                pool.install(|| {
+                    let mut ws = Workspace::default();
+                    assert_eq!(
+                        encode_vertex_buffer_parallel(&vertices, count, stride, encoding, &mut ws),
+                        Ok(encoded.clone()),
+                        "encode stride {stride} count {count}"
+                    );
+                    assert_eq!(
+                        decode_vertex_buffer_parallel(count, stride, &encoded, &mut ws),
+                        Ok(vertices.clone()),
+                        "decode stride {stride} count {count}"
+                    );
+                });
+            }
+        }
+    }
+}
+
+#[test]
+fn parallel_vertex_decode_judges_damaged_streams_like_serial() {
+    let (count, stride) = (6000, 12);
+    let vertices = attribute_bytes(count, stride);
+    let mut ws = Workspace::default();
+    let encoded =
+        encode_vertex_buffer(&vertices, count, stride, VertexEncoding::DEFAULT, &mut ws).unwrap();
+    let mut damaged = vec![encoded[..encoded.len() - 1].to_vec(), encoded[1..].to_vec()];
+    for at in [
+        0,
+        1,
+        40,
+        900,
+        encoded.len() / 2,
+        encoded.len() - 20,
+        encoded.len() - 3,
+    ] {
+        let mut bytes = encoded.clone();
+        bytes[at] ^= 0xa5;
+        damaged.push(bytes);
+    }
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(4)
+        .build()
+        .unwrap();
+    for bytes in &damaged {
+        let serial = decode_vertex_buffer(count, stride, bytes, &mut Workspace::default());
+        let parallel = pool.install(|| {
+            decode_vertex_buffer_parallel(count, stride, bytes, &mut Workspace::default())
+        });
+        assert_eq!(parallel, serial);
+    }
+    assert!(damaged.iter().any(|b| decode_vertex_buffer(
+        count,
+        stride,
+        b,
+        &mut Workspace::default()
+    )
+    .is_err()));
+}
+
+#[test]
+fn parallel_spatial_meshlets_match_serial_output_and_work() {
+    let (positions, indices) = mesh(150, 3);
+    let settings = MeshletSettings {
+        max_vertices: 64,
+        max_triangles: 124,
+    };
+    let unlimited = Limits {
+        max_bytes: usize::MAX,
+        max_work: u64::MAX,
+    };
+    for limits in [unlimited, Limits::default()] {
+        let mut serial_ws = Workspace::new(limits);
+        let serial = build_meshlets_spatial(
+            &indices,
+            Positions::from_packed(&positions),
+            settings,
+            64,
+            0.5,
+            &mut serial_ws,
+        )
+        .unwrap();
+        for pool in pools() {
+            pool.install(|| {
+                let mut ws = Workspace::new(limits);
+                let actual = build_meshlets_spatial_parallel(
+                    &indices,
+                    Positions::from_packed(&positions),
+                    settings,
+                    64,
+                    0.5,
+                    &mut ws,
+                )
+                .unwrap();
+                assert_eq!(meshlet_bytes(&actual), meshlet_bytes(&serial));
+                assert_eq!(ws.usage().work, serial_ws.usage().work);
+            });
+        }
+    }
+}
