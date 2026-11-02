@@ -40,3 +40,12 @@ intra-mesh cluster LOD identity. It bounds meshes and topology, varies float
 bits, limits, dilation, callbacks and worker counts, and compares exact output
 words, errors, usage and mutable positions on reused workspaces. This feature
 lane adds the source only; execution belongs to the dedicated fuzz lane.
+
+## 0.2.17 coverage-guided targets
+
+`fuzz/r0217` (new targets for hidden-surface removal, the DAG reader, character simplification,
+`process_mesh`, parallel-vs-serial equality, u16-vs-u32 equality and simplify metering, plus copies of
+`lod_quality` and `repair4`), `fuzz/codec` (streaming decoders, ISA levels up to AVX-512) and
+`fuzz/driver.py` (build, cover, run under the 0.2.17 rule). Seeds: `python3 fuzz/seeds.py SEEDGEN`
+regenerates `fuzz/seeds/` (the codec seeds come from `fuzz/seedgen` and are large, 26 MB; they are
+reproducible and need not be committed). Results: `parity/0217-fuzz/RECEIPTS.md`.

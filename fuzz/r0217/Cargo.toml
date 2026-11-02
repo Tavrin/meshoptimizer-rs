@@ -1,0 +1,67 @@
+[package]
+name = "meshopt-r0217-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[package.metadata]
+cargo-fuzz = true
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../..", features = ["parallel", "clusterlod"] }
+rayon = "=1.11.0"
+[workspace]
+members = ["."]
+[[bin]]
+name = "hidden"
+path = "fuzz_targets/hidden.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "dag_reader"
+path = "fuzz_targets/dag_reader.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "character"
+path = "fuzz_targets/character.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "process"
+path = "fuzz_targets/process.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "parallel_equiv"
+path = "fuzz_targets/parallel_equiv.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "width_equiv"
+path = "fuzz_targets/width_equiv.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "simplify_meter"
+path = "fuzz_targets/simplify_meter.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "lod_quality"
+path = "fuzz_targets/lod_quality.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "repair4"
+path = "fuzz_targets/repair4.rs"
+test = false
+doc = false
+bench = false
