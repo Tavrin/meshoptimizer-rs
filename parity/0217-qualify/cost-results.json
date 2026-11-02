@@ -1,0 +1,69 @@
+{
+  "cases": [
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "manual": 2143236.375,
+        "process": 2163499.991
+      },
+      "process_over_manual": 1.0094546808911826
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "manual": 1045999992.0,
+        "process": 1048656954.3333334
+      },
+      "process_over_manual": 1.002540116972901
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "manual": 946201453.6666666,
+        "process": 948858191.3333334
+      },
+      "process_over_manual": 1.0028077928398562
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "manual": 1045998881.0,
+        "process": 1048655238.3333334
+      },
+      "process_over_manual": 1.0025395412763671
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "manual": 175368783146.0,
+        "process": 175691504560.0
+      },
+      "process_over_manual": 1.001840244359404
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "manual": 559675684340.0,
+        "process": 560586639105.0
+      },
+      "process_over_manual": 1.0016276475653472
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "manual": 673688202702.0,
+        "process": 674741211960.0
+      },
+      "process_over_manual": 1.0015630513548799
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "manual": 169869708618.0,
+        "process": 170134349275.0
+      },
+      "process_over_manual": 1.0015579037554903
+    }
+  ],
+  "gm": 1.0029882988418375
+}

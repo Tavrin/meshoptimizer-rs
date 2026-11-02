@@ -1,0 +1,182 @@
+//! Isolated public-API consumers. Serialization and fixture setup are outside counters.
+#![allow(dead_code)]
+use std::{hint::black_box, io::{self, BufRead, Read, Write}, time::Instant};
+#[cfg(feature="ours")]
+use meshoptimizer_rs as m;
+#[cfg(feature="cpp")]
+use meshopt::ffi as f;
+struct BoundGroup { p:Vec<[f32;3]>, i:Vec<u32>, v:Vec<u32>, t:Vec<u8> }
+fn bound_groups(path:&str,p:&[[f32;3]])->Vec<BoundGroup>{
+ let name=std::path::Path::new(path).file_name().unwrap();
+ let path=std::path::Path::new(&std::env::var("BOUNDS_SCRATCH").unwrap()).join("bound-inputs").join(name);
+ let mut f=std::io::BufReader::new(std::fs::File::open(path).unwrap());
+ fn word(f:&mut impl Read)->usize{let mut b=[0;4];f.read_exact(&mut b).unwrap();u32::from_le_bytes(b)as usize}
+ let count=word(&mut f);(0..count).map(|_|{let nv=word(&mut f);let nt=word(&mut f);let local=(0..nv).map(|_|p[word(&mut f)]).collect();let mut t=vec![0;nt];f.read_exact(&mut t).unwrap();BoundGroup{p:local,i:t.iter().map(|&v|v as u32).collect(),v:(0..nv as u32).collect(),t}}).collect()
+}
+struct Input { groups: Vec<BoundGroup>, remap: Vec<u32>, unique: usize, p: Vec<[f32;3]>, i: Vec<u32>, attrs: Vec<f32>, vb: Vec<u8>, ib: Vec<u8>, target: usize, error: f32 }
+fn words(b:&[u8])->Vec<u32>{ b.chunks_exact(4).map(|v|u32::from_le_bytes(v.try_into().unwrap())).collect() }
+fn bytes(p:&[[f32;3]])->&[u8]{ assert!(cfg!(target_endian="little")); unsafe{std::slice::from_raw_parts(p.as_ptr().cast(),p.len()*12)} }
+impl Input {
+ fn read(path:&str)->Self {
+  let mut r=std::fs::File::open(path).unwrap();
+  fn word(r:&mut impl Read)->usize{let mut b=[0;4];r.read_exact(&mut b).unwrap();u32::from_le_bytes(b)as usize}
+  let n=word(&mut r);let ni=word(&mut r);
+  let mut b=vec![0;n*12];r.read_exact(&mut b).unwrap();let p:Vec<[f32;3]>=b.chunks_exact(12).map(|p|std::array::from_fn(|j|f32::from_le_bytes(p[j*4..j*4+4].try_into().unwrap()))).collect();drop(b);
+  let mut b=vec![0;ni*4];r.read_exact(&mut b).unwrap();let i=words(&b);let groups=if std::env::args().nth(1).is_some_and(|op|op.ends_with("bounds")){bound_groups(path,&p)}else{Vec::new()};drop(b);
+  let mut buffers=Vec::new();for _ in 0..7{let mut b=vec![0;word(&mut r)];r.read_exact(&mut b).unwrap();buffers.push(b)}
+  let mut tail=[0;8];let (target,error)=match r.read_exact(&mut tail){Ok(())=>(u32::from_le_bytes(tail[..4].try_into().unwrap())as usize,f32::from_le_bytes(tail[4..].try_into().unwrap())),Err(e) if e.kind()==io::ErrorKind::UnexpectedEof=>(ni/2/3*3,0.5),Err(e)=>panic!("{e}")};
+  let attrs=(0..n).flat_map(|j|{let a=j as f32*0.01;[a.sin()*0.5,a.cos()*0.5,0.75f32.sqrt(),1.]}).collect();
+  let (remap,unique)=first_remap(&p,&i);Self{groups,remap,unique,p,i,attrs,vb:buffers.remove(0),ib:buffers.remove(0),target,error}
+ }
+}
+enum Output { Remap(Vec<u32>,usize), Updated(Vec<u32>,f32,Vec<[f32;3]>), Bytes(Vec<u8>), Indices(Vec<u32>), Simplify(Vec<u32>,f32), Fetch(Vec<u32>,Vec<u8>), Mesh(Vec<[u32;4]>,Vec<u32>,Vec<u8>), RawMesh(Vec<[u32;4]>,Vec<u32>,Vec<u8>) }
+impl Output {
+ fn bytes(&self)->Vec<u8>{
+  fn ws(v:&[u32])->Vec<u8>{v.iter().flat_map(|v|v.to_le_bytes()).collect()}
+  match self {
+   Self::Updated(i,e,p)=>{let mut b=(i.len() as u32).to_le_bytes().to_vec();b.extend(ws(i));b.extend(e.to_le_bytes());b.extend(bytes(p));b},   Self::Remap(r,k)=>{let mut b=(*k as u32).to_le_bytes().to_vec();b.extend(ws(r));b},Self::RawMesh(ms,v,t)=>normalize(ms,v,t).bytes(),Self::Bytes(v)=>v.clone(),Self::Indices(v)=>ws(v),Self::Simplify(v,e)=>{let mut b=ws(v);b.extend(e.to_le_bytes());b},
+   Self::Fetch(i,v)=>{let mut b=(i.len()as u32).to_le_bytes().to_vec();b.extend(ws(i));b.extend(v);b},
+   Self::Mesh(ms,v,t)=>{let mut b=(ms.len()as u32).to_le_bytes().to_vec();b.extend((v.len()as u32).to_le_bytes());for m in ms{b.extend(ws(m))}b.extend(ws(v));b.extend(t);b}
+  }
+ }
+}
+#[cfg(feature="ours")]
+type Work=m::Workspace;
+#[cfg(not(feature="ours"))]
+type Work=();
+#[cfg(feature="ours")]
+fn run(op:&str,x:&Input,w:&mut Work)->Output {
+ let n=x.p.len();let p=m::Positions::from_packed(&x.p);let settings=m::SimplifySettings{target_index_count:x.target,target_error:x.error,options:m::SimplifyOptions::default()};
+ match op {
+  "simplify"|"simplify-attributes"|"simplify-sloppy"=>{let r=match op{"simplify"=>m::simplify(&x.i,p,settings,w),"simplify-attributes"=>m::simplify_with_attributes(&x.i,p,m::Attributes::from_interleaved(&x.attrs,n,4,4,0).unwrap(),&[1.;4],None,settings,w),_=>m::simplify_sloppy(&x.i,p,None,x.target,x.error,w)}.unwrap();Output::Simplify(r.indices,r.error)},
+  "simplify-update"=>{let mut i=x.i.clone();let mut v=x.p.clone();let r=m::simplify_with_update(&mut i,&mut m::PositionsMut::from_packed(&mut v),None,&[],None,settings,w).unwrap();i.truncate(r.index_count);update_out(i,r.error,v)},
+  "simplify-prune"=>Output::Indices(m::simplify_prune(&x.i,p,0.5,w).unwrap()),
+  "simplify-points"=>Output::Indices(m::simplify_points(p,None,0.,n/2,w).unwrap()),
+  "cache"=>Output::Indices(m::optimize_vertex_cache(&x.i,n,w).unwrap()),
+  "overdraw"=>Output::Indices(m::optimize_overdraw(&x.i,p,1.05,w).unwrap()),
+  "fetch"=>{let r=m::optimize_vertex_fetch(&x.i,m::VertexStream::new(bytes(&x.p),n,12,12,0).unwrap(),w).unwrap();Output::Fetch(r.indices,r.vertices)},
+  "meshlets"=>{let r=m::build_meshlets(&x.i,p,m::MeshletSettings{max_vertices:64,max_triangles:124},0.,w).unwrap();Output::Mesh(r.meshlets.iter().map(|v|[v.vertex_offset,v.triangle_offset,v.vertex_count,v.triangle_count]).collect(),r.vertices,r.triangles)},
+  "meshlets-flex"|"meshlets-spatial"=>{let s=m::MeshletSettings{max_vertices:64,max_triangles:124};let r=if op=="meshlets-flex"{m::build_meshlets_flex(&x.i,p,s,41,0.,2.,w)}else{m::build_meshlets_spatial(&x.i,p,s,41,0.5,w)}.unwrap();Output::Mesh(r.meshlets.iter().map(|v|[v.vertex_offset,v.triangle_offset,v.vertex_count,v.triangle_count]).collect(),r.vertices,r.triangles)},
+  "cluster-bounds"|"meshlet-bounds"=>{let mut o=Vec::new();for g in &x.groups{let p=m::Positions::from_packed(&g.p);let b=if op=="cluster-bounds"{m::compute_cluster_bounds(&g.i,p,w)}else{m::compute_meshlet_bounds(&g.v,&g.t,p,w)}.unwrap();o.extend(b.center.map(f32::to_bits));o.push(b.radius.to_bits());o.extend(b.cone_apex.map(f32::to_bits));o.extend(b.cone_axis.map(f32::to_bits));o.push(b.cone_cutoff.to_bits());o.extend(b.cone_axis_s8.map(|v|v as u32));o.push(b.cone_cutoff_s8 as u32);}Output::Indices(o)},
+  "vertex-encode"=>Output::Bytes(m::codec::encode_vertex_buffer(bytes(&x.p),n,12,m::codec::VertexEncoding::new(1,2).unwrap(),w).unwrap()),
+  "vertex-decode"=>Output::Bytes(m::codec::decode_vertex_buffer(n,12,&x.vb,w).unwrap()),
+  "index-encode"=>Output::Bytes(m::codec::encode_index_buffer(&x.i,m::codec::IndexEncoding::DEFAULT,w).unwrap()),
+  "remap"|"remap-multi"|"remap-custom"=>{let s=m::VertexStream::new(bytes(&x.p),n,12,12,0).unwrap();let r=match op{"remap"=>m::generate_vertex_remap(Some(&x.i),s,w),"remap-multi"=>m::generate_vertex_remap_multi(Some(&x.i),&[s,m::VertexStream::new(abytes(&x.attrs),n,16,16,0).unwrap()],w),_=>{let a=&x.attrs;m::generate_vertex_remap_custom(Some(&x.i),p,|u,v|close(a,u,v),w)}}.unwrap();Output::Remap(r.remap,r.vertex_count)},
+  "position-remap"=>Output::Indices(m::generate_position_remap(p,w).unwrap()),
+  "remap-vertex"=>Output::Bytes(m::remap_vertex_buffer(m::VertexStream::new(bytes(&x.p),n,12,12,0).unwrap(),&x.remap,w).unwrap()),
+  "remap-index"=>Output::Indices(m::remap_index_buffer(Some(&x.i),&x.remap,w).unwrap()),
+  "shadow"|"shadow-multi"=>{let s=m::VertexStream::new(bytes(&x.p),n,12,12,0).unwrap();Output::Indices(if op=="shadow"{m::generate_shadow_index_buffer(&x.i,s,w)}else{m::generate_shadow_index_buffer_multi(&x.i,&[s,m::VertexStream::new(abytes(&x.attrs),n,16,16,0).unwrap()],w)}.unwrap())},
+  "index-decode"=>Output::Bytes(m::codec::decode_index_buffer(x.i.len(),4,&x.ib,w).unwrap()),
+  "cluster-lod"=>clod(x,w),_=>panic!("unknown {op}")
+ }
+}
+#[cfg(feature="cpp")]
+fn run(op:&str,x:&Input,w:&mut Work)->Output {
+ let n=x.p.len();let ni=x.i.len();let p=x.p.as_ptr().cast();let i=x.i.as_ptr();
+ // All FFI inputs are frozen and index-valid; buffers use the documented bounds.
+ unsafe{match op {
+  "simplify"|"simplify-attributes"|"simplify-sloppy"=>{let mut b=vec![0;ni];let mut e=0.;let k=match op{"simplify"=>f::meshopt_simplify(b.as_mut_ptr(),i,ni,p,n,12,x.target,x.error,0,&mut e),"simplify-attributes"=>f::meshopt_simplifyWithAttributes(b.as_mut_ptr(),i,ni,p,n,12,x.attrs.as_ptr(),16,[1.;4].as_ptr(),4,std::ptr::null(),x.target,x.error,0,&mut e),_=>f::meshopt_simplifySloppy(b.as_mut_ptr(),i,ni,p,n,12,std::ptr::null(),x.target,x.error,&mut e)};b.truncate(k);Output::Simplify(b,e)},
+  "simplify-update"=>{let mut b=x.i.clone();let mut v=x.p.clone();let mut e=0.;let k=f::meshopt_simplifyWithUpdate(b.as_mut_ptr(),ni,v.as_mut_ptr().cast(),n,12,std::ptr::null_mut(),0,std::ptr::null(),0,std::ptr::null(),x.target,x.error,0,&mut e);b.truncate(k);update_out(b,e,v)},
+  "simplify-prune"=>{let mut b=vec![0;ni];let k=f::meshopt_simplifyPrune(b.as_mut_ptr(),i,ni,p,n,12,0.5);b.truncate(k);Output::Indices(b)},
+  "simplify-points"=>{let mut b=vec![0;n/2];let k=f::meshopt_simplifyPoints(b.as_mut_ptr(),p,n,12,std::ptr::null(),0,0.,n/2);b.truncate(k);Output::Indices(b)},
+  "cache"|"overdraw"=>{let mut b=vec![0;ni];if op=="cache"{f::meshopt_optimizeVertexCache(b.as_mut_ptr(),i,ni,n)}else{f::meshopt_optimizeOverdraw(b.as_mut_ptr(),i,ni,p,n,12,1.05)};Output::Indices(b)},
+  "fetch"=>{let mut ix=x.i.clone();let mut b=vec![0;n*12];let k=f::meshopt_optimizeVertexFetch(b.as_mut_ptr().cast(),ix.as_mut_ptr(),ni,p.cast(),n,12);b.truncate(k*12);Output::Fetch(ix,b)},
+  "meshlets"=>{let bound=f::meshopt_buildMeshletsBound(ni,64,124);let mut ms=vec![std::mem::zeroed::<f::meshopt_Meshlet>();bound];let mut v=vec![0;bound*64];let mut t=vec![0;bound*124*3];let k=f::meshopt_buildMeshlets(ms.as_mut_ptr(),v.as_mut_ptr(),t.as_mut_ptr(),i,ni,p,n,12,64,124,0.);ms.truncate(k);mesh(ms.iter().map(|m|[m.vertex_offset,m.triangle_offset,m.vertex_count,m.triangle_count]).collect(),v,t)},
+  "meshlets-flex"|"meshlets-spatial"=>{let bound=f::meshopt_buildMeshletsBound(ni,64,41);let mut ms=vec![std::mem::zeroed::<f::meshopt_Meshlet>();bound];let mut v=vec![0;bound*64];let mut t=vec![0;bound*124*3];let k=if op=="meshlets-flex"{f::meshopt_buildMeshletsFlex(ms.as_mut_ptr(),v.as_mut_ptr(),t.as_mut_ptr(),i,ni,p,n,12,64,41,124,0.,2.)}else{f::meshopt_buildMeshletsSpatial(ms.as_mut_ptr(),v.as_mut_ptr(),t.as_mut_ptr(),i,ni,p,n,12,64,41,124,0.5)};ms.truncate(k);mesh(ms.iter().map(|m|[m.vertex_offset,m.triangle_offset,m.vertex_count,m.triangle_count]).collect(),v,t)},
+  "cluster-bounds"|"meshlet-bounds"=>{let mut o=Vec::new();for g in &x.groups{let b=if op=="cluster-bounds"{f::meshopt_computeClusterBounds(g.i.as_ptr(),g.i.len(),g.p.as_ptr().cast(),g.p.len(),12)}else{f::meshopt_computeMeshletBounds(g.v.as_ptr(),g.t.as_ptr(),g.t.len()/3,g.p.as_ptr().cast(),g.p.len(),12)};o.extend(b.center.map(f32::to_bits));o.push(b.radius.to_bits());o.extend(b.cone_apex.map(f32::to_bits));o.extend(b.cone_axis.map(f32::to_bits));o.push(b.cone_cutoff.to_bits());o.extend(b.cone_axis_s8.map(|v|v as u32));o.push(b.cone_cutoff_s8 as u32);}Output::Indices(o)},
+  "vertex-encode"|"index-encode"=>{let mut b=vec![0;if op=="vertex-encode"{f::meshopt_encodeVertexBufferBound(n,12)}else{f::meshopt_encodeIndexBufferBound(ni,n)}];let k=if op=="vertex-encode"{f::meshopt_encodeVertexBufferLevel(b.as_mut_ptr(),b.len(),p.cast(),n,12,2,1)}else{f::meshopt_encodeIndexBuffer(b.as_mut_ptr(),b.len(),i,ni)};assert!(k>0);b.truncate(k);Output::Bytes(b)},
+  "remap"|"remap-multi"|"remap-custom"=>{let mut b=vec![0;n];let s=[f::meshopt_Stream{data:x.p.as_ptr().cast(),size:12,stride:12},f::meshopt_Stream{data:x.attrs.as_ptr().cast(),size:16,stride:16}];let k=match op{"remap"=>f::meshopt_generateVertexRemap(b.as_mut_ptr(),i,ni,p.cast(),n,12),"remap-multi"=>f::meshopt_generateVertexRemapMulti(b.as_mut_ptr(),i,ni,n,s.as_ptr(),2),_=>f::meshopt_generateVertexRemapCustom(b.as_mut_ptr(),i,ni,p,n,12,Some(close_c),x.attrs.as_ptr() as *mut std::ffi::c_void)};Output::Remap(b,k)},
+  "position-remap"=>{let mut b=vec![0;n];f::meshopt_generatePositionRemap(b.as_mut_ptr(),p,n,12);Output::Indices(b)},
+  "remap-vertex"=>{let mut b=vec![0u8;x.unique*12];f::meshopt_remapVertexBuffer(b.as_mut_ptr().cast(),p.cast(),n,12,x.remap.as_ptr());Output::Bytes(b)},
+  "remap-index"=>{let mut b=vec![0;ni];f::meshopt_remapIndexBuffer(b.as_mut_ptr(),i,ni,x.remap.as_ptr());Output::Indices(b)},
+  "shadow"|"shadow-multi"=>{let mut b=vec![0;ni];let s=[f::meshopt_Stream{data:x.p.as_ptr().cast(),size:12,stride:12},f::meshopt_Stream{data:x.attrs.as_ptr().cast(),size:16,stride:16}];if op=="shadow"{f::meshopt_generateShadowIndexBuffer(b.as_mut_ptr(),i,ni,p.cast(),n,12,12)}else{f::meshopt_generateShadowIndexBufferMulti(b.as_mut_ptr(),i,ni,n,s.as_ptr(),2)};Output::Indices(b)},
+  "vertex-decode"|"index-decode"=>{let mut b=vec![0;if op=="vertex-decode"{n*12}else{ni*4}];let rc=if op=="vertex-decode"{f::meshopt_decodeVertexBuffer(b.as_mut_ptr().cast(),n,12,x.vb.as_ptr(),x.vb.len())}else{f::meshopt_decodeIndexBuffer(b.as_mut_ptr().cast(),ni,4,x.ib.as_ptr(),x.ib.len())};assert_eq!(rc,0);Output::Bytes(b)},
+  "cluster-lod"=>clod(x,w),_=>panic!("unknown {op}")
+ }}
+}
+#[cfg(feature="rust")]
+fn run(op:&str,x:&Input,_w:&mut Work)->Output {
+ use optimesh::{simplifier as s,clusterizer as c,indexcodec as i,vertexcodec as v};
+ let n=x.p.len();let ni=x.i.len();let positions=x.p.as_flattened();
+ match op {
+  "simplify"|"simplify-attributes"|"simplify-sloppy"=>{let mut b=vec![0;ni];let p=s::VertexData{positions,count:n,stride:12};let target=s::SimplifyTarget{target_index_count:x.target,target_error:x.error,options:0};let(k,e)=match op{"simplify"=>s::simplify(&mut b,&x.i,&p,&target),"simplify-attributes"=>s::simplify_with_attributes(&mut b,&x.i,&p,&s::Attributes{data:&x.attrs,stride:16,weights:&[1.;4],count:4},None,&target),_=>s::simplify_sloppy(&mut b,&x.i,&p,None,x.target,x.error)};b.truncate(k);Output::Simplify(b,e)},
+  "simplify-update"=>{let mut b=x.i.clone();let mut v=x.p.clone();let mut attrs=[];let(k,e)=s::simplify_with_update(&mut b,&mut s::VertexDataMut{positions:v.as_flattened_mut(),count:n,stride:12},&mut s::AttributesMut{data:&mut attrs,stride:0,weights:&[],count:0},None,&s::SimplifyTarget{target_index_count:x.target,target_error:x.error,options:0});b.truncate(k);update_out(b,e,v)},
+  "simplify-prune"=>{let mut b=vec![0;ni];let k=s::simplify_prune(&mut b,&x.i,&s::VertexData{positions,count:n,stride:12},0.5);b.truncate(k);Output::Indices(b)},
+  "simplify-points"=>{let mut b=vec![0;n/2];let k=s::simplify_points(&mut b,&s::VertexData{positions,count:n,stride:12},None,0.,n/2);b.truncate(k);Output::Indices(b)},
+  "cache"|"overdraw"=>{let mut b=vec![0;ni];if op=="cache"{optimesh::vcacheoptimizer::optimize_vertex_cache(&mut b,&x.i,n)}else{optimesh::overdrawoptimizer::optimize_overdraw(&mut b,&x.i,positions,n,12,1.05)};Output::Indices(b)},
+  "fetch"=>{let mut ix=x.i.clone();let mut b=vec![0;n*12];let k=optimesh::vfetchoptimizer::optimize_vertex_fetch(&mut b,&mut ix,bytes(&x.p),12);b.truncate(k*12);Output::Fetch(ix,b)},
+  "meshlets"=>{let bound=c::build_meshlets_bound(ni,64,124);let mut ms=vec![c::Meshlet::default();bound];let mut v=vec![0;bound*64];let mut t=vec![0;bound*124*3];let k=c::build_meshlets(&mut c::MeshletBuffers{meshlets:&mut ms,vertices:&mut v,triangles:&mut t},&x.i,&c::Positions{data:positions,count:n,stride:12},64,124,0.);ms.truncate(k);mesh(ms.iter().map(|m|[m.vertex_offset,m.triangle_offset,m.vertex_count,m.triangle_count]).collect(),v,t)},
+  "meshlets-flex"|"meshlets-spatial"=>{let bound=c::build_meshlets_bound(ni,64,41);let mut ms=vec![c::Meshlet::default();bound];let mut v=vec![0;bound*64];let mut t=vec![0;bound*124*3];let mut output=c::MeshletBuffers{meshlets:&mut ms,vertices:&mut v,triangles:&mut t};let pos=c::Positions{data:positions,count:n,stride:12};let k=if op=="meshlets-flex"{c::build_meshlets_flex(&mut output,&x.i,&pos,&c::MeshletOptions{max_vertices:64,min_triangles:41,max_triangles:124,cone_weight:0.,split_factor:2.})}else{c::build_meshlets_spatial(&mut output,&x.i,&pos,64,41,124,0.5)};ms.truncate(k);mesh(ms.iter().map(|m|[m.vertex_offset,m.triangle_offset,m.vertex_count,m.triangle_count]).collect(),v,t)},
+  "cluster-bounds"|"meshlet-bounds"=>{let mut o=Vec::new();for g in &x.groups{let b=if op=="cluster-bounds"{optimesh::meshletutils::compute_cluster_bounds(&g.i,g.p.as_flattened(),g.p.len(),12)}else{optimesh::meshletutils::compute_meshlet_bounds(&g.v,&g.t,g.t.len()/3,g.p.as_flattened(),g.p.len(),12)};o.extend(b.center.map(f32::to_bits));o.push(b.radius.to_bits());o.extend(b.cone_apex.map(f32::to_bits));o.extend(b.cone_axis.map(f32::to_bits));o.push(b.cone_cutoff.to_bits());o.extend(b.cone_axis_s8.map(|v|v as u32));o.push(b.cone_cutoff_s8 as u32);}Output::Indices(o)},
+  "vertex-encode"|"index-encode"=>{let mut b=vec![0;if op=="vertex-encode"{v::encode_vertex_buffer_bound(n,12)}else{i::encode_index_buffer_bound(ni,n)}];let k=if op=="vertex-encode"{v::encode_vertex_buffer_level(&mut b,bytes(&x.p),n,12,2,1)}else{i::encode_index_buffer(&mut b,&x.i)};assert!(k>0);b.truncate(k);Output::Bytes(b)},
+  "vertex-decode"=>{let mut b=vec![0;n*12];v::decode_vertex_buffer(&mut b,n,12,&x.vb).unwrap();Output::Bytes(b)},
+  "remap"|"remap-multi"|"remap-custom"=>{use optimesh::indexgenerator as g;let mut b=vec![0;n];let k=match op{"remap"=>g::generate_vertex_remap(&mut b,Some(&x.i),bytes(&x.p),12),"remap-multi"=>g::generate_vertex_remap_multi(&mut b,Some(&x.i),&[g::Stream{data:bytes(&x.p),size:12,stride:12},g::Stream{data:abytes(&x.attrs),size:16,stride:16}]),_=>{let a=&x.attrs;g::generate_vertex_remap_custom(&mut b,Some(&x.i),positions,12,Some(&|u,v|close(a,u,v)))}};Output::Remap(b,k)},
+  "position-remap"=>{let mut b=vec![0;n];optimesh::indexgenerator::generate_position_remap(&mut b,positions,n,12);Output::Indices(b)},
+  "remap-vertex"=>{let mut b=vec![0u8;x.unique*12];optimesh::indexgenerator::remap_vertex_buffer(&mut b,bytes(&x.p),12,&x.remap);Output::Bytes(b)},
+  "remap-index"=>{let mut b=vec![0;ni];optimesh::indexgenerator::remap_index_buffer(&mut b,Some(&x.i),&x.remap);Output::Indices(b)},
+  "shadow"|"shadow-multi"=>{use optimesh::indexgenerator as g;let mut b=vec![0;ni];if op=="shadow"{g::generate_shadow_index_buffer(&mut b,&x.i,bytes(&x.p),n,12,12)}else{g::generate_shadow_index_buffer_multi(&mut b,&x.i,n,&[g::Stream{data:bytes(&x.p),size:12,stride:12},g::Stream{data:abytes(&x.attrs),size:16,stride:16}])};Output::Indices(b)},
+  "index-decode"=>{let mut b=vec![0;ni];i::decode_index_buffer(&mut b,&x.ib).unwrap();Output::Indices(b)},
+  _=>panic!("unknown {op}")
+ }
+}
+fn update_out(i:Vec<u32>,e:f32,p:Vec<[f32;3]>)->Output {Output::Updated(i,e,p)}
+// Remap input for remap-vertex/remap-index: first reference of each position.
+#[allow(clippy::ptr_arg)] // fixes the inferred type of the caller's collect
+fn first_remap(p:&Vec<[f32;3]>,i:&[u32])->(Vec<u32>,usize) {
+ let mut seen=std::collections::HashMap::new();let mut r=vec![u32::MAX;p.len()];
+ for &v in i {if r[v as usize]==u32::MAX {let next=seen.len() as u32;r[v as usize]=*seen.entry(p[v as usize].map(f32::to_bits)).or_insert(next);}}
+ let k=seen.len();(r,k)
+}
+fn abytes(a:&[f32])->&[u8]{ assert!(cfg!(target_endian="little")); unsafe{std::slice::from_raw_parts(a.as_ptr().cast(),a.len()*4)} }
+// Data-dependent custom-remap predicate shared by every arm.
+fn close(a:&[f32],u:u32,v:u32)->bool{ (a[u as usize*4]-a[v as usize*4]).abs()<0.25 }
+#[cfg(feature="cpp")]
+unsafe extern "C" fn close_c(ctx:*mut std::ffi::c_void,u:std::ffi::c_uint,v:std::ffi::c_uint)->std::ffi::c_int{
+ let a=ctx as *const f32;((*a.add(u as usize*4)-*a.add(v as usize*4)).abs()<0.25) as std::ffi::c_int
+}
+// Normalize only during serialization, outside the counted region.
+fn mesh(ms:Vec<[u32;4]>,v:Vec<u32>,t:Vec<u8>)->Output {Output::RawMesh(ms,v,t)}
+fn normalize(ms:&[[u32;4]],v:&[u32],t:&[u8])->Output {
+ let mut packed=Vec::new();let mut desc=Vec::new();let mut nv=0;
+ for &[vo,to,vc,tc] in ms {let off=packed.len()as u32;packed.extend_from_slice(&t[to as usize..to as usize+tc as usize*3]);desc.push([vo,off,vc,tc]);nv=nv.max((vo+vc)as usize)}
+ Output::Mesh(desc,v[..nv].to_vec(),packed)
+}
+impl Output {
+ fn raw_bytes(&self)->Vec<u8> {
+  if let Self::RawMesh(ms,v,t)=self {
+   let nv=ms.iter().map(|m|(m[0]+m[2])as usize).max().unwrap_or(0);
+   let nt=ms.last().map(|m|m[1]as usize+((m[3]as usize*3+3)&!3)).unwrap_or(0);
+   return Self::Mesh(ms.clone(),v[..nv].to_vec(),t[..nt].to_vec()).bytes()
+  }
+  self.bytes()
+ }
+}
+#[cfg(any(feature="ours",feature="cpp"))]
+fn clod(x:&Input,w:&mut Work)->Output {
+ let mut positions=x.p.clone();let mut out=Vec::<u32>::new();let mut gid=0i32;
+ fn bounds(o:&mut Vec<u32>,c:[f32;3],r:f32,e:f32){o.extend(c.map(f32::to_bits));o.extend([r.to_bits(),e.to_bits()])}
+ #[cfg(feature="ours")]
+ {let cfg=m::clusterlod::default_config(128).unwrap();m::clusterlod::build_with_output(cfg,m::clusterlod::Mesh{indices:&x.i,positions:&mut positions,attributes:None,vertex_lock:None,attribute_weights:&[],attribute_protect_mask:0},|g,cs|{out.extend([g.depth as u32,cs.len()as u32]);bounds(&mut out,g.simplified.center,g.simplified.radius,g.simplified.error);for c in cs{out.extend([c.refined as u32,c.vertex_count as u32,c.indices.len()as u32]);bounds(&mut out,c.bounds.center,c.bounds.radius,c.bounds.error);out.extend(&c.indices)}let id=gid;gid+=1;Ok(id)},w).unwrap();}
+ #[cfg(feature="cpp")]
+ {let _=w;let adapter=meshopt::VertexDataAdapter::new(bytes(&positions),12,0).unwrap();let mesh=meshopt::ClodMesh::new(&x.i,&adapter);meshopt::clod_build(meshopt::clod_default_config(128),&mesh,|g,cs|{out.extend([g.depth as u32,cs.len()as u32]);bounds(&mut out,g.simplified.center,g.simplified.radius,g.simplified.error);for c in cs{out.extend([c.refined as u32,c.vertex_count as u32,c.indices.len()as u32]);bounds(&mut out,c.bounds.center,c.bounds.radius,c.bounds.error);out.extend(c.indices)}let id=gid;gid+=1;id});}
+ Output::Indices(out)
+}
+fn control(cmd:&str){
+ if std::env::var_os("PROBE_CTL").is_none(){return}
+ use std::os::fd::FromRawFd;let ctl=std::env::var("PROBE_CTL").unwrap().parse().unwrap();let ack=std::env::var("PROBE_ACK").unwrap().parse().unwrap();
+ let mut c=std::mem::ManuallyDrop::new(unsafe{std::fs::File::from_raw_fd(ctl)});let mut a=std::mem::ManuallyDrop::new(unsafe{std::fs::File::from_raw_fd(ack)});
+ c.write_all(format!("{cmd}\n").as_bytes()).unwrap();c.flush().unwrap();let mut b=[0];loop{a.read_exact(&mut b).unwrap();if b[0]==b'\n'{break}}
+}
+fn main(){
+ let a:Vec<String>=std::env::args().collect();let x=Input::read(&a[2]);let op=&a[1];
+ #[cfg(feature="cpp")]
+ unsafe{f::meshopt_encodeIndexVersion(1)}
+ #[cfg(feature="rust")]
+ optimesh::indexcodec::set_encode_index_version(1);
+ #[cfg(feature="ours")]
+ let mut w=m::Workspace::new(m::Limits{max_bytes:usize::MAX,max_work:u64::MAX});
+ #[cfg(not(feature="ours"))]
+ let mut w=Work::default();let output=run(op,&x,&mut w);std::fs::write(&a[3],output.bytes()).unwrap();if op=="meshlets"{std::fs::write(format!("{}.raw",a[3]),output.raw_bytes()).unwrap();}drop(output);
+ println!("READY");io::stdout().flush().unwrap();
+ for line in io::stdin().lock().lines(){let line=line.unwrap();if line=="stop"{break}let n:usize=line.parse().unwrap();control("enable");let start=if std::env::var_os("PROBE_CTL").is_none(){Some(Instant::now())}else{None};for _ in 0..n{black_box(run(black_box(op),black_box(&x),&mut w));}let elapsed=start.map_or(0.0,|s|s.elapsed().as_secs_f64());control("disable");println!("COUNTED {elapsed:.9}");io::stdout().flush().unwrap();}
+}

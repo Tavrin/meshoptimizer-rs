@@ -1,0 +1,335 @@
+[
+  {
+    "model": "Bat",
+    "targets": [
+      {
+        "bestof_ms": 80.495144,
+        "character_ms": 39.556781,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "186"
+      },
+      {
+        "bestof_ms": 61.749267,
+        "character_ms": 30.718034,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "93"
+      },
+      {
+        "bestof_ms": 44.919967,
+        "character_ms": 23.003212,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "69"
+      }
+    ]
+  },
+  {
+    "model": "CesiumMan",
+    "targets": [
+      {
+        "bestof_ms": 1380.503235,
+        "character_ms": 679.738547,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "2336"
+      },
+      {
+        "bestof_ms": 1106.385476,
+        "character_ms": 532.177919,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "1168"
+      },
+      {
+        "bestof_ms": 813.412354,
+        "character_ms": 384.122261,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "588"
+      }
+    ]
+  },
+  {
+    "model": "Corgi",
+    "targets": [
+      {
+        "bestof_ms": 138.327818,
+        "character_ms": 69.052945,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "254"
+      },
+      {
+        "bestof_ms": 99.737135,
+        "character_ms": 49.908487,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "127"
+      },
+      {
+        "bestof_ms": 67.140735,
+        "character_ms": 33.502315,
+        "chosen": "plain",
+        "target": "0.1",
+        "triangles": "59"
+      }
+    ]
+  },
+  {
+    "model": "Fox",
+    "targets": [
+      {
+        "bestof_ms": 389.000423,
+        "character_ms": 190.03944,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "288"
+      },
+      {
+        "bestof_ms": 313.350389,
+        "character_ms": 142.393671,
+        "chosen": "plain",
+        "target": "0.25",
+        "triangles": "144"
+      },
+      {
+        "bestof_ms": 162.23973,
+        "character_ms": 77.254884,
+        "chosen": "plain",
+        "target": "0.1",
+        "triangles": "56"
+      }
+    ]
+  },
+  {
+    "model": "Gangnam",
+    "targets": [
+      {
+        "bestof_ms": 4276.050662,
+        "character_ms": 2337.59003,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "97195"
+      },
+      {
+        "bestof_ms": 3431.369477,
+        "character_ms": 1776.224679,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "48586"
+      },
+      {
+        "bestof_ms": 2998.924253,
+        "character_ms": 1517.157351,
+        "chosen": "plain",
+        "target": "0.1",
+        "triangles": "19422"
+      },
+      {
+        "bestof_ms": 2725.635436,
+        "character_ms": 1394.932726,
+        "chosen": "character",
+        "target": "0.05",
+        "triangles": "9719"
+      }
+    ]
+  },
+  {
+    "model": "MakeHuman",
+    "targets": [
+      {
+        "bestof_ms": 220130.835976,
+        "character_ms": 117175.758507,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "18462"
+      },
+      {
+        "bestof_ms": 182993.960154,
+        "character_ms": 84769.45813,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "9231"
+      },
+      {
+        "bestof_ms": 150903.723498,
+        "character_ms": 71515.227428,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "3681"
+      },
+      {
+        "bestof_ms": 131061.876074,
+        "character_ms": 60772.819712,
+        "chosen": "character",
+        "target": "0.05",
+        "triangles": "1842"
+      }
+    ]
+  },
+  {
+    "model": "MorphStressTest",
+    "targets": [
+      {
+        "bestof_ms": 2103.417745,
+        "character_ms": 1042.345294,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "1206"
+      },
+      {
+        "bestof_ms": 1539.678694,
+        "character_ms": 781.342294,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "602"
+      },
+      {
+        "bestof_ms": 1181.039838,
+        "character_ms": 588.424295,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "240"
+      }
+    ]
+  },
+  {
+    "model": "RiggedFigure",
+    "targets": [
+      {
+        "bestof_ms": 6.02949,
+        "character_ms": 3.195135,
+        "chosen": "plain",
+        "target": "0.5",
+        "triangles": "128"
+      },
+      {
+        "bestof_ms": 5.920375,
+        "character_ms": 2.999207,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "120"
+      },
+      {
+        "bestof_ms": 5.884388,
+        "character_ms": 2.987534,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "120"
+      }
+    ]
+  },
+  {
+    "model": "RobotExpressive",
+    "targets": [
+      {
+        "bestof_ms": 4722.774103,
+        "character_ms": 2362.927483,
+        "chosen": "plain",
+        "target": "0.5",
+        "triangles": "1354"
+      },
+      {
+        "bestof_ms": 4672.805782,
+        "character_ms": 2332.890716,
+        "chosen": "plain",
+        "target": "0.25",
+        "triangles": "1354"
+      },
+      {
+        "bestof_ms": 4681.311659,
+        "character_ms": 2355.37005,
+        "chosen": "plain",
+        "target": "0.1",
+        "triangles": "1354"
+      }
+    ]
+  },
+  {
+    "model": "Shark",
+    "targets": [
+      {
+        "bestof_ms": 45.767263,
+        "character_ms": 23.253443,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "142"
+      },
+      {
+        "bestof_ms": 34.718836,
+        "character_ms": 17.231578,
+        "chosen": "plain",
+        "target": "0.25",
+        "triangles": "91"
+      },
+      {
+        "bestof_ms": 33.978142,
+        "character_ms": 17.005542,
+        "chosen": "plain",
+        "target": "0.1",
+        "triangles": "85"
+      }
+    ]
+  },
+  {
+    "model": "Superhero",
+    "targets": [
+      {
+        "bestof_ms": 164.935739,
+        "character_ms": 91.321976,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "7158"
+      },
+      {
+        "bestof_ms": 139.002231,
+        "character_ms": 73.204713,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "3578"
+      },
+      {
+        "bestof_ms": 115.827296,
+        "character_ms": 59.936256,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "1431"
+      },
+      {
+        "bestof_ms": 104.221088,
+        "character_ms": 56.553328,
+        "chosen": "plain",
+        "target": "0.05",
+        "triangles": "714"
+      }
+    ]
+  },
+  {
+    "model": "minion-a01",
+    "targets": [
+      {
+        "bestof_ms": 30.303313,
+        "character_ms": 15.779584,
+        "chosen": "character",
+        "target": "0.5",
+        "triangles": "120"
+      },
+      {
+        "bestof_ms": 20.846702,
+        "character_ms": 10.695934,
+        "chosen": "character",
+        "target": "0.25",
+        "triangles": "62"
+      },
+      {
+        "bestof_ms": 20.511371,
+        "character_ms": 10.576199,
+        "chosen": "character",
+        "target": "0.1",
+        "triangles": "62"
+      }
+    ]
+  }
+]
