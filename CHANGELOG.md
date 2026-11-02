@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `parallel::encode_vertex_buffer_parallel`, `parallel::decode_vertex_buffer_parallel` and `parallel::build_meshlets_spatial_parallel` (`_generic` for u16/u32) run one large vertex buffer or one spatial meshlet build on the current Rayon pool, with output byte-identical to the serial functions for any pool size (`parallel` feature, not in C++ meshoptimizer). The scan and flex meshlet builders and the index codecs stay serial.
 - `codec::VertexBufferDecoder` and `codec::IndexBufferDecoder`: incremental vertex-buffer and triangle-index decoders with bounded fixed storage (no heap), chunked input and output, trailer-first construction (header and padded trailer, or codes and codebook, supplied separately), sticky errors identical to the one-shot decoders, and EOF validation in `finish`. `Status` and `Progress` are shared with `IndexSequenceDecoder`.
 - `split_non_manifold_vertices` copies full records for disconnected face fans; `stitch_cracks` conservatively merges boundary pairs and subdivides T-junctions with explicit refusal counts. Both provide u32 and `_generic` index forms and optional `process_mesh` stages.
 

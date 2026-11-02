@@ -136,6 +136,44 @@ pub fn encode_index_sequence_bound(
     index_encode::sequence_bound(index_count, vertex_count as u64)
 }
 
+/// Account an allocating encode against the limits before any allocation.
+fn charge(bound: usize, input: usize, workspace: &mut Workspace) -> Result<(), Error> {
+    let mut work = workspace.begin();
+    let check = (|| {
+        workspace.account_codec(bound)?;
+        work.add(input)?;
+        work.add(bound)
+    })();
+    workspace.finish(&work);
+    check
+}
+
+/// Vertex encode on the current Rayon pool with the serial encoder's bytes,
+/// limits and errors; one worker or a short buffer encodes serially.
+#[cfg(feature = "parallel")]
+pub(crate) fn encode_vertex_buffer_parallel(
+    vertices: &[u8],
+    count: usize,
+    stride: usize,
+    encoding: VertexEncoding,
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    let valid = stride != 0 && stride <= 256 && stride.is_multiple_of(4);
+    if !valid
+        || rayon::current_num_threads() < 2
+        || count.div_ceil(vertex_encode::block_size(stride)) < 2 * vertex_encode::MIN_CHUNK_BLOCKS
+    {
+        return encode_vertex_buffer(vertices, count, stride, encoding, workspace);
+    }
+    let _ = workspace.begin();
+    if vertices.len() != vertex_layout(count, stride)? {
+        return Err(Error::InvalidLayout);
+    }
+    let bound = vertex_encode::bound(count, stride)?;
+    charge(bound, vertices.len(), workspace)?;
+    vertex_encode::encode_parallel(vertices, count, stride, encoding.version, encoding.level)
+}
+
 /// Shared allocating driver: account the bound, reserve fallibly, encode and
 /// truncate to the used length (the capacity stays at the accounted bound).
 fn allocate(
@@ -144,14 +182,7 @@ fn allocate(
     workspace: &mut Workspace,
     encode: impl FnOnce(&mut [u8]) -> Result<usize, Error>,
 ) -> Result<Vec<u8>, Error> {
-    let mut work = workspace.begin();
-    let check = (|| {
-        workspace.account_codec(bound)?;
-        work.add(input)?;
-        work.add(bound)
-    })();
-    workspace.finish(&work);
-    check?;
+    charge(bound, input, workspace)?;
     let mut out = Vec::new();
     out.try_reserve_exact(bound)
         .map_err(|_| Error::AllocationFailed)?;

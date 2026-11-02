@@ -1705,8 +1705,17 @@ fn scan(
 #[derive(Clone, Copy)]
 pub(crate) enum Builder {
     Scan,
-    Flex { min: usize, weight: f32, split: f32 },
-    Spatial { min: usize, fill: f32 },
+    Flex {
+        min: usize,
+        weight: f32,
+        split: f32,
+    },
+    /// `parallel` selects the Rayon front end; it needs the `parallel` feature.
+    Spatial {
+        min: usize,
+        fill: f32,
+        parallel: bool,
+    },
 }
 fn min_triangles(b: Builder, s: MeshletSettings) -> usize {
     match b {
@@ -1737,13 +1746,18 @@ fn execute(
                 flex::<true, false>(out, indices, p, s, min, weight, split, ctx)?;
             }
         }
-        Builder::Spatial { min, fill } => crate::meshlet_spatial::spatial(
+        Builder::Spatial {
+            min,
+            fill,
+            parallel,
+        } => crate::meshlet_spatial::spatial(
             out,
             indices,
             p.expect("positions builder"),
             s,
             min,
             fill,
+            parallel,
             ctx,
         )?,
     }
@@ -1753,7 +1767,7 @@ fn check(s: MeshletSettings, b: Builder) -> Result<(), Error> {
     match b {
         Builder::Scan => validate(s, s.max_triangles, 0., 0.),
         Builder::Flex { min, weight, split } => validate(s, min, weight, split),
-        Builder::Spatial { min, fill } => {
+        Builder::Spatial { min, fill, .. } => {
             validate(s, min, 0., 0.)?;
             if !fill.is_finite() || fill < 0. {
                 return Err(Error::InvalidParameter);
@@ -2025,10 +2039,45 @@ fn build_meshlets_spatial_u32(
         Builder::Spatial {
             min: min_triangles,
             fill: fill_weight,
+            parallel: false,
         },
         workspace,
         None,
     )
+}
+/// `build_meshlets_spatial_generic` on the current Rayon pool, with the same
+/// result. Only a workspace with unlimited bytes and work uses the parallel
+/// front end (scratch per worker is not accounted), as in cluster LOD; any
+/// other workspace, or a one-worker pool, builds serially.
+#[cfg(feature = "parallel")]
+pub(crate) fn build_meshlets_spatial_parallel_generic<I: crate::Index>(
+    indices: &[I],
+    p: Positions<'_>,
+    s: MeshletSettings,
+    min_triangles: usize,
+    fill_weight: f32,
+    workspace: &mut Workspace,
+) -> Result<MeshletsGeneric<I>, Error> {
+    let limits = workspace.limits();
+    let parallel = limits.max_bytes == usize::MAX
+        && limits.max_work == u64::MAX
+        && rayon::current_num_threads() > 1;
+    I::with_input(indices, workspace, |indices, workspace| {
+        build(
+            indices,
+            p.len(),
+            Some(p),
+            s,
+            Builder::Spatial {
+                min: min_triangles,
+                fill: fill_weight,
+                parallel,
+            },
+            workspace,
+            None,
+        )
+        .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
 }
 #[cfg(feature = "clusterlod")]
 pub(crate) fn build_meshlets_spatial_validated(
@@ -2048,6 +2097,7 @@ pub(crate) fn build_meshlets_spatial_validated(
         Builder::Spatial {
             min: min_triangles,
             fill: fill_weight,
+            parallel: false,
         },
         workspace,
         Some(moderate),
@@ -2278,6 +2328,7 @@ fn build_meshlets_spatial_into_u32(
         Builder::Spatial {
             min: min_triangles,
             fill: fill_weight,
+            parallel: false,
         },
         workspace,
     )
