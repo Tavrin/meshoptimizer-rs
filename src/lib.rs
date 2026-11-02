@@ -205,9 +205,11 @@ mod sanitize;
 pub use repair::{
     fill_holes, fill_holes_bound, fill_holes_generic, fill_holes_into, fill_holes_into_generic,
     orient_faces, orient_faces_bound, orient_faces_generic, orient_faces_into,
-    orient_faces_into_generic, weld_vertices, weld_vertices_bound, weld_vertices_into,
+    orient_faces_into_generic, split_non_manifold_vertices, split_non_manifold_vertices_generic,
+    stitch_cracks, stitch_cracks_generic, weld_vertices, weld_vertices_bound, weld_vertices_into,
     weld_vertices_into_generic, FillHolesReport, FilledMesh, FilledMeshGeneric, HoleLoop,
-    OrientReport, OrientedMesh, OrientedMeshGeneric, WeldPolicy, WeldReport, WeldedVertices,
+    OrientReport, OrientedMesh, OrientedMeshGeneric, SplitVerticesReport, StitchReport,
+    TopologyRepairGeneric, WeldPolicy, WeldReport, WeldedVertices,
 };
 
 mod character;

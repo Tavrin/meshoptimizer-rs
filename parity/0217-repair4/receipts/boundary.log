@@ -1,0 +1,3 @@
+PASS: one allow, 40 individually documented blocks; no unsafe fn/impl
+PASS: published package contains exactly one unsafe-code allowance
+PASS: published package includes all 40 audited unsafe blocks

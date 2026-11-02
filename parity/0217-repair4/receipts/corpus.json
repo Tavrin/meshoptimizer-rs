@@ -1,0 +1,42 @@
+[
+  {
+    "name": "hourglass_ico",
+    "url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/test/assets/hourglass_ico.obj",
+    "license": "MIT",
+    "license_url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/LICENSE",
+    "sha256": "1644431d58a72e3173d5ff0786cb0ee5d5fc42045306efa44c482645fb21ba04",
+    "vertices": 23,
+    "triangles": 40,
+    "conversion": "OBJ polygons triangulated as a fan, position indices retained"
+  },
+  {
+    "name": "fan3",
+    "url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/test/assets/fan3.obj",
+    "license": "MIT",
+    "license_url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/LICENSE",
+    "sha256": "891c79fe76b67786ae8afad77d2680bc0d4767cff74b4b53068199850ebe44fe",
+    "vertices": 5,
+    "triangles": 3,
+    "conversion": "OBJ polygons triangulated as a fan, position indices retained"
+  },
+  {
+    "name": "triple_vierbein",
+    "url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/test/assets/triple_vierbein.obj",
+    "license": "MIT",
+    "license_url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/LICENSE",
+    "sha256": "ea36b3752e93e436c5b71343ca3faf693c64c54baa2fbd74d55fdd9296e570d3",
+    "vertices": 75,
+    "triangles": 108,
+    "conversion": "OBJ polygons triangulated as a fan, position indices retained"
+  },
+  {
+    "name": "platonic_shelf",
+    "url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/test/assets/platonic_shelf.obj",
+    "license": "MIT",
+    "license_url": "https://raw.githubusercontent.com/nmwsharp/geometry-central/019669ddabda05e0f71fa3587cfb3c1dadf19cb8/LICENSE",
+    "sha256": "ee1e93f7f3c5513445f7604fe1854239d9e6e2d13f18cf3e819f02e4abadcca9",
+    "vertices": 50,
+    "triangles": 80,
+    "conversion": "OBJ polygons triangulated as a fan, position indices retained"
+  }
+]

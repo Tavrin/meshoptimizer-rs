@@ -1,0 +1,137 @@
+{
+  "fmt-write": {
+    "exit": 0,
+    "wall_seconds": 0.4937570450001658,
+    "cpu_seconds": 0.49419599999999997
+  },
+  "test-all": {
+    "exit": 0,
+    "wall_seconds": 124.10473443800038,
+    "cpu_seconds": 195.388499
+  },
+  "test-none": {
+    "exit": 0,
+    "wall_seconds": 8.451950037999268,
+    "cpu_seconds": 24.514718000000013
+  },
+  "clippy-all": {
+    "exit": 0,
+    "wall_seconds": 0.7522745699998268,
+    "cpu_seconds": 1.5030989999999917
+  },
+  "clippy-none": {
+    "exit": 0,
+    "wall_seconds": 0.18189506700036873,
+    "cpu_seconds": 0.2788730000000115
+  },
+  "doctest": {
+    "exit": 0,
+    "wall_seconds": 1.089604017000056,
+    "cpu_seconds": 14.384363999999994
+  },
+  "doctest-none": {
+    "exit": 0,
+    "wall_seconds": 0.7581053889998657,
+    "cpu_seconds": 10.773482999999974
+  },
+  "docs": {
+    "exit": 0,
+    "wall_seconds": 1.117724454999916,
+    "cpu_seconds": 1.0930120000000016
+  },
+  "docs-none": {
+    "exit": 0,
+    "wall_seconds": 0.763890160000301,
+    "cpu_seconds": 0.916054999999993
+  },
+  "wasm": {
+    "exit": 0,
+    "wall_seconds": 0.031795570999747724,
+    "cpu_seconds": 0.035506999999995514
+  },
+  "wasm-default": {
+    "exit": 0,
+    "wall_seconds": 0.016336251000211632,
+    "cpu_seconds": 0.016131000000022766
+  },
+  "semver": {
+    "exit": 0,
+    "wall_seconds": 1.3874338610003178,
+    "cpu_seconds": 1.6811500000000024
+  },
+  "boundary": {
+    "exit": 0,
+    "wall_seconds": 5.059640440999829,
+    "cpu_seconds": 5.248580000000011
+  },
+  "measure": {
+    "exit": 0,
+    "wall_seconds": 23.979428196999834,
+    "cpu_seconds": 24.048487999999985
+  },
+  "measure-tol1e-4": {
+    "exit": 0,
+    "wall_seconds": 24.042642078000426,
+    "cpu_seconds": 24.134093999999997
+  },
+  "exact-build": {
+    "exit": 0,
+    "wall_seconds": 0.01823145999969711,
+    "cpu_seconds": 0.017120000000005575
+  },
+  "repair-exact": {
+    "exit": 0,
+    "wall_seconds": 0.0432498090003719,
+    "cpu_seconds": 0.04116499999999945
+  },
+  "lod-exact": {
+    "exit": 0,
+    "wall_seconds": 0.5023064560000421,
+    "cpu_seconds": 0.49987100000002016
+  },
+  "reference": {
+    "exit": 0,
+    "wall_seconds": 0.0074652230005085585,
+    "cpu_seconds": 0.0073589999999654765
+  },
+  "cpp-build": {
+    "exit": 0,
+    "wall_seconds": 2.2942213039996204,
+    "cpu_seconds": 2.273806000000029
+  },
+  "protocol-build": {
+    "exit": 0,
+    "wall_seconds": 0.01891901900035009,
+    "cpu_seconds": 0.018147999999975184
+  },
+  "cpp-differential": {
+    "exit": 0,
+    "wall_seconds": 13.765149738999753,
+    "cpu_seconds": 14.510655
+  },
+  "fuzz-fmt": {
+    "exit": 0,
+    "wall_seconds": 0.03701939199982007,
+    "cpu_seconds": 0.037318000000013285
+  },
+  "fuzz-build": {
+    "exit": 0,
+    "wall_seconds": 0.10438868999972328,
+    "cpu_seconds": 0.10756500000004365
+  },
+  "fuzz-smoke": {
+    "exit": 0,
+    "wall_seconds": 321.18138250799984,
+    "cpu_seconds": 322.044338
+  },
+  "fmt": {
+    "exit": 0,
+    "wall_seconds": 0.580867114999819,
+    "cpu_seconds": 0.534612000000088
+  },
+  "public-text": {
+    "exit": 0,
+    "wall_seconds": 0.5092391600001065,
+    "cpu_seconds": 1.5786660000000268
+  }
+}
