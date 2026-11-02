@@ -349,7 +349,15 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
 }
 
 /// Per-block inputs of the vertex parser shared by the whole-stream kernels
-/// and the incremental decoder.
+/// and the incremental decoder. Targets without a SIMD kernel never read it.
+#[cfg_attr(
+    not(any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    )),
+    allow(dead_code)
+)]
 pub(in crate::codec) struct VertexBlock<'a> {
     pub(in crate::codec) version: u8,
     pub(in crate::codec) block: usize,
