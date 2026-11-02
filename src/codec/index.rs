@@ -74,6 +74,8 @@ fn triangles_width<const STRIDE: usize, const TRI_BYTES: usize>(
     let code_aux_table = &data[safe_end..];
     // Public entry points supply exactly count * STRIDE bytes. Checked
     // code and output records make all three stores bounded by one array.
+    // `TriangleState::run` is the same loop for the incremental decoder; this
+    // copy stays separate so the one-shot path keeps its exact code generation.
     let codes = &data[1..position];
     for (&code_tri, triangle) in codes.iter().zip(output.as_chunks_mut::<TRI_BYTES>().0) {
         if position > safe_end {
@@ -336,15 +338,26 @@ impl TriangleState {
             ..Self::default()
         }
     }
-    pub(super) fn one(
+    /// Decode one triangle per entry of `codes`, stopping early when `outs` is
+    /// exhausted. `write` stores each triangle in its output slot, `cursor` is
+    /// the position in `data`, and `safe_end` bounds the body (the aux table
+    /// follows it). Returns the triangles completed and the status. Every
+    /// fallible step precedes the first state change of its triangle, so a
+    /// failure leaves the state, cursor and outputs at the last complete
+    /// triangle and a caller with more input can resume with the rest.
+    #[allow(clippy::too_many_arguments)]
+    #[inline(always)]
+    pub(super) fn run<O>(
         &mut self,
-        code_tri: u8,
+        codes: &[u8],
+        outs: &mut [O],
         data: &[u8],
+        cursor: &mut usize,
+        safe_end: usize,
         code_aux_table: &[u8],
         version: u8,
-    ) -> Result<(usize, [u32; 3]), Error> {
-        // Every fallible step precedes the first FIFO write, so only the
-        // scalar cursors need a local copy; errors leave `self` untouched.
+        mut write: impl FnMut(&mut O, [u32; 3]),
+    ) -> (usize, Result<(), Error>) {
         let (mut edge_offset, mut vertex_offset, mut next, mut last) =
             (self.edge_offset, self.vertex_offset, self.next, self.last);
         let (edge_fifo, vertex_fifo) = (&mut self.edge_fifo, &mut self.vertex_fifo);
@@ -357,118 +370,145 @@ impl TriangleState {
             *offset = (*offset + usize::from(advance)) & 15;
         };
         let fec_max = if version >= 1 { 13 } else { 15 };
-        let mut position = 0;
-        let (a, b, c);
-        if code_tri < 0xf0 {
-            let fe = usize::from(code_tri >> 4);
-            let edge = edge_fifo[(edge_offset.wrapping_sub(1 + fe)) & 15];
-            a = edge[0];
-            b = edge[1];
-            let fec = usize::from(code_tri & 15);
-            if fec < fec_max {
-                let cached = vertex_fifo[(vertex_offset.wrapping_sub(1 + fec)) & 15];
-                c = if fec == 0 { next } else { cached };
-                if fec == 0 {
-                    next = next.wrapping_add(1);
+        let mut position = *cursor;
+        let mut done = 0;
+        let status = 'run: {
+            for (&code_tri, out) in codes.iter().zip(outs.iter_mut()) {
+                if position > safe_end {
+                    break 'run Err(Error::InvalidStream);
                 }
-                push_vertex(&mut *vertex_fifo, &mut vertex_offset, c, fec == 0);
-            } else {
-                c = if fec != 15 {
-                    // 13 and 14 encode -1 and +1 relative to the last free index.
-                    let delta = fec as i32 - (fec ^ 3) as i32;
-                    last.wrapping_add_signed(delta)
+                let (a, b, c);
+                if code_tri < 0xf0 {
+                    let fe = usize::from(code_tri >> 4);
+                    let edge = edge_fifo[(edge_offset.wrapping_sub(1 + fe)) & 15];
+                    a = edge[0];
+                    b = edge[1];
+                    let fec = usize::from(code_tri & 15);
+                    if fec < fec_max {
+                        let cached = vertex_fifo[(vertex_offset.wrapping_sub(1 + fec)) & 15];
+                        c = if fec == 0 { next } else { cached };
+                        if fec == 0 {
+                            next = next.wrapping_add(1);
+                        }
+                        push_vertex(&mut *vertex_fifo, &mut vertex_offset, c, fec == 0);
+                    } else {
+                        c = if fec != 15 {
+                            // 13 and 14 encode -1 and +1 relative to the last free index.
+                            let delta = fec as i32 - (fec ^ 3) as i32;
+                            last.wrapping_add_signed(delta)
+                        } else {
+                            match decode_index(data, &mut position, last) {
+                                Ok(value) => value,
+                                Err(e) => break 'run Err(e),
+                            }
+                        };
+                        last = c;
+                        push_vertex(&mut *vertex_fifo, &mut vertex_offset, c, true);
+                    }
+                    push_edge(&mut *edge_fifo, &mut edge_offset, c, b);
+                    push_edge(&mut *edge_fifo, &mut edge_offset, a, c);
+                } else if code_tri < 0xfe {
+                    let code_aux = code_aux_table[usize::from(code_tri & 15)];
+                    let feb = usize::from(code_aux >> 4);
+                    let fec = usize::from(code_aux & 15);
+                    a = next;
+                    next = next.wrapping_add(1);
+                    let cached_b = vertex_fifo[(vertex_offset.wrapping_sub(feb)) & 15];
+                    b = if feb == 0 { next } else { cached_b };
+                    if feb == 0 {
+                        next = next.wrapping_add(1);
+                    }
+                    let cached_c = vertex_fifo[(vertex_offset.wrapping_sub(fec)) & 15];
+                    c = if fec == 0 { next } else { cached_c };
+                    if fec == 0 {
+                        next = next.wrapping_add(1);
+                    }
+                    push_vertex(&mut *vertex_fifo, &mut vertex_offset, a, true);
+                    push_vertex(&mut *vertex_fifo, &mut vertex_offset, b, feb == 0);
+                    push_vertex(&mut *vertex_fifo, &mut vertex_offset, c, fec == 0);
+                    push_edge(&mut *edge_fifo, &mut edge_offset, b, a);
+                    push_edge(&mut *edge_fifo, &mut edge_offset, c, b);
+                    push_edge(&mut *edge_fifo, &mut edge_offset, a, c);
                 } else {
-                    decode_index(data, &mut position, last)?
-                };
-                last = c;
-                push_vertex(&mut *vertex_fifo, &mut vertex_offset, c, true);
+                    let code_aux = match byte_at(data, position) {
+                        Ok(value) => value,
+                        Err(e) => break 'run Err(e),
+                    };
+                    let fea = if code_tri == 0xfe { 0 } else { 15 };
+                    let feb = usize::from(code_aux >> 4);
+                    let fec = usize::from(code_aux & 15);
+                    // Cursor, free-index and last-index work on copies until all
+                    // three corners decoded, so a failure leaves this triangle unstarted.
+                    let (mut cursor_here, mut next_here, mut last_here) =
+                        (position + 1, if code_aux == 0 { 0 } else { next }, last);
+                    let mut take_next = || {
+                        let value = next_here;
+                        next_here = next_here.wrapping_add(1);
+                        value
+                    };
+                    let mut first = if fea == 0 { take_next() } else { 0 };
+                    let mut second = if feb == 0 {
+                        take_next()
+                    } else {
+                        vertex_fifo[(vertex_offset.wrapping_sub(feb)) & 15]
+                    };
+                    let mut third = if fec == 0 {
+                        take_next()
+                    } else {
+                        vertex_fifo[(vertex_offset.wrapping_sub(fec)) & 15]
+                    };
+                    if fea == 15 {
+                        first = match decode_index(data, &mut cursor_here, last_here) {
+                            Ok(value) => value,
+                            Err(e) => break 'run Err(e),
+                        };
+                        last_here = first;
+                    }
+                    if feb == 15 {
+                        second = match decode_index(data, &mut cursor_here, last_here) {
+                            Ok(value) => value,
+                            Err(e) => break 'run Err(e),
+                        };
+                        last_here = second;
+                    }
+                    if fec == 15 {
+                        third = match decode_index(data, &mut cursor_here, last_here) {
+                            Ok(value) => value,
+                            Err(e) => break 'run Err(e),
+                        };
+                        last_here = third;
+                    }
+                    (position, next, last) = (cursor_here, next_here, last_here);
+                    a = first;
+                    b = second;
+                    c = third;
+                    push_vertex(&mut *vertex_fifo, &mut vertex_offset, a, true);
+                    push_vertex(
+                        &mut *vertex_fifo,
+                        &mut vertex_offset,
+                        b,
+                        feb == 0 || feb == 15,
+                    );
+                    push_vertex(
+                        &mut *vertex_fifo,
+                        &mut vertex_offset,
+                        c,
+                        fec == 0 || fec == 15,
+                    );
+                    push_edge(&mut *edge_fifo, &mut edge_offset, b, a);
+                    push_edge(&mut *edge_fifo, &mut edge_offset, c, b);
+                    push_edge(&mut *edge_fifo, &mut edge_offset, a, c);
+                }
+                write(out, [a, b, c]);
+                done += 1;
             }
-            push_edge(&mut *edge_fifo, &mut edge_offset, c, b);
-            push_edge(&mut *edge_fifo, &mut edge_offset, a, c);
-        } else if code_tri < 0xfe {
-            let code_aux = code_aux_table[usize::from(code_tri & 15)];
-            let feb = usize::from(code_aux >> 4);
-            let fec = usize::from(code_aux & 15);
-            a = next;
-            next = next.wrapping_add(1);
-            let cached_b = vertex_fifo[(vertex_offset.wrapping_sub(feb)) & 15];
-            b = if feb == 0 { next } else { cached_b };
-            if feb == 0 {
-                next = next.wrapping_add(1);
-            }
-            let cached_c = vertex_fifo[(vertex_offset.wrapping_sub(fec)) & 15];
-            c = if fec == 0 { next } else { cached_c };
-            if fec == 0 {
-                next = next.wrapping_add(1);
-            }
-            push_vertex(&mut *vertex_fifo, &mut vertex_offset, a, true);
-            push_vertex(&mut *vertex_fifo, &mut vertex_offset, b, feb == 0);
-            push_vertex(&mut *vertex_fifo, &mut vertex_offset, c, fec == 0);
-            push_edge(&mut *edge_fifo, &mut edge_offset, b, a);
-            push_edge(&mut *edge_fifo, &mut edge_offset, c, b);
-            push_edge(&mut *edge_fifo, &mut edge_offset, a, c);
-        } else {
-            let code_aux = byte_at(data, position)?;
-            position += 1;
-            let fea = if code_tri == 0xfe { 0 } else { 15 };
-            let feb = usize::from(code_aux >> 4);
-            let fec = usize::from(code_aux & 15);
-            if code_aux == 0 {
-                next = 0;
-            }
-            let mut take_next = || {
-                let value = next;
-                next = next.wrapping_add(1);
-                value
-            };
-            let mut first = if fea == 0 { take_next() } else { 0 };
-            let mut second = if feb == 0 {
-                take_next()
-            } else {
-                vertex_fifo[(vertex_offset.wrapping_sub(feb)) & 15]
-            };
-            let mut third = if fec == 0 {
-                take_next()
-            } else {
-                vertex_fifo[(vertex_offset.wrapping_sub(fec)) & 15]
-            };
-            if fea == 15 {
-                first = decode_index(data, &mut position, last)?;
-                last = first;
-            }
-            if feb == 15 {
-                second = decode_index(data, &mut position, last)?;
-                last = second;
-            }
-            if fec == 15 {
-                third = decode_index(data, &mut position, last)?;
-                last = third;
-            }
-            a = first;
-            b = second;
-            c = third;
-            push_vertex(&mut *vertex_fifo, &mut vertex_offset, a, true);
-            push_vertex(
-                &mut *vertex_fifo,
-                &mut vertex_offset,
-                b,
-                feb == 0 || feb == 15,
-            );
-            push_vertex(
-                &mut *vertex_fifo,
-                &mut vertex_offset,
-                c,
-                fec == 0 || fec == 15,
-            );
-            push_edge(&mut *edge_fifo, &mut edge_offset, b, a);
-            push_edge(&mut *edge_fifo, &mut edge_offset, c, b);
-            push_edge(&mut *edge_fifo, &mut edge_offset, a, c);
-        }
-
+            Ok(())
+        };
+        *cursor = position;
         self.edge_offset = edge_offset;
         self.vertex_offset = vertex_offset;
         self.next = next;
         self.last = last;
-        Ok((position, [a, b, c]))
+        (done, status)
     }
 }

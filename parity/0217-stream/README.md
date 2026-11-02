@@ -41,19 +41,49 @@ decoders' errors on the same bytes.
 | identity, `tests/buffer_stream.rs` (random round trips v0/v1, malformed prefixes, 2000 random streams, long bodies cycling the window, empty-output, sticky errors, u16 narrowing, every available SIMD level) | 7 passed, `tests.log` |
 | upstream corpus, chunks 1/7/4096/65536 vs one-shot (native fixtures + JS fixtures) | 916 comparisons identical, `corpus-wasm.log` |
 | wasm32 (node), same identity tests including malformed inputs and SIMD | pass, `corpus-wasm.log` |
-| fuzz target `buffer_stream` (arbitrary bytes, count, stride, chunk and output widths; streaming result must equal one-shot `Result`) | 1,997,788 runs, 614 CPU-seconds, 0 mismatches, exit 0 (`fuzz-run-0.log`, `fuzz.json`) |
+| fuzz target `buffer_stream` (arbitrary bytes, count, stride, chunk and output widths; streaming result must equal one-shot `Result`) | 3,075,288 runs, 604 CPU-seconds, 0 mismatches, exit 0 (`fuzz-run-0.log`, `fuzz.json`) |
 
 ## Throughput (release, 65,536 vertices of stride 32; 255x255 quad grid, 390,150 indices; MB/s of decoded output, `benchmark.log`)
 
 | version | one-shot vertex | stream 4 KiB | stream 64 KiB | one-shot triangle | stream 4 KiB | stream 64 KiB |
 | --- | --- | --- | --- | --- | --- | --- |
-| 0 | 5700 | 3164 (0.56x) | 3957 (0.69x) | 5197 | 1232 (0.24x) | 1277 (0.25x) |
-| 1 | 9809 | 1531 (0.16x) | 1830 (0.19x) | 5352 | 1278 (0.24x) | 1281 (0.24x) |
+| 0 | 6248 | 4439 (0.71x) | 5471 (0.88x) | 5633 | 5165 (0.92x) | 5138 (0.91x) |
+| 1 | 10385 | 7445 (0.72x) | 8465 (0.82x) | 5917 | 5952 (1.01x) | 5780 (0.98x) |
 
-Streaming is slower than one-shot: the bounded block parser runs the generic
-per-channel decode instead of the one-shot SIMD vertex path, and triangle decoding
-makes one call per triangle. It is a memory-bounded interface, not a faster one.
-The machine was shared with other jobs; read these as ratios, not absolutes.
+Before the speed pass (same machine, earlier tree): vertex v0 0.56x / 0.69x,
+v1 0.16x / 0.19x, triangles 0.24x / 0.25x at 4 KiB / 64 KiB chunks. A second run
+of the final tree gave 64 KiB ratios 0.87 / 0.80 (vertex v0 / v1) and 0.91 / 1.01
+(triangles). Wall time on a shared machine is disclosure only; the decision
+metric is instructions in user mode per decode (`perf stat -e instructions:u`,
+`BENCH_ONLY=<case> BENCH_RUNS=200`, setup subtracted), where the
+instructions-equivalent ratio is one-shot / streaming:
+
+| case | one-shot | stream 4 KiB (before / after) | stream 64 KiB (before / after) |
+| --- | --- | --- | --- |
+| vertex v0 | 7.45 M | 0.51 / 0.76x | 0.65 / 0.97x |
+| vertex v1 | 5.18 M | 0.17 / 0.79x | 0.21 / 0.96x |
+| triangles v0 | 7.23 M | 0.26 / 0.87x | 0.26 / 0.87x |
+| triangles v1 | 6.97 M | 0.26 / 0.97x | 0.26 / 0.97x |
+
+Profile before the change (`perf record -e instructions:u`, fat LTO inlines
+everything into the bench `main`): the streaming path was 50% of samples in
+`main` (per-triangle `TriangleState::one`, scalar `scalar_deltas` for v1
+half-word and XOR channels, per-call `bytes` dispatch), 17% one-shot triangle
+`run`, 7.5% / 5.2% / 3.7% `deltas_kernel` and 4% / 3.4% `bytes_kernel` (one-shot
+SIMD vertex), 2.9% memmove and 1.8% memset (input window and scratch).
+
+Streaming now runs the one-shot SIMD block kernels for each buffered block and
+decodes triangles in batches. It is still a memory-bounded interface; decode
+whole buffers when they fit. One-shot cost: the one-shot vertex kernels keep their own copy of the block
+loop and instantiate `bytes_kernel` and `deltas_kernel` separately from the
+incremental decoder's (`BLOCK` const parameter), so adding the shared block
+function no longer changes inlining into the one-shot path. Median of 5
+`perf stat -e instructions:u` runs, 200 decodes, setup subtracted: committed HEAD
+7.60 M (v0) and 5.18 M (v1); this tree 7.45 M and 5.18 M (x86_64, AVX-512
+path); the shared-function version had measured 7.70 M and 5.27 M. The one-shot
+triangle decode is unchanged (7.234 M). The aarch64 and wasm32 kernels still
+call the shared block function from the one-shot path; they were not measured.
+
 
 ## Decisions
 
@@ -65,9 +95,18 @@ The machine was shared with other jobs; read these as ratios, not absolutes.
   step precedes the first FIFO write, so an error leaves state untouched.
 - `Status` and `Progress` docs were generalised (no signature change); semver
   check against 0.2.16 passes.
-- Not done: a SIMD streaming vertex path (would close most of the v1 vertex gap)
-  and a forward-only variant that needs no separate trailer; both would need a
-  format-level change or a larger buffer.
+- Speed pass: a buffered vertex block runs `vertex_block_kernel`, the block half
+  of the whole-stream SIMD kernel (x86 SSSE3 and AVX-512, NEON, simd128; the
+  scalar parser remains for other levels). `TriangleState::run` decodes every
+  triangle that the window and the output allow in one call and stops, resumable,
+  at the first triangle whose lookahead has not arrived. Rejected: sharing the
+  triangle loop with the one-shot decoder (it cost the one-shot decode 8% more
+  instructions); that copy stays separate. Reversed after measurement: sharing the vertex block function cost the one-shot
+  vertex decode +1.4% to +1.7% instructions, so on x86_64 the one-shot kernel
+  keeps its own copy of the block loop (reversal cost: free). aarch64 and simd128
+  were only cross-checked, not run.
+- Not done: a forward-only variant that needs no separate trailer; it would need
+  a format-level change or a larger buffer.
 
 ## Gate exit codes (`exits.tsv`)
 

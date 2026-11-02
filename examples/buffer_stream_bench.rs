@@ -4,9 +4,25 @@ use std::{
     hint::black_box,
     time::{Duration, Instant},
 };
-fn measure(mut f: impl FnMut(), bytes: usize) -> f64 {
+// Timed by default. `BENCH_ONLY=<substring of a case name>` runs just the
+// matching cases and `BENCH_RUNS=<n>` runs exactly n iterations of each, so
+// `perf stat -e instructions:u` (minus a `BENCH_ONLY=none` run for the setup)
+// gives instructions per decoded byte independent of machine load.
+fn measure(name: &str, mut f: impl FnMut(), bytes: usize) -> f64 {
+    if std::env::var("BENCH_ONLY").is_ok_and(|only| !name.contains(&only)) {
+        return 1.0;
+    }
     let start = Instant::now();
     let mut runs = 0u32;
+    if let Some(fixed) = std::env::var("BENCH_RUNS")
+        .ok()
+        .and_then(|n| n.parse::<u32>().ok())
+    {
+        for _ in 0..fixed {
+            f();
+        }
+        return fixed as f64;
+    }
     while start.elapsed() < Duration::from_millis(500) {
         f();
         runs += 1;
@@ -59,6 +75,7 @@ fn main() {
         let vb = vo.len();
         let tb = to.len();
         let vm = measure(
+            &format!("v{version}:vertex:oneshot"),
             || {
                 decode_vertex_buffer_into(
                     black_box(&mut vo),
@@ -72,6 +89,7 @@ fn main() {
             vb,
         );
         let tm = measure(
+            &format!("v{version}:tri:oneshot"),
             || {
                 decode_index_buffer_into(
                     black_box(&mut to),
@@ -94,6 +112,7 @@ fn main() {
             let end = v.len() - tail;
             let size = vo.len();
             let rate = measure(
+                &format!("v{version}:vertex:{chunk}"),
                 || {
                     let mut d = VertexBufferDecoder::new(
                         n,
@@ -122,6 +141,7 @@ fn main() {
             );
             let mut output = vec![0u32; indices.len()];
             let rate_t = measure(
+                &format!("v{version}:tri:{chunk}"),
                 || {
                     let start = 1 + indices.len() / 3;
                     let end = t.len() - 16;

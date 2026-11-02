@@ -99,7 +99,8 @@ fn budget(bytes: usize, source: usize, limits: Limits) -> Result<(), Error> {
 /// No heap allocation occurs; fixed state and caller buffers are excluded from
 /// `max_bytes`. Work is preflighted once as encoded plus decoded bytes, as in
 /// the one-shot caller-buffer decoder. Parsing incomplete blocks retries at
-/// most one bounded block per arriving chunk. SIMD byte-group dispatch is shared.
+/// most one bounded block per arriving chunk. A buffered block runs the same
+/// SIMD block kernels as the one-shot decoder.
 /// All output is provisional until `finish` succeeds. Errors are sticky.
 #[non_exhaustive]
 pub struct VertexBufferDecoder {
@@ -355,33 +356,70 @@ impl<'a> IndexBufferDecoder<'a> {
                 break Status::NeedOutput;
             }
             consumed += self.input.fill(&input[consumed..]);
-            let Some((&code, rest)) = self.codes.split_first() else {
+            if self.codes.is_empty() {
                 if !self.input.complete() || consumed != input.len() {
                     return Err(Error::InvalidStream);
                 }
                 break Status::Done;
+            }
+            // Once the codebook is appended the body ends 16 bytes before the
+            // window end; before that the window holds body bytes only.
+            let safe_end = if self.input.appended {
+                self.input.len() - 16
+            } else {
+                usize::MAX
             };
-            // `one` mutates its state only on success, so errors need no rollback.
-            match self.state.one(
-                code,
-                self.input.pending(),
-                &self.input.tail[..16],
-                self.version,
-            ) {
-                Ok((used, triangle)) => {
-                    if used
-                        > self
-                            .input
-                            .len()
-                            .saturating_sub(if self.input.appended { 16 } else { 0 })
-                    {
-                        return Err(Error::InvalidStream);
-                    }
-                    self.input.remove(used);
-                    self.codes = rest;
-                    self.output = triangle;
-                    self.at = 0;
-                }
+            let mut cursor = 0;
+            let (chunks, _) = output[written..].as_chunks_mut::<3>();
+            // Decode every triangle the window and the output have room for in
+            // one call; with less than a whole triangle of output left, decode
+            // one into the pending slot instead.
+            let (done, status) = if chunks.is_empty() {
+                let mut pending = [[0u32; 3]];
+                let (done, status) = self.state.run(
+                    &self.codes[..1],
+                    &mut pending,
+                    self.input.pending(),
+                    &mut cursor,
+                    safe_end,
+                    &self.input.tail[..16],
+                    self.version,
+                    |slot, triangle| *slot = triangle,
+                );
+                self.output = pending[0];
+                self.at = if done == 1 { 0 } else { 3 };
+                (done, status)
+            } else {
+                let narrow = core::mem::size_of::<I>() == 2;
+                let mut narrowing = Ok(());
+                let result = self.state.run(
+                    self.codes,
+                    chunks,
+                    self.input.pending(),
+                    &mut cursor,
+                    safe_end,
+                    &self.input.tail[..16],
+                    self.version,
+                    |slot: &mut [I; 3], triangle| {
+                        for (target, value) in slot.iter_mut().zip(triangle) {
+                            match I::from_u32(if narrow { value & 65535 } else { value }) {
+                                Ok(index) => *target = index,
+                                Err(e) => narrowing = Err(e),
+                            }
+                        }
+                    },
+                );
+                narrowing?;
+                written += result.0 * 3;
+                result
+            };
+            if self.input.appended && cursor > safe_end {
+                return Err(Error::InvalidStream);
+            }
+            self.input.remove(cursor);
+            self.codes = &self.codes[done..];
+            match status {
+                Ok(()) => {}
                 Err(_) if self.input.left != 0 && self.input.len() < CAPACITY - 16 => {
                     if self.input.reclaim() {
                         continue;

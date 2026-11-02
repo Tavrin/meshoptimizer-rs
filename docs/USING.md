@@ -1093,6 +1093,8 @@ than bulk decoding. Fetching trailers requires a seekable source or container
 that transports trailers separately. A forward-only transport must arrange
 that split before using these APIs.
 Streaming is a memory-bounded interface, not a faster one: on a 65,536-vertex
-stride-32 buffer it decodes at roughly 0.2x to 0.7x of the one-shot
-caller-buffer decoders (about 0.25x for triangles), at both 4 KiB and 64 KiB
-chunks. Decode whole buffers when they fit in memory.
+stride-32 buffer it decodes at roughly 0.7x to 0.86x of the one-shot
+caller-buffer decoders for vertices (v0 and v1, 4 KiB and 64 KiB chunks) and
+0.9x to 1.0x for triangles, measured as wall-clock throughput on a shared
+machine (about 0.77x to 0.97x counting instructions). Decode whole buffers when
+they fit in memory.

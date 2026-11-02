@@ -407,12 +407,29 @@ pub(super) fn stream_block(
     block: usize,
     stride: usize,
     version: u8,
-    last: &[u8],
+    last: &[u8; 256],
     channels: &[u8],
 ) -> Result<usize, Error> {
+    let mut deltas = [0u8; 1024];
+    // A buffered block runs the whole-stream SIMD kernels; the scalar parser
+    // below serves targets and runtime levels without one.
+    #[cfg(feature = "simd")]
+    if let Some(result) = super::simd::vertex_block(
+        data,
+        super::simd::VertexBlock {
+            version,
+            block,
+            stride,
+            last,
+            channels,
+        },
+        &mut deltas,
+        block_output,
+    ) {
+        return result;
+    }
     let mut pos = 0;
     let aligned = block.div_ceil(16) * 16;
-    let mut deltas = [0u8; 1024];
     let controls = if version == 0 {
         &[][..]
     } else {
