@@ -1122,10 +1122,40 @@ Limits meter the scanned texels and the polygon search. Larger budgets trade
 triangles for area: a quad card becomes `max_vertices - 2` triangles whenever a
 smaller polygon exists, even when the last vertices remove little area.
 
+`CardTrimOptions::vertex_cost` stops that. It is the price of one polygon vertex
+in square mask texels (default 0: always use the full budget, as before). Each
+card takes the vertex count `c` that minimizes `polygon area + vertex_cost * c`,
+so a vertex is added only while it removes at least that much transparent area
+(ties go to fewer vertices). The cost is compared with the card's fitted
+polygon, so it is an absolute area: pick it from the mask size, for example a
+fraction of the mask's texel count, and sweep it as below.
+`TrimmedCards::card_vertices` lists the vertex count chosen for each card in
+input order: the fitted polygon's count for a trimmed card, 0 for a removed
+card and the distinct vertex count of an unchanged card, so a caller can see
+which cards stopped early.
+
 On four CC0 Poly Haven plants with their 2048x2048 alpha maps, plain quad cards
 (the UV bounding rectangle of each authored card) lost 2-16% of their transparent
 area at budget 4, 27-50% at budget 6 and 31-55% at budget 8. The authored meshes,
 already modelled around the leaf shapes, lost 0-15%.
+
+`vertex_cost` on the same quad cards at budget 8, with the 2048x2048 masks
+(texture area removed, in Mtexel², and triangles after trimming; cost 0 is the
+full budget):
+
+| asset (cards, input triangles) | cost 0 | 100 | 300 | 1000 | 3000 | 10000 |
+|---|---|---|---|---|---|---|
+| fir_sapling (49,189 cards, 98,378) | 293,402 tris, 42.2 | 183,696, 38.2 | 134,943, 28.7 | 98,388, 3.5 | 98,387, 3.5 | 98,385, 3.5 |
+| shrub_01 (1,736 cards, 3,472) | 9,092, 26.4 | 8,500, 26.4 | 7,564, 26.2 | 7,133, 26.0 | 5,517, 22.9 | 3,765, 16.1 |
+| grass_medium_02 (191 cards, 382) | 1,146, 15.3 | 1,117, 15.3 | 950, 15.2 | 890, 15.2 | 696, 14.9 | 567, 14.1 |
+| fern_02 (53 cards, 106) | 318, 7.27 | 318, 7.27 | 318, 7.27 | 318, 7.27 | 312, 7.26 | 230, 6.85 |
+
+The cheapest vertices are the last ones: on the shrub, a cost of 300 texels²
+keeps 99% of the removed area with 17% fewer triangles, and on the fir 100
+keeps 90% with 37% fewer. The cost is absolute, so the same value stops
+earlier on cards with little to gain (nearly every fir card went back to its 4-vertex
+quad at 1000 while the larger fern cards still used 8). Pick it per mask
+size and sweep it as above.
 
 ## Octahedral impostors
 
@@ -1233,8 +1263,64 @@ The three-view blend beats the nearest single view by 0.02-0.04 IoU on the
 fern and the fir, and is level on the sparse shrub row. More views help more
 than more texels: the error is dominated by the angle between views, as
 `impostor_switch_distance` predicts (view error 0.14-0.42 world units against
-a texel error of 0.005-0.02). The reconstruction above uses no depth-based
-parallax correction.
+a texel error of 0.005-0.02). The reconstruction above is the plain blend: it
+samples all three views at the same card point, so geometry in front of or
+behind the center plane ghosts.
+
+### Depth-aware reconstruction
+
+`ImpostorAtlas::reconstruct_texel` and `reconstruct_view` are the CPU reference
+for the shader that draws an impostor, with the parallax offset of Brucks'
+impostors applied in each of the three blended views before blending. Per
+pixel and per view: project the ray's card point into the view, read the stored
+depth there, slide the point along the ray to that depth, and repeat
+`ImpostorReconstruct::parallax_steps` times (default 3; 0 is the plain blend,
+also available as `ImpostorReconstruct::PLAIN`). The final point is sampled
+bilinearly and the three taps are blended with `ImpostorGrid::blend` weights in
+alpha-premultiplied form. A runtime mirrors these few lines per pixel; the
+function documentation lists them with the formulas. Dilated texels carry depth,
+so the first lookup may land up to `dilation` texels outside the silhouette; a
+surface farther than that from the ray's card point is not found, and the
+fixed-point iteration is not monotone (a step can overshoot).
+
+```rust
+use meshoptimizer_rs::{bake_impostor, ImpostorAlbedo, ImpostorGrid,
+    ImpostorLayout, ImpostorOptions, ImpostorReconstruct, Positions, Workspace};
+let p = [[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [-1.0, 1.0, 0.0]];
+let mut options = ImpostorOptions::default();
+options.grid = ImpostorGrid::new(ImpostorLayout::Sphere, 3)?;
+options.view_resolution = 16;
+let atlas = bake_impostor(&[0, 1, 2, 0, 2, 3], Positions::from_packed(&p), None,
+    ImpostorAlbedo::White, options, &mut Workspace::default())?;
+// Reconstruct a view into a caller buffer. Any direction works; this one
+// coincides with a baked view, so the result is that view.
+let direction = [0.0, 0.0, 1.0];
+let mut view = vec![[0.0f32; 4]; 16 * 16];
+atlas.reconstruct_view(direction, 16, ImpostorReconstruct::default(), &mut view)?;
+assert_eq!(view[8 * 16 + 8], [1.0, 1.0, 1.0, 1.0]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+On the same assets and 12 novel directions (128 px views), mask IoU and mean
+RGB error against the direct render, plain blend before and three parallax
+steps after:
+
+| views | IoU fern / fir / shrub | RGB error fern / fir / shrub |
+|---|---|---|
+| 8 x 8 plain | 0.74 / 0.60 / 0.45 | 22.4 / 38.7 / 66.3 |
+| 8 x 8 parallax | 0.83 / 0.73 / 0.67 | 16.2 / 28.9 / 44.0 |
+| 12 x 12 plain | 0.84 / 0.72 / 0.55 | 15.8 / 29.6 / 57.3 |
+| 12 x 12 parallax | 0.90 / 0.81 / 0.74 | 11.0 / 21.9 / 36.5 |
+
+One step already gives most of the gain on the fern and the fir (0.82 and 0.70 at
+8 x 8); the shrub row, whose depth is far from a shell, needs two (0.64, then
+0.67). A 128 px view takes 2.3-3.3 ms on one core with three steps against
+1.4-1.6 ms plain. A stored-depth test that drops a view when its surface at the
+sample point disagrees with the ray point (tolerances 0.04 to 0.3 radii, with
+and without parallax) did not raise IoU in any setting measured and lowered it
+by 0.001 to 0.22, so the helper does not include it. The 12 directions are
+spread over the hemisphere, so the numbers compare methods; they are not a
+quality guarantee.
 
 
 Existing names retain their exact u32 signatures. Add `_generic` to any

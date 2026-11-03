@@ -732,3 +732,65 @@ fn cards(indices: &[u32]) -> Vec<Vec<usize>> {
     }
     groups.into_values().collect()
 }
+
+#[test]
+fn vertex_cost_stops_adding_vertices_that_save_little() {
+    let mut rng = Rng(7);
+    let mask = blobs(&mut rng, 64, 64, 3);
+    let mut mesh = Mesh::default();
+    mesh.quad(rect(0.0, 0.0, 1.0, 1.0), false);
+    let run = |budget, cost| {
+        let mut o = options(budget, 0.5, 128, AlphaWrap::Clamp);
+        o.vertex_cost = cost;
+        trim(&mesh, &mask, o)
+    };
+    // Zero cost is the default: the full budget.
+    let full = run(8, 0.0);
+    assert_eq!(
+        full,
+        trim(&mesh, &mask, options(8, 0.5, 128, AlphaWrap::Clamp))
+    );
+    assert_eq!(full.card_vertices.len(), full.report.cards);
+    assert_eq!(full.card_vertices[0] as usize, full.vertices.len() / STRIDE);
+    // Area saved by each extra vertex, from the budget sweep.
+    let areas: Vec<f64> = (4..=8).map(|b| run(b, 0.0).report.area_after).collect();
+    let gains: Vec<f64> = areas.windows(2).map(|w| w[0] - w[1]).collect();
+    assert!(
+        gains.iter().all(|&g| g >= 0.0) && gains[0] > 1.0,
+        "{gains:?}"
+    );
+    // A cost between two gains stops at the vertex count whose next vertex saves less.
+    let mut stops = 0;
+    for k in 1..gains.len() {
+        if gains[k - 1] > gains[k] + 1.0 {
+            let cost = ((gains[k - 1] + gains[k]) / 2.0) as f32;
+            let out = run(8, cost);
+            let at_budget = run(4 + k as u32, 0.0);
+            assert_eq!(out.card_vertices, at_budget.card_vertices);
+            assert_eq!(out.report.area_after, at_budget.report.area_after);
+            stops += 1;
+        }
+    }
+    assert!(stops > 0, "{gains:?}");
+    // More cost never adds vertices or removes area.
+    let (mut vertices, mut area) = (u32::MAX, 0.0);
+    for cost in [0.0, 1.0, 10.0, 100.0, 1000.0, 1e9] {
+        let out = run(8, cost);
+        assert!(out.card_vertices[0] <= vertices && out.report.area_after >= area);
+        (vertices, area) = (out.card_vertices[0], out.report.area_after);
+    }
+    for cost in [-1.0, f32::NAN, f32::INFINITY] {
+        let mut o = CardTrimOptions::default();
+        o.vertex_cost = cost;
+        let r = trim_alpha_cards(
+            &mesh.i,
+            &mesh.v,
+            STRIDE,
+            UV,
+            mask.view(),
+            o,
+            &mut Workspace::default(),
+        );
+        assert_eq!(r.map(|_| ()), Err(Error::InvalidParameter));
+    }
+}

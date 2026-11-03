@@ -639,3 +639,139 @@ fn switch_distance_combines_texel_and_view_error() {
         Err(Error::InvalidParameter)
     );
 }
+
+fn normalized(v: [f32; 3]) -> [f32; 3] {
+    let l = v.iter().map(|x| x * x).sum::<f32>().sqrt();
+    v.map(|x| x / l)
+}
+
+#[test]
+fn reconstruction_reproduces_a_baked_view_and_empty_views() {
+    let colors = [[1.0, 0.0, 0.0, 1.0]; 4];
+    let atlas = bake(
+        &QUAD_I,
+        &QUAD,
+        ImpostorAlbedo::VertexColors(&colors),
+        quad_options(8),
+    );
+    // Looking along a baked view's direction, the novel tile is that tile.
+    let mut out = vec![[9.0; 4]; 64];
+    let d = [0.0, 0.0, 1.0];
+    atlas
+        .reconstruct_view(d, 8, ImpostorReconstruct::default(), &mut out)
+        .unwrap();
+    assert!(out.iter().all(|&t| t == [1.0, 0.0, 0.0, 1.0]));
+    let one = atlas
+        .reconstruct_texel(
+            ImpostorFrame::from_direction(d).unwrap(),
+            atlas.grid.blend(d).unwrap(),
+            [0.5, 0.5],
+            ImpostorReconstruct::PLAIN,
+        )
+        .unwrap();
+    assert_eq!(one, [1.0, 0.0, 0.0, 1.0]);
+    // The quad seen edge-on from above reconstructs to nothing.
+    atlas
+        .reconstruct_view([0.0, 1.0, 0.0], 8, ImpostorReconstruct::default(), &mut out)
+        .unwrap();
+    assert!(out.iter().all(|&t| t == [0.0; 4]));
+}
+
+#[test]
+fn parallax_reconstructs_a_plane_off_the_bounds_center() {
+    // A square at z = 0.25 inside bounds of radius 1: the views' sample points
+    // disagree about where it is, so plain blending ghosts it.
+    let plane = QUAD.map(|p| [p[0] * 0.6, p[1] * 0.6, 0.25]);
+    let mut o = options(5, 64);
+    o.bounds = Some(ImpostorBounds::new([0.0; 3], 1.0).unwrap());
+    let atlas = bake(&QUAD_I, &plane, ImpostorAlbedo::White, o);
+    let d = normalized([0.25, 0.15, 1.0]);
+    let frame = ImpostorFrame::from_direction(d).unwrap();
+    let res = 64usize;
+    let iou = |options| {
+        let mut out = vec![[0.0; 4]; res * res];
+        atlas
+            .reconstruct_view(d, res as u32, options, &mut out)
+            .unwrap();
+        let (mut both, mut either) = (0, 0);
+        for (i, t) in out.iter().enumerate() {
+            // Where this texel's ray crosses the plane z = 0.25.
+            let (s, u) = (
+                ((i % res) as f32 + 0.5) / res as f32 * 2.0 - 1.0,
+                1.0 - ((i / res) as f32 + 0.5) / res as f32 * 2.0,
+            );
+            let q: Vec<f32> = (0..3)
+                .map(|k| s * frame.right[k] + u * frame.up[k])
+                .collect();
+            let t_hit = (0.25 - q[2]) / frame.direction[2];
+            let hit = |k: usize| q[k] + t_hit * frame.direction[k];
+            let inside = hit(0).abs() <= 0.6 && hit(1).abs() <= 0.6;
+            let seen = t[3] >= 0.5;
+            both += usize::from(inside && seen);
+            either += usize::from(inside || seen);
+        }
+        both as f64 / either as f64
+    };
+    let plain = iou(ImpostorReconstruct::PLAIN);
+    let parallax = iou(ImpostorReconstruct::default());
+    assert!(
+        parallax > 0.8 && parallax > plain + 0.1,
+        "{plain} {parallax}"
+    );
+}
+
+#[test]
+fn reconstruction_rejects_invalid_input() {
+    let atlas = bake(&QUAD_I, &QUAD, ImpostorAlbedo::White, quad_options(4));
+    let d = [0.0, 0.0, 1.0];
+    let frame = ImpostorFrame::from_direction(d).unwrap();
+    let blend = atlas.grid.blend(d).unwrap();
+    let texel = |frame, blend, point, o| atlas.reconstruct_texel(frame, blend, point, o);
+    let good = ImpostorReconstruct::default();
+    assert!(texel(frame, blend, [1.0, 0.0], good).is_ok());
+    let mut bad = good;
+    bad.parallax_steps = 9;
+    assert_eq!(
+        texel(frame, blend, [0.5; 2], bad),
+        Err(Error::InvalidParameter)
+    );
+    for point in [[-0.1, 0.5], [0.5, 1.1], [f32::NAN, 0.5]] {
+        assert_eq!(
+            texel(frame, blend, point, good),
+            Err(Error::InvalidParameter)
+        );
+    }
+    let mut outside = blend;
+    outside.views[1] = 99;
+    assert_eq!(
+        texel(frame, outside, [0.5; 2], good),
+        Err(Error::InvalidParameter)
+    );
+    let mut nan = blend;
+    nan.weights[0] = f32::NAN;
+    assert_eq!(
+        texel(frame, nan, [0.5; 2], good),
+        Err(Error::InvalidParameter)
+    );
+    let mut out = vec![[0.0; 4]; 16];
+    for (res, len, error) in [
+        (4, 15, Error::BufferTooSmall),
+        (4, 17, Error::InvalidParameter),
+        (0, 0, Error::InvalidParameter),
+        (4097, 16, Error::InvalidParameter),
+    ] {
+        out.resize(len, [0.0; 4]);
+        assert_eq!(atlas.reconstruct_view(d, res, good, &mut out), Err(error));
+    }
+    out.resize(16, [0.0; 4]);
+    assert_eq!(
+        atlas.reconstruct_view([0.0; 3], 4, good, &mut out),
+        Err(Error::InvalidParameter)
+    );
+    let mut broken = atlas.clone();
+    broken.normal_depth.pop();
+    assert_eq!(
+        broken.reconstruct_view(d, 4, good, &mut out),
+        Err(Error::InvalidParameter)
+    );
+}

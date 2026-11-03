@@ -202,7 +202,7 @@ mod impostor;
 pub use impostor::{
     bake_impostor, bake_impostor_generic, impostor_switch_distance, ImpostorAlbedo, ImpostorAtlas,
     ImpostorBlend, ImpostorBounds, ImpostorFrame, ImpostorGrid, ImpostorLayout, ImpostorOptions,
-    ImpostorReport, ImpostorSwitch,
+    ImpostorReconstruct, ImpostorReport, ImpostorSwitch,
 };
 mod analyze;
 mod cache;
