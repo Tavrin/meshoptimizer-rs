@@ -86,7 +86,7 @@ pub struct ProcessReport {
     pub stages: Vec<ProcessStageReport>,
     /// Whole-call work and conservative peak byte accounting.
     pub usage: Usage,
-    /// F9 source-relative quality, in output level order. Empty surfaces yield None.
+    /// Source-relative LOD quality, in output level order. Empty surfaces yield None.
     pub quality: Vec<Option<LodQuality>>,
 }
 /// Skin fields within each complete vertex record, not in C++ meshoptimizer.
@@ -123,7 +123,7 @@ impl<'a> ProcessSkin<'a> {
 }
 /// Pipeline settings, not in C++ meshoptimizer.
 /// Default: sanitize, weld complete records, two successive LODs at 50%/25%
-/// with 1% error, cache/overdraw (1.05)/fetch, and sampled F9 quality.
+/// with 1% error, cache/overdraw (1.05)/fetch, and sampled LOD quality.
 /// Repair, meshlets, clusters and encoding are opt-in.
 #[derive(Clone, Debug)]
 #[non_exhaustive]
@@ -152,7 +152,7 @@ pub struct ProcessOptions<'a> {
     pub overdraw: Option<f32>,
     /// Enable vertex fetch optimization independently for each level.
     pub fetch: bool,
-    /// F9 sampling settings.
+    /// LOD quality sampling settings.
     pub quality: LodQualityOptions,
     /// Meshlet settings and cone weight.
     pub meshlets: Option<(MeshletSettings, f32)>,
@@ -718,7 +718,7 @@ fn process(
     )?;
     m.hold(&levels)?;
     m.hold(&quality)?;
-    // Preserve the pre-LOD surface for source-relative F9 measurements.
+    // Preserve the pre-LOD surface for source-relative LOD quality measurements.
     let source_indices = m.call(
         ProcessStage::Validate,
         None,

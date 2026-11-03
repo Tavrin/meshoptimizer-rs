@@ -13,7 +13,7 @@ published crate versions.
 | 0.4 codecs | Vertex/index/sequence encoders and decoders, versions and compression levels, Oct/Quat/Exp/Color filters and meshlet codecs. |
 | 0.5 scalar algorithms | Stripification, cache/fetch/overdraw/coverage analysis, opacity micromaps, tangents, experimental normals and remeshing. |
 | 0.6 parallel batches | Ordered batches for LOD chains, encoding, EXT views, meshlets, cluster-LOD DAGs and hierarchy forests. |
-| 0.7 SIMD decoding | Vertex, filter and meshlet kernels for x86 SSE2/SSSE3/SSE4.1, AArch64 NEON and wasm simd128; scalar reference and fallback. |
+| 0.7 SIMD decoding | Vertex, filter and meshlet kernels for x86 SSE2/SSSE3/SSE4.1, AArch64 NEON and wasm simd128, plus AVX-512 VBMI/VBMI2 vertex decoding; scalar reference and fallback. |
 
 ## Cluster milestone priorities (additive 0.2.x)
 
@@ -22,8 +22,8 @@ published crate versions.
    records and the per-level forest in `DagBuffers`; `parallel::build_dags_batch_into` returns
    ordered counts or item errors. Caller capacities are excluded from Workspace limits. Publish
    successful prefixes only; late failures may write prefixes and mutate dilated positions.
-2. Add bounded native codec cursors after exact legacy output/error and checkpoint qualification.
-   Existing whole-buffer decoders remain supported.
+2. Bounded native codec cursors: delivered in 0.2.16 and 0.2.17 as `IndexSequenceDecoder`,
+   `VertexBufferDecoder` and `IndexBufferDecoder`. Existing whole-buffer decoders remain supported.
 3. Use qualified scratch control at mesh/release boundaries; retain existing `Workspace::clear` and
    limits semantics.
 4. Reproduce codec, partition/fetch/sloppy/overdraw and SIMD residuals, then refresh integrated
@@ -32,5 +32,6 @@ published crate versions.
 
 ## 0.3
 
-Reserve 0.3 for the first necessary breaking change. Serialization formats stay with applications; the
-library remains format-agnostic. The stricter SIMD amendment targets are also left for 0.3.
+Reserve 0.3 for the first necessary breaking change. Serialization formats stay with applications,
+except the MDAG cluster-DAG file format in `clusterlod::dag_format`; the rest of the library remains
+format-agnostic. The stricter SIMD amendment targets are also left for 0.3.

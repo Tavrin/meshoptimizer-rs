@@ -92,7 +92,7 @@ impl Default for CharacterOptions {
 pub struct CharacterLodChain {
     /// Indices reference the original vertices and deformation streams.
     pub chain: LodChain,
-    /// Pose-major F9 reports: bind, blend shapes, joint poses, then sample poses.
+    /// Pose-major LOD quality reports: bind, blend shapes, joint poses, then sample poses.
     pub quality: Vec<Vec<LodQuality>>,
     /// Per-level candidate scores; empty unless best-of selection is enabled.
     pub selections: Vec<CharacterLodSelection>,
@@ -401,7 +401,7 @@ pub fn simplify_character(
         })
     })
 }
-/// Build character LODs and F9 reports in bind, full blend, and caller joint poses.
+/// Build character LODs and LOD quality reports in bind, full blend, and caller joint poses.
 /// This extension is not in C++ meshoptimizer. Joint poses use linear blend
 /// skinning of rest positions. Blend targets and joint poses are sampled separately;
 /// combined morph/animation extrema are not implied. Quality is sampled, not a bound.

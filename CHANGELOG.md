@@ -1,5 +1,6 @@
 # Changelog
 
+[0.2.17]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.16...v0.2.17
 [0.2.16]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.15...v0.2.16
 [0.2.15]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.14...v0.2.15
 
@@ -8,24 +9,47 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.17] - 2026-11-03
 
 ### Added
 
-- `parallel::encode_vertex_buffer_parallel`, `parallel::decode_vertex_buffer_parallel` and `parallel::build_meshlets_spatial_parallel` (`_generic` for u16/u32) run one large vertex buffer or one spatial meshlet build on the current Rayon pool, with output byte-identical to the serial functions for any pool size (`parallel` feature, not in C++ meshoptimizer). The scan and flex meshlet builders and the index codecs stay serial.
-- `codec::VertexBufferDecoder` and `codec::IndexBufferDecoder`: incremental vertex-buffer and triangle-index decoders with bounded fixed storage (no heap), chunked input and output, trailer-first construction (header and padded trailer, or codes and codebook, supplied separately), sticky errors identical to the one-shot decoders, and EOF validation in `finish`. `Status` and `Progress` are shared with `IndexSequenceDecoder`.
-- `split_non_manifold_vertices` copies full records for disconnected face fans; `stitch_cracks` conservatively merges boundary pairs and subdivides T-junctions with explicit refusal counts. Both provide u32 and `_generic` index forms and optional `process_mesh` stages.
+All items except the last are opt-in and not in C++ meshoptimizer.
 
-- `process_mesh` composes sanitation, full-record welding, optional repair, static or skinned LODs, cache/overdraw/fetch optimization, F9 quality, optional meshlets/clusters and codecs in one checked workspace call with stage errors and a combined report.
-
-- Additive `_generic` functions and width-aware methods support u16 and u32 through sealed `Index`, with checked narrowing and generic topology results. Width-aware input and result types use a `Generic` suffix; existing names retain their u32 signatures and inference.
-- Opt-in character chain best-of selection records both worst sampled pose scores and the winning method per level, with plain fallback and deterministic triangle-count/plain tie breaks. Additional pre-evaluated pose samples support authored animation comparisons.
-- Opt-in `simplify_character` and `build_character_lod_chain` with exact bone-weight importance channels, full blend-target position metrics, and F9 quality reports in bind, blend, and supplied linear skinning poses. The metric retains exact channels within workspace memory/work limits, including rigs and morph sets above 32 channels, and supports `no_std` without new features.
+- `measure_lod_quality` and `measure_lod_chain_quality` measure sampled surface distance and shading-normal angle between a source mesh and simplified levels. `LodCamera::switch_distance` converts a deviation into the minimum camera depth for a pixel tolerance. Maxima are sampled estimates. `simplify` and `build_lod_chain` are unchanged.
+- `remove_hidden_triangles` and its `_into` and `_generic` forms drop triangles that no tested view sees, with exact-duplicate removal, a report of removed counts, and `Limits` metering. Views are 26 orthographic directions by default, caller camera points, or a bounding box. Finite samples do not prove continuous invisibility.
+- `clusterlod::dag_format` (no Cargo feature): `write` serializes the prefixes returned by `build_dag_into` into MDAG 1 files with independently decodable geometry pages (default 128 KiB). `Reader::read` validates tables, refinement links and geometry, and `decode_page` decodes one fetched page. The layout is in `docs/DAG_FORMAT.md`.
+- `simplify_character` and `build_character_lod_chain` simplify skinned and morphed meshes with exact bone-weight importance channels, full blend-target position metrics, and LOD quality reports in bind, blend-target and supplied linear-skinning poses. Rigs and morph sets above 32 channels are retained within workspace limits. `no_std` is supported without new features.
+- `CharacterOptions::best_of` builds the plain and the character candidate for each chain level and keeps the one with the lower worst sampled pose deviation, then fewer triangles, then plain. `CharacterLodChain::selections` records both scores and the winner per level. `CharacterInputs::sample_poses` adds pre-evaluated poses for authored animation comparisons.
+- `_generic` functions and width-aware methods accept `u16` or `u32` indices through the sealed `Index` trait (143 entry points). Narrowing is checked and returns `Error::IndexOverflow`. Width-aware input and result types have a `Generic` suffix; existing names keep their u32 signatures.
+- `process_mesh` runs sanitation, full-record welding, optional repair, static or skinned LODs, cache, overdraw and fetch optimization, LOD quality measurement, and optional meshlets, cluster LOD and codecs in one call with stage errors and a combined report.
+- `codec::VertexBufferDecoder` and `codec::IndexBufferDecoder` decode vertex buffers and triangle indices from chunked input into chunked output with fixed storage. The header and trailer, or the codes and codebook, are supplied first. Errors are sticky and identical to the one-shot decoders, and `finish` validates the end of the stream. `Status` and `Progress` are shared with `IndexSequenceDecoder`.
+- `split_non_manifold_vertices` copies full records for disconnected face fans. `stitch_cracks` merges boundary pairs and subdivides T-junctions, with counts of refused candidates. Both have u32 and `_generic` forms and optional `process_mesh` stages.
+- `parallel::encode_vertex_buffer_parallel`, `parallel::decode_vertex_buffer_parallel` and `parallel::build_meshlets_spatial_parallel` (`_generic` for u16/u32) run one large vertex buffer or one spatial meshlet build on the current Rayon pool (`parallel` feature). Output is byte-identical to the serial functions for any pool size. Decoding stays serial below four workers or 48 MiB of output (32 MiB for strides of 8 or less). The scan and flex meshlet builders and the index codecs stay serial.
+- Vertex decoding selects an AVX-512 VBMI/VBMI2 kernel at run time on x86-64 CPUs that report AVX-512 F, BW, VL, VBMI and VBMI2 (`simd` feature). A differential run of 318,608 cases across the Scalar, SSE2, SSSE3, SSE4.1, AVX2 and AVX-512 levels found no difference from C++ 1.3 on successful decodes. wasm32 simd128 vertex decoding now selects a constant-width kernel from each header code.
 
 ### Performance
 
-- `optimize_vertex_cache` and its strip, table, `_into` and in-place variants skip exhausted cache entries through a per-position live mask and merge the cache with a fixed-width match mask. Output and `Usage` are unchanged; instructions per call fall to 0.70x C++ on the real-mesh geometric mean (from 1.24x) and 1.04x on the corpus (from 1.23x).
-- `simplify` and its variants charge collapse picking and quadric updates once per pass when the pass's budget is already covered, instead of once per visited corner or vertex. Limits, errors, outputs and `Usage` are unchanged; instructions per call fall to 1.15x C++ on the real-mesh geometric mean (from 1.19x) and 1.05x on the corpus (from 1.08x).
+Instruction counts on three real meshes, geometric mean of per-mesh ratios (0.2.17 / comparison), median of three samples per case. Scalar and default builds are each compared with the matching C++ 1.3 build. "Scalar and default" means both builds have the listed ratios. Corpus ratios are in `docs/PERFORMANCE.md`.
+
+- `optimize_vertex_cache` and its variants (scalar and default): 0.566× vs 0.2.16; 0.706× vs C++ 1.3. A per-position live mask skips exhausted cache entries and a fixed-width match mask merges the cache. Output and `Usage` are unchanged.
+- `simplify` (scalar and default): 0.964× vs 0.2.16; 1.174× vs C++ 1.3.
+- `simplify_with_attributes` (scalar and default): 0.976× vs 0.2.16; 1.118× vs C++ 1.3.
+- `simplify_with_update` (scalar and default): 0.969× vs 0.2.16; 1.238× vs C++ 1.3. Collapse picking and quadric updates are charged once per pass when the pass's budget is already covered, instead of once per visited corner or vertex. Limits, errors, outputs and `Usage` are unchanged.
+- `decode_vertex_buffer` (scalar): 0.934× vs 0.2.16; 1.128× vs scalar C++ 1.3.
+- `decode_vertex_buffer` (default): 0.849× vs 0.2.16; 0.979× vs default C++ 1.3. The default build selects its kernel at run time; the measurement host reports AVX-512 VBMI/VBMI2.
+- `decode_vertex_buffer` on wasm32 (Node, 8 inputs, wall time): geometric mean 0.92× vs 0.2.16, worst case 0.97×.
+- `build_meshlets_spatial` (scalar): 0.982× vs 0.2.16; 0.955× vs scalar C++ 1.3.
+- `build_meshlets_spatial` (default): 0.991× vs 0.2.16; 1.062× vs default C++ 1.3.
+- `encode_vertex_buffer` (scalar and default): 0.992× vs 0.2.16; 0.545× vs C++ 1.3.
+- `decode_index_buffer` (default): 0.999× vs 0.2.16; 1.024× vs default C++ 1.3.
+
+All other functions in the release table are 1.000× vs 0.2.16 on the real meshes in both builds: `simplify_sloppy`, `simplify_prune`, `simplify_points`, `optimize_overdraw`, `optimize_vertex_fetch`, `build_meshlets`, `build_meshlets_flex`, cluster LOD, `encode_index_buffer`, `decode_index_buffer` (scalar), `remap_vertex_buffer`, `remap_index_buffer`, `compute_cluster_bounds` and `compute_meshlet_bounds`. No case is more than 1% above 0.2.16 (largest case ratio 1.0038, `encode_vertex_buffer`). Instruction counts do not establish wall-time speedups. Aarch64 timing was not measured.
+
+### Deliberate differences from C++
+
+- Failed vertex decoding can leave different destination prefixes from C++; successful decoded bytes and error status match the recorded x86 C++ comparisons.
+
+Output, errors and existing APIs are unchanged; MSRV 1.88.
 
 ## [0.2.16] - 2026-10-30
 

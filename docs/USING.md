@@ -388,6 +388,13 @@ Errors: `InvalidLayout` for invalid vertex/index strides or vertex byte lengths,
 Encoding constructors validate versions and levels (`InvalidParameter` for an
 unsupported vertex level), so an invalid encoding configuration cannot be built.
 
+With the `simd` feature, vertex decoding selects the widest kernel the CPU
+supports when the program runs: AVX-512 VBMI/VBMI2 on x86-64 CPUs that report
+those features, then SSE4.1, SSSE3 and SSE2, NEON on AArch64 and simd128 on wasm32.
+Every level returns the same bytes and errors as the scalar decoder. Without
+`std`, the AVX-512 kernel is used only when the build enables its target features.
+There is nothing to configure.
+
 ## Streaming index sequences
 
 `codec::IndexSequenceDecoder` is an opt-in extension, not in C++ meshoptimizer.
@@ -567,6 +574,71 @@ levels, and speculative worker failures use the serial algorithm. Existing
 worker scratch, held speculative results, and Rayon infrastructure consume
 additional physical memory. Select a pool size that fits the mesh and available
 memory. No parallel speedup is guaranteed.
+
+## Cluster LOD DAG files
+
+`clusterlod::dag_format` serializes a built cluster DAG into an MDAG 1 file whose
+geometry is split into pages that decode independently. It is an extension, not in
+C++ meshoptimizer, and needs no Cargo feature; building the DAG needs `clusterlod`.
+Pass the prefixes `build_dag_into` returned (its `DagCounts`) to `write`, then open
+the bytes with `Reader::read`, which validates every table, refinement link and
+codec payload before it returns. A client that fetched one page decodes it with
+`decode_page` and the reader's resident tables only. `DEFAULT_PAGE_SIZE` is 128 KiB;
+a cluster never straddles two pages.
+
+```rust
+# #[cfg(feature = "clusterlod")]
+# {
+use meshoptimizer_rs::clusterlod::{
+    self, dag_format, DagBuffers, FlatDagCluster, FlatDagGroup, Mesh, Node,
+};
+use meshoptimizer_rs::Workspace;
+let mut positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+let indices = [0u32, 1, 2];
+let mut workspace = Workspace::default();
+let mut vertex_source = [0u32; 24];
+let mut vertex_positions = [[0.; 3]; 24];
+let mut flat_indices = [0u32; 24];
+let mut clusters = [FlatDagCluster::default(); 16];
+let mut groups = [FlatDagGroup::default(); 16];
+let mut nodes = [Node::default(); 128];
+let counts = clusterlod::build_dag_into(
+    clusterlod::default_config(128)?,
+    Mesh { indices: &indices, positions: &mut positions, attributes: None,
+           vertex_lock: None, attribute_weights: &[], attribute_protect_mask: 0 },
+    8,
+    DagBuffers { vertex_source: &mut vertex_source, vertex_positions: &mut vertex_positions,
+                 indices: &mut flat_indices, clusters: &mut clusters, groups: &mut groups,
+                 nodes: &mut nodes },
+    &mut workspace,
+)?;
+let file = dag_format::write(
+    &groups[..counts.groups], &clusters[..counts.clusters],
+    &vertex_positions[..counts.vertices], &flat_indices[..counts.indices],
+    dag_format::DEFAULT_PAGE_SIZE, &mut workspace,
+)?;
+let reader = dag_format::Reader::read(&file, &mut workspace)?;
+assert_eq!(reader.cluster_count(), counts.clusters);
+let mut triangles = 0;
+for page in 0..reader.page_count() {
+    // A client fetches only `file[range]`; here the whole file is in memory.
+    let range = reader.page_range(page)?;
+    for cluster in reader.decode_page(page, &file[range], &mut workspace)? {
+        triangles += cluster.indices.len() / 3;
+    }
+}
+assert!(triangles >= 1);
+# }
+# Ok::<(), meshoptimizer_rs::clusterlod::dag_format::Error>(())
+```
+
+`group` and `cluster_record` return the resident metadata and `cluster_page` maps a
+cluster to its page. `Reader` borrows the file bytes and currently needs the whole
+file to open; it is not a remote directory reader. The same input always produces
+the same bytes. `write_generic` and `decode_page_generic` select `u16` or `u32`
+indices. Errors are typed (`Invalid`, `Unsupported`, `Limit`, `Allocation`,
+`Codec`). The wire layout, limits and compatibility policy are in
+[DAG_FORMAT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.17/docs/DAG_FORMAT.md).
 
 ## Parallel vertex codec and spatial meshlets for one large mesh
 
@@ -1080,14 +1152,14 @@ assert_eq!(result.quality.len(), 2); // bind, full blend target
 # Ok::<(), Error>(())
 ```
 
-`CharacterLodChain::quality` is pose-major then level-major. It contains the F9
+`CharacterLodChain::quality` is pose-major then level-major. It contains the LOD quality
 report against the original source for the bind pose, every blend target at
 weight one, then each caller joint pose. Joint matrices are row-major affine
 3-by-4 model-space skin transforms, already including inverse bind transforms.
 Joint samples use linear blend skinning of rest positions. They affect quality
 reports, not collapse costs. Morph and joint samples are separate: combined
 poses, intermediate animation times, and simultaneous blend weights require
-caller analysis. F9 maxima are deterministic sampled lower estimates, not
+caller analysis. LOD quality maxima are deterministic sampled lower estimates, not
 continuous Hausdorff bounds. Normals are not supplied by this API.
 
 Set `CharacterOptions::best_of = true` to build both candidates per level and
@@ -1118,7 +1190,7 @@ Levels retain original vertex indices; apply the original skin and blend
 streams when rendering them. Whole-call limits include prepared channels,
 retained outputs, reports, pose buffers, and nested simplifier/quality work.
 Failures return no partial result. See
-[character measurements](../parity/0217-character/RESULTS.md) for the measured
+[character measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.17/parity/0217-character/RESULTS.md) for the measured
 tradeoffs and reproducible public-model comparison procedure.
 
 ## One-call asset pipeline
@@ -1127,7 +1199,7 @@ tradeoffs and reproducible public-model comparison procedure.
 initialized little-endian vertex records; all bytes participate in welding,
 including UV, normal and skin seams. Defaults sanitize and weld, generate 50%
 and 25% LOD targets with 1% error, then optimize cache, overdraw (1.05) and fetch
-for the source and each LOD. F9 sampled quality compares each output to the
+for the source and each LOD. Sampled LOD quality compares each output to the
 sanitized, welded, repaired source. It is a sampled estimate, not an error bound.
 Repair, meshlets, cluster LOD (the existing `clusterlod` feature), and codecs are
 opt-in fields on `ProcessOptions`. Cluster results include their own positions,
@@ -1189,9 +1261,9 @@ block is retried on the next chunk; very small chunks therefore cost more work
 than bulk decoding. Fetching trailers requires a seekable source or container
 that transports trailers separately. A forward-only transport must arrange
 that split before using these APIs.
-Streaming is a memory-bounded interface, not a faster one: on a 65,536-vertex
-stride-32 buffer it decodes at roughly 0.7x to 0.86x of the one-shot
-caller-buffer decoders for vertices (v0 and v1, 4 KiB and 64 KiB chunks) and
-0.9x to 1.0x for triangles, measured as wall-clock throughput on a shared
-machine (about 0.77x to 0.97x counting instructions). Decode whole buffers when
-they fit in memory.
+Streaming is a memory-bounded interface, not a faster one. On a 65,536-vertex
+stride-32 buffer and a 390,150-index grid it executes 1.26x to 1.32x the
+instructions of the one-shot decoders for vertices with 4 KiB chunks and 1.04x
+with 64 KiB chunks, and 1.03x to 1.15x for triangles (instruction counts from
+`parity/0217-qualify/streaming-costs.json`). Decode whole buffers when they fit
+in memory.

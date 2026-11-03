@@ -52,6 +52,11 @@
 //!
 //! - [LOD quality and switch distances](guide#lod-quality-and-switch-distances) (not in C++ meshoptimizer).
 //! - [Hidden-surface removal](guide#hidden-surface-removal) (an extension, not in C++ meshoptimizer).
+//! - [Cluster LOD DAG files](guide#cluster-lod-dag-files) (an extension, not in C++ meshoptimizer).
+//! - [Parallel vertex codec and spatial meshlets](guide#parallel-vertex-codec-and-spatial-meshlets-for-one-large-mesh) (an extension, not in C++ meshoptimizer).
+//! - [Character LODs](guide#character-lods) (an extension, not in C++ meshoptimizer).
+//! - [One-call asset pipeline](guide#one-call-asset-pipeline) (an extension, not in C++ meshoptimizer).
+//! - [Incremental vertex and triangle decoding](guide#incremental-vertex-and-triangle-decoding) (an extension, not in C++ meshoptimizer).
 //!
 //! # Simplify a mesh
 //!

@@ -39,3 +39,5 @@ Final gate codes, samples and source/binary/log bindings are in
 `receipts/final.json`, `exits.tsv` and the binding JSON files.
 The dedicated build directory is removed after every admitted job exits.
 Git state is unchanged.
+
+> Superseded: the 0.2.17 qualification measured `process_mesh` at 1.003x the manual sequence (geometric mean, instructions); see `parity/0217-qualify/REPORT.md`.
