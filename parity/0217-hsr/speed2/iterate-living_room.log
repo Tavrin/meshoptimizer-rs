@@ -1,0 +1,2 @@
+{"phase":"warm","seconds":1.495902965,"input":580637,"output":576956,"duplicate":4,"back_to_back":42,"occluded":3635,"work":3502523163,"bytes":132387732}
+{"phase":"measured","seconds":1.121927224,"input":580637,"output":576956,"duplicate":4,"back_to_back":42,"occluded":3635,"work":3502523163,"bytes":132387732}

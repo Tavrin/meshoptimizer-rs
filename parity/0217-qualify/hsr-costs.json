@@ -1,0 +1,35 @@
+[
+  {
+    "median_seconds": 1.827701499,
+    "mesh": "breakfast_room",
+    "process_instructions_u": 19633528113,
+    "report": "{\"input\":269764,\"output\":155018,\"removed\":114746,\"duplicate\":480,\"back_to_back\":0,\"occluded\":114266,\"work\":2439570483,\"bytes\":61508688}",
+    "seconds": [
+      1.258390129,
+      1.827701499,
+      1.861780058
+    ]
+  },
+  {
+    "median_seconds": 0.731816028,
+    "mesh": "living_room",
+    "process_instructions_u": 10585759264,
+    "report": "{\"input\":580637,\"output\":576956,\"removed\":3681,\"duplicate\":4,\"back_to_back\":42,\"occluded\":3635,\"work\":3502523163,\"bytes\":132387732}",
+    "seconds": [
+      1.089989352,
+      0.71738907,
+      0.731816028
+    ]
+  },
+  {
+    "median_seconds": 0.468131369,
+    "mesh": "conference",
+    "process_instructions_u": 4895963316,
+    "report": "{\"input\":124619,\"output\":98911,\"removed\":25708,\"duplicate\":0,\"back_to_back\":0,\"occluded\":25708,\"work\":1264046261,\"bytes\":28415628}",
+    "seconds": [
+      0.307797296,
+      0.47338597,
+      0.468131369
+    ]
+  }
+]

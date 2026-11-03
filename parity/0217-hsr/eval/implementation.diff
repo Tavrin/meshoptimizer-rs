@@ -1,0 +1,274 @@
+diff --git a/src/hidden.rs b/src/hidden.rs
+index 3b9117a1..e4666515 100644
+--- a/src/hidden.rs
++++ b/src/hidden.rs
+@@ -632,6 +632,41 @@ fn finite_visibility(
+ // Thus quantization, subpixel slivers and incomplete cells can only retain.
+ const SUBPIXEL: i64 = 256;
+ const TILE: usize = 8;
++
++#[derive(Clone, Copy)]
++struct RasterGrid {
++    size: usize,
++    cells: usize,
++    margin: i64,
++}
++impl RasterGrid {
++    fn new(size: usize) -> Result<Self, Error> {
++        if !(1..=2048).contains(&size) {
++            return Err(Error::InvalidParameter);
++        }
++        let margin = i64::try_from(size)
++            .ok()
++            .and_then(|n| n.checked_mul(SUBPIXEL))
++            .and_then(|n| n.checked_mul(8))
++            .and_then(|n| n.checked_add(16))
++            .ok_or(Error::SizeOverflow)?;
++        let cells = size
++            .div_ceil(TILE)
++            .checked_mul(size.div_ceil(TILE))
++            .and_then(|n| n.checked_mul(TILE * TILE))
++            .ok_or(Error::SizeOverflow)?;
++        Ok(Self {
++            size,
++            cells,
++            margin,
++        })
++    }
++    fn subpixel(self, cell: usize) -> i64 {
++        // Only raster loop coordinates call this: cell < size <= 2048.
++        // The cast and product are exact, with result below 2^19.
++        cell as i64 * SUBPIXEL
++    }
++}
+ #[derive(Clone, Copy)]
+ struct Projection {
+     center: Point,
+@@ -639,7 +674,7 @@ struct Projection {
+     v: Point,
+     d: Point,
+     scale: f64,
+-    size: usize,
++    grid: RasterGrid,
+ }
+ #[derive(Clone, Copy)]
+ struct Projected {
+@@ -649,6 +684,9 @@ struct Projected {
+     plane: [f64; 3],
+     depths: [f64; 3],
+ }
++// Projected vertices and cell corners lie in [0, 2048*256]. Each
++// difference is at most 2^19 and each determinant at most 2^39, so all
++// subtraction, multiplication, sign adjustment and abs operations fit i64.
+ fn edge(a: [i64; 2], b: [i64; 2], p: [i64; 2]) -> i64 {
+     (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
+ }
+@@ -709,14 +747,14 @@ impl Projected {
+                 (lo.min(p[2]), hi.max(p[2]))
+             })
+     }
+-    fn overlaps(&self, x: usize, y: usize, size: usize) -> bool {
++    fn overlaps(&self, x: usize, y: usize, grid: RasterGrid) -> bool {
+         let sign = edge(self.xy[0], self.xy[1], self.xy[2]).signum();
+         if sign == 0 {
+             return true;
+         }
+-        let x = i64::try_from(x).unwrap() * SUBPIXEL;
+-        let y = i64::try_from(y).unwrap() * SUBPIXEL;
+-        let margin = i64::try_from(size).unwrap() * SUBPIXEL * 8 + 16;
++        let x = grid.subpixel(x);
++        let y = grid.subpixel(y);
++        let margin = grid.margin;
+         for k in 0..3 {
+             let a = self.xy[k];
+             let b = self.xy[(k + 1) % 3];
+@@ -747,9 +785,9 @@ impl Projection {
+             depths[vertex] = z;
+             vertex += 1;
+             [self.u, self.v].map(|axis| {
+-                let x = dot(p, axis) * self.scale + self.size as f64 * 128.0;
++                let x = dot(p, axis) * self.scale + self.grid.size as f64 * 128.0;
+                 // Finite normalized coordinates and size <=2048 cannot wrap.
+-                libm::floor(x.clamp(0.0, self.size as f64 * 256.0)) as i64
++                libm::floor(x.clamp(0.0, self.grid.size as f64 * 256.0)) as i64
+             })
+         });
+         let dx1 = (xy[1][0] - xy[0][0]) as f64;
+@@ -774,13 +812,14 @@ impl Projection {
+     }
+     fn rectangle(&self, p: &Projected) -> [usize; 4] {
+         let bounds = |axis: usize| {
+-            let lo = p.xy.iter().map(|p| p[axis]).min().unwrap();
+-            let hi = p.xy.iter().map(|p| p[axis]).max().unwrap();
++            let [a, b, c] = p.xy.map(|p| p[axis]);
++            let lo = a.min(b).min(c);
++            let hi = a.max(b).max(c);
+             // One subpixel covers floor quantization and projection roundoff.
+-            let lo = usize::try_from((lo - 1).max(0) / SUBPIXEL).unwrap();
+-            let hi = usize::try_from((hi + 1) / SUBPIXEL)
+-                .unwrap()
+-                .min(self.size - 1);
++            // project() clamps vertices to [0, size*256], size <= 2048.
++            // Expanded nonnegative pixel coordinates are <= 2048 and fit usize.
++            let lo = ((lo - 1).max(0) / SUBPIXEL) as usize;
++            let hi = (((hi + 1) / SUBPIXEL) as usize).min(self.grid.size - 1);
+             (lo, hi)
+         };
+         let (x0, x1) = bounds(0);
+@@ -795,9 +834,9 @@ impl Projection {
+         // Each rounded vertex differs from its real projection by <= 1
+         // subpixel. The edge determinant error at a cell corner is less
+         // than 8*grid_width + 16 (including f64 projection roundoff).
+-        let margin = i64::try_from(self.size).unwrap() * SUBPIXEL * 8 + 16;
+-        let x = i64::try_from(cell[0]).unwrap() * SUBPIXEL;
+-        let y = i64::try_from(cell[1]).unwrap() * SUBPIXEL;
++        let margin = self.grid.margin;
++        let x = self.grid.subpixel(cell[0]);
++        let y = self.grid.subpixel(cell[1]);
+         for k in 0..3 {
+             if k == skip {
+                 continue;
+@@ -877,9 +916,9 @@ impl Projection {
+         boundary >= 3
+     }
+     fn edge_covers(&self, a: [i64; 2], b: [i64; 2], cell: [usize; 2]) -> bool {
+-        let margin = i64::try_from(self.size).unwrap() * SUBPIXEL * 8 + 16;
+-        let x = i64::try_from(cell[0]).unwrap() * SUBPIXEL;
+-        let y = i64::try_from(cell[1]).unwrap() * SUBPIXEL;
++        let margin = self.grid.margin;
++        let x = self.grid.subpixel(cell[0]);
++        let y = self.grid.subpixel(cell[1]);
+         let corner = [
+             if b[1] > a[1] { x + SUBPIXEL } else { x },
+             if b[0] < a[0] { y + SUBPIXEL } else { y },
+@@ -888,7 +927,7 @@ impl Projection {
+     }
+     fn address(&self, x: usize, y: usize) -> usize {
+         // 8x8 pixel tiles are contiguous, including padded boundary tiles.
+-        ((y / TILE) * self.size.div_ceil(TILE) + x / TILE) * TILE * TILE
++        ((y / TILE) * self.grid.size.div_ceil(TILE) + x / TILE) * TILE * TILE
+             + (y % TILE) * TILE
+             + x % TILE
+     }
+@@ -930,11 +969,8 @@ fn outside_visibility(
+     }
+     // Resolution is checked before narrowing and all storage arithmetic.
+     let size = resolution as usize;
+-    let cells = size
+-        .div_ceil(TILE)
+-        .checked_mul(size.div_ceil(TILE))
+-        .and_then(|n| n.checked_mul(TILE * TILE))
+-        .ok_or(Error::SizeOverflow)?;
++    let grid = RasterGrid::new(size)?;
++    let cells = grid.cells;
+     // Select possible cell occluders before allocating the raster. Projected
+     // area never exceeds 3D area, so excluding these tiny faces can only retain.
+     work.add(triangles.len())?;
+@@ -1002,7 +1038,7 @@ fn outside_visibility(
+             v: cross(d, u),
+             d,
+             scale: (size as f64 * 128.0) / side,
+-            size,
++            grid,
+         };
+         work.add(occluders.len())?;
+         for &id in &occluders {
+@@ -1027,10 +1063,8 @@ fn outside_visibility(
+                     // them out of bounded union certificates only retains more.
+                     let area = edge(p.xy[0], p.xy[1], p.xy[2]).abs();
+                     if !covered
+-                        && p.overlaps(x, y, size)
+-                        && area
+-                            > (SUBPIXEL * SUBPIXEL / 8)
+-                                .max(i64::try_from(size).unwrap() * SUBPIXEL * 8 + 16)
++                        && p.overlaps(x, y, grid)
++                        && area > (SUBPIXEL * SUBPIXEL / 8).max(grid.margin)
+                     {
+                         work.add(8 * 8 * 8 * 9 + 32)?;
+                         let ids = &mut partial[at];
+@@ -1095,7 +1129,7 @@ fn outside_visibility(
+                 for x in x0..=x1 {
+                     let at = projection.address(x, y);
+                     if p.depth_bounds(x, y).1 != f64::NEG_INFINITY
+-                        && p.overlaps(x, y, size)
++                        && p.overlaps(x, y, grid)
+                         && (owner[at] == t.id || p.depth_bounds(x, y).1 + guard >= depth[at])
+                     {
+                         visible[t.id] = true;
+@@ -1145,3 +1179,27 @@ fn outside_visibility(
+     budget.release(visible);
+     Ok(())
+ }
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn raster_size_validation_precedes_arithmetic() {
++        for size in [0, 2049, i64::MAX as usize, usize::MAX] {
++            assert!(matches!(
++                RasterGrid::new(size),
++                Err(Error::InvalidParameter)
++            ));
++        }
++        for size in [1, 8, 256, 2048] {
++            let grid = RasterGrid::new(size).unwrap();
++            assert_eq!(grid.margin, size as i64 * 256 * 8 + 16);
++            assert_eq!(grid.cells, size.div_ceil(8).pow(2) * 64);
++            assert_eq!(grid.subpixel(size - 1), (size as i64 - 1) * 256);
++        }
++        let bound = 2048 * SUBPIXEL;
++        assert_eq!(edge([0, 0], [bound, 0], [0, bound]), bound * bound);
++        assert_eq!(edge([0, 0], [0, bound], [bound, 0]), -bound * bound);
++    }
++}
+diff --git a/tests/hidden.rs b/tests/hidden.rs
+index c34c047c..d53bccf2 100644
+--- a/tests/hidden.rs
++++ b/tests/hidden.rs
+@@ -521,3 +521,44 @@ fn hidden_candidate_and_finite_view_limits_preserve_destination_and_recover() {
+         }
+     }
+ }
++
++#[test]
++fn extreme_coordinates_and_density_requests_are_bounded_and_atomic() {
++    let p = [
++        [-f32::MAX, -f32::MAX, -f32::MAX],
++        [f32::MAX, -f32::MAX, f32::MAX],
++        [-f32::MAX, f32::MAX, f32::MAX],
++    ];
++    let i = [0, 1, 2];
++    let side = 2.0 * f64::from(f32::MAX);
++    let mut ws = Workspace::default();
++    // Exercise resolution 1 and the exact maximum, on full-range f32 geometry.
++    for pixel_size in [f64::MAX, side * 2.0 / 2048.0] {
++        let mut o = HiddenOptions::default();
++        o.pixel_size = pixel_size;
++        assert_eq!(run(&p, &i, o).indices, i);
++    }
++    // Both an infinite requested resolution and just-over-limit sizes fail
++    // before raster allocation, preserving the caller's destination.
++    for pixel_size in [f64::from_bits(1), side * 2.0 / 2049.0] {
++        let mut o = HiddenOptions::default();
++        o.pixel_size = pixel_size;
++        let mut out = [99; 6];
++        assert_eq!(
++            remove_hidden_triangles_into(&mut out, &i, Positions::from_packed(&p), o, &mut ws),
++            Err(Error::InvalidParameter)
++        );
++        assert_eq!(out, [99; 6]);
++        assert_eq!(
++            remove_hidden_triangles(
++                &i,
++                Positions::from_packed(&p),
++                HiddenOptions::default(),
++                &mut ws
++            )
++            .unwrap()
++            .indices,
++            i
++        );
++    }
++}

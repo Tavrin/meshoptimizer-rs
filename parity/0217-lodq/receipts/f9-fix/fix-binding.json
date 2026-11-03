@@ -1,0 +1,7 @@
+{
+  "src/lod_quality.rs": "9c3aee7e78153998e50fd4459e52563a4ff00757659753968a89ee05860863b5",
+  "tests/lod_quality.rs": "99ff2c17b4877bf1139c9319796e1233364464e1bf731392509dc4b12013e069",
+  "parity/0217-lodq/proof.py": "1bff6b651868b5079061506d4b2d64e76b66f9a6c894ad743ebfc4cd19875206",
+  "parity/0217-lodq/final-check.sh": "5340cb0429829ead1059c506fb54b5a8ac7c23ba438c71a24433e074852fb6e8",
+  "parity/0217-lodq/f9-fix-check.sh": "a98f47a22e8bf6fc3ce0380fa11d3edb6f70b4d080a9f8296a7d9abddecfe221"
+}

@@ -1,0 +1,25 @@
+{
+  "jobs": [
+    {
+      "phase": "initial gates startup",
+      "exit": 1
+    },
+    {
+      "phase": "first full gates, final public-text failure",
+      "exit": 1
+    },
+    {
+      "phase": "full gates and scene campaign, oracle driver build failure",
+      "exit": 101
+    },
+    {
+      "phase": "oracle retry, executable/source path collision",
+      "exit": 1
+    },
+    {
+      "phase": "complete corrected oracle and scene identity rerun",
+      "exit": 0
+    }
+  ],
+  "canceled_jobs": 0
+}

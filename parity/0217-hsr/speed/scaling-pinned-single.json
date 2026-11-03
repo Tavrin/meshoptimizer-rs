@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "32768": {
+      "seconds": 0.001999871,
+      "work": 983040
+    },
+    "262144": {
+      "seconds": 0.02999805,
+      "work": 8650752
+    },
+    "work_ratio": 8.8,
+    "wall_ratio": 14.99999249951622
+  },
+  "rows": [
+    {
+      "n": 32768,
+      "rep": 0,
+      "seconds": 0.00399974,
+      "work": 983040,
+      "output_sha256": "66f5d2f101e26ebd241d5eb9ba6b5fec8d11f7db64b34b287a8ae8c6c11329d6"
+    },
+    {
+      "n": 262144,
+      "rep": 0,
+      "seconds": 0.02999805,
+      "work": 8650752,
+      "output_sha256": "525878305bfb0db8c33817e51a57389c25476d91b974129b44ed8520ef6ee13b"
+    },
+    {
+      "n": 262144,
+      "rep": 1,
+      "seconds": 0.030997986,
+      "work": 8650752,
+      "output_sha256": "525878305bfb0db8c33817e51a57389c25476d91b974129b44ed8520ef6ee13b"
+    },
+    {
+      "n": 32768,
+      "rep": 1,
+      "seconds": 0.001999871,
+      "work": 983040,
+      "output_sha256": "66f5d2f101e26ebd241d5eb9ba6b5fec8d11f7db64b34b287a8ae8c6c11329d6"
+    },
+    {
+      "n": 32768,
+      "rep": 2,
+      "seconds": 0.001999871,
+      "work": 983040,
+      "output_sha256": "66f5d2f101e26ebd241d5eb9ba6b5fec8d11f7db64b34b287a8ae8c6c11329d6"
+    },
+    {
+      "n": 262144,
+      "rep": 2,
+      "seconds": 0.027998181,
+      "work": 8650752,
+      "output_sha256": "525878305bfb0db8c33817e51a57389c25476d91b974129b44ed8520ef6ee13b"
+    }
+  ],
+  "cpu": 0,
+  "single_thread": true,
+  "pinned": true,
+  "work_gate": true,
+  "wall_gate": false,
+  "qualification": "retained short-call 15x result; superseded by fixed 256-call resident batches, not selected pairs"
+}

@@ -1,0 +1,7 @@
+{
+  "initial_gate_admission_exit": 1,
+  "error": "KeyError: 'MOSS_HEAVY_GPU'",
+  "checks_executed": 0,
+  "reason": "Current installed CPU wrapper exports MOSS_HEAVY_ACTIVE but may omit optional GPU override; accept absent GPU override as automatic CPU classification while still requiring active admission",
+  "retry": "Full gates run first within already queued campaign job; no job canceled"
+}

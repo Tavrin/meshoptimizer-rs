@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<worktree>/parity/simd/check_boundary.py", line 80, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "<worktree>/parity/simd/check_boundary.py", line 65, in main
+    assert inside,f'unsafe outside audited module: {file}'
+           ^^^^^^
+AssertionError: unsafe outside audited module: <worktree>/parity/0217-qualify/peer-driver.rs

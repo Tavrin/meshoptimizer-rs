@@ -1,0 +1,13 @@
+    Checking meshoptimizer-rs v0.2.16 (<worktree>)
+error: using `chunks_exact` with a constant chunk size
+  --> tests/lod_quality.rs:67:17
+   |
+67 |     for t in ix.chunks_exact(3) {
+   |                 ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<3>().0`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+   = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: could not compile `meshoptimizer-rs` (test "lod_quality") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

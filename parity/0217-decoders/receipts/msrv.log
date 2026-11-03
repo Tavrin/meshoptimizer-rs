@@ -1,0 +1,18 @@
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+    Checking either v1.18.0
+    Checking rayon v1.11.0
+    Checking meshoptimizer-rs v0.2.16 (<repo>)
+warning: unnecessary `unsafe` block
+   --> src/codec/simd/x86.rs:358:16
+    |
+358 |         return unsafe { group_avx512_kernel(data, out, h) };
+    |                ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` on by default
+
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.32s

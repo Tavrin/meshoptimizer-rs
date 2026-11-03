@@ -1,12 +1,17 @@
 # Migrating from meshopt
 
-This guide maps `meshopt` 0.7.0 to `meshoptimizer-rs` 0.2.16 (`meshoptimizer_rs` in Rust).
+This guide maps `meshopt` 0.7.0 to `meshoptimizer-rs` 0.2.17 (`meshoptimizer_rs` in Rust).
 Change the Cargo dependency to `meshoptimizer-rs = "0.2"`. Both crates produce the same output: `meshopt` 0.7.0 wraps
 meshoptimizer 1.3, and this crate is a byte-identical Rust port of it.
 
-0.2.16 adds `weld_vertices`, `orient_faces` and `fill_holes` for opt-in repair; see the [repair recipe](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#tolerance-welding-orientation-and-small-holes).
-With `parallel` + `clusterlod`, `clusterlod::build_parallel` processes groups within one mesh; see the [parallel recipe](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#parallel-groups-within-one-cluster-lod-mesh).
-`codec::IndexSequenceDecoder` accepts arriving chunks; keep output provisional until `finish()` succeeds, as in the [streaming recipe](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/guide/index.html#streaming-index-sequences).
+0.2.16 adds `weld_vertices`, `orient_faces` and `fill_holes` for opt-in repair; see the [repair recipe](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/guide/index.html#tolerance-welding-orientation-and-small-holes).
+With `parallel` + `clusterlod`, `clusterlod::build_parallel` processes groups within one mesh; see the [parallel recipe](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/guide/index.html#parallel-groups-within-one-cluster-lod-mesh).
+`codec::IndexSequenceDecoder` accepts arriving chunks; keep output provisional until `finish()` succeeds, as in the [streaming recipe](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/guide/index.html#streaming-index-sequences).
+
+0.2.17 adds, none of them in `meshopt`: `_generic` functions that take `u16` or `u32` indices (see [16-bit indices](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/guide/index.html#16-bit-vertex-indices)),
+so 16-bit index buffers need no conversion first; `codec::VertexBufferDecoder` and `codec::IndexBufferDecoder` for chunked decoding with fixed storage ([recipe](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/guide/index.html#incremental-vertex-and-triangle-decoding));
+and `process_mesh`, which runs welding, LODs and cache, overdraw and fetch optimization in one call ([recipe](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/guide/index.html#one-call-asset-pipeline)).
+`remove_hidden_triangles`, `simplify_character`, `measure_lod_quality` and `clusterlod::dag_format` are opt-in extensions listed in the README.
 
 ## API map
 
@@ -14,10 +19,10 @@ The table covers every public item of `meshopt` 0.7.0, including its raw `ffi` m
 left are relative to `meshopt`, names on the right to `meshoptimizer_rs`. Where a row lists several items separated
 by semicolons, they map in order. Raw `ffi` functions map to checked Rust functions; this crate has no C ABI.
 `_decoder` variants map to the plain function: decode your positions into a slice first. `clusterlod::` items
-need the `clusterlod` feature. See the [rustdoc](https://docs.rs/meshoptimizer-rs/0.2.16/meshoptimizer_rs/) for
+need the `clusterlod` feature. See the [rustdoc](https://docs.rs/meshoptimizer-rs/0.2.17/meshoptimizer_rs/) for
 signatures.
 
-| meshopt 0.7.0 | meshoptimizer-rs 0.2.16 equivalent or reason |
+| meshopt 0.7.0 | meshoptimizer-rs 0.2.17 equivalent or reason |
 |---|---|
 | `VertexCacheStatistics`, `ffi::meshopt_VertexCacheStatistics`; `VertexFetchStatistics`, `ffi::meshopt_VertexFetchStatistics`; `OverdrawStatistics`, `ffi::meshopt_OverdrawStatistics`; `CoverageStatistics`, `ffi::meshopt_CoverageStatistics` | `VertexCacheStatistics`; `VertexFetchStatistics`; `OverdrawStatistics`; `CoverageStatistics` (respectively) |
 | `analyze_vertex_cache`, `ffi::meshopt_analyzeVertexCache`; `analyze_vertex_fetch`, `ffi::meshopt_analyzeVertexFetch`; `analyze_overdraw_decoder`, `analyze_overdraw`, `ffi::meshopt_analyzeOverdraw`; `analyze_coverage_decoder`, `analyze_coverage`, `ffi::meshopt_analyzeCoverage` | `analyze_vertex_cache`; `analyze_vertex_fetch`; `analyze_overdraw`; `analyze_coverage` (respectively) |
@@ -152,7 +157,7 @@ signatures.
 - Caller-buffer `_into` variants return used lengths or counts. On failure, output can be partly modified; follow each function's rustdoc.
 - No C/C++ toolchain is needed: `wasm32-unknown-unknown` builds directly with Rust's target installed.
 - For `no_std` with `alloc`, set `default-features = false`; provide an allocator.
-- Output is byte-identical to scalar C++ 1.3, also used by `meshopt` 0.7.0, for matching inputs and settings; [verification](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.16/docs/VERIFICATION.md) records the tested domain.
+- Output is byte-identical to scalar C++ 1.3, also used by `meshopt` 0.7.0, for matching inputs and settings; [verification](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.17/docs/VERIFICATION.md) records the tested domain.
 
 ## Before and after
 

@@ -1,0 +1,199 @@
+   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.58s
+     Running unittests src/lib.rs (<local-path>)
+
+running 56 tests
+test clusterlod::parallel::tests::work_bound_falls_back_before_serial_exhaustion_or_overflow ... ok
+test clusterlod::support::workspace::tests::scan_preserves_failures_work_and_side_effects ... ok
+test codec::simd::tests::delta_prefixes_stage_partial_unaligned_vectors ... ok
+test codec::simd::tests::explicit_exp_kernel_matches_canonical_small_windows ... ok
+test hidden::tests::raster_size_validation_precedes_arithmetic ... ok
+test math::tests::constant_normalization_root_matches_pinned_backend ... ok
+test clusterlod::support::simplify::tests::ranking_preserves_numerical_failure_and_budget_prefix ... ok
+test codec::simd::tests::packed_groups_and_meshlet_masks_match_integer_reference ... ok
+test meshlet::packed_tests::packed_children_check_actual_metadata_without_truncation ... ok
+test input::triangle_tests::specialized_triangle_reads_keep_bits_errors_and_work_prefixes ... ok
+test meshlet_spatial::simd_tests::short_sweeps_preserve_output_tails ... ok
+test meshlet_spatial::simd_tests::explicit_boundary_values ... ok
+test processing::tests::child_and_external_work_keep_u64_counts_on_32_bit_targets ... ok
+test meshlet_spatial::simd_tests::signed_zero_ties ... ok
+test processing::tests::processing_scan_preserves_budget_failure_visit_and_side_effects ... ok
+test processing::tests::processing_search_charges_only_visited_prefix ... ok
+test meshlet_spatial::simd_tests::ordered_area_extremes ... ok
+test raster::tests::pixel_scan_keeps_tight_fuel_and_statistics_prefixes ... ok
+test simplify::tests::preflight_preserves_the_first_reservations_limit_error ... ok
+test simplify::extra::solve_tests::accumulated_solve_preserves_numerical_failure_work_and_position_prefix ... ok
+test simplify::tests::simplify_sqrt_exhaustive_identity ... ignored, exhaustive 2^32-pattern backend identity gate
+test simplify::retention_tests::cache_update_cache_releases_scratch_and_preserves_results ... ok
+test simplify::tests::repeated_simplify_reuses_arrays_but_releases_the_remapping_hash ... ok
+test workspace::tests::active_capacity_reclamation_preserves_live_prefixes_and_fitting_reuse ... ok
+test simplify::tests::update_bounds_preserve_original_sparse_order_and_zero_signs ... ok
+test workspace::tests::bounded_search_preserves_the_checked_callback_prefix ... ok
+test simplify::retention_tests::switching_chain_family_releases_scratch_and_preserves_results ... ok
+test codec::filter::tests::oct_zero_record_preserves_the_failure_suffix_and_alpha ... ok
+test codec::filter_encode::tiny_tests::bulk_quaternions_match_single_records_for_coherent_and_mixed_rotations ... ok
+test workspace::tests::index_fast_path_preserves_first_error_and_fuel_prefix ... ok
+test workspace::tests::scan_preserves_failures_work_and_side_effects ... ok
+test simplify::tests::ranking_preserves_numerical_failure_and_budget_prefix ... ok
+test workspace::tests::precharged_scans_and_batches_fit_their_counter_width ... ok
+test codec::filter_encode::tiny_tests::tiny_matches_bulk_at_precision_and_dispatch_boundaries ... ok
+test codec::index_encode::fifo_tests::fifo_frontier_bound_matches_full_search ... ok
+test simplify::tests::prepaid_phases_match_checked_visits ... ok
+test workspace::tests::fixed_charge_scans_preserve_failure_prefixes ... ok
+test simplify::tests::prepaid_picker_preserves_every_budget_prefix_and_capacity_stop ... ok
+test meshlet::packed_tests::small_divide_matches_integer_division ... ok
+test codec::vertex::streaming_tests::staged_vertex_destination_matches_initialized_reference ... ok
+test codec::filter::tests::small_truncation_matches_the_reference_conversion ... ok
+test meshlet_util::bounds_root_tests::used_roots_match_full_lanes_bit_for_bit ... ok
+test codec::meshlet::tests::single_matches_reference_for_all_controls_and_triangle_codes ... ok
+test codec::simd::tests::byte_headers_share_lookahead_without_accepting_short_groups ... ok
+test clusterlod::support::math::tests::cache_preserves_full_bits_through_collisions_and_special_values ... ok
+test raster::tests::packed_transform_keeps_logical_mapped_positions ... ok
+test math::tests::cache_preserves_full_bits_through_collisions_and_special_values ... ok
+test simplify::extra::bounds_tests::packed_bounds_match_ordered_selects_including_zero_signs ... ok
+test raster::tests::empty_views_keep_triangle_and_scan_work ... ok
+test codec::simd::bounds::tests::roots_match_pinned_bits_and_preserve_scalar_fallback ... ok
+test processing::tests::processing_memos_preserve_backend_bits_and_collisions ... ok
+test hidden::tests::cached_witness_matches_full_traversal_and_checks_leaf ... ok
+test workspace::tests::simplify_then_cache_releases_retained_scratch_under_pressure ... ok
+test math::tests::bounds_hold_for_every_operand_class ... ok
+test overdraw::tests::scalar_root_matches_pinned_backend ... ok
+test math::tests::sqrt8_matches_backend ... ok
+
+test result: ok. 55 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/api.rs (<local-path>)
+
+running 55 tests
+test attributes_enforce_width_and_support_zero_components ... ok
+test byte_positions_honor_unaligned_offsets_and_endianness ... ok
+test cache_still_refuses_live_storage_that_does_not_fit ... ok
+test cache_preserves_triangle_corners ... ok
+test default_vertex_score_table_identity_on_corpus ... ignored, requires frozen corpus directory in MESHOPT_CACHE_CORPUS
+test counted_cache_work_has_an_exact_boundary ... ok
+test custom_vertex_score_table_changes_order_deterministically ... ok
+test counted_overdraw_work_has_an_exact_boundary ... ok
+test destination_tail_is_untouched ... ok
+test degenerate_triangles_remain_valid ... ok
+test empty_meshes_succeed ... ok
+test finite_thresholds_below_one_are_accepted ... ok
+test flags_preserve_all_combinations_and_reject_unknown_bits ... ok
+test in_place_errors_are_atomic ... ok
+test indices_are_checked ... ok
+test intermediate_overflow_is_rejected ... ok
+test layouts_enforce_upstream_stride_bounds ... ok
+test lowering_limits_releases_retained_scratch ... ok
+test nonfinite_threshold_is_rejected ... ok
+test optional_flags_require_one_entry_per_vertex ... ok
+test other_algorithms_release_unused_cache_vertex_storage ... ok
+test overdraw_destination_tail_is_untouched ... ok
+test overdraw_centroid_overflow_keeps_validation_and_reservation_precedence ... ok
+test overdraw_rejects_squared_area_overflow_with_finite_normal ... ok
+test overdraw_in_place_numerical_error_is_atomic ... ok
+test platform_size_overflow_is_checked_without_allocation ... ok
+test scale_has_no_epsilon_clamp ... ok
+test short_destination_is_unchanged ... ok
+test priority_increases_positional_cost ... ok
+test protect_prevents_permissive_discontinuity_collapses ... ok
+test simplifier_checks_target_and_error ... ok
+test simplifier_accepts_partial_triangle_target ... ok
+test simplifier_empty_has_zero_error ... ok
+test simplifier_locks_preserve_vertices ... ok
+test simplifier_rejects_unimplemented_option_bits ... ok
+test simplifier_matches_upstream_strip ... ok
+test simplifier_into_matches_allocating_and_preserves_tail ... ok
+test simplifier_exact_work_budget_is_enforced ... ok
+test simplifier_reports_overflowing_extent ... ok
+test simplifier_validates_attribute_dimensions_and_values ... ok
+test simplifier_validates_flag_length ... ok
+test simplifier_rejects_nonfinite_unused_geometry ... ok
+test storage_limit_includes_output ... ok
+test strided_positions_honor_offset_and_last_record_extent ... ok
+test simplifier_memory_budget_includes_scratch_and_output ... ok
+test strided_and_byte_positions_match_packed_overdraw ... ok
+test simplifier_zero_weights_match_position_only ... ok
+test topology_is_checked ... ok
+test table_selection_follows_the_incremental_procedure_not_the_final_maximum ... ok
+test unused_nonfinite_geometry_is_rejected ... ok
+test vertex_score_table_validation ... ok
+test default_vertex_score_table_matches_every_work_prefix_and_errors ... ok
+test strided_overdraw_preserves_work_and_numerical_failure_precedence ... ok
+test strided_simplification_preserves_packed_results_and_work_limits ... ok
+test simplifier_attribute_layouts_match_at_every_work_limit ... ok
+
+test result: ok. 54 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/clusterlod_parallel.rs (<local-path>)
+
+running 9 tests
+test allocating_groups_keep_refinement_indices ... ok
+test miri_small_identity ... ok
+test callback_failure_keeps_prefix_and_reusable_workspace ... ok
+test finite_budgets_and_dilation_keep_serial_failures_and_positions ... ok
+test ordered_output_bits_ids_and_usage_across_pools ... ok
+test every_callback_failure_emits_only_the_serial_prefix has been running for over 60 seconds
+test fallback_triggers_match_serial_at_limit_boundaries has been running for over 60 seconds
+test later_group_numerical_failure_keeps_serial_prefix has been running for over 60 seconds
+test usage_matches_across_configs_and_retention has been running for over 60 seconds
+test every_callback_failure_emits_only_the_serial_prefix ... ok
+test later_group_numerical_failure_keeps_serial_prefix ... ok
+test usage_matches_across_configs_and_retention ... ok
+test fallback_triggers_match_serial_at_limit_boundaries ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 109.65s
+
+     Running tests/codec.rs (<local-path>)
+
+running 12 tests
+test ext_rules_and_parent_layout ... ok
+test versions_are_header_inspection_and_ext_remains_narrow ... ok
+test decoder_accounts_retained_geometry_workspace_without_allocating_scratch ... ok
+test resources_destination_and_narrowing ... ok
+test quaternion_rounding_uses_the_original_component_sign ... ok
+test sequence_fixture_tail_truncation_and_raw_empty ... ok
+test scalar_filter_goldens_and_undefined_oct ... ok
+test allocating_sequence_blocks_preserve_limits_headers_and_tails ... ok
+test arbitrary_malformed_bytes_never_panic ... ok
+test allocating_vertex_preflight_at_minimum_block_boundary ... ok
+test allocating_vertex_blocks_preserve_capacity_limits_and_filtered_bytes ... ok
+test large_stride_four_owned_decode_preserves_limits_and_tail_checks ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/codec04.rs (<local-path>)
+
+running 9 tests
+test quaternion_encoder_preserves_first_maximum_nan_and_signed_zero ... ok
+test exp_separate_zero_records_inherit_each_component_exponent ... ok
+test filter_encoders_validate_and_reject_undefined_conversions ... ok
+test sequence_baseline_negation_keeps_the_observed_reference_wrap ... ok
+test allocating_filters_preserve_work_usage_at_each_budget_boundary ... ok
+test encoder_capacity_matches_reference_zero_returns ... ok
+test encoders_reproduce_upstream_goldens ... ok
+test meshlet_codec_round_trips_and_rejects_malformed_streams ... ok
+test explicit_configuration_replaces_global_versions ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/dag_format.rs (<local-path>)
+
+running 3 tests
+test emit_seed_if_requested ... ok
+test empty_and_page_limits ... ok
+test rejects_truncations_and_corrupt_tables ... FAILED
+
+failures:
+
+---- rejects_truncations_and_corrupt_tables stdout ----
+
+thread 'rejects_truncations_and_corrupt_tables' (1048618) panicked at tests/dag_format.rs:59:9:
+offset 24
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rejects_truncations_and_corrupt_tables
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test dag_format`

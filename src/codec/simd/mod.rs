@@ -330,6 +330,10 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     data: &[u8],
 ) -> Option<Result<(), crate::Error>> {
     #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::avx512() {
+        return Some(x86::vertex_avx512(token, output, count, stride, data));
+    }
+    #[cfg(target_arch = "x86_64")]
     if let Some(token) = dispatch::ssse3() {
         return Some(arch::vertex(token, output, count, stride, data));
     }
@@ -344,6 +348,57 @@ pub(super) fn vertex<D: crate::codec::vertex::Destination + ?Sized>(
     None
 }
 
+/// Per-block inputs of the vertex parser shared by the whole-stream kernels
+/// and the incremental decoder. Targets without a SIMD kernel never read it.
+#[cfg_attr(
+    not(any(
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    )),
+    allow(dead_code)
+)]
+pub(in crate::codec) struct VertexBlock<'a> {
+    pub(in crate::codec) version: u8,
+    pub(in crate::codec) block: usize,
+    pub(in crate::codec) stride: usize,
+    pub(in crate::codec) last: &'a [u8; 256],
+    pub(in crate::codec) channels: &'a [u8],
+}
+
+/// Decode one complete block at the start of `data` with the whole-stream
+/// SIMD kernels; returns the bytes it used. `None` without a usable SIMD level.
+pub(in crate::codec) fn vertex_block(
+    data: &[u8],
+    shape: VertexBlock<'_>,
+    deltas: &mut [u8; 1024],
+    block_output: &mut [u8],
+) -> Option<Result<usize, crate::Error>> {
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::avx512() {
+        return Some(x86::vertex_block_avx512(
+            token,
+            data,
+            shape,
+            deltas,
+            block_output,
+        ));
+    }
+    #[cfg(target_arch = "x86_64")]
+    if let Some(token) = dispatch::ssse3() {
+        return Some(arch::vertex_block(token, data, shape, deltas, block_output));
+    }
+    #[cfg(any(
+        target_arch = "aarch64",
+        all(target_arch = "wasm32", target_feature = "simd128")
+    ))]
+    if let Some(token) = dispatch::baseline() {
+        return Some(arch::vertex_block(token, data, shape, deltas, block_output));
+    }
+    let _ = (data, shape, deltas, block_output);
+    None
+}
+
 // Only the owned destination uses the extra stride-12 monomorphs. The generic
 // vertex dispatcher above remains independent of this optimization.
 #[cfg(target_arch = "x86_64")]
@@ -353,6 +408,9 @@ pub(super) fn vertex_owned(
     stride: usize,
     data: &[u8],
 ) -> Option<Result<(), crate::Error>> {
+    if let Some(token) = dispatch::avx512() {
+        return Some(x86::vertex_avx512(token, output, count, stride, data));
+    }
     if stride == 12 {
         if let Some(token) = dispatch::ssse3() {
             return Some(x86::vertex_owned(token, output, count, data));

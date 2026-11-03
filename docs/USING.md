@@ -388,6 +388,13 @@ Errors: `InvalidLayout` for invalid vertex/index strides or vertex byte lengths,
 Encoding constructors validate versions and levels (`InvalidParameter` for an
 unsupported vertex level), so an invalid encoding configuration cannot be built.
 
+With the `simd` feature, vertex decoding selects the widest kernel the CPU
+supports when the program runs: AVX-512 VBMI/VBMI2 on x86-64 CPUs that report
+those features, then SSE4.1, SSSE3 and SSE2, NEON on AArch64 and simd128 on wasm32.
+Every level returns the same bytes and errors as the scalar decoder. Without
+`std`, the AVX-512 kernel is used only when the build enables its target features.
+There is nothing to configure.
+
 ## Streaming index sequences
 
 `codec::IndexSequenceDecoder` is an opt-in extension, not in C++ meshoptimizer.
@@ -568,6 +575,117 @@ worker scratch, held speculative results, and Rayon infrastructure consume
 additional physical memory. Select a pool size that fits the mesh and available
 memory. No parallel speedup is guaranteed.
 
+## Cluster LOD DAG files
+
+`clusterlod::dag_format` serializes a built cluster DAG into an MDAG 1 file whose
+geometry is split into pages that decode independently. It is an extension, not in
+C++ meshoptimizer, and needs no Cargo feature; building the DAG needs `clusterlod`.
+Pass the prefixes `build_dag_into` returned (its `DagCounts`) to `write`, then open
+the bytes with `Reader::read`, which validates every table, refinement link and
+codec payload before it returns. A client that fetched one page decodes it with
+`decode_page` and the reader's resident tables only. `DEFAULT_PAGE_SIZE` is 128 KiB;
+a cluster never straddles two pages.
+
+```rust
+# #[cfg(feature = "clusterlod")]
+# {
+use meshoptimizer_rs::clusterlod::{
+    self, dag_format, DagBuffers, FlatDagCluster, FlatDagGroup, Mesh, Node,
+};
+use meshoptimizer_rs::Workspace;
+let mut positions = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+let indices = [0u32, 1, 2];
+let mut workspace = Workspace::default();
+let mut vertex_source = [0u32; 24];
+let mut vertex_positions = [[0.; 3]; 24];
+let mut flat_indices = [0u32; 24];
+let mut clusters = [FlatDagCluster::default(); 16];
+let mut groups = [FlatDagGroup::default(); 16];
+let mut nodes = [Node::default(); 128];
+let counts = clusterlod::build_dag_into(
+    clusterlod::default_config(128)?,
+    Mesh { indices: &indices, positions: &mut positions, attributes: None,
+           vertex_lock: None, attribute_weights: &[], attribute_protect_mask: 0 },
+    8,
+    DagBuffers { vertex_source: &mut vertex_source, vertex_positions: &mut vertex_positions,
+                 indices: &mut flat_indices, clusters: &mut clusters, groups: &mut groups,
+                 nodes: &mut nodes },
+    &mut workspace,
+)?;
+let file = dag_format::write(
+    &groups[..counts.groups], &clusters[..counts.clusters],
+    &vertex_positions[..counts.vertices], &flat_indices[..counts.indices],
+    dag_format::DEFAULT_PAGE_SIZE, &mut workspace,
+)?;
+let reader = dag_format::Reader::read(&file, &mut workspace)?;
+assert_eq!(reader.cluster_count(), counts.clusters);
+let mut triangles = 0;
+for page in 0..reader.page_count() {
+    // A client fetches only `file[range]`; here the whole file is in memory.
+    let range = reader.page_range(page)?;
+    for cluster in reader.decode_page(page, &file[range], &mut workspace)? {
+        triangles += cluster.indices.len() / 3;
+    }
+}
+assert!(triangles >= 1);
+# }
+# Ok::<(), meshoptimizer_rs::clusterlod::dag_format::Error>(())
+```
+
+`group` and `cluster_record` return the resident metadata and `cluster_page` maps a
+cluster to its page. `Reader` borrows the file bytes and currently needs the whole
+file to open; it is not a remote directory reader. The same input always produces
+the same bytes. `write_generic` and `decode_page_generic` select `u16` or `u32`
+indices. Errors are typed (`Invalid`, `Unsupported`, `Limit`, `Allocation`,
+`Codec`). The wire layout, limits and compatibility policy are in
+[DAG_FORMAT.md](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.17/docs/DAG_FORMAT.md).
+
+## Parallel vertex codec and spatial meshlets for one large mesh
+
+With `parallel`, three opt-in functions in the `parallel` module use the
+current Rayon pool for a single large input. They are not in C++
+meshoptimizer, and each returns exactly the bytes of the serial function for
+every pool size:
+
+- `encode_vertex_buffer_parallel` runs the per-channel estimators and runs of
+  blocks concurrently. Block bodies depend only on the input.
+- `decode_vertex_buffer_parallel` finds block starts with a serial scan of the
+  group selectors, decodes runs of blocks from a zero baseline concurrently,
+  chains each run's last vertex and applies the baselines. This works because
+  every channel is a prefix sum or prefix xor, so a decoded block is linear in
+  its starting vertex. A damaged stream is judged by the serial decoder.
+- `build_meshlets_spatial_parallel` runs box construction, the three axis
+  sorts and the recursive cut on independent subtrees; emission stays a serial
+  scan. Only a workspace with `max_bytes == usize::MAX` and
+  `max_work == u64::MAX` takes the concurrent path, because per-worker scratch
+  is not counted; the work count matches serial. The scan and flex builders keep
+  one open meshlet across the whole triangle sequence and have no exactly
+  equal parallel form. The index codecs carry FIFO and next-vertex state from
+  triangle to triangle with no resynchronization points in the format, so they
+  are not parallelized.
+
+Encoding and spatial meshlets take the serial path for a one-worker pool or a
+buffer of fewer than eight blocks. Decoding takes it for fewer than four
+workers, an output under 48 MiB (32 MiB for strides of 8 or less), or fewer
+than eight blocks.
+Measured speed-ups: `docs/PERFORMANCE.md`.
+
+```rust
+# #[cfg(feature = "parallel")]
+# {
+use meshoptimizer_rs::{codec::VertexEncoding, parallel, Workspace};
+let vertices: Vec<u8> = (0..64_000u32).flat_map(|i| (i * 3).to_le_bytes()).collect();
+let pool = rayon::ThreadPoolBuilder::new().num_threads(4).build()?;
+let mut workspace = Workspace::default();
+let encoded = pool.install(|| {
+    parallel::encode_vertex_buffer_parallel(&vertices, 64_000, 4, VertexEncoding::DEFAULT, &mut workspace)
+})?;
+let decoded = pool.install(|| parallel::decode_vertex_buffer_parallel(64_000, 4, &encoded, &mut workspace))?;
+assert_eq!(decoded, vertices);
+# }
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
 ## Lower peak memory with Retention::Lean
 
 ```text
@@ -598,6 +716,57 @@ Returns the same simplification result and errors as the first recipe. Lean is
 opt-in: it lowers peak memory, but later calls reallocate scratch and run slower.
 
 ## Mesh repair
+
+Fan splitting and crack stitching are opt-in extensions, not in C++ meshoptimizer.
+`split_non_manifold_vertices(indices, records, workspace)` accepts a `VertexStream`
+of complete initialized attribute records and returns packed copies plus indices
+and `SplitVerticesReport`. The lowest-corner fan retains the original index;
+other fans get appended copies, preserving every supplied attribute byte.
+Fans are joined across shared edges as `analyze_mesh` defines them, so afterwards
+`non_manifold_vertices` is zero; edges shared by more than two faces stay shared.
+Unreferenced records remain.
+
+`stitch_cracks(indices, records, positions, tolerance, workspace)` returns packed
+records, indices and `StitchReport` (accepted pairs, T-junction splits, refused
+candidates, remaining boundary length). `None` uses 1e-6 times the largest mesh
+bounds extent; `Some(distance)` selects an absolute Euclidean tolerance, including
+zero. Positions must describe the same vertices as the records. This is a
+position-only seam policy: the winning representative's complete attributes win.
+T-junctions reuse existing vertices, so attributes need no interpolation.
+Caller-provided position views must agree with the position bytes in the records.
+The returned records stay uncompact; downstream fetch optimization can compact them.
+
+A deterministic sorted spatial grid finds near boundary pairs. Candidates are
+accepted only with positive old/new face-normal dot products on changed faces and
+without increasing the counts of edges with more than two faces, equally directed
+two-face edges or surplus vertex fans. Refusals leave the current topology
+unchanged; defects already in the input do not block other stitches.
+This is a conservative local operation, not a general surface reconstruction or
+self-intersection test. The pipeline stitches before splitting so a T-junction can be joined
+before disconnected endpoint fans are separated. Isolated coincident fans
+are refused by stitching and then separated by splitting. Each original boundary vertex can subdivide at
+most one edge per call. Whole-mesh validation can make dense cases expensive;
+all candidate visits, sorting and temporary storage obey workspace limits.
+An exhausted budget returns an error without a partial mesh.
+
+Both APIs have `_generic` forms for u16/u32; appended indices narrow with checked
+`IndexOverflow`. Use `ProcessOptions::split_non_manifold_vertices = true` and
+`ProcessOptions::stitch_cracks = Some(None)` (or `Some(Some(distance))`) to insert
+these stages after orientation and before hole filling and LOD generation.
+They default off. Existing welding and sanitation should precede repair.
+
+```rust
+use meshoptimizer_rs::{split_non_manifold_vertices, VertexStream, Workspace};
+let records = [10u8, 20, 30, 40, 50];
+let result = split_non_manifold_vertices(
+    &[0, 1, 2, 0, 3, 4], VertexStream::packed(&records, 1)?,
+    &mut Workspace::default(),
+)?;
+assert_eq!(result.indices, [0, 1, 2, 5, 3, 4]);
+assert_eq!(result.vertices, [10, 20, 30, 40, 50, 10]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
 
 `sanitize` is an extension; it is not in C++ meshoptimizer.
 
@@ -778,3 +947,323 @@ or clusters would be separate APIs.
   total work and peak bytes, on success and on failure.
 - **Failure:** the result is atomic. `LodChainError::level` is the zero-based
   failing level, or `None` for a failure of the call as a whole.
+
+## LOD quality and switch distances
+
+`measure_lod_quality` and `measure_lod_chain_quality` measure sampled surface
+distances and shading-normal angles. This extension is not in C++ meshoptimizer. It does not change
+`simplify` or `build_lod_chain`.
+
+```rust
+use meshoptimizer_rs::{measure_lod_quality, LodQualityMesh, LodQualityOptions,
+    LodCamera, Positions, Workspace};
+let source = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.]];
+let level = [[0.,0.,0.1], [1.,0.,0.1], [0.,1.,0.1]];
+let indices = [0, 1, 2];
+let quality = measure_lod_quality(
+    LodQualityMesh::new(&indices, Positions::from_packed(&source)),
+    LodQualityMesh::new(&indices, Positions::from_packed(&level)),
+    &LodQualityOptions::default(), &mut Workspace::default())?;
+let camera = LodCamera::new(60_f64.to_radians(), 1080., 1.)?;
+let depth = camera.switch_distance(quality.symmetric.max)?;
+assert!(depth > 90. && depth < 100.);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`measure_lod_chain_quality(source, &chain, &options, Some(camera), &mut workspace)`
+returns one report per level, measured against the source using the chain's
+shared vertex buffers. Empty simplified surfaces return `InvalidParameter`.
+Assign `LodQualityMesh::normals` on both surfaces to compare interpolated shading
+normals in radians. Normals must be finite and nonzero; cancelling interpolated
+normals return `NumericalFailure`.
+
+Every triangle contributes its three corners plus `ceil(area * density)`
+barycentric samples. Shared corners repeat. The deterministic sequence and BVH
+tie rule are specified on `measure_lod_quality`. RMS/mean weight samples equally.
+Maxima are sampled estimates and can miss continuous surface extrema, including
+with high density. Increasing density is useful for convergence checks.
+
+Switch distances use a pinhole camera and the sampled symmetric maximum:
+`error * height / (2 * tan(vertical_fov/2) * pixel_tolerance)`. The result is the
+minimum camera-space depth for a transverse displacement of that magnitude.
+For camera-to-mesh-center distances, add a conservative bounding radius. This
+model excludes texture error, occlusion and rasterization; it is not a certified
+screen-space bound. Chain thresholds may be nonmonotone. Limits bound the whole
+measurement call, including all chain reports, validation, BVH and query visits.
+
+## Hidden-surface removal
+
+This extension is not in C++ meshoptimizer and needs no Cargo feature.
+Use it on opaque, static imported geometry before simplification. The default
+rasterizes 26 orthographic views into an 8x8 tiled item/depth buffer using
+fixed-point edges. `pixel_size` is the world-space pixel width; zero selects
+longest referenced mesh side / 128. The square view spans twice that side;
+resolution is ceil(2*side / pixel_size), from 1 to 2048. Finer requests return
+`InvalidParameter`. Fully covered pixels certify occlusion with conservative
+depth bounds; uncertain pixels retain geometry. Every triangle visible over at
+least a pixel-area from a tested direction is retained, including partially
+visible triangles. The outward coverage rule additionally retains smaller
+slivers and preserves the existing lattice-sample guarantee. Coarse meshes and
+small openings can leave many uncertain triangles, which are retained. A final
+BVH sample check only for raster-hidden candidates preserves the original
+floating-point sample behavior, including shared-edge rounding misses; it only
+restores faces. It can be expensive on meshes with many hidden candidates.
+Finite cameras use BVH rays from a barycentric lattice (denominator 2: six
+boundary points plus centroid); every visible tested sample keeps the triangle.
+Use more subdivisions for finer finite-camera sampling. Faces are two-sided, and
+coplanar contacts do not occlude each other. A support surface visible from below
+remains present with outside views. Restrict views to reachable camera positions
+when that is the intended visibility domain.
+
+```rust
+use meshoptimizer_rs::{remove_hidden_triangles, remove_hidden_triangles_into,
+    HiddenOptions, HiddenViews, Positions, Workspace};
+let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.]];
+let indices = [0,1,2, 1,2,0];
+let cameras = [[0.,0.,5.], [2.,2.,3.]];
+let mut options = HiddenOptions::default();
+options.views = HiddenViews::Points(&cameras);
+options.subdivisions = 4;
+options.tolerance = 1e-6; // world units; near contacts retain more geometry
+let mut workspace = Workspace::default();
+let mesh = remove_hidden_triangles(&indices, Positions::from_packed(&positions),
+    options, &mut workspace)?;
+assert_eq!(mesh.report.duplicate, 1);
+let mut output = [u32::MAX; 9];
+let report = remove_hidden_triangles_into(&mut output, &indices,
+    Positions::from_packed(&positions), options, &mut workspace)?;
+assert_eq!(&output[..report.index_count()], mesh.indices);
+assert_eq!(&output[report.index_count()..], &[u32::MAX; 6]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+`HiddenViews::Bounds { min, max }` samples eight box corners and its center,
+not every point in the volume. Reports distinguish exact same-winding duplicates,
+occluded faces with exact reverse-wound counterparts, and other occluded faces.
+Back-to-back walls that can be seen are retained. Indices and winding remain in
+input order. The caller-buffer form leaves all storage untouched on error.
+Limits meter sorting, projections, raster rectangles and buffer initialization;
+finite cameras also meter BVH construction, node visits and intersections, which
+can still approach quadratic work. Outside views execute serially with identical
+output regardless of the `parallel` feature or thread-pool size. Occlusion is measured against
+the original mesh; removing its sampled-hidden surfaces does not guarantee
+identical continuous visibility of the filtered mesh.
+
+## 16-bit vertex indices
+
+Existing names retain their exact u32 signatures. Add `_generic` to any
+index-processing function or width-aware method name to select an index width.
+These additions accept a sealed `Index` element type: `u16` or
+`u32`. The width-aware input and result structs have a `Generic` suffix,
+for example `MeshletsGeneric<u16>` and `LodQualityMeshGeneric`. Original
+struct names remain non-generic structs with their original fields and traits, preserving standalone literal inference.
+Conversions between legacy structs and their `Generic<u32>` counterparts move owned index buffers.
+`parallel::EncodeInputGeneric` is the width-aware descriptor enum; the original
+`EncodeInput` enum and its variant imports remain available. Remap tables, face identifiers, offsets and packed
+local triangle words retain their documented metadata types.
+
+```rust
+use meshoptimizer_rs::{optimize_vertex_cache_generic, Error, Workspace};
+let indices = [0u16, 1, 2];
+let ordered: Vec<u16> = optimize_vertex_cache_generic(&indices, 3, &mut Workspace::default())?;
+assert_eq!(ordered, indices);
+# Ok::<(), Error>(())
+```
+
+For output-only operations, select the element type with a return annotation
+or a turbofish, for example `simplify_points_generic::<u16>`. Annotate otherwise
+unconstrained integer literals (`0u32` or `0u16`). The u32 adapter borrows
+buffers directly and moves owned output without conversion. The u16 adapter
+uses fallible temporary u32 storage charged to workspace limits. An output
+index above 65,535 returns `Error::IndexOverflow`; it is never truncated.
+Caller-buffer tails are preserved. A failed narrowing conversion leaves its
+index destination unchanged; mutable vertex data follows each operation's
+existing partial-mutation contract. Byte-oriented index decoders retain their
+explicit element-width argument and check two-byte output for overflow.
+## Character LODs
+
+`simplify_character` and `build_character_lod_chain` are opt-in extensions
+not in C++ meshoptimizer. Existing simplification entry points are unchanged.
+Pass `CharacterInputs` with an optional `CharacterSkin`, borrowed blend-shape
+delta arrays, and optional joint sample matrices. Four or eight vertex-major
+influences are supported. Weights must be nonnegative and sum to one within
+0.001; duplicate bone IDs are summed, including importance. Each importance
+and global metric weight must be finite and nonnegative.
+
+Before simplifying an imported character, merge its triangle primitives in a
+common model space, transforming positions, normals and morph deltas
+consistently. Convert joints and inverse bind matrices to the same space. Weld
+exact coincident vertices with `generate_vertex_remap_multi`, then apply the
+remap to indices and all vertex streams. Include normals, tangents, UVs,
+colors, material boundaries, skin indices and weights, and every morph
+attribute in the equality keys. A rigid morph part mixed with skinned parts
+needs one full influence on its actual node transform, rather than zero skin
+weights; preserve that node's real animation when evaluating poses. Position-
+only welding can merge different deformations or shading seams. Unwelded
+triangle soup can prevent reduction; attribute-preserving welding can still
+leave genuine seams.
+
+Start with unit bone importance. Where authored bone names identify the head,
+hands or fingers, try a higher value (the evaluation uses four), and measure it
+over the asset's real clips and full morph targets. Compare at the triangles
+actually reached: increasing importance can trade bind-pose accuracy or reduction
+for deformation detail, and does not guarantee a lower worst-pose deviation.
+For rigs with opaque names, retain unit importance rather than guessing bone IDs.
+
+The metric uses one channel per bone with value
+`weight * bone_importance * skin_weight`, plus three channels per blend target
+containing `(rest_position + delta) / rest_extent * blend_shape_weight`.
+The rest geometry contributes the usual position quadrics. Constant-position
+meshes use extent one. Bone identity is exact: integer IDs never become scalar
+attributes. Character calls retain all `bone_count + 3 * blend_count` channels,
+including rigs and morph sets above 32 channels, bounded by `Workspace` memory
+and work limits. There is no truncation or hashing. Prepared attributes and wide
+metric weights are charged to those limits. The general `Attributes` constructors
+retain their C++-compatible 32-component bound; the wider packed view is private
+to character preparation. Existing character calls at 32 channels or fewer retain
+their previous arithmetic and resource accounting.
+
+The existing attribute quadrics sum residual energies across the rest and
+target positions. This penalizes changes in bone influence and in any full-
+weight blend target. The returned simplifier error includes the attribute
+terms; it is not a maximum geometric error across poses. A high importance
+increases a bone channel's squared contribution. It is a soft preference, not a
+vertex lock. Constant bone weights inside a rigid region have no influence
+gradient, so this knob does not directly preserve all geometry attached to that
+bone. Names alone do not establish that higher importance improves the measured
+maximum.
+`LodChainOptions::vertex_flags` can enforce locks in the chain API. The chain's
+existing `attributes` option must be absent in the default mode; character channels occupy it.
+
+```rust
+use meshoptimizer_rs::*;
+let positions = [[0.,0.,0.], [1.,0.,0.], [0.,1.,0.], [1.,1.,0.]];
+let delta = [[0.,0.,0.], [0.,0.,0.], [0.,0.,1.], [0.,0.,1.]];
+let shapes = [delta.as_slice()];
+let mut character = CharacterInputs::new();
+character.blend_shapes = &shapes;
+let chain_options = LodChainOptions::new(
+    LodTargets::Ratios(&[0.5]), LodErrors::Uniform(1.0));
+let result = build_character_lod_chain(
+    &[0,1,2,2,1,3], Positions::from_packed(&positions), &character,
+    &CharacterOptions::default(), &chain_options,
+    &LodQualityOptions::default(), &mut Workspace::default())?;
+assert_eq!(result.quality.len(), 2); // bind, full blend target
+# Ok::<(), Error>(())
+```
+
+`CharacterLodChain::quality` is pose-major then level-major. It contains the LOD quality
+report against the original source for the bind pose, every blend target at
+weight one, then each caller joint pose. Joint matrices are row-major affine
+3-by-4 model-space skin transforms, already including inverse bind transforms.
+Joint samples use linear blend skinning of rest positions. They affect quality
+reports, not collapse costs. Morph and joint samples are separate: combined
+poses, intermediate animation times, and simultaneous blend weights require
+caller analysis. LOD quality maxima are deterministic sampled lower estimates, not
+continuous Hausdorff bounds. Normals are not supplied by this API.
+
+Set `CharacterOptions::best_of = true` to build both candidates per level and
+select by lower worst sampled symmetric deviation, then fewer triangles, then
+plain. `CharacterLodChain::selections` records `method`, `plain_max`, and
+`character_max` per level (empty in default mode). The selected quality report
+remains in `quality`. Successive levels start from the winner; independent mode
+starts each level from the source. Optional chain attributes apply to the plain
+candidate only; both candidates share flags, targets and caps. Default behavior
+is unchanged. Both simplification and quality work count against whole-call limits.
+
+`CharacterInputs::sample_poses` accepts additional pre-evaluated vertex positions,
+including combined morph/animation poses; these follow joint poses in `quality`.
+These samples affect selection and reports, but do not add metric channels.
+The guarantee is against the plain candidate from the same level input under
+these exact samples. It does not compare to a separately evolving plain chain
+or bound unobserved poses. Independent-target corpus results and timing cost are
+recorded in the character measurements.
+
+Choose an error cap and validate the resulting levels in real poses; a ratio
+alone is not an acceptance test. Aggressive targets with a loose error cap can
+remove entire components. Default topology rules can also stall on hard normal
+seams and complex wedges even after exact welding. An explicitly requested
+`SimplifyOptions::PERMISSIVE` can change that tradeoff, but needs a separate
+quality check; character simplification does not enable it implicitly.
+
+Levels retain original vertex indices; apply the original skin and blend
+streams when rendering them. Whole-call limits include prepared channels,
+retained outputs, reports, pose buffers, and nested simplifier/quality work.
+Failures return no partial result. See
+[character measurements](https://github.com/Tavrin/meshoptimizer-rs/blob/v0.2.17/parity/0217-character/RESULTS.md) for the measured
+tradeoffs and reproducible public-model comparison procedure.
+
+## One-call asset pipeline
+
+`process_mesh` is an extension, not in C++ meshoptimizer. Supply complete,
+initialized little-endian vertex records; all bytes participate in welding,
+including UV, normal and skin seams. Defaults sanitize and weld, generate 50%
+and 25% LOD targets with 1% error, then optimize cache, overdraw (1.05) and fetch
+for the source and each LOD. Sampled LOD quality compares each output to the
+sanitized, welded, repaired source. It is a sampled estimate, not an error bound.
+Repair, meshlets, cluster LOD (the existing `clusterlod` feature), and codecs are
+opt-in fields on `ProcessOptions`. Cluster results include their own positions,
+including any builder dilation. Skin fields select the character builder;
+attribute weights and offsets select static simplification attributes. Skin
+joints and weights must be part of each vertex record and survive fetch intact.
+
+```rust
+use meshoptimizer_rs::{process_mesh, ProcessOptions, Workspace};
+let positions = [[0.0f32, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+let bytes: Vec<u8> = positions.iter().flatten().flat_map(|v| v.to_le_bytes()).collect();
+let mut options = ProcessOptions::default();
+options.lod = None; // Keep just the optimized source.
+let mesh = process_mesh(&[0, 1, 2], &bytes, 12, 0, &options, &mut Workspace::default())?;
+assert_eq!(mesh.levels.len(), 1);
+assert_eq!(mesh.report.quality.len(), 1);
+# Ok::<(), meshoptimizer_rs::ProcessError>(())
+```
+
+One shared workspace meters the whole call. Limits are restored on success and
+failure. Byte accounting conservatively retains charges for released intermediate
+buffers, so a manually streamed sequence can fit a smaller byte limit. Stage
+reports contain counts, charged work and elapsed nanoseconds (`None` on
+`no_std` and `wasm32-unknown-unknown`); only timing varies between identical calls. Errors identify the stage
+and, for per-level processing, the level. Output is atomic. Empty surfaces have
+`None` quality. Level zero is always the processed source.
+
+### Incremental vertex and triangle decoding
+
+`codec::VertexBufferDecoder` and `codec::IndexBufferDecoder` are Rust extensions
+(not in C++ meshoptimizer). Fetch format metadata first, then stream only the
+body. For vertices, supply the header byte and complete padded trailer to
+`VertexBufferDecoder::new(count, stride, header, trailer, body_len, limits)`.
+Trailer length is `max(stride, 32)` for v0 and
+`max(stride + stride / 4, 24)` for v1. For triangles, pass the leading header
+plus one code byte per triangle and the final sixteen-byte codebook to
+`IndexBufferDecoder::new(index_count, prefix, trailer, body_len, limits)`.
+The triangle codes remain borrowed; the caller must retain that separate array.
+
+Call `push(input_chunk, output_chunk)`, advance by `Progress::consumed`, and
+retain `Progress::written` output elements. Vertex output elements are bytes;
+triangle elements are u32 indices (`push_generic` also supports truncating u16,
+as the one-shot triangle codec does). Resubmit unconsumed input, including when
+`NeedOutput` requests more destination space. Empty calls are allowed. After
+all body bytes arrive, drain pending output with empty input and call `finish`.
+Only a successful `finish` commits the provisional output. Extra body bytes,
+incomplete input and undrained output fail validation; terminal errors stick.
+
+Storage is bounded independently of stream length: vertex decoding uses at
+most one 8 KiB decoded block and a 9216-byte compressed scratch buffer, plus
+fixed predictors/trailer state. Triangle decoding uses fixed scratch/FIFOs,
+plus the caller-owned code array (one byte per triangle, required by the
+format's separate code and data streams). Both preflight work as encoded plus
+decoded bytes (triangle construction budgets four bytes per index, including
+when output is later narrowed to u16); fixed storage and caller buffers are excluded from `max_bytes`.
+Vertex parsing needs up to 24 lookahead bytes and triangle parsing up to sixteen,
+so output can lag the last semantic byte by that amount. An incomplete vertex
+block is retried on the next chunk; very small chunks therefore cost more work
+than bulk decoding. Fetching trailers requires a seekable source or container
+that transports trailers separately. A forward-only transport must arrange
+that split before using these APIs.
+Streaming is a memory-bounded interface, not a faster one. On a 65,536-vertex
+stride-32 buffer and a 390,150-index grid it executes 1.26x to 1.32x the
+instructions of the one-shot decoders for vertices with 4 KiB chunks and 1.04x
+with 64 KiB chunks, and 1.03x to 1.15x for triangles (instruction counts from
+`parity/0217-qualify/streaming-costs.json`). Decode whole buffers when they fit
+in memory.

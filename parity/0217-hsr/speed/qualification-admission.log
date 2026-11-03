@@ -1,0 +1,296 @@
+heavy: waiting (class script:<private-path> reserving 5G, cap 9G, declared 4G, full declaration or higher history reservation: class escalation): bash -c cargo fmt --all && python3 parity/0217-hsr/speed/checks.py && python3 parity/0217-hsr/speed/campaign.py
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=5242880; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=16123520 - unused_kb=14954848 - margin_kb=2097152 = free_kb=-928480; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 3G admissible, 17G reserved for running jobs; will start automatically [capacity: available_kb=16021760 - unused_kb=10391536 - margin_kb=2097152 = free_kb=3533072; need_kb=5242880; normal_slots=2/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 0G admissible, 19G reserved for running jobs; will start automatically [capacity: available_kb=16500376 - unused_kb=14946192 - margin_kb=2097152 = free_kb=-542968; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: running (5G reserved, cap 9G, 16G available): bash -c cargo fmt --all && python3 parity/0217-hsr/speed/checks.py && python3 parity/0217-hsr/speed/campaign.py
+fmt 0 
+clippy-all 0     Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.68s
+
+clippy-none 0     Checking meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.75s
+
+tests-all 0 lib.rs - MigrationDoctests (line 380) ... ok
+test src/lib.rs - guide (line 907) ... ok
+test src/lib.rs - guide (line 781) ... ok
+test src/lib.rs - guide (line 233) ... ok
+test src/lib.rs - MigrationDoctests (line 320) ... ok
+test src/lib.rs - guide (line 448) ... ok
+test src/lib.rs - (line 42) ... ok
+test src/lib.rs - guide (line 653) ... ok
+test src/lib.rs - MigrationDoctests (line 335) ... ok
+test src/lib.rs - guide (line 377) ... ok
+test src/lib.rs - guide (line 270) ... ok
+test src/lib.rs - MigrationDoctests (line 354) ... ok
+test src/lib.rs - MigrationDoctests (line 396) ... ok
+test src/lib.rs - (line 105) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/lib.rs - guide (line 185) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/lib.rs - guide (line 620) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - (line 76) ... ok
+test src/lib.rs - guide (line 691) ... ok
+test src/lib.rs - guide (line 813) ... ok
+test src/parallel.rs - parallel (line 24) ... ok
+test src/lib.rs - guide (line 523) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/parallel.rs - parallel::simplify_lod_chain (line 135) ... ok
+test src/parallel.rs - parallel (line 33) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+
+test result: ok. 40 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.67s
+
+
+tests-none 0  ok
+test src/lib.rs - guide (line 691) ... ok
+test src/lib.rs - MigrationDoctests (line 320) ... ok
+test src/lib.rs - (line 42) ... ok
+test src/lib.rs - guide (line 864) ... ok
+test src/lib.rs - MigrationDoctests (line 354) ... ok
+test src/lib.rs - (line 105) ... ok
+test src/lib.rs - guide (line 185) ... ok
+test src/lib.rs - guide (line 781) ... ok
+test src/lib.rs - (line 61) ... ok
+test src/lib.rs - guide (line 523) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 87) - compile fail ... ok
+test src/lib.rs - guide (line 558) ... ok
+test src/lib.rs - guide (line 965) ... ok
+test src/lib.rs - guide (line 448) ... ok
+test src/hidden.rs - hidden::remove_hidden_triangles (line 137) ... ok
+test src/lib.rs - MigrationDoctests (line 380) ... ok
+test src/lib.rs - guide (line 907) ... ok
+test src/lib.rs - guide (line 377) ... ok
+test src/lib.rs - MigrationDoctests (line 335) ... ok
+test src/lib.rs - MigrationDoctests (line 396) ... ok
+test src/lib.rs - guide (line 270) ... ok
+test src/lib.rs - guide (line 321) ... ok
+test src/lib.rs - guide (line 233) ... ok
+test src/vertex_layout.rs - vertex_layout::VertexLayout (line 59) ... ok
+test src/mesh_analysis.rs - mesh_analysis::analyze_mesh (line 161) ... ok
+test src/lod_chain.rs - lod_chain::build_lod_chain (line 213) ... ok
+test src/sanitize.rs - sanitize::sanitize (line 141) ... ok
+test src/lib.rs - guide (line 653) ... ok
+
+test result: ok. 37 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.48s
+
+
+wasm-all 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+warning: enum `Level` is never used
+ --> src/codec/simd/dispatch.rs:7:10
+  |
+7 | pub enum Level {
+  |          ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: static `DETECTED` is never used
+  --> src/codec/simd/dispatch.rs:21:8
+   |
+21 | static DETECTED: AtomicU8 = AtomicU8::new(255);
+   |        ^^^^^^^^
+
+warning: function `detected_level` is never used
+  --> src/codec/simd/dispatch.rs:24:8
+   |
+24 | pub fn detected_level() -> Level {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `from_byte` is never used
+  --> src/codec/simd/dispatch.rs:33:4
+   |
+33 | fn from_byte(n: u8) -> Level {
+   |    ^^^^^^^^^
+
+warning: function `detect` is never used
+  --> src/codec/simd/dispatch.rs:43:4
+   |
+43 | fn detect() -> Level {
+   |    ^^^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 5 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.34s
+
+wasm-none 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.31s
+
+boundary 0 PASS: one allow, 37 individually documented blocks; no unsafe fn/impl
+PASS: published package contains exactly one unsafe-code allowance
+PASS: published package includes all 37 audited unsafe blocks
+
+exact-build-all 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-all)
+    Finished `release` profile [optimized] target(s) in 8.77s
+
+exact-all 0 PASS 87272 exact observations; 9 fixtures, 46 API/policy combinations; all work limits, byte boundaries, cold/repeat/after-failure
+
+exact-build-none 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-exact v0.0.0 (<target>/proof/exact-none)
+    Finished `release` profile [optimized] target(s) in 7.13s
+
+exact-none 0 PASS 87272 exact observations; 9 fixtures, 46 API/policy combinations; all work limits, byte boundaries, cold/repeat/after-failure
+
+hidden-release 0 ized] target(s) in 22.38s
+     Running tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 19 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+HSR scaling work N=2816 8N=25600 ratio=9.090909090909092
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test original_sample_rounding_seam_can_only_restore_triangles ... ok
+test opening_exposes_inside_from_outside ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s
+
+
+public-text 0 PASS: public text contains no private machine paths or project names
+
+build-before 0    Compiling meshoptimizer-rs v0.2.16 (<target>/speed/old)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-before)
+    Finished `release` profile [optimized] target(s) in 23.90s
+
+build-after 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-after)
+    Finished `release` profile [optimized] target(s) in 31.95s
+
+build-none 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-none)
+    Finished `release` profile [optimized] target(s) in 17.10s
+
+build-parallel 0    Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-parallel)
+    Finished `release` profile [optimized] target(s) in 17.68s
+
+scaling-32768-0 0 RESULT 0.005054331 {"input":32768,"output":32768,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":983040,"bytes":4259840}
+READY
+COUNTED 0.004175721
+
+scaling-262144-0 0 RESULT 0.041944667 {"input":262144,"output":262144,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":8650752,"bytes":34078720}
+READY
+COUNTED 0.037211469
+
+scaling-262144-1 0 RESULT 0.043380394 {"input":262144,"output":262144,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":8650752,"bytes":34078720}
+READY
+COUNTED 0.037973220
+
+scaling-32768-1 0 RESULT 0.004256984 {"input":32768,"output":32768,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":983040,"bytes":4259840}
+READY
+COUNTED 0.004865427
+
+scaling-32768-2 0 RESULT 0.006811882 {"input":32768,"output":32768,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":983040,"bytes":4259840}
+READY
+COUNTED 0.003877682
+
+scaling-262144-2 0 RESULT 0.036712021 {"input":262144,"output":262144,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":8650752,"bytes":34078720}
+READY
+COUNTED 0.031425263
+
+oracle-build 0 
+PASS conservative C++/old differential 960
+tiny-smooth-after-hidden-0 0.003999728 {'input': 32, 'output': 32, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 24844064, 'bytes': 5245792}
+tiny-smooth-after-hidden-1 0.002999796 {'input': 32, 'output': 32, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 24844064, 'bytes': 5245792}
+tiny-smooth-after-hidden-2 0.002999795 {'input': 32, 'output': 32, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 24844064, 'bytes': 5245792}
+identity-tiny-smooth-none 0 RESULT 0.003888412 {"input":32,"output":32,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":24844064,"bytes":5245792}
+READY
+
+identity-tiny-smooth-parallel 0 RESULT 0.004192934 {"input":32,"output":32,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":24844064,"bytes":5245792}
+READY
+
+medium-smooth-after-hidden-0 0.001999864 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+medium-smooth-after-hidden-1 0.001999864 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+medium-smooth-after-hidden-2 0.001999863 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+identity-medium-smooth-none 0 RESULT 0.001503013 {"input":8192,"output":8192,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":229376,"bytes":1064960}
+READY
+
+identity-medium-smooth-parallel 0 RESULT 0.001606467 {"input":8192,"output":8192,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":229376,"bytes":1064960}
+READY
+
+medium-seams-after-hidden-0 0.000999932 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+medium-seams-after-hidden-1 0.000999932 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+medium-seams-after-hidden-2 0.000999931 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+identity-medium-seams-none 0 RESULT 0.001995107 {"input":8192,"output":8192,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":229376,"bytes":1064960}
+READY
+
+identity-medium-seams-parallel 0 RESULT 0.001476423 {"input":8192,"output":8192,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":229376,"bytes":1064960}
+READY
+
+medium-sparse-after-hidden-0 0.000999932 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+medium-sparse-after-hidden-1 0.000999932 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+medium-sparse-after-hidden-2 0.001999864 {'input': 8192, 'output': 8192, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 229376, 'bytes': 1064960}
+identity-medium-sparse-none 0 RESULT 0.001838984 {"input":8192,"output":8192,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":229376,"bytes":1064960}
+READY
+
+identity-medium-sparse-parallel 0 RESULT 0.002159786 {"input":8192,"output":8192,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":229376,"bytes":1064960}
+READY
+
+million-smooth-after-hidden-0 0.274981292 {'input': 1000000, 'output': 1000000, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 34000000, 'bytes': 130000000}
+million-smooth-after-hidden-1 0.192986874 {'input': 1000000, 'output': 1000000, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 34000000, 'bytes': 130000000}
+million-smooth-after-hidden-2 0.22398477 {'input': 1000000, 'output': 1000000, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 34000000, 'bytes': 130000000}
+identity-million-smooth-none 0 RESULT 0.202765545 {"input":1000000,"output":1000000,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":34000000,"bytes":130000000}
+READY
+
+identity-million-smooth-parallel 0 RESULT 0.234140958 {"input":1000000,"output":1000000,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":34000000,"bytes":130000000}
+READY
+
+real-214e-before-hidden-0 75.136949579 {'input': 2851001, 'output': 2780726, 'removed': 70275, 'duplicate': 0, 'back_to_back': 0, 'occluded': 70275, 'work': 7213088239, 'bytes': 644326226}
+real-214e-after-hidden-0 0.592960301 {'input': 2851001, 'output': 2851001, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 102636036, 'bytes': 370630130}
+real-214e-after-simplify-0 0.960935742 {}
+real-214e-after-simplify-1 1.22591812 {}
+real-214e-after-hidden-1 0.624958304 {'input': 2851001, 'output': 2851001, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 102636036, 'bytes': 370630130}
+real-214e-before-hidden-1 63.557785373 {'input': 2851001, 'output': 2780726, 'removed': 70275, 'duplicate': 0, 'back_to_back': 0, 'occluded': 70275, 'work': 7213088239, 'bytes': 644326226}
+real-214e-before-hidden-2 82.164589635 {'input': 2851001, 'output': 2780726, 'removed': 70275, 'duplicate': 0, 'back_to_back': 0, 'occluded': 70275, 'work': 7213088239, 'bytes': 644326226}
+real-214e-after-hidden-2 0.686954863 {'input': 2851001, 'output': 2851001, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 102636036, 'bytes': 370630130}
+real-214e-after-simplify-2 2.047865557 {}
+identity-real-214e-none 0 RESULT 0.604940738 {"input":2851001,"output":2851001,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":102636036,"bytes":370630130}
+READY
+
+identity-real-214e-parallel 0 RESULT 0.613666537 {"input":2851001,"output":2851001,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":102636036,"bytes":370630130}
+READY
+
+real-a082-before-hidden-0 82.16763123 {'input': 3289725, 'output': 3202433, 'removed': 87292, 'duplicate': 0, 'back_to_back': 0, 'occluded': 87292, 'work': 9083058847, 'bytes': 743477850}
+real-a082-after-hidden-0 0.788948509 {'input': 3289725, 'output': 3289725, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 118430100, 'bytes': 427664250}
+real-a082-after-simplify-0 2.24085381 {}
+real-a082-after-simplify-1 2.808816824 {}
+real-a082-after-hidden-1 0.796948046 {'input': 3289725, 'output': 3289725, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 118430100, 'bytes': 427664250}
+real-a082-before-hidden-1 89.117201809 {'input': 3289725, 'output': 3202433, 'removed': 87292, 'duplicate': 0, 'back_to_back': 0, 'occluded': 87292, 'work': 9083058847, 'bytes': 743477850}
+real-a082-before-hidden-2 80.366780577 {'input': 3289725, 'output': 3202433, 'removed': 87292, 'duplicate': 0, 'back_to_back': 0, 'occluded': 87292, 'work': 9083058847, 'bytes': 743477850}
+real-a082-after-hidden-2 0.778949435 {'input': 3289725, 'output': 3289725, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 118430100, 'bytes': 427664250}
+real-a082-after-simplify-2 2.254853647 {}
+identity-real-a082-none 0 RESULT 0.888707173 {"input":3289725,"output":3289725,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":118430100,"bytes":427664250}
+READY
+
+identity-real-a082-parallel 0 RESULT 0.771710110 {"input":3289725,"output":3289725,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":118430100,"bytes":427664250}
+READY
+
+real-b6fd-before-hidden-0 16.995897386 {'input': 822435, 'output': 803792, 'removed': 18643, 'duplicate': 0, 'back_to_back': 0, 'occluded': 18643, 'work': 1911061507, 'bytes': 185870310}
+real-b6fd-after-hidden-0 0.154989946 {'input': 822435, 'output': 822435, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 27962790, 'bytes': 106916550}
+real-b6fd-after-simplify-0 0.228985147 {}
+real-b6fd-after-simplify-1 0.254983459 {}
+real-b6fd-after-hidden-1 0.14599053 {'input': 822435, 'output': 822435, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 27962790, 'bytes': 106916550}
+real-b6fd-before-hidden-1 17.28387907 {'input': 822435, 'output': 803792, 'removed': 18643, 'duplicate': 0, 'back_to_back': 0, 'occluded': 18643, 'work': 1911061507, 'bytes': 185870310}
+real-b6fd-before-hidden-2 16.801910548 {'input': 822435, 'output': 803792, 'removed': 18643, 'duplicate': 0, 'back_to_back': 0, 'occluded': 18643, 'work': 1911061507, 'bytes': 185870310}
+real-b6fd-after-hidden-2 0.154989951 {'input': 822435, 'output': 822435, 'removed': 0, 'duplicate': 0, 'back_to_back': 0, 'occluded': 0, 'work': 27962790, 'bytes': 106916550}
+real-b6fd-after-simplify-2 0.245984052 {}
+identity-real-b6fd-none 0 RESULT 0.145283421 {"input":822435,"output":822435,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":27962790,"bytes":106916550}
+READY
+
+identity-real-b6fd-parallel 0 RESULT 0.151382224 {"input":822435,"output":822435,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":27962790,"bytes":106916550}
+READY
+
+PASS largest mesh <=3s and <=3x simplify

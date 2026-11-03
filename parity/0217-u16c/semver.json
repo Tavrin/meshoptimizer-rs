@@ -1,0 +1,16 @@
+{
+  "semver": {
+    "checks": 202,
+    "pass": 202,
+    "skip": 58
+  },
+  "semver-patch": {
+    "checks": 229,
+    "pass": 229,
+    "skip": 31
+  },
+  "rustdoc_current_sha256": "d5ffdca05d16b03730f7a497709155a561985af7442d5923fc2d2f11914eb889",
+  "baseline": "0.2.16",
+  "version": "cargo-semver-checks 0.51.0",
+  "sha256": "bc9eb06ce04e97d6160c875ffdee1f6e56793e423dea025f344826be03e66829"
+}

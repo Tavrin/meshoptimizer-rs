@@ -1,0 +1,22 @@
+    Checking meshoptimizer-rs v0.2.16 (<local-path>)
+error: using `chunks_exact` with a constant chunk size
+  --> src/clusterlod/dag_format.rs:71:20
+   |
+71 |     for v in bytes.chunks_exact(4) {
+   |                    ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<4>().0`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+   = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: using `chunks_exact` with a constant chunk size
+   --> src/clusterlod/dag_format.rs:358:31
+    |
+358 |             for v in vertices.chunks_exact(16) {
+    |                               ^^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<16>().0`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+
+error: could not compile `meshoptimizer-rs` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `meshoptimizer-rs` (lib test) due to 2 previous errors

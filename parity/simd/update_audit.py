@@ -6,6 +6,14 @@ module=ROOT/'src/codec/simd'
 lines=['# SIMD safety audit','','This module is private. Its only unsafe operations are calls authorized by an','ISA token and fixed-array vector loads/stores, including spatial box sweeps. All value intrinsics run inside','a matching target_feature function. No transmute, raw-pointer arithmetic,','MaybeUninit, get_unchecked, static mut, heap allocation or thread-local kernel','state is used. Scalar parsing validates the layout and the complete 24-byte','vertex group before dispatch. Meshlet windows are checked 16-byte arrays.','Loads/stores permit byte alignment. Tails are staged in initialized stack','arrays and copied with checked slices. Stack scratch stays below 16 KiB','(vertex planes 1024 bytes; filter batching under 2 KiB). Immutable const','shuffle tables require no initialization. Detection is cached in AtomicU8;','only dispatch.rs constructs tokens. Optional diagnostic ceilings cannot exceed','detected capabilities. With std ceilings are thread-local and unwind-safe.','Without std diagnostic ceilings are global: concurrency can only lower them,','so outputs and instruction safety remain unchanged.','','Filters use the scalar arithmetic order, IEEE sqrt/div, sign-biased truncation,','and no FMA. Oct checks zero length before conversion; integer Oct/Quat fields','bound every conversion in i32. Color validates conversion range or falls back','to the checked scalar kernel before writing that batch. Exp uses scalar bit','construction and multiplication. The scalar reuse cache remains available.','','| Block (source line) | Kind and safety argument |','|---|---|']
 lines[-2:-2]=['The NEON full vertex path uses checked 24-byte group windows (or a', 'checked 96-byte window for four groups), initialized 1024-byte plane scratch', 'and the canonical per-channel commit order. Zip operations transpose four', 'planes into records. Byte/halfword wrapping sums or word XOR prefixes shift', 'by one then two records and add/XOR the previous record. Variable NEON shifts', 'implement exact 32-bit rotation, including rotation zero. Only complete', '16-record groups use vector reconstruction; the canonical scalar tail uses', 'the last reconstructed record. No output overstore or input overread is used.', 'Native arm64 CI must execute forced scalar/NEON comparisons, including errors,', 'partial writes and destination tails; local cross-compilation is not identity', 'or performance evidence.', '']
 lines[-2:-2]=['Geometry kernels take eight independent roots in initialized four-float','windows. Only nonnegative finite operands use hardware sqrt; all other bit','patterns retain the pinned scalar backend, including negative zero and NaNs.','Sphere expansion, cone math and strict tie decisions keep their original','order. SSE2, NEON and simd128 use exact IEEE sqrt, with no FMA, reciprocal','estimate or approximate root. Diagnostic ceilings also apply to geometry.','Geometry batching adds bounded stack arrays and no heap allocation or workspace','charge. The rejected KD distance experiments are recorded in the P3 proofs.','']
+lines[-2:-2]=['The AVX-512 vertex group uses 128-bit VBMI multishift and VBMI2 byte',
+ 'expansion. The Avx512 token requires runtime SSSE3, POPCNT, SSE4.1, AVX2',
+ 'and AVX-512 F/BW/VL/VBMI/VBMI2 (compile-time requirements without std).',
+ 'Register-only inline assembly preserves the Rust 1.88 minimum; its k1',
+ 'clobber is explicit. The private true const specialization is reachable',
+ 'only through that token. Memory remains checked 24-byte input and 16-byte',
+ 'output arrays; zero and literal groups use safe copies. No 512-bit memory',
+ 'accesses or additional padding are required.', '']
 count=0
 # Preserve the hand-merged audit order: spatial kernels follow codec kernels.
 for file in sorted(module.glob('*.rs'),key=lambda p:(p.stem=='spatial',p.name)):
@@ -17,6 +25,8 @@ for file in sorted(module.glob('*.rs'),key=lambda p:(p.stem=='spatial',p.name)):
     prior.append(src[j].strip().removeprefix('// ').removeprefix('SAFETY: '));j-=1
    argument=' '.join(reversed(prior));assert argument
    kind='fixed-array memory access' if '_mm_load' in line or '_mm_store' in line or 'vld1' in line or 'vst1' in line or 'v128_load' in line or 'v128_store' in line else 'token-authorized target_feature call'
+   if any('core::arch::asm!' in value for value in src[i+1:i+3]):
+    kind='token-authorized register assembly'
    if file.stem=='spatial':
     # Retain the expanded, hand-audited spatial arguments while deriving
     # locations and kinds from the source, just as for the codec inventory.

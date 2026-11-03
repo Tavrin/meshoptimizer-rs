@@ -1,0 +1,11 @@
+warning: unnecessary `unsafe` block
+   --> <repo>/src/codec/simd/x86.rs:358:16
+    |
+358 |         return unsafe { group_avx512_kernel(data, out, h) };
+    |                ^^^^^^ unnecessary `unsafe` block
+    |
+    = note: `#[warn(unused_unsafe)]` (part of `#[warn(unused)]`) on by default
+
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+   Compiling decode-differential v0.0.0 (<target-dir>/differential-source)
+    Finished `release` profile [optimized] target(s) in 3.26s

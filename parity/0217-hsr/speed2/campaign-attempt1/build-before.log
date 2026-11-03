@@ -1,0 +1,5 @@
+     Locking 8 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling meshoptimizer-rs v0.2.16 (<target>/speed2/reference)
+   Compiling hsr-speed2 v0.0.0 (<target>/speed2/build-before)
+    Finished `release` profile [optimized] target(s) in 20.33s

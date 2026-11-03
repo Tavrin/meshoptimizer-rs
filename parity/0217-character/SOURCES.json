@@ -1,0 +1,156 @@
+[
+  {
+    "model": "Bat",
+    "role": "character",
+    "author": "Gobkit",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/Ariescar/gobkit-free-assets/blob/main/README.md",
+    "download_url": "https://raw.githubusercontent.com/Ariescar/gobkit-free-assets/main/animal/Bat.glb",
+    "sha256": "1a4317609094c64d3f751adb9150df628aaf7902f7440174afcb642c30e0e072",
+    "bytes": 63308,
+    "round2_corpus": true
+  },
+  {
+    "model": "CesiumMan",
+    "role": "character",
+    "author": "Cesium",
+    "licence": "CC-BY-4.0",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/CesiumMan/README.md",
+    "download_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CesiumMan/glTF-Binary/CesiumMan.glb",
+    "sha256": "b7001eaeea8254bd44773bcd247e78696d94169388fbb2a1800fc69434e777d9",
+    "bytes": 438044,
+    "round2_corpus": true
+  },
+  {
+    "model": "Corgi",
+    "role": "character",
+    "author": "Gobkit",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/Ariescar/gobkit-free-assets/blob/main/README.md",
+    "download_url": "https://raw.githubusercontent.com/Ariescar/gobkit-free-assets/main/animal/Corgi.glb",
+    "sha256": "95cd2c4d53d70ee9dd2e1329dcb6de7d4a725301d504a4f2f00ecb34dc1a0851",
+    "bytes": 73516,
+    "round2_corpus": true
+  },
+  {
+    "model": "Fox",
+    "role": "character",
+    "author": "PixelMannen; tomkranis; AsoboStudio; scurest",
+    "licence": "CC0-1.0 model; CC-BY-4.0 rig and conversion",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/Fox/README.md",
+    "download_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Fox/glTF-Binary/Fox.glb",
+    "sha256": "d97044e701822bac5a62696459b27d7b375aada5de8574ed4362edbba94771f7",
+    "bytes": 162852,
+    "round2_corpus": true
+  },
+  {
+    "model": "Gangnam",
+    "role": "character",
+    "author": "programasweights; Tomas Laulhe (Quaternius) skeleton and hands",
+    "licence": "MIT + CC0-1.0",
+    "source_url": "https://github.com/programasweights/avatar/blob/main/ASSETS.md",
+    "download_url": "https://raw.githubusercontent.com/programasweights/avatar/main/public/assets/gangnam-character.glb",
+    "sha256": "21de8a6a63f17fc378c41ac2c2ed8f2a1d52138af918aba1a018970c672a0b1a",
+    "bytes": 5788276,
+    "round2_corpus": true
+  },
+  {
+    "model": "MakeHuman",
+    "role": "character",
+    "author": "Kasper Olesen; MakeHuman system asset authors",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/kblood/CharacterCreator/blob/master/LICENSE-NOTES.md",
+    "download_url": "https://raw.githubusercontent.com/kblood/CharacterCreator/master/output/base_body_anim.glb",
+    "sha256": "0eb271d4adea12b7f6bb1d4d8f7398db702f9449479be559ab9f019b5ab30b0f",
+    "bytes": 8212156,
+    "round2_corpus": true
+  },
+  {
+    "model": "MorphPrimitivesTest",
+    "role": "auxiliary morph fixture",
+    "author": "ft-lab",
+    "licence": "CC-BY-4.0",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/MorphPrimitivesTest/README.md",
+    "download_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MorphPrimitivesTest/glTF-Binary/MorphPrimitivesTest.glb",
+    "sha256": "2a5ed6470aca41edc813ef5b7eecf2af53264d8e0ab9e6f32156d54245ca18cf",
+    "bytes": 53656,
+    "round2_corpus": false
+  },
+  {
+    "model": "MorphStressTest",
+    "role": "auxiliary morph fixture",
+    "author": "Ed Mackey / Analytical Graphics, Inc.",
+    "licence": "CC-BY-4.0",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/MorphStressTest/README.md",
+    "download_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MorphStressTest/glTF-Binary/MorphStressTest.glb",
+    "sha256": "005f1d9dd938c553a506d6bf3d21830fc3f2ec3a199d9332e9a625baf7342bef",
+    "bytes": 575900,
+    "round2_corpus": true
+  },
+  {
+    "model": "RiggedFigure",
+    "role": "character",
+    "author": "Cesium",
+    "licence": "CC-BY-4.0",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/RiggedFigure/README.md",
+    "download_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/RiggedFigure/glTF-Binary/RiggedFigure.glb",
+    "sha256": "d6be85417d3e256861ee733eea6916093a7af7c79c16366181fd8abcaeb38cf5",
+    "bytes": 50116,
+    "round2_corpus": true
+  },
+  {
+    "model": "RiggedSimple",
+    "role": "auxiliary skin fixture",
+    "author": "Cesium",
+    "licence": "CC-BY-4.0",
+    "source_url": "https://github.com/KhronosGroup/glTF-Sample-Assets/blob/main/Models/RiggedSimple/README.md",
+    "download_url": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/RiggedSimple/glTF-Binary/RiggedSimple.glb",
+    "sha256": "3a79dabb67bb0cd598a18d08b954d9d357c27c30672f82ef5d3f4e7fe6ca3401",
+    "bytes": 15104,
+    "round2_corpus": false
+  },
+  {
+    "model": "RobotExpressive",
+    "role": "character",
+    "author": "Tomas Laulhe; Don McCurdy modifications",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/mrdoob/three.js/blob/dev/examples/models/gltf/RobotExpressive/README.md",
+    "download_url": "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/RobotExpressive/RobotExpressive.glb",
+    "sha256": "047f5e5fb3bb6d378bd1df16ca6137f2a596c99b3a1b5690b4020c05aaf6f319",
+    "bytes": 463988,
+    "round2_corpus": true
+  },
+  {
+    "model": "Shark",
+    "role": "character",
+    "author": "Gobkit",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/Ariescar/gobkit-free-assets/blob/main/README.md",
+    "download_url": "https://raw.githubusercontent.com/Ariescar/gobkit-free-assets/main/animal/Shark.glb",
+    "sha256": "0fc450c99f0fd9f2e5d774ef58cd42b8d8d927bed138444254204b366595dc42",
+    "bytes": 61616,
+    "round2_corpus": true
+  },
+  {
+    "model": "Superhero",
+    "role": "character",
+    "author": "Tomas Laulhe (Quaternius); programasweights conversion",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/programasweights/avatar/blob/main/ASSETS.md",
+    "download_url": "https://raw.githubusercontent.com/programasweights/avatar/main/public/assets/character.glb",
+    "sha256": "d6f3b64cab629f6ddca9ba063811aeffd3663a8a4e49ade47cd9505dc2bbd70f",
+    "bytes": 741320,
+    "round2_corpus": true
+  },
+  {
+    "model": "minion-a01",
+    "role": "character",
+    "author": "Gobkit",
+    "licence": "CC0-1.0",
+    "source_url": "https://github.com/Ariescar/gobkit-free-assets/blob/main/README.md",
+    "download_url": "https://raw.githubusercontent.com/Ariescar/gobkit-free-assets/main/minion/minion-a01.glb",
+    "sha256": "ac3beef42a63a73a763b0a6ea1b21f0257fd3b1aee222581305e8571ec99e4d8",
+    "bytes": 170752,
+    "round2_corpus": true
+  }
+]

@@ -1,0 +1,3 @@
+   Compiling meshoptimizer-rs v0.2.16 (<WORKTREE>)
+   Compiling pipeline-wasm-smoke v0.0.0 (<TARGET>/wasm-smoke)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.15s

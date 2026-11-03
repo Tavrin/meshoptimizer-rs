@@ -1,4 +1,5 @@
 use super::dispatch::Baseline;
+use super::VertexBlock;
 use core::arch::wasm32::*;
 #[inline]
 #[target_feature(enable = "simd128")]
@@ -228,7 +229,8 @@ fn unpack_bytes(a: v128, b: v128) -> v128 {
 }
 #[inline]
 #[target_feature(enable = "simd128")]
-fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
+fn group_kernel<const BITS: u32>(data: &[u8; 24], out: &mut [u8; 16]) -> usize {
+    let bits = BITS;
     if bits == 0 {
         out.fill(0);
         return 0;
@@ -255,11 +257,11 @@ fn group_kernel(data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
             i8x16_bitmask(i8x16_eq(fields, i8x16_splat(((1 << bits) - 1) as i8))) as usize,
         )
     };
+    let skip = (bits * 2) as usize;
     let lo = mask & 255;
     let hi = mask >> 8;
     let upper = i8x16_add(load(&super::MASKS[hi]), i8x16_splat(lo.count_ones() as i8));
     let shuf = i64x2_shuffle::<0, 2>(load(&super::MASKS[lo]), upper);
-    let skip = (bits * 2) as usize;
     let rest = i8x16_swizzle(load(data[skip..].first_chunk::<16>().unwrap()), shuf);
     let result = if bits == 1 {
         rest
@@ -286,7 +288,14 @@ pub(super) fn filter(
 pub(super) fn group(_token: Baseline, data: &[u8; 24], out: &mut [u8; 16], bits: u32) -> usize {
     // SAFETY: Baseline proves simd128 availability; complete initialized
     // input and exclusive output arrays supply all memory used by the kernel.
-    group_kernel(data, out, bits)
+    match bits {
+        0 => group_kernel::<0>(data, out),
+        1 => group_kernel::<1>(data, out),
+        2 => group_kernel::<2>(data, out),
+        4 => group_kernel::<4>(data, out),
+        8 => group_kernel::<8>(data, out),
+        _ => unreachable!(),
+    }
 }
 
 #[cfg(feature = "parity-internals")]
@@ -543,9 +552,17 @@ fn deltas_kernel<const CHANNEL: u8, const FIXED: usize>(
 
 #[inline]
 #[target_feature(enable = "simd128")]
+// Match header codes directly: constant widths eliminate dynamic lookahead
+// bounds and shifts in the dominant mixed-escape groups.
 fn header_group(data: &[u8; 24], out: &mut [u8; 16], h: usize) -> usize {
-    const BITS: [u32; 9] = [0, 2, 4, 8, 0, 1, 2, 4, 8];
-    group_kernel(data, out, BITS[h])
+    match h {
+        0 | 4 => group_kernel::<0>(data, out),
+        1 | 6 => group_kernel::<2>(data, out),
+        2 | 7 => group_kernel::<4>(data, out),
+        3 | 8 => group_kernel::<8>(data, out),
+        5 => group_kernel::<1>(data, out),
+        _ => unreachable!(),
+    }
 }
 #[inline]
 #[target_feature(enable = "simd128")]
@@ -680,82 +697,22 @@ fn vertex_kernel<
     let mut offset = 0;
     while offset < count {
         let block = block_size.min(count - offset);
-        let aligned = block.div_ceil(16) * 16;
-        let controls = if version == 0 {
-            &[][..]
-        } else {
-            let c = data
-                .get(pos..pos + stride / 4)
-                .ok_or(crate::Error::InvalidStream)?;
-            pos += stride / 4;
-            c
-        };
         // Each bounded block fits 8 KiB. Write directly into its checked
         // destination slice, avoiding zeroing/copying an extra stack block.
         let block_output = output.block(offset * stride, (offset + block) * stride);
-        for k in (0..stride).step_by(4) {
-            let control = if version == 0 { 0 } else { controls[k / 4] };
-            for j in 0..4 {
-                let ctrl = (control >> (j * 2)) & 3;
-                let out = &mut deltas[j * block..j * block + aligned];
-                match ctrl {
-                    3 => {
-                        out[..block].copy_from_slice(
-                            data.get(pos..pos + block)
-                                .ok_or(crate::Error::InvalidStream)?,
-                        );
-                        pos += block;
-                    }
-                    2 => out[..block].fill(0),
-                    _ => {
-                        pos = bytes_kernel(
-                            data,
-                            pos,
-                            out,
-                            if version == 0 {
-                                0
-                            } else {
-                                4 + usize::from(ctrl)
-                            },
-                        )?
-                    }
-                }
-            }
-            let channel = if version == 0 { 0 } else { channels[k / 4] };
-            let target = &mut block_output[k..];
-            // k is a four-byte-aligned channel group; only complete records
-            // belong to this group. Extend the target to keep chunk strides
-            // complete without touching bytes beyond this group's four bytes.
-            let target_len = (block - 1) * stride + 4;
-            let target = &mut target[..target_len];
-            match channel & 3 {
-                0 => deltas_kernel::<0, FIXED>(
-                    &deltas[..block * 4],
-                    target,
-                    block,
-                    stride,
-                    &last[k..k + 4],
-                    0,
-                ),
-                1 => deltas_kernel::<1, FIXED>(
-                    &deltas[..block * 4],
-                    target,
-                    block,
-                    stride,
-                    &last[k..k + 4],
-                    0,
-                ),
-                2 => deltas_kernel::<2, FIXED>(
-                    &deltas[..block * 4],
-                    target,
-                    block,
-                    stride,
-                    &last[k..k + 4],
-                    (32 - u32::from(channel >> 4)) & 31,
-                ),
-                _ => return Err(crate::Error::InvalidStream),
-            }
-        }
+        pos = vertex_block_kernel::<SCRATCH, FIXED>(
+            data,
+            pos,
+            VertexBlock {
+                version,
+                block,
+                stride,
+                last: &last,
+                channels,
+            },
+            &mut deltas,
+            block_output,
+        )?;
         last[..stride].copy_from_slice(&block_output[(block - 1) * stride..]);
         output.finish_block();
         offset += block;
@@ -764,4 +721,116 @@ fn vertex_kernel<
         return Err(crate::Error::InvalidStream);
     }
     Ok(())
+}
+
+// One complete block (controls, byte planes, channel reconstruction) starting
+// at `pos`; returns the position after it. Shared by the whole-stream kernel
+// and the incremental decoder, so both run identical SIMD code.
+#[inline]
+#[target_feature(enable = "simd128")]
+fn vertex_block_kernel<const SCRATCH: usize, const FIXED: usize>(
+    data: &[u8],
+    mut pos: usize,
+    shape: VertexBlock<'_>,
+    deltas: &mut [u8; SCRATCH],
+    block_output: &mut [u8],
+) -> Result<usize, crate::Error> {
+    let VertexBlock {
+        version,
+        block,
+        stride,
+        last,
+        channels,
+    } = shape;
+    let stride = if FIXED == 0 { stride } else { FIXED };
+    let aligned = block.div_ceil(16) * 16;
+    let controls = if version == 0 {
+        &[][..]
+    } else {
+        let c = data
+            .get(pos..pos + stride / 4)
+            .ok_or(crate::Error::InvalidStream)?;
+        pos += stride / 4;
+        c
+    };
+    for k in (0..stride).step_by(4) {
+        let control = if version == 0 { 0 } else { controls[k / 4] };
+        for j in 0..4 {
+            let ctrl = (control >> (j * 2)) & 3;
+            let out = &mut deltas[j * block..j * block + aligned];
+            match ctrl {
+                3 => {
+                    out[..block].copy_from_slice(
+                        data.get(pos..pos + block)
+                            .ok_or(crate::Error::InvalidStream)?,
+                    );
+                    pos += block;
+                }
+                2 => out[..block].fill(0),
+                _ => {
+                    pos = bytes_kernel(
+                        data,
+                        pos,
+                        out,
+                        if version == 0 {
+                            0
+                        } else {
+                            4 + usize::from(ctrl)
+                        },
+                    )?
+                }
+            }
+        }
+        let channel = if version == 0 { 0 } else { channels[k / 4] };
+        let target = &mut block_output[k..];
+        // k is a four-byte-aligned channel group; only complete records
+        // belong to this group. Extend the target to keep chunk strides
+        // complete without touching bytes beyond this group's four bytes.
+        let target_len = (block - 1) * stride + 4;
+        let target = &mut target[..target_len];
+        match channel & 3 {
+            0 => deltas_kernel::<0, FIXED>(
+                &deltas[..block * 4],
+                target,
+                block,
+                stride,
+                &last[k..k + 4],
+                0,
+            ),
+            1 => deltas_kernel::<1, FIXED>(
+                &deltas[..block * 4],
+                target,
+                block,
+                stride,
+                &last[k..k + 4],
+                0,
+            ),
+            2 => deltas_kernel::<2, FIXED>(
+                &deltas[..block * 4],
+                target,
+                block,
+                stride,
+                &last[k..k + 4],
+                (32 - u32::from(channel >> 4)) & 31,
+            ),
+            _ => return Err(crate::Error::InvalidStream),
+        }
+    }
+    Ok(pos)
+}
+/// One incremental-decoder block, see `vertex_block_kernel`.
+pub(super) fn vertex_block(
+    _token: Baseline,
+    data: &[u8],
+    shape: VertexBlock<'_>,
+    deltas: &mut [u8; 1024],
+    block_output: &mut [u8],
+) -> Result<usize, crate::Error> {
+    match shape.stride {
+        4 => vertex_block_kernel::<1024, 4>(data, 0, shape, deltas, block_output),
+        8 => vertex_block_kernel::<1024, 8>(data, 0, shape, deltas, block_output),
+        12 => vertex_block_kernel::<1024, 12>(data, 0, shape, deltas, block_output),
+        32 => vertex_block_kernel::<1024, 32>(data, 0, shape, deltas, block_output),
+        _ => vertex_block_kernel::<1024, 0>(data, 0, shape, deltas, block_output),
+    }
 }

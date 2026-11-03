@@ -1,0 +1,14 @@
+fmt	0	0.474
+clippy-all	0	3.730
+clippy-none	0	2.797
+tests-all	0	139.742
+tests-none	0	14.819
+wasm-all	0	5.358
+wasm-none	0	4.328
+boundary	0	4.634
+exact-build-all	0	8.790
+exact-all	0	0.076
+exact-build-none	0	7.147
+exact-none	0	0.073
+hidden-release	0	22.680
+public-text	0	0.352

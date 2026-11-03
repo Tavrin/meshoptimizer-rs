@@ -1,0 +1,641 @@
+[
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 0,
+    "pixel_size": 0.23334389179944992,
+    "resolution": 128,
+    "seconds": 25.362364933,
+    "report": {
+      "input": 269764,
+      "output": 179070,
+      "removed": 90694,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 90214,
+      "work": 4268442554,
+      "bytes": 61506192
+    },
+    "output_sha256": "d064cf69506c4d2a803a3ad1d216228430c29bc4260321da10fe7886b051a0e9"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "default",
+    "rep": 0,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 33.951811517,
+    "report": {
+      "input": 269764,
+      "output": 155018,
+      "removed": 114746,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 6492902900,
+      "bytes": 61506192
+    },
+    "output_sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 0,
+    "pixel_size": 0.05833597294986248,
+    "resolution": 512,
+    "seconds": 42.62425089,
+    "report": {
+      "input": 269764,
+      "output": 118393,
+      "removed": 151371,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 150891,
+      "work": 11448555331,
+      "bytes": 61506192
+    },
+    "output_sha256": "42fc7e0b0658aacc48c28ea12262ee940678f0698c2956f665500e39c0e1ce18"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 0,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.067995614,
+    "report": {},
+    "output_sha256": "d1383f385bd4a04f156e161850d77512e9cbefe989baec577fab601fa6556518"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 1,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.067995614,
+    "report": {},
+    "output_sha256": "d1383f385bd4a04f156e161850d77512e9cbefe989baec577fab601fa6556518"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 1,
+    "pixel_size": 0.05833597294986248,
+    "resolution": 512,
+    "seconds": 42.493257944,
+    "report": {
+      "input": 269764,
+      "output": 118393,
+      "removed": 151371,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 150891,
+      "work": 11448555331,
+      "bytes": 61506192
+    },
+    "output_sha256": "42fc7e0b0658aacc48c28ea12262ee940678f0698c2956f665500e39c0e1ce18"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "default",
+    "rep": 1,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 31.379974383,
+    "report": {
+      "input": 269764,
+      "output": 155018,
+      "removed": 114746,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 6492902900,
+      "bytes": 61506192
+    },
+    "output_sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 1,
+    "pixel_size": 0.23334389179944992,
+    "resolution": 128,
+    "seconds": 25.43935748,
+    "report": {
+      "input": 269764,
+      "output": 179070,
+      "removed": 90694,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 90214,
+      "work": 4268442554,
+      "bytes": 61506192
+    },
+    "output_sha256": "d064cf69506c4d2a803a3ad1d216228430c29bc4260321da10fe7886b051a0e9"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 2,
+    "pixel_size": 0.23334389179944992,
+    "resolution": 128,
+    "seconds": 24.17843857,
+    "report": {
+      "input": 269764,
+      "output": 179070,
+      "removed": 90694,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 90214,
+      "work": 4268442554,
+      "bytes": 61506192
+    },
+    "output_sha256": "d064cf69506c4d2a803a3ad1d216228430c29bc4260321da10fe7886b051a0e9"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "default",
+    "rep": 2,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 43.378197999,
+    "report": {
+      "input": 269764,
+      "output": 155018,
+      "removed": 114746,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 114266,
+      "work": 6492902900,
+      "bytes": 61506192
+    },
+    "output_sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 2,
+    "pixel_size": 0.05833597294986248,
+    "resolution": 512,
+    "seconds": 61.304038718,
+    "report": {
+      "input": 269764,
+      "output": 118393,
+      "removed": 151371,
+      "duplicate": 480,
+      "back_to_back": 0,
+      "occluded": 150891,
+      "work": 11448555331,
+      "bytes": 61506192
+    },
+    "output_sha256": "42fc7e0b0658aacc48c28ea12262ee940678f0698c2956f665500e39c0e1ce18"
+  },
+  {
+    "scene": "breakfast_room",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 2,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.084994508,
+    "report": {},
+    "output_sha256": "d1383f385bd4a04f156e161850d77512e9cbefe989baec577fab601fa6556518"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 0,
+    "pixel_size": 0.13435777788981795,
+    "resolution": 128,
+    "seconds": 0.659957352,
+    "report": {
+      "input": 580637,
+      "output": 580579,
+      "removed": 58,
+      "duplicate": 4,
+      "back_to_back": 0,
+      "occluded": 54,
+      "work": 1448638245,
+      "bytes": 132385236
+    },
+    "output_sha256": "b4bb8dce6007084ced318e7c9ee60fbb80c0ae1476ea224647d8d0b34fbf8f27"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "default",
+    "rep": 0,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 2.2468548,
+    "report": {
+      "input": 580637,
+      "output": 576956,
+      "removed": 3681,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3613936897,
+      "bytes": 132385236
+    },
+    "output_sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 0,
+    "pixel_size": 0.03358944447245449,
+    "resolution": 512,
+    "seconds": 20.181695681,
+    "report": {
+      "input": 580637,
+      "output": 529264,
+      "removed": 51373,
+      "duplicate": 4,
+      "back_to_back": 488,
+      "occluded": 50881,
+      "work": 11069103236,
+      "bytes": 132385236
+    },
+    "output_sha256": "9bdbe35a812ffe0c85908bfae8af82dfa3c3a98c437c103b271cf54bb000d6d8"
+  },
+  {
+    "scene": "living_room",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 0,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.270982487,
+    "report": {},
+    "output_sha256": "400b06dc54f27cb31cf9a7ef04ed8e5ce46870ac504b996f201cb73a9e0402bc"
+  },
+  {
+    "scene": "living_room",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 1,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.280981839,
+    "report": {},
+    "output_sha256": "400b06dc54f27cb31cf9a7ef04ed8e5ce46870ac504b996f201cb73a9e0402bc"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 1,
+    "pixel_size": 0.03358944447245449,
+    "resolution": 512,
+    "seconds": 20.104700524,
+    "report": {
+      "input": 580637,
+      "output": 529264,
+      "removed": 51373,
+      "duplicate": 4,
+      "back_to_back": 488,
+      "occluded": 50881,
+      "work": 11069103236,
+      "bytes": 132385236
+    },
+    "output_sha256": "9bdbe35a812ffe0c85908bfae8af82dfa3c3a98c437c103b271cf54bb000d6d8"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "default",
+    "rep": 1,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 2.385845785,
+    "report": {
+      "input": 580637,
+      "output": 576956,
+      "removed": 3681,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3613936897,
+      "bytes": 132385236
+    },
+    "output_sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 1,
+    "pixel_size": 0.13435777788981795,
+    "resolution": 128,
+    "seconds": 0.669956695,
+    "report": {
+      "input": 580637,
+      "output": 580579,
+      "removed": 58,
+      "duplicate": 4,
+      "back_to_back": 0,
+      "occluded": 54,
+      "work": 1448638245,
+      "bytes": 132385236
+    },
+    "output_sha256": "b4bb8dce6007084ced318e7c9ee60fbb80c0ae1476ea224647d8d0b34fbf8f27"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 2,
+    "pixel_size": 0.13435777788981795,
+    "resolution": 128,
+    "seconds": 0.659957341,
+    "report": {
+      "input": 580637,
+      "output": 580579,
+      "removed": 58,
+      "duplicate": 4,
+      "back_to_back": 0,
+      "occluded": 54,
+      "work": 1448638245,
+      "bytes": 132385236
+    },
+    "output_sha256": "b4bb8dce6007084ced318e7c9ee60fbb80c0ae1476ea224647d8d0b34fbf8f27"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "default",
+    "rep": 2,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 2.285852244,
+    "report": {
+      "input": 580637,
+      "output": 576956,
+      "removed": 3681,
+      "duplicate": 4,
+      "back_to_back": 42,
+      "occluded": 3635,
+      "work": 3613936897,
+      "bytes": 132385236
+    },
+    "output_sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7"
+  },
+  {
+    "scene": "living_room",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 2,
+    "pixel_size": 0.03358944447245449,
+    "resolution": 512,
+    "seconds": 19.492739928,
+    "report": {
+      "input": 580637,
+      "output": 529264,
+      "removed": 51373,
+      "duplicate": 4,
+      "back_to_back": 488,
+      "occluded": 50881,
+      "work": 11069103236,
+      "bytes": 132385236
+    },
+    "output_sha256": "9bdbe35a812ffe0c85908bfae8af82dfa3c3a98c437c103b271cf54bb000d6d8"
+  },
+  {
+    "scene": "living_room",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 2,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.285981513,
+    "report": {},
+    "output_sha256": "400b06dc54f27cb31cf9a7ef04ed8e5ce46870ac504b996f201cb73a9e0402bc"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 0,
+    "pixel_size": 42.2803430557251,
+    "resolution": 128,
+    "seconds": 4.927681448,
+    "report": {
+      "input": 124619,
+      "output": 112652,
+      "removed": 11967,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 11967,
+      "work": 971698407,
+      "bytes": 28413132
+    },
+    "output_sha256": "5d9ab011a2f96e65244152f0afee66b312c624d113a989b74b3cdc70f852f60e"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "default",
+    "rep": 0,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 9.997353696,
+    "report": {
+      "input": 124619,
+      "output": 98911,
+      "removed": 25708,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 2235726993,
+      "bytes": 28413132
+    },
+    "output_sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 0,
+    "pixel_size": 10.570085763931274,
+    "resolution": 512,
+    "seconds": 17.920841403,
+    "report": {
+      "input": 124619,
+      "output": 76303,
+      "removed": 48316,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 48316,
+      "work": 7491891487,
+      "bytes": 32311849
+    },
+    "output_sha256": "77dea824fb6be92d6971c93718a1222e6da6af7242f6915dbf4db1e2640f2d98"
+  },
+  {
+    "scene": "conference",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 0,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.044997091,
+    "report": {},
+    "output_sha256": "268eef5b8c18d00e383331daf091f77a65ab8d8bde659253ddf25bb449520105"
+  },
+  {
+    "scene": "conference",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 1,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.036997608,
+    "report": {},
+    "output_sha256": "268eef5b8c18d00e383331daf091f77a65ab8d8bde659253ddf25bb449520105"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 1,
+    "pixel_size": 10.570085763931274,
+    "resolution": 512,
+    "seconds": 17.583863123,
+    "report": {
+      "input": 124619,
+      "output": 76303,
+      "removed": 48316,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 48316,
+      "work": 7491891487,
+      "bytes": 32311849
+    },
+    "output_sha256": "77dea824fb6be92d6971c93718a1222e6da6af7242f6915dbf4db1e2640f2d98"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "default",
+    "rep": 1,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 9.499385798,
+    "report": {
+      "input": 124619,
+      "output": 98911,
+      "removed": 25708,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 2235726993,
+      "bytes": 28413132
+    },
+    "output_sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 1,
+    "pixel_size": 42.2803430557251,
+    "resolution": 128,
+    "seconds": 3.328784769,
+    "report": {
+      "input": 124619,
+      "output": 112652,
+      "removed": 11967,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 11967,
+      "work": 971698407,
+      "bytes": 28413132
+    },
+    "output_sha256": "5d9ab011a2f96e65244152f0afee66b312c624d113a989b74b3cdc70f852f60e"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "coarse",
+    "rep": 2,
+    "pixel_size": 42.2803430557251,
+    "resolution": 128,
+    "seconds": 3.220791746,
+    "report": {
+      "input": 124619,
+      "output": 112652,
+      "removed": 11967,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 11967,
+      "work": 971698407,
+      "bytes": 28413132
+    },
+    "output_sha256": "5d9ab011a2f96e65244152f0afee66b312c624d113a989b74b3cdc70f852f60e"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "default",
+    "rep": 2,
+    "pixel_size": 0.0,
+    "resolution": 256,
+    "seconds": 6.675568363,
+    "report": {
+      "input": 124619,
+      "output": 98911,
+      "removed": 25708,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 25708,
+      "work": 2235726993,
+      "bytes": 28413132
+    },
+    "output_sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512"
+  },
+  {
+    "scene": "conference",
+    "op": "hidden",
+    "density": "fine",
+    "rep": 2,
+    "pixel_size": 10.570085763931274,
+    "resolution": 512,
+    "seconds": 12.074219268,
+    "report": {
+      "input": 124619,
+      "output": 76303,
+      "removed": 48316,
+      "duplicate": 0,
+      "back_to_back": 0,
+      "occluded": 48316,
+      "work": 7491891487,
+      "bytes": 32311849
+    },
+    "output_sha256": "77dea824fb6be92d6971c93718a1222e6da6af7242f6915dbf4db1e2640f2d98"
+  },
+  {
+    "scene": "conference",
+    "op": "simplify",
+    "density": "simplify",
+    "rep": 2,
+    "pixel_size": 0.0,
+    "resolution": null,
+    "seconds": 0.025998319,
+    "report": {},
+    "output_sha256": "268eef5b8c18d00e383331daf091f77a65ab8d8bde659253ddf25bb449520105"
+  }
+]

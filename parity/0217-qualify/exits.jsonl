@@ -1,0 +1,133 @@
+{"name": "reference", "attempt": 1, "exit": 0, "wall_seconds": 0.01318503499351209, "cpu_seconds": 0.0074160000000000025, "log": "logs/reference-1.log"}
+{"name": "export-lod", "attempt": 1, "exit": 0, "wall_seconds": 0.13797130700550042, "cpu_seconds": 0.13581800000000002, "log": "logs/export-lod-1.log"}
+{"name": "exact-lock-all", "attempt": 1, "exit": 0, "wall_seconds": 0.05500039800244849, "cpu_seconds": 0.039855, "log": "logs/exact-lock-all-1.log"}
+{"name": "exact-build-all", "attempt": 1, "exit": 0, "wall_seconds": 33.297240865002095, "cpu_seconds": 62.408201, "log": "logs/exact-build-all-1.log"}
+{"name": "par-build-all", "attempt": 1, "exit": 0, "wall_seconds": 1.2040087099958328, "cpu_seconds": 1.040472000000003, "log": "logs/par-build-all-1.log"}
+{"name": "exact-lock-all", "attempt": 2, "exit": 0, "wall_seconds": 0.05189376800262835, "cpu_seconds": 0.040938, "log": "logs/exact-lock-all-2.log"}
+{"name": "exact-build-all", "attempt": 2, "exit": 0, "wall_seconds": 0.07150250999984564, "cpu_seconds": 0.05510899999999999, "log": "logs/exact-build-all-2.log"}
+{"name": "par-build-all", "attempt": 2, "exit": 0, "wall_seconds": 0.04036455399909755, "cpu_seconds": 0.039697, "log": "logs/par-build-all-2.log"}
+{"name": "exact-remap-all", "attempt": 1, "exit": 0, "wall_seconds": 7.212835079997603, "cpu_seconds": 7.211543, "log": "logs/exact-remap-all-1.log"}
+{"name": "exact-spatial-all", "attempt": 1, "exit": 0, "wall_seconds": 37.66821848099789, "cpu_seconds": 37.41991600000001, "log": "logs/exact-spatial-all-1.log"}
+{"name": "exact-repair-all", "attempt": 1, "exit": 0, "wall_seconds": 0.035284400000819005, "cpu_seconds": 0.0038300000000031226, "log": "logs/exact-repair-all-1.log"}
+{"name": "exact-simplify-all", "attempt": 1, "exit": 0, "wall_seconds": 85.34180588599702, "cpu_seconds": 85.433575, "log": "logs/exact-simplify-all-1.log"}
+{"name": "exact-decode-all", "attempt": 1, "exit": 0, "wall_seconds": 1.5226400070023374, "cpu_seconds": 1.5226649999999913, "log": "logs/exact-decode-all-1.log"}
+{"name": "exact-bounds-all", "attempt": 1, "exit": 0, "wall_seconds": 4.982037918998685, "cpu_seconds": 4.721223000000017, "log": "logs/exact-bounds-all-1.log"}
+{"name": "exact-vdecode-all", "attempt": 1, "exit": 0, "wall_seconds": 1.9173887750002905, "cpu_seconds": 1.8849779999999827, "log": "logs/exact-vdecode-all-1.log"}
+{"name": "stream-cpp-build", "attempt": 1, "exit": 0, "wall_seconds": 0.494465058996866, "cpu_seconds": 0.20409800000001255, "log": "logs/stream-cpp-build-1.log"}
+{"name": "exact-stream-all", "attempt": 1, "exit": 0, "wall_seconds": 32.217971060999844, "cpu_seconds": 32.20860200000002, "log": "logs/exact-stream-all-1.log"}
+{"name": "exact-remap_cpp-all", "attempt": 1, "exit": 0, "wall_seconds": 0.02100015999894822, "cpu_seconds": 0.0071229999999905536, "log": "logs/exact-remap_cpp-all-1.log"}
+{"name": "exact-repair_corpus-all", "attempt": 1, "exit": 0, "wall_seconds": 0.4050030770013109, "cpu_seconds": 0.38162399999997787, "log": "logs/exact-repair_corpus-all-1.log"}
+{"name": "exact-geometry-all", "attempt": 1, "exit": 0, "wall_seconds": 31.160236545998487, "cpu_seconds": 30.82634400000001, "log": "logs/exact-geometry-all-1.log"}
+{"name": "exact-lodq-all", "attempt": 1, "exit": 0, "wall_seconds": 0.4700035649948404, "cpu_seconds": 0.4688360000000098, "log": "logs/exact-lodq-all-1.log"}
+{"name": "exact-hsr-all", "attempt": 1, "exit": 0, "wall_seconds": 0.04700035600399133, "cpu_seconds": 0.04714400000000252, "log": "logs/exact-hsr-all-1.log"}
+{"name": "exact-cache_table-all", "attempt": 1, "exit": 0, "wall_seconds": 1.2630095810018247, "cpu_seconds": 1.2483319999999734, "log": "logs/exact-cache_table-all-1.log"}
+{"name": "exact-basics-all", "attempt": 1, "exit": 0, "wall_seconds": 1.3000017119993572, "cpu_seconds": 1.3305220000000268, "log": "logs/exact-basics-all-1.log"}
+{"name": "exact-merge-all", "attempt": 1, "exit": 0, "wall_seconds": 9.881433112001105, "cpu_seconds": 9.891247000000003, "log": "logs/exact-merge-all-1.log"}
+{"name": "exact-overdraw-all", "attempt": 1, "exit": 0, "wall_seconds": 26.48224348000076, "cpu_seconds": 26.478984000000008, "log": "logs/exact-overdraw-all-1.log"}
+{"name": "par-lod-all", "attempt": 1, "exit": 0, "wall_seconds": 7.495618275002926, "cpu_seconds": 9.128040999999993, "log": "logs/par-lod-all-1.log"}
+{"name": "par-spec-build-all", "attempt": 1, "exit": 0, "wall_seconds": 1.6140122180004255, "cpu_seconds": 1.349716000000008, "log": "logs/par-spec-build-all-1.log"}
+{"name": "par-spec-lod-all", "attempt": 1, "exit": 0, "wall_seconds": 5.420041024000966, "cpu_seconds": 6.432322999999998, "log": "logs/par-spec-lod-all-1.log"}
+{"name": "par-spec-inputs-all", "attempt": 1, "exit": 0, "wall_seconds": 273.2423817039962, "cpu_seconds": 255.776658, "log": "logs/par-spec-inputs-all-1.log"}
+{"name": "test-all", "attempt": 1, "exit": 0, "wall_seconds": 141.92765893099568, "cpu_seconds": 219.67778799999994, "log": "logs/test-all-1.log"}
+{"name": "clippy-all", "attempt": 1, "exit": 0, "wall_seconds": 4.804551503002585, "cpu_seconds": 7.892351000000055, "log": "logs/clippy-all-1.log"}
+{"name": "lod-identity-lod-all", "attempt": 1, "exit": 0, "wall_seconds": 22.597842593000678, "cpu_seconds": 22.094210000000018, "log": "logs/lod-identity-lod-all-1.log"}
+{"name": "lod-identity-inputs-all", "attempt": 1, "exit": 0, "wall_seconds": 36.98313558800146, "cpu_seconds": 36.73891899999998, "log": "logs/lod-identity-inputs-all-1.log"}
+{"name": "fmt", "attempt": 1, "exit": 0, "wall_seconds": 0.5322781950017088, "cpu_seconds": 0.4185930000000013, "log": "logs/fmt-1.log"}
+{"name": "boundary", "attempt": 1, "exit": 1, "wall_seconds": 0.6299303109990433, "cpu_seconds": 0.5988169999999116, "log": "logs/boundary-1.log"}
+{"name": "exact-lock-none", "attempt": 1, "exit": 0, "wall_seconds": 0.035030485996685456, "cpu_seconds": 0.03267000000005282, "log": "logs/exact-lock-none-1.log"}
+{"name": "exact-build-none", "attempt": 1, "exit": 0, "wall_seconds": 23.680488516001788, "cpu_seconds": 43.72039699999998, "log": "logs/exact-build-none-1.log"}
+{"name": "par-build-none", "attempt": 1, "exit": 0, "wall_seconds": 20.619860627004527, "cpu_seconds": 36.33749800000008, "log": "logs/par-build-none-1.log"}
+{"name": "exact-remap-none", "attempt": 1, "exit": 0, "wall_seconds": 7.155713426000148, "cpu_seconds": 7.167960999999991, "log": "logs/exact-remap-none-1.log"}
+{"name": "exact-spatial-none", "attempt": 1, "exit": 0, "wall_seconds": 9.660931669997808, "cpu_seconds": 9.65843899999993, "log": "logs/exact-spatial-none-1.log"}
+{"name": "exact-repair-none", "attempt": 1, "exit": 0, "wall_seconds": 0.03527450600086013, "cpu_seconds": 0.029139000000071746, "log": "logs/exact-repair-none-1.log"}
+{"name": "exact-simplify-none", "attempt": 1, "exit": 0, "wall_seconds": 78.63652269799786, "cpu_seconds": 78.65830699999995, "log": "logs/exact-simplify-none-1.log"}
+{"name": "exact-decode-none", "attempt": 1, "exit": 0, "wall_seconds": 2.020980215005693, "cpu_seconds": 2.016292999999976, "log": "logs/exact-decode-none-1.log"}
+{"name": "exact-bounds-none", "attempt": 1, "exit": 0, "wall_seconds": 5.227413708998938, "cpu_seconds": 5.226138000000006, "log": "logs/exact-bounds-none-1.log"}
+{"name": "exact-vdecode-none", "attempt": 1, "exit": 0, "wall_seconds": 2.2968236779997824, "cpu_seconds": 2.29572799999994, "log": "logs/exact-vdecode-none-1.log"}
+{"name": "exact-stream-none", "attempt": 1, "exit": 0, "wall_seconds": 32.509717095999804, "cpu_seconds": 31.006043000000048, "log": "logs/exact-stream-none-1.log"}
+{"name": "exact-remap_cpp-none", "attempt": 1, "exit": 0, "wall_seconds": 0.006544759002281353, "cpu_seconds": 0.006144999999960987, "log": "logs/exact-remap_cpp-none-1.log"}
+{"name": "exact-repair_corpus-none", "attempt": 1, "exit": 0, "wall_seconds": 0.39810099200258264, "cpu_seconds": 0.04839199999999266, "log": "logs/exact-repair_corpus-none-1.log"}
+{"name": "exact-geometry-none", "attempt": 1, "exit": 0, "wall_seconds": 31.284094493996236, "cpu_seconds": 31.31026199999988, "log": "logs/exact-geometry-none-1.log"}
+{"name": "exact-lodq-none", "attempt": 1, "exit": 0, "wall_seconds": 0.5464773189960397, "cpu_seconds": 0.545904000000192, "log": "logs/exact-lodq-none-1.log"}
+{"name": "exact-hsr-none", "attempt": 1, "exit": 0, "wall_seconds": 0.04606361200421816, "cpu_seconds": 0.04558200000006707, "log": "logs/exact-hsr-none-1.log"}
+{"name": "exact-cache_table-none", "attempt": 1, "exit": 0, "wall_seconds": 1.1869980019982904, "cpu_seconds": 1.1845819999999634, "log": "logs/exact-cache_table-none-1.log"}
+{"name": "exact-basics-none", "attempt": 1, "exit": 0, "wall_seconds": 1.288753598004405, "cpu_seconds": 1.2880729999998977, "log": "logs/exact-basics-none-1.log"}
+{"name": "exact-merge-none", "attempt": 1, "exit": 0, "wall_seconds": 7.76573326200014, "cpu_seconds": 7.761789999999948, "log": "logs/exact-merge-none-1.log"}
+{"name": "exact-overdraw-none", "attempt": 1, "exit": 0, "wall_seconds": 36.88312740499532, "cpu_seconds": 34.516188000000014, "log": "logs/exact-overdraw-none-1.log"}
+{"name": "par-lod-none", "attempt": 1, "exit": 0, "wall_seconds": 11.846983577001083, "cpu_seconds": 9.863115000000093, "log": "logs/par-lod-none-1.log"}
+{"name": "par-spec-build-none", "attempt": 1, "exit": 0, "wall_seconds": 3.6696258459996898, "cpu_seconds": 1.3964619999999712, "log": "logs/par-spec-build-none-1.log"}
+{"name": "par-spec-lod-none", "attempt": 1, "exit": 0, "wall_seconds": 5.487531796003168, "cpu_seconds": 5.644909000000027, "log": "logs/par-spec-lod-none-1.log"}
+{"name": "par-spec-inputs-none", "attempt": 1, "exit": 0, "wall_seconds": 289.8599007790035, "cpu_seconds": 251.00830600000006, "log": "logs/par-spec-inputs-none-1.log"}
+{"name": "test-none", "attempt": 1, "exit": 0, "wall_seconds": 22.70763165000244, "cpu_seconds": 42.453325000000035, "log": "logs/test-none-1.log"}
+{"name": "clippy-none", "attempt": 1, "exit": 0, "wall_seconds": 3.072475465996831, "cpu_seconds": 5.336084000000071, "log": "logs/clippy-none-1.log"}
+{"name": "lod-identity-lod-none", "attempt": 1, "exit": 0, "wall_seconds": 19.351626654999563, "cpu_seconds": 16.304495999999986, "log": "logs/lod-identity-lod-none-1.log"}
+{"name": "lod-identity-inputs-none", "attempt": 1, "exit": 0, "wall_seconds": 46.79913033300545, "cpu_seconds": 41.38186999999999, "log": "logs/lod-identity-inputs-none-1.log"}
+{"name": "identity-build", "attempt": 1, "exit": 0, "wall_seconds": 0.5806588580016978, "cpu_seconds": 0.5505030000002051, "log": "logs/identity-build-1.log"}
+{"name": "parallel_identity-all", "attempt": 1, "exit": 101, "wall_seconds": 0.003454486002738122, "cpu_seconds": 0.00905499999986148, "log": "logs/parallel_identity-all-1.log"}
+{"name": "stream_identity-all", "attempt": 1, "exit": 0, "wall_seconds": 71.31606679200195, "cpu_seconds": 72.02780799999996, "log": "logs/stream_identity-all-1.log"}
+{"name": "identity-none-build", "attempt": 1, "exit": 0, "wall_seconds": 1.281268810002075, "cpu_seconds": 0.4218740000000878, "log": "logs/identity-none-build-1.log"}
+{"name": "stream_identity-none", "attempt": 1, "exit": 0, "wall_seconds": 181.31583415100613, "cpu_seconds": 179.1646529999998, "log": "logs/stream_identity-none-1.log"}
+{"name": "protocol-cpp", "attempt": 1, "exit": 0, "wall_seconds": 2.6532322589991963, "cpu_seconds": 2.4758679999999345, "log": "logs/protocol-cpp-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "protocol-build-all", "attempt": 1, "exit": 0, "wall_seconds": 21.608003418994485, "cpu_seconds": 20.498824000000184, "log": "logs/protocol-build-all-1.log", "log_sha256": "830fe8b8c704ca18f4fa70a59fbd08312a823a251975acc6bb3918539206580a"}
+{"name": "protocol-build-none", "attempt": 1, "exit": 0, "wall_seconds": 15.25717614399764, "cpu_seconds": 15.549850999999876, "log": "logs/protocol-build-none-1.log", "log_sha256": "90520c2a983fdbaa92e0f506799d5d269f424fe0453b366b3f9dff3229f05dd5"}
+{"name": "protocol-differential", "attempt": 1, "exit": 0, "wall_seconds": 11.986854160000803, "cpu_seconds": 11.550313000000074, "log": "logs/protocol-differential-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "p03-build-all", "attempt": 1, "exit": 0, "wall_seconds": 6.843203303003975, "cpu_seconds": 5.001195000000024, "log": "logs/p03-build-all-1.log", "log_sha256": "ba71239854168fc9939e733caa96b5a9d4a54d94011526e3dac956b10112d6e9"}
+{"name": "p03-build-none", "attempt": 1, "exit": 0, "wall_seconds": 16.438085082001635, "cpu_seconds": 15.419987999999933, "log": "logs/p03-build-none-1.log", "log_sha256": "a627c3cc85bdeb4c46ec1cc32f4420181024c4563bc60fba8cab047d571350a2"}
+{"name": "p03-cpp-scalar", "attempt": 1, "exit": 0, "wall_seconds": 3.9981810090030194, "cpu_seconds": 3.9077260000001672, "log": "logs/p03-cpp-scalar-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "p03-cpp-default", "attempt": 1, "exit": 0, "wall_seconds": 3.871118563001801, "cpu_seconds": 2.8591579999999794, "log": "logs/p03-cpp-default-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "decode-diff-build-all", "attempt": 1, "exit": 0, "wall_seconds": 15.46458347600128, "cpu_seconds": 15.426820000000106, "log": "logs/decode-diff-build-all-1.log", "log_sha256": "6bc525eb4a080d1176ca15456282f7f0d1f23c18a1818b264c6e0f33a7d9b3a9"}
+{"name": "decode-diff-all", "attempt": 1, "exit": 0, "wall_seconds": 53.622339426998224, "cpu_seconds": 52.658048000000036, "log": "logs/decode-diff-all-1.log", "log_sha256": "bc5cb458f0435c0a669b734267abd44008691fcefff40c07e9cf406dff475984"}
+{"name": "build-extended-differential", "attempt": 1, "exit": 0, "wall_seconds": 2.1643069890051265, "cpu_seconds": 2.079886999999985, "log": "logs/build-extended-differential-1.log"}
+{"name": "build-cpp-avx2", "attempt": 1, "exit": 0, "wall_seconds": 0.6290137530013453, "cpu_seconds": 0.4083119999999667, "log": "logs/build-cpp-avx2-1.log"}
+{"name": "build-cpp-avx512", "attempt": 1, "exit": 0, "wall_seconds": 0.80548595199798, "cpu_seconds": 0.5952679999999475, "log": "logs/build-cpp-avx512-1.log"}
+{"name": "decode-extended-differential", "attempt": 1, "exit": 1, "wall_seconds": 71.45959578600014, "cpu_seconds": 71.49450700000006, "log": "logs/decode-extended-differential-1.log"}
+{"name": "bounds-prepare-build", "attempt": 1, "exit": 0, "wall_seconds": 10.568306447996292, "cpu_seconds": 14.710736999999938, "log": "logs/bounds-prepare-build-1.log"}
+{"name": "bounds-prepare-tiny-smooth.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.001961372996447608, "cpu_seconds": 0.0007159999999828415, "log": "logs/bounds-prepare-tiny-smooth.bin-1.log"}
+{"name": "bounds-prepare-medium-smooth.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.004909093004243914, "cpu_seconds": 0.003085999999939304, "log": "logs/bounds-prepare-medium-smooth.bin-1.log"}
+{"name": "bounds-prepare-medium-seams.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.0040801020004437305, "cpu_seconds": 0.00239200000009987, "log": "logs/bounds-prepare-medium-seams.bin-1.log"}
+{"name": "bounds-prepare-medium-sparse.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.005364009004551917, "cpu_seconds": 0.0035820000000512664, "log": "logs/bounds-prepare-medium-sparse.bin-1.log"}
+{"name": "bounds-prepare-million-smooth.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.3673104039989994, "cpu_seconds": 0.3390679999999975, "log": "logs/bounds-prepare-million-smooth.bin-1.log"}
+{"name": "bounds-prepare-real-214e.bin", "attempt": 1, "exit": 0, "wall_seconds": 1.8731874440054526, "cpu_seconds": 1.847731999999894, "log": "logs/bounds-prepare-real-214e.bin-1.log"}
+{"name": "bounds-prepare-real-a082.bin", "attempt": 1, "exit": 0, "wall_seconds": 2.0064854369993554, "cpu_seconds": 1.9842959999998016, "log": "logs/bounds-prepare-real-a082.bin-1.log"}
+{"name": "bounds-prepare-real-b6fd.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.5117586729975301, "cpu_seconds": 0.5038760000001616, "log": "logs/bounds-prepare-real-b6fd.bin-1.log"}
+{"name": "build-base-scalar", "attempt": 1, "exit": 0, "wall_seconds": 16.097963834996335, "cpu_seconds": 17.387489999999815, "log": "logs/build-base-scalar-1.log"}
+{"name": "build-train-scalar", "attempt": 1, "exit": 101, "wall_seconds": 0.012961152002390008, "cpu_seconds": 0.013182999999941103, "log": "logs/build-train-scalar-1.log"}
+{"name": "par-identity-build", "attempt": 1, "exit": 0, "wall_seconds": 0.6476512259978335, "cpu_seconds": 0.6137119999999999, "log": "logs/par-identity-build-1.log"}
+{"name": "parallel_identity-all", "attempt": 2, "exit": 0, "wall_seconds": 58.46951351300231, "cpu_seconds": 92.51833599999999, "log": "logs/parallel_identity-all-2.log"}
+{"name": "decode-diff-build-all", "attempt": 2, "exit": 0, "wall_seconds": 1.423361296998337, "cpu_seconds": 1.3691700000000004, "log": "logs/decode-diff-build-all-2.log", "log_sha256": "9576f1f7e73fc2bb1ec2336aae60cb485c591eadc60a1b998573411c34057e08"}
+{"name": "decode-diff-all", "attempt": 2, "exit": 0, "wall_seconds": 65.30873897200217, "cpu_seconds": 72.53996900000001, "log": "logs/decode-diff-all-2.log", "log_sha256": "bc5cb458f0435c0a669b734267abd44008691fcefff40c07e9cf406dff475984"}
+{"name": "build-extended-differential", "attempt": 2, "exit": 0, "wall_seconds": 2.3013081710014376, "cpu_seconds": 2.2756459999999983, "log": "logs/build-extended-differential-2.log"}
+{"name": "build-cpp-avx2", "attempt": 2, "exit": 0, "wall_seconds": 0.674013741001545, "cpu_seconds": 0.6615750000000027, "log": "logs/build-cpp-avx2-2.log"}
+{"name": "build-cpp-avx512", "attempt": 2, "exit": 0, "wall_seconds": 0.8692939069951535, "cpu_seconds": 0.8461919999999914, "log": "logs/build-cpp-avx512-2.log"}
+{"name": "decode-extended-differential", "attempt": 2, "exit": 0, "wall_seconds": 85.20485912799631, "cpu_seconds": 94.121275, "log": "logs/decode-extended-differential-2.log"}
+{"name": "decode-diff-build-none", "attempt": 1, "exit": 0, "wall_seconds": 16.143786781998642, "cpu_seconds": 16.118784000000005, "log": "logs/decode-diff-build-none-1.log", "log_sha256": "1b5b1bdfdc3efa8ef737d14896d75884bc83f46d323b64c2b269c3f30379d88d"}
+{"name": "decode-diff-none", "attempt": 1, "exit": 0, "wall_seconds": 69.23994934600341, "cpu_seconds": 73.82616399999996, "log": "logs/decode-diff-none-1.log", "log_sha256": "bc5cb458f0435c0a669b734267abd44008691fcefff40c07e9cf406dff475984"}
+{"name": "vdecode-diff-build-all", "attempt": 1, "exit": 0, "wall_seconds": 1.4147792150033638, "cpu_seconds": 1.399154999999979, "log": "logs/vdecode-diff-build-all-1.log", "log_sha256": "9576f1f7e73fc2bb1ec2336aae60cb485c591eadc60a1b998573411c34057e08"}
+{"name": "vdecode-diff-all", "attempt": 1, "exit": 0, "wall_seconds": 68.46197707800457, "cpu_seconds": 75.74444700000008, "log": "logs/vdecode-diff-all-1.log", "log_sha256": "c15f0105721bd875a82f4eb3f8c70e91bee08a2769ae79da89cbea4ef84215c4"}
+{"name": "vdecode-diff-build-none", "attempt": 1, "exit": 0, "wall_seconds": 1.7070360409998102, "cpu_seconds": 1.4019869999999912, "log": "logs/vdecode-diff-build-none-1.log", "log_sha256": "3997fc6790b8063b86c119e91f87ac7395ac6cf26135da637dcb229006bc32dc"}
+{"name": "vdecode-diff-none", "attempt": 1, "exit": 0, "wall_seconds": 66.50331450799422, "cpu_seconds": 73.957381, "log": "logs/vdecode-diff-none-1.log", "log_sha256": "c15f0105721bd875a82f4eb3f8c70e91bee08a2769ae79da89cbea4ef84215c4"}
+{"name": "lodq-oracle-build", "attempt": 1, "exit": 0, "wall_seconds": 0.41490545999840833, "cpu_seconds": 0.4024989999999775, "log": "logs/lodq-oracle-build-1.log"}
+{"name": "lodq-cpp-all", "attempt": 1, "exit": 0, "wall_seconds": 0.03386679200048093, "cpu_seconds": 0.018471999999960076, "log": "logs/lodq-cpp-all-1.log"}
+{"name": "lodq-cpp-none", "attempt": 1, "exit": 0, "wall_seconds": 0.02055419200041797, "cpu_seconds": 0.019441000000014697, "log": "logs/lodq-cpp-none-1.log"}
+{"name": "bounds-prepare-build", "attempt": 2, "exit": 0, "wall_seconds": 0.04237972699775128, "cpu_seconds": 0.038888000000028455, "log": "logs/bounds-prepare-build-2.log"}
+{"name": "bounds-prepare-tiny-smooth.bin", "attempt": 2, "exit": 0, "wall_seconds": 0.00508784699923126, "cpu_seconds": 0.0009349999999983538, "log": "logs/bounds-prepare-tiny-smooth.bin-2.log"}
+{"name": "bounds-prepare-medium-smooth.bin", "attempt": 2, "exit": 0, "wall_seconds": 0.005103577001136728, "cpu_seconds": 0.003229999999959432, "log": "logs/bounds-prepare-medium-smooth.bin-2.log"}
+{"name": "bounds-prepare-medium-seams.bin", "attempt": 2, "exit": 0, "wall_seconds": 0.004457941999135073, "cpu_seconds": 0.0026480000000077553, "log": "logs/bounds-prepare-medium-seams.bin-2.log"}
+{"name": "bounds-prepare-medium-sparse.bin", "attempt": 2, "exit": 0, "wall_seconds": 0.0050890699931187555, "cpu_seconds": 0.003326999999956115, "log": "logs/bounds-prepare-medium-sparse.bin-2.log"}
+{"name": "bounds-prepare-million-smooth.bin", "attempt": 2, "exit": 0, "wall_seconds": 0.3730099450040143, "cpu_seconds": 0.34611900000003004, "log": "logs/bounds-prepare-million-smooth.bin-2.log"}
+{"name": "bounds-prepare-real-214e.bin", "attempt": 2, "exit": 0, "wall_seconds": 2.296046944997215, "cpu_seconds": 2.1338330000000383, "log": "logs/bounds-prepare-real-214e.bin-2.log"}
+{"name": "bounds-prepare-real-a082.bin", "attempt": 2, "exit": 0, "wall_seconds": 2.2789955160042155, "cpu_seconds": 2.132889000000006, "log": "logs/bounds-prepare-real-a082.bin-2.log"}
+{"name": "bounds-prepare-real-b6fd.bin", "attempt": 2, "exit": 0, "wall_seconds": 0.5604973159934161, "cpu_seconds": 0.5229480000000706, "log": "logs/bounds-prepare-real-b6fd.bin-2.log"}
+{"name": "build-base-scalar", "attempt": 2, "exit": 0, "wall_seconds": 19.777527587000804, "cpu_seconds": 21.680217000000013, "log": "logs/build-base-scalar-2.log"}
+{"name": "build-train-scalar", "attempt": 2, "exit": 0, "wall_seconds": 18.827392605002387, "cpu_seconds": 23.33210799999999, "log": "logs/build-train-scalar-2.log"}
+{"name": "build-base-default", "attempt": 1, "exit": 0, "wall_seconds": 18.114331049997418, "cpu_seconds": 20.655102000000028, "log": "logs/build-base-default-1.log"}
+{"name": "build-train-default", "attempt": 1, "exit": 0, "wall_seconds": 21.10765086700121, "cpu_seconds": 23.936901999999975, "log": "logs/build-train-default-1.log"}
+{"name": "build-cpp-scalar", "attempt": 1, "exit": 0, "wall_seconds": 9.919876539999677, "cpu_seconds": 12.953974000000002, "log": "logs/build-cpp-scalar-1.log"}
+{"name": "build-cpp-default", "attempt": 1, "exit": 0, "wall_seconds": 8.178895993005426, "cpu_seconds": 9.057437000000007, "log": "logs/build-cpp-default-1.log"}
+{"name": "boundary-final", "attempt": 1, "exit": 0, "wall_seconds": 5.357925119998981, "cpu_seconds": 5.78088200000002, "log": "logs/boundary-final-1.log"}
+{"name": "build-cost", "attempt": 1, "exit": 0, "wall_seconds": 18.709942219000368, "cpu_seconds": 23.609911999999998, "log": "logs/build-cost-1.log"}
+{"name": "build-examples", "attempt": 1, "exit": 0, "wall_seconds": 18.18318382000143, "cpu_seconds": 21.426963000000004, "log": "logs/build-examples-1.log"}
+{"name": "aarch64-check", "attempt": 1, "exit": 0, "wall_seconds": 4.257440189998306, "cpu_seconds": 4.947434, "log": "logs/aarch64-check-1.log"}
+{"name": "wasm-build-before", "attempt": 1, "exit": 0, "wall_seconds": 16.650905342998158, "cpu_seconds": 16.658483999999998, "log": "logs/wasm-build-before-1.log"}
+{"name": "wasm-build-after", "attempt": 1, "exit": 0, "wall_seconds": 18.363959390000673, "cpu_seconds": 18.673974000000005, "log": "logs/wasm-build-after-1.log"}
+{"name": "wasm-measure", "attempt": 1, "exit": 0, "wall_seconds": 112.00143933099753, "cpu_seconds": 107.017963, "log": "logs/wasm-measure-1.log"}

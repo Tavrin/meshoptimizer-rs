@@ -33,27 +33,36 @@ pub(crate) use simd::bounds::roots as bounds_roots;
 #[doc(hidden)]
 pub use simd::dispatch::{detected_level, with_level, Level};
 
+mod buffer_stream;
 mod filter;
 mod filter_encode;
 mod index;
 mod index_encode;
 mod meshlet;
 mod sequence_stream;
+pub use buffer_stream::{IndexBufferDecoder, VertexBufferDecoder};
 mod vertex;
 mod vertex_encode;
+#[cfg(feature = "parallel")]
+mod vertex_parallel;
 use crate::{workspace::checked_bytes, Error, Workspace};
 use alloc::vec::Vec;
+#[cfg(feature = "parallel")]
+pub(crate) use encode::encode_vertex_buffer_parallel;
 pub use encode::{
     encode_filter_color, encode_filter_color_into, encode_filter_exp, encode_filter_exp_into,
     encode_filter_oct, encode_filter_oct_into, encode_filter_quat, encode_filter_quat_into,
-    encode_index_buffer, encode_index_buffer_bound, encode_index_buffer_into,
-    encode_index_sequence, encode_index_sequence_bound, encode_index_sequence_into,
-    encode_vertex_buffer, encode_vertex_buffer_bound, encode_vertex_buffer_into, ExpMode,
-    IndexEncoding, VertexEncoding,
+    encode_index_buffer, encode_index_buffer_bound, encode_index_buffer_generic,
+    encode_index_buffer_into, encode_index_buffer_into_generic, encode_index_sequence,
+    encode_index_sequence_bound, encode_index_sequence_generic, encode_index_sequence_into,
+    encode_index_sequence_into_generic, encode_vertex_buffer, encode_vertex_buffer_bound,
+    encode_vertex_buffer_into, ExpMode, IndexEncoding, VertexEncoding,
 };
 pub use meshlet::{
-    decode_meshlet, decode_meshlet_into, decode_meshlet_raw, decode_meshlet_raw_into,
-    encode_meshlet, encode_meshlet_bound, encode_meshlet_into, DecodedMeshlet, RawMeshlet,
+    decode_meshlet, decode_meshlet_into, decode_meshlet_raw, decode_meshlet_raw_generic,
+    decode_meshlet_raw_into, decode_meshlet_raw_into_generic, encode_meshlet, encode_meshlet_bound,
+    encode_meshlet_generic, encode_meshlet_into, encode_meshlet_into_generic, DecodedMeshlet,
+    RawMeshlet, RawMeshletGeneric,
 };
 pub use sequence_stream::{IndexSequenceDecoder, Progress, Status};
 
@@ -305,14 +314,16 @@ fn run(
     workspace.finish(&work);
     result
 }
-fn allocate(
+/// Account the whole decode against the limits and check the stream's
+/// minimum length before any allocation. Returns the decoded byte count.
+fn charge(
     mode: Mode,
     filter: Filter,
     count: usize,
     stride: usize,
     source: &[u8],
     workspace: &mut Workspace,
-) -> Result<Vec<u8>, Error> {
+) -> Result<usize, Error> {
     let mut work = workspace.begin();
     let bytes = layout(mode, count, stride)?;
     // Check complete resources before requesting an allocation or mutating output.
@@ -328,6 +339,59 @@ fn allocate(
     workspace.finish(&work);
     check?;
     preflight(mode, count, stride, source)?;
+    Ok(bytes)
+}
+
+/// Vertex decode on the current Rayon pool with the serial decoder's bytes,
+/// limits and errors; fewer than four workers or a small buffer decodes serially.
+#[cfg(feature = "parallel")]
+pub(crate) fn decode_vertex_buffer_parallel(
+    count: usize,
+    stride: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    let valid = (4..=256).contains(&stride) && stride.is_multiple_of(4);
+    let block = ((8192 / if valid { stride } else { 4 }) & !15).min(256);
+    // Measured crossover: the serial scan of the group headers costs about a
+    // third of a serial decode, so fewer than four workers or a small or
+    // highly compressible (stride 8 or less) buffer decodes faster serially.
+    let minimum_bytes = if stride <= 8 { 32 << 20 } else { 48 << 20 };
+    if !valid
+        || rayon::current_num_threads() < 4
+        || count.div_ceil(block) < 2 * vertex_parallel::MIN_CHUNK_BLOCKS
+        || count.saturating_mul(stride) < minimum_bytes
+    {
+        return decode_vertex_buffer(count, stride, source, workspace);
+    }
+    let bytes = charge(
+        Mode::Attributes,
+        Filter::None,
+        count,
+        stride,
+        source,
+        workspace,
+    )?;
+    let mut out = vertex_parallel::zeroed(bytes)?;
+    if out.capacity() != bytes {
+        workspace.account_codec(out.capacity())?;
+    }
+    if vertex_parallel::decode(&mut out, count, stride, source).is_err() {
+        // The serial decoder judges anything unusual, with its own error.
+        vertex::decode(&mut out[..], count, stride, source)?;
+    }
+    Ok(out)
+}
+
+fn allocate(
+    mode: Mode,
+    filter: Filter,
+    count: usize,
+    stride: usize,
+    source: &[u8],
+    workspace: &mut Workspace,
+) -> Result<Vec<u8>, Error> {
+    let bytes = charge(mode, filter, count, stride, source, workspace)?;
     let mut out = Vec::new();
     out.try_reserve_exact(bytes)
         .map_err(|_| Error::AllocationFailed)?;

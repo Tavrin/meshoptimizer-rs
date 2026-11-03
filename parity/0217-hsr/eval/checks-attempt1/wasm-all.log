@@ -1,0 +1,36 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+warning: enum `Level` is never used
+ --> src/codec/simd/dispatch.rs:7:10
+  |
+7 | pub enum Level {
+  |          ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: static `DETECTED` is never used
+  --> src/codec/simd/dispatch.rs:21:8
+   |
+21 | static DETECTED: AtomicU8 = AtomicU8::new(255);
+   |        ^^^^^^^^
+
+warning: function `detected_level` is never used
+  --> src/codec/simd/dispatch.rs:24:8
+   |
+24 | pub fn detected_level() -> Level {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `from_byte` is never used
+  --> src/codec/simd/dispatch.rs:33:4
+   |
+33 | fn from_byte(n: u8) -> Level {
+   |    ^^^^^^^^^
+
+warning: function `detect` is never used
+  --> src/codec/simd/dispatch.rs:43:4
+   |
+43 | fn detect() -> Level {
+   |    ^^^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 5 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.10s

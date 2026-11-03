@@ -1,0 +1,13 @@
+     Locking 9 packages to latest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.19.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/speed2-proof/base)
+   Compiling hsr-exact v0.0.0 (<target>/speed2-proof/exact-all)
+    Finished `release` profile [optimized] target(s) in 17.03s

@@ -1,0 +1,16 @@
+{
+  "vertex": {
+    "before_cpp": 1.1839087547374787,
+    "after_cpp": 1.1103671355280982,
+    "after_before": 0.9378823588261347,
+    "worst_after_before": 1.0721907284173706
+  },
+  "index": {
+    "before_cpp": 1.040103857604847,
+    "after_cpp": 1.0617717594653404,
+    "after_before": 1.0208324406279872,
+    "worst_after_before": 1.1633882856668847
+  },
+  "minimum_timed_batch_seconds": 0.108867603,
+  "performance_boundary": "Vertex gap narrowed on the measured corpus; index gap remains open, with observed regressions. No universal decoder or native AVX-512 speed claim."
+}

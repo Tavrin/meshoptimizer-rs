@@ -1,25 +1,26 @@
 use crate::{workspace::checked_bytes, Error, Limits};
 
-/// The next action for an incremental index-sequence decoder.
+/// The next action for an incremental codec decoder.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Status {
-    /// Supply more compressed bytes. Only [`IndexSequenceDecoder::finish`]
-    /// declares an exhausted input malformed.
+    /// Supply more compressed bytes. This status does not declare EOF;
+    /// call the decoder's `finish` method once the stream ends.
     NeedInput,
-    /// Supply output space for at least one more index.
+    /// Supply output space for at least one more output element.
     NeedOutput,
-    /// All indices and four padding bytes have arrived. Call `finish` at EOF.
+    /// All declared output and format bytes have arrived. Call `finish` at EOF.
     Done,
 }
 
-/// Progress made by one successful [`IndexSequenceDecoder::push`] call.
+/// Progress made by one successful incremental decoder `push` call.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct Progress {
     /// Bytes consumed from this call's input; resubmit its unconsumed suffix.
     pub consumed: usize,
-    /// Indices written to this call's output; its remaining tail is untouched.
+    /// Output elements written; bytes for vertex decoding, indices otherwise.
+    /// The remaining destination tail is untouched.
     pub written: usize,
     /// The next action required by the decoder.
     pub status: Status,
@@ -103,7 +104,17 @@ impl IndexSequenceDecoder {
     /// `InvalidStream` for a bad header or extra bytes; `UnsupportedVersion`
     /// for a sequence version above 1; `LimitExceeded` for exhausted work.
     /// Errors are sticky; any output already emitted remains provisional.
+    /// Source-compatible u32 operation.
+    #[inline]
     pub fn push(&mut self, input: &[u8], output: &mut [u32]) -> Result<Progress, Error> {
+        self.push_generic::<u32>(input, output)
+    }
+    /// Select u16 or u32 output through the sealed Index trait.
+    pub fn push_generic<I: crate::Index>(
+        &mut self,
+        input: &[u8],
+        output: &mut [I],
+    ) -> Result<Progress, Error> {
         if let Some(error) = self.error {
             return Err(error);
         }
@@ -114,7 +125,11 @@ impl IndexSequenceDecoder {
         result
     }
 
-    fn push_inner(&mut self, input: &[u8], output: &mut [u32]) -> Result<Progress, Error> {
+    fn push_inner<I: crate::Index>(
+        &mut self,
+        input: &[u8],
+        output: &mut [I],
+    ) -> Result<Progress, Error> {
         let mut consumed = 0;
         let mut written = 0;
         let status = loop {
@@ -149,7 +164,7 @@ impl IndexSequenceDecoder {
                     let delta = (value >> 1) ^ 0u32.wrapping_sub(value & 1);
                     let index = self.last[baseline].wrapping_add(delta);
                     self.last[baseline] = index;
-                    output[written] = index;
+                    output[written] = I::from_u32(index)?;
                     written += 1;
                     self.remaining -= 1;
                     self.value = 0;

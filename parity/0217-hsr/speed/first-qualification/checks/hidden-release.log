@@ -1,0 +1,27 @@
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 21.94s
+     Running tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 18 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+HSR scaling work N=2816 8N=25600 ratio=9.090909090909092
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test opening_exposes_inside_from_outside ... ok
+test enclosed_opposite_faces_have_separate_reason ... ok
+test inner_cube_removed_outer_cube_kept ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+

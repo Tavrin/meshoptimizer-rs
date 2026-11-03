@@ -1,0 +1,4 @@
+error: no such command: `semver-checks`
+
+help: view all installed commands with `cargo --list`
+help: find a package to install `semver-checks` with `cargo search cargo-semver-checks`

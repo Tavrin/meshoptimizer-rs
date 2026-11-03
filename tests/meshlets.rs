@@ -757,77 +757,135 @@ mod caller_dag {
     }
     #[test]
     fn flat_dag_matches_callback_order_hierarchy_and_preserves_all_tails() {
-        let (original, indices) = super::mesh();
-        let config = clusterlod::default_config(16).unwrap();
-        let mut p = original.clone();
-        let mut ws = Workspace::default();
-        let owned = clusterlod::build(config, input(&mut p, &indices), &mut ws).unwrap();
-        let meta: Vec<_> = owned.iter().map(|g| g.group).collect();
-        let levels = meta.iter().map(|g| g.depth as usize + 1).max().unwrap();
-        let nodes = clusterlod::build_hierarchy(&meta, 4, levels, &mut ws).unwrap();
-        let mut storage = Storage::new();
-        let c = clusterlod::build_dag_into(
-            config,
-            input(&mut p, &indices),
-            4,
-            storage.buffers(),
-            &mut ws,
-        )
-        .unwrap();
-        let mut keys = std::collections::BTreeMap::new();
-        let mut expected_source = Vec::new();
-        let mut expected_indices = Vec::new();
-        let mut ci = 0;
-        for (gid, g) in owned.iter().enumerate() {
-            let flat = storage.groups[gid];
-            assert_eq!(flat.first_cluster as usize, ci);
-            assert_eq!(flat.cluster_count as usize, g.clusters.len());
-            assert_eq!(flat.depth, g.group.depth);
-            assert_eq!(flat.error.to_bits(), g.group.simplified.error.to_bits());
+        for (original, indices) in [super::mesh(), disk()] {
+            let config = clusterlod::default_config(16).unwrap();
+            let mut p = original.clone();
+            let mut ws = Workspace::default();
+            let owned = clusterlod::build(config, input(&mut p, &indices), &mut ws).unwrap();
+            let meta: Vec<_> = owned.iter().map(|g| g.group).collect();
+            let levels = meta.iter().map(|g| g.depth as usize + 1).max().unwrap();
+            let nodes = clusterlod::build_hierarchy(&meta, 4, levels, &mut ws).unwrap();
+            let mut storage = Storage::new();
+            let c = clusterlod::build_dag_into(
+                config,
+                input(&mut p, &indices),
+                4,
+                storage.buffers(),
+                &mut ws,
+            )
+            .unwrap();
+            let bytes = clusterlod::dag_format::write(
+                &storage.groups[..c.groups],
+                &storage.clusters[..c.clusters],
+                &storage.positions[..c.vertices],
+                &storage.indices[..c.indices],
+                2048,
+                &mut ws,
+            )
+            .unwrap();
+            if let Ok(dir) = std::env::var("DAG_SEED_DIR") {
+                std::fs::write(
+                    std::path::Path::new(&dir).join(format!("fixture-{}.bin", original.len())),
+                    &bytes,
+                )
+                .unwrap();
+            }
             assert_eq!(
-                flat.center.map(f32::to_bits),
-                g.group.simplified.center.map(f32::to_bits)
+                bytes,
+                clusterlod::dag_format::write(
+                    &storage.groups[..c.groups],
+                    &storage.clusters[..c.clusters],
+                    &storage.positions[..c.vertices],
+                    &storage.indices[..c.indices],
+                    2048,
+                    &mut ws,
+                )
+                .unwrap()
             );
-            assert_eq!(flat.radius.to_bits(), g.group.simplified.radius.to_bits());
-            for cl in &g.clusters {
-                let flat = storage.clusters[ci];
-                ci += 1;
-                assert_eq!(flat.first_index as usize, expected_indices.len());
-                assert_eq!(flat.index_count as usize, cl.indices.len());
-                assert_eq!(flat.group as usize, gid);
-                assert_eq!(flat.refined, cl.refined);
-                assert_eq!(
-                    flat.center.map(f32::to_bits),
-                    cl.bounds.center.map(f32::to_bits)
-                );
-                assert_eq!(flat.radius.to_bits(), cl.bounds.radius.to_bits());
-                for &src in &cl.indices {
-                    let k = (src, original[src as usize].map(f32::to_bits));
-                    let id = *keys.entry(k).or_insert_with(|| {
-                        let id = expected_source.len() as u32;
-                        expected_source.push(src);
-                        id
-                    });
-                    expected_indices.push(id);
+            let reader = clusterlod::dag_format::Reader::read(&bytes, &mut ws).unwrap();
+            for page in 0..reader.page_count() {
+                for geometry in reader
+                    .decode_page(page, &bytes[reader.page_range(page).unwrap()], &mut ws)
+                    .unwrap()
+                {
+                    assert_eq!(
+                        reader.cluster_page(geometry.cluster as usize).unwrap(),
+                        page
+                    );
+                    let cluster = storage.clusters[geometry.cluster as usize];
+                    let restored: Vec<_> = geometry
+                        .indices
+                        .iter()
+                        .map(|&i| geometry.vertices[i as usize].0)
+                        .collect();
+                    assert_eq!(
+                        restored,
+                        storage.indices[cluster.first_index as usize
+                            ..(cluster.first_index + cluster.index_count) as usize]
+                    );
+                    for (id, position) in geometry.vertices {
+                        assert_eq!(
+                            position.map(f32::to_bits),
+                            storage.positions[id as usize].map(f32::to_bits)
+                        );
+                    }
                 }
             }
+            let mut keys = std::collections::BTreeMap::new();
+            let mut expected_source = Vec::new();
+            let mut expected_indices = Vec::new();
+            let mut ci = 0;
+            for (gid, g) in owned.iter().enumerate() {
+                let flat = storage.groups[gid];
+                assert_eq!(flat.first_cluster as usize, ci);
+                assert_eq!(flat.cluster_count as usize, g.clusters.len());
+                assert_eq!(flat.depth, g.group.depth);
+                assert_eq!(flat.error.to_bits(), g.group.simplified.error.to_bits());
+                assert_eq!(
+                    flat.center.map(f32::to_bits),
+                    g.group.simplified.center.map(f32::to_bits)
+                );
+                assert_eq!(flat.radius.to_bits(), g.group.simplified.radius.to_bits());
+                for cl in &g.clusters {
+                    let flat = storage.clusters[ci];
+                    ci += 1;
+                    assert_eq!(flat.first_index as usize, expected_indices.len());
+                    assert_eq!(flat.index_count as usize, cl.indices.len());
+                    assert_eq!(flat.group as usize, gid);
+                    assert_eq!(flat.refined, cl.refined);
+                    assert_eq!(
+                        flat.center.map(f32::to_bits),
+                        cl.bounds.center.map(f32::to_bits)
+                    );
+                    assert_eq!(flat.radius.to_bits(), cl.bounds.radius.to_bits());
+                    for &src in &cl.indices {
+                        let k = (src, original[src as usize].map(f32::to_bits));
+                        let id = *keys.entry(k).or_insert_with(|| {
+                            let id = expected_source.len() as u32;
+                            expected_source.push(src);
+                            id
+                        });
+                        expected_indices.push(id);
+                    }
+                }
+            }
+            assert_eq!(&storage.source[..c.vertices], expected_source);
+            assert_eq!(&storage.indices[..c.indices], expected_indices);
+            assert_eq!(&storage.nodes[..c.nodes], nodes);
+            assert_eq!(c.groups, owned.len());
+            assert_eq!(c.clusters, ci);
+            assert_eq!(c.level_count as usize, levels);
+            assert!(storage.source[c.vertices..].iter().all(|&v| v == u32::MAX));
+            assert!(storage.positions[c.vertices..]
+                .iter()
+                .all(|&v| v == [-123.; 3]));
+            assert!(storage.indices[c.indices..].iter().all(|&v| v == u32::MAX));
+            assert!(storage.clusters[c.clusters..]
+                .iter()
+                .all(|v| v.refined == -123));
+            assert!(storage.groups[c.groups..].iter().all(|v| v.depth == -123));
+            assert!(storage.nodes[c.nodes..].iter().all(|v| v.group == -123));
         }
-        assert_eq!(&storage.source[..c.vertices], expected_source);
-        assert_eq!(&storage.indices[..c.indices], expected_indices);
-        assert_eq!(&storage.nodes[..c.nodes], nodes);
-        assert_eq!(c.groups, owned.len());
-        assert_eq!(c.clusters, ci);
-        assert_eq!(c.level_count as usize, levels);
-        assert!(storage.source[c.vertices..].iter().all(|&v| v == u32::MAX));
-        assert!(storage.positions[c.vertices..]
-            .iter()
-            .all(|&v| v == [-123.; 3]));
-        assert!(storage.indices[c.indices..].iter().all(|&v| v == u32::MAX));
-        assert!(storage.clusters[c.clusters..]
-            .iter()
-            .all(|v| v.refined == -123));
-        assert!(storage.groups[c.groups..].iter().all(|v| v.depth == -123));
-        assert!(storage.nodes[c.nodes..].iter().all(|v| v.group == -123));
     }
     #[test]
     fn each_caller_buffer_can_fail_without_replacement_output() {

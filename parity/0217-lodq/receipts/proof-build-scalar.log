@@ -1,0 +1,4 @@
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling meshoptimizer-baseline v0.2.16 (<target>/proof/base)
+   Compiling lodq-proof v0.0.0 (<target>/proof/driver)
+    Finished `release` profile [optimized] target(s) in 23.58s

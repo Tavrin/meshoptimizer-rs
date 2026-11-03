@@ -1,0 +1,151 @@
+{
+  "cpu": 0,
+  "event": "instructions:u",
+  "repetitions": 3,
+  "results": [
+    {
+      "case": "tiny-smooth",
+      "instructions": {
+        "base": 110645.84,
+        "candidate": 110645.85,
+        "cpp-scalar": 120315.05,
+        "cpp-default": 120314.87
+      },
+      "wall_seconds": {
+        "base": 9.999360000000002e-06,
+        "candidate": 9.999360000000002e-06,
+        "cpp-scalar": 9.999360000000002e-06,
+        "cpp-default": 9.99937e-06
+      },
+      "candidate_over_base": 1.0000000903784545,
+      "candidate_over_cpp_scalar": 0.9196343267114131,
+      "candidate_over_cpp_default": 0.91963570255281
+    },
+    {
+      "case": "medium-smooth",
+      "instructions": {
+        "base": 12038782.0,
+        "candidate": 12038791.0,
+        "cpp-scalar": 10958273.0,
+        "cpp-default": 10958272.0
+      },
+      "wall_seconds": {
+        "base": 0.000999937,
+        "candidate": 0.000999936,
+        "cpp-scalar": 0.000999937,
+        "cpp-default": 0.000999936
+      },
+      "candidate_over_base": 1.0000007475839334,
+      "candidate_over_cpp_scalar": 1.0986029459204019,
+      "candidate_over_cpp_default": 1.0986030461737033
+    },
+    {
+      "case": "medium-seams",
+      "instructions": {
+        "base": 15301331.0,
+        "candidate": 15301330.0,
+        "cpp-scalar": 14178425.0,
+        "cpp-default": 14178433.0
+      },
+      "wall_seconds": {
+        "base": 0.001999872,
+        "candidate": 0.000999937,
+        "cpp-scalar": 0.001999872,
+        "cpp-default": 0.001999872
+      },
+      "candidate_over_base": 0.9999999346462082,
+      "candidate_over_cpp_scalar": 1.0791981478901924,
+      "candidate_over_cpp_default": 1.0791975389664006
+    },
+    {
+      "case": "medium-sparse",
+      "instructions": {
+        "base": 13015083.0,
+        "candidate": 13015074.0,
+        "cpp-scalar": 11868183.0,
+        "cpp-default": 11868166.0
+      },
+      "wall_seconds": {
+        "base": 0.0,
+        "candidate": 0.000999936,
+        "cpp-scalar": 0.000999936,
+        "cpp-default": 0.000999936
+      },
+      "candidate_over_base": 0.9999993084946135,
+      "candidate_over_cpp_scalar": 1.096635769772003,
+      "candidate_over_cpp_default": 1.0966373405966854
+    },
+    {
+      "case": "million-smooth",
+      "instructions": {
+        "base": 2426542862.0,
+        "candidate": 2426542892.0,
+        "cpp-scalar": 2256440702.0,
+        "cpp-default": 2256440653.0
+      },
+      "wall_seconds": {
+        "base": 0.239984666,
+        "candidate": 0.273982494,
+        "cpp-scalar": 0.285981727,
+        "cpp-default": 0.268982813
+      },
+      "candidate_over_base": 1.0000000123632682,
+      "candidate_over_cpp_scalar": 1.0753851806738062,
+      "candidate_over_cpp_default": 1.0753852040264584
+    },
+    {
+      "case": "real-214e",
+      "instructions": {
+        "base": 3154090329.0,
+        "candidate": 3154091859.0,
+        "cpp-scalar": 2813432973.0,
+        "cpp-default": 2813433001.0
+      },
+      "wall_seconds": {
+        "base": 0.845945947,
+        "candidate": 0.838946394,
+        "cpp-scalar": 1.054932593,
+        "cpp-default": 1.041933423
+      },
+      "candidate_over_base": 1.0000004850843953,
+      "candidate_over_cpp_scalar": 1.1210829933640647,
+      "candidate_over_cpp_default": 1.121082982206762
+    },
+    {
+      "case": "real-a082",
+      "instructions": {
+        "base": 5750946897.0,
+        "candidate": 5750940860.0,
+        "cpp-scalar": 5024123087.0,
+        "cpp-default": 5024124797.0
+      },
+      "wall_seconds": {
+        "base": 2.222857965,
+        "candidate": 2.16086193,
+        "cpp-scalar": 2.353849599,
+        "cpp-default": 2.301852919
+      },
+      "candidate_over_base": 0.9999989502598253,
+      "candidate_over_cpp_scalar": 1.1446655984366014,
+      "candidate_over_cpp_default": 1.144665208840751
+    },
+    {
+      "case": "real-b6fd",
+      "instructions": {
+        "base": 1435176668.0,
+        "candidate": 1435176709.0,
+        "cpp-scalar": 1250240388.0,
+        "cpp-default": 1250240375.0
+      },
+      "wall_seconds": {
+        "base": 0.228985369,
+        "candidate": 0.229985305,
+        "cpp-scalar": 0.271982621,
+        "cpp-default": 0.270982686
+      },
+      "candidate_over_base": 1.0000000285679114,
+      "candidate_over_cpp_scalar": 1.147920610128298,
+      "candidate_over_cpp_default": 1.147920622064377
+    }
+  ]
+}

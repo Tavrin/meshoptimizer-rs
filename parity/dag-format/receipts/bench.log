@@ -1,0 +1,123 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+warning: ignoring -C extra-filename flag due to -o flag
+
+error[E0425]: cannot find function `build_meshlets_flex_validated` in module `crate::meshlet`
+    --> src/clusterlod/mod.rs:233:29
+     |
+ 233 |               crate::meshlet::build_meshlets_flex_validated(
+     |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+    ::: src/meshlet.rs:2084:1
+     |
+2084 | / pub fn build_meshlets_flex_into(
+2085 | |     descriptors: &mut [Meshlet],
+2086 | |     vertices: &mut [u32],
+2087 | |     triangles: &mut [u8],
+...    |
+2111 | | }
+     | |_- similarly named function `build_meshlets_flex_into` defined here
+     |
+note: found an item that was configured out
+    --> src/meshlet.rs:1954:15
+     |
+1953 | #[cfg(feature = "clusterlod")]
+     |       ---------------------- the item is gated behind the `clusterlod` feature
+1954 | pub(crate) fn build_meshlets_flex_validated(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+     |
+ 233 -             crate::meshlet::build_meshlets_flex_validated(
+ 233 +             crate::meshlet::build_meshlets_flex_into(
+     |
+
+error[E0425]: cannot find function `build_meshlets_spatial_validated` in module `crate::meshlet`
+    --> src/clusterlod/mod.rs:254:33
+     |
+ 254 |                   crate::meshlet::build_meshlets_spatial_validated(
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+    ::: src/meshlet.rs:2116:1
+     |
+2116 | / pub fn build_meshlets_spatial_into(
+2117 | |     descriptors: &mut [Meshlet],
+2118 | |     vertices: &mut [u32],
+2119 | |     triangles: &mut [u8],
+...    |
+2141 | | }
+     | |_- similarly named function `build_meshlets_spatial_into` defined here
+     |
+note: found an item that was configured out
+    --> src/meshlet.rs:2006:15
+     |
+2005 | #[cfg(feature = "clusterlod")]
+     |       ---------------------- the item is gated behind the `clusterlod` feature
+2006 | pub(crate) fn build_meshlets_spatial_validated(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+     |
+ 254 -                 crate::meshlet::build_meshlets_spatial_validated(
+ 254 +                 crate::meshlet::build_meshlets_spatial_into(
+     |
+
+error[E0425]: cannot find function `build_meshlets_flex_validated` in module `crate::meshlet`
+    --> src/clusterlod/mod.rs:264:33
+     |
+ 264 |                   crate::meshlet::build_meshlets_flex_validated(
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+    ::: src/meshlet.rs:2084:1
+     |
+2084 | / pub fn build_meshlets_flex_into(
+2085 | |     descriptors: &mut [Meshlet],
+2086 | |     vertices: &mut [u32],
+2087 | |     triangles: &mut [u8],
+...    |
+2111 | | }
+     | |_- similarly named function `build_meshlets_flex_into` defined here
+     |
+note: found an item that was configured out
+    --> src/meshlet.rs:1954:15
+     |
+1953 | #[cfg(feature = "clusterlod")]
+     |       ---------------------- the item is gated behind the `clusterlod` feature
+1954 | pub(crate) fn build_meshlets_flex_validated(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+     |
+ 264 -                 crate::meshlet::build_meshlets_flex_validated(
+ 264 +                 crate::meshlet::build_meshlets_flex_into(
+     |
+
+error[E0425]: cannot find function `compute_cluster_bounds_validated` in module `crate::meshlet_util`
+   --> src/clusterlod/mod.rs:950:34
+    |
+950 |               crate::meshlet_util::compute_cluster_bounds_validated(
+    |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+   ::: src/meshlet_util.rs:371:1
+    |
+371 | / pub fn compute_cluster_bounds(
+372 | |     indices: &[u32],
+373 | |     p: Positions<'_>,
+374 | |     workspace: &mut Workspace,
+...   |
+387 | | }
+    | |_- similarly named function `compute_cluster_bounds` defined here
+    |
+note: found an item that was configured out
+   --> src/meshlet_util.rs:442:15
+    |
+441 | #[cfg(feature = "clusterlod")]
+    |       ---------------------- the item is gated behind the `clusterlod` feature
+442 | pub(crate) fn compute_cluster_bounds_validated(
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: a function with a similar name exists
+    |
+950 -             crate::meshlet_util::compute_cluster_bounds_validated(
+950 +             crate::meshlet_util::compute_cluster_bounds(
+    |
+
+For more information about this error, try `rustc --explain E0425`.
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+error: could not compile `meshoptimizer-rs` (lib) due to 4 previous errors; 1 warning emitted

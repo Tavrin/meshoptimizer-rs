@@ -1,0 +1,12 @@
+{
+  "command": "run",
+  "counts": {
+    "vertex_cache": 50,
+    "overdraw": 50,
+    "simplify": 65,
+    "simplify_with_attributes": 62,
+    "simplify_scale": 52
+  },
+  "mismatches": 0,
+  "passed": true
+}

@@ -1,0 +1,21 @@
+{
+  "exit": 0,
+  "real_speed_gate": true,
+  "largest_hsr_seconds": 0.788948509,
+  "largest_vs_simplify": 0.34988900944842566,
+  "focused_all_features_tests": 20,
+  "focused_no_default_tests": 19,
+  "exact_observations": 174544,
+  "cpp_differential_observations": 960,
+  "scaling_work_ratio": 8.8,
+  "scaling_wall_ratio": 8.885200561603208,
+  "real_removed_share": 0,
+  "feature_modes_identical": true,
+  "head": "09da597f438471d0ad9c16e460f3598e9356e9ea",
+  "branch": "feat/0217-hsr",
+  "no_git_state_changes": true,
+  "no_other_model_or_ai_cli": true,
+  "fuzz_run": false,
+  "wasm_executed": false,
+  "dedicated_target_removed": true
+}

@@ -28,11 +28,14 @@ pub enum Error {
     AllocationFailed,
     /// Geometry or an intermediate calculation is non-finite.
     NumericalFailure,
+    /// An output vertex index cannot fit the requested index width.
+    IndexOverflow,
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
+            Self::IndexOverflow => "output index does not fit index width",
             Self::InvalidTopology => "invalid triangle topology",
             Self::IndexOutOfBounds => "vertex index out of bounds",
             Self::InvalidLayout => "invalid vertex layout",

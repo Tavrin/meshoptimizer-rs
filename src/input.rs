@@ -889,6 +889,27 @@ impl<'a> Positions<'a> {
 pub struct Attributes<'a>(View<'a>, Option<&'a [u32]>);
 
 impl<'a> Attributes<'a> {
+    // Character preparation owns and meters this packed buffer. Public attribute
+    // constructors retain their upstream-compatible width and stride limits.
+    pub(crate) fn from_character_packed(
+        data: &'a [f32],
+        count: usize,
+        components: usize,
+    ) -> Result<Self, Error> {
+        if count.checked_mul(components).ok_or(Error::SizeOverflow)? != data.len() {
+            return Err(Error::InvalidLayout);
+        }
+        Ok(Self(
+            View {
+                storage: Storage::Floats(data),
+                count,
+                width: components,
+                stride: components,
+                offset: 0,
+            },
+            None,
+        ))
+    }
     /// Borrow interleaved attributes; stride and offset are in f32 elements.
     /// Zero components are supported; stride is at most 64 elements.
     ///

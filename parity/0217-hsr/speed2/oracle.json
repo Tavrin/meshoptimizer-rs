@@ -1,0 +1,1 @@
+{"exit": 0, "scenes": 80, "subdivisions": [1, 2, 4], "observations": 1200, "candidate_checks": 960, "extra_kept_total": 0, "criterion": "old exact C++; candidate superset, pre-fix exact identity and feature-mode identity", "oracle_sha256": "3f573ebb159d9592cf0d570fa20c0269bbc7c1ab70c05b0a2867491bea2bf27d"}

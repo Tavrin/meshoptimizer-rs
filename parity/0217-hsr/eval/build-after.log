@@ -1,0 +1,4 @@
+     Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-speed v0.0.0 (<target>/speed/build-after)
+    Finished `release` profile [optimized] target(s) in 15.45s

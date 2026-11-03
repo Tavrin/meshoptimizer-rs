@@ -1,0 +1,69 @@
+heavy: waiting (class script:<private-path> reserving 5G, cap 9G, declared 4G, full declaration or higher history reservation: class escalation): bash -c cargo fmt --all && cargo test --locked --release --all-features --test hidden -- --nocapture
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=5242880; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15974552 - unused_kb=11790180 - margin_kb=2097152 = free_kb=2087220; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 2G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15875476 - unused_kb=11659440 - margin_kb=2097152 = free_kb=2118884; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15809332 - unused_kb=11624240 - margin_kb=2097152 = free_kb=2087940; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 2G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15790524 - unused_kb=11576444 - margin_kb=2097152 = free_kb=2116928; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15681676 - unused_kb=11618056 - margin_kb=2097152 = free_kb=1966468; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -6G admissible, 17G reserved for running jobs; will start automatically [capacity: available_kb=14922288 - unused_kb=19921316 - margin_kb=2097152 = free_kb=-7096180; need_kb=5242880; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -5G admissible, 17G reserved for running jobs; will start automatically [capacity: available_kb=14440548 - unused_kb=18408532 - margin_kb=2097152 = free_kb=-6065136; need_kb=5242880; normal_slots=4/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, -6G admissible, 17G reserved for running jobs; will start automatically [capacity: available_kb=14123860 - unused_kb=18428952 - margin_kb=2097152 = free_kb=-6402244; need_kb=5242880; normal_slots=4/6; lane_slots=0/2]
+heavy: running (5G reserved, cap 9G, 13G available): bash -c cargo fmt --all && cargo test --locked --release --all-features --test hidden -- --nocapture
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling libm v0.2.16
+   Compiling either v1.18.0
+   Compiling rayon v1.11.0
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 24.52s
+     Running tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 18 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+
+thread 'opening_exposes_inside_from_outside' (1749878) panicked at tests/hidden.rs:43:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test opening_exposes_inside_from_outside ... FAILED
+
+thread 'inner_cube_removed_outer_cube_kept' (1749876) panicked at tests/hidden.rs:33:5:
+assertion `left == right` failed
+  left: [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7, 8, 10, 9, 8, 11, 10, 12, 13, 14, 12, 14, 15, 8, 9, 13, 8, 13, 12, 9, 10, 14, 9, 14, 13, 10, 11, 15, 10, 15, 14, 11, 8, 12, 11, 12, 15]
+ right: [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7]
+test inner_cube_removed_outer_cube_kept ... FAILED
+
+thread 'enclosed_opposite_faces_have_separate_reason' (1749872) panicked at tests/hidden.rs:89:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+test enclosed_opposite_faces_have_separate_reason ... FAILED
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+HSR scaling work N=397040 8N=426120 ratio=1.0732419907314124
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... ok
+test deterministic_warm_after_failure_and_nonpacked ... ok
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+test retained_cache_and_failure_do_not_change_visibility ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+
+failures:
+
+failures:
+    enclosed_opposite_faces_have_separate_reason
+    inner_cube_removed_outer_cube_kept
+    opening_exposes_inside_from_outside
+
+test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `--test hidden`

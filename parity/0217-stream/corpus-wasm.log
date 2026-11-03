@@ -1,0 +1,65 @@
+native fixture functions 52
+21 awaited tests passed
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running tests/buffer_stream.rs (<target>/debug/deps/buffer_stream-410944b8623c8f45)
+
+running 7 tests
+test empty_output_sticky_and_narrowing ... ok
+test metadata_limits_and_vertex_stickiness ... ok
+upstream corpus comparisons: 916
+test upstream_corpus ... ok
+test arbitrary_errors ... ok
+test random_roundtrips_and_malformed ... ok
+test long_triangle_bodies_cycle_the_input_window ... ok
+test every_available_simd_path ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.19s
+
+    Updating crates.io index
+     Locking 2 packages to highest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+warning: fields `version`, `block`, `stride`, `last`, and `channels` are never read
+   --> <worktree>/src/codec/simd/mod.rs:354:26
+    |
+353 | pub(in crate::codec) struct VertexBlock<'a> {
+    |                             ----------- fields in this struct
+354 |     pub(in crate::codec) version: u8,
+    |                          ^^^^^^^
+355 |     pub(in crate::codec) block: usize,
+    |                          ^^^^^
+356 |     pub(in crate::codec) stride: usize,
+    |                          ^^^^^^
+357 |     pub(in crate::codec) last: &'a [u8; 256],
+    |                          ^^^^
+358 |     pub(in crate::codec) channels: &'a [u8],
+    |                          ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `meshoptimizer-rs` (lib) generated 1 warning
+   Compiling stream-wasm-proof v0.0.0 (<target>/stream-proof/wasm)
+warning: function `upstream_corpus` is never used
+   --> lib.rs:179:4
+    |
+179 | fn upstream_corpus() {
+    |    ^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `metadata_limits_and_vertex_stickiness` is never used
+   --> lib.rs:216:4
+    |
+216 | fn metadata_limits_and_vertex_stickiness() {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `long_triangle_bodies_cycle_the_input_window` is never used
+   --> lib.rs:267:4
+    |
+267 | fn long_triangle_bodies_cycle_the_input_window() {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `stream-wasm-proof` (lib) generated 3 warnings
+    Finished `release` profile [optimized] target(s) in 6.27s
+PASS: wasm streaming identity, malformed inputs, SIMD, and narrowing

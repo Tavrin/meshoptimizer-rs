@@ -1,0 +1,5 @@
+     Locking 2 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-eval v0.0.0 (<target>/evaluation)
+    Finished `release` profile [optimized] target(s) in 18.24s

@@ -1,0 +1,188 @@
+heavy: waiting (class script:<private-path> reserving 5G, cap 9G, declared 4G, full declaration or higher history reservation: class escalation): bash -c cargo fmt --all && cargo test --locked --release --all-features --test hidden -- --nocapture; python3 parity/0217-hsr/speed/probe.py
+heavy: waiting — admission lock busy [capacity: available_kb=0 - unused_kb=0 - margin_kb=2097152 = free_kb=-2097152; need_kb=5242880; normal_slots=0/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 2G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15671644 - unused_kb=11376332 - margin_kb=2097152 = free_kb=2198160; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15521108 - unused_kb=11375676 - margin_kb=2097152 = free_kb=2048280; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 2G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=16143768 - unused_kb=11422692 - margin_kb=2097152 = free_kb=2623924; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15426152 - unused_kb=11381796 - margin_kb=2097152 = free_kb=1947204; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 2G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=16004052 - unused_kb=11388916 - margin_kb=2097152 = free_kb=2517984; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 1G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15266640 - unused_kb=11388712 - margin_kb=2097152 = free_kb=1780776; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: waiting — needs 5G RAM, 2G admissible, 6G reserved for running jobs; will start automatically [capacity: available_kb=15876124 - unused_kb=11375868 - margin_kb=2097152 = free_kb=2403104; need_kb=5242880; normal_slots=3/6; lane_slots=0/2]
+heavy: running (5G reserved, cap 9G, 15G available): bash -c cargo fmt --all && cargo test --locked --release --all-features --test hidden -- --nocapture; python3 parity/0217-hsr/speed/probe.py
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+    Finished `release` profile [optimized] target(s) in 20.34s
+     Running tests/hidden.rs (<target>/release/deps/hidden-d7f137cf3bfa6717)
+
+running 18 tests
+test any_visible_vertex_keeps_triangle_even_with_hidden_centroid ... ok
+test bounds_views_are_exactly_corners_and_center ... ok
+test inclusive_sampling_density_limits_and_zero_volume_views ... ok
+test invalid_input_and_options_are_checked ... ok
+test resting_box_from_accessible_viewpoints_only_removes_fully_covered_plane ... ok
+test every_work_limit_and_byte_boundaries_preserve_destination_and_recover ... ok
+test raster_preserves_visible_slivers_and_subpixel_triangles ... ok
+HSR scaling work N=397296 8N=428168 ratio=1.0777052877451572
+test raster_work_scales_on_separated_triangles_n_vs_8n ... ok
+test exposed_coplanar_back_to_back_walls_do_not_mutually_occlude ... ok
+test empty_and_degenerate_extreme_finite_geometry_is_retained ... ok
+
+thread 'enclosed_opposite_faces_have_separate_reason' (1847628) panicked at tests/hidden.rs:89:5:
+assertion `left == right` failed
+  left: 0
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test enclosed_opposite_faces_have_separate_reason ... FAILED
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 12 view 0 cell 
+thread 'opening_exposes_inside_from_outside' (1847634) panicked at tests/hidden.rs:43:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+127,75 depth -inf query (0.5222083495171206, test opening_exposes_inside_from_outside ... 0.FAILED5835185700449421
+)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 82,101 depth 1.1065005998528443 query (-0.5773502691896258, -0.5641636578024729)
+DEBUG keep 14 view 0 cell 172,101 depth 1.1446981897112878 query (-0.6450645386743261, -0.5837483168076538)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 172,101 depth 1.1446981897112878 query (-0.5773502691896258, -0.5260391765278092)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 82,101 depth 1.1065005998528443 query (-0.5773502691896258, -0.5456252906595318)
+DEBUG keep 21 view 0 cell 82,101 depth 1.1065005998528443 query (-0.6069381573507582, -0.5773502691896258)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 82,154 depth 2.270470827613775 query (0.5383366166744947, 0.5773502691896258)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,
+thread 'inner_cube_removed_outer_cube_kept' (1847632) panicked at tests/hidden.rs:33:5:
+assertion `left == right` failed
+  left: [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7, 8, 10, 9, 8, 11, 10, 12, 13, 14, 12, 14, 15, 8, 9, 13, 8, 13, 12, 9, 10, 14, 9, 14, 13, 10, 11, 15, 10, 15, 14, 11, 8, 12, 11, 12, 15]
+ right: [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7]
+75 depth -inf query (0.5656116480788786, 0.5773502691896258test tolerance_only_retains_more_and_view_endpoint_is_not_an_occluder ... )ok
+
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.test inner_cube_removed_outer_cube_kept ... 5773502691896258FAILED)
+
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+test deterministic_warm_after_failure_and_nonpacked ... ok
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+test retained_cache_and_failure_do_not_change_visibility ... ok
+DEBUG keep 12 view 0 cell 127,75 depth -inf query (0.5222083495171206, 0.5835185700449421)
+DEBUG keep 13 view 0 cell 127,127 depth -inf query (1.6712115005059929, 1.7320508075688776)
+DEBUG keep 14 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 15 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.7315791443237494)
+DEBUG keep 16 view 0 cell 127,75 depth -inf query (0.5604790821014057, 0.6217926577210696)
+DEBUG keep 17 view 0 cell 127,127 depth -inf query (1.7094812794451508, 1.7320508075688776)
+DEBUG keep 18 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 19 view 0 cell 127,75 depth -inf query (0.5656116480788786, 0.5773502691896258)
+DEBUG keep 20 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5221198297225293)
+DEBUG keep 21 view 0 cell 127,127 depth -inf query (-1.7320508075688776, -1.693307458094338)
+DEBUG keep 22 view 0 cell 127,127 depth -inf query (1.7317055023839556, 1.7320508075688776)
+DEBUG keep 23 view 0 cell 127,180 depth -inf query (-0.5773502691896258, -0.5657842748599187)
+test raster_is_identical_in_one_two_and_four_thread_pools ... ok
+test raster_pixel_options_and_failure_are_atomic ... ok
+
+failures:
+
+failures:
+    enclosed_opposite_faces_have_separate_reason
+    inner_cube_removed_outer_cube_kept
+    opening_exposes_inside_from_outside
+
+test result: FAILED. 15 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `--test hidden`
+     Locking 2 packages to latest compatible versions
+   Compiling meshoptimizer-rs v0.2.16 (<worktree>)
+   Compiling hsr-probe v0.0.0 (<target>/probe)
+    Finished `release` profile [optimized] target(s) in 15.94s
+RESULT 1.461080284 {"input":3289725,"output":3289725,"removed":0,"duplicate":0,"back_to_back":0,"occluded":0,"work":142261517,"bytes":427664250}
+READY
+COUNTED 1.361914570

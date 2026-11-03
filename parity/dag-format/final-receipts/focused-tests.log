@@ -1,0 +1,40 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/dag_format.rs (<local-path>)
+
+running 4 tests
+test emit_seed_if_requested ... ok
+test empty_and_page_limits ... ok
+test rejects_truncations_and_corrupt_tables ... ok
+test rejects_cycles_nonmonotonic_errors_and_bad_page_geometry ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/meshlets.rs (<local-path>)
+
+running 23 tests
+test bounds_positions_constructor_defers_failed_scans_for_error_precedence ... ok
+test partition_arbitrary_lists_empty_and_disconnected ... ok
+test early_errors_replace_previous_workspace_measurements ... ok
+test spatial_permutation_directions_and_strided_identity ... ok
+test validation_and_exact_resource_boundaries ... ok
+test bounds_keep_zero_degenerate_cones_and_enclose_spheres ... ok
+test caller_dag::empty_and_invalid_width_have_explicit_results ... ok
+test utilities_handle_collision_unused_vertices_wrapping_valence_and_rotation ... ok
+test caller_dag::dilation_keeps_earlier_snapshots_and_full_dag_limits_are_cumulative ... ok
+test packed_meshlets_and_caller_buffers_preserve_topology_and_tails ... ok
+test caller_dag::each_caller_buffer_can_fail_without_replacement_output ... ok
+test cached_meshlet_bounds_layouts_and_stack_buckets_match_checked_path ... ok
+test demo_hierarchy_references_progress_and_explicit_errors ... ok
+test demo_dilation_near_position_range_threshold ... ok
+test cached_cluster_bounds_preserve_bits_errors_and_usage ... ok
+test caller_dag::caller_dag_batches_match_at_1_2_8_threads_and_isolate_ordered_errors ... ok
+test cached_meshlet_bounds_preserve_bits_errors_and_usage ... ok
+test caller_dag::flat_dag_matches_callback_order_hierarchy_and_preserves_all_tails ... ok
+test all_processing_families_enforce_work_and_retained_storage ... ok
+test demo_limits_charge_outputs_scratch_and_callback_lifetimes ... ok
+test packed_and_interleaved_uncached_bounds_preserve_bits_and_usage ... ok
+test demo_attribute_layouts_preserve_output_and_workspace_peak ... ok
+test demo_single_cluster_unused_attributes_do_not_consume_workspace ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+

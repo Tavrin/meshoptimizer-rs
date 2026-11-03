@@ -1,0 +1,122 @@
+equivalent grid-4 indices=96 vertices=25
+sample grid-4 repetition=0 arm=0 ns=2069887007 batch=10000
+sample grid-4 repetition=0 arm=1 ns=2521862236 batch=10000
+sample grid-4 repetition=1 arm=1 ns=2609857318 batch=10000
+sample grid-4 repetition=1 arm=0 ns=2070886707 batch=10000
+sample grid-4 repetition=2 arm=0 ns=2220878422 batch=10000
+sample grid-4 repetition=2 arm=1 ns=2667853846 batch=10000
+sample grid-4 repetition=3 arm=1 ns=2760848632 batch=10000
+sample grid-4 repetition=3 arm=0 ns=2111884130 batch=10000
+sample grid-4 repetition=4 arm=0 ns=2011889550 batch=10000
+sample grid-4 repetition=4 arm=1 ns=2284874484 batch=10000
+sample grid-4 repetition=5 arm=1 ns=2299873572 batch=10000
+sample grid-4 repetition=5 arm=0 ns=2132882684 batch=10000
+sample grid-4 repetition=6 arm=0 ns=2183879803 batch=10000
+sample grid-4 repetition=6 arm=1 ns=2340871079 batch=10000
+timing grid-4 pipeline_ns=211188 manual_ns=252186 ratio=0.837430 samples=7 batch=10000
+equivalent grid-16 indices=1536 vertices=289
+sample grid-16 repetition=0 arm=0 ns=1618910788 batch=256
+sample grid-16 repetition=0 arm=1 ns=1668907991 batch=256
+sample grid-16 repetition=1 arm=1 ns=1715905355 batch=256
+sample grid-16 repetition=1 arm=0 ns=1996889802 batch=256
+sample grid-16 repetition=2 arm=0 ns=1612910942 batch=256
+sample grid-16 repetition=2 arm=1 ns=1659908308 batch=256
+sample grid-16 repetition=3 arm=1 ns=1661908152 batch=256
+sample grid-16 repetition=3 arm=0 ns=1587912201 batch=256
+sample grid-16 repetition=4 arm=0 ns=1535915046 batch=256
+sample grid-16 repetition=4 arm=1 ns=1602911299 batch=256
+sample grid-16 repetition=5 arm=1 ns=1807899910 batch=256
+sample grid-16 repetition=5 arm=0 ns=1578912547 batch=256
+sample grid-16 repetition=6 arm=0 ns=1589911899 batch=256
+sample grid-16 repetition=6 arm=1 ns=1696905929 batch=256
+timing grid-16 pipeline_ns=6210593 manual_ns=6519171 ratio=0.952666 samples=7 batch=256
+equivalent grid-32 indices=6144 vertices=1089
+sample grid-32 repetition=0 arm=0 ns=2288873044 batch=64
+sample grid-32 repetition=0 arm=1 ns=2510860642 batch=64
+sample grid-32 repetition=1 arm=1 ns=1889895043 batch=64
+sample grid-32 repetition=1 arm=0 ns=1858896711 batch=64
+sample grid-32 repetition=2 arm=0 ns=1747902835 batch=64
+sample grid-32 repetition=2 arm=1 ns=1797900010 batch=64
+sample grid-32 repetition=3 arm=1 ns=1862896345 batch=64
+sample grid-32 repetition=3 arm=0 ns=1759902030 batch=64
+sample grid-32 repetition=4 arm=0 ns=1747902652 batch=64
+sample grid-32 repetition=4 arm=1 ns=1758901994 batch=64
+sample grid-32 repetition=5 arm=1 ns=1759901898 batch=64
+sample grid-32 repetition=5 arm=0 ns=1712904476 batch=64
+sample grid-32 repetition=6 arm=0 ns=1833897680 batch=64
+sample grid-32 repetition=6 arm=1 ns=1853896511 batch=64
+timing grid-32 pipeline_ns=27498469 manual_ns=28967132 ratio=0.949299 samples=7 batch=64
+equivalent tiny-smooth indices=96 vertices=25
+sample tiny-smooth repetition=0 arm=0 ns=2056885125 batch=10000
+sample tiny-smooth repetition=0 arm=1 ns=2085883447 batch=10000
+sample tiny-smooth repetition=1 arm=1 ns=2118881541 batch=10000
+sample tiny-smooth repetition=1 arm=0 ns=2131880751 batch=10000
+sample tiny-smooth repetition=2 arm=0 ns=2213876094 batch=10000
+sample tiny-smooth repetition=2 arm=1 ns=2470861632 batch=10000
+sample tiny-smooth repetition=3 arm=1 ns=2510859307 batch=10000
+sample tiny-smooth repetition=3 arm=0 ns=2310870436 batch=10000
+sample tiny-smooth repetition=4 arm=0 ns=1961889946 batch=10000
+sample tiny-smooth repetition=4 arm=1 ns=2242874120 batch=10000
+sample tiny-smooth repetition=5 arm=1 ns=2270872478 batch=10000
+sample tiny-smooth repetition=5 arm=0 ns=2073883477 batch=10000
+sample tiny-smooth repetition=6 arm=0 ns=2093882299 batch=10000
+sample tiny-smooth repetition=6 arm=1 ns=2397865138 batch=10000
+timing tiny-smooth pipeline_ns=209388 manual_ns=227087 ratio=0.922061 samples=7 batch=10000
+equivalent medium-smooth indices=24576 vertices=4225
+sample medium-smooth repetition=0 arm=0 ns=1959889704 batch=16
+sample medium-smooth repetition=0 arm=1 ns=2008886893 batch=16
+sample medium-smooth repetition=1 arm=1 ns=1844896081 batch=16
+sample medium-smooth repetition=1 arm=0 ns=1815897671 batch=16
+sample medium-smooth repetition=2 arm=0 ns=1838896332 batch=16
+sample medium-smooth repetition=2 arm=1 ns=1974888616 batch=16
+sample medium-smooth repetition=3 arm=1 ns=2098881566 batch=16
+sample medium-smooth repetition=3 arm=0 ns=2199875804 batch=16
+sample medium-smooth repetition=4 arm=0 ns=2047884330 batch=16
+sample medium-smooth repetition=4 arm=1 ns=2009886426 batch=16
+sample medium-smooth repetition=5 arm=1 ns=2196875801 batch=16
+sample medium-smooth repetition=5 arm=0 ns=1958889201 batch=16
+sample medium-smooth repetition=6 arm=0 ns=2394864476 batch=16
+sample medium-smooth repetition=6 arm=1 ns=2276871085 batch=16
+timing medium-smooth pipeline_ns=122493106 manual_ns=125617901 ratio=0.975125 samples=7 batch=16
+equivalent medium-seams indices=24576 vertices=5184
+sample medium-seams repetition=0 arm=0 ns=1714902856 batch=16
+sample medium-seams repetition=0 arm=1 ns=1537912853 batch=16
+sample medium-seams repetition=1 arm=1 ns=1946889633 batch=16
+sample medium-seams repetition=1 arm=0 ns=1730901834 batch=16
+sample medium-seams repetition=2 arm=0 ns=1665905487 batch=16
+sample medium-seams repetition=2 arm=1 ns=1603908971 batch=16
+sample medium-seams repetition=3 arm=1 ns=1729901786 batch=16
+sample medium-seams repetition=3 arm=0 ns=1943889595 batch=16
+sample medium-seams repetition=4 arm=0 ns=1672904947 batch=16
+sample medium-seams repetition=4 arm=1 ns=1584909916 batch=16
+sample medium-seams repetition=5 arm=1 ns=1584909883 batch=16
+sample medium-seams repetition=5 arm=0 ns=1653905930 batch=16
+sample medium-seams repetition=6 arm=0 ns=1657905667 batch=16
+sample medium-seams repetition=6 arm=1 ns=1784898403 batch=16
+timing medium-seams pipeline_ns=104556559 manual_ns=100244310 ratio=1.043017 samples=7 batch=16
+equivalent medium-sparse indices=24576 vertices=8450
+sample medium-sparse repetition=0 arm=0 ns=1849894661 batch=16
+sample medium-sparse repetition=0 arm=1 ns=2253871602 batch=16
+sample medium-sparse repetition=1 arm=1 ns=1977887273 batch=16
+sample medium-sparse repetition=1 arm=0 ns=2019884831 batch=16
+sample medium-sparse repetition=2 arm=0 ns=2172876051 batch=16
+sample medium-sparse repetition=2 arm=1 ns=2320867552 batch=16
+sample medium-sparse repetition=3 arm=1 ns=2068881877 batch=16
+sample medium-sparse repetition=3 arm=0 ns=2020884572 batch=16
+sample medium-sparse repetition=4 arm=0 ns=1982886694 batch=16
+sample medium-sparse repetition=4 arm=1 ns=2022884361 batch=16
+sample medium-sparse repetition=5 arm=1 ns=1857893750 batch=16
+sample medium-sparse repetition=5 arm=0 ns=1959887875 batch=16
+sample medium-sparse repetition=6 arm=0 ns=2021884284 batch=16
+sample medium-sparse repetition=6 arm=1 ns=1993885841 batch=16
+timing medium-sparse pipeline_ns=126242801 manual_ns=126430272 ratio=0.998517 samples=7 batch=16
+equivalent million-smooth indices=3000000 vertices=502681
+sample million-smooth repetition=0 arm=0 ns=22052723293 batch=1
+sample million-smooth repetition=0 arm=1 ns=23018662227 batch=1
+sample million-smooth repetition=1 arm=1 ns=22202704890 batch=1
+sample million-smooth repetition=1 arm=0 ns=23931599036 batch=1
+sample million-smooth repetition=2 arm=0 ns=21624729802 batch=1
+sample million-smooth repetition=2 arm=1 ns=21782716581 batch=1
+sample million-smooth repetition=3 arm=1 ns=22816651621 batch=1
+sample million-smooth repetition=3 arm=0 ns=23959579816 batch=1
+timing million-smooth pipeline_ns=23931599036 manual_ns=22816651621 ratio=1.048866 samples=4 batch=1

@@ -168,7 +168,19 @@ fn key(value: Option<(usize, usize)>) -> usize {
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline(always)]
-pub fn stripify(
+pub fn stripify_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    restart_index: I,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        stripify_u32(indices, vertex_count, restart_index.to_u32(), workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn stripify_u32(
     indices: &[u32],
     vertex_count: usize,
     restart_index: u32,
@@ -201,7 +213,28 @@ pub fn stripify(
 ///
 /// # Errors
 /// Same errors as [`stripify`]. `BufferTooSmall` if the destination is smaller than the bound; no output allocation is needed.
-pub fn stripify_into(
+#[inline]
+pub fn stripify_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    restart_index: I,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            stripify_into_u32(
+                destination,
+                indices,
+                vertex_count,
+                restart_index.to_u32(),
+                workspace,
+            )
+        })
+    })
+}
+
+fn stripify_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -358,7 +391,18 @@ fn stripify_core(
 /// `InvalidTopology` for a one- or two-index strip;
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
 #[inline(always)]
-pub fn unstripify(
+pub fn unstripify_generic<I: crate::Index>(
+    indices: &[I],
+    restart_index: I,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        unstripify_u32(indices, restart_index.to_u32(), workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn unstripify_u32(
     indices: &[u32],
     restart_index: u32,
     workspace: &mut Workspace,
@@ -390,7 +434,21 @@ pub fn unstripify(
 ///
 /// # Errors
 /// Same errors as [`unstripify`]. `BufferTooSmall` if the destination is smaller than the bound; no output allocation is needed.
-pub fn unstripify_into(
+#[inline]
+pub fn unstripify_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    restart_index: I,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            unstripify_into_u32(destination, indices, restart_index.to_u32(), workspace)
+        })
+    })
+}
+
+fn unstripify_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     restart_index: u32,
@@ -511,4 +569,48 @@ fn unstripify_plain<const CHARGE_WORK: bool>(
         }
     }
     Ok(destination.count())
+}
+
+/// The source-compatible u32 entry point; see [`stripify_generic`] for selectable index widths.
+#[inline]
+pub fn stripify(
+    indices: &[u32],
+    vertex_count: usize,
+    restart_index: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    stripify_generic::<u32>(indices, vertex_count, restart_index, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`stripify_into_generic`] for selectable index widths.
+#[inline]
+pub fn stripify_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    restart_index: u32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    stripify_into_generic::<u32>(destination, indices, vertex_count, restart_index, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`unstripify_generic`] for selectable index widths.
+#[inline]
+pub fn unstripify(
+    indices: &[u32],
+    restart_index: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    unstripify_generic::<u32>(indices, restart_index, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`unstripify_into_generic`] for selectable index widths.
+#[inline]
+pub fn unstripify_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    restart_index: u32,
+    workspace: &mut Workspace,
+) -> Result<usize, Error> {
+    unstripify_into_generic::<u32>(destination, indices, restart_index, workspace)
 }

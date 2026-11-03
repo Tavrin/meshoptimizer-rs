@@ -8,7 +8,7 @@ A Rust port of C++ meshoptimizer 1.3 for simplification, vertex processing, mesh
 
 Gotchas:
 - Use Positions::from_packed(&[[f32; 3]]) when you can; it is the fastest layout. Other layouts work but read more slowly.
-- Indices are u32 only. Pass the full position count as vertex_count; an index at or beyond it returns IndexOutOfBounds.
+- Existing functions take u32 indices; `_generic` functions also accept u16 (checked narrowing, `Error::IndexOverflow`). Pass the full position count as vertex_count; an index at or beyond it returns IndexOutOfBounds.
 - simplify returns InvalidParameter if target_index_count > indices.len().
 - decode_index_buffer at stride 2 wraps indices above 65535 (upstream's truncating u16 conversion).
 - Reuse one Workspace per worker thread across calls; it keeps scratch capacity, so later calls skip reallocating.

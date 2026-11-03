@@ -1,0 +1,205 @@
+{
+  "rows": [
+    {
+      "case": "tiny-smooth",
+      "after-hidden": {
+        "seconds": 0.002999796,
+        "instructions": 14249631,
+        "report": {
+          "input": 32,
+          "output": 32,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 24844064,
+          "bytes": 5245792
+        }
+      }
+    },
+    {
+      "case": "medium-smooth",
+      "after-hidden": {
+        "seconds": 0.001999864,
+        "instructions": 10464079,
+        "report": {
+          "input": 8192,
+          "output": 8192,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 229376,
+          "bytes": 1064960
+        }
+      }
+    },
+    {
+      "case": "medium-seams",
+      "after-hidden": {
+        "seconds": 0.000999932,
+        "instructions": 10183908,
+        "report": {
+          "input": 8192,
+          "output": 8192,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 229376,
+          "bytes": 1064960
+        }
+      }
+    },
+    {
+      "case": "medium-sparse",
+      "after-hidden": {
+        "seconds": 0.000999932,
+        "instructions": 10464086,
+        "report": {
+          "input": 8192,
+          "output": 8192,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 229376,
+          "bytes": 1064960
+        }
+      }
+    },
+    {
+      "case": "million-smooth",
+      "after-hidden": {
+        "seconds": 0.22398477,
+        "instructions": 1607424455,
+        "report": {
+          "input": 1000000,
+          "output": 1000000,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 34000000,
+          "bytes": 130000000
+        }
+      }
+    },
+    {
+      "case": "real-214e",
+      "before-hidden": {
+        "seconds": 75.136949579,
+        "instructions": 735213945959,
+        "report": {
+          "input": 2851001,
+          "output": 2780726,
+          "removed": 70275,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 70275,
+          "work": 7213088239,
+          "bytes": 644326226
+        }
+      },
+      "after-hidden": {
+        "seconds": 0.624958304,
+        "instructions": 4627728806,
+        "report": {
+          "input": 2851001,
+          "output": 2851001,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 102636036,
+          "bytes": 370630130
+        }
+      },
+      "after-simplify": {
+        "seconds": 1.22591812,
+        "instructions": 3163726130,
+        "report": {}
+      },
+      "vs_simplify": 0.5097879652843372
+    },
+    {
+      "case": "real-a082",
+      "before-hidden": {
+        "seconds": 82.16763123,
+        "instructions": 931802698714,
+        "report": {
+          "input": 3289725,
+          "output": 3202433,
+          "removed": 87292,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 87292,
+          "work": 9083058847,
+          "bytes": 743477850
+        }
+      },
+      "after-hidden": {
+        "seconds": 0.788948509,
+        "instructions": 5375139400,
+        "report": {
+          "input": 3289725,
+          "output": 3289725,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 118430100,
+          "bytes": 427664250
+        }
+      },
+      "after-simplify": {
+        "seconds": 2.254853647,
+        "instructions": 5759357255,
+        "report": {}
+      },
+      "vs_simplify": 0.34988900944842566
+    },
+    {
+      "case": "real-b6fd",
+      "before-hidden": {
+        "seconds": 16.995897386,
+        "instructions": 196021610828,
+        "report": {
+          "input": 822435,
+          "output": 803792,
+          "removed": 18643,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 18643,
+          "work": 1911061507,
+          "bytes": 185870310
+        }
+      },
+      "after-hidden": {
+        "seconds": 0.154989946,
+        "instructions": 1267369045,
+        "report": {
+          "input": 822435,
+          "output": 822435,
+          "removed": 0,
+          "duplicate": 0,
+          "back_to_back": 0,
+          "occluded": 0,
+          "work": 27962790,
+          "bytes": 106916550
+        }
+      },
+      "after-simplify": {
+        "seconds": 0.245984052,
+        "instructions": 1437253583,
+        "report": {}
+      },
+      "vs_simplify": 0.6300812786025656
+    }
+  ],
+  "gate": true,
+  "cpu": 0,
+  "repetitions": 3,
+  "counter": "instructions:u",
+  "single_thread": true
+}

@@ -118,7 +118,20 @@ impl Scores for VertexScoreTable {
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`].
-pub fn optimize_vertex_cache_with_table(
+#[inline]
+pub fn optimize_vertex_cache_with_table_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_with_table_u32(indices, vertex_count, table, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_with_table_u32(
     indices: &[u32],
     vertex_count: usize,
     table: &VertexScoreTable,
@@ -157,7 +170,28 @@ pub fn optimize_vertex_cache_with_table(
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_with_table`], plus `BufferTooSmall`
 /// if the destination is shorter than the input.
-pub fn optimize_vertex_cache_with_table_into(
+#[inline]
+pub fn optimize_vertex_cache_with_table_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_with_table_into_u32(
+                destination,
+                indices,
+                vertex_count,
+                table,
+                workspace,
+            )
+        })
+    })
+}
+
+fn optimize_vertex_cache_with_table_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -193,7 +227,19 @@ pub fn optimize_vertex_cache_with_table_into(
 /// # Errors
 /// `InvalidTopology` for incomplete triangles or `IndexOutOfBounds` for invalid vertex references.
 /// `SizeOverflow` for size overflow, `LimitExceeded` for exhausted limits, or `AllocationFailed` for failed reservation.
-pub fn optimize_vertex_cache(
+#[inline]
+pub fn optimize_vertex_cache_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_u32(indices, vertex_count, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
@@ -230,7 +276,21 @@ pub fn optimize_vertex_cache(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_vertex_cache_into(
+#[inline]
+pub fn optimize_vertex_cache_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_into_u32(destination, indices, vertex_count, workspace)
+        })
+    })
+}
+
+fn optimize_vertex_cache_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -261,12 +321,23 @@ pub fn optimize_vertex_cache_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`].
-pub fn optimize_vertex_cache_in_place(
+#[inline]
+pub fn optimize_vertex_cache_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_in_place_u32(indices, vertex_count, workspace)
+    })
+}
+
+fn optimize_vertex_cache_in_place_u32(
     indices: &mut [u32],
     vertex_count: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_vertex_cache(indices, vertex_count, workspace)?;
+    let result = optimize_vertex_cache_generic(indices, vertex_count, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -359,43 +430,198 @@ fn kernel<S: Scores>(
         .and_then(|n| n.checked_add(38))
         .and_then(|n| faces.checked_mul(n));
     if let Some(bound) = bound.filter(|&n| work.covers(n) == Ok(true)) {
-        let mut counted = CacheWork::<true>::reserved(work, bound)?;
-        let result = cache_loop::<S, true>(
+        // Prepay the proven whole-kernel bound, then refund the unvisited part
+        // so the charged total equals the limited path's visit-by-visit count.
+        work.add(bound)?;
+        let visits = cache_loop_covered(
             destination,
             triangles,
             vertices,
             adjacency,
             triangle_scores,
             emitted,
-            &mut counted,
             scores,
         );
-        counted.finish();
-        result
+        debug_assert!(visits <= bound, "cache work bound overrun");
+        work.refund_cache(bound.saturating_sub(visits));
+        Ok(())
     } else {
-        cache_loop::<S, false>(
+        cache_loop_limited(
             destination,
             triangles,
             vertices,
             adjacency,
             triangle_scores,
             emitted,
-            &mut CacheWork::<false>::new(work),
+            work,
             scores,
         )
     }
 }
 
+/// Merge the previous cache behind the emitted triangle, as upstream does, and
+/// carry each kept entry's live bit to its new position.
+///
+/// Upstream copies each old entry and advances unless it equals a triangle
+/// vertex. Here the old entries equal to a triangle vertex form a mask from
+/// fixed-width comparisons. Without a match all 16 slots are copied at once;
+/// otherwise the copy advances past matched slots, so every kept entry ends at
+/// the same position as upstream's. Slots past `count` hold stale values that
+/// the mask excludes and no later step reads.
+///
+/// `live` has bit `k` set when old entry `k` still has unemitted triangles.
+/// Returns the merged length and the carried live bits, both below 19.
+#[inline(always)]
+fn merge(
+    next: &mut [u32; 32],
+    old: &[u32; 32],
+    count: usize,
+    mut live: u32,
+    [a, b, c]: [u32; 3],
+) -> (usize, u32) {
+    let mut matched = 0u32;
+    for (k, &index) in old[..16].iter().enumerate() {
+        matched |= u32::from((index == a) | (index == b) | (index == c)) << k;
+    }
+    matched &= (1u32 << count.min(16)) - 1;
+    if matched == 0 {
+        next[3..19].copy_from_slice(&old[..16]);
+    } else {
+        let mut write = 3;
+        for (k, &index) in old[..16].iter().enumerate() {
+            next[write & 31] = index;
+            write += (!matched >> k & 1) as usize;
+        }
+        let mut pending = matched;
+        while pending != 0 {
+            // Highest matched slot first keeps lower bit positions valid.
+            let slot = 31 - pending.leading_zeros();
+            pending &= !(1 << slot);
+            let below = (1u32 << slot) - 1;
+            live = (live & below) | (live >> 1 & !below);
+        }
+    }
+    (3 + count.min(16) - matched.count_ones() as usize, live << 3)
+}
+
+/// Covered path of the cache optimizer: no budget checks, returns the exact
+/// number of visits the limited path charges one by one.
+///
+/// Same traversal, float operations and selection as [`cache_loop_limited`].
+/// A vertex's live count only falls when its triangle is emitted, and the
+/// emitted triangle's vertices always land at cache positions 0..3, so a live
+/// bit per cache position is exact: fresh for those three, carried for the
+/// rest. Rescoring then visits the set bits in position order and skips
+/// exhausted vertices without loading them; upstream loads and skips them.
 #[inline(never)]
 #[allow(clippy::too_many_arguments)]
-fn cache_loop<S: Scores, const FAST: bool>(
+fn cache_loop_covered<S: Scores>(
     destination: &mut [[u32; 3]],
     triangles: &[[u32; 3]],
     vertices: &mut [crate::workspace::CacheVertex],
     adjacency: &mut [u32],
     triangle_scores: &mut [f32],
     emitted: &mut [u8],
-    work: &mut CacheWork<'_, FAST>,
+    scores: &S,
+) -> usize {
+    let faces = triangles.len();
+    assert_eq!(faces, triangle_scores.len());
+    assert_eq!(faces, emitted.len());
+    let mut cache_storage = [0u32; 32];
+    let mut next_storage = [0u32; 32];
+    // Upstream exchanges pointers, not the contents of its two cache arrays.
+    let mut cache = &mut cache_storage;
+    let mut next = &mut next_storage;
+    let mut cache_count = 0;
+    let mut live = 0u32;
+    let mut current = 0usize;
+    let mut cursor = 1usize;
+    let mut emitted_count = 0;
+    let mut visits = 0usize;
+    while current != usize::MAX {
+        visits += 1;
+        let triangle = triangles[current];
+        destination[emitted_count] = triangle;
+        emitted_count += 1;
+        emitted[current] = 1;
+        triangle_scores[current] = 0.;
+        next[..3].copy_from_slice(&triangle);
+        visits += cache_count;
+        let (write, carried) = merge(next, cache, cache_count, live, triangle);
+        core::mem::swap(&mut cache, &mut next);
+        cache_count = write.min(16);
+        let current_id = current as u32;
+        for index in triangle {
+            let vertex = &mut vertices[index as usize];
+            let start = vertex.offset as usize;
+            let count = vertex.live as usize;
+            let adjacent = &mut adjacency[start..start + count];
+            match adjacent.iter().position(|&tri| tri == current_id) {
+                Some(i) => {
+                    visits += i + 1;
+                    adjacent[i] = adjacent[count - 1];
+                    vertex.live -= 1;
+                }
+                None => visits += count,
+            }
+        }
+        let [a, b, c] = triangle;
+        let fresh = u32::from(vertices[a as usize].live != 0)
+            | u32::from(vertices[b as usize].live != 0) << 1
+            | u32::from(vertices[c as usize].live != 0) << 2;
+        let mut pending = carried | fresh;
+        live = pending & 0xffff;
+        // Every cache entry is a visit, exhausted or not.
+        visits += write;
+        let mut best = usize::MAX;
+        let mut best_score = 0.;
+        while pending != 0 {
+            let i = pending.trailing_zeros() as usize;
+            pending &= pending - 1;
+            let vertex = &mut vertices[cache[i & 31] as usize];
+            let s = scores.score(if i >= 16 { 0 } else { i + 1 }, vertex.live);
+            let diff = s - vertex.score;
+            vertex.score = s;
+            let start = vertex.offset as usize;
+            let count = vertex.live as usize;
+            visits += count;
+            for &tri in &adjacency[start..start + count] {
+                let tri = tri as usize;
+                let s = triangle_scores[tri] + diff;
+                if best_score < s {
+                    best = tri;
+                    best_score = s;
+                }
+                triangle_scores[tri] = s;
+            }
+        }
+        current = best;
+        if current == usize::MAX {
+            while cursor < faces {
+                visits += 1;
+                if emitted[cursor] == 0 {
+                    current = cursor;
+                    break;
+                }
+                cursor += 1;
+            }
+        }
+    }
+    visits
+}
+
+/// Limited path: charges every visit before its observable mutation, so
+/// exhaustion stops at exactly the same point as a visit-by-visit meter.
+#[inline(never)]
+#[allow(clippy::too_many_arguments)]
+fn cache_loop_limited<S: Scores>(
+    destination: &mut [[u32; 3]],
+    triangles: &[[u32; 3]],
+    vertices: &mut [crate::workspace::CacheVertex],
+    adjacency: &mut [u32],
+    triangle_scores: &mut [f32],
+    emitted: &mut [u8],
+    work: &mut Work,
     scores: &S,
 ) -> Result<(), Error> {
     let faces = triangles.len();
@@ -433,7 +659,7 @@ fn cache_loop<S: Scores, const FAST: bool>(
             let start = vertex.offset as usize;
             let count = vertex.live as usize;
             let adjacent = &mut adjacency[start..start + count];
-            let found = work.find(adjacent.iter().copied(), |tri| tri == current as u32)?;
+            let found = work.search(count, |i| adjacent[i] == current as u32)?;
             if let Some(i) = found {
                 adjacent[i] = adjacent[count - 1];
                 vertex.live -= 1;
@@ -441,11 +667,9 @@ fn cache_loop<S: Scores, const FAST: bool>(
         }
         let mut best = usize::MAX;
         let mut best_score = 0.;
-        // One visit per cache entry: a single covered tally, or a checked
-        // charge before each entry's mutation on the limited path.
-        work.tally(write);
+        // One checked visit per cache entry, before the entry's mutation.
         for (i, &index) in cache[..write].iter().enumerate() {
-            work.visit()?;
+            work.add(1)?;
             let j = index as usize;
             let vertex = &mut vertices[j];
             if vertex.live == 0 {
@@ -489,7 +713,19 @@ fn cache_loop<S: Scores, const FAST: bool>(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`].
-pub fn optimize_vertex_cache_strip(
+#[inline]
+pub fn optimize_vertex_cache_strip_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_strip_u32(indices, vertex_count, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_strip_u32(
     indices: &[u32],
     vertex_count: usize,
     workspace: &mut Workspace,
@@ -522,7 +758,21 @@ pub fn optimize_vertex_cache_strip(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_strip`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_vertex_cache_strip_into(
+#[inline]
+pub fn optimize_vertex_cache_strip_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_strip_into_u32(destination, indices, vertex_count, workspace)
+        })
+    })
+}
+
+fn optimize_vertex_cache_strip_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -551,12 +801,23 @@ pub fn optimize_vertex_cache_strip_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_strip`].
-pub fn optimize_vertex_cache_strip_in_place(
+#[inline]
+pub fn optimize_vertex_cache_strip_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_strip_in_place_u32(indices, vertex_count, workspace)
+    })
+}
+
+fn optimize_vertex_cache_strip_in_place_u32(
     indices: &mut [u32],
     vertex_count: usize,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_vertex_cache_strip(indices, vertex_count, workspace)?;
+    let result = optimize_vertex_cache_strip_generic(indices, vertex_count, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -564,7 +825,20 @@ pub fn optimize_vertex_cache_strip_in_place(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache`]. `InvalidParameter` if the cache size is below three.
-pub fn optimize_vertex_cache_fifo(
+#[inline]
+pub fn optimize_vertex_cache_fifo_generic<I: crate::Index>(
+    indices: &[I],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<I>, Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_fifo_u32(indices, vertex_count, cache_size, workspace)
+            .and_then(|value| crate::index::Convert::<I>::convert(value, workspace))
+    })
+}
+
+fn optimize_vertex_cache_fifo_u32(
     indices: &[u32],
     vertex_count: usize,
     cache_size: u32,
@@ -596,7 +870,28 @@ pub fn optimize_vertex_cache_fifo(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_fifo`]. `BufferTooSmall` if the destination is shorter than the input.
-pub fn optimize_vertex_cache_fifo_into(
+#[inline]
+pub fn optimize_vertex_cache_fifo_into_generic<I: crate::Index>(
+    destination: &mut [I],
+    indices: &[I],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_input(indices, workspace, |indices, workspace| {
+        I::with_mut(destination, workspace, |destination, workspace| {
+            optimize_vertex_cache_fifo_into_u32(
+                destination,
+                indices,
+                vertex_count,
+                cache_size,
+                workspace,
+            )
+        })
+    })
+}
+
+fn optimize_vertex_cache_fifo_into_u32(
     destination: &mut [u32],
     indices: &[u32],
     vertex_count: usize,
@@ -629,13 +924,25 @@ pub fn optimize_vertex_cache_fifo_into(
 ///
 /// # Errors
 /// Same errors as [`optimize_vertex_cache_fifo`].
-pub fn optimize_vertex_cache_fifo_in_place(
+#[inline]
+pub fn optimize_vertex_cache_fifo_in_place_generic<I: crate::Index>(
+    indices: &mut [I],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    I::with_mut(indices, workspace, |indices, workspace| {
+        optimize_vertex_cache_fifo_in_place_u32(indices, vertex_count, cache_size, workspace)
+    })
+}
+
+fn optimize_vertex_cache_fifo_in_place_u32(
     indices: &mut [u32],
     vertex_count: usize,
     cache_size: u32,
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
-    let result = optimize_vertex_cache_fifo(indices, vertex_count, cache_size, workspace)?;
+    let result = optimize_vertex_cache_fifo_generic(indices, vertex_count, cache_size, workspace)?;
     indices.copy_from_slice(&result);
     Ok(())
 }
@@ -796,93 +1103,133 @@ fn fifo(
     Ok(())
 }
 
-// FAST prepays a proven whole-kernel bound and refunds unvisited work at the
-// end. Exact visits are accumulated without budget checks. The limited monomorph keeps
-// every original charge before its observable mutation.
-struct CacheWork<'a, const FAST: bool> {
-    work: &'a mut Work,
-    spent: usize,
-    reserved: usize,
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_with_table_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_with_table(
+    indices: &[u32],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_with_table_generic::<u32>(indices, vertex_count, table, workspace)
 }
-impl<'a, const FAST: bool> CacheWork<'a, FAST> {
-    fn new(work: &'a mut Work) -> Self {
-        Self {
-            work,
-            spent: 0,
-            reserved: 0,
-        }
-    }
-    fn reserved(work: &'a mut Work, bound: usize) -> Result<Self, Error> {
-        work.add(bound)?;
-        Ok(Self {
-            work,
-            spent: 0,
-            reserved: bound,
-        })
-    }
-    #[inline(always)]
-    fn add(&mut self, count: usize) -> Result<(), Error> {
-        if FAST {
-            self.spent += count;
-            Ok(())
-        } else {
-            self.work.add(count)
-        }
-    }
-    // Covered path: tally `count` infallible visits at once. The limited path
-    // charges each of them with `visit` instead.
-    #[inline(always)]
-    fn tally(&mut self, count: usize) {
-        if FAST {
-            self.spent += count;
-        }
-    }
-    #[inline(always)]
-    fn visit(&mut self) -> Result<(), Error> {
-        if FAST {
-            Ok(())
-        } else {
-            self.work.add(1)
-        }
-    }
-    #[inline(always)]
-    fn scan<T>(
-        &mut self,
-        values: impl ExactSizeIterator<Item = T>,
-        mut visit: impl FnMut(T) -> Result<(), Error>,
-    ) -> Result<(), Error> {
-        if FAST {
-            self.spent += values.len();
-            for value in values {
-                visit(value)?;
-            }
-            Ok(())
-        } else {
-            self.work.scan(values, visit)
-        }
-    }
-    #[inline(always)]
-    fn find<T>(
-        &mut self,
-        mut values: impl ExactSizeIterator<Item = T>,
-        mut found: impl FnMut(T) -> bool,
-    ) -> Result<Option<usize>, Error> {
-        if FAST {
-            let count = values.len();
-            let result = values.position(found);
-            self.spent += result.map_or(count, |i| i + 1);
-            Ok(result)
-        } else {
-            // search visits at most `len` items, so `next` is always Some.
-            self.work
-                .search(values.len(), |_| values.next().is_some_and(&mut found))
-        }
-    }
-    fn finish(self) {
-        // The dispatch bound covers every possible visit; all covered-path
-        // callbacks are infallible and there are no early exits.
-        debug_assert!(self.spent <= self.reserved, "cache work bound overrun");
-        self.work
-            .refund_cache(self.reserved.saturating_sub(self.spent));
-    }
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_with_table_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_with_table_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    table: &VertexScoreTable,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_with_table_into_generic::<u32>(
+        destination,
+        indices,
+        vertex_count,
+        table,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_into_generic::<u32>(destination, indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_in_place(
+    indices: &mut [u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_in_place_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_strip_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_strip(
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_strip_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_strip_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_strip_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_strip_into_generic::<u32>(destination, indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_strip_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_strip_in_place(
+    indices: &mut [u32],
+    vertex_count: usize,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_strip_in_place_generic::<u32>(indices, vertex_count, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_fifo_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_fifo(
+    indices: &[u32],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<Vec<u32>, Error> {
+    optimize_vertex_cache_fifo_generic::<u32>(indices, vertex_count, cache_size, workspace)
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_fifo_into_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_fifo_into(
+    destination: &mut [u32],
+    indices: &[u32],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_fifo_into_generic::<u32>(
+        destination,
+        indices,
+        vertex_count,
+        cache_size,
+        workspace,
+    )
+}
+
+/// The source-compatible u32 entry point; see [`optimize_vertex_cache_fifo_in_place_generic`] for selectable index widths.
+#[inline]
+pub fn optimize_vertex_cache_fifo_in_place(
+    indices: &mut [u32],
+    vertex_count: usize,
+    cache_size: u32,
+    workspace: &mut Workspace,
+) -> Result<(), Error> {
+    optimize_vertex_cache_fifo_in_place_generic::<u32>(indices, vertex_count, cache_size, workspace)
 }

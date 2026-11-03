@@ -1,0 +1,19 @@
+    Updating crates.io index
+     Locking 3 packages to latest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.16 (<WORKTREE>)
+   Compiling meshoptimizer-baseline v0.2.16 (<TARGET>/proof/base)
+   Compiling pipeline-proof v0.0.0 (<TARGET>/proof/driver)
+warning: unexpected `cfg` condition value: `clusterlod`
+   --> <WORKTREE>/parity/0217-pipeline/../../tests/pipeline.rs:288:7
+    |
+288 | #[cfg(feature = "clusterlod")]
+    |       ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `default`
+    = help: consider adding `clusterlod` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: `pipeline-proof` (bin "pipeline") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 9.03s

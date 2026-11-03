@@ -1,0 +1,7 @@
+{"step": "oracle-build", "exit": 0, "wall_seconds": 0.5111996229970828, "cpu_seconds": 0.415029}
+{"step": "proof-build-default", "exit": 0, "wall_seconds": 19.247075827093795, "cpu_seconds": 0.8975779999999999}
+{"step": "exact-default", "exit": 0, "wall_seconds": 0.5522280279546976, "cpu_seconds": 0.551487}
+{"step": "cpp-oracle-default", "exit": 0, "wall_seconds": 0.017288460046984255, "cpu_seconds": 0.017433000000000087}
+{"step": "proof-build-scalar", "exit": 0, "wall_seconds": 23.597157401032746, "cpu_seconds": 0.982777}
+{"step": "exact-scalar", "exit": 0, "wall_seconds": 0.9821516929659992, "cpu_seconds": 0.936897}
+{"step": "cpp-oracle-scalar", "exit": 0, "wall_seconds": 0.028605081024579704, "cpu_seconds": 0.027887999999999913}

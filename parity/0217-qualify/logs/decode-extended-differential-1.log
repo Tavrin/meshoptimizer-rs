@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<target>/differential.py", line 95, in <module>
+    if __name__=="__main__": main()
+                             ^^^^^^
+  File "<target>/differential.py", line 91, in main
+    (art/('differential-no-std.json' if os.environ.get('DECODE_NO_STD') else 'differential.json')).write_text(json.dumps(r,indent=2)+'\n');print(r)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<worktree>/parity/0217-qualify/decode-all/extended/differential.json'

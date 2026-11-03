@@ -1,0 +1,5 @@
+{
+  "initial_compile": {"exit": 101, "errors": ["test used Positions::new instead of Positions::from_bytes", "test used ByteOrder::Little instead of ByteOrder::LittleEndian"], "corrected": true},
+  "focused_debug_retry": {"exit": 0, "tests_passed": 13, "scaling_work_n": 9728, "scaling_work_8n": 123904},
+  "note": "Bootstrap observations before the final metering adjustment; definitive logs follow in the full checks."
+}

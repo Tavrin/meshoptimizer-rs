@@ -1,0 +1,12 @@
+   Compiling meshoptimizer-rs v0.2.16 (<WORKTREE>)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.47s
+     Running tests/pipeline.rs (<TARGET>/debug/deps/pipeline-01b402f5803f1bda)
+
+running 4 tests
+test nonzero_position_offset_preserves_opaque_fields ... ok
+test budgets_errors_and_empty ... ok
+test skin_and_attribute_seams ... ok
+test sequence_corpus ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+

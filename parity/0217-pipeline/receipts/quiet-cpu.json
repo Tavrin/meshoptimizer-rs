@@ -1,0 +1,294 @@
+{
+  "selected": 16,
+  "observation_seconds": 1,
+  "cores": [
+    {
+      "cpu": 0,
+      "busy_fraction": 0.48484848484848486,
+      "siblings": [
+        0,
+        1
+      ],
+      "physical_busy_fraction": 0.88
+    },
+    {
+      "cpu": 1,
+      "busy_fraction": 0.88,
+      "siblings": [
+        0,
+        1
+      ],
+      "physical_busy_fraction": 0.88
+    },
+    {
+      "cpu": 2,
+      "busy_fraction": 0.6122448979591837,
+      "siblings": [
+        2,
+        3
+      ],
+      "physical_busy_fraction": 0.8163265306122449
+    },
+    {
+      "cpu": 3,
+      "busy_fraction": 0.8163265306122449,
+      "siblings": [
+        2,
+        3
+      ],
+      "physical_busy_fraction": 0.8163265306122449
+    },
+    {
+      "cpu": 4,
+      "busy_fraction": 0.40816326530612246,
+      "siblings": [
+        4,
+        5
+      ],
+      "physical_busy_fraction": 0.6868686868686869
+    },
+    {
+      "cpu": 5,
+      "busy_fraction": 0.6868686868686869,
+      "siblings": [
+        4,
+        5
+      ],
+      "physical_busy_fraction": 0.6868686868686869
+    },
+    {
+      "cpu": 6,
+      "busy_fraction": 0.3673469387755102,
+      "siblings": [
+        6,
+        7
+      ],
+      "physical_busy_fraction": 1.0
+    },
+    {
+      "cpu": 7,
+      "busy_fraction": 1.0,
+      "siblings": [
+        6,
+        7
+      ],
+      "physical_busy_fraction": 1.0
+    },
+    {
+      "cpu": 8,
+      "busy_fraction": 0.9,
+      "siblings": [
+        8,
+        9
+      ],
+      "physical_busy_fraction": 0.9
+    },
+    {
+      "cpu": 9,
+      "busy_fraction": 0.6,
+      "siblings": [
+        8,
+        9
+      ],
+      "physical_busy_fraction": 0.9
+    },
+    {
+      "cpu": 10,
+      "busy_fraction": 0.69,
+      "siblings": [
+        10,
+        11
+      ],
+      "physical_busy_fraction": 0.69
+    },
+    {
+      "cpu": 11,
+      "busy_fraction": 0.5247524752475248,
+      "siblings": [
+        10,
+        11
+      ],
+      "physical_busy_fraction": 0.69
+    },
+    {
+      "cpu": 12,
+      "busy_fraction": 0.40404040404040403,
+      "siblings": [
+        12,
+        13
+      ],
+      "physical_busy_fraction": 0.98
+    },
+    {
+      "cpu": 13,
+      "busy_fraction": 0.98,
+      "siblings": [
+        12,
+        13
+      ],
+      "physical_busy_fraction": 0.98
+    },
+    {
+      "cpu": 14,
+      "busy_fraction": 0.4444444444444444,
+      "siblings": [
+        14,
+        15
+      ],
+      "physical_busy_fraction": 0.9702970297029703
+    },
+    {
+      "cpu": 15,
+      "busy_fraction": 0.9702970297029703,
+      "siblings": [
+        14,
+        15
+      ],
+      "physical_busy_fraction": 0.9702970297029703
+    },
+    {
+      "cpu": 16,
+      "busy_fraction": 0.45918367346938777,
+      "siblings": [
+        16,
+        17
+      ],
+      "physical_busy_fraction": 0.57
+    },
+    {
+      "cpu": 17,
+      "busy_fraction": 0.57,
+      "siblings": [
+        16,
+        17
+      ],
+      "physical_busy_fraction": 0.57
+    },
+    {
+      "cpu": 18,
+      "busy_fraction": 0.73,
+      "siblings": [
+        18,
+        19
+      ],
+      "physical_busy_fraction": 0.7676767676767676
+    },
+    {
+      "cpu": 19,
+      "busy_fraction": 0.7676767676767676,
+      "siblings": [
+        18,
+        19
+      ],
+      "physical_busy_fraction": 0.7676767676767676
+    },
+    {
+      "cpu": 20,
+      "busy_fraction": 0.5757575757575758,
+      "siblings": [
+        20,
+        21
+      ],
+      "physical_busy_fraction": 0.5757575757575758
+    },
+    {
+      "cpu": 21,
+      "busy_fraction": 0.45918367346938777,
+      "siblings": [
+        20,
+        21
+      ],
+      "physical_busy_fraction": 0.5757575757575758
+    },
+    {
+      "cpu": 22,
+      "busy_fraction": 0.6224489795918368,
+      "siblings": [
+        22,
+        23
+      ],
+      "physical_busy_fraction": 0.6224489795918368
+    },
+    {
+      "cpu": 23,
+      "busy_fraction": 0.6020408163265306,
+      "siblings": [
+        22,
+        23
+      ],
+      "physical_busy_fraction": 0.6224489795918368
+    },
+    {
+      "cpu": 24,
+      "busy_fraction": 0.7731958762886598,
+      "siblings": [
+        24,
+        25
+      ],
+      "physical_busy_fraction": 0.7731958762886598
+    },
+    {
+      "cpu": 25,
+      "busy_fraction": 0.40816326530612246,
+      "siblings": [
+        24,
+        25
+      ],
+      "physical_busy_fraction": 0.7731958762886598
+    },
+    {
+      "cpu": 26,
+      "busy_fraction": 0.3877551020408163,
+      "siblings": [
+        26,
+        27
+      ],
+      "physical_busy_fraction": 0.8431372549019608
+    },
+    {
+      "cpu": 27,
+      "busy_fraction": 0.8431372549019608,
+      "siblings": [
+        26,
+        27
+      ],
+      "physical_busy_fraction": 0.8431372549019608
+    },
+    {
+      "cpu": 28,
+      "busy_fraction": 0.6632653061224489,
+      "siblings": [
+        28,
+        29
+      ],
+      "physical_busy_fraction": 0.6632653061224489
+    },
+    {
+      "cpu": 29,
+      "busy_fraction": 0.5050505050505051,
+      "siblings": [
+        28,
+        29
+      ],
+      "physical_busy_fraction": 0.6632653061224489
+    },
+    {
+      "cpu": 30,
+      "busy_fraction": 0.85,
+      "siblings": [
+        30,
+        31
+      ],
+      "physical_busy_fraction": 0.85
+    },
+    {
+      "cpu": 31,
+      "busy_fraction": 0.55,
+      "siblings": [
+        30,
+        31
+      ],
+      "physical_busy_fraction": 0.85
+    }
+  ]
+}

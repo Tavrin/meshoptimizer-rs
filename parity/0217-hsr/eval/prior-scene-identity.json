@@ -1,0 +1,47 @@
+[
+  {
+    "scene": "breakfast_room",
+    "density": "coarse",
+    "sha256": "d064cf69506c4d2a803a3ad1d216228430c29bc4260321da10fe7886b051a0e9"
+  },
+  {
+    "scene": "breakfast_room",
+    "density": "default",
+    "sha256": "5480aabb6f51c5442e85627fc52352a26ed9ac9b506754e4e647f657cca1b311"
+  },
+  {
+    "scene": "breakfast_room",
+    "density": "fine",
+    "sha256": "42fc7e0b0658aacc48c28ea12262ee940678f0698c2956f665500e39c0e1ce18"
+  },
+  {
+    "scene": "living_room",
+    "density": "coarse",
+    "sha256": "b4bb8dce6007084ced318e7c9ee60fbb80c0ae1476ea224647d8d0b34fbf8f27"
+  },
+  {
+    "scene": "living_room",
+    "density": "default",
+    "sha256": "ccddedfef3c3e7c8c4aae6630bc02113efb102312ccd3999e0b6a23f2ac8fcf7"
+  },
+  {
+    "scene": "living_room",
+    "density": "fine",
+    "sha256": "9bdbe35a812ffe0c85908bfae8af82dfa3c3a98c437c103b271cf54bb000d6d8"
+  },
+  {
+    "scene": "conference",
+    "density": "coarse",
+    "sha256": "5d9ab011a2f96e65244152f0afee66b312c624d113a989b74b3cdc70f852f60e"
+  },
+  {
+    "scene": "conference",
+    "density": "default",
+    "sha256": "89552e2e1a257f6b969e4b637e98d9552697dabbc347e049d37c14b3cd7d1512"
+  },
+  {
+    "scene": "conference",
+    "density": "fine",
+    "sha256": "77dea824fb6be92d6971c93718a1222e6da6af7242f6915dbf4db1e2640f2d98"
+  }
+]

@@ -1,0 +1,103 @@
+   Compiling meshoptimizer-rs v0.2.16 (<target>/campaign/base-source)
+   Compiling hsr-driver v0.0.0 (<target>/campaign/base)
+warning: ignoring -C extra-filename flag due to -o flag
+
+error[E0433]: cannot find module or crate `libm` in this scope
+  --> src/math.rs:10:9
+   |
+10 |         libm::sqrtf(value)
+   |         ^^^^ use of unresolved module or unlinked crate `libm`
+   |
+   = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+  --> src/opacity.rs:87:9
+   |
+87 |         libm::sqrtf(value)
+   |         ^^^^ use of unresolved module or unlinked crate `libm`
+   |
+   = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/opacity.rs:105:24
+    |
+105 |                 return libm::floorf(value);
+    |                        ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/opacity.rs:135:9
+    |
+135 |         libm::log2f(value)
+    |         ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/quantize.rs:133:32
+    |
+133 |     let (fraction, exponent) = libm::frexpf(maxc);
+    |                                ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/quantize.rs:136:17
+    |
+136 |     let scale = libm::ldexpf(1.0, -exp);
+    |                 ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/quantize.rs:139:17
+    |
+139 |         let a = libm::floorf(min[k] * scale);
+    |                 ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/quantize.rs:140:17
+    |
+140 |         let v = libm::ceilf(max[k] * scale);
+    |                 ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/quantize.rs:147:32
+    |
+147 |     let (fraction, exponent) = libm::frexpf(range);
+    |                                ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/repair.rs:128:19
+    |
+128 |         p.map(|v| libm::floor(f64::from(v) / width) as i64)
+    |                   ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/repair.rs:948:18
+    |
+948 |     let length = libm::sqrt(normal.iter().map(|v| v * v).sum());
+    |                  ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+error[E0433]: cannot find module or crate `libm` in this scope
+   --> src/tangent.rs:367:9
+    |
+367 |         libm::sqrtf(value)
+    |         ^^^^ use of unresolved module or unlinked crate `libm`
+    |
+    = help: if you wanted to use a crate named `libm`, use `cargo add libm` to add it to your `Cargo.toml`
+
+For more information about this error, try `rustc --explain E0433`.
+warning: `hsr-driver` (lib) generated 1 warning
+error: could not compile `hsr-driver` (lib) due to 12 previous errors; 1 warning emitted

@@ -13,6 +13,11 @@ pub(crate) struct Context<'a> {
     large_roots: Option<[(u32, f32); 512]>,
 }
 impl<'a> Context<'a> {
+    #[cfg(feature = "clusterlod")]
+    pub(crate) fn bytes(&self) -> usize {
+        self.bytes
+    }
+
     #[inline(always)]
     pub(crate) fn new(workspace: &'a mut Workspace) -> Result<Self, Error> {
         let work = workspace.begin();
@@ -363,7 +368,7 @@ impl OwnedBytes for crate::Bounds {
     }
 }
 #[cfg(feature = "clusterlod")]
-impl OwnedBytes for crate::Meshlets {
+impl OwnedBytes for crate::MeshletsGeneric {
     fn owned_bytes(&self) -> Result<usize, Error> {
         self.meshlets
             .owned_bytes()?

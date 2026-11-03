@@ -1,0 +1,16 @@
+parity/dag-format/receipts/all.log:1:   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+parity/dag-format/receipts/all.log:3:     Running unittests src/lib.rs (<local-path>)
+parity/dag-format/receipts/all.log:65:     Running tests/api.rs (<local-path>)
+parity/dag-format/receipts/all.log:126:     Running tests/clusterlod_parallel.rs (<local-path>)
+parity/dag-format/receipts/all.log:145:     Running tests/codec.rs (<local-path>)
+parity/dag-format/receipts/all.log:163:     Running tests/codec04.rs (<local-path>)
+parity/dag-format/receipts/all.log:178:     Running tests/dag_format.rs (<local-path>)
+parity/dag-format/receipts/clippy.log:1:    Checking meshoptimizer-rs v0.2.16 (<local-path>)
+parity/dag-format/receipts/default.log:1:   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+parity/dag-format/receipts/none.log:1:   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+parity/dag-format/receipts/wasm-identity.log:5:Error: ENOENT: no such file or directory, open '<local-path>'
+parity/dag-format/receipts/wasm-identity.log:8:    at file://<local-path>:4:45
+parity/dag-format/receipts/wasm-identity.log:15:  path: '<local-path>'
+parity/dag-format/receipts/wasm-wasi.log:2:   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+parity/dag-format/receipts/wasm.log:2:   Compiling meshoptimizer-rs v0.2.16 (<local-path>)
+FAIL: private machine paths or project names in public text

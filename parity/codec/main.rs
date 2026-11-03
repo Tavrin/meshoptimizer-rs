@@ -3,7 +3,7 @@ fn main() -> std::io::Result<()> {
     #[cfg(feature = "simd")]
     if std::env::args().nth(1).as_deref() == Some("levels") {
         use meshoptimizer_rs::codec::{with_level, Level};
-        for (name,level) in [("scalar",Level::Scalar),("sse2",Level::Sse2),("ssse3",Level::Ssse3),("sse41",Level::Sse41),("neon",Level::Neon),("wasm",Level::Wasm)] {
+        for (name,level) in [("scalar",Level::Scalar),("sse2",Level::Sse2),("ssse3",Level::Ssse3),("sse41",Level::Sse41),("avx2",Level::Avx2),("avx512",Level::Avx512),("neon",Level::Neon),("wasm",Level::Wasm)] {
             if with_level(level,||()).is_ok() { println!("{name}"); }
         }
         return Ok(());
@@ -14,6 +14,8 @@ fn main() -> std::io::Result<()> {
         "sse2" => meshoptimizer_rs::codec::Level::Sse2,
         "ssse3" => meshoptimizer_rs::codec::Level::Ssse3,
         "sse41" => meshoptimizer_rs::codec::Level::Sse41,
+        "avx2" => meshoptimizer_rs::codec::Level::Avx2,
+        "avx512" => meshoptimizer_rs::codec::Level::Avx512,
         "neon" => meshoptimizer_rs::codec::Level::Neon,
         "wasm" => meshoptimizer_rs::codec::Level::Wasm,
         _ => panic!("invalid lowering ceiling"),
