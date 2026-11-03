@@ -161,6 +161,16 @@ pub struct CardTrimOptions {
     pub padding: f32,
     /// Lookup outside the mask (default [`AlphaWrap::Clamp`]).
     pub wrap: AlphaWrap,
+    /// Cost of one polygon vertex in square mask texels, finite and at least
+    /// zero (default 0, always use the full budget). A card takes the vertex
+    /// count `c` that minimizes `polygon area + vertex_cost * c`, so a vertex
+    /// is added only while it removes at least this much transparent area.
+    /// Where the area saved per extra vertex never grows with the count (the
+    /// usual case) this is the same as stopping at the first vertex that saves
+    /// less than the cost. Ties go to fewer vertices. The cost is compared
+    /// with the area of the fitted polygon, before the per-triangle clipping
+    /// of split cards.
+    pub vertex_cost: f32,
 }
 
 impl Default for CardTrimOptions {
@@ -170,6 +180,7 @@ impl Default for CardTrimOptions {
             max_vertices: 8,
             padding: 0.5,
             wrap: AlphaWrap::Clamp,
+            vertex_cost: 0.0,
         }
     }
 }
@@ -220,6 +231,12 @@ pub struct TrimmedCardsGeneric<I: crate::Index = u32> {
     pub indices: Vec<I>,
     /// Counts and areas.
     pub report: CardTrimReport,
+    /// Vertices per card, one entry per card in the order of each card's
+    /// first triangle in the input (`report.cards` entries): the fitted
+    /// polygon's vertex count for a trimmed card (a split card is clipped
+    /// into more output vertices than this), 0 for a removed card, and the
+    /// number of distinct vertices for an unchanged card.
+    pub card_vertices: Vec<u32>,
 }
 
 /// The source-compatible u32 form of [`TrimmedCardsGeneric`].
@@ -233,6 +250,8 @@ pub struct TrimmedCards {
     pub indices: Vec<u32>,
     /// Counts and areas.
     pub report: CardTrimReport,
+    /// Vertices per card; see [`TrimmedCardsGeneric::card_vertices`].
+    pub card_vertices: Vec<u32>,
 }
 
 impl From<TrimmedCardsGeneric<u32>> for TrimmedCards {
@@ -242,6 +261,7 @@ impl From<TrimmedCardsGeneric<u32>> for TrimmedCards {
             vertices: value.vertices,
             indices: value.indices,
             report: value.report,
+            card_vertices: value.card_vertices,
         }
     }
 }
@@ -253,6 +273,7 @@ impl From<TrimmedCards> for TrimmedCardsGeneric<u32> {
             vertices: value.vertices,
             indices: value.indices,
             report: value.report,
+            card_vertices: value.card_vertices,
         }
     }
 }
@@ -264,6 +285,7 @@ impl<I: crate::Index> Convert<I> for TrimmedCardsGeneric {
             vertices: self.vertices,
             indices: I::from_vec(self.indices, ws)?,
             report: self.report,
+            card_vertices: self.card_vertices,
         })
     }
 }
@@ -519,6 +541,7 @@ struct Input<'a> {
     mask: AlphaMask<'a>,
     threshold: u8,
     budget: usize,
+    vertex_cost: f64,
     padding: f64,
     wrap: AlphaWrap,
     w: f64,
@@ -679,6 +702,7 @@ struct Output {
     indices: Vec<u32>,
     remap: Vec<u32>,
     report: CardTrimReport,
+    card_vertices: Vec<u32>,
 }
 
 // ---------------------------------------------------------------------------
@@ -696,6 +720,8 @@ fn trim_u32(
     if !(3..=MAX_BUDGET).contains(&options.max_vertices)
         || !options.padding.is_finite()
         || !(0.0..=MAX_PADDING).contains(&options.padding)
+        || !options.vertex_cost.is_finite()
+        || options.vertex_cost < 0.0
     {
         return Err(Error::InvalidParameter);
     }
@@ -711,6 +737,7 @@ fn trim_u32(
         mask,
         threshold: options.threshold,
         budget: usize::try_from(options.max_vertices).map_err(|_| Error::SizeOverflow)?,
+        vertex_cost: f64::from(options.vertex_cost),
         padding: f64::from(options.padding) + MARGIN,
         wrap: options.wrap,
         w: f64::from(mask.width),
@@ -801,6 +828,7 @@ fn run(
         vertices: Vec::new(),
         indices: Vec::new(),
         remap: Vec::new(),
+        card_vertices: Vec::new(),
         report: CardTrimReport {
             input_triangles: n,
             ..CardTrimReport::default()
@@ -838,6 +866,7 @@ fn run(
         vertices: out.vertices,
         indices: out.indices,
         report: out.report,
+        card_vertices: out.card_vertices,
     })
 }
 
@@ -964,6 +993,7 @@ fn process_card(
     let (start, len) = match fit.kind {
         FitKind::Empty => {
             out.report.removed_cards += 1;
+            store.push(&mut out.card_vertices, 0)?;
             return Ok(());
         }
         FitKind::Keep => return keep_card(input, store, out, s, before),
@@ -977,6 +1007,7 @@ fn process_card(
                 return keep_card(input, store, out, s, before);
             }
             emit_polygon(input, store, out, s, q, r)?;
+            store.push(&mut out.card_vertices, fitted_count(len)?)?;
             out.report.trimmed_cards += 1;
             out.report.area_after += after;
             return Ok(());
@@ -987,22 +1018,34 @@ fn process_card(
         return keep_card(input, store, out, s, before);
     }
     emit_pieces(input, store, out, s)?;
+    store.push(&mut out.card_vertices, fitted_count(len)?)?;
     out.report.trimmed_cards += 1;
     out.report.split_cards += 1;
     out.report.area_after += after;
     Ok(())
 }
 
+fn fitted_count(len: usize) -> Result<u32, Error> {
+    u32::try_from(len).map_err(|_| Error::SizeOverflow)
+}
+
 fn keep_card(
     input: &Input<'_>,
     store: &mut Store<'_>,
     out: &mut Output,
-    s: &Scratch,
+    s: &mut Scratch,
     before: f64,
 ) -> Result<(), Error> {
+    s.seq.clear();
     for tri in &s.tris {
         emit_original(input, store, out, tri.v)?;
+        for v in tri.v {
+            store.push(&mut s.seq, v)?;
+        }
     }
+    s.seq.sort_unstable();
+    s.seq.dedup();
+    store.push(&mut out.card_vertices, fitted_count(s.seq.len())?)?;
     out.report.unchanged_cards += 1;
     out.report.area_after += before;
     Ok(())
@@ -1105,7 +1148,7 @@ fn fit_card(
         return Ok(empty);
     }
     reduce(work, &mut s.hull, &s.dom, eps)?;
-    let found = smallest_cycle(input.budget, store, work, s, eps)?;
+    let found = smallest_cycle(input.budget, input.vertex_cost, store, work, s, eps)?;
     if !found {
         return Ok(Fit {
             kind: FitKind::Keep,
@@ -1275,6 +1318,7 @@ fn reduce(work: &mut Work, poly: &mut Vec<Point>, dom: &[Point], eps: f64) -> Re
 /// chosen edges in `s.best`.
 fn smallest_cycle(
     budget: usize,
+    vertex_cost: f64,
     store: &mut Store<'_>,
     work: &mut Work,
     s: &mut Scratch,
@@ -1409,7 +1453,8 @@ fn smallest_cycle(
                 if !f.is_finite() || !pair.ok {
                     continue;
                 }
-                let total = f + pair.cap;
+                // Zero cost adds exactly 0.0, so the score is the plain area.
+                let total = f + pair.cap + vertex_cost * c as f64;
                 if total < best {
                     best = total;
                     s.seq.clear();

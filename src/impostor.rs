@@ -29,6 +29,8 @@ const MAX_VIEW_RESOLUTION: u32 = 4096;
 const MAX_SAMPLES_PER_AXIS: u32 = 8;
 /// Largest dilation pass count.
 const MAX_DILATION: u32 = 64;
+/// Largest parallax refinement step count.
+const MAX_PARALLAX_STEPS: u32 = 8;
 /// Subsample positions are snapped to 1/256 of a sample.
 const FIX: i64 = 256;
 /// Largest snapped coordinate magnitude; keeps edge products inside i64.
@@ -431,6 +433,331 @@ impl ImpostorAtlas {
             (view % n).checked_mul(self.view_resolution)?,
             (view / n).checked_mul(self.view_resolution)?,
         ])
+    }
+}
+
+/// Settings for [`ImpostorAtlas::reconstruct_texel`] and
+/// [`ImpostorAtlas::reconstruct_view`]. Not in C++ meshoptimizer.
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[non_exhaustive]
+pub struct ImpostorReconstruct {
+    /// Parallax refinement steps per blended view, 0 to 8 (default 3). Each
+    /// step moves the sample point along the novel view ray to the depth the
+    /// source view stores under the current point. 0 samples every view at the
+    /// point where the ray crosses the card, the plain blend.
+    pub parallax_steps: u32,
+}
+
+impl ImpostorReconstruct {
+    /// Plain blending: no parallax.
+    pub const PLAIN: Self = Self { parallax_steps: 0 };
+}
+
+impl Default for ImpostorReconstruct {
+    fn default() -> Self {
+        Self { parallax_steps: 3 }
+    }
+}
+
+impl ImpostorAtlas {
+    /// Reconstruct one texel of a novel view from three baked views. Not in
+    /// C++ meshoptimizer.
+    ///
+    /// `frame` is the novel view ([`ImpostorFrame::from_direction`]), `blend`
+    /// the views and weights for its direction ([`ImpostorGrid::blend`]) and
+    /// `point` a position in the novel tile in `[0, 1]^2` (x right, y down,
+    /// the coordinates of [`ImpostorFrame`]). Returns straight RGBA in
+    /// `[0, 1]`; RGB is zero where alpha is zero.
+    ///
+    /// This is the CPU reference for a runtime impostor shader, which a
+    /// renderer mirrors per pixel. With `c` the bounds center, `r` the radius
+    /// and `q = c + r((2x - 1) right + (1 - 2y) up)` the point where the
+    /// pixel's ray `q + t d` crosses the card through `c`, each blended view
+    /// `v` with frame `(R, U, D)` does:
+    ///
+    /// 1. Start with `p = q`.
+    /// 2. Repeat `parallax_steps` times: project `p` into the view's tile,
+    ///    read the stored depth `s` of the nearest texel (a texel that is
+    ///    covered or was filled by dilation), take the surface plane
+    ///    `(x - c) . D = r (1 - 2 s)` and move `p` along the ray to that
+    ///    plane, `t = (r (1 - 2 s) - (q - c) . D) / (d . D)`, limited to
+    ///    `|t| <= 2 r`. Without a stored surface under `p` the loop stops. One
+    ///    step is the parallax offset ("single depth offset", similar to bump
+    ///    offset) of Brucks' octahedral impostors
+    ///    (<https://shaderbits.com/blog/octahedral-impostors>, 2018); more
+    ///    steps iterate it to a fixed point. The same offset is applied in
+    ///    each of the three views before blending, which Brucks' shader does
+    ///    by solving the virtual frame projection per view.
+    /// 3. Project the final `p` into the tile and read the bilinear,
+    ///    alpha-premultiplied albedo (texels outside the tile count as empty).
+    ///
+    /// The three taps are blended with `blend.weights` in alpha-premultiplied
+    /// form, so an empty view lowers alpha instead of darkening colour. A
+    /// stored-depth test that drops views seeing a different surface was
+    /// measured on three plants and did not raise mask IoU in any setting, so
+    /// it is not part of the helper. All arithmetic is IEEE `f64` without fused
+    /// multiply-add, so results are bit-identical on every platform. The
+    /// limit of the offset is that the first lookup, at the card point, must
+    /// land on or within the dilation of a covered texel: a surface farther
+    /// than that from the ray's card point is not found.
+    ///
+    /// ```
+    /// use meshoptimizer_rs::{bake_impostor, ImpostorAlbedo, ImpostorFrame, ImpostorGrid,
+    ///     ImpostorLayout, ImpostorOptions, ImpostorReconstruct, Positions, Workspace};
+    /// let p = [[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [-1.0, 1.0, 0.0]];
+    /// let mut options = ImpostorOptions::default();
+    /// options.grid = ImpostorGrid::new(ImpostorLayout::Sphere, 3)?;
+    /// options.view_resolution = 16;
+    /// let atlas = bake_impostor(&[0, 1, 2, 0, 2, 3], Positions::from_packed(&p), None,
+    ///     ImpostorAlbedo::White, options, &mut Workspace::default())?;
+    /// // Looking at the quad from +Z: the center of the tile is white and opaque.
+    /// let direction = [0.0, 0.0, 1.0];
+    /// let texel = atlas.reconstruct_texel(
+    ///     ImpostorFrame::from_direction(direction)?,
+    ///     atlas.grid.blend(direction)?,
+    ///     [0.5, 0.5],
+    ///     ImpostorReconstruct::default(),
+    /// )?;
+    /// assert_eq!(texel, [1.0, 1.0, 1.0, 1.0]);
+    /// # Ok::<(), meshoptimizer_rs::Error>(())
+    /// ```
+    ///
+    /// # Errors
+    /// `InvalidParameter` for invalid options, a point outside `[0, 1]^2`, a
+    /// non-finite frame or weights, a view index outside the grid, or an atlas
+    /// whose fields are inconsistent (plane lengths, sizes or radius).
+    pub fn reconstruct_texel(
+        &self,
+        frame: ImpostorFrame,
+        blend: ImpostorBlend,
+        point: [f32; 2],
+        options: ImpostorReconstruct,
+    ) -> Result<[f32; 4], Error> {
+        if !point.iter().all(|x| (0.0..=1.0).contains(x)) {
+            return Err(Error::InvalidParameter);
+        }
+        let setup = Reconstruction::new(self, frame, blend, options)?;
+        Ok(setup.texel(point.map(f64::from)))
+    }
+
+    /// Reconstruct a whole novel view into `out`. Not in C++ meshoptimizer.
+    ///
+    /// `direction` points from the object toward the viewer (as in
+    /// [`ImpostorGrid::blend`]), the view is `resolution * resolution` texels
+    /// of [`ImpostorFrame::from_direction`]`(direction)` sampled at texel
+    /// centers, row 0 at the top, and `out` receives
+    /// [`reconstruct_texel`](Self::reconstruct_texel) of each. No storage is
+    /// allocated; work is `resolution^2 * 3 * (parallax_steps + 2)` lookups.
+    ///
+    /// # Errors
+    /// `InvalidParameter` for a zero or non-finite direction, a `resolution`
+    /// outside `1..=4096`, invalid options, an inconsistent atlas or an `out`
+    /// longer than `resolution^2`; `BufferTooSmall` for a shorter one.
+    pub fn reconstruct_view(
+        &self,
+        direction: [f32; 3],
+        resolution: u32,
+        options: ImpostorReconstruct,
+        out: &mut [[f32; 4]],
+    ) -> Result<(), Error> {
+        if !(1..=MAX_VIEW_RESOLUTION).contains(&resolution) {
+            return Err(Error::InvalidParameter);
+        }
+        let texels = usize::try_from(resolution)
+            .ok()
+            .and_then(|r| r.checked_mul(r))
+            .ok_or(Error::SizeOverflow)?;
+        if out.len() < texels {
+            return Err(Error::BufferTooSmall);
+        }
+        if out.len() > texels {
+            return Err(Error::InvalidParameter);
+        }
+        let frame = ImpostorFrame::from_direction(direction)?;
+        let blend = self.grid.blend(direction)?;
+        let setup = Reconstruction::new(self, frame, blend, options)?;
+        let step = 1.0 / f64::from(resolution);
+        for (i, texel) in out.iter_mut().enumerate() {
+            let (x, y) = (i % resolution as usize, i / resolution as usize);
+            *texel = setup.texel([(x as f64 + 0.5) * step, (y as f64 + 0.5) * step]);
+        }
+        Ok(())
+    }
+}
+
+/// One blended source view in a [`Reconstruction`].
+struct SourceView {
+    weight: f64,
+    right: V,
+    up: V,
+    direction: V,
+    /// Top-left texel of the tile in the atlas planes.
+    origin: [usize; 2],
+}
+
+/// Validated state for reconstructing texels of one novel view.
+struct Reconstruction<'a> {
+    atlas: &'a ImpostorAtlas,
+    radius: f64,
+    resolution: usize,
+    size: usize,
+    right: V,
+    up: V,
+    direction: V,
+    views: [SourceView; 3],
+    steps: u32,
+}
+
+/// A bilinear tap: alpha and alpha-premultiplied colour, all in `[0, 1]`.
+type Tap = [f64; 4];
+
+impl<'a> Reconstruction<'a> {
+    fn new(
+        atlas: &'a ImpostorAtlas,
+        frame: ImpostorFrame,
+        blend: ImpostorBlend,
+        options: ImpostorReconstruct,
+    ) -> Result<Self, Error> {
+        if options.parallax_steps > MAX_PARALLAX_STEPS {
+            return Err(Error::InvalidParameter);
+        }
+        let n = atlas.grid.check()?;
+        let finite = |v: [f32; 3]| v.iter().all(|x| x.is_finite());
+        if !(finite(frame.direction) && finite(frame.right) && finite(frame.up))
+            || !blend.weights.iter().all(|w| w.is_finite() && *w >= 0.0)
+            || !(atlas.bounds.radius.is_finite() && atlas.bounds.radius >= 0.0)
+            || !finite(atlas.bounds.center)
+        {
+            return Err(Error::InvalidParameter);
+        }
+        let resolution = usize::try_from(atlas.view_resolution).map_err(|_| Error::SizeOverflow)?;
+        let size = usize::try_from(atlas.size).map_err(|_| Error::SizeOverflow)?;
+        let plane = size.checked_mul(size).ok_or(Error::SizeOverflow)?;
+        let expected = atlas
+            .view_resolution
+            .checked_mul(n)
+            .ok_or(Error::SizeOverflow)?;
+        if resolution == 0
+            || atlas.size != expected
+            || atlas.albedo_alpha.len() != plane
+            || atlas.normal_depth.len() != plane
+        {
+            return Err(Error::InvalidParameter);
+        }
+        let source = |k: usize| -> Result<SourceView, Error> {
+            let view = blend.views[k];
+            let [ox, oy] = atlas.tile_origin(view).ok_or(Error::InvalidParameter)?;
+            let f = atlas.grid.view_frame(view)?;
+            Ok(SourceView {
+                weight: f64::from(blend.weights[k]),
+                right: widen(f.right),
+                up: widen(f.up),
+                direction: widen(f.direction),
+                origin: [
+                    usize::try_from(ox).map_err(|_| Error::SizeOverflow)?,
+                    usize::try_from(oy).map_err(|_| Error::SizeOverflow)?,
+                ],
+            })
+        };
+        Ok(Self {
+            atlas,
+            radius: f64::from(atlas.bounds.radius),
+            resolution,
+            size,
+            right: widen(frame.right),
+            up: widen(frame.up),
+            direction: widen(frame.direction),
+            views: [source(0)?, source(1)?, source(2)?],
+            steps: options.parallax_steps,
+        })
+    }
+
+    /// Texel index in the atlas planes of tile texel `(x, y)`, if inside the tile.
+    fn index(&self, view: &SourceView, x: i64, y: i64) -> Option<usize> {
+        let r = self.resolution as i64;
+        if x < 0 || y < 0 || x >= r || y >= r {
+            return None;
+        }
+        // 0 <= x, y < resolution <= size, so the sums fit.
+        Some((view.origin[1] + y as usize) * self.size + view.origin[0] + x as usize)
+    }
+
+    /// Tile coordinates in texels of `p`, a point relative to the center.
+    fn project(&self, view: &SourceView, p: V) -> [f64; 2] {
+        let res = self.resolution as f64;
+        [
+            (dot(p, view.right) / self.radius + 1.0) * 0.5 * res,
+            (1.0 - dot(p, view.up) / self.radius) * 0.5 * res,
+        ]
+    }
+
+    /// Stored surface of the nearest texel along the view direction, relative
+    /// to the center.
+    fn surface(&self, view: &SourceView, t: [f64; 2]) -> Option<f64> {
+        let i = self.index(view, libm::floor(t[0]) as i64, libm::floor(t[1]) as i64)?;
+        let depth = self.atlas.normal_depth[i][3];
+        // Dilation copies depth into empty texels; undilated ones hold 255.
+        (self.atlas.albedo_alpha[i][3] > 0 || depth < 255)
+            .then(|| self.radius * (1.0 - 2.0 * f64::from(depth) / 255.0))
+    }
+
+    fn tap(&self, view: &SourceView, t: [f64; 2]) -> Tap {
+        let (fx, fy) = (t[0] - 0.5, t[1] - 0.5);
+        let (x0, y0) = (libm::floor(fx), libm::floor(fy));
+        let (ux, uy) = (fx - x0, fy - y0);
+        let mut out = [0.0; 4];
+        for (dx, dy, w) in [
+            (0, 0, (1.0 - ux) * (1.0 - uy)),
+            (1, 0, ux * (1.0 - uy)),
+            (0, 1, (1.0 - ux) * uy),
+            (1, 1, ux * uy),
+        ] {
+            if let Some(i) = self.index(view, x0 as i64 + dx, y0 as i64 + dy) {
+                let c = self.atlas.albedo_alpha[i];
+                let a = f64::from(c[3]) / 255.0;
+                out[0] += w * a;
+                for (o, &channel) in out[1..].iter_mut().zip(&c) {
+                    *o += w * a * f64::from(channel) / 255.0;
+                }
+            }
+        }
+        out
+    }
+
+    fn texel(&self, point: [f64; 2]) -> [f32; 4] {
+        if self.radius == 0.0 {
+            return [0.0; 4];
+        }
+        let (s, t) = (
+            self.radius * (2.0 * point[0] - 1.0),
+            self.radius * (1.0 - 2.0 * point[1]),
+        );
+        let q: V = [0, 1, 2].map(|k| s * self.right[k] + t * self.up[k]);
+        let (mut weight, mut sum) = (0.0, [0.0; 4]);
+        for view in &self.views {
+            let along = dot(q, view.direction);
+            let cos = dot(self.direction, view.direction);
+            let mut p = q;
+            if cos.abs() > 1e-6 {
+                for _ in 0..self.steps {
+                    let Some(surface) = self.surface(view, self.project(view, p)) else {
+                        break;
+                    };
+                    let t = ((surface - along) / cos).clamp(-2.0 * self.radius, 2.0 * self.radius);
+                    p = [0, 1, 2].map(|k| q[k] + t * self.direction[k]);
+                }
+            }
+            weight += view.weight;
+            for (s, t) in sum.iter_mut().zip(self.tap(view, self.project(view, p))) {
+                *s += view.weight * t;
+            }
+        }
+        if weight <= 0.0 || sum[0] <= 0.0 {
+            return [0.0; 4];
+        }
+        let a = sum[0] / weight;
+        let rgb = [1, 2, 3].map(|k| (sum[k] / sum[0]).clamp(0.0, 1.0) as f32);
+        [rgb[0], rgb[1], rgb[2], a.clamp(0.0, 1.0) as f32]
     }
 }
 
