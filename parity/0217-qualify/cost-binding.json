@@ -1,0 +1,8 @@
+{
+  "binaries": {
+    "buffer_stream_bench": "0ff9b50f7b4484f8c0044c8fca367978e1482ba0a8c7841aac902211f2522236",
+    "character_eval": "4626b9919a9c5f0f98ce74468e5758a74fcbe25991c313d5a70ee5fe243fefd9",
+    "cost": "3612b30ba37e1b1a97185b3af31cce75c72248d80b5b1d5f6517a81b1a8ac0ec",
+    "hsr-bench": "a1924d7152cc01e02d8dfde06ea45349a7d22f1518875de5b409dc8fc13a497b"
+  }
+}

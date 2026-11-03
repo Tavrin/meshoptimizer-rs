@@ -1,0 +1,9 @@
+PASS medium-seams checks so far 24
+PASS medium-smooth checks so far 48
+PASS medium-sparse checks so far 72
+PASS million-smooth checks so far 90
+PASS real-214e checks so far 108
+PASS real-a082 checks so far 126
+PASS real-b6fd checks so far 144
+PASS tiny-smooth checks so far 168
+TOTAL streaming-vs-one-shot checks 168 differences 0

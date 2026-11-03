@@ -1,0 +1,3 @@
+error: <target>/canonical/Cargo.toml: can't find `character_eval` example at `examples/character_eval.rs` or `examples/character_eval/main.rs`. Please specify example.path if you want to use a non-default path.
+error: <target>/canonical/Cargo.toml: can't find `dag_format_bench` example at `examples/dag_format_bench.rs` or `examples/dag_format_bench/main.rs`. Please specify example.path if you want to use a non-default path.
+error: could not parse `meshoptimizer-rs` (manifest) due to 2 previous errors
