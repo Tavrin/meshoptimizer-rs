@@ -52,6 +52,7 @@
 //!
 //! - [LOD quality and switch distances](guide#lod-quality-and-switch-distances) (not in C++ meshoptimizer).
 //! - [Hidden-surface removal](guide#hidden-surface-removal) (an extension, not in C++ meshoptimizer).
+//! - [Alpha-cutout card trimming](guide#alpha-cutout-card-trimming) (an extension, not in C++ meshoptimizer).
 //! - [Cluster LOD DAG files](guide#cluster-lod-dag-files) (an extension, not in C++ meshoptimizer).
 //! - [Parallel vertex codec and spatial meshlets](guide#parallel-vertex-codec-and-spatial-meshlets-for-one-large-mesh) (an extension, not in C++ meshoptimizer).
 //! - [Character LODs](guide#character-lods) (an extension, not in C++ meshoptimizer).
@@ -190,6 +191,11 @@ pub use hidden::{
     remove_hidden_triangles, remove_hidden_triangles_generic, remove_hidden_triangles_into,
     remove_hidden_triangles_into_generic, HiddenOptions, HiddenReport, HiddenViews, VisibleMesh,
     VisibleMeshGeneric,
+};
+mod cutout;
+pub use cutout::{
+    trim_alpha_cards, trim_alpha_cards_generic, AlphaMask, AlphaWrap, CardTrimOptions,
+    CardTrimReport, TrimmedCards, TrimmedCardsGeneric,
 };
 
 mod analyze;

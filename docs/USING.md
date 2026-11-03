@@ -1049,7 +1049,84 @@ output regardless of the `parallel` feature or thread-pool size. Occlusion is me
 the original mesh; removing its sampled-hidden surfaces does not guarantee
 identical continuous visibility of the filtered mesh.
 
-## 16-bit vertex indices
+## Alpha-cutout card trimming
+
+This extension is not in C++ meshoptimizer and needs no Cargo feature. Alpha-tested
+foliage cards are mostly transparent, and the GPU still rasterizes and tests every
+transparent texel they cover. `trim_alpha_cards` replaces each card with a convex
+polygon of at most `max_vertices` vertices that contains every texel with
+`alpha >= threshold`, the problem solved by Emil Persson's
+[particle trimmer](http://www.humus.name/index.php?page=Cool&ID=8) (2009). It takes
+the convex hull of the visible texels, then the smallest polygon built from hull
+edge lines, corner bisectors and lines parallel to the card outline, chosen by an
+exact search after a greedy reduction of long hulls. This is not always the global
+minimum. The polygon stays inside the card.
+
+A card is a group of triangles connected through shared vertex-index edges with
+nonzero texture area. Every float of the vertex is interpolated. Planar cards with
+attributes linear in UV become one fan of `max_vertices - 2` or fewer triangles.
+Bent or curved cards, and cards whose triangles do not form a convex region in
+texture space, are clipped per source triangle with that triangle's own
+interpolation, so rendering is unchanged where the card is kept; these cards may
+exceed the vertex budget and are counted in `split_cards`. Cards without visible
+texels are removed, and cards without a smaller polygon are copied.
+
+Texel `(x, y)` covers `[x, x + 1) x [y, y + 1)` in `(u * width, v * height)`, with
+`v = 0` in the first row. `AlphaWrap` selects clamp-to-edge or repeat for texels
+outside the mask. `padding` expands each visible texel: 0.5 (the default) covers
+bilinear sampling at full resolution, 0 covers nearest sampling, and
+`1.5 * 2^L - 1` covers bilinear sampling of box-filtered mip level `L`. Mips with
+rescaled alpha (coverage-preserving mip generation) are not covered. A margin of
+`1/256` texel plus `|coordinate| / 2^22` absorbs f32 rounding of the new UVs.
+
+```rust
+use meshoptimizer_rs::{trim_alpha_cards, AlphaMask, AlphaWrap, CardTrimOptions, Workspace};
+// A 16x16 mask with a visible disc; real masks come from the card texture.
+let mut alpha = [0u8; 256];
+for y in 0..16 {
+    for x in 0..16 {
+        let (dx, dy) = (x as f32 - 7.5, y as f32 - 7.5);
+        if dx * dx + dy * dy < 25.0 {
+            alpha[y * 16 + x] = 255;
+        }
+    }
+}
+// RGBA data would use AlphaMask::with_layout(&rgba[3..], 4, 4 * width, width, height).
+let mask = AlphaMask::new(&alpha, 16, 16)?;
+// One quad: x, y, z, u, v per vertex.
+let vertices = [
+    -1., -1., 0., 0., 0.,
+    1., -1., 0., 1., 0.,
+    1., 1., 0., 1., 1.,
+    -1., 1., 0., 0., 1.,
+];
+let mut options = CardTrimOptions::default();
+options.max_vertices = 6;
+options.wrap = AlphaWrap::Repeat;
+let trimmed = trim_alpha_cards(&[0, 1, 2, 0, 2, 3], &vertices, 5, 3, mask, options,
+    &mut Workspace::default())?;
+let report = trimmed.report;
+assert_eq!((report.trimmed_cards, report.output_triangles), (1, 4));
+assert!(report.area_after < 0.8 * report.area_before);
+// Transparent area estimate: covered area minus visible texel centers.
+let transparent = report.area_after - report.opaque_texels as f64;
+assert!(transparent < 80.0);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+The result is a new vertex buffer in first-use order and a new index buffer; run
+the usual cache and fetch optimizations afterwards. Output winding follows each
+source triangle. Normals are interpolated, not renormalized. Cards with identical
+UV triangles share one fit, so instanced foliage costs one fit per distinct card.
+Limits meter the scanned texels and the polygon search. Larger budgets trade
+triangles for area: a quad card becomes `max_vertices - 2` triangles whenever a
+smaller polygon exists, even when the last vertices remove little area.
+
+On four CC0 Poly Haven plants with their 2048x2048 alpha maps, plain quad cards
+(the UV bounding rectangle of each authored card) lost 2-16% of their transparent
+area at budget 4, 27-50% at budget 6 and 31-55% at budget 8. The authored meshes,
+already modelled around the leaf shapes, lost 0-15%.
+
 
 Existing names retain their exact u32 signatures. Add `_generic` to any
 index-processing function or width-aware method name to select an index width.
