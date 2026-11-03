@@ -1127,6 +1127,115 @@ On four CC0 Poly Haven plants with their 2048x2048 alpha maps, plain quad cards
 area at budget 4, 27-50% at budget 6 and 31-55% at budget 8. The authored meshes,
 already modelled around the leaf shapes, lost 0-15%.
 
+## Octahedral impostors
+
+This extension is not in C++ meshoptimizer and needs no Cargo feature. Beyond
+some distance a tree or prop can be drawn as one camera-facing card textured
+from an atlas of views. `bake_impostor` captures those views on the CPU, using
+the layout of Ryan Brucks'
+[octahedral impostors](https://shaderbits.com/blog/octahedral-impostors) (2018):
+view directions sit on the vertices of an `N x N` grid over the octahedral map
+of the upper hemisphere (`ImpostorLayout::Hemisphere`, the usual choice for
+trees) or the whole sphere (`ImpostorLayout::Sphere`), and the runtime blends
+the three views of the grid triangle that contains the camera direction.
+
+Directions point from the object toward the viewer in the mesh frame, with +Y
+up. `ImpostorLayout::encode` and `decode` convert between a direction and its
+octahedral point in `[-1, 1]^2`. View `(i, j)` has index `j * N + i`, point
+`[2i / (N - 1) - 1, 2j / (N - 1) - 1]` and the tile at
+`(i * view_resolution, j * view_resolution)` in the atlas.
+`ImpostorGrid::blend(direction)` returns the three view indices and their
+barycentric weights; `ImpostorGrid::view_frame(view)` returns the capture
+frame (`direction`, `right`, `up`). Every view frames the same bounding sphere:
+a point `p` lands at tile coordinates
+`((p - c) . right / r + 1) / 2` and `(1 - (p - c) . up / r) / 2` (row 0 at
+the top), and its stored depth is `(1 - (p - c) . direction / r) / 2`.
+
+```rust
+use meshoptimizer_rs::{bake_impostor, impostor_switch_distance, ImpostorAlbedo,
+    ImpostorGrid, ImpostorLayout, ImpostorOptions, LodCamera, Positions, Workspace};
+// Two crossed quads with a UV-driven texture lookup.
+let p = [[-1., 0., 0.], [1., 0., 0.], [1., 2., 0.], [-1., 2., 0.],
+         [0., 0., -1.], [0., 0., 1.], [0., 2., 1.], [0., 2., -1.]];
+let uv = [[0., 1.], [1., 1.], [1., 0.], [0., 0.], [0., 1.], [1., 1.], [1., 0.], [0., 0.]];
+let indices = [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7];
+// A disc of leaves: alpha from distance to the card center.
+let leaves = |_triangle: usize, uv: [f32; 2]| {
+    let (du, dv) = (uv[0] - 0.5, uv[1] - 0.5);
+    [0.2, 0.5, 0.1, if du * du + dv * dv < 0.2 { 1.0 } else { 0.0 }]
+};
+let mut options = ImpostorOptions::default();
+options.grid = ImpostorGrid::new(ImpostorLayout::Hemisphere, 8)?;
+options.view_resolution = 32;
+let atlas = bake_impostor(&indices, Positions::from_packed(&p), None,
+    ImpostorAlbedo::Texture { uvs: &uv, sampler: &leaves }, options,
+    &mut Workspace::default())?;
+assert_eq!(atlas.size, 256);
+assert_eq!(atlas.report.empty_views, 0);
+// Runtime: the views to blend for a camera direction.
+let blend = atlas.grid.blend([0.3, 0.5, 0.8])?;
+assert!((blend.weights.iter().sum::<f32>() - 1.0).abs() < 1e-6);
+// When to switch, for a 60 degree, 1080 px camera and a 1 px tolerance.
+let camera = LodCamera::new(60_f64.to_radians(), 1080., 1.)?;
+let switch = impostor_switch_distance(atlas.bounds, atlas.grid, 32, camera)?;
+assert!(switch.distance > switch.view_error);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+Each view is rasterized at `view_resolution * samples_per_axis` samples per side
+with exact integer edge functions, a top-left fill rule and a nearer-wins depth
+test. Fragments whose source alpha is below `alpha_cutoff` are discarded before
+the depth test, as with glTF `MASK` materials, so leaves behind a transparent
+texel stay visible. Colour comes from `ImpostorAlbedo`: white, vertex colours
+or a texture callback `sampler(triangle, uv)`; the triangle index lets one
+callback serve several materials. A texel averages the colour of its covered
+samples, stores the renormalized mesh-frame normal as `n * 0.5 + 0.5` and the
+nearest depth. Its alpha is conservative: the covered fraction divided by
+`coverage_threshold` (default 0.5), clamped to one, so thin branches do not
+dissolve at the distance where impostors are used. `dilation` copies colour,
+normal and depth into empty neighbours with alpha 0, which keeps bilinear
+filtering from pulling black into the silhouette. Back faces are drawn with
+reversed normals unless `double_sided` is false. The bounding sphere is
+computed from the referenced vertices, or fixed with `bounds` so that several
+assets share one frame.
+
+`impostor_switch_distance` returns the camera-to-center distance beyond which
+two errors project below the pixel tolerance: one texel (`2r / resolution`)
+and the view error, the radius times the largest blend-weighted distance
+between a direction and its blended view directions. The view error bounds how
+far a point on the bounding sphere moves when views are blended without
+parallax correction, and it dominates for practical grids. A runtime that
+offsets by the stored depth sees less; it can pass `texel_error` to
+`LodCamera::switch_distance` and add the radius instead.
+
+The baker is deterministic: the same input gives the same bytes on every
+platform, provided the texture callback is deterministic. Workspace limits
+meter the atlas, one view of 32-byte samples and the rasterized samples.
+
+Measured on three CC0 [Poly Haven](https://polyhaven.com/license) assets (the
+first mesh of each: `fern_02`, 2,384 triangles; `fir_sapling`, 157,402; and
+`shrub_01`, 156,012, which is a row of about a dozen small shrubs) with their
+1k diffuse and alpha textures, hemisphere layout, 2 x 2 samples per texel, on
+one laptop CPU core. The error columns compare 12 novel directions between
+views (elevations 12, 37 and 63 degrees) reconstructed from the atlas with
+the three blended views, against a direct render of the same direction: mask
+IoU at alpha 0.5, and mean absolute RGB error (0-255) over the union of both
+masks.
+
+| views | view px | atlas (2 planes) | bake time | IoU fern / fir / shrub | RGB error fern / fir / shrub |
+|---|---|---|---|---|---|
+| 8 x 8 | 128 | 1024², 8 MiB | 0.10-0.40 s | 0.74 / 0.60 / 0.45 | 22 / 39 / 66 |
+| 8 x 8 | 256 | 2048², 32 MiB | 0.44-0.83 s | 0.71 / 0.57 / 0.42 | 24 / 41 / 69 |
+| 12 x 12 | 128 | 1536², 18 MiB | 0.29-0.90 s | 0.84 / 0.72 / 0.55 | 16 / 30 / 57 |
+| 12 x 12 | 256 | 3072², 72 MiB | 0.99-1.98 s | 0.82 / 0.69 / 0.51 | 18 / 32 / 61 |
+
+The three-view blend beats the nearest single view by 0.02-0.04 IoU on the
+fern and the fir, and is level on the sparse shrub row. More views help more
+than more texels: the error is dominated by the angle between views, as
+`impostor_switch_distance` predicts (view error 0.14-0.42 world units against
+a texel error of 0.005-0.02). The reconstruction above uses no depth-based
+parallax correction.
+
 
 Existing names retain their exact u32 signatures. Add `_generic` to any
 index-processing function or width-aware method name to select an index width.
