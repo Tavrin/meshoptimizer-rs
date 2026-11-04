@@ -12,7 +12,7 @@ use meshoptimizer_rs::{
     clusterlod::{
         cut::{self, CutView, Projection, Threshold},
         dag_format::v2,
-        FlatDagCluster, FlatDagGroup,
+        FlatDagCluster, FlatDagGroup, LodBounds,
     },
     Workspace,
 };
@@ -47,11 +47,13 @@ fn reseal(b: &mut [u8]) -> Option<()> {
         let start = u64::from(word(b, rec)?) | u64::from(word(b, rec + 4)?) << 32;
         let end = start.checked_add(u64::from(word(b, rec + 8)?))?;
         if let Some(h) = disk(b, start..end).map(|d| v2::xxh64(d, 0)) {
-            b.get_mut(rec + 32..rec + 40)?.copy_from_slice(&h.to_le_bytes());
+            b.get_mut(rec + 32..rec + 40)?
+                .copy_from_slice(&h.to_le_bytes());
         }
     }
     let h = v2::prefix_hash(b.get(..resident)?)?;
-    b.get_mut(v2::RESIDENT_HASH_FIELD)?.copy_from_slice(&h.to_le_bytes());
+    b.get_mut(v2::RESIDENT_HASH_FIELD)?
+        .copy_from_slice(&h.to_le_bytes());
     Some(())
 }
 
@@ -69,7 +71,11 @@ fn fine_tables(r: &v2::Reader) -> (Vec<FlatDagGroup>, Vec<FlatDagCluster>) {
             let q = r.cluster_refined(c as usize).expect("validated cluster");
             let mut cl = FlatDagCluster::default();
             cl.group = i as u32;
-            cl.refined = if q < 0 { -1 } else { (n - 1 - q as usize) as i32 };
+            cl.refined = if q < 0 {
+                -1
+            } else {
+                (n - 1 - q as usize) as i32
+            };
             clusters.push(cl);
         }
         groups.push(g);
@@ -94,9 +100,13 @@ fn check_cuts(r: &v2::Reader, data: &[u8]) {
             parentless[c.refined as usize] = false;
         }
     }
-    let seed = data.iter().fold(0u64, |h, &b| h.rotate_left(5) ^ u64::from(b));
+    let seed = data
+        .iter()
+        .fold(0u64, |h, &b| h.rotate_left(5) ^ u64::from(b));
     let mut sets = vec![
-        (0..np).map(|p| p < m.pinned_page_count as usize).collect::<Vec<bool>>(),
+        (0..np)
+            .map(|p| p < m.pinned_page_count as usize)
+            .collect::<Vec<bool>>(),
         vec![true; np],
     ];
     for k in 0..2u64 {
@@ -115,15 +125,14 @@ fn check_cuts(r: &v2::Reader, data: &[u8]) {
         }
         sets.push(loaded);
     }
-    // Orthographic at one pixel per unit: the projected error is the group
-    // error rounded, so thresholds at group errors hit the equal-error case.
-    let thresholds = [
-        Threshold::Finest,
-        Threshold::Pixels(0.0),
-        Threshold::Pixels(groups[seed as usize % n].error),
-        Threshold::Pixels(f32::MAX),
-    ];
-    let view = CutView {
+    let mut rng = seed | 1;
+    let mut random = || {
+        rng ^= rng << 13;
+        rng ^= rng >> 7;
+        rng ^= rng << 17;
+        rng as u32
+    };
+    let ortho = CutView {
         position: [0.0; 3],
         projection: Projection::Orthographic {
             pixels_per_unit: 1.0,
@@ -131,6 +140,41 @@ fn check_cuts(r: &v2::Reader, data: &[u8]) {
         viewport_height: 1.0,
         scale: 1.0,
     };
+    let mut views = vec![ortho];
+    // Random finite camera bits cover ordinary and extremely far distances.
+    // Keep the exact review camera as well, including its projection scale.
+    for far in [false, true] {
+        let position = core::array::from_fn(|_| {
+            let bits = random();
+            if far {
+                f32::from_bits(bits & 0xfeffffff)
+            } else {
+                (bits as i32 as f32) / 1e7
+            }
+        });
+        views.push(CutView {
+            position,
+            projection: Projection::Perspective {
+                proj_y: 0.5 + (random() % 1000) as f32 / 200.0,
+                znear: 0.01 + (random() % 100) as f32 / 10.0,
+            },
+            ..ortho
+        });
+    }
+    views.push(CutView {
+        position: [f32::from_bits(0xda00_0000), 0.0, 0.0],
+        projection: Projection::Perspective {
+            proj_y: 1.5,
+            znear: 1.0,
+        },
+        ..ortho
+    });
+    let mut produced = vec![Vec::new(); n];
+    for (i, c) in clusters.iter().enumerate() {
+        if c.refined >= 0 {
+            produced[c.refined as usize].push(i);
+        }
+    }
     let (mut a, mut s) = (vec![0u32; clusters.len()], vec![0u32; clusters.len()]);
     for loaded in &sets {
         // Group i of the fine tables is file group n - 1 - i.
@@ -144,12 +188,47 @@ fn check_cuts(r: &v2::Reader, data: &[u8]) {
             (0..n).all(|i| !parentless[i] || resident[i]),
             "parentless group not resident"
         );
-        for t in thresholds {
-            let k = cut::select_cut(&groups, &clusters, &view, t, Some(&resident), &mut a)
-                .expect("select_cut");
-            let j = cut::refine_sequential(&groups, &clusters, &view, t, Some(&resident), &mut s)
-                .expect("refine_sequential on a dependency-closed set");
-            assert_eq!(a[..k], s[..j]);
+        for view in &views {
+            let g = &groups[random() as usize % n];
+            let pixels = cut::projected_error(
+                LodBounds {
+                    center: g.center,
+                    radius: g.radius,
+                    error: g.error,
+                },
+                view,
+            );
+            let edge = if pixels.is_finite() { pixels } else { f32::MAX };
+            for t in [
+                Threshold::Finest,
+                Threshold::Pixels(0.0),
+                Threshold::Pixels(edge),
+                Threshold::Pixels(edge.next_down().max(0.0)),
+                Threshold::Pixels(f32::MAX),
+            ] {
+                let k = cut::select_cut(&groups, &clusters, view, t, Some(&resident), &mut a)
+                    .expect("select_cut");
+                let j =
+                    cut::refine_sequential(&groups, &clusters, view, t, Some(&resident), &mut s)
+                        .expect("refine_sequential on a dependency-closed set");
+                assert_eq!(a[..k], s[..j]);
+                // Independently count selected clusters along every source-to-root
+                // chain, retaining both extremes through DAG joins.
+                let mut selected = vec![0u32; clusters.len()];
+                for &c in &a[..k] {
+                    selected[c as usize] += 1;
+                }
+                let mut range = vec![(0u32, 0u32); clusters.len()];
+                for i in (0..clusters.len()).rev() {
+                    let above = &produced[clusters[i].group as usize];
+                    let lo = above.iter().map(|&c| range[c].0).min().unwrap_or(0);
+                    let hi = above.iter().map(|&c| range[c].1).max().unwrap_or(0);
+                    range[i] = (lo + selected[i], hi + selected[i]);
+                    if clusters[i].refined < 0 {
+                        assert_eq!(range[i], (1, 1), "exactly-once coverage");
+                    }
+                }
+            }
         }
     }
 }
@@ -169,7 +248,10 @@ fn check(data: &[u8]) {
         let mut out = vec![0u32; r.page_capacity() / 4];
         for p in 0..m.page_count as usize {
             let rec = r.page(p).expect("validated page");
-            assert!(r.dependencies(p).expect("dependencies").all(|d| (d as usize) < p));
+            assert!(r
+                .dependencies(p)
+                .expect("dependencies")
+                .all(|d| (d as usize) < p));
             if let Some(bytes) = disk(data, rec.disk_range()) {
                 let _ = r.transcode_page(p, bytes, &mut out, &mut ws);
             }
@@ -210,10 +292,14 @@ fn check(data: &[u8]) {
 /// (B1), a raised parent count (B2) and a changed refined group, each
 /// resealed so only the structural rules can reject it.
 fn edits(data: &[u8]) -> Vec<Vec<u8>> {
-    let pick = data.iter().fold(0x9e37_79b9u32, |h, &b| h.rotate_left(3) ^ u32::from(b));
+    let pick = data
+        .iter()
+        .fold(0x9e37_79b9u32, |h, &b| h.rotate_left(3) ^ u32::from(b));
     let mut out = Vec::new();
     let mut edit = |tag: &[u8; 4], record: usize, field: usize, value: &dyn Fn(u32) -> u32| {
-        let Some((at, len)) = chunk(data, tag) else { return };
+        let Some((at, len)) = chunk(data, tag) else {
+            return;
+        };
         let count = len / record;
         if count == 0 {
             return;

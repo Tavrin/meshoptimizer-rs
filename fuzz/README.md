@@ -58,7 +58,9 @@ and resident hashes recomputed so that mutations reach the structural rules. Acc
 reopen from their resident prefix and transcode every page from exactly its bytes. For every file
 `open` accepts, the pinned prefix, the whole page table and two input-derived dependency-closed page
 sets must give valid cuts (`cut::refine_sequential` never `Incomplete`, equal to `cut::select_cut`,
-every parentless group resident) at `Threshold::Finest` and orthographic thresholds at group errors.
+every parentless group resident, exactly one selected cluster along every source-to-root chain) at
+`Threshold::Finest`, orthographic thresholds, and perspective thresholds at and immediately below
+projected group errors, with input-derived ordinary/far cameras and the far-camera regression.
 Each input that opens is also rerun with three resealed edits: one `PDEP` entry replaced, one parent
 count raised and one `CREF` entry changed. Seeds in
 `fuzz/seeds/dag_format_v2/` come from

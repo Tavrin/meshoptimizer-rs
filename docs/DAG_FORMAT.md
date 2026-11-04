@@ -142,37 +142,40 @@ perspective:  error * s / max(d - radius * s, znear) * (proj_y / 2) * viewport_h
 orthographic: error * s * pixels_per_unit        (independent of depth)
 ```
 
-**Cut rule.** For a pixel threshold `t`, draw cluster `c` iff the projected error
-of `G(c)` is greater than `t` and (`R(c) = -1` or the projected error of `R(c)`
-is at most `t`). Terminal groups carry error `f32::MAX`, so their clusters are
-drawn whenever their producer is within the threshold. A threshold that must give
-the finest level draws exactly the clusters with `refined == -1`; do not obtain
-it by passing zero, because groups can have zero error.
+**Cut rule.** For a pixel threshold `t`, every group `Q` refines iff its own
+projected error exceeds `t` AND all its parent groups refine (vacuously true
+for parentless groups). Draw cluster `c` iff its owner `G(c)` refines (or is parentless)
+and (`R(c) = -1` or its producer `R(c)` does not refine). Each cluster has
+one owner; a group can have multiple parents through `CREF`, and all must
+pass before that group replaces its outputs. This ancestor clamp is required
+even with ordered stored errors and containing spheres: floating-point
+projection can invert the ordering, especially at very large camera distances.
+`Threshold::Finest` bypasses error comparisons and draws exactly source clusters;
+zero does not mean finest because groups can have zero error.
 
-**Unique cut.** The rule draws exactly one cluster per surface region for every
-camera only if, for every parent `P` of every group `Q`, the error of `P` is at
-least that of `Q` and the sphere of `P` contains the sphere of `Q`. Containment
-makes `d - radius` of the parent no larger than the child's from any camera, so
-the projected error never decreases from child to parent. The builder gives
-monotonic errors when `simplify_error_merge_previous` is at least one. Merged
-spheres are computed in `f32`, and the builder does not guarantee containment
-after that rounding: on builder output, `cut::check_monotonic` can report a
-parent that misses a child sphere by rounding. `check_monotonic` verifies both
-properties in upward-rounded `f64` (a miss of one `f32` ulp is reported) and
-`cut::enforce_monotonic` repairs a DAG by raising a parent's error and growing its
-radius; apply it to builder output before relying on a unique cut. A fixed-error cut for proxies and fallbacks, independent of any camera,
-is the same rule applied to the raw group errors (`cut::select_error_cut`). The
-error is the builder's estimate; it is not a certificate of surface distance.
+**Unique cut.** The clamped decisions never reopen a stopped region, so each
+source-to-root chain contains exactly one drawn cluster independently of rounding.
+GPU traversals must implement the same clamp. In a top-down hierarchy traversal,
+start with the clusters of parentless groups, retaining those clusters as the
+coarsest fallback, and never descend below a non-refining group; for a
+DAG join, wait for all parent decisions before refining the shared group.
+Hierarchy-node culling is separate from these group-level refinement decisions.
+`cut::check_monotonic` still validates stored error ordering and sphere
+containment in upward-rounded `f64`, and `cut::enforce_monotonic` raises parent
+errors and grows radii. These geometric properties order ideal projections,
+but do not replace the runtime clamp. Builder output is unchanged. A fixed-error
+cut for proxies and fallbacks uses the same clamp with raw group errors
+(`cut::select_error_cut`); the error is an estimate, not a surface-distance
+certificate.
 
 **Resident cut.** The unit of residency is the group: all of `A(Q)` or none. The
 resident set must be closed under parents (`cut::group_parents` lists them) and
-contain every parentless group. With a partial set, draw `c` iff `G(c)` is
-resident, the projected error of `G(c)` exceeds `t` or `G(c)` is parentless, and
-(`R(c) = -1`, or the projected error of `R(c)` is at most `t`, or `R(c)` is not
-resident). This equals refining a drawn set from the parentless groups downward,
-replacing `B(Q)` by `A(Q)` whenever resident `Q` exceeds the threshold
-(`cut::refine_sequential`). That procedure fails with `Incomplete` when a cluster
-of `B(Q)` is not drawn, which is exactly a closure or monotonicity violation.
+contain every parentless group. Apply the ancestor clamp, require `G(c)` to be
+resident, and treat an absent producer `R(c)` as non-refining. This equals
+starting with the resident parentless groups and replacing `B(Q)` by `A(Q)`
+only when resident `Q` passes the clamped decision (`cut::refine_sequential`).
+That procedure reports `Incomplete` when residency lacks a needed parent output;
+a projected-error rounding inversion no longer causes `Incomplete`.
 
 Not provided by MDAG 1: tight per-cluster culling bounds (the stored cluster
 sphere is the producer's level-selection sphere unless `optimize_bounds` was
@@ -368,8 +371,7 @@ disagree with `CREF`. So for any file `open` accepts, any set of pages that
 holds the pinned pages and is closed under dependencies (in particular every
 prefix of the page table at least as long as the pinned prefix) makes a
 resident group set (groups whose pages are all loaded) that is closed under
-parents and holds every parentless group; with the link monotonicity `open`
-also checks, `cut::select_cut` on it equals `cut::refine_sequential`, which
+parents and holds every parentless group; with the ancestor clamp, `cut::select_cut` on it equals `cut::refine_sequential`, which
 reports no `Incomplete`.
 
 **Frames.** Positions, centers and boxes are in the mesh frame; the format
@@ -502,6 +504,12 @@ Fuzz campaign, 2026-11-04 (`dag_format_v2`, AddressSanitizer,
 `3b84e98c…f45f0d`): three 600 s chunks, 1,785.9 CPU-s in all, 14.3 million
 executions, coverage 1,653 → 2,054 → 2,060 → 2,060 (the third chunk added
 none, so the run stopped coverage-flat), corpus 1,116 files, zero crashes,
-timeouts or assertion failures. The fuzz
-target is
+timeouts or assertion failures.
+
+Fuzz campaign after the monotone cut rule, 2026-11-04 (same target and options, the oracle
+extended to perspective projections with random and far cameras and exactly-once coverage,
+binary SHA-256 `8216a18e…7aa50f2c`): three 600 s chunks, 1,791.8 CPU-s in all, 6,878,653
+executions, coverage 1,829 → 2,235 → 2,239 → 2,239 (the third chunk added none), corpus 1,214
+files, zero crashes.
+The fuzz target is
 `fuzz/r0220/fuzz_targets/dag_format_v2.rs` (`fuzz/README.md`).

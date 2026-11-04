@@ -442,3 +442,86 @@ fn projection_formula_and_scale_bound() {
         f32::INFINITY
     );
 }
+
+#[test]
+fn ancestor_clamp_handles_error_inversions_and_dag_joins() {
+    // Q has two parents P1/P2. Only P2 exceeds the threshold, so Q must
+    // remain stopped even though its own error exceeds the threshold.
+    let mut groups: Vec<_> = [3., 1., 3., f32::MAX]
+        .into_iter()
+        .enumerate()
+        .map(|(i, error)| {
+            let mut g = FlatDagGroup::default();
+            (g.first_cluster, g.cluster_count, g.radius, g.error) = (i as u32, 1, 1., error);
+            g
+        })
+        .collect();
+    let clusters: Vec<_> = [-1, 0, 0, 1]
+        .into_iter()
+        .enumerate()
+        .map(|(i, refined)| {
+            let mut c = FlatDagCluster::default();
+            (c.group, c.refined) = (i as u32, refined);
+            c
+        })
+        .collect();
+    let view = CutView {
+        position: [0.; 3],
+        projection: Projection::Orthographic {
+            pixels_per_unit: 1.,
+        },
+        viewport_height: 1.,
+        scale: 1.,
+    };
+    let (mut raw, mut direct, mut sequential) = ([0; 4], [0; 4], [0; 4]);
+    let n = cut::select_error_cut(&groups, &clusters, 2., &mut raw).unwrap();
+    let k = cut::select_cut(
+        &groups,
+        &clusters,
+        &view,
+        Threshold::Pixels(2.),
+        None,
+        &mut direct,
+    )
+    .unwrap();
+    let j = cut::refine_sequential(
+        &groups,
+        &clusters,
+        &view,
+        Threshold::Pixels(2.),
+        None,
+        &mut sequential,
+    )
+    .unwrap();
+    assert_eq!(&raw[..n], &[2, 3]);
+    assert_eq!(raw[..n], direct[..k]);
+    assert_eq!(raw[..n], sequential[..j]);
+    assert_unique_cover(&leaves(&groups, &clusters), &clusters, &raw[..n]);
+    // A parentless group still tests its own error before descendants may
+    // refine; its clusters remain the fallback when that test fails.
+    groups[1].error = 3.;
+    groups[3].error = 1.;
+    let n = cut::select_error_cut(&groups, &clusters, 2., &mut raw).unwrap();
+    assert_eq!(&raw[..n], &[2, 3]);
+    let k = cut::select_cut(
+        &groups,
+        &clusters,
+        &view,
+        Threshold::Pixels(2.),
+        None,
+        &mut direct,
+    )
+    .unwrap();
+    let j = cut::refine_sequential(
+        &groups,
+        &clusters,
+        &view,
+        Threshold::Pixels(2.),
+        None,
+        &mut sequential,
+    )
+    .unwrap();
+    assert_eq!(raw[..n], direct[..k]);
+    assert_eq!(raw[..n], sequential[..j]);
+    assert_unique_cover(&leaves(&groups, &clusters), &clusters, &raw[..n]);
+}

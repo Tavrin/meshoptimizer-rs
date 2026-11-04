@@ -33,7 +33,7 @@ pub enum CutError {
     /// A caller destination is too small.
     BufferTooSmall,
     /// Sequential refinement needed a cluster that was not drawn: the residency
-    /// set is not closed under parents, or the DAG is not monotonic. `group` is
+    /// set is not closed under parents. `group` is
     /// the group being refined.
     Incomplete {
         /// Group whose replacement clusters were not all drawn.
@@ -285,9 +285,27 @@ fn needs_refinement<'a>(
     })
 }
 
-/// Draw `c` iff `G(c)` is resident and either exceeds the threshold or is
-/// parentless, and `c` is source geometry, within the threshold, or its
-/// producer `R(c)` is not resident.
+/// Clamp refinement coarse to fine: every group needs its own predicate
+/// and all its parents to refine (vacuously true for parentless groups).
+fn clamp_refinement(
+    groups: &[FlatDagGroup],
+    clusters: &[FlatDagCluster],
+    children: &Children,
+    predicate: impl Fn(usize) -> bool,
+) -> Result<Vec<bool>, CutError> {
+    let mut refine = vec_filled(groups.len(), false)?;
+    for q in (0..groups.len()).rev() {
+        let parents = children.of(q);
+        refine[q] = predicate(q)
+            && parents
+                .iter()
+                .all(|&c| refine[clusters[c as usize].group as usize]);
+    }
+    Ok(refine)
+}
+
+/// Draw a resident owner's cluster when the owner refines (or is parentless)
+/// and the producer does not refine (or is absent/source geometry).
 fn select(
     groups: &[FlatDagGroup],
     clusters: &[FlatDagCluster],
@@ -298,16 +316,16 @@ fn select(
     validate(groups, clusters)?;
     check_resident(resident, groups.len())?;
     let children = Children::build(groups.len(), clusters)?;
+    let refine = clamp_refinement(groups, clusters, &children, refine)?;
     let is_resident = |g: usize| resident.is_none_or(|r| r[g]);
     let mut n = 0;
     for (g, group) in groups.iter().enumerate() {
-        let parentless = children.of(g).is_empty();
-        if !is_resident(g) || !(parentless || refine(g)) {
+        if !is_resident(g) || !(children.of(g).is_empty() || refine[g]) {
             continue;
         }
         for c in span(group) {
             let r = clusters[c].refined;
-            let draw = r < 0 || !refine(r as usize) || !is_resident(r as usize);
+            let draw = r < 0 || !refine[r as usize] || !is_resident(r as usize);
             if draw {
                 *out.get_mut(n).ok_or(CutError::BufferTooSmall)? = c as u32;
                 n += 1;
@@ -320,14 +338,15 @@ fn select(
 /// The cut for one view: writes the indices of the clusters to draw, in
 /// ascending order, and returns how many.
 ///
-/// Draw `c` iff the projected error of `G(c)` exceeds the threshold (or `G(c)`
-/// is parentless) and `c` is source geometry or the projected error of `R(c)`
-/// is within the threshold. With `resident`, one flag per group, the rule is
-/// restricted to resident groups: `G(c)` must be resident, and a cluster whose
-/// producer `R(c)` is not resident is drawn as if that producer were within the
-/// threshold. Over a monotonic DAG (see [`check_monotonic`]) and a resident set
-/// closed under parents and containing every parentless group this equals
-/// [`refine_sequential`] and covers every surface region exactly once.
+/// Every group refines only when
+/// its projected error exceeds the threshold and all its parents refine.
+/// Draw `c` iff `G(c)` refines (or is parentless) and either `c` is source
+/// geometry or `R(c)` does not refine. This ancestor clamp prevents rounding
+/// from reopening a stopped
+/// region. With `resident`, `G(c)` must be resident and an absent `R(c)` stops
+/// refinement. A resident set closed under parents and containing every
+/// parentless group equals [`refine_sequential`] and covers every surface
+/// region exactly once, independently of projected-error ordering.
 ///
 /// # Errors
 /// `InvalidTable`, `InvalidParameter` (invalid view, threshold, or a `resident`
@@ -344,10 +363,10 @@ pub fn select_cut(
     select(groups, clusters, resident, refine, out)
 }
 
-/// The view-independent cut at a fixed group error: draw `c` iff `error(G(c))`
-/// exceeds `error` (or `G(c)` is parentless) and `c` is source geometry or
-/// `error(R(c))` is at most `error`. Errors are the builder's mesh-space
-/// estimates, not projected. Watertight for the same reason a view cut is.
+/// The view-independent cut at a fixed group error, with the same ancestor
+/// clamp as [`select_cut`], comparing raw group errors instead of projected
+/// errors. Groups refine only if
+/// their error exceeds `error` and all their parents refine.
 /// Suitable for fixed-error proxies. Both the estimate and the cut are
 /// approximations; neither is a certificate of geometric distance.
 ///
@@ -371,14 +390,14 @@ pub fn select_error_cut(
 ///
 /// Starts from the clusters of the resident parentless groups and visits groups
 /// from the last to the first (coarse to fine; `refined` links point to earlier
-/// groups). When resident group `Q` exceeds the threshold, `B(Q)` is replaced by
-/// `A(Q)`; every cluster of `B(Q)` must be drawn at that point. Writes the drawn
+/// groups). When resident group `Q` passes the ancestor-clamped threshold,
+/// `B(Q)` is replaced by `A(Q)`; every cluster of `B(Q)` must be drawn at
+/// that point. Writes the drawn
 /// clusters in ascending order and returns how many.
 ///
 /// # Errors
 /// [`CutError::Incomplete`] if a cluster of `B(Q)` is not drawn, which is
-/// exactly a residency-closure or monotonicity violation; otherwise the errors
-/// of [`select_cut`].
+/// a residency-closure violation; otherwise the errors of [`select_cut`].
 pub fn refine_sequential(
     groups: &[FlatDagGroup],
     clusters: &[FlatDagCluster],
@@ -391,6 +410,7 @@ pub fn refine_sequential(
     validate(groups, clusters)?;
     check_resident(resident, groups.len())?;
     let children = Children::build(groups.len(), clusters)?;
+    let refine = clamp_refinement(groups, clusters, &children, refine)?;
     let is_resident = |g: usize| resident.is_none_or(|r| r[g]);
     let mut drawn = vec_filled(clusters.len(), false)?;
     for (g, group) in groups.iter().enumerate() {
@@ -399,7 +419,7 @@ pub fn refine_sequential(
         }
     }
     for q in (0..groups.len()).rev() {
-        if !is_resident(q) || !refine(q) {
+        if !is_resident(q) || !refine[q] {
             continue;
         }
         for &c in children.of(q) {
@@ -472,9 +492,9 @@ fn group_is_finite(g: &FlatDagGroup) -> bool {
 /// Checks that every parent group has at least the error of each child group and
 /// a sphere containing each child group's sphere.
 ///
-/// This is what makes a cut unique: containment makes `distance - radius` of
-/// the parent no larger than the child's from any camera, and with the error
-/// ordering the projected error never decreases from child to parent.
+/// These stored bounds order ideal projected errors, but floating-point
+/// evaluation can invert that ordering. Cut selectors additionally clamp
+/// refinement by ancestors; this validator does not replace that clamp.
 /// Containment is evaluated in upward-rounded `f64`, so a miss of one `f32` ulp
 /// is reported and equal spheres pass. Returns the first violation in cluster
 /// order. Allocates nothing.
