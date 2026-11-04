@@ -8,6 +8,7 @@ mod dag;
 mod flat;
 pub use flat::{FlatDagCluster, FlatDagGroup};
 pub mod dag_format;
+pub mod page;
 #[cfg(feature = "parallel")]
 mod parallel;
 mod support;

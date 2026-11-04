@@ -4,3 +4,5 @@ mod flat;
 pub use flat::{FlatDagCluster, FlatDagGroup};
 #[path = "dag_format.rs"]
 pub mod dag_format;
+#[path = "page.rs"]
+pub mod page;
