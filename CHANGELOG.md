@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ImpostorAtlas::reconstruct_texel` and `reconstruct_view`, with `ImpostorReconstruct` (not in C++ meshoptimizer, no Cargo feature), are a CPU reference for the impostor shader: each of the three blended views is sampled at a parallax-corrected point, found by sliding the ray's card point to the depth the view stores, as in Brucks' octahedral impostors, and the taps are blended with `ImpostorGrid::blend` weights in alpha-premultiplied form. `reconstruct_view` writes into a caller buffer without allocating. Against direct renders at 8 x 8 views, mask IoU on three CC0 plants rose from 0.74 / 0.60 / 0.45 (plain blend) to 0.83 / 0.73 / 0.67 with the default three steps, and at 12 x 12 from 0.84 / 0.72 / 0.55 to 0.90 / 0.81 / 0.74.
 - `CardTrimOptions::vertex_cost` (default 0, unchanged output) stops adding polygon vertices that remove less transparent area than the given cost in mask texels² per vertex: a card takes the vertex count minimizing polygon area plus cost times count. `TrimmedCards::card_vertices` (also on `TrimmedCardsGeneric`) reports the vertex count per card. On quad cards at budget 8, a cost of 100 texels² kept 90% of the removed area of a 49k-card fir with 37% fewer triangles, and a cost of 300 kept 99% on a shrub with 17% fewer.
 
+### Repository only (no public API change)
+
+- `parity/vg-bench/` is a benchmark harness, outside the published package, that builds the same mesh with `clusterlod::build_parallel_with_output` and with Bevy's `MeshletMesh::from_mesh` (pinned to commit `8cc060f0`) and compares build time, peak memory, disk and resident size, DAG shape, error per triangle budget, and traversal work. It ships a corpus fetch script with recorded licences and a results table for MDAG 1.
+
 ## [0.2.17] - 2026-11-03
 
 ### Added
