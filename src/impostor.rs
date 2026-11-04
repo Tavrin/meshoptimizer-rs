@@ -169,7 +169,10 @@ impl ImpostorGrid {
     /// weights `1 - f.y`, `f.y - f.x`, `f.x` otherwise: the barycentric
     /// coordinates in the grid triangle split along the cell's diagonal.
     /// Weights are nonnegative and sum to one up to rounding. A direction on a
-    /// view's frame returns that view with weight one.
+    /// view's frame returns, with weight one, that view or a view with the same
+    /// direction: on the [`ImpostorLayout::Sphere`] border, the views at
+    /// mirrored positions along one square edge share a direction (the four
+    /// corners are all straight down), and it encodes to only one of them.
     ///
     /// # Errors
     /// `InvalidParameter` for an invalid grid or a zero or non-finite direction.

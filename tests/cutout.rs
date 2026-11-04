@@ -794,3 +794,52 @@ fn vertex_cost_stops_adding_vertices_that_save_little() {
         assert_eq!(r.map(|_| ()), Err(Error::InvalidParameter));
     }
 }
+
+/// A folded card (one triangle inside another in UV, other positions) whose
+/// fitted corner lies on both triangles' outlines at the same UV: each piece
+/// keeps its own triangle's attributes (fuzz finding, 0.2.18 trim_cards).
+#[test]
+fn folded_card_corner_on_both_outlines_keeps_each_triangles_attributes() {
+    let v1 = (104.0f32 / 176.0) as f64;
+    let mut mesh = Mesh::default();
+    mesh.vertex([-1.0, -1.0, 0.0], [7.47, 0.9, 0.0], [0.0, 0.0]);
+    mesh.vertex([1.0, -1.0, 5.5], [6.06, 0.48, 0.0], [0.0, v1]);
+    mesh.vertex([0.0, 1.0, 0.0], [6.49, 8.26, 0.0], [1.0, 1.0]);
+    mesh.vertex([-1.0, 1.0, 0.0], [7.61, 0.75, 0.0], [0.0, 1.0]);
+    mesh.i.extend([0, 1, 2, 0, 2, 3]);
+    let data = vec![
+        45, 73, 83, 83, 99, 68, 27, 130, 58, 91, 0, 0, 0, 0, 0, 0, 232, 173, 232, 104, 124, 60, 15,
+        37, 159, 111, 247, 116, 58, 203, 186, 20, 43, 248, 66, 100, 145, 134, 23, 55, 0, 0, 0, 2,
+        245, 8, 253, 84, 20, 68, 55, 207, 55, 53, 179, 64, 90, 168, 29, 29, 110, 90, 218, 26,
+    ];
+    let mask = Mask { data, w: 8, h: 8 };
+    let o = options(8, 128.0 / 255.0 * 3.0, 100, AlphaWrap::Clamp);
+    let out = trim(&mesh, &mask, o);
+    assert_eq!((out.report.trimmed_cards, out.report.split_cards), (1, 1));
+    assert!(check_coverage(&mesh, &mask, o, &out) > 0);
+}
+
+/// A sliver card at threshold 0 is copied, not reported as trimmed because two
+/// area sums of the same triangle round differently (fuzz finding, 0.2.18).
+#[test]
+fn sliver_card_at_threshold_zero_is_unchanged() {
+    let c = |b: f32| f64::from((b - 40.0) / 176.0);
+    let mut mesh = Mesh::default();
+    mesh.vertex([0.0; 3], [0.0, 0.0, 1.0], [c(0.0), c(0.0)]);
+    mesh.vertex([1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [c(124.0), c(62.0)]);
+    mesh.vertex([0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [c(116.0), c(58.0)]);
+    mesh.i.extend([0, 1, 2]);
+    let mask = Mask {
+        data: vec![0; 8 * 15],
+        w: 8,
+        h: 15,
+    };
+    let mut o = options(6, 0.0, 0, AlphaWrap::Clamp);
+    o.vertex_cost = 0.0;
+    let r = trim(&mesh, &mask, o).report;
+    assert_eq!(
+        (r.unchanged_cards, r.trimmed_cards, r.removed_cards),
+        (1, 0, 0),
+        "{r:?}"
+    );
+}
