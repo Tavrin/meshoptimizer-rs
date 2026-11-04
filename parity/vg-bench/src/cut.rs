@@ -17,6 +17,8 @@ pub struct Selection {
     pub tested: u64,
     /// Largest projected self error among drawn clusters, in pixels.
     pub claimed_px: f64,
+    /// Largest self error among drawn clusters, in scene units.
+    pub claimed_world: f64,
     /// Smallest parent error among drawn clusters (`f32::MAX` for the root set).
     pub min_parent_error: f32,
 }
@@ -55,6 +57,8 @@ struct Row {
     thr: f64,
     tris: u64,
     claimed_px: f64,
+    claimed_world: f64,
+    max_world: f64,
     max_px: f64,
     rms_px: f64,
     nodes: u64,
@@ -152,6 +156,8 @@ pub fn evaluate(dag: &dyn Dag, src: &Source, s: &Settings, label: &Json) -> Resu
                             thr,
                             tris: dag.triangles(&cut.drawn),
                             claimed_px: cut.claimed_px,
+                            claimed_world: cut.claimed_world,
+                            max_world: 0.0,
                             max_px: 0.0,
                             rms_px: 0.0,
                             nodes: counted.nodes,
@@ -197,6 +203,7 @@ pub fn evaluate(dag: &dyn Dag, src: &Source, s: &Settings, label: &Json) -> Resu
     {
         let (max_w, rms_w) = measured.get(&row.key).copied().unwrap_or((f64::NAN, f64::NAN));
         let scale = camera::px_per_unit(*dist - radius);
+        row.max_world = max_w;
         row.max_px = max_w * scale;
         row.rms_px = rms_w * scale;
     }
@@ -205,7 +212,13 @@ pub fn evaluate(dag: &dyn Dag, src: &Source, s: &Settings, label: &Json) -> Resu
         for span in s.spans.iter().map(|x| Some(*x)).chain([None]) {
             let sel: Vec<&Row> = rows.iter().filter(|r| r.thr == thr && span.is_none_or(|x| r.span == x)).collect();
             let col = |f: &dyn Fn(&Row) -> f64| sel.iter().map(|r| f(r)).collect::<Vec<f64>>();
+            // Both sides in scene units: every drawn cluster claims its own error as a
+            // bound, so the cut's deviation should stay under the largest claim.
             let mut ratio: Vec<f64> =
+                sel.iter().filter(|r| r.claimed_world > 0.0).map(|r| r.max_world / r.claimed_world).collect();
+            // Earlier form: measured converted at the mesh's nearest depth over the claim
+            // projected at each cluster's own depth (mixes two depths).
+            let mut ratio_px: Vec<f64> =
                 sel.iter().filter(|r| r.claimed_px > 0.0).map(|r| r.max_px / r.claimed_px).collect();
             lines.push(
                 label
@@ -220,6 +233,7 @@ pub fn evaluate(dag: &dyn Dag, src: &Source, s: &Settings, label: &Json) -> Resu
                     .with("p95_rms_dev_px", p95(&mut col(&|r| r.rms_px)))
                     .with("median_measured_over_claimed", median(&mut ratio))
                     .with("p95_measured_over_claimed", p95(&mut ratio))
+                    .with("median_measured_over_claimed_px", median(&mut ratio_px))
                     .with("mean_nodes", mean(&col(&|r| r.nodes as f64)))
                     .with("mean_clusters_tested", mean(&col(&|r| r.tested as f64)))
                     .with("mean_clusters_drawn", mean(&col(&|r| r.drawn as f64)))

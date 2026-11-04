@@ -269,6 +269,7 @@ impl Bevy {
                     if px < thr && (!frustum || v.aabb_visible(c.aabb.center, c.aabb.half)) {
                         s.drawn.push(id);
                         s.claimed_px = s.claimed_px.max(px);
+                        s.claimed_world = s.claimed_world.max(f64::from(c.aabb.error));
                         s.min_parent_error = s.min_parent_error.min(a.error);
                     }
                 }

@@ -195,8 +195,42 @@ def summary(paths):
     print(f"\nSelf-checks: {sum(1 for r in rows if r['kind'] == 'check')} run, {len(bad)} failed.")
 
 
+def cuts(paths):
+    """Cut table only (eval rows), one row per mesh and builder, `bevy` as the reference."""
+    rows = load(paths)
+    meshes = sorted({r["mesh"] for r in rows if r["kind"] == "cut"})
+    builders = sorted({r["builder"] for r in rows if r["kind"] == "cut"}, key=lambda b: (b == "bevy", b))
+    print("| Mesh | Builder | tris / bevy at p95 dev 5 px | at 8 px | measured/claimed median | p95 | earlier form (px) median | p95 max dev px at 0.5 / 1 / 2 / 4 px | nodes | clusters tested | drawn |")
+    print("| --- | --- | " + " | ".join("---:" for _ in range(9)) + " |")
+    for m in meshes:
+        cut = [r for r in rows if r.get("mesh") == m and r["kind"] == "cut" and r["span_px"] == -1.0]
+        curve = lambda b: sorted((r["p95_max_dev_px"], r["mean_triangles"]) for r in cut if r["builder"] == b and r["threshold_px"] >= 1e-6)
+        for b in builders:
+            mine = [r for r in cut if r["builder"] == b]
+            if not mine:
+                continue
+            ratios = []
+            for target in (5, 8):
+                x, y = interpolate(curve(b), target), interpolate(curve("bevy"), target)
+                ratios.append(f"{x / y:.2f}" if x and y and b != "bevy" else "n/a")
+            at = lambda k, t=1.0: next(r[k] for r in mine if r["threshold_px"] == t)
+            devs = " / ".join(fmt(at("p95_max_dev_px", t), 1) for t in (0.5, 1.0, 2.0, 4.0))
+            print(
+                f"| {m} | {b} | {ratios[0]} | {ratios[1]} | {fmt(at('median_measured_over_claimed'))} | {fmt(at('p95_measured_over_claimed'))} | "
+                f"{fmt(at('median_measured_over_claimed_px'))} | {devs} | {fmt(at('mean_nodes'), 1)} | {fmt(at('mean_clusters_tested'), 0)} | "
+                f"{fmt(at('mean_clusters_drawn'), 0)} |"
+            )
+    bad = [r for r in rows if r["kind"] == "check" and not r["pass"]]
+    print(f"\nSelf-checks: {sum(1 for r in rows if r['kind'] == 'check')} run, {len(bad)} failed.")
+
+
 PARETO = "--pareto" in sys.argv
 
 if __name__ == "__main__":
     files = [a for a in sys.argv[1:] if not a.startswith("--")]
-    summary(files) if "--summary" in sys.argv else main(files)
+    if "--cuts" in sys.argv:
+        cuts(files)
+    elif "--summary" in sys.argv:
+        summary(files)
+    else:
+        main(files)

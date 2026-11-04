@@ -67,6 +67,43 @@ of the per-view maximum deviation, log-log interpolated along the four threshold
 not overlap); below 1 favours ours. Traversal columns are the 1 px rows, averaged over all views, with
 frustum culling and no occlusion culling.
 
+Second table, 2026-11-04, after the error-claim diagnosis below. Same crate output (the library is
+unchanged), same views and artifacts. Ours is now built with the normals as attributes of weight 0.5,
+like the reference (`ours`; `ours[normals=0]` is the first table's position-only build), and
+`ours[measured=1]` is the proposed opt-in error rule, applied in the harness. Measured/claimed is in
+scene units on both sides; "earlier form" is the first table's ratio, which mixed two depths (it
+reproduces the first table exactly for the position-only build). The p95 deviation columns are over all
+spans at each threshold. Regenerate with `python3 -I parity/vg-bench/report.py --cuts <work>/eval-*.jsonl`.
+
+| Mesh | Builder | tris / bevy at p95 dev 5 px | at 8 px | measured/claimed median | p95 | earlier form (px) median | p95 max dev px at 0.5 / 1 / 2 / 4 px | nodes | clusters tested | drawn |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | ours | 0.60 | 0.81 | 1.15 | 1.62 | 1.34 | 0.9 / 3.0 / 4.7 / 10.8 | 38.1 | 362 | 176 |
+| bunny | ours[measured=1] | 0.66 | 0.90 | 1.03 | 1.22 | 1.08 | 0.7 / 2.4 / 4.7 / 10.8 | 44.7 | 380 | 185 |
+| bunny | ours[normals=0] | 0.49 | 0.62 | 1.71 | 1.86 | 1.73 | 2.0 / 3.6 / 6.9 / 19.7 | 31.9 | 214 | 105 |
+| bunny | bevy | n/a | n/a | 1.16 | 1.77 | 1.31 | 2.8 / 4.6 / 7.4 / 10.6 | 10.7 | 372 | 179 |
+| dead_tree_trunk_02 | ours | 0.70 | 0.85 | 1.13 | 1.44 | 1.44 | 0.8 / 2.0 / 6.7 / 12.2 | 56.1 | 573 | 277 |
+| dead_tree_trunk_02 | ours[measured=1] | 0.67 | 0.71 | 1.04 | 1.13 | 1.11 | 0.6 / 1.5 / 5.4 / 10.4 | 56.9 | 593 | 286 |
+| dead_tree_trunk_02 | ours[normals=0] | 0.71 | 0.83 | 4.00 | 10.63 | 4.59 | 3.7 / 7.6 / 15.8 / 34.2 | 35.4 | 293 | 142 |
+| dead_tree_trunk_02 | bevy | n/a | n/a | 1.20 | 1.36 | 1.21 | 3.5 / 3.5 / 7.5 / 11.9 | 14.4 | 590 | 285 |
+| namaqualand_boulder_02 | ours | 1.01 | 1.01 | 1.17 | 1.51 | 1.26 | 0.8 / 1.7 / 4.0 / 13.4 | 69.4 | 799 | 386 |
+| namaqualand_boulder_02 | ours[measured=1] | 0.90 | 0.91 | 1.00 | 1.07 | 1.06 | 0.5 / 1.2 / 2.9 / 9.6 | 74.0 | 814 | 394 |
+| namaqualand_boulder_02 | ours[normals=0] | 1.16 | 1.16 | 4.38 | 5.83 | 4.34 | 2.7 / 6.5 / 21.9 / 25.8 | 46.9 | 499 | 243 |
+| namaqualand_boulder_02 | bevy | n/a | n/a | 1.10 | 1.38 | 1.14 | 3.4 / 3.4 / 3.8 / 12.7 | 18.0 | 821 | 395 |
+| coast_rocks_01 | ours | 0.80 | 0.91 | 1.22 | 1.42 | 1.27 | 2.1 / 3.4 / 6.1 / 10.0 | 121.3 | 1,069 | 530 |
+| coast_rocks_01 | ours[measured=1] | 0.66 | 0.74 | 1.01 | 1.21 | 1.27 | 1.5 / 2.9 / 5.0 / 8.6 | 136.9 | 1,148 | 568 |
+| coast_rocks_01 | ours[normals=0] | 0.59 | 0.43 | 2.01 | 2.50 | 2.12 | 3.1 / 5.9 / 8.0 / 14.6 | 50.2 | 371 | 185 |
+| coast_rocks_01 | bevy | n/a | n/a | 1.17 | 1.54 | 1.28 | 3.1 / 4.2 / 6.8 / 11.0 | 31.5 | 1,123 | 557 |
+| dragon | ours | n/a | n/a | 4.73 | 14.24 | 5.67 | 11.1 / 37.2 / 37.7 / 45.9 | 115.2 | 1,088 | 544 |
+| dragon | ours[measured=1] | 0.81 | 0.92 | 1.16 | 1.40 | 1.39 | 1.7 / 3.7 / 6.2 / 9.1 | 209.2 | 1,466 | 732 |
+| dragon | ours[normals=0] | n/a | n/a | 14.78 | 29.23 | 13.91 | 60.7 / 65.4 / 65.4 / 65.4 | 58.8 | 466 | 233 |
+| dragon | bevy | n/a | n/a | 1.44 | 3.02 | 1.75 | 3.7 / 5.7 / 14.2 / 14.2 | 36.0 | 1,146 | 574 |
+
+Self-checks: 60 run, 0 failed. The build-time, memory and size tables above are from the first run, with
+the position-only build; simplifying with normals adds attribute work and changes the DAG, and those
+tables were not rerun (reversal: run `bench.sh`, which now builds with normals).
+
+First table (position-only build, ratio with mixed depths):
+
 | Mesh | tris ours/bevy at p95 dev 5 px | at 8 px | measured/claimed median ours | bevy | nodes ours | bevy | clusters tested ours | bevy | drawn ours | bevy | quantisation floor p95 px (bevy, source cut) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | bunny | 0.49 | 0.62 | 1.73 | 1.31 | 31.9 | 10.7 | 214 | 372 | 105 | 179 | 2.76 |
@@ -79,27 +116,95 @@ Self-checks: 30 run, 0 failed (threshold 0 selects exactly the source triangles 
 threshold selects only the root set; the hierarchical traversal equals the flat cut at 1 px; per builder
 per mesh). They guard the port of the reference cut rule and our selector.
 
+## Error-claim diagnosis
+
+The first table's measured/claimed ratio (1.7 to 4.6, 13.9 on dragon) had three causes, two in
+this harness and one in the library's default output, which is upstream behaviour.
+`vg-bench diag` (see `README.md`) measured them without the pixel conversion: world-space cuts
+at `t = radius x 2^-k`, k = 3..13, each measured one-sided in both directions against its largest
+claimed error, and each group's single simplification step (its clusters against the clusters
+simplified from them) against the recorded error.
+
+1. **Harness input: no attributes.** Ours was built from positions only; the reference, and the
+   upstream demo (`demo/nanite.cpp`), simplify with the normals as attributes of weight 0.5. The
+   simplifier's position-only error under-reports the sampled distance of one step by a median of
+   1.48 (bunny), 1.48 (dragon), 1.65 (trunk), 1.72 (boulder) and 1.51 (rocks), in both directions
+   about equally. With normals at 0.5 the attribute error, clamped to the position scale, raises
+   the claim and the per-step median becomes 0.94 to 1.00 (trunk, dragon). Fix: the harness builds
+   ours with normals at 0.5 (`ours::NORMAL_WEIGHT`), so both builders see the same input.
+2. **Harness ratio: two depths.** The ratio divided the deviation converted at the mesh's nearest
+   depth by the claim projected at each drawn cluster's own depth, so a far cluster's claim was
+   compared with a near conversion. Fix: both sides in scene units (largest self error among drawn
+   clusters against the measured world maximum); the earlier form stays in the JSON as
+   `median_measured_over_claimed_px`.
+3. **Library: removed geometry priced at its own planes.** On dragon, with normals, the per-step
+   median is 1.00 but the tail is long (p95 1.31, maximum 26.8): the worst groups lose geometry
+   (source-to-level 23 mm against an error of 0.85 mm, level-to-source 0.9 mm). The quadric error of
+   a collapse is the distance to the collapsed vertices' own planes, so a small or thin part that
+   folds into the surface costs almost nothing while its points end far from what remains.
+   Dragon (`dragon_vrip`) has 151 index-connected parts, 146 under 16 triangles, and the default
+   cuts stop referencing 107 of them at `t = radius/256`. World-space cuts of the default build
+   measure a source-to-level maximum of 3.1 times the claim (median over the eleven cuts, up to 16)
+   while level-to-source stays at 1.14. `simplify_permissive` (on by default, as upstream) makes it
+   worse: without it the median is 1.25, up to 3.0.
+
+Not the cause: the sloppy fallback (`fallback_sloppy=0` gives identical cuts on bunny and dragon),
+the error accumulation rule (`max(previous, current)`, the same as upstream `clusterlod.h` and as
+the reference, which forces each group error to at least its meshlets' errors), and bound spheres
+(the world-space cuts project every sphere at the same depth and still show cause 3).
+
+The library's default output is unchanged. Its configuration (`default_config`) and error rule
+are those of upstream `clodDefaultConfig` and `clodBuild`, and `parity/cluster-lod/differential.py`
+compares the complete cluster-LOD result against the vendored C++ demo, so upstream has the same
+claim. Changing the default would change output against upstream; the contract documents the
+error as the simplification error, which it is.
+
+**Proposed opt-in, prototyped in the harness (`--set measured=1`):** after simplifying a group,
+measure the step with the crate's own `measure_lod_quality` (two-sided, about 4000 samples per
+group) and take the group error as at least that distance, then restore monotonicity over the
+DAG. In the library this would be a `Config` field (for example `simplify_error_measured`, default
+off); `Config` is not `#[non_exhaustive]`, so adding a field breaks struct-literal construction
+and belongs in a minor release (0.3) rather than a 0.2.x patch. A narrower rule that only priced
+fully removed index-connected parts (`--set removed=1`) raised 6 to 11 groups on dragon and left
+the median at 1.57: most of the lost geometry is not a whole disconnected part.
+
+World-space cuts, largest sampled deviation over the largest claim (median and maximum over the
+cuts where the claim is positive; triangles of the k = 8 cut, `t = radius/256`):
+
+| Mesh | ours, positions only | ours, normals 0.5 (new default) | ours, normals 0.5 + measured | reference | k = 8 triangles: normals 0.5 / + measured / reference |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| bunny | 1.71 (7.00) | 1.14 (1.31) | 1.07 (1.22) | 1.44 (2.53) | 16,558 / 18,445 / 16,918 |
+| dead_tree_trunk_02 | 4.60 (7.48) | 1.29 (2.14) | 1.08 (1.11) | 1.02 (1.35) | 23,448 / 26,256 / 28,936 |
+| namaqualand_boulder_02 | 4.38 (5.83) | 1.16 (1.51) | 0.99 (1.36) | 0.94 (1.38) | 50,160 / 53,371 / 51,092 |
+| coast_rocks_01 | 1.98 (2.55) | 1.03 (1.44) | 0.98 (1.22) | 1.35 (10.09) | 34,625 / 36,764 / 35,150 |
+| dragon | 14.78 (127.48) | 3.11 (15.95) | 1.10 (1.34) | 1.50 (11.61) | 33,400 / 75,496 / 43,050 |
+
+The reference's ratio grows at the finest cuts because its measured deviation includes its
+1/16 cm position quantisation and its claim does not. The measured rule costs dragon 2.3 times
+the triangles at `t = radius/256` (1.09 times at `radius/2048`) and the other meshes 1.06 to 1.12
+times: that is the geometry the default claim hides.
+
 ## Against the section 6 bar
 
 - Build time at most half of the reference at equal thread count: met on every mesh at 1 and 8 threads
   (0.09 to 0.23 including the MDAG 1 write).
 - Memory bytes per DAG triangle at or below the reference: not met. Ours is 23 resident B per DAG triangle against
   13 to 15. File bytes per DAG triangle are below the reference (10 to 11 against 12 to 14).
-- Fewer cut triangles at equal measured p95 deviation: met on bunny, trunk, rocks (0.43 to 0.83 at 5 and 8 px),
-  not met on the boulder (1.16). Not decidable on dragon (see below).
-- Measured over claimed error: ours 1.7 to 4.6 on the five small meshes against 1.1 to 1.3 for the reference.
-  Ours claims less error than the cut measures, so a pixel threshold under-delivers by that factor; the
-  reference's claim is much closer to the measure. This is the weakest point for the cut contract.
+- Fewer cut triangles at equal measured p95 deviation (second table, both builders simplifying with normals):
+  met on bunny, trunk, rocks (0.60 to 0.91 at 5 and 8 px), even on the boulder (1.01). Not decidable on dragon
+  with the default rule (the curves do not overlap); with the measured rule 0.81 and 0.92.
+- Measured over claimed error (second table, scene units): ours 1.13 to 1.22 on bunny, trunk, boulder and
+  rocks against 1.10 to 1.20 for the reference; dragon 4.73 against 1.44, because the default (upstream)
+  error does not price removed thin or small geometry. The measured rule gives 1.00 to 1.16 on all five.
+  The first table's 1.7 to 4.6 came mostly from the harness (position-only input, mixed depths).
 
 ## Open findings
 
-- Dragon: ours shows a constant p95 maximum deviation of 65 px across thresholds 1 to 4 at the 2048 px span
-  and a measured/claimed median of 13.9, which is not what a monotone cut should do. Not diagnosed here: the
-  candidates are removal of small disconnected fragments by the simplifier's pruning (error claimed against
-  component size, measured against distance to the rest), or a non-monotone bound sphere in a group. The
-  self-checks do not prove the cut covers the surface exactly once. The first step is to print the
-  one-sided source-to-level and level-to-source distances for one dragon view; L1's containment checks should
-  settle the second candidate. Neither is a builder change in this lane.
+- Dragon: diagnosed in "Error-claim diagnosis". The flat 65 px p95 deviation was geometry removed at a near-zero
+  quadric error (source-to-level only), upstream behaviour made worse by `simplify_permissive`. With the default
+  rule the p95 deviation is still flat between 1 and 2 px (37.2, 37.7); with the measured rule it rises with the
+  threshold (1.7, 3.7, 6.2, 9.1 px). The library opt-in (`Config` field, 0.3) is proposed, not implemented.
+  The self-checks still do not prove the cut covers the surface exactly once.
 - The reference's position quantisation (1/16 cm, factor 4) sets a floor of 2.8 to 3.5 px at 2048 px span on
   these 2 m meshes (last column). Comparing deviations below that floor favours ours by construction;
   the equal-deviation rows at 5 and 8 px sit above it.

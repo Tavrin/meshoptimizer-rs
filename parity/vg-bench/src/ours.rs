@@ -10,9 +10,9 @@ use meshoptimizer_rs::{
     clusterlod::{
         build_hierarchy, build_parallel_with_output,
         dag_format::{write, Reader, DEFAULT_PAGE_SIZE},
-        default_config, FlatDagCluster, FlatDagGroup, Group, Mesh, Node,
+        default_config, Config, FlatDagCluster, FlatDagGroup, Group, LodBounds, Mesh, Node,
     },
-    Limits, Workspace,
+    Attributes, Limits, Workspace,
 };
 use std::time::Instant;
 
@@ -38,11 +38,36 @@ fn unlimited() -> Workspace {
     Workspace::new(Limits { max_bytes: usize::MAX, max_work: u64::MAX })
 }
 
-/// Build on a pool of `threads` workers.
+/// Weight of the vertex normals as simplification attributes: the value the upstream
+/// cluster-LOD demo (`nanite.cpp`) and the reference builder use, so both builders see the
+/// same attribute error.
+pub const NORMAL_WEIGHT: f32 = 0.5;
+
+/// Build with the default configuration (128 triangles per cluster, normals weighted by
+/// [`NORMAL_WEIGHT`]) on a pool of `threads` workers.
 pub fn build(src: &Source, threads: usize) -> Result<(Ours, Timing), String> {
+    build_with(src, threads, default_config(128).map_err(|e| format!("{e:?}"))?, Some(NORMAL_WEIGHT))
+}
+
+/// Build with an explicit configuration on a pool of `threads` workers. With
+/// `normal_weight`, the vertex normals are simplification attributes of that weight.
+pub fn build_with(
+    src: &Source,
+    threads: usize,
+    config: Config,
+    normal_weight: Option<f32>,
+) -> Result<(Ours, Timing), String> {
     let pool = rayon::ThreadPoolBuilder::new().num_threads(threads).build().map_err(|e| e.to_string())?;
     pool.install(|| {
-        let config = default_config(128).map_err(|e| format!("{e:?}"))?;
+        let normals: Vec<f32> = src.normals.iter().flatten().copied().collect();
+        let weights = [normal_weight.unwrap_or(0.0); 3];
+        let attributes = match normal_weight {
+            Some(_) => {
+                Some(Attributes::from_interleaved(&normals, src.normals.len(), 3, 3, 0).map_err(|e| format!("{e:?}"))?)
+            }
+            None => None,
+        };
+        let attribute_weights: &[f32] = if normal_weight.is_some() { &weights } else { &[] };
         let mut positions = src.positions.clone();
         let mut ws = unlimited();
         let mut groups = Vec::new();
@@ -55,9 +80,9 @@ pub fn build(src: &Source, threads: usize) -> Result<(Ours, Timing), String> {
             Mesh {
                 indices: &src.indices,
                 positions: &mut positions,
-                attributes: None,
+                attributes,
                 vertex_lock: None,
-                attribute_weights: &[],
+                attribute_weights,
                 attribute_protect_mask: 0,
             },
             |g, cs| {
@@ -140,6 +165,33 @@ impl Ours {
         (px < thr, px)
     }
 
+    /// Rebuild the spatial forest from the current group bounds (after errors change).
+    pub fn rebuild_hierarchy(&mut self) -> Result<(), String> {
+        let meta: Vec<Group> = self
+            .groups
+            .iter()
+            .map(|g| {
+                let mut m = Group::default();
+                m.depth = g.depth;
+                m.simplified = LodBounds { center: g.center, radius: g.radius, error: g.error };
+                m
+            })
+            .collect();
+        let mut ws = unlimited();
+        self.nodes = build_hierarchy(&meta, NODE_WIDTH, self.level_count, &mut ws).map_err(|e| format!("{e:?}"))?;
+        Ok(())
+    }
+
+    /// Self error of a cluster in scene units (zero for source clusters).
+    fn own_error(&self, c: usize) -> f64 {
+        let r = self.clusters[c].refined;
+        if r < 0 {
+            0.0
+        } else {
+            f64::from(self.groups[r as usize].error)
+        }
+    }
+
     fn parent_ok(&self, v: &View, thr: f64, g: usize) -> bool {
         let g = &self.groups[g];
         self.ok(v, thr, g.center, g.radius, g.error)
@@ -158,6 +210,7 @@ impl Dag for Ours {
             if ok {
                 s.drawn.push(c as u32);
                 s.claimed_px = s.claimed_px.max(px);
+                s.claimed_world = s.claimed_world.max(self.own_error(c));
                 s.min_parent_error = s.min_parent_error.min(self.groups[g].error);
             }
         }
@@ -195,6 +248,7 @@ impl Dag for Ours {
                 if ok {
                     s.drawn.push(c as u32);
                     s.claimed_px = s.claimed_px.max(px);
+                    s.claimed_world = s.claimed_world.max(self.own_error(c));
                     s.min_parent_error = s.min_parent_error.min(fg.error);
                 }
             }

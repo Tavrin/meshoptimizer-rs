@@ -4,7 +4,8 @@ Not published and not part of the crate package (own Cargo workspace, outside th
 package include list). It builds the same mesh with
 
 - this crate: `clusterlod::build_parallel_with_output` plus `build_hierarchy`
-  (per-level forest, width 8) and the MDAG 1 writer, and
+  (per-level forest, width 8) and the MDAG 1 writer, with the vertex normals as
+  simplification attributes of weight 0.5 (as the upstream demo and the reference do), and
 - Bevy's `MeshletMesh::from_mesh`, pinned to commit `8cc060f01c3d4d5920781124cc8c32013bb47730`
   (feature `bevy`), saved with Bevy's own asset saver,
 
@@ -33,6 +34,20 @@ writes the shared input both builders read. `build <ours|bevy> <in.vgm> --thread
 `/usr/bin/time -v` and `taskset` in `bench.sh`. `eval <ours|bevy> <in.vgm>` prints
 the static metrics, the self-checks, and the cut evaluation.
 
+`diag <ours|bevy> <in.vgm> [--artifact file] [--set k=v,...] [--no-groups]` checks the
+error claim without the pixel conversion. It selects world-space cuts (a camera so far
+away that every sphere projects at the same depth, so the rule is `error < t`) at
+`t = radius x 2^-k`, k = 3..13, and prints the one-sided source-to-level and
+level-to-source maxima of each cut against its largest claimed error, plus the source
+components the cut no longer references. For ours it also measures each group's single
+simplification step (the group's clusters against the clusters simplified from it, both
+directions) against the recorded error. `--set` (also accepted by `eval`, which then labels
+the builder `ours[<set>]`) overrides configuration fields (`permissive`, `fallback_sloppy`,
+`fallback_permissive`, `merge_previous`, `merge_additive`, `sloppy_factor`, `regularize`),
+sets the weight of the normals as simplification attributes (`normals=<weight>`, default
+0.5 as in the upstream demo and the reference; 0 simplifies positions only), or applies an
+error rule prototyped in the harness (`removed=1`, `measured=1`, see `RESULTS.md`).
+
 ## What is measured
 
 | Metric | Method |
@@ -43,7 +58,7 @@ the static metrics, the self-checks, and the cut evaluation.
 | Resident | Reference: decompressed slice bytes. Ours (MDAG 1): metadata tables plus the decoded geometry of every cluster (vertices x 16 + indices x 4). |
 | Pages | MDAG 1 page count, mean fill of the 128 KiB capacity, groups with the terminal error value. The reference has no pages. |
 | DAG shape | total and leaf triangles, triangles and vertices per cluster (mean, p5), levels, hierarchy depth (dispatches per view). Reference leaves are meshlets with error 0. |
-| Error per triangle budget | 64 Fibonacci orbit directions x spans of 64..2048 px (camera distance for a bounding sphere of that vertical span; viewport 2048 px, 60 degree FOV) x thresholds 0.5, 1, 2, 4 px. Each view selects a cut (no frustum culling, so the whole mesh is covered), then `measure_lod_quality` measures the cut against the source (200k samples on the source, level sampled at the same density). World deviation becomes pixels at the nearest depth (`distance - bounding radius`), so values are worst case. Identical cuts are measured once. Claimed error is the largest projected self error among drawn clusters; the ratio is measured maximum over claimed. |
+| Error per triangle budget | 64 Fibonacci orbit directions x spans of 64..2048 px (camera distance for a bounding sphere of that vertical span; viewport 2048 px, 60 degree FOV) x thresholds 0.5, 1, 2, 4 px. Each view selects a cut (no frustum culling, so the whole mesh is covered), then `measure_lod_quality` measures the cut against the source (200k samples on the source, level sampled at the same density). World deviation becomes pixels at the nearest depth (`distance - bounding radius`), so values are worst case. Identical cuts are measured once. Claimed error is the largest self error among drawn clusters. The ratio `measured_over_claimed` is the measured maximum over that claim, both in scene units: each drawn cluster's self error is meant to bound its deviation, so the cut's maximum should stay under the largest one. (`measured_over_claimed_px`, the first table's form, divided the deviation converted at the mesh's nearest depth by the claim projected at each cluster's own depth, which mixes two depths and overstates the ratio.) |
 | Traversal work | The hierarchical traversal with frustum culling (spheres for ours, the stored boxes for the reference; no occlusion culling): nodes visited, clusters tested, clusters drawn, averaged over the same views. |
 | Decode | Ours: median `decode_page` rate. Reference: LZ4 frame decode of the whole asset. wasm32 decode is not measured here. |
 

@@ -5,6 +5,7 @@ mod bevy_build;
 mod bevyfile;
 mod camera;
 mod cut;
+mod diag;
 mod ours;
 mod report;
 mod source;
@@ -40,7 +41,8 @@ fn main() {
         Some("prep") => prep(&args[1..]),
         Some("build") => build(&args[1..]),
         Some("eval") => eval(&args[1..]),
-        _ => Err("usage: vgbench prep|build|eval ... (see README.md)".into()),
+        Some("diag") => diag(&args[1..]),
+        _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
     };
     if let Err(e) = result {
         eprintln!("error: {e}");
@@ -106,12 +108,16 @@ fn build(args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
-/// `eval <ours|bevy> <in.vgm> [--artifact file] [--dirs 64] [--jobs 8] [--samples 200000]`
+/// `eval <ours|bevy> <in.vgm> [--artifact file] [--set k=v,...] [--dirs 64] [--jobs 8] [--samples 200000]`
 fn eval(args: &[String]) -> Result<(), String> {
     let p = positional(args);
     let builder = p.first().ok_or("missing builder")?.as_str().to_string();
     let (src, name) = load(&p)?;
-    let label = Json::new().text("builder", &builder).text("mesh", &name);
+    let shown = match flag(args, "--set") {
+        Some(s) => format!("{builder}[{s}]"),
+        None => builder.clone(),
+    };
+    let label = Json::new().text("builder", &shown).text("mesh", &name);
     let settings = cut::Settings {
         dirs: num(args, "--dirs", 64),
         spans: vec![64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0],
@@ -123,7 +129,7 @@ fn eval(args: &[String]) -> Result<(), String> {
     };
     let (dag, shape): (Box<dyn cut::Dag>, String) = match builder.as_str() {
         "ours" => {
-            let (o, _) = ours::build(&src, settings.jobs)?;
+            let o = build_variant(&src, settings.jobs, flag(args, "--set"))?;
             let shape = ours::shape(&o, &src, &label)?;
             (Box::new(o) as Box<dyn cut::Dag>, shape)
         }
@@ -149,6 +155,96 @@ fn eval(args: &[String]) -> Result<(), String> {
     }
     for line in cut::evaluate(dag.as_ref(), &src, &settings, &label)? {
         println!("{line}");
+    }
+    Ok(())
+}
+
+/// Build ours with `--set` overrides: configuration fields, `normals=<weight>` for the
+/// normal attribute weight (default 0.5, 0 for positions only), `removed=1` and `measured=1` for the error
+/// rules prototyped in `diag::price_removed_components` and `diag::price_measured_steps`.
+fn build_variant(src: &Source, jobs: usize, set: Option<String>) -> Result<ours::Ours, String> {
+    let v = config(set)?;
+    let (mut o, _) = ours::build_with(src, jobs, v.config, v.normals)?;
+    if v.removed {
+        let raised = diag::price_removed_components(&mut o, src);
+        eprintln!("removed-component rule raised {raised} groups");
+    }
+    if v.measured {
+        let raised = diag::price_measured_steps(&mut o, src);
+        eprintln!("measured-step rule raised {raised} groups");
+    }
+    if v.removed || v.measured {
+        o.rebuild_hierarchy()?;
+    }
+    Ok(o)
+}
+
+struct Variant {
+    config: meshoptimizer_rs::clusterlod::Config,
+    normals: Option<f32>,
+    removed: bool,
+    measured: bool,
+}
+
+/// Apply `key=value,...` overrides to the default configuration.
+fn config(set: Option<String>) -> Result<Variant, String> {
+    let mut c = meshoptimizer_rs::clusterlod::default_config(128).map_err(|e| format!("{e:?}"))?;
+    let mut normals = Some(ours::NORMAL_WEIGHT);
+    let mut removed = false;
+    let mut measured = false;
+    for kv in set.iter().flat_map(|s| s.split(',')).filter(|s| !s.is_empty()) {
+        let (k, v) = kv.split_once('=').ok_or(format!("bad override {kv}"))?;
+        let f: f32 = v.parse().map_err(|_| format!("bad value {kv}"))?;
+        match k {
+            "permissive" => c.simplify_permissive = f != 0.0,
+            "fallback_permissive" => c.simplify_fallback_permissive = f != 0.0,
+            "fallback_sloppy" => c.simplify_fallback_sloppy = f != 0.0,
+            "merge_previous" => c.simplify_error_merge_previous = f,
+            "merge_additive" => c.simplify_error_merge_additive = f,
+            "sloppy_factor" => c.simplify_error_factor_sloppy = f,
+            "regularize" => c.simplify_regularize = f != 0.0,
+            "normals" => normals = (f > 0.0).then_some(f),
+            "removed" => removed = f != 0.0,
+            "measured" => measured = f != 0.0,
+            _ => return Err(format!("unknown override {k}")),
+        }
+    }
+    Ok(Variant { config: c, normals, removed, measured })
+}
+
+/// `diag <ours|bevy> <in.vgm> [--artifact file] [--set k=v,...] [--jobs 8] [--samples 200000] [--no-groups]`
+fn diag(args: &[String]) -> Result<(), String> {
+    let p = positional(args);
+    let builder = p.first().ok_or("missing builder")?.as_str().to_string();
+    let (src, name) = load(&p)?;
+    let jobs = num(args, "--jobs", 8);
+    let samples = num(args, "--samples", 200_000.0);
+    let set = flag(args, "--set");
+    let label = Json::new().text("builder", &builder).text("mesh", &name).text("set", set.as_deref().unwrap_or(""));
+    for line in diag::source_lines(&src, &label) {
+        println!("{line}");
+    }
+    match builder.as_str() {
+        "ours" => {
+            let o = build_variant(&src, jobs, set)?;
+            for line in diag::world_cuts(&o, &src, samples, jobs, true, &label)? {
+                println!("{line}");
+            }
+            if !args.iter().any(|a| a == "--no-groups") {
+                for line in diag::group_steps(&o, &src, jobs, &label)? {
+                    println!("{line}");
+                }
+            }
+        }
+        "bevy" => {
+            let path = flag(args, "--artifact").ok_or("--artifact required")?;
+            let file = fs::read(&path).map_err(|e| format!("{path}: {e}"))?;
+            let b = bevyfile::Bevy::parse(&file)?;
+            for line in diag::world_cuts(&b, &src, samples, jobs, false, &label)? {
+                println!("{line}");
+            }
+        }
+        other => return Err(format!("unknown builder {other}")),
     }
     Ok(())
 }

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Repository only (no public API change)
 
 - `parity/vg-bench/` is a benchmark harness, outside the published package, that builds the same mesh with `clusterlod::build_parallel_with_output` and with Bevy's `MeshletMesh::from_mesh` (pinned to commit `8cc060f0`) and compares build time, peak memory, disk and resident size, DAG shape, error per triangle budget, and traversal work. It ships a corpus fetch script with recorded licences and a results table for MDAG 1.
+- The harness now simplifies with the normals as attributes of weight 0.5, like the reference and the upstream demo, and compares measured and claimed error in scene units on both sides. `vg-bench diag` measures world-space cuts one-sided in both directions and each group's simplification step. The default cluster-LOD error, which is upstream's, under-prices removed thin or small geometry on dragon (measured over claimed 4.7); `parity/vg-bench/RESULTS.md` records the evidence and a proposed opt-in that takes each group's error as at least its sampled step distance (1.0 to 1.2 on all five meshes). Library output is unchanged.
 
 ## [0.2.17] - 2026-11-03
 
