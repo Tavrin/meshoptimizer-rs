@@ -1,12 +1,13 @@
 //! MDAG 2 writer and build key (requires the `clusterlod` feature).
 #[allow(unused_imports)] // MIN/MAX_PAGE_CAPACITY are named by rustdoc links.
 use super::{
-    attribute_layout_hash, page_dependencies, parent_lists, xxh64, PageLimits, Xxh64,
-    ATTRIBUTE_HEADER_BYTES, CHUNK_ALIGN, CHUNK_ENTRY_BYTES, CHUNK_REQUIRED, CLUSTER_SPHERE_BYTES,
-    DEFAULT_MAX_PAGE_CLUSTERS, DEFAULT_PAGE_CAPACITY, GROUP_BYTES, HEADER_BYTES, MAJOR,
-    MAX_BUFFER_VIEW_BYTES, MAX_LEVELS, MAX_PAGE_CAPACITY, MESH_BYTES, MINOR, MIN_PAGE_CAPACITY,
-    NODE_BYTES, PAGE_BYTES, PAGE_PINNED, TAG_ATTRIBUTES, TAG_CLUSTER_SPHERES, TAG_DEPENDENCIES,
-    TAG_GROUPS, TAG_MESH, TAG_NODES, TAG_PAGES,
+    attribute_layout_hash, parent_lists, prefix_hash, xxh64, DependencyLists, PageLimits, Xxh64,
+    ATTRIBUTE_HEADER_BYTES, CHUNK_ALIGN, CHUNK_ENTRY_BYTES, CHUNK_REQUIRED, CLUSTER_REFINED_BYTES,
+    CLUSTER_SPHERE_BYTES, DEFAULT_MAX_PAGE_CLUSTERS, DEFAULT_PAGE_CAPACITY, GROUP_BYTES,
+    HEADER_BYTES, MAJOR, MAX_BUFFER_VIEW_BYTES, MAX_LEVELS, MAX_PAGE_CAPACITY, MESH_BYTES, MINOR,
+    MIN_PAGE_CAPACITY, NODE_BYTES, PAGE_BYTES, PAGE_PINNED, RESIDENT_HASH_FIELD, TAG_ATTRIBUTES,
+    TAG_CLUSTER_REFINED, TAG_CLUSTER_SPHERES, TAG_DEPENDENCIES, TAG_GROUPS, TAG_MESH, TAG_NODES,
+    TAG_PAGES,
 };
 use crate::clusterlod::bounds_math::{add_up, containing_radius, f32_up};
 use crate::clusterlod::cut::{self, CutError, MonotonicReport};
@@ -18,11 +19,13 @@ use crate::clusterlod::{
     build_hierarchy, dag_format::Error, Config, FlatDagCluster, FlatDagGroup, Group, LodBounds,
     Node,
 };
-use crate::Workspace;
+use crate::{Attributes, VertexFlags, Workspace};
 use alloc::vec::Vec;
 
 /// Bumped whenever equal inputs produce different bytes; part of [`build_key`].
-pub const BUILDER_REVISION: u32 = 1;
+/// Revision 2 added the `CREF` chunk and extended the resident hash over the
+/// header.
+pub const BUILDER_REVISION: u32 = 2;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -156,10 +159,19 @@ pub struct KeyInputs<'a, I: crate::Index = u32> {
     pub positions: &'a [[f32; 3]],
     /// Mesh indices as passed to the builder.
     pub indices: &'a [I],
+    /// Vertex flags as passed to the builder (`Mesh::vertex_lock`).
+    pub vertex_lock: Option<&'a [VertexFlags]>,
+    /// Attributes as passed to the builder (`Mesh::attributes`).
+    pub attributes: Option<Attributes<'a>>,
+    /// Attribute weights as passed to the builder.
+    pub attribute_weights: &'a [f32],
+    /// Attribute protect mask as passed to the builder.
+    pub attribute_protect_mask: u32,
 }
 
 impl<'a, I: crate::Index> KeyInputs<'a, I> {
-    /// Inputs for [`build_key`].
+    /// Inputs for [`build_key`] of a build without vertex flags or
+    /// attributes; set the public fields for a build that has them.
     pub const fn new(
         config: &'a Config,
         options: &'a WriteOptions,
@@ -171,15 +183,20 @@ impl<'a, I: crate::Index> KeyInputs<'a, I> {
             options,
             positions,
             indices,
+            vertex_lock: None,
+            attributes: None,
+            attribute_weights: &[],
+            attribute_protect_mask: 0,
         }
     }
 }
 
 /// XXH64 over [`BUILDER_REVISION`], the canonical bytes of the configuration
-/// and writer settings, and the bit patterns of the mesh positions and
-/// indices (little-endian, indices widened to `u32`). Equal keys mean equal
-/// files, so a cooker can test its cache before building. Not in C++
-/// meshoptimizer.
+/// and writer settings, the bit patterns of the mesh positions and indices
+/// (little-endian, indices widened to `u32`), and every other builder input
+/// that changes simplification: vertex flags, attribute values, attribute
+/// weights and the protect mask. Equal keys mean equal files, so a cooker can
+/// test its cache before building. Not in C++ meshoptimizer.
 pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
     let mut h = Xxh64::new(0);
     let u32s = |h: &mut Xxh64, v: &[u32]| {
@@ -274,6 +291,35 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
     for i in inputs.indices {
         u32s(&mut h, &[i.to_u32()]);
     }
+    // Optional inputs: a presence word, then a length and the values.
+    match inputs.vertex_lock {
+        Some(flags) => {
+            u32s(&mut h, &[1]);
+            h.update(&z(flags.len()).to_le_bytes());
+            for f in flags {
+                h.update(&[f.bits()]);
+            }
+        }
+        None => u32s(&mut h, &[0]),
+    }
+    match inputs.attributes {
+        Some(a) => {
+            u32s(&mut h, &[1]);
+            h.update(&z(a.len()).to_le_bytes());
+            h.update(&z(a.components()).to_le_bytes());
+            for v in 0..a.len() {
+                for k in 0..a.components() {
+                    u32s(&mut h, &[a.get(v, k).map_or(0, f32::to_bits)]);
+                }
+            }
+        }
+        None => u32s(&mut h, &[0]),
+    }
+    h.update(&z(inputs.attribute_weights.len()).to_le_bytes());
+    for w in inputs.attribute_weights {
+        u32s(&mut h, &[w.to_bits()]);
+    }
+    u32s(&mut h, &[inputs.attribute_protect_mask]);
     h.finish()
 }
 
@@ -602,25 +648,23 @@ pub fn write<I: crate::Index>(
     let (offsets, parents) = parent_lists(count, &links)?;
     let mut deps = Vec::new();
     let mut dep_ranges = Vec::new();
-    let mut scratch = Vec::new();
+    let mut lists = DependencyLists::new(&offsets, &parents)?;
     reserve(&mut dep_ranges, pages.len())?;
     for (p, span) in pages.iter().enumerate() {
         let first = links[span.first].0;
         let last = links[span.first + span.count - 1].0;
-        page_dependencies(
+        let list = lists.next(
             p as u32,
             first..last + 1,
-            &offsets,
-            &parents,
             |g| {
                 let (f, n) = spans[g as usize];
                 Ok(f..f + n)
             },
-            &mut scratch,
+            usize::MAX,
         )?;
-        dep_ranges.push((uint(deps.len())?, uint(scratch.len())?));
-        reserve(&mut deps, scratch.len())?;
-        deps.extend_from_slice(&scratch);
+        dep_ranges.push((uint(deps.len())?, uint(list.len())?));
+        reserve(&mut deps, list.len())?;
+        deps.extend_from_slice(list);
     }
     let mut pinned = 0usize;
     for (g, &(f, n)) in spans.iter().enumerate() {
@@ -724,6 +768,7 @@ pub fn write<I: crate::Index>(
         4 * deps.len(),
         ATTRIBUTE_HEADER_BYTES,
         CLUSTER_SPHERE_BYTES * order.len(),
+        CLUSTER_REFINED_BYTES * order.len(),
     ];
     let tags = [
         TAG_MESH,
@@ -733,8 +778,9 @@ pub fn write<I: crate::Index>(
         TAG_DEPENDENCIES,
         TAG_ATTRIBUTES,
         TAG_CLUSTER_SPHERES,
+        TAG_CLUSTER_REFINED,
     ];
-    let mut chunk_at = [0usize; 7];
+    let mut chunk_at = [0usize; 8];
     let mut cursor = HEADER_BYTES + tags.len() * CHUNK_ENTRY_BYTES;
     for (at, len) in chunk_at.iter_mut().zip(lengths) {
         *at = cursor;
@@ -870,15 +916,17 @@ pub fn write<I: crate::Index>(
     align(&mut out);
     put(&mut out, &spheres);
     align(&mut out);
+    for &(_, refined) in &links {
+        out.extend_from_slice(&refined.to_le_bytes());
+    }
+    align(&mut out);
     if out.len() != resident {
         return Err(Error::Invalid);
     }
+    out[32..40].copy_from_slice(&options.build_key.to_le_bytes());
+    let resident_hash = prefix_hash(&out).ok_or(Error::Invalid)?;
+    out[RESIDENT_HASH_FIELD].copy_from_slice(&resident_hash.to_le_bytes());
     out.extend_from_slice(&disk);
-    let resident_hash = xxh64(&out[HEADER_BYTES..resident], 0);
-    let key = options.build_key;
-    for (at, v) in [(32, key), (40, resident_hash)] {
-        out[at..at + 8].copy_from_slice(&v.to_le_bytes());
-    }
     report.pages = pages.len();
     report.pinned_pages = pinned;
     report.pinned_bytes = pages[..pinned].iter().map(|p| p.words * 4).sum();

@@ -2,18 +2,21 @@
 //! reading any page. Not in C++ meshoptimizer.
 //!
 //! A file is `header | chunk table | resident chunks | pages`. The resident
-//! prefix holds the group, node, page and dependency tables; pages hold the
-//! clusters in the disk form of [`page`](super::super::page) and are fetched
-//! and transcoded one at a time. Groups are stored coarse-first, so a page's
-//! dependencies always have smaller page indices and every prefix of the page
-//! table that contains the pinned pages is a valid residency set.
+//! prefix holds the group, node, page and dependency tables and the refinement
+//! relation (each cluster's refined group); pages hold the clusters in the disk
+//! form of [`page`](super::super::page) and are fetched and transcoded one at a
+//! time. Groups are stored coarse-first, so a page's dependencies always have
+//! smaller page indices and every prefix of the page table that contains the
+//! pinned pages is a valid residency set.
 //!
-//! [`Reader::open`] validates the resident prefix only; [`Reader::transcode_page`]
-//! validates one page against it; [`Reader::read_all`] does both for a whole
-//! file. Every byte is untrusted: failures are typed [`Error`]s, nothing
-//! recurses, and allocations are bounded by the input length. Opening is linear
-//! in the prefix; checking a page's dependency links costs at most its cluster
-//! count times the largest page span of a refined group, times a logarithm.
+//! [`Reader::open`] validates the resident prefix only, including the exact
+//! parent counts and dependency lists implied by the refinement relation;
+//! [`Reader::transcode_page`] validates one page against it; [`Reader::read_all`]
+//! does both for a whole file. Every byte is untrusted: failures are typed
+//! [`Error`]s, nothing recurses, and allocations are bounded by the input
+//! length. Opening costs `O(n log n)` in the prefix length `n` (the logarithm
+//! is a sort of each page's distinct parent groups); transcoding a page is
+//! linear in its size.
 //!
 //! Wire specification: `docs/DAG_FORMAT.md`, section "MDAG 2".
 use super::Error;
@@ -79,6 +82,10 @@ pub const TAG_ATTRIBUTES: [u8; 4] = *b"ATTR";
 /// `CSPH`: one 16-byte culling sphere per cluster (the tight sphere of the
 /// cluster's page descriptor), so culling works while pages are absent.
 pub const TAG_CLUSTER_SPHERES: [u8; 4] = *b"CSPH";
+/// `CREF`: one `i32` per cluster, the group it was simplified from (its page
+/// descriptor's refined group, `-1` for source geometry), so the parent
+/// relation, parent counts and page dependencies are checkable without pages.
+pub const TAG_CLUSTER_REFINED: [u8; 4] = *b"CREF";
 /// Reserved optional tag: per-node axis-aligned boxes.
 pub const TAG_NODE_BOXES: [u8; 4] = *b"NAAB";
 /// Reserved optional tag: far-field (impostor) parameters.
@@ -102,8 +109,13 @@ pub const ATTRIBUTE_HEADER_BYTES: usize = 16;
 pub const ATTRIBUTE_CHANNEL_BYTES: usize = 16;
 /// `CSPH` record length.
 pub const CLUSTER_SPHERE_BYTES: usize = 16;
+/// `CREF` record length.
+pub const CLUSTER_REFINED_BYTES: usize = 4;
+/// Byte range of the resident hash in the header; the hash covers the whole
+/// resident prefix with these bytes read as zero.
+pub const RESIDENT_HASH_FIELD: Range<usize> = 40..48;
 
-const REQUIRED: [[u8; 4]; 7] = [
+const REQUIRED: [[u8; 4]; 8] = [
     TAG_MESH,
     TAG_GROUPS,
     TAG_NODES,
@@ -111,6 +123,7 @@ const REQUIRED: [[u8; 4]; 7] = [
     TAG_DEPENDENCIES,
     TAG_ATTRIBUTES,
     TAG_CLUSTER_SPHERES,
+    TAG_CLUSTER_REFINED,
 ];
 const UNSET: u8 = u8::MAX;
 
@@ -229,6 +242,23 @@ pub fn xxh64(data: &[u8], seed: u64) -> u64 {
     let mut h = Xxh64::new(seed);
     h.update(data);
     h.finish()
+}
+
+/// Resident hash of `prefix` (the first [`resident_len`] bytes of a file):
+/// XXH64 (seed 0) of all of it, header included, with the bytes of
+/// [`RESIDENT_HASH_FIELD`] read as zero. `None` if `prefix` is shorter than
+/// the header. Not in C++ meshoptimizer.
+pub fn prefix_hash(prefix: &[u8]) -> Option<u64> {
+    let head = prefix.get(..RESIDENT_HASH_FIELD.start)?;
+    let tail = prefix.get(RESIDENT_HASH_FIELD.end..)?;
+    if prefix.len() < HEADER_BYTES {
+        return None;
+    }
+    let mut h = Xxh64::new(0);
+    h.update(head);
+    h.update(&[0; 8]);
+    h.update(tail);
+    Some(h.finish())
 }
 
 /// Attribute layout hash: the low 32 bits of XXH64 (seed 0) over the `ATTR`
@@ -398,8 +428,9 @@ pub struct GroupRecord {
     pub first_page: u32,
     /// Number of consecutive pages holding its clusters.
     pub page_count: u32,
-    /// Number of distinct groups whose clusters were simplified from this one;
-    /// zero for parentless groups, which are pinned.
+    /// Number of distinct groups whose clusters were simplified from this one
+    /// (checked against `CREF` by [`Reader::open`]); zero for parentless
+    /// groups, which are pinned.
     pub parent_count: u32,
 }
 
@@ -556,35 +587,105 @@ pub(crate) fn parent_lists(
     Ok((offsets, parents))
 }
 
-/// Dependencies of page `page`: every page of every parent of every group in
-/// `groups`, excluding `page`; written sorted and unique into `out`.
-pub(crate) fn page_dependencies(
-    page: u32,
-    groups: Range<u32>,
-    offsets: &[u32],
-    parents: &[u32],
-    pages_of: impl Fn(u32) -> Result<Range<u32>, Error>,
-    out: &mut Vec<u32>,
-) -> Result<(), Error> {
-    out.clear();
-    for q in groups {
-        let q = q as usize;
-        let row = offsets.get(q..q + 2).ok_or(Error::Invalid)?;
-        let list = parents
-            .get(row[0] as usize..row[1] as usize)
-            .ok_or(Error::Invalid)?;
-        for &parent in list {
-            for d in pages_of(parent)? {
-                if d != page {
-                    out.try_reserve(1).map_err(|_| Error::Allocation)?;
-                    out.push(d);
+/// Page dependency lists computed from the parent relation, one page at a time
+/// in page order. The dependencies of page `p` are every page of every parent
+/// of every group with clusters in `p`, excluding `p`, sorted and unique.
+///
+/// Work is linear up to a sort: group page spans are ordered (groups partition
+/// the clusters in order, pages too), so a page touched only by the group that
+/// also alone touched the previous page has the previous page's list; every
+/// other page collects the distinct parents of its groups once (a marker per
+/// group), sorts them and emits each one's span, which comes out ascending with
+/// duplicates only where consecutive spans meet. A group is collected for at
+/// most three pages (its first, second and last), and emission stops past the
+/// caller's limit, so hostile tables cannot inflate the work.
+pub(crate) struct DependencyLists<'t> {
+    offsets: &'t [u32],
+    parents: &'t [u32],
+    mark: Vec<u32>,
+    distinct: Vec<u32>,
+    out: Vec<u32>,
+    previous: Option<(u32, Range<u32>)>,
+}
+
+impl<'t> DependencyLists<'t> {
+    /// Lists over the parent table of [`parent_lists`].
+    pub(crate) fn new(offsets: &'t [u32], parents: &'t [u32]) -> Result<Self, Error> {
+        let groups = offsets.len().saturating_sub(1);
+        Ok(Self {
+            offsets,
+            parents,
+            mark: filled(groups, u32::MAX)?,
+            distinct: Vec::new(),
+            out: Vec::new(),
+            previous: None,
+        })
+    }
+
+    /// Dependencies of `page`, whose clusters belong to `groups`; pages must be
+    /// visited in increasing order. `Invalid` if the list would exceed `limit`
+    /// entries or the spans are not ordered.
+    pub(crate) fn next(
+        &mut self,
+        page: u32,
+        groups: Range<u32>,
+        pages_of: impl Fn(u32) -> Result<Range<u32>, Error>,
+        limit: usize,
+    ) -> Result<&[u32], Error> {
+        let single = groups.len() == 1;
+        let continues = single
+            && self
+                .previous
+                .as_ref()
+                .is_some_and(|(p, g)| p.checked_add(1) == Some(page) && *g == groups);
+        self.previous = Some((page, groups.clone()));
+        if continues {
+            // Only the group that alone touched the previous page touches this
+            // one, so no parent of it touches either page: same list.
+            return if self.out.len() > limit {
+                Err(Error::Invalid)
+            } else {
+                Ok(&self.out)
+            };
+        }
+        self.out.clear();
+        self.distinct.clear();
+        for q in groups {
+            let q = q as usize;
+            let row = self.offsets.get(q..q + 2).ok_or(Error::Invalid)?;
+            let list = self
+                .parents
+                .get(row[0] as usize..row[1] as usize)
+                .ok_or(Error::Invalid)?;
+            for &parent in list {
+                let m = self.mark.get_mut(parent as usize).ok_or(Error::Invalid)?;
+                if *m != page {
+                    *m = page;
+                    self.distinct
+                        .try_reserve(1)
+                        .map_err(|_| Error::Allocation)?;
+                    self.distinct.push(parent);
                 }
             }
         }
+        self.distinct.sort_unstable();
+        for &parent in &self.distinct {
+            for d in pages_of(parent)? {
+                match self.out.last() {
+                    _ if d == page => continue,
+                    Some(&last) if d == last => continue,
+                    Some(&last) if d < last => return Err(Error::Invalid),
+                    _ => {}
+                }
+                if self.out.len() >= limit {
+                    return Err(Error::Invalid);
+                }
+                self.out.try_reserve(1).map_err(|_| Error::Allocation)?;
+                self.out.push(d);
+            }
+        }
+        Ok(&self.out)
     }
-    out.sort_unstable();
-    out.dedup();
-    Ok(())
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -627,14 +728,18 @@ pub struct Reader<'a> {
     deps_at: usize,
     dep_count: usize,
     spheres_at: usize,
+    refined_at: usize,
 }
 
 impl<'a> Reader<'a> {
     /// Open from the resident prefix: `bytes` must hold at least
     /// [`resident_len`] bytes; pages are not read. Validates the header, chunk
-    /// table and every resident table (rules 1-5 of `docs/DAG_FORMAT.md`).
-    /// Allocates scratch proportional to the node and group counts, which are
-    /// bounded by the prefix length.
+    /// table and every resident table (rules 1-5 of `docs/DAG_FORMAT.md`),
+    /// including exact parent counts and dependency lists, so every page set
+    /// that holds the pinned pages and is closed under dependencies is a valid
+    /// residency set before any page is read. Allocates scratch proportional
+    /// to the node, group, cluster and page counts, which are bounded by the
+    /// prefix length.
     ///
     /// # Errors
     /// `Invalid` for a truncated or inconsistent prefix (including a resident
@@ -653,8 +758,8 @@ impl<'a> Reader<'a> {
         if !limits.valid() || prefix[56..HEADER_BYTES].iter().any(|&b| b != 0) {
             return Err(Error::Invalid);
         }
-        let resident_hash = le64(prefix, 40)?;
-        if xxh64(&prefix[HEADER_BYTES..], 0) != resident_hash {
+        let resident_hash = le64(prefix, RESIDENT_HASH_FIELD.start)?;
+        if prefix_hash(prefix) != Some(resident_hash) {
             return Err(Error::Invalid);
         }
         let chunk_count = size(le32(prefix, 12)?)?;
@@ -698,13 +803,14 @@ impl<'a> Reader<'a> {
         for (slot, k) in at.iter_mut().zip(known) {
             *slot = k.ok_or(Error::Invalid)?;
         }
-        let [mesh_at, groups_at, nodes_at, pages_at, deps_at, attr_at, spheres_at] = at;
+        let [mesh_at, groups_at, nodes_at, pages_at, deps_at, attr_at, spheres_at, refined_at] = at;
         let mesh = parse_mesh(prefix, mesh_at, le32(prefix, 16)?)?;
         let lengths = [
             (groups_at.1, GROUP_BYTES, mesh.group_count),
             (nodes_at.1, NODE_BYTES, mesh.node_count),
             (pages_at.1, PAGE_BYTES, mesh.page_count),
             (spheres_at.1, CLUSTER_SPHERE_BYTES, mesh.cluster_count),
+            (refined_at.1, CLUSTER_REFINED_BYTES, mesh.cluster_count),
         ];
         for (len, record, count) in lengths {
             if len != mul(record, size(count)?)? {
@@ -743,6 +849,7 @@ impl<'a> Reader<'a> {
             deps_at: deps_at.0,
             dep_count: deps_at.1 / DEPENDENCY_BYTES,
             spheres_at: spheres_at.0,
+            refined_at: refined_at.0,
         };
         for c in 0..mesh.cluster_count as usize {
             let (center, radius) = reader.cluster_sphere(c)?;
@@ -753,7 +860,68 @@ impl<'a> Reader<'a> {
         reader.validate_pages()?;
         reader.validate_groups()?;
         reader.validate_nodes()?;
+        reader.validate_links()?;
         Ok(reader)
+    }
+
+    /// Rule 6: the refinement relation (`CREF`) against groups, parent counts
+    /// and page dependencies. Runs after rules 2 and 4, so group and page
+    /// ranges partition the clusters in order.
+    fn validate_links(&self) -> Result<(), Error> {
+        let group_count = self.mesh.group_count as usize;
+        let mut links = Vec::new();
+        links
+            .try_reserve_exact(self.mesh.cluster_count as usize)
+            .map_err(|_| Error::Allocation)?;
+        for g in 0..group_count {
+            for c in self.group(g)?.clusters() {
+                let q = self.cluster_refined(c as usize)?;
+                if q < -1 || (q >= 0 && (q as usize <= g || q as usize >= group_count)) {
+                    return Err(Error::Invalid);
+                }
+                links.push((g as u32, q));
+            }
+        }
+        let (offsets, parents) = parent_lists(group_count, &links)?;
+        for q in 0..group_count {
+            let child = self.group(q)?;
+            let row = offsets.get(q..q + 2).ok_or(Error::Invalid)?;
+            if child.parent_count != row[1] - row[0] {
+                return Err(Error::Invalid);
+            }
+            for &p in parents
+                .get(row[0] as usize..row[1] as usize)
+                .ok_or(Error::Invalid)?
+            {
+                // Monotonicity of the link: the cut rules compare these.
+                let owner = self.group(p as usize)?;
+                if child.depth >= owner.depth
+                    || child.error > owner.error
+                    || containing_radius(owner.center, child.center, child.radius)
+                        > f64::from(owner.radius)
+                {
+                    return Err(Error::Invalid);
+                }
+            }
+        }
+        let mut lists = DependencyLists::new(&offsets, &parents)?;
+        for p in 0..self.mesh.page_count as usize {
+            let r = self.page(p)?;
+            let first = links.get(r.first_cluster as usize).ok_or(Error::Invalid)?.0;
+            let last = r.first_cluster as usize + r.cluster_count as usize - 1;
+            let last = links.get(last).ok_or(Error::Invalid)?.0;
+            let declared = self.dependencies(p)?;
+            let expected = lists.next(
+                p as u32,
+                first..last + 1,
+                |g| Ok(self.group(g as usize)?.pages()),
+                declared.len(),
+            )?;
+            if !declared.eq(expected.iter().copied()) {
+                return Err(Error::Invalid);
+            }
+        }
+        Ok(())
     }
 
     /// Rule 4: pages.
@@ -832,6 +1000,7 @@ impl<'a> Reader<'a> {
                 .ok_or(Error::Invalid)?;
             if le32(b, 44)? != 0
                 || !sphere_ok(r.center, r.radius, r.error)
+                || r.error < self.mesh.max_displacement
                 || r.depth >= self.mesh.level_count
                 || r.depth > previous_depth
                 || r.cluster_count == 0
@@ -974,7 +1143,8 @@ impl<'a> Reader<'a> {
     pub fn build_key(&self) -> u64 {
         self.build_key
     }
-    /// XXH64 (seed 0) of the resident prefix after the header.
+    /// Resident hash: XXH64 (seed 0) of the whole resident prefix, header
+    /// included, with the hash field read as zero (see [`prefix_hash`]).
     pub fn resident_hash(&self) -> u64 {
         self.resident_hash
     }
@@ -1032,11 +1202,16 @@ impl<'a> Reader<'a> {
         Ok(Dependencies(b.as_chunks::<4>().0.iter()))
     }
 
-    fn depends_on(&self, page: usize, on: u32) -> Result<bool, Error> {
-        let deps = self.dependencies(page)?.0.as_slice();
-        Ok(deps
-            .binary_search_by(|d| u32::from_le_bytes(*d).cmp(&on))
-            .is_ok())
+    /// Refined group of cluster `c` (`CREF`): the group it was simplified
+    /// from, or -1 for source geometry. Readable while its page is absent.
+    ///
+    /// # Errors
+    /// `Invalid` if `c` is out of range.
+    pub fn cluster_refined(&self, c: usize) -> Result<i32, Error> {
+        if c >= self.mesh.cluster_count as usize {
+            return Err(Error::Invalid);
+        }
+        Ok(le32(self.record(self.refined_at, CLUSTER_REFINED_BYTES, c)?, 0)? as i32)
     }
 
     /// Bytes of the first chunk tagged `tag`, including optional chunks this
@@ -1049,10 +1224,12 @@ impl<'a> Reader<'a> {
         self.bytes.get(c.offset..c.offset.checked_add(c.len)?)
     }
 
-    /// Validate the disk form of page `p` (rules 6-9) and write its memory form
+    /// Validate the disk form of page `p` (rules 7-10) and write its memory form
     /// into `out`, which needs [`PageRecord::memory_words`] words. Returns a view
     /// of the written words. Uses no heap allocation; codec work is charged to
-    /// `workspace`.
+    /// `workspace`. Work is linear in the page's disk and memory size: each
+    /// cluster is compared with constant-size resident records (`CSPH`, `CREF`,
+    /// its group) and each decoded vertex with three spheres and a box.
     ///
     /// # Errors
     /// `Invalid` for a length, hash or content mismatch; `Limit` if `out` is too
@@ -1087,7 +1264,7 @@ impl<'a> Reader<'a> {
         Ok(view)
     }
 
-    /// Rules 7 and 8 for the clusters of one transcoded page.
+    /// Rules 8 and 9 for the clusters of one transcoded page.
     fn validate_page_clusters(
         &self,
         p: usize,
@@ -1097,11 +1274,9 @@ impl<'a> Reader<'a> {
         let page_id = p as u32;
         let mut owner = self.group_of_cluster(r.first_cluster)?;
         let mut owner_group = self.group(owner)?;
-        // Recently checked (owner, refined) pairs: clusters of one owner usually
-        // share a few refined groups, so each pair's page walk runs once.
-        let mut checked = [(u32::MAX, -1i32); 16];
         let mut positions = [[0f32; 3]; page::MAX_CLUSTER_VERTICES];
         let (lo, hi) = (self.mesh.aabb_min, self.mesh.aabb_max);
+        let (mesh_center, mesh_radius) = (self.mesh.sphere_center, self.mesh.sphere_radius);
         for k in 0..view.cluster_count() {
             let c = r.first_cluster + k as u32;
             while c - owner_group.first_cluster >= owner_group.cluster_count {
@@ -1114,6 +1289,7 @@ impl<'a> Reader<'a> {
                 && radius.to_bits() == d.radius.to_bits();
             if d.group as usize != owner
                 || !owner_group.pages().contains(&page_id)
+                || d.refined != self.cluster_refined(c as usize)?
                 || d.material >= self.mesh.material_count
                 || d.vertex_count as usize > self.limits.max_vertices
                 || d.triangle_count as usize > self.limits.max_triangles
@@ -1121,33 +1297,13 @@ impl<'a> Reader<'a> {
             {
                 return Err(Error::Invalid);
             }
-            if d.refined >= 0 && !checked.contains(&(d.group, d.refined)) {
-                checked[k % checked.len()] = (d.group, d.refined);
-                let q = d.refined as usize;
-                if q <= owner {
-                    return Err(Error::Invalid);
-                }
-                let child = self.group(q)?;
-                if child.depth >= owner_group.depth
-                    || child.error > owner_group.error
-                    || containing_radius(owner_group.center, child.center, child.radius)
-                        > f64::from(owner_group.radius)
-                    || child.parent_count == 0
-                {
-                    return Err(Error::Invalid);
-                }
-                for qp in child.pages() {
-                    if qp != page_id && !self.depends_on(qp as usize, page_id)? {
-                        return Err(Error::Invalid);
-                    }
-                }
-            }
             let n = view.decode_positions(k, &mut positions)?;
             for v in &positions[..n] {
                 let inside = (0..3).all(|i| lo[i] <= v[i] && v[i] <= hi[i]);
                 if !inside
                     || containing_radius(owner_group.center, *v, 0.0)
                         > f64::from(owner_group.radius)
+                    || containing_radius(mesh_center, *v, 0.0) > f64::from(mesh_radius)
                 {
                     return Err(Error::Invalid);
                 }
@@ -1175,10 +1331,10 @@ impl<'a> Reader<'a> {
     }
 
     /// Open a whole file and validate every page as [`Self::transcode_page`]
-    /// does, plus the cross-page facts a single page cannot show: exact parent
-    /// counts, exact dependency lists, triangle totals, and that the last page
-    /// ends the file. For tools and fuzzing. Scratch is bounded by the file
-    /// length (every cluster occupies at least 64 disk bytes).
+    /// does, plus the cross-page facts a single page cannot show: triangle
+    /// totals and that the last page ends the file. For tools and fuzzing.
+    /// Scratch is that of [`Self::open`] plus one page of the memory form, so
+    /// it is linear in the file length.
     ///
     /// # Errors
     /// As [`Self::open`] and [`Self::transcode_page`].
@@ -1190,10 +1346,6 @@ impl<'a> Reader<'a> {
             return Err(Error::Invalid);
         }
         let mut words = filled(r.limits.page_capacity / 4, 0u32)?;
-        let mut links = Vec::new();
-        links
-            .try_reserve_exact(clusters)
-            .map_err(|_| Error::Allocation)?;
         let mut end = r.resident_len as u64;
         let (mut dag, mut leaf) = (0u64, 0u64);
         for p in 0..mesh.page_count as usize {
@@ -1212,40 +1364,10 @@ impl<'a> Reader<'a> {
                 if d.refined < 0 {
                     leaf += t;
                 }
-                links.push((d.group, d.refined));
             }
         }
         if end != file.len() as u64 || dag != mesh.dag_triangles || leaf != mesh.leaf_triangles {
             return Err(Error::Invalid);
-        }
-        let (offsets, parents) = parent_lists(mesh.group_count as usize, &links)?;
-        for g in 0..mesh.group_count as usize {
-            if r.group(g)?.parent_count != offsets[g + 1] - offsets[g] {
-                return Err(Error::Invalid);
-            }
-        }
-        let mut expected = Vec::new();
-        for p in 0..mesh.page_count as usize {
-            let rec = r.page(p)?;
-            let first = links
-                .get(rec.first_cluster as usize)
-                .ok_or(Error::Invalid)?
-                .0;
-            let last = links
-                .get((rec.first_cluster + rec.cluster_count - 1) as usize)
-                .ok_or(Error::Invalid)?
-                .0;
-            page_dependencies(
-                p as u32,
-                first..last + 1,
-                &offsets,
-                &parents,
-                |g| Ok(r.group(g as usize)?.pages()),
-                &mut expected,
-            )?;
-            if !r.dependencies(p)?.eq(expected.iter().copied()) {
-                return Err(Error::Invalid);
-            }
         }
         Ok(r)
     }

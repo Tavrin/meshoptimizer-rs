@@ -55,7 +55,12 @@ reproducible and need not be committed). Results: `parity/0217-fuzz/RECEIPTS.md`
 `fuzz/r0220` holds `dag_format_v2`: each input goes through `v2::Reader::open` (and the transcoding
 of every page its records name) and `v2::Reader::read_all`, once as given and once with its page
 and resident hashes recomputed so that mutations reach the structural rules. Accepted files must
-reopen from their resident prefix and transcode every page from exactly its bytes. Seeds in
+reopen from their resident prefix and transcode every page from exactly its bytes. For every file
+`open` accepts, the pinned prefix, the whole page table and two input-derived dependency-closed page
+sets must give valid cuts (`cut::refine_sequential` never `Incomplete`, equal to `cut::select_cut`,
+every parentless group resident) at `Threshold::Finest` and orthographic thresholds at group errors.
+Each input that opens is also rerun with three resealed edits: one `PDEP` entry replaced, one parent
+count raised and one `CREF` entry changed. Seeds in
 `fuzz/seeds/dag_format_v2/` come from
 `DAG_V2_SEED_DIR=fuzz/seeds/dag_format_v2 cargo test --release --features clusterlod --test dag_format_v2 empty_mesh_and_seeds`.
 Build and run with `FUZZ_GROUPS=r0220 FUZZ_SANITIZER=address fuzz/driver.py build` and

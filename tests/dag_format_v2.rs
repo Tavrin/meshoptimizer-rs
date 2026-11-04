@@ -5,7 +5,7 @@ use meshoptimizer_rs::clusterlod::{
     cut::{self, CutError, CutView, Projection, Threshold},
     dag_format::{v2, Error},
     page::{DiskCodec, PageView, QuantGrid},
-    DagBuffers, FlatDagCluster, FlatDagGroup, Mesh, Node,
+    DagBuffers, FlatDagCluster, FlatDagGroup, LodBounds, Mesh, Node,
 };
 use meshoptimizer_rs::Workspace;
 
@@ -212,11 +212,27 @@ fn xxh64_vectors_and_build_key() {
     c2.simplify_ratio = 0.6;
     let mut o2 = options;
     o2.page_capacity = 4096;
+    // Vertex flags, attributes, weights and the protect mask change the build.
+    let mut locks = vec![meshoptimizer_rs::VertexFlags::EMPTY; positions.len()];
+    locks[5] = meshoptimizer_rs::VertexFlags::LOCK;
+    let uv: Vec<f32> = positions.iter().flat_map(|p| [p[0], p[1]]).collect();
+    let attributes =
+        meshoptimizer_rs::Attributes::from_interleaved(&uv, positions.len(), 2, 2, 0).unwrap();
+    let plain = v2::KeyInputs::new(&config, &options, &positions, &indices);
+    let (mut a, mut b, mut c, mut d) = (plain, plain, plain, plain);
+    a.vertex_lock = Some(&locks);
+    b.attributes = Some(attributes);
+    c.attribute_weights = &[1.0, 1.0];
+    d.attribute_protect_mask = 1;
+    let extended = [a, b, c, d].map(|k| v2::build_key(&k));
     for other in [
         key(&config, &options, &moved),
         key(&c2, &options, &positions),
         key(&config, &o2, &positions),
-    ] {
+    ]
+    .into_iter()
+    .chain(extended)
+    {
         assert_ne!(other, base);
     }
 }
@@ -385,6 +401,94 @@ fn page_prefixes_and_dependency_closed_sets_are_valid_cuts() {
     }
 }
 
+/// Review probe E1: a dependency list with one entry replaced (still sorted,
+/// unique and below the page) is rejected by `open`, before any page is read,
+/// so a runtime never loads a set the lie leaves unclosed.
+#[test]
+fn open_rejects_any_replaced_dependency_entry() {
+    for mesh in [grid(32), sphere(24, 40)] {
+        let b = build(mesh);
+        let (file, _) = write(&b, DiskCodec::Compressed, 4096);
+        let r = v2::Reader::open(&file).unwrap();
+        let (pdep, pages_at) = (chunk_at(&file, b"PDEP"), chunk_at(&file, b"PAGE"));
+        let mut replaced = 0;
+        for p in 0..r.mesh().page_count as usize {
+            let deps: Vec<u32> = r.dependencies(p).unwrap().collect();
+            let first = word(&file, pages_at + 48 * p + 24) as usize;
+            let Some(other) = (0..p as u32).find(|f| !deps.contains(f)) else {
+                continue;
+            };
+            for i in 0..deps.len() {
+                let mut list = deps.clone();
+                list[i] = other;
+                list.sort_unstable();
+                let mut bad = file.clone();
+                for (j, &d) in list.iter().enumerate() {
+                    set(&mut bad, pdep + 4 * (first + j), d);
+                }
+                reseal(&mut bad);
+                let open = v2::Reader::open(&bad);
+                assert_eq!(
+                    open.err(),
+                    Some(Error::Invalid),
+                    "page {p}: {deps:?} -> {list:?}"
+                );
+                replaced += 1;
+            }
+        }
+        assert!(replaced >= 20, "{replaced}");
+    }
+}
+
+/// Review probe E5: over every parent link of writer output, the crate's
+/// projected error of the parent is at least the child's, for cameras on the
+/// line through both centres and at random, so a cut never draws both.
+#[test]
+fn projected_error_is_monotone_over_parent_links() {
+    let b = build(grid(32));
+    let (file, _) = write(&b, DiskCodec::Compressed, 4096);
+    let r = v2::Reader::open(&file).unwrap();
+    let mut links = Vec::new();
+    for g in 0..r.mesh().group_count as usize {
+        for c in r.group(g).unwrap().clusters() {
+            let q = r.cluster_refined(c as usize).unwrap();
+            if q >= 0 {
+                links.push((g, q as usize));
+            }
+        }
+    }
+    links.sort_unstable();
+    links.dedup();
+    assert!(links.len() >= 20);
+    let lod = |g: &v2::GroupRecord| LodBounds {
+        center: g.center,
+        radius: g.radius,
+        error: g.error,
+    };
+    let mut rng = Rng(12345);
+    for &(p, q) in &links {
+        let (gp, gq) = (r.group(p).unwrap(), r.group(q).unwrap());
+        let dir = [0, 1, 2].map(|i| gq.center[i] - gp.center[i]);
+        let len = dir.iter().map(|d| d * d).sum::<f32>().sqrt().max(1e-6);
+        for k in 0..400 {
+            let mut view = rng.view();
+            if k % 2 == 0 {
+                let t = gq.radius + 0.01 + 200. * rng.unit();
+                view.position = [0, 1, 2].map(|i| gq.center[i] + dir[i] / len * t);
+            }
+            let (ep, eq) = (
+                cut::projected_error(lod(&gp), &view),
+                cut::projected_error(lod(&gq), &view),
+            );
+            assert!(
+                ep >= eq,
+                "link {p}->{q} at {:?}: {ep} < {eq}",
+                view.position
+            );
+        }
+    }
+}
+
 fn word(b: &[u8], at: usize) -> u32 {
     u32::from_le_bytes(b[at..at + 4].try_into().unwrap())
 }
@@ -411,7 +515,7 @@ fn reseal(b: &mut [u8]) {
         }
     }
     let resident = word(b, 24) as usize;
-    if let Some(h) = b.get(64..resident).map(|r| v2::xxh64(r, 0)) {
+    if let Some(h) = b.get(..resident).and_then(v2::prefix_hash) {
         b[40..48].copy_from_slice(&h.to_le_bytes());
     }
 }
@@ -460,9 +564,18 @@ fn rejects_each_validation_rule() {
     let (file, _) = write(&b, DiskCodec::None, 4096);
     let r = v2::Reader::read_all(&file, &mut Workspace::default()).unwrap();
     let m = r.mesh();
-    let [mesh, groups, nodes, pages, deps, attr, spheres] =
-        ["MESH", "GRPS", "NODE", "PAGE", "PDEP", "ATTR", "CSPH"]
-            .map(|t| chunk_at(&file, t.as_bytes().try_into().unwrap()));
+    let [mesh, groups, nodes, pages, deps, attr, spheres, cref] = [
+        "MESH", "GRPS", "NODE", "PAGE", "PDEP", "ATTR", "CSPH", "CREF",
+    ]
+    .map(|t| chunk_at(&file, t.as_bytes().try_into().unwrap()));
+    // A parent link whose child error is above `q`, as (cluster, owner).
+    let (link_cluster, link_owner) = (0..m.group_count as usize)
+        .flat_map(|g| r.group(g).unwrap().clusters().map(move |c| (c as usize, g)))
+        .find(|&(c, _)| {
+            let q = r.cluster_refined(c).unwrap();
+            q >= 0 && r.group(q as usize).unwrap().error > m.max_displacement
+        })
+        .unwrap();
     let last_group = m.group_count as usize - 1;
     let internal = (0..m.node_count as usize)
         .find(|&i| r.node(i).unwrap().group < 0)
@@ -532,6 +645,7 @@ fn rejects_each_validation_rule() {
         ),
         // 2. groups
         ("negative error", gr(0, 4), f(-1.), Stage::Open),
+        ("error below q", gr(last_group, 4), f(0.), Stage::Open),
         ("NaN radius", gr(1, 3), f(f32::NAN), Stage::Open),
         ("depth past levels", gr(0, 5), m.level_count, Stage::Open),
         (
@@ -594,14 +708,45 @@ fn rejects_each_validation_rule() {
             Stage::Open,
         ),
         ("mesh reserved", mesh + 104, 1, Stage::Open),
-        // 6. page bytes
+        // 6. refinement relation
+        (
+            "refined not after owner",
+            cref + 4 * link_cluster,
+            link_owner as u32,
+            Stage::Open,
+        ),
+        (
+            "refined below -1",
+            cref + 4 * link_cluster,
+            -2i32 as u32,
+            Stage::Open,
+        ),
+        (
+            "parent error below child",
+            gr(link_owner, 4),
+            f(m.max_displacement),
+            Stage::Open,
+        ),
+        (
+            "child sphere outside parent",
+            gr(link_owner, 3),
+            0,
+            Stage::Open,
+        ),
+        (
+            "parent count",
+            gr(last_group, 10),
+            word(&file, gr(last_group, 10)) + 1,
+            Stage::Open,
+        ),
+        // 7. page bytes
         (
             "disk length",
             pg(0, 2),
             word(&file, pg(0, 2)) - 4,
             Stage::Pages,
         ),
-        // 7. clusters
+        // 8. clusters
         (
             "owner group",
             desc(0, 0, 0),
@@ -609,13 +754,12 @@ fn rejects_each_validation_rule() {
             Stage::Pages,
         ),
         (
-            "refined not after owner",
+            "descriptor refined differs from CREF",
             desc(0, refining, 1),
             parent as u32,
             Stage::Pages,
         ),
-        ("parent error below child", gr(parent, 4), 0, Stage::Pages),
-        // 8. vertices
+        // 9. vertices
         (
             "vertex outside box",
             mesh + 60,
@@ -624,19 +768,13 @@ fn rejects_each_validation_rule() {
         ),
         (
             "vertex outside group sphere",
-            gr(parent, 3),
+            gr(last_group, 3),
             0,
             Stage::Pages,
         ),
-        // 9. attributes
+        ("vertex outside mesh sphere", mesh + 84, 0, Stage::Pages),
+        // 10. attributes
         ("attribute channels", attr, 1, Stage::Unsupported),
-        // whole-file facts
-        (
-            "parent count",
-            gr(last_group, 10),
-            word(&file, gr(last_group, 10)) + 1,
-            Stage::Pages,
-        ),
     ];
     for (name, at, value, stage) in cases {
         let mut bad = file.clone();
@@ -656,10 +794,16 @@ fn rejects_each_validation_rule() {
             }
         }
     }
-    // Corruption without a reseal: resident and page hashes.
-    let mut bad = file.clone();
-    bad[groups] ^= 1;
-    assert_eq!(v2::Reader::open(&bad).err(), Some(Error::Invalid));
+    // Corruption without a reseal: resident (header included) and page hashes.
+    for at in [groups, 32, 8] {
+        let mut bad = file.clone();
+        bad[at] ^= 1;
+        assert_eq!(
+            v2::Reader::open(&bad).err(),
+            Some(Error::Invalid),
+            "byte {at}"
+        );
+    }
     let mut bad = file.clone();
     bad[page0 + 40] ^= 1;
     assert!(v2::Reader::open(&bad).is_ok());
