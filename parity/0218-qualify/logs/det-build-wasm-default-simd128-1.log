@@ -1,0 +1,25 @@
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-rs v0.2.17 (<worktree>)
+warning: function `fload` is never used
+ --> <worktree>/src/codec/simd/wasm32.rs:6:4
+  |
+6 | fn fload(v: [f32; 4]) -> v128 {
+  |    ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `sqrt` is never used
+  --> <worktree>/src/codec/simd/wasm32.rs:36:4
+   |
+36 | fn sqrt(a: v128) -> v128 {
+   |    ^^^^
+
+warning: function `fout` is never used
+  --> <worktree>/src/codec/simd/wasm32.rs:69:4
+   |
+69 | fn fout(v: v128) -> [f32; 4] {
+   |    ^^^^
+
+warning: `meshoptimizer-rs` (lib) generated 3 warnings
+   Compiling det v0.0.0 (<target>/det/wasm-default-simd128)
+    Finished `release` profile [optimized] target(s) in 21.35s

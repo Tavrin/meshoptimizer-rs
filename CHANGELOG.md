@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.18] - 2026-11-04
+
 ### Added
 
 - `trim_alpha_cards` and `trim_alpha_cards_generic` (not in C++ meshoptimizer, no Cargo feature) replace each alpha-tested card with a convex polygon of at most `CardTrimOptions::max_vertices` vertices (3 to 16) that contains every texel with alpha at or above the threshold, padded for bilinear sampling by default, and stays inside the card. Planar cards with attributes linear in UV become one fan; other cards are clipped per source triangle with watertight shared edges. Cards without visible texels are removed. `AlphaMask` reads packed or strided 8-bit alpha with clamp or repeat wrapping, and `CardTrimReport` gives card counts and texture-space area before and after. On four CC0 Poly Haven plants, quad cards lost 2-16% of their transparent area at budget 4, 27-50% at 6 and 31-55% at 8.

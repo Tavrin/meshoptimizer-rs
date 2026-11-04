@@ -1,0 +1,13 @@
+   Compiling blend-harness v0.0.0 (<target>/lane/blend)
+warning: field `name` is never read
+   --> src/bin/blend.rs:103:5
+    |
+102 | struct Asset {
+    |        ----- field in this struct
+103 |     name: String,
+    |     ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blend-harness` (bin "blend") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 1.18s

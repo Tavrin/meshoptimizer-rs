@@ -1,0 +1,176 @@
+{
+  "all_equal": true,
+  "variants": {
+    "native-all": {
+      "binary_sha256": "013bc0462ba96fa3a4cf523a322a8148cf8dadb6bcdea0380587eac599b8ce88",
+      "cases": [
+        "bake-vertex-colors-hemisphere-u32",
+        "bake-texture-sphere-u16",
+        "bake-fixed-bounds-single-sided-box",
+        "bake-white-dense-grid",
+        "impostor-math-and-reconstruct",
+        "trim-default-u32",
+        "trim-repeat-padding0-cost-stride8",
+        "trim-clamp-fan-u16"
+      ],
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "parallel",
+        "clusterlod",
+        "experimental",
+        "parity-internals"
+      ],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-all-debug": {
+      "binary_sha256": "84ac561fc668d9db7f7086c681f27294297664dd300f14976af9a221dea5b2bb",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "parallel",
+        "clusterlod",
+        "experimental",
+        "parity-internals"
+      ],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "dev",
+      "target": "native"
+    },
+    "native-default": {
+      "binary_sha256": "15f38312941e4cb33b688d5decb90f70693ec4cb271e0b53a7524b48ea734f45",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd"
+      ],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-nostd": {
+      "binary_sha256": "b50226a82e4c82606f7394628e45a039a24fadeb7ad335b8ec113f2355e741ef",
+      "equal_to_native_all": true,
+      "features": [],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-nostd-simd": {
+      "binary_sha256": "df9385090281b5d77048978b75944a938ec6a87fb03fab99a2bca1a795f80161",
+      "equal_to_native_all": true,
+      "features": [
+        "simd"
+      ],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "wasm-default": {
+      "binary_sha256": "9fd47791ad6ca994fec9339a4dd43506068d997aa04ba846a8eac81fd24b821b",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd"
+      ],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    },
+    "wasm-default-simd128": {
+      "binary_sha256": "3619ef2fe5a556244c8dbc1328bd10e553ff498c89b98e2810a59f623739bb43",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd"
+      ],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    },
+    "wasm-nostd": {
+      "binary_sha256": "7d5424835c53f4632f72f1aa0eac991044ab0ae4497c8f8ce4a923f9426c8bbc",
+      "equal_to_native_all": true,
+      "features": [],
+      "hashes": [
+        "048585433825782a",
+        "537cc99f556fbdd1",
+        "566e1f36ee4db985",
+        "a2576f32220114c4",
+        "1fb55b0e62cc10cf",
+        "b18c19faeb5ceadf",
+        "74a9e73d6c65102e",
+        "902d5656b0dfd5a5"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    }
+  }
+}
