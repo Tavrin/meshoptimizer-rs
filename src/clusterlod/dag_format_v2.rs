@@ -39,7 +39,7 @@ pub use writer::{
 pub const MAJOR: u32 = 2;
 /// Minor version written: the newest chunk set this crate knows. Readers
 /// accept any minor; it is informational.
-pub const MINOR: u32 = 0;
+pub const MINOR: u32 = 1;
 /// Header length in bytes.
 pub const HEADER_BYTES: usize = 64;
 /// Chunk table entry length in bytes.
@@ -79,6 +79,8 @@ pub const TAG_PAGES: [u8; 4] = *b"PAGE";
 pub const TAG_DEPENDENCIES: [u8; 4] = *b"PDEP";
 /// `ATTR`: the vertex attribute layout (16 bytes plus 16 per channel).
 pub const TAG_ATTRIBUTES: [u8; 4] = *b"ATTR";
+/// `MATS`: required when material tables are used; slot count and three reserved words.
+pub const TAG_MATERIALS: [u8; 4] = *b"MATS";
 /// `CSPH`: one 16-byte culling sphere per cluster (the tight sphere of the
 /// cluster's page descriptor), so culling works while pages are absent.
 pub const TAG_CLUSTER_SPHERES: [u8; 4] = *b"CSPH";
@@ -729,6 +731,9 @@ pub struct Reader<'a> {
     dep_count: usize,
     spheres_at: usize,
     refined_at: usize,
+    attributes_at: usize,
+    attribute_count: usize,
+    materials_declared: bool,
 }
 
 impl<'a> Reader<'a> {
@@ -744,7 +749,7 @@ impl<'a> Reader<'a> {
     /// # Errors
     /// `Invalid` for a truncated or inconsistent prefix (including a resident
     /// hash mismatch); `Unsupported` for another major version, an unknown
-    /// required chunk, unknown chunk flags or attribute channels;
+    /// required chunk, unknown chunk flags or attribute encodings;
     /// `Limit` for oversized counts; `Allocation` if scratch allocation fails.
     pub fn open(bytes: &'a [u8]) -> Result<Self, Error> {
         let resident_len = resident_len(bytes)?;
@@ -764,6 +769,7 @@ impl<'a> Reader<'a> {
         }
         let chunk_count = size(le32(prefix, 12)?)?;
         let mut known = [None::<(usize, usize)>; REQUIRED.len()];
+        let mut materials_at = None;
         let mut cursor = HEADER_BYTES + chunk_count * CHUNK_ENTRY_BYTES;
         for i in 0..chunk_count {
             let Chunk {
@@ -792,6 +798,12 @@ impl<'a> Reader<'a> {
             match REQUIRED.iter().position(|&t| t == tag) {
                 Some(k) if flags & CHUNK_REQUIRED != 0 => known[k] = Some((offset, len)),
                 Some(_) => return Err(Error::Invalid),
+                None if tag == TAG_MATERIALS => {
+                    if flags != CHUNK_REQUIRED {
+                        return Err(Error::Invalid);
+                    }
+                    materials_at = Some((offset, len));
+                }
                 None if flags & CHUNK_REQUIRED != 0 => return Err(Error::Unsupported),
                 None => {}
             }
@@ -805,6 +817,14 @@ impl<'a> Reader<'a> {
         }
         let [mesh_at, groups_at, nodes_at, pages_at, deps_at, attr_at, spheres_at, refined_at] = at;
         let mesh = parse_mesh(prefix, mesh_at, le32(prefix, 16)?)?;
+        if let Some((offset, len)) = materials_at {
+            if len != 16
+                || le32(prefix, offset)? != mesh.material_count
+                || (1..4).any(|k| le32(prefix, offset + k * 4) != Ok(0))
+            {
+                return Err(Error::Invalid);
+            }
+        }
         let lengths = [
             (groups_at.1, GROUP_BYTES, mesh.group_count),
             (nodes_at.1, NODE_BYTES, mesh.node_count),
@@ -822,17 +842,30 @@ impl<'a> Reader<'a> {
         }
         let attr = &prefix[attr_at.0..attr_at.0 + attr_at.1];
         let channels = size(le32(attr, 0)?)?;
-        if channels != 0 {
-            // Attribute channels are defined by a later minor version.
-            return Err(Error::Unsupported);
+        if channels > super::super::attributes::MAX_CHANNELS {
+            return Err(Error::Limit);
         }
-        if attr.len() != ATTRIBUTE_HEADER_BYTES
+        if attr.len() != ATTRIBUTE_HEADER_BYTES + channels * ATTRIBUTE_CHANNEL_BYTES
             || le32(attr, 8)? != 0
             || le32(attr, 12)? != 0
             || le32(attr, 4)? != attribute_layout_hash(&attr[ATTRIBUTE_HEADER_BYTES..])
             || le32(attr, 4)? != mesh.attribute_layout_hash
         {
             return Err(Error::Invalid);
+        }
+        for k in 0..channels {
+            let at = ATTRIBUTE_HEADER_BYTES + k * ATTRIBUTE_CHANNEL_BYTES;
+            let ch = super::super::attributes::Channel::parse([
+                le32(attr, at)?,
+                le32(attr, at + 4)?,
+                le32(attr, at + 8)?,
+                le32(attr, at + 12)?,
+            ])?;
+            for j in 0..k {
+                if le32(attr, ATTRIBUTE_HEADER_BYTES + j * ATTRIBUTE_CHANNEL_BYTES)? == ch.tag {
+                    return Err(Error::Invalid);
+                }
+            }
         }
         let reader = Self {
             bytes,
@@ -850,6 +883,9 @@ impl<'a> Reader<'a> {
             dep_count: deps_at.1 / DEPENDENCY_BYTES,
             spheres_at: spheres_at.0,
             refined_at: refined_at.0,
+            attributes_at: attr_at.0 + ATTRIBUTE_HEADER_BYTES,
+            attribute_count: channels,
+            materials_declared: materials_at.is_some(),
         };
         for c in 0..mesh.cluster_count as usize {
             let (center, radius) = reader.cluster_sphere(c)?;
@@ -1264,6 +1300,25 @@ impl<'a> Reader<'a> {
         Ok(view)
     }
 
+    /// Number of declared attribute channels.
+    pub fn attribute_count(&self) -> usize {
+        self.attribute_count
+    }
+    /// Read a validated ATTR channel declaration.
+    /// # Errors
+    /// Invalid channel index.
+    pub fn attribute_channel(&self, k: usize) -> Result<super::super::attributes::Channel, Error> {
+        if k >= self.attribute_count {
+            return Err(Error::Invalid);
+        }
+        let at = self.attributes_at + k * ATTRIBUTE_CHANNEL_BYTES;
+        super::super::attributes::Channel::parse([
+            le32(self.bytes, at)?,
+            le32(self.bytes, at + 4)?,
+            le32(self.bytes, at + 8)?,
+            le32(self.bytes, at + 12)?,
+        ])
+    }
     /// Rules 8 and 9 for the clusters of one transcoded page.
     fn validate_page_clusters(
         &self,
@@ -1290,12 +1345,29 @@ impl<'a> Reader<'a> {
             if d.group as usize != owner
                 || !owner_group.pages().contains(&page_id)
                 || d.refined != self.cluster_refined(c as usize)?
-                || d.material >= self.mesh.material_count
+                || (!d.single_material && !self.materials_declared)
+                || (d.single_material && d.material >= self.mesh.material_count)
                 || d.vertex_count as usize > self.limits.max_vertices
                 || d.triangle_count as usize > self.limits.max_triangles
                 || !same_sphere
             {
                 return Err(Error::Invalid);
+            }
+            let block = view.attributes(k)?;
+            if block.map_or(0, |b| b.channel_count()) != self.attribute_count {
+                return Err(Error::Invalid);
+            }
+            if let Some(block) = block {
+                for j in 0..self.attribute_count {
+                    if block.channel(j)? != self.attribute_channel(j)? {
+                        return Err(Error::Invalid);
+                    }
+                }
+            }
+            for t in 0..d.triangle_count as usize {
+                if u32::from(view.triangle_material(k, t)?) >= self.mesh.material_count {
+                    return Err(Error::Invalid);
+                }
             }
             let n = view.decode_positions(k, &mut positions)?;
             for v in &positions[..n] {
@@ -1411,6 +1483,8 @@ fn parse_mesh(prefix: &[u8], (at, len): (usize, usize), pages: u32) -> Result<Me
         } else {
             m.cluster_count >= m.group_count && m.page_count >= 1
         }
+        && m.material_count <= 65536
+        && (empty || m.material_count > 0)
         && m.pinned_page_count <= m.page_count
         && m.leaf_triangles <= m.dag_triangles
         && finite3(m.aabb_min)

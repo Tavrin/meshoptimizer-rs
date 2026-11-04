@@ -315,12 +315,36 @@ fn edits(data: &[u8]) -> Vec<Vec<u8>> {
     };
     edit(b"PDEP", 4, 0, &|d| d ^ (1 + (pick >> 8) % 4));
     edit(b"GRPS", v2::GROUP_BYTES, 40, &|n| n.wrapping_add(1));
+    edit(b"MATS", 16, 0, &|n| n.wrapping_add(1));
+    edit(b"MATS", 16, 4, &|n| n ^ 1);
+    edit(b"ATTR", 4, 0, &|n| n ^ (1 + (pick >> 12) % 16));
+    edit(b"MESH", v2::MESH_BYTES, 100, &|n| {
+        n ^ (1 + (pick >> 12) % 65536)
+    });
     edit(b"CREF", 4, 0, &|q| q.wrapping_add(1 + (pick >> 16) % 3));
     out
 }
 
 fuzz_target!(|data: &[u8]| {
     check(data);
+    // Exercise attribute block validation independently of resident/page hashes.
+    if data.len() <= 1 << 18 && data.len().is_multiple_of(4) {
+        let words: Vec<u32> = data
+            .chunks_exact(4)
+            .map(|b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+            .collect();
+        let vertices = words.get(3).copied().unwrap_or(0) as usize;
+        if let Ok(block) = meshoptimizer_rs::clusterlod::attributes::Block::new(&words, vertices) {
+            for c in 0..block.channel_count() {
+                for v in 0..vertices {
+                    assert!(block.decode(c, v).unwrap().iter().all(|x| x.is_finite()));
+                }
+            }
+        }
+        if let Ok(grid) = meshoptimizer_rs::clusterlod::page::QuantGrid::new(-10) {
+            let _ = meshoptimizer_rs::clusterlod::page::PageView::new(&words, grid);
+        }
+    }
     let mut sealed = data.to_vec();
     if reseal(&mut sealed).is_some() && sealed != data {
         check(&sealed);

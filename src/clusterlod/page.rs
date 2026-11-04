@@ -275,6 +275,10 @@ pub struct PageCluster<'a> {
     pub positions: &'a [[f32; 3]],
     /// Triangle indices into `positions`, 1 to 256 triangles; every vertex must be used.
     pub indices: &'a [u32],
+    /// Encoded attribute block, in local vertex order.
+    pub attributes: Option<&'a [u32]>,
+    /// Sorted material slots, one per triangle; absent means slot zero.
+    pub materials: Option<&'a [u16]>,
 }
 
 impl<'a> PageCluster<'a> {
@@ -290,6 +294,8 @@ impl<'a> PageCluster<'a> {
             refined,
             positions,
             indices,
+            attributes: None,
+            materials: None,
         }
     }
 }
@@ -322,22 +328,21 @@ pub struct ClusterDesc {
     pub cone_valid: bool,
     /// Material slot of a single-material cluster.
     pub material: u32,
+    /// Whether word 15 is a single slot, otherwise a material range offset.
+    pub single_material: bool,
 }
 
 struct Layout {
     desc: ClusterDesc,
     position_offset: usize,
     triangle_offset: usize,
+    attribute_offset: usize,
 }
 
 fn parse_descriptor(d: &[u32]) -> Result<Layout, Error> {
     let flags = d[2];
-    if flags >> 20 != 0 || d[4] >> 15 != 0 || d[9] != 0 {
+    if flags >> 20 != 0 || d[4] >> 15 != 0 {
         return Err(Error::Invalid);
-    }
-    if flags & FLAG_SINGLE_MATERIAL == 0 {
-        // Material range tables are not defined yet.
-        return Err(Error::Unsupported);
     }
     let vertex_count = flags & 0x1ff;
     let triangle_count = (flags >> 9) & 0x1ff;
@@ -377,9 +382,11 @@ fn parse_descriptor(d: &[u32]) -> Result<Layout, Error> {
             cone_cutoff_s8: cone[3] as i8,
             cone_valid: flags & FLAG_CONE_VALID != 0,
             material: d[15],
+            single_material: flags & FLAG_SINGLE_MATERIAL != 0,
         },
         position_offset: size(d[3])?,
         triangle_offset: size(d[8])?,
+        attribute_offset: size(d[9])?,
     })
 }
 
@@ -400,7 +407,7 @@ impl<'a> PageView<'a> {
     /// Validate a memory-form page decoded on `grid`.
     ///
     /// # Errors
-    /// `Invalid` for any inconsistency; `Unsupported` for multi-material clusters;
+    /// `Invalid` for any inconsistency; `Unsupported` for unknown attribute encodings;
     /// `Limit` for a page above [`MAX_PAGE_WORDS`].
     pub fn new(words: &'a [u32], grid: QuantGrid) -> Result<Self, Error> {
         if words.len() > MAX_PAGE_WORDS {
@@ -462,6 +469,57 @@ impl<'a> PageView<'a> {
             if tail != 0 && tri[tri.len() - 1] >> (tail * 8) != 0 {
                 return Err(Error::Invalid);
             }
+            if l.attribute_offset != 0 {
+                if l.attribute_offset != cursor {
+                    return Err(Error::Invalid);
+                }
+                let len = *words.get(cursor).ok_or(Error::Invalid)? as usize;
+                let end = cursor
+                    .checked_add(len)
+                    .filter(|&end| end <= words.len())
+                    .ok_or(Error::Invalid)?;
+                let block = super::attributes::Block::new(&words[cursor..end], nv)?;
+                let mut hash = super::dag_format::v2::Xxh64::new(0);
+                for k in 0..block.channel_count() {
+                    for w in block.channel(k)?.record()? {
+                        hash.update(&w.to_le_bytes());
+                    }
+                }
+                if hash.finish() as u32 != words[2] {
+                    return Err(Error::Invalid);
+                }
+                cursor = end;
+            }
+            if l.desc.single_material {
+                if l.desc.material > u16::MAX as u32 {
+                    return Err(Error::Invalid);
+                }
+            } else {
+                if l.desc.material as usize != cursor {
+                    return Err(Error::Invalid);
+                }
+                let n = *words.get(cursor).ok_or(Error::Invalid)? as usize;
+                if n < 2 || n > nt || cursor + 1 + n > words.len() {
+                    return Err(Error::Invalid);
+                }
+                let mut prev_slot = None;
+                let mut prev_first = 0;
+                for k in 0..n {
+                    let pair = words[cursor + 1 + k];
+                    let slot = pair & 65535;
+                    let first = pair >> 16;
+                    if (k == 0 && first != 0)
+                        || (k > 0 && first <= prev_first)
+                        || first as usize >= nt
+                        || prev_slot.is_some_and(|s| slot <= s)
+                    {
+                        return Err(Error::Invalid);
+                    }
+                    prev_slot = Some(slot);
+                    prev_first = first;
+                }
+                cursor += 1 + n;
+            }
             for v in 0..nv {
                 let q = view.vertex(&l, v)?;
                 if q.iter()
@@ -500,6 +558,39 @@ impl<'a> PageView<'a> {
             *q += delta as i32;
         }
         Ok(q)
+    }
+
+    /// Attribute block for a cluster, if present.
+    /// # Errors
+    /// Invalid cluster index.
+    pub fn attributes(&self, c: usize) -> Result<Option<super::attributes::Block<'a>>, Error> {
+        let l = self.layout(c)?;
+        let at = l.attribute_offset;
+        if at == 0 {
+            return Ok(None);
+        }
+        let len = self.words[at] as usize;
+        Ok(Some(super::attributes::Block::new(
+            &self.words[at..at + len],
+            l.desc.vertex_count as usize,
+        )?))
+    }
+    /// Material slot of a triangle; validated ranges cover every triangle.
+    /// # Errors
+    /// Invalid cluster or triangle index.
+    pub fn triangle_material(&self, c: usize, t: usize) -> Result<u16, Error> {
+        let l = self.layout(c)?;
+        if t >= l.desc.triangle_count as usize {
+            return Err(Error::Invalid);
+        }
+        if l.desc.single_material {
+            return Ok(l.desc.material as u16);
+        }
+        let at = l.desc.material as usize;
+        let n = self.words[at] as usize;
+        let pairs = &self.words[at + 1..at + 1 + n];
+        let end = pairs.partition_point(|&p| (p >> 16) as usize <= t);
+        Ok(pairs[end - 1] as u16)
     }
 
     /// The validated memory words.
@@ -743,6 +834,38 @@ pub fn encode_page(
         for (b, &t) in triangles.iter().enumerate() {
             words[triangle_offset + (b >> 2)] |= u32::from(t) << ((b & 3) * 8);
         }
+        let attribute_offset = if let Some(block) = cluster.attributes {
+            super::attributes::Block::new(block, nv)?;
+            let at = words.len();
+            reserve(&mut words, block.len())?;
+            words.extend_from_slice(block);
+            uint(at)?
+        } else {
+            0
+        };
+        let mut single = true;
+        let mut material = 0u32;
+        if let Some(slots) = cluster.materials {
+            if slots.len() != nt || slots.windows(2).any(|p| p[0] > p[1]) {
+                return Err(Error::Invalid);
+            }
+            material = u32::from(slots[0]);
+            single = slots.iter().all(|&s| s == slots[0]);
+            if !single {
+                material = uint(words.len())?;
+                let n = 1 + slots.windows(2).filter(|p| p[0] != p[1]).count();
+                reserve(&mut words, n + 1)?;
+                words.push(n as u32);
+                for (i, &slot) in slots.iter().enumerate() {
+                    if i == 0 || slots[i - 1] != slot {
+                        words.push(u32::from(slot) | (i as u32) << 16);
+                    }
+                }
+            }
+        }
+        if words.len() > MAX_PAGE_WORDS {
+            return Err(Error::Limit);
+        }
         let cone_valid = bounds.cone_cutoff_s8 != 127;
         let a = bounds.cone_axis_s8;
         let d = &mut words[PAGE_HEADER_WORDS + c * CLUSTER_WORDS..][..CLUSTER_WORDS];
@@ -750,7 +873,7 @@ pub fn encode_page(
         d[1] = cluster.refined as u32;
         d[2] = nv as u32
             | (nt as u32) << 9
-            | FLAG_SINGLE_MATERIAL
+            | if single { FLAG_SINGLE_MATERIAL } else { 0 }
             | if cone_valid { FLAG_CONE_VALID } else { 0 };
         d[3] = uint(position_offset)?;
         d[4] = bits[0] | bits[1] << 5 | bits[2] << 10;
@@ -758,7 +881,7 @@ pub fn encode_page(
         d[6] = base[1] as u32;
         d[7] = base[2] as u32;
         d[8] = uint(triangle_offset)?;
-        d[9] = 0;
+        d[9] = attribute_offset;
         d[10] = center[0].to_bits();
         d[11] = center[1].to_bits();
         d[12] = center[2].to_bits();
@@ -769,7 +892,7 @@ pub fn encode_page(
             a[2] as u8,
             bounds.cone_cutoff_s8 as u8,
         ]);
-        d[15] = 0;
+        d[15] = material;
     }
     words[1] = uint(words.len())?;
     PageView::new(&words, grid)?;
@@ -862,6 +985,25 @@ pub fn encode_disk_page(
                 reserve(&mut out, positions.len() + tn)?;
                 out.extend_from_slice(&positions);
                 out.extend_from_slice(&stream[..tn]);
+                if memory[PAGE_HEADER_WORDS + c * CLUSTER_WORDS + 9] != 0 || !desc.single_material {
+                    let start = view.layout(c)?.triangle_offset + triangle_words(nt);
+                    let end = if c + 1 < n {
+                        view.layout(c + 1)?.position_offset
+                    } else {
+                        memory.len()
+                    };
+                    let mut bytes = Vec::new();
+                    reserve(&mut bytes, (end - start) * 4)?;
+                    for &w in &memory[start..end] {
+                        bytes.extend_from_slice(&w.to_le_bytes());
+                    }
+                    let extension =
+                        codec::encode_vertex_buffer(&bytes, end - start, 4, encoding, workspace)?;
+                    put(&mut out, uint(end - start)?)?;
+                    put(&mut out, uint(extension.len())?)?;
+                    reserve(&mut out, extension.len())?;
+                    out.extend_from_slice(&extension);
+                }
             }
         }
     }
@@ -978,6 +1120,32 @@ pub fn transcode_page(
             out[l.triangle_offset + (i >> 2)] |= u32::from(t) << ((i & 3) * 8);
         }
         cursor = end;
+        if l.attribute_offset != 0 || !l.desc.single_material {
+            let len = word(disk, at)? as usize;
+            let stored = word(disk, at + 4)? as usize;
+            at += 8;
+            // 16 channels * 4 words * 256 vertices + headers + material table.
+            const EXTENSION_WORDS: usize = 4 + 16 * 8 + 16 * 4 * 256 + 257;
+            if len > EXTENSION_WORDS || len == 0 || cursor.checked_add(len).is_none_or(|v| v > m) {
+                return Err(Error::Invalid);
+            }
+            let source = disk
+                .get(at..at.checked_add(stored).ok_or(Error::Limit)?)
+                .ok_or(Error::Invalid)?;
+            if codec::decode_vertex_version(source)? != PAGE_VERTEX_CODEC_VERSION {
+                return Err(Error::Unsupported);
+            }
+            let mut bytes = [0u8; EXTENSION_WORDS * 4];
+            codec::decode_vertex_buffer_into(&mut bytes[..len * 4], len, 4, source, workspace)?;
+            for (w, b) in out[cursor..cursor + len]
+                .iter_mut()
+                .zip(bytes[..len * 4].as_chunks::<4>().0)
+            {
+                *w = u32::from_le_bytes(*b);
+            }
+            cursor += len;
+            at += stored;
+        }
     }
     if at != disk.len() || cursor != m {
         return Err(Error::Invalid);

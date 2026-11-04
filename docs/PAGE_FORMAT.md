@@ -47,10 +47,10 @@ words each:
 | 4 | bits per channel x, y, z (5 bits each, at most 24); other bits 0 |
 | 5-7 | grid base x, y, z (i32 grid coordinates) |
 | 8 | triangle stream offset |
-| 9 | attribute stream offset; 0 = no attributes (the only value defined now) |
+| 9 | attribute block offset; 0 = no attributes |
 | 10-13 | tight sphere center and radius (f32); the sphere contains every decoded vertex |
 | 14 | normal cone axis x, y, z and cutoff as signed bytes (bytes 0-3), from `compute_cluster_bounds` on the decoded positions |
-| 15 | material slot (bit 18 set); multi-material range tables are not defined yet |
+| 15 | material slot (bit 18 set), otherwise material range table offset |
 
 Streams follow the descriptors, in cluster order, positions then triangles,
 with no gaps:
@@ -107,7 +107,7 @@ u32. The triangle stream is the meshlet codec with sequential vertex references
 `0..vertex_count`, which the transcoder requires. `transcode_page` rejects deltas
 that do not fit the descriptor's bit counts, then validates the written words with
 `PageView::new`. It does not allocate: codec work is charged to the `Workspace`
-and scratch space is on the stack (under 5 KiB).
+and scratch space is on the stack (under 72 KiB, including extension scratch).
 
 ## Triangle codec choice
 
@@ -135,3 +135,75 @@ delta records leaves the disk form only about 19% smaller than the memory form
 overall. Disk size is above the 7 B per triangle
 target; better position coding for the disk form is open work. Memory sizes
 contain no attributes.
+
+## Attributes and material ranges
+
+Descriptor word 9 is zero for absent attributes, otherwise the word offset of
+an attribute block immediately after that cluster's triangle words. Its four-word
+header is `block_words, channel_count, vertex_stride_words, vertex_count`.
+Each channel then occupies eight words: the four-word ATTR declaration followed
+by `minimum.x, minimum.y, scale.x, scale.y` as f32 bits. Non-range channels use
+four zero range words. Interleaved vertex words follow the headers. All lengths
+are checked before indexing; channels are at most 16 and vertices at most 256.
+
+| ID | Encoding | Words | Maximum decode error and input domain |
+| --- | --- | ---: | --- |
+| 1 | Oct16x2 | 1 | Euclidean vector error <= 0.000491 from the normalized input; finite nonzero XYZ |
+| 2 | Oct12x2 | 1 | Euclidean vector error <= 0.00782 from the normalized input; finite nonzero XYZ |
+| 3 | OctSign | 2 | Oct16x2 error for XYZ, exact handedness W in {-1,+1} |
+| 4 | UnormRange16x2 | 1 | Each component <= scale/131070 + four f32 ulps each of minimum and scale; finite UV, finite representable range |
+| 5 | F16x2 | 1 | Absolute component error <= 16; finite input with absolute value <= 65504 |
+| 6 | F16x4 | 2 | Same bound/domain as F16x2 |
+| 7 | Unorm8x4 | 1 | Absolute component error <= 1/510 + 1e-7; components in [0,1] |
+| 8..11 | Raw32xN, N=1..4 | N | Bit-exact finite f32, including signed zero |
+
+Oct encoders use `encode_filter_oct`'s quantization. X and Y are signed
+components in the low/high 16-bit fields (12-bit fields for ID 2, with the upper
+eight bits zero). The most negative signed value is rejected. Decode unfolds
+the octahedron and normalizes XYZ. ID 3's second word is 0 for positive
+handedness and 1 for negative; other values are invalid. The deliberately loose
+vector bounds cover quantization, unfolding and f32 normalization: oct rounding
+has at most 1/(2M) component error on the folded plane, normalization is bounded
+away from zero by 1/sqrt(3), and `16/M + 2e-6` bounds the result
+(M=32767 or 2047). Tests include both hemispheres and fold boundaries.
+
+Range UVs store nearest unorm16 integers and decode `minimum + scale*(q/65535)`.
+Scale is the per-cluster maximum minus minimum rounded to f32. Constant channels
+use zero scale. Half floats occupy low then high 16 bits; colors occupy low to
+high bytes. Decoders reject all NaNs and infinities, including half infinities.
+`docs/attribute_vectors.txt` gives reference block words and decoded values;
+`docs/page_decode.wgsl` implements the same address calculation and decode.
+WGSL is syntax/type validated; execution on a GPU remains a consumer test.
+
+If descriptor flag `FLAG_SINGLE_MATERIAL` is set, word 15 is a u16 slot. Otherwise
+word 15 points immediately after attributes (or triangles if absent) to a table:
+`range_count` followed by `(slot | first_triangle<<16)` words. Count is 2..triangle
+count, first range starts at zero, starts strictly increase below triangle count,
+and slots strictly increase. The last range ends at triangle count. These rules
+cover every triangle exactly once. Positions, triangles, attributes and ranges
+are back-to-back in cluster order, with no trailing words.
+
+Compressed geometry-only pages retain their previous disk bytes. A cluster with
+attributes or multiple materials appends an extension after its compressed
+position/triangle streams: `extension_memory_words, extension_disk_bytes`, then
+the extension's little-endian words compressed with vertex codec version 1,
+level 2, stride 4. The extension is the complete attribute block and material
+table. The transcoder uses fixed bounded byte scratch (at most 67092 bytes),
+checks codec version and exact lengths, and revalidates the complete memory page.
+This word-stream choice avoids a new codec or per-channel disk directory; a
+future disk codec can specialize channel compression without changing memory
+pages. No transcoder output allocation is required.
+
+The `replay_attributes` compute entry point uses the same bindings as
+`replay_page`. It writes vertex-major, then channel-major vec4 f32 bits for each
+cluster, followed by one slot word for each triangle. The axis-aligned vectors
+and endpoint UVs in the attribute fixture have exact expected float bits.
+
+`attribute_page_vectors.txt` contains the complete valid input page and the
+expected `replay_attributes` output. The focused attribute test reproduces it;
+`ATTRIBUTE_VECTORS_PATH=docs/attribute_page_vectors.txt` regenerates the file
+when running that admitted test. The smaller `attribute_vectors.txt` separately
+pins the manually specified block and its endpoint values.
+The `seams` fixture covers handedness signs and UV endpoints; the
+`all-encodings` fixture covers every encoding ID (including all four raw widths)
+with axis vectors and exactly representable attribute values.

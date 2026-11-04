@@ -290,7 +290,7 @@ Header:
 | --- | --- |
 | 0 | ASCII `MDAG` |
 | 4 | major, exactly 2 |
-| 8 | minor, informational (the newest chunk set the writer knew; 0) |
+| 8 | minor, informational (the newest chunk set the writer knew; 1) |
 | 12 | chunk count, at most 64 |
 | 16 | page count |
 | 20 | page capacity in bytes of the memory form |
@@ -331,6 +331,7 @@ between them (and up to the resident length) is zero. Tags are unique.
 | `PAGE` | yes | 48 B per page | disk offset (`u64`), disk length, memory words, first cluster, cluster count, first dependency, dependency count, page hash (`u64`), flags (bit 0 pinned), reserved |
 | `PDEP` | yes | 4 B per entry | page indices |
 | `ATTR` | yes | 16 B + 16 B per channel | channel count, layout hash, reserved, reserved; then channel records |
+| `MATS` | when materials are supplied | 16 B | material count, three reserved words; required bit set |
 | `CSPH` | yes | 16 B per cluster | culling sphere (center, radius; 4 `f32`) |
 | `CREF` | yes | 4 B per cluster | refined group (`i32`, -1 for source geometry), equal to the page descriptor's |
 | `NAAB` | reserved, optional | | per-node boxes |
@@ -401,7 +402,7 @@ node width, the input positions (bits) and indices (as `u32`, so `u16` and
 vertex flags (presence word, count, one byte each), attributes (presence word,
 vertex count, component count, value bits), attribute weights (count, bits)
 and the protect mask. A cooker can test its cache before building.
-`BUILDER_REVISION` (2) is bumped whenever equal inputs produce different bytes.
+`BUILDER_REVISION` (3) is bumped whenever equal inputs produce different bytes.
 The writer stores `WriteOptions::build_key` as given (zero when not set).
 
 **Versioning.** The minor version is informational. A later minor may add
@@ -426,8 +427,8 @@ the prefix length.
    (`Limit`), resident hash over the whole prefix; chunk table as described
    above; the eight required chunks present with the required bit set; cluster
    spheres finite with radius not negative. An unknown chunk with the
-   required bit, an unknown flag bit, or `ATTR` channels (defined by a later
-   minor) are `Unsupported`; unknown optional chunks are skipped and readable
+   required bit, an unknown flag bit, or an unknown attribute encoding
+   is `Unsupported`; unknown optional chunks are skipped and readable
    through `Reader::chunk`.
 2. Groups: finite spheres and errors (`f32::MAX` allowed), radius not negative,
    error at least `q` (so any threshold below `q` selects source clusters
@@ -474,7 +475,9 @@ vertex.
    below the material count.
 9. Every decoded vertex lies in its cluster's tight sphere, its group's LOD
    sphere, the `MESH` box and the `MESH` sphere.
-10. Attribute channels: none are defined yet (rule 1 rejects them).
+10. Attribute blocks match ATTR declarations exactly, contain canonical encoding bits
+    and decode to finite values. Material ranges are sorted, cover every triangle,
+    use slots below the declared count, and require MATS for multiple ranges.
 
 `Reader::read_all` adds what no single page shows: triangle totals and that the
 last page ends the file. Its scratch is that of `open` plus one page of the
@@ -513,3 +516,54 @@ executions, coverage 1,829 → 2,235 → 2,239 → 2,239 (the third chunk added 
 files, zero crashes.
 The fuzz target is
 `fuzz/r0220/fuzz_targets/dag_format_v2.rs` (`fuzz/README.md`).
+
+## Attribute and material extension (minor 1)
+
+`clusterlod::v2::build` is the static build entry point for MDAG 2. It snaps
+positions before building, uses supplied normals as three attributes of weight
+0.5, and measures every accepted simplification step with `measure_lod_quality`:
+4000 area-scaled interior samples plus triangle corners in each direction. The
+maximum of the two one-sided maxima floors the simplifier's error; inherited
+errors remain monotonic. This is sampled evidence, **not a continuous surface
+error certificate**. The writer adds the grid displacement as before. Legacy
+cluster-LOD APIs and MDAG 1 retain their upstream error semantics.
+
+The builder retains source attributes and duplicates vertices by `(source ID,
+material slot)`. The slot is an exactly represented f32 component with weight
+zero and its protect bit set. Every simplified triangle is checked after all
+fallbacks; a mixed-slot triangle makes its entire group stuck. Stuck groups stay
+pinned. `Built::stuck_groups` reports all rejected simplification attempts and
+`material_stuck_groups` counts mixed-slot rejections specifically.
+`WriteReport::stuck_groups` reports parentless groups below the coarsest level. Within each
+cluster triangles are stably sorted by slot, then optimized independently
+inside each range when cluster optimization is enabled. Dilation is rejected by this entry point because attribute
+references must remain attached to snapped source vertices. Error merge factors
+below one are rejected to preserve monotonic accumulation.
+
+`ATTR` now contains `channel_count, layout_hash, 0, 0`, followed by 16-byte
+channel records: `caller_tag, encoding, source_component_offset, 0`. Tags are
+opaque and unique. At most 16 channels are accepted; a channel's last source
+component must be below 32. Encoding IDs and errors are in `PAGE_FORMAT.md`.
+The hash is the low 32 bits of XXH64 of the channel records, seed zero. The
+build key includes layout fields, source normals, source per-triangle slots,
+and the measured-step policy. Builder revision is 3.
+
+`Source` accepts this layout, an attribute view in snapshot-vertex order, and an
+optional slot per vertex. The writer rejects mixed-slot source triangles and
+unsorted slot ranges. The builder supplies the required ordering. Material count
+is `max(slot)+1`, at most 65536; unused slots need no allocation or table.
+
+Resident opening validates channel record sizes, encodings, offsets, reserved
+words, uniqueness and layout hash before reading pages. Page loading validates
+attribute lengths and finite decoded values, canonical oct/sign bits, exact
+channel declarations against `ATTR`, and material ranges and slot limits. No
+allocation is sized by a material slot. Both compressed and uncompressed pages
+carry the same memory form. Major 2/minor 0 files remain readable. Readers that
+only support position pages reject nonempty ATTR rather than misdecode it.
+
+Material-bearing writes also carry a required `MATS` chunk, 16 bytes:
+`material_count, 0, 0, 0`, with the count equal to `MESH`. This declaration lets
+older readers reject material-only files while opening the resident prefix,
+even when ATTR has no channels. The new reader accepts older single-material
+files without MATS; multi-material page tables require the declaration. Unknown
+required chunks remain `Unsupported`; a malformed MATS record is `Invalid`.

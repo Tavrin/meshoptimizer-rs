@@ -774,7 +774,7 @@ fn rejects_each_validation_rule() {
         ),
         ("vertex outside mesh sphere", mesh + 84, 0, Stage::Pages),
         // 10. attributes
-        ("attribute channels", attr, 1, Stage::Unsupported),
+        ("attribute count without records", attr, 1, Stage::Open),
     ];
     for (name, at, value, stage) in cases {
         let mut bad = file.clone();

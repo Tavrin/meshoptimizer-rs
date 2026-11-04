@@ -1,12 +1,12 @@
 //! MDAG 2 writer and build key (requires the `clusterlod` feature).
 #[allow(unused_imports)] // MIN/MAX_PAGE_CAPACITY are named by rustdoc links.
 use super::{
-    attribute_layout_hash, parent_lists, prefix_hash, xxh64, DependencyLists, PageLimits, Xxh64,
-    ATTRIBUTE_HEADER_BYTES, CHUNK_ALIGN, CHUNK_ENTRY_BYTES, CHUNK_REQUIRED, CLUSTER_REFINED_BYTES,
-    CLUSTER_SPHERE_BYTES, DEFAULT_MAX_PAGE_CLUSTERS, DEFAULT_PAGE_CAPACITY, GROUP_BYTES,
-    HEADER_BYTES, MAJOR, MAX_BUFFER_VIEW_BYTES, MAX_LEVELS, MAX_PAGE_CAPACITY, MESH_BYTES, MINOR,
-    MIN_PAGE_CAPACITY, NODE_BYTES, PAGE_BYTES, PAGE_PINNED, RESIDENT_HASH_FIELD, TAG_ATTRIBUTES,
-    TAG_CLUSTER_REFINED, TAG_CLUSTER_SPHERES, TAG_DEPENDENCIES, TAG_GROUPS, TAG_MESH, TAG_NODES,
+    parent_lists, prefix_hash, xxh64, DependencyLists, PageLimits, Xxh64, ATTRIBUTE_HEADER_BYTES,
+    CHUNK_ALIGN, CHUNK_ENTRY_BYTES, CHUNK_REQUIRED, CLUSTER_REFINED_BYTES, CLUSTER_SPHERE_BYTES,
+    DEFAULT_MAX_PAGE_CLUSTERS, DEFAULT_PAGE_CAPACITY, GROUP_BYTES, HEADER_BYTES, MAJOR,
+    MAX_BUFFER_VIEW_BYTES, MAX_LEVELS, MAX_PAGE_CAPACITY, MESH_BYTES, MINOR, MIN_PAGE_CAPACITY,
+    NODE_BYTES, PAGE_BYTES, PAGE_PINNED, RESIDENT_HASH_FIELD, TAG_ATTRIBUTES, TAG_CLUSTER_REFINED,
+    TAG_CLUSTER_SPHERES, TAG_DEPENDENCIES, TAG_GROUPS, TAG_MATERIALS, TAG_MESH, TAG_NODES,
     TAG_PAGES,
 };
 use crate::clusterlod::bounds_math::{add_up, containing_radius, f32_up};
@@ -24,8 +24,8 @@ use alloc::vec::Vec;
 
 /// Bumped whenever equal inputs produce different bytes; part of [`build_key`].
 /// Revision 2 added the `CREF` chunk and extended the resident hash over the
-/// header.
-pub const BUILDER_REVISION: u32 = 2;
+/// header. Revision 3 adds the measured build policy, attributes and materials.
+pub const BUILDER_REVISION: u32 = 3;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -43,6 +43,12 @@ pub struct Source<'a, I: crate::Index = u32> {
     pub positions: &'a [[f32; 3]],
     /// Flat topology referencing `positions`.
     pub indices: &'a [I],
+    /// Attribute layout, referencing `attributes` component offsets.
+    pub channels: &'a [crate::clusterlod::attributes::Channel],
+    /// Attribute values in the same vertex order as `positions`.
+    pub attributes: Option<Attributes<'a>>,
+    /// Material slot per vertex; every triangle must have one uniform slot.
+    pub materials: Option<&'a [u16]>,
 }
 
 impl<'a, I: crate::Index> Source<'a, I> {
@@ -58,6 +64,9 @@ impl<'a, I: crate::Index> Source<'a, I> {
             clusters,
             positions,
             indices,
+            channels: &[],
+            attributes: None,
+            materials: None,
         }
     }
 }
@@ -167,11 +176,20 @@ pub struct KeyInputs<'a, I: crate::Index = u32> {
     pub attribute_weights: &'a [f32],
     /// Attribute protect mask as passed to the builder.
     pub attribute_protect_mask: u32,
+    /// Wire layout; every field participates in identity.
+    pub channels: &'a [crate::clusterlod::attributes::Channel],
+    /// Source per-triangle material slots.
+    pub materials: Option<&'a [u16]>,
+    /// Supplied source normals (the v2 builder uses weight 0.5).
+    pub normals: Option<&'a [[f32; 3]]>,
+    /// Whether the measured-step policy is used.
+    pub measured_steps: bool,
 }
 
 impl<'a, I: crate::Index> KeyInputs<'a, I> {
-    /// Inputs for [`build_key`] of a build without vertex flags or
-    /// attributes; set the public fields for a build that has them.
+    /// Inputs for [`build_key`] of the v2 measured policy without optional channels.
+    /// Set the public fields for supplied channels, normals, materials or flags;
+    /// set `measured_steps` false when keying a legacy builder result.
     pub const fn new(
         config: &'a Config,
         options: &'a WriteOptions,
@@ -187,6 +205,10 @@ impl<'a, I: crate::Index> KeyInputs<'a, I> {
             attributes: None,
             attribute_weights: &[],
             attribute_protect_mask: 0,
+            channels: &[],
+            materials: None,
+            normals: None,
+            measured_steps: true,
         }
     }
 }
@@ -265,11 +287,15 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
         ],
     );
     let o = inputs.options;
+    let mut layout_hash = 0;
+    if let Ok(value) = crate::clusterlod::attributes::layout_hash(inputs.channels) {
+        layout_hash = value;
+    }
     u32s(
         &mut h,
         &[
             o.grid.exponent() as u32,
-            attribute_layout_hash(&[]),
+            layout_hash,
             disk_codec_id(o.disk_codec),
         ],
     );
@@ -320,6 +346,30 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
         u32s(&mut h, &[w.to_bits()]);
     }
     u32s(&mut h, &[inputs.attribute_protect_mask]);
+    u32s(&mut h, &[u32::from(inputs.measured_steps)]);
+    h.update(&z(inputs.channels.len()).to_le_bytes());
+    for &ch in inputs.channels {
+        // The writer rejects unsupported encodings represented by the sentinel.
+        let mut encoding = u32::MAX;
+        if let Ok(code) = ch.encoding.code() {
+            encoding = code;
+        }
+        u32s(&mut h, &[ch.tag, encoding, ch.source_offset]);
+    }
+    u32s(&mut h, &[u32::from(inputs.materials.is_some())]);
+    if let Some(values) = inputs.materials {
+        h.update(&z(values.len()).to_le_bytes());
+        for &v in values {
+            h.update(&v.to_le_bytes());
+        }
+    }
+    u32s(&mut h, &[u32::from(inputs.normals.is_some())]);
+    if let Some(normals) = inputs.normals {
+        h.update(&z(normals.len()).to_le_bytes());
+        for &n in normals {
+            u32s(&mut h, &n.map(f32::to_bits));
+        }
+    }
     h.finish()
 }
 
@@ -411,6 +461,7 @@ struct Locals {
     vertex_start: Vec<u32>,
     index_start: Vec<u32>,
     positions: Vec<[f32; 3]>,
+    sources: Vec<u32>,
     indices: Vec<u32>,
 }
 
@@ -420,6 +471,7 @@ impl Locals {
             vertex_start: Vec::new(),
             index_start: Vec::new(),
             positions: Vec::new(),
+            sources: Vec::new(),
             indices: Vec::new(),
         };
         reserve(&mut l.vertex_start, s.clusters.len() + 1)?;
@@ -441,6 +493,8 @@ impl Locals {
                     reserve(&mut l.positions, 1)?;
                     reserve(&mut touched, 1)?;
                     l.positions.push(grid.position(grid.snap(s.positions[i])?));
+                    reserve(&mut l.sources, 1)?;
+                    l.sources.push(uint(i)?);
                     touched.push(i);
                 }
                 l.indices.push(*slot);
@@ -511,8 +565,53 @@ pub fn write<I: crate::Index>(
     validate_source(source)?;
     let grid = options.grid;
     let q = grid.max_displacement();
-    let layout_hash = attribute_layout_hash(&[]);
+    crate::clusterlod::attributes::validate_layout(source.channels)?;
+    if source.channels.is_empty() != source.attributes.is_none()
+        || source
+            .attributes
+            .is_some_and(|a| a.len() != source.positions.len())
+        || source
+            .materials
+            .is_some_and(|a| a.len() != source.positions.len())
+    {
+        return Err(Error::Invalid);
+    }
+    let layout_hash = crate::clusterlod::attributes::layout_hash(source.channels)?;
     let locals = Locals::build(source, grid)?;
+    let mut attribute_blocks = Vec::new();
+    let mut material_slots = Vec::new();
+    reserve(&mut attribute_blocks, source.clusters.len())?;
+    reserve(&mut material_slots, source.clusters.len())?;
+    for (c, cl) in source.clusters.iter().enumerate() {
+        let vertices =
+            &locals.sources[locals.vertex_start[c] as usize..locals.vertex_start[c + 1] as usize];
+        let block = if let Some(a) = source.attributes {
+            crate::clusterlod::attributes::encode(source.channels, a, vertices, workspace)?
+        } else {
+            Vec::new()
+        };
+        attribute_blocks.push(block);
+        let mut slots = Vec::new();
+        if let Some(m) = source.materials {
+            let first = cl.first_index as usize;
+            reserve(&mut slots, cl.index_count as usize / 3)?;
+            for t in source.indices[first..first + cl.index_count as usize]
+                .as_chunks::<3>()
+                .0
+            {
+                let ids = t.map(|i| i.to_u32() as usize);
+                let slot = *m.get(ids[0]).ok_or(Error::Invalid)?;
+                if ids.iter().any(|&i| m.get(i) != Some(&slot)) {
+                    return Err(Error::Invalid);
+                }
+                slots.push(slot);
+            }
+            if slots.windows(2).any(|s| s[0] > s[1]) {
+                return Err(Error::Invalid);
+            }
+        }
+        material_slots.push(slots);
+    }
     let count = source.groups.len();
     let mut report = WriteReport::default();
 
@@ -574,12 +673,23 @@ pub fn write<I: crate::Index>(
     // Size every cluster's memory form, then pack in order.
     let page_cluster = |k: usize| {
         let c = order[k];
-        PageCluster::new(
+        let mut cluster = PageCluster::new(
             links[k].0,
             links[k].1,
             locals.positions(c),
             locals.indices(c),
-        )
+        );
+        cluster.attributes = if attribute_blocks[c].is_empty() {
+            None
+        } else {
+            Some(&attribute_blocks[c])
+        };
+        cluster.materials = if material_slots[c].is_empty() {
+            None
+        } else {
+            Some(&material_slots[c])
+        };
+        cluster
     };
     let mut words = Vec::new();
     let mut spheres = Vec::new();
@@ -760,16 +870,22 @@ pub fn write<I: crate::Index>(
     }
 
     // Resident layout.
+    let material_count = source.materials.map_or(u32::from(!order.is_empty()), |m| {
+        m.iter().copied().max().map_or(0, |x| u32::from(x) + 1)
+    });
+    let chunk_count = if source.materials.is_some() { 9 } else { 8 };
     let lengths = [
         MESH_BYTES,
         GROUP_BYTES * count,
         NODE_BYTES * nodes.len(),
         PAGE_BYTES * pages.len(),
         4 * deps.len(),
-        ATTRIBUTE_HEADER_BYTES,
+        ATTRIBUTE_HEADER_BYTES + source.channels.len() * 16,
         CLUSTER_SPHERE_BYTES * order.len(),
         CLUSTER_REFINED_BYTES * order.len(),
+        16,
     ];
+    let lengths = &lengths[..chunk_count];
     let tags = [
         TAG_MESH,
         TAG_GROUPS,
@@ -779,10 +895,12 @@ pub fn write<I: crate::Index>(
         TAG_ATTRIBUTES,
         TAG_CLUSTER_SPHERES,
         TAG_CLUSTER_REFINED,
+        TAG_MATERIALS,
     ];
-    let mut chunk_at = [0usize; 8];
+    let tags = &tags[..chunk_count];
+    let mut chunk_at = [0usize; 9];
     let mut cursor = HEADER_BYTES + tags.len() * CHUNK_ENTRY_BYTES;
-    for (at, len) in chunk_at.iter_mut().zip(lengths) {
+    for (at, len) in chunk_at.iter_mut().zip(lengths.iter().copied()) {
         *at = cursor;
         cursor = (cursor + len).next_multiple_of(CHUNK_ALIGN);
     }
@@ -812,7 +930,7 @@ pub fn write<I: crate::Index>(
         ],
     );
     out.resize(HEADER_BYTES, 0);
-    for ((tag, at), len) in tags.iter().zip(chunk_at).zip(lengths) {
+    for ((tag, at), len) in tags.iter().zip(chunk_at).zip(lengths.iter().copied()) {
         out.extend_from_slice(tag);
         put(&mut out, &[CHUNK_REQUIRED, uint(at)?, uint(len)?]);
     }
@@ -845,7 +963,7 @@ pub fn write<I: crate::Index>(
             grid.exponent() as u32,
             f(q),
             layout_hash,
-            u32::from(!order.is_empty()),
+            material_count,
             0,
             0,
         ],
@@ -912,7 +1030,10 @@ pub fn write<I: crate::Index>(
     align(&mut out);
     put(&mut out, &deps);
     align(&mut out);
-    put(&mut out, &[0, layout_hash, 0, 0]);
+    put(&mut out, &[uint(source.channels.len())?, layout_hash, 0, 0]);
+    for &ch in source.channels {
+        put(&mut out, &ch.record()?);
+    }
     align(&mut out);
     put(&mut out, &spheres);
     align(&mut out);
@@ -920,6 +1041,10 @@ pub fn write<I: crate::Index>(
         out.extend_from_slice(&refined.to_le_bytes());
     }
     align(&mut out);
+    if source.materials.is_some() {
+        put(&mut out, &[material_count, 0, 0, 0]);
+        align(&mut out);
+    }
     if out.len() != resident {
         return Err(Error::Invalid);
     }

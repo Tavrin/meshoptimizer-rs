@@ -8,3 +8,6 @@ pub use flat::{FlatDagCluster, FlatDagGroup};
 pub mod dag_format;
 #[path = "page.rs"]
 pub mod page;
+
+#[path = "attributes.rs"]
+pub mod attributes;

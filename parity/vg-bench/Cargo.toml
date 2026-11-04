@@ -1,0 +1,31 @@
+# Benchmark harness for cluster-DAG builders. Not published and not part of the
+# crate package: it is its own workspace and is excluded by the package
+# include list in the crate manifest.
+[package]
+name = "vg-bench"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "Benchmark harness comparing cluster-DAG builders"
+
+[workspace]
+
+[features]
+# Builds the reference meshlet builder pinned in `BEVY_REV`. Large dependency
+# tree; the rest of the harness does not need it.
+bevy = ["dep:bevy_pbr", "dep:bevy_mesh", "dep:bevy_asset", "dep:bevy_tasks"]
+
+[dependencies]
+meshoptimizer-rs = { path = "../..", features = ["clusterlod", "parallel"] }
+rayon = "=1.11.0"
+gltf = { version = "1", default-features = false, features = ["utils"] }
+zstd = "0.13"
+lz4_flex = { version = "0.14", features = ["frame"] }
+bevy_pbr = { git = "https://github.com/bevyengine/bevy", rev = "8cc060f01c3d4d5920781124cc8c32013bb47730", default-features = false, features = ["meshlet_processor"], optional = true }
+bevy_mesh = { git = "https://github.com/bevyengine/bevy", rev = "8cc060f01c3d4d5920781124cc8c32013bb47730", optional = true }
+bevy_asset = { git = "https://github.com/bevyengine/bevy", rev = "8cc060f01c3d4d5920781124cc8c32013bb47730", optional = true }
+bevy_tasks = { git = "https://github.com/bevyengine/bevy", rev = "8cc060f01c3d4d5920781124cc8c32013bb47730", optional = true }
+
+[profile.release]
+opt-level = 3
+debug = false

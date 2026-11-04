@@ -28,6 +28,7 @@ fn compute(
     group: &[Pending],
     idx: &[u32],
     moderate: bool,
+    policy: Option<BuildPolicy>,
 ) -> Result<Computed, Error> {
     let limits = Limits {
         max_bytes: usize::MAX,
@@ -41,6 +42,7 @@ fn compute(
         locks,
         c,
         &mut Context::new(&mut workspace)?,
+        policy,
     )?;
     let usage = workspace.usage();
     let live = prepared
@@ -92,6 +94,7 @@ pub(super) fn level(
     offsets: &[u32],
     moderate: bool,
     remaining_work: u64,
+    policy: Option<BuildPolicy>,
 ) -> Option<Vec<Computed>> {
     if offsets.len() <= 2 {
         return None;
@@ -119,6 +122,7 @@ pub(super) fn level(
                 &clusters[offsets[ordinal] as usize..offsets[ordinal + 1] as usize],
                 idx,
                 moderate,
+                policy,
             );
         });
     // Reuse the slots allocation is not possible across these different element
@@ -196,6 +200,7 @@ mod tests {
                 simplified: Vec::new(),
                 bounds: LodBounds::default(),
                 stuck: true,
+                material_mixed: false,
             },
             usage: Usage { bytes: 0, work: 10 },
             live: 0,

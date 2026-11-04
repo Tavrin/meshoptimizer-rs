@@ -8,12 +8,14 @@ mod bounds_math;
 mod dag;
 mod flat;
 pub use flat::{FlatDagCluster, FlatDagGroup};
+pub mod attributes;
 pub mod cut;
 pub mod dag_format;
 pub mod page;
 #[cfg(feature = "parallel")]
 mod parallel;
 mod support;
+pub mod v2;
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, MeshletSettings, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
@@ -867,12 +869,17 @@ fn validate(mesh: &MeshGeneric<'_>, c: Config, ctx: &mut Context<'_>) -> Result<
     }
     Ok(())
 }
+#[derive(Clone, Copy)]
+struct BuildPolicy {
+    material_component: Option<usize>,
+}
 struct Prepared {
     merged_idx: Vec<u32>,
     gb: Vec<LodBounds>,
     simplified: Vec<u32>,
     bounds: LodBounds,
     stuck: bool,
+    material_mixed: bool,
 }
 fn prepare_group(
     group: &[Pending],
@@ -881,6 +888,7 @@ fn prepare_group(
     locks: &[support::VertexFlags],
     c: Config,
     ctx: &mut Context<'_>,
+    policy: Option<BuildPolicy>,
 ) -> Result<Prepared, Error> {
     let n = group.iter().map(|cl| cl.count).sum();
     let mut merged_idx = ctx.alloc::<u32>(n)?;
@@ -894,7 +902,29 @@ fn prepare_group(
     let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
     let mut bounds = merged(&gb, ctx)?;
     let (simplified, error) = simplify(&merged_idx, mesh, locks, c, target, ctx)?;
-    let stuck = simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let mixed = policy
+        .and_then(|p| p.material_component)
+        .is_some_and(|slot| {
+            mesh.attributes.is_some_and(|a| {
+                simplified.as_chunks::<3>().0.iter().any(|t| {
+                    a.get(t[0] as usize, slot) != a.get(t[1] as usize, slot)
+                        || a.get(t[0] as usize, slot) != a.get(t[2] as usize, slot)
+                })
+            })
+        });
+    let stuck = mixed
+        || (policy.is_some() && simplified.is_empty())
+        || simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let error = if policy.is_some() && !stuck {
+        error.max(v2::step_error(
+            &merged_idx,
+            &simplified,
+            mesh.positions,
+            ctx,
+        )?)
+    } else {
+        error
+    };
     if stuck {
         bounds.error = f32::MAX;
     } else {
@@ -909,6 +939,7 @@ fn prepare_group(
         simplified,
         bounds,
         stuck,
+        material_mixed: mixed,
     })
 }
 fn build_internal(
@@ -924,7 +955,7 @@ fn build_internal(
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
-    build_in_context_mode(c, mesh, callback, &mut ctx, parallel)
+    build_in_context_mode(c, mesh, callback, &mut ctx, parallel, None).map(|_| ())
 }
 fn build_in_context(
     c: Config,
@@ -937,7 +968,7 @@ fn build_in_context(
     ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
-    build_in_context_mode(c, mesh, callback, ctx, false)
+    build_in_context_mode(c, mesh, callback, ctx, false, None).map(|_| ())
 }
 fn build_in_context_mode(
     c: Config,
@@ -950,8 +981,10 @@ fn build_in_context_mode(
     ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
     _parallel: bool,
-) -> Result<(), Error> {
+    policy: Option<BuildPolicy>,
+) -> Result<(usize, usize), Error> {
     validate(&mesh, c, ctx)?;
+    let (mut stuck_count, mut mixed_count) = (0, 0);
     let mut moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, ctx)?;
@@ -1024,6 +1057,7 @@ fn build_in_context_mode(
                 &group_offsets,
                 moderate,
                 remaining_work,
+                policy,
             )
             .map(Vec::into_iter)
         } else {
@@ -1040,11 +1074,14 @@ fn build_in_context_mode(
                 ctx.absorb(item.usage.bytes, item.usage.work, item.live)?;
                 (item.prepared, item.clustered)
             } else {
-                (prepare_group(group, &idx, &mesh, &locks, c, ctx)?, None)
+                (
+                    prepare_group(group, &idx, &mesh, &locks, c, ctx, policy)?,
+                    None,
+                )
             };
             #[cfg(not(feature = "parallel"))]
             let (prepared, _clustered) = (
-                prepare_group(group, &idx, &mesh, &locks, c, ctx)?,
+                prepare_group(group, &idx, &mesh, &locks, c, ctx, policy)?,
                 speculative,
             );
             let Prepared {
@@ -1053,8 +1090,11 @@ fn build_in_context_mode(
                 simplified,
                 mut bounds,
                 stuck,
+                material_mixed,
             } = prepared;
             if stuck {
+                stuck_count += 1;
+                mixed_count += usize::from(material_mixed);
                 output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
                 ctx.free(merged_idx)?;
                 ctx.free(gb)?;
@@ -1138,7 +1178,7 @@ fn build_in_context_mode(
     ctx.free(offsets)?;
     ctx.free(clusters)?;
     ctx.free(idx)?;
-    Ok(())
+    Ok((stuck_count, mixed_count))
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave
 /// dilated positions changed and callbacks already emitted.

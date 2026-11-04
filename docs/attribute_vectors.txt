@@ -1,0 +1,17 @@
+# Attribute block reference vectors (hex u32, little endian on disk).
+# Layout: tag 0 OctSign offset 0; tag 1 UnormRange16x2 offset 4.
+# 4 vertices, 3 words each. Page descriptor word 9 points to this block.
+00000020 00000002 00000003 00000004
+00000000 00000003 00000000 00000000 00000000 00000000 00000000 00000000
+00000001 00000004 00000004 00000000 c0000000 40800000 40800000 40800000
+00000000 00000000 00000000
+00000000 00000001 0000ffff
+7fff7fff 00000000 ffff0000
+00007fff 00000001 ffffffff
+# Expected normal/tangent then UV (unused result components zero):
+# vertex 0: (0,0,1,1)   (-2,4,0,0)
+# vertex 1: (0,0,1,-1)  (2,4,0,0)
+# vertex 2: (0,0,-1,1)  (-2,8,0,0)
+# vertex 3: (1,0,0,-1)  (2,8,0,0)
+# Material table for two triangles, slots 3 and 65535:
+# 00000002 00000003 0001ffff
