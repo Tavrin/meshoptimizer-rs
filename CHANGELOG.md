@@ -9,6 +9,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.2.18] - 2026-11-04
+
+### Added
+
+- `trim_alpha_cards` and `trim_alpha_cards_generic` (not in C++ meshoptimizer, no Cargo feature) replace each alpha-tested card with a convex polygon of at most `CardTrimOptions::max_vertices` vertices (3 to 16) that contains every texel with alpha at or above the threshold, padded for bilinear sampling by default, and stays inside the card. Planar cards with attributes linear in UV become one fan; other cards are clipped per source triangle with watertight shared edges. Cards without visible texels are removed. `AlphaMask` reads packed or strided 8-bit alpha with clamp or repeat wrapping, and `CardTrimReport` gives card counts and texture-space area before and after. On four CC0 Poly Haven plants, quad cards lost 2-16% of their transparent area at budget 4, 27-50% at 6 and 31-55% at 8.
+- `bake_impostor` and `bake_impostor_generic` (not in C++ meshoptimizer, no Cargo feature) bake an octahedral impostor atlas on the CPU: `N x N` orthographic views over the hemisphere or the full sphere (`ImpostorGrid`, `ImpostorLayout`), each with RGBA8 albedo and conservative coverage alpha plus RGBA8 normal and depth. Input is a triangle mesh with optional normals and white, per-vertex or texture-callback colour; alpha-tested fragments below `alpha_cutoff` are discarded. `ImpostorLayout::encode`/`decode`, `ImpostorGrid::blend` (three views and barycentric weights for a direction) and `ImpostorGrid::view_frame` give the runtime mapping. `impostor_switch_distance` recommends the distance beyond which texel and view-blend errors project below a pixel tolerance. Output is bit-identical across platforms. On three CC0 Poly Haven plants (2k-157k triangles), a bake on one CPU core took 0.10-0.40 s at 8 x 8 views of 128 px (a 1024² atlas, 8 MiB) and 0.99-1.98 s at 12 x 12 views of 256 px (3072², 72 MiB). Novel views reconstructed from three blended views matched direct renders with a mask IoU of 0.57-0.74 at 8 x 8 and 0.69-0.84 at 12 x 12 for the fern and the fir.
+
+- `ImpostorAtlas::reconstruct_texel` and `reconstruct_view`, with `ImpostorReconstruct` (not in C++ meshoptimizer, no Cargo feature), are a CPU reference for the impostor shader: each of the three blended views is sampled at a parallax-corrected point, found by sliding the ray's card point to the depth the view stores, as in Brucks' octahedral impostors, and the taps are blended with `ImpostorGrid::blend` weights in alpha-premultiplied form. `reconstruct_view` writes into a caller buffer without allocating. Against direct renders at 8 x 8 views, mask IoU on three CC0 plants rose from 0.74 / 0.60 / 0.45 (plain blend) to 0.83 / 0.73 / 0.67 with the default three steps, and at 12 x 12 from 0.84 / 0.72 / 0.55 to 0.90 / 0.81 / 0.74.
+- `CardTrimOptions::vertex_cost` (default 0, unchanged output) stops adding polygon vertices that remove less transparent area than the given cost in mask texels² per vertex: a card takes the vertex count minimizing polygon area plus cost times count. `TrimmedCards::card_vertices` (also on `TrimmedCardsGeneric`) reports the vertex count per card. On quad cards at budget 8, a cost of 100 texels² kept 90% of the removed area of a 49k-card fir with 37% fewer triangles, and a cost of 300 kept 99% on a shrub with 17% fewer.
+
 ## [0.2.17] - 2026-11-03
 
 ### Added

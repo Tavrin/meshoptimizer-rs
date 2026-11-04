@@ -1049,7 +1049,279 @@ output regardless of the `parallel` feature or thread-pool size. Occlusion is me
 the original mesh; removing its sampled-hidden surfaces does not guarantee
 identical continuous visibility of the filtered mesh.
 
-## 16-bit vertex indices
+## Alpha-cutout card trimming
+
+This extension is not in C++ meshoptimizer and needs no Cargo feature. Alpha-tested
+foliage cards are mostly transparent, and the GPU still rasterizes and tests every
+transparent texel they cover. `trim_alpha_cards` replaces each card with a convex
+polygon of at most `max_vertices` vertices that contains every texel with
+`alpha >= threshold`, the problem solved by Emil Persson's
+[particle trimmer](http://www.humus.name/index.php?page=Cool&ID=8) (2009). It takes
+the convex hull of the visible texels, then the smallest polygon built from hull
+edge lines, corner bisectors and lines parallel to the card outline, chosen by an
+exact search after a greedy reduction of long hulls. This is not always the global
+minimum. The polygon stays inside the card.
+
+A card is a group of triangles connected through shared vertex-index edges with
+nonzero texture area. Every float of the vertex is interpolated. Planar cards with
+attributes linear in UV become one fan of `max_vertices - 2` or fewer triangles.
+Bent or curved cards, and cards whose triangles do not form a convex region in
+texture space, are clipped per source triangle with that triangle's own
+interpolation, so rendering is unchanged where the card is kept; these cards may
+exceed the vertex budget and are counted in `split_cards`. Cards without visible
+texels are removed, and cards without a smaller polygon are copied.
+
+Texel `(x, y)` covers `[x, x + 1) x [y, y + 1)` in `(u * width, v * height)`, with
+`v = 0` in the first row. `AlphaWrap` selects clamp-to-edge or repeat for texels
+outside the mask. `padding` expands each visible texel: 0.5 (the default) covers
+bilinear sampling at full resolution, 0 covers nearest sampling, and
+`1.5 * 2^L - 1` covers bilinear sampling of box-filtered mip level `L`. Mips with
+rescaled alpha (coverage-preserving mip generation) are not covered. A margin of
+`1/256` texel plus `|coordinate| / 2^22` absorbs f32 rounding of the new UVs.
+
+```rust
+use meshoptimizer_rs::{trim_alpha_cards, AlphaMask, AlphaWrap, CardTrimOptions, Workspace};
+// A 16x16 mask with a visible disc; real masks come from the card texture.
+let mut alpha = [0u8; 256];
+for y in 0..16 {
+    for x in 0..16 {
+        let (dx, dy) = (x as f32 - 7.5, y as f32 - 7.5);
+        if dx * dx + dy * dy < 25.0 {
+            alpha[y * 16 + x] = 255;
+        }
+    }
+}
+// RGBA data would use AlphaMask::with_layout(&rgba[3..], 4, 4 * width, width, height).
+let mask = AlphaMask::new(&alpha, 16, 16)?;
+// One quad: x, y, z, u, v per vertex.
+let vertices = [
+    -1., -1., 0., 0., 0.,
+    1., -1., 0., 1., 0.,
+    1., 1., 0., 1., 1.,
+    -1., 1., 0., 0., 1.,
+];
+let mut options = CardTrimOptions::default();
+options.max_vertices = 6;
+options.wrap = AlphaWrap::Repeat;
+let trimmed = trim_alpha_cards(&[0, 1, 2, 0, 2, 3], &vertices, 5, 3, mask, options,
+    &mut Workspace::default())?;
+let report = trimmed.report;
+assert_eq!((report.trimmed_cards, report.output_triangles), (1, 4));
+assert!(report.area_after < 0.8 * report.area_before);
+// Transparent area estimate: covered area minus visible texel centers.
+let transparent = report.area_after - report.opaque_texels as f64;
+assert!(transparent < 80.0);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+The result is a new vertex buffer in first-use order and a new index buffer; run
+the usual cache and fetch optimizations afterwards. Output winding follows each
+source triangle. Normals are interpolated, not renormalized. Cards with identical
+UV triangles share one fit, so instanced foliage costs one fit per distinct card.
+Limits meter the scanned texels and the polygon search. Larger budgets trade
+triangles for area: a quad card becomes `max_vertices - 2` triangles whenever a
+smaller polygon exists, even when the last vertices remove little area.
+
+`CardTrimOptions::vertex_cost` stops that. It is the price of one polygon vertex
+in square mask texels (default 0: always use the full budget, as before). Each
+card takes the vertex count `c` that minimizes `polygon area + vertex_cost * c`,
+so a vertex is added only while it removes at least that much transparent area
+(ties go to fewer vertices). The cost is compared with the card's fitted
+polygon, so it is an absolute area: pick it from the mask size, for example a
+fraction of the mask's texel count, and sweep it as below.
+`TrimmedCards::card_vertices` lists the vertex count chosen for each card in
+input order: the fitted polygon's count for a trimmed card, 0 for a removed
+card and the distinct vertex count of an unchanged card, so a caller can see
+which cards stopped early.
+
+On four CC0 Poly Haven plants with their 2048x2048 alpha maps, plain quad cards
+(the UV bounding rectangle of each authored card) lost 2-16% of their transparent
+area at budget 4, 27-50% at budget 6 and 31-55% at budget 8. The authored meshes,
+already modelled around the leaf shapes, lost 0-15%.
+
+`vertex_cost` on the same quad cards at budget 8, with the 2048x2048 masks
+(texture area removed, in Mtexel², and triangles after trimming; cost 0 is the
+full budget):
+
+| asset (cards, input triangles) | cost 0 | 100 | 300 | 1000 | 3000 | 10000 |
+|---|---|---|---|---|---|---|
+| fir_sapling (49,189 cards, 98,378) | 293,402 tris, 42.2 | 183,696, 38.2 | 134,943, 28.7 | 98,388, 3.5 | 98,387, 3.5 | 98,385, 3.5 |
+| shrub_01 (1,736 cards, 3,472) | 9,092, 26.4 | 8,500, 26.4 | 7,564, 26.2 | 7,133, 26.0 | 5,517, 22.9 | 3,765, 16.1 |
+| grass_medium_02 (191 cards, 382) | 1,146, 15.3 | 1,117, 15.3 | 950, 15.2 | 890, 15.2 | 696, 14.9 | 567, 14.1 |
+| fern_02 (53 cards, 106) | 318, 7.27 | 318, 7.27 | 318, 7.27 | 318, 7.27 | 312, 7.26 | 230, 6.85 |
+
+The cheapest vertices are the last ones: on the shrub, a cost of 300 texels²
+keeps 99% of the removed area with 17% fewer triangles, and on the fir 100
+keeps 90% with 37% fewer. The cost is absolute, so the same value stops
+earlier on cards with little to gain (nearly every fir card went back to its 4-vertex
+quad at 1000 while the larger fern cards still used 8). Pick it per mask
+size and sweep it as above.
+
+## Octahedral impostors
+
+This extension is not in C++ meshoptimizer and needs no Cargo feature. Beyond
+some distance a tree or prop can be drawn as one camera-facing card textured
+from an atlas of views. `bake_impostor` captures those views on the CPU, using
+the layout of Ryan Brucks'
+[octahedral impostors](https://shaderbits.com/blog/octahedral-impostors) (2018):
+view directions sit on the vertices of an `N x N` grid over the octahedral map
+of the upper hemisphere (`ImpostorLayout::Hemisphere`, the usual choice for
+trees) or the whole sphere (`ImpostorLayout::Sphere`), and the runtime blends
+the three views of the grid triangle that contains the camera direction.
+
+Directions point from the object toward the viewer in the mesh frame, with +Y
+up. `ImpostorLayout::encode` and `decode` convert between a direction and its
+octahedral point in `[-1, 1]^2`. View `(i, j)` has index `j * N + i`, point
+`[2i / (N - 1) - 1, 2j / (N - 1) - 1]` and the tile at
+`(i * view_resolution, j * view_resolution)` in the atlas.
+`ImpostorGrid::blend(direction)` returns the three view indices and their
+barycentric weights; `ImpostorGrid::view_frame(view)` returns the capture
+frame (`direction`, `right`, `up`). Every view frames the same bounding sphere:
+a point `p` lands at tile coordinates
+`((p - c) . right / r + 1) / 2` and `(1 - (p - c) . up / r) / 2` (row 0 at
+the top), and its stored depth is `(1 - (p - c) . direction / r) / 2`.
+
+```rust
+use meshoptimizer_rs::{bake_impostor, impostor_switch_distance, ImpostorAlbedo,
+    ImpostorGrid, ImpostorLayout, ImpostorOptions, LodCamera, Positions, Workspace};
+// Two crossed quads with a UV-driven texture lookup.
+let p = [[-1., 0., 0.], [1., 0., 0.], [1., 2., 0.], [-1., 2., 0.],
+         [0., 0., -1.], [0., 0., 1.], [0., 2., 1.], [0., 2., -1.]];
+let uv = [[0., 1.], [1., 1.], [1., 0.], [0., 0.], [0., 1.], [1., 1.], [1., 0.], [0., 0.]];
+let indices = [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7];
+// A disc of leaves: alpha from distance to the card center.
+let leaves = |_triangle: usize, uv: [f32; 2]| {
+    let (du, dv) = (uv[0] - 0.5, uv[1] - 0.5);
+    [0.2, 0.5, 0.1, if du * du + dv * dv < 0.2 { 1.0 } else { 0.0 }]
+};
+let mut options = ImpostorOptions::default();
+options.grid = ImpostorGrid::new(ImpostorLayout::Hemisphere, 8)?;
+options.view_resolution = 32;
+let atlas = bake_impostor(&indices, Positions::from_packed(&p), None,
+    ImpostorAlbedo::Texture { uvs: &uv, sampler: &leaves }, options,
+    &mut Workspace::default())?;
+assert_eq!(atlas.size, 256);
+assert_eq!(atlas.report.empty_views, 0);
+// Runtime: the views to blend for a camera direction.
+let blend = atlas.grid.blend([0.3, 0.5, 0.8])?;
+assert!((blend.weights.iter().sum::<f32>() - 1.0).abs() < 1e-6);
+// When to switch, for a 60 degree, 1080 px camera and a 1 px tolerance.
+let camera = LodCamera::new(60_f64.to_radians(), 1080., 1.)?;
+let switch = impostor_switch_distance(atlas.bounds, atlas.grid, 32, camera)?;
+assert!(switch.distance > switch.view_error);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+Each view is rasterized at `view_resolution * samples_per_axis` samples per side
+with exact integer edge functions, a top-left fill rule and a nearer-wins depth
+test. Fragments whose source alpha is below `alpha_cutoff` are discarded before
+the depth test, as with glTF `MASK` materials, so leaves behind a transparent
+texel stay visible. Colour comes from `ImpostorAlbedo`: white, vertex colours
+or a texture callback `sampler(triangle, uv)`; the triangle index lets one
+callback serve several materials. A texel averages the colour of its covered
+samples, stores the renormalized mesh-frame normal as `n * 0.5 + 0.5` and the
+nearest depth. Its alpha is conservative: the covered fraction divided by
+`coverage_threshold` (default 0.5), clamped to one, so thin branches do not
+dissolve at the distance where impostors are used. `dilation` copies colour,
+normal and depth into empty neighbours with alpha 0, which keeps bilinear
+filtering from pulling black into the silhouette. Back faces are drawn with
+reversed normals unless `double_sided` is false. The bounding sphere is
+computed from the referenced vertices, or fixed with `bounds` so that several
+assets share one frame.
+
+`impostor_switch_distance` returns the camera-to-center distance beyond which
+two errors project below the pixel tolerance: one texel (`2r / resolution`)
+and the view error, the radius times the largest blend-weighted distance
+between a direction and its blended view directions. The view error bounds how
+far a point on the bounding sphere moves when views are blended without
+parallax correction, and it dominates for practical grids. A runtime that
+offsets by the stored depth sees less; it can pass `texel_error` to
+`LodCamera::switch_distance` and add the radius instead.
+
+The baker is deterministic: the same input gives the same bytes on every
+platform, provided the texture callback is deterministic. Workspace limits
+meter the atlas, one view of 32-byte samples and the rasterized samples.
+
+Measured on three CC0 [Poly Haven](https://polyhaven.com/license) assets (the
+first mesh of each: `fern_02`, 2,384 triangles; `fir_sapling`, 157,402; and
+`shrub_01`, 156,012, which is a row of about a dozen small shrubs) with their
+1k diffuse and alpha textures, hemisphere layout, 2 x 2 samples per texel, on
+one laptop CPU core. The error columns compare 12 novel directions between
+views (elevations 12, 37 and 63 degrees) reconstructed from the atlas with
+the three blended views, against a direct render of the same direction: mask
+IoU at alpha 0.5, and mean absolute RGB error (0-255) over the union of both
+masks.
+
+| views | view px | atlas (2 planes) | bake time | IoU fern / fir / shrub | RGB error fern / fir / shrub |
+|---|---|---|---|---|---|
+| 8 x 8 | 128 | 1024², 8 MiB | 0.10-0.40 s | 0.74 / 0.60 / 0.45 | 22 / 39 / 66 |
+| 8 x 8 | 256 | 2048², 32 MiB | 0.44-0.83 s | 0.71 / 0.57 / 0.42 | 24 / 41 / 69 |
+| 12 x 12 | 128 | 1536², 18 MiB | 0.29-0.90 s | 0.84 / 0.72 / 0.55 | 16 / 30 / 57 |
+| 12 x 12 | 256 | 3072², 72 MiB | 0.99-1.98 s | 0.82 / 0.69 / 0.51 | 18 / 32 / 61 |
+
+The three-view blend beats the nearest single view by 0.02-0.04 IoU on the
+fern and the fir, and is level on the sparse shrub row. More views help more
+than more texels: the error is dominated by the angle between views, as
+`impostor_switch_distance` predicts (view error 0.14-0.42 world units against
+a texel error of 0.005-0.02). The reconstruction above is the plain blend: it
+samples all three views at the same card point, so geometry in front of or
+behind the center plane ghosts.
+
+### Depth-aware reconstruction
+
+`ImpostorAtlas::reconstruct_texel` and `reconstruct_view` are the CPU reference
+for the shader that draws an impostor, with the parallax offset of Brucks'
+impostors applied in each of the three blended views before blending. Per
+pixel and per view: project the ray's card point into the view, read the stored
+depth there, slide the point along the ray to that depth, and repeat
+`ImpostorReconstruct::parallax_steps` times (default 3; 0 is the plain blend,
+also available as `ImpostorReconstruct::PLAIN`). The final point is sampled
+bilinearly and the three taps are blended with `ImpostorGrid::blend` weights in
+alpha-premultiplied form. A runtime mirrors these few lines per pixel; the
+function documentation lists them with the formulas. Dilated texels carry depth,
+so the first lookup may land up to `dilation` texels outside the silhouette; a
+surface farther than that from the ray's card point is not found, and the
+fixed-point iteration is not monotone (a step can overshoot).
+
+```rust
+use meshoptimizer_rs::{bake_impostor, ImpostorAlbedo, ImpostorGrid,
+    ImpostorLayout, ImpostorOptions, ImpostorReconstruct, Positions, Workspace};
+let p = [[-1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [1.0, 1.0, 0.0], [-1.0, 1.0, 0.0]];
+let mut options = ImpostorOptions::default();
+options.grid = ImpostorGrid::new(ImpostorLayout::Sphere, 3)?;
+options.view_resolution = 16;
+let atlas = bake_impostor(&[0, 1, 2, 0, 2, 3], Positions::from_packed(&p), None,
+    ImpostorAlbedo::White, options, &mut Workspace::default())?;
+// Reconstruct a view into a caller buffer. Any direction works; this one
+// coincides with a baked view, so the result is that view.
+let direction = [0.0, 0.0, 1.0];
+let mut view = vec![[0.0f32; 4]; 16 * 16];
+atlas.reconstruct_view(direction, 16, ImpostorReconstruct::default(), &mut view)?;
+assert_eq!(view[8 * 16 + 8], [1.0, 1.0, 1.0, 1.0]);
+# Ok::<(), meshoptimizer_rs::Error>(())
+```
+
+On the same assets and 12 novel directions (128 px views), mask IoU and mean
+RGB error against the direct render, plain blend before and three parallax
+steps after:
+
+| views | IoU fern / fir / shrub | RGB error fern / fir / shrub |
+|---|---|---|
+| 8 x 8 plain | 0.74 / 0.60 / 0.45 | 22.4 / 38.7 / 66.3 |
+| 8 x 8 parallax | 0.83 / 0.73 / 0.67 | 16.2 / 28.9 / 44.0 |
+| 12 x 12 plain | 0.84 / 0.72 / 0.55 | 15.8 / 29.6 / 57.3 |
+| 12 x 12 parallax | 0.90 / 0.81 / 0.74 | 11.0 / 21.9 / 36.5 |
+
+One step already gives most of the gain on the fern and the fir (0.82 and 0.70 at
+8 x 8); the shrub row, whose depth is far from a shell, needs two (0.64, then
+0.67). A 128 px view takes 2.3-3.3 ms on one core with three steps against
+1.4-1.6 ms plain. A stored-depth test that drops a view when its surface at the
+sample point disagrees with the ray point (tolerances 0.04 to 0.3 radii, with
+and without parallax) did not raise IoU in any setting measured and lowered it
+by 0.001 to 0.22, so the helper does not include it. The 12 directions are
+spread over the hemisphere, so the numbers compare methods; they are not a
+quality guarantee.
+
 
 Existing names retain their exact u32 signatures. Add `_generic` to any
 index-processing function or width-aware method name to select an index width.

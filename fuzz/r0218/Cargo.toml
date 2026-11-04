@@ -1,0 +1,36 @@
+[package]
+name = "meshopt-r0218-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[package.metadata]
+cargo-fuzz = true
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../.." }
+[workspace]
+members = ["."]
+[[bin]]
+name = "trim_cards"
+path = "fuzz_targets/trim_cards.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "bake"
+path = "fuzz_targets/bake.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "reconstruct"
+path = "fuzz_targets/reconstruct.rs"
+test = false
+doc = false
+bench = false
+[[bin]]
+name = "layout"
+path = "fuzz_targets/layout.rs"
+test = false
+doc = false
+bench = false

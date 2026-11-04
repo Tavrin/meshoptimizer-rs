@@ -1,0 +1,5 @@
+     Locking 2 packages to highest compatible versions
+   Compiling libm v0.2.16
+   Compiling meshoptimizer-baseline v0.2.17 (<target>/base)
+   Compiling bounds-prepare v0.0.0 (<target>/bound-prepare)
+    Finished `release` profile [optimized] target(s) in 11.83s

@@ -36,13 +36,17 @@ R0217 = ['hidden', 'dag_reader', 'character', 'process', 'parallel_equiv', 'widt
 CODEC = ['buffer_stream', 'sequence_stream', 'vertex', 'vertex_into', 'simd', 'vertex_encode', 'vertex_encode_into']
 PARALLEL = ['parallel_clod']
 MESHLET = ['build_meshlets_spatial']
+R0218 = ['trim_cards', 'bake', 'reconstruct', 'layout']
 GROUPS = {
+    'r0218': (ROOT / 'fuzz/r0218', R0218),
     'r0217': (ROOT / 'fuzz/r0217', R0217),
     'codec': (ROOT / 'fuzz/codec', CODEC),
     'parallel': (ROOT / 'fuzz/parallel-clod', PARALLEL),
     'p03': (ROOT / 'fuzz/p03', MESHLET),
 }
-TARGETS = R0217 + CODEC + PARALLEL + MESHLET
+if os.environ.get('FUZZ_GROUPS'):
+    GROUPS = {g: v for g, v in GROUPS.items() if g in os.environ['FUZZ_GROUPS'].split(',')}
+TARGETS = [n for _, names in GROUPS.values() for n in names]
 
 def sha(path):
     with open(path, 'rb') as f:
