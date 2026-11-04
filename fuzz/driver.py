@@ -36,13 +36,18 @@ R0217 = ['hidden', 'dag_reader', 'character', 'process', 'parallel_equiv', 'widt
 CODEC = ['buffer_stream', 'sequence_stream', 'vertex', 'vertex_into', 'simd', 'vertex_encode', 'vertex_encode_into']
 PARALLEL = ['parallel_clod']
 MESHLET = ['build_meshlets_spatial']
+R0220 = ['dag_format_v2']
 GROUPS = {
     'r0217': (ROOT / 'fuzz/r0217', R0217),
     'codec': (ROOT / 'fuzz/codec', CODEC),
     'parallel': (ROOT / 'fuzz/parallel-clod', PARALLEL),
     'p03': (ROOT / 'fuzz/p03', MESHLET),
+    'r0220': (ROOT / 'fuzz/r0220', R0220),
 }
-TARGETS = R0217 + CODEC + PARALLEL + MESHLET
+TARGETS = R0217 + CODEC + PARALLEL + MESHLET + R0220
+# FUZZ_GROUPS=a,b builds only those groups; FUZZ_SANITIZER selects the cargo-fuzz sanitizer.
+BUILD_GROUPS = [g for g in os.environ.get('FUZZ_GROUPS', ','.join(GROUPS)).split(',') if g]
+SANITIZER = os.environ.get('FUZZ_SANITIZER', 'none')
 
 def sha(path):
     with open(path, 'rb') as f:
@@ -65,14 +70,16 @@ def env():
 
 def build():
     binding = {}
-    for g, (fuzz_dir, names) in GROUPS.items():
+    for g in BUILD_GROUPS:
+        fuzz_dir, names = GROUPS[g]
         subprocess.run(['cargo', '+nightly', 'fuzz', 'build', '--fuzz-dir', str(fuzz_dir), '--target-dir',
-                        str(TARGET_DIR), '-O', '-a', '--sanitizer', 'none'], check=True, env=env(), cwd=ROOT)
+                        str(TARGET_DIR), '-O', '-a', '--sanitizer', SANITIZER], check=True, env=env(), cwd=ROOT)
         for n in names:
             binding[n] = sha(binary(n))
     binding['commit'] = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=ROOT).stdout.strip()
+    binding['sanitizer'] = SANITIZER
     (S / 'build-binding.json').write_text(json.dumps(binding, indent=2, sort_keys=True) + '\n')
-    print('built', len(TARGETS), 'targets', flush=True)
+    print('built', len(binding) - 2, 'targets', flush=True)
 
 
 STATUS = re.compile(r'^#(\d+)\s+(\w+)\s+cov: (\d+) ft: (\d+)')

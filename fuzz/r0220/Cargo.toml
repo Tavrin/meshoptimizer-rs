@@ -1,0 +1,18 @@
+[package]
+name = "meshopt-r0220-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[package.metadata]
+cargo-fuzz = true
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+meshoptimizer-rs = { path = "../..", features = ["clusterlod"] }
+[workspace]
+members = ["."]
+[[bin]]
+name = "dag_format_v2"
+path = "fuzz_targets/dag_format_v2.rs"
+test = false
+doc = false
+bench = false

@@ -5,6 +5,9 @@ use super::{FlatDagCluster, FlatDagGroup};
 use crate::{codec, Workspace};
 use alloc::vec::Vec;
 
+#[path = "dag_format_v2.rs"]
+pub mod v2;
+
 /// Default maximum geometry page size, 128 KiB.
 pub const DEFAULT_PAGE_SIZE: usize = 128 * 1024;
 /// Vertex codec version pinned by format v1 (independent of library defaults).

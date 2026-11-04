@@ -16,6 +16,7 @@
 //! `R(c) = Q` are `B(Q)`, which together replace `A(Q)`. A group `P` is a
 //! *parent* of `Q` when some cluster lies in `B(Q)` and in `A(P)`; a group with
 //! no children `B` is *parentless* (a stuck group or the final group).
+use super::bounds_math::{abs_sum3_up, add_up, f32_up, sqrt_up};
 use super::{FlatDagCluster, FlatDagGroup, LodBounds};
 use alloc::vec::Vec;
 
@@ -454,68 +455,10 @@ pub fn group_parents(
     Ok(n)
 }
 
-// Upward-rounded f64 arithmetic: each helper returns a value no smaller than
-// the exact result and the exact result itself whenever it is representable,
-// so equal spheres still contain each other.
-fn two_sum(a: f64, b: f64) -> (f64, f64) {
-    let s = a + b;
-    let bb = s - a;
-    (s, (a - (s - bb)) + (b - bb))
-}
-fn add_up(a: f64, b: f64) -> f64 {
-    let (s, e) = two_sum(a, b);
-    if e > 0.0 {
-        s.next_up()
-    } else {
-        s
-    }
-}
-fn mul_up(a: f64, b: f64) -> f64 {
-    let p = a * b;
-    if libm::fma(a, b, -p) > 0.0 {
-        p.next_up()
-    } else {
-        p
-    }
-}
-fn sqrt_up(x: f64) -> f64 {
-    let r = libm::sqrt(x);
-    if libm::fma(r, r, -x) < 0.0 {
-        r.next_up()
-    } else {
-        r
-    }
-}
-/// Upper bound of `|a - b|`.
-fn abs_diff_up(a: f64, b: f64) -> f64 {
-    let (s, e) = two_sum(a, -b);
-    add_up(s.abs(), e.abs())
-}
-/// Upper bound of `|p0 + p1 + p2|`.
-fn abs_sum3_up(p: [f64; 3]) -> f64 {
-    let (s1, e1) = two_sum(p[0], p[1]);
-    let (s2, e2) = two_sum(s1, p[2]);
-    add_up(add_up(s2.abs(), e1.abs()), e2.abs())
-}
-/// Smallest `f32` not below `v`.
-fn f32_up(v: f64) -> f32 {
-    let f = v as f32;
-    if f64::from(f) < v {
-        f.next_up()
-    } else {
-        f
-    }
-}
-
 /// Upper bound of `|center_p - center_q| + radius_q`: the radius a sphere at
 /// `center_p` needs to contain sphere `q`.
 fn containing_radius(p: &FlatDagGroup, q: &FlatDagGroup) -> f64 {
-    let mut d2 = 0.0;
-    for i in 0..3 {
-        let d = abs_diff_up(f64::from(p.center[i]), f64::from(q.center[i]));
-        d2 = add_up(d2, mul_up(d, d));
-    }
-    add_up(sqrt_up(d2), f64::from(q.radius))
+    super::bounds_math::containing_radius(p.center, q.center, q.radius)
 }
 
 fn group_is_finite(g: &FlatDagGroup) -> bool {

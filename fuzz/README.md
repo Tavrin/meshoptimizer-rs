@@ -49,3 +49,14 @@ lane adds the source only; execution belongs to the dedicated fuzz lane.
 `fuzz/driver.py` (build, cover, run under the 0.2.17 rule). Seeds: `python3 fuzz/seeds.py SEEDGEN`
 regenerates `fuzz/seeds/` (the codec seeds come from `fuzz/seedgen` and are large, 26 MB; they are
 reproducible and need not be committed). Results: `parity/0217-fuzz/RECEIPTS.md`.
+
+## 0.2.20 MDAG 2 reader
+
+`fuzz/r0220` holds `dag_format_v2`: each input goes through `v2::Reader::open` (and the transcoding
+of every page its records name) and `v2::Reader::read_all`, once as given and once with its page
+and resident hashes recomputed so that mutations reach the structural rules. Accepted files must
+reopen from their resident prefix and transcode every page from exactly its bytes. Seeds in
+`fuzz/seeds/dag_format_v2/` come from
+`DAG_V2_SEED_DIR=fuzz/seeds/dag_format_v2 cargo test --release --features clusterlod --test dag_format_v2 empty_mesh_and_seeds`.
+Build and run with `FUZZ_GROUPS=r0220 FUZZ_SANITIZER=address fuzz/driver.py build` and
+`ASAN_OPTIONS=quarantine_size_mb=16 fuzz/driver.py run dag_format_v2` (same rule as 0.2.17).

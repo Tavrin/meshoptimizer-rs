@@ -4,6 +4,7 @@
 //! contract. Positions are explicit mutable packed XYZ because border dilation
 //! changes them. Callback identifiers retain the demo's refinement semantics.
 #![allow(clippy::too_many_arguments)]
+mod bounds_math;
 mod dag;
 mod flat;
 pub use flat::{FlatDagCluster, FlatDagGroup};

@@ -221,3 +221,240 @@ exact byte counts, gate exits and identity output are retained in
 from successful retries; see `parity/dag-format/README.md`.
 
 Reader mutation campaign: seed 217, 53,608,094 executions, 5,107,128 accepted inputs, 600 CPU seconds, 600.064 wall seconds, 0 crashes; exit 0. All accepted inputs were independently page-decoded again.
+
+# MDAG 2: chunked container with streamed pages
+
+MDAG 2 is a separate major version in `clusterlod::dag_format::v2`, also not in
+C++ meshoptimizer. MDAG 1 (`dag_format::{write, Reader}`) is unchanged and its
+reader rejects MDAG 2 files as `Unsupported`. The reader is available without
+features; `v2::write` and `v2::build_key` need the `clusterlod` feature.
+
+An MDAG 2 file is
+
+```
+header (64 B) | chunk table (16 B per chunk) | resident chunks | pages
+```
+
+The **resident prefix** is everything before the first page. `v2::resident_len`
+returns its length from the 64-byte header alone, so a runtime fetches the
+prefix, calls `Reader::open` on it, and fetches pages later, from the same file
+or from a separate blob (page offsets count from the start of the file; subtract
+`resident_len` for a blob that starts at the first page). `Reader::transcode_page`
+validates one fetched page against the prefix and writes its memory form
+(`docs/PAGE_FORMAT.md`) into a caller buffer without heap allocation.
+`Reader::read_all` validates a whole file, every page included, for tools and
+fuzzing.
+
+## Writer
+
+`v2::write(&Source, &WriteOptions, workspace)` takes the emission-order tables
+of `build_dag_into` (groups, clusters, vertex snapshot, flat indices) and:
+
+1. snaps every vertex to `WriteOptions::grid` (snap the mesh before building,
+   with `QuantGrid::snap_positions`, so this is the identity);
+2. grows each group's LOD sphere to contain its decoded vertices, then applies
+   `cut::enforce_monotonic`, so a DAG built with `simplify_error_merge_previous`
+   below one is repaired, not rejected;
+3. adds `q = QuantGrid::max_displacement()`, rounded up, to every group error
+   below `f32::MAX`;
+4. stores groups **coarse-first** (the reverse of emission order) and clusters
+   in group order;
+5. packs clusters into pages in that order: capacity counts the memory form
+   (`page_capacity`, a power of two from 4 KiB to 1 MiB, default 128 KiB); a
+   group that fits an empty page is never split, a larger group is split at
+   cluster boundaries over consecutive pages, a cluster never spans pages, and
+   no page holds more than `max_page_clusters` clusters;
+6. pins every parentless group, plus the leading pages while their memory form
+   stays within `root_budget` (default one page);
+7. records page dependencies and builds the culling hierarchy (node width
+   `node_width`, default 4) over the stored groups.
+
+`WriteReport` gives pages, pinned pages and bytes, resident and disk bytes, the
+parentless and stuck group counts, the number of grown spheres and the
+monotonicity repair. A large pinned set is a quality signal: a stuck group deep
+in the DAG pins every page before it. Output is deterministic.
+
+## Byte layout
+
+All fields are little-endian `u32` unless stated; `f32` fields are binary32
+bit patterns; `u64` fields are two words, low word first. Every reserved field
+is zero and checked.
+
+Header:
+
+| Byte | Field |
+| --- | --- |
+| 0 | ASCII `MDAG` |
+| 4 | major, exactly 2 |
+| 8 | minor, informational (the newest chunk set the writer knew; 0) |
+| 12 | chunk count, at most 64 |
+| 16 | page count |
+| 20 | page capacity in bytes of the memory form |
+| 24 | resident length, a multiple of 16, at most 128 MiB |
+| 28 | most clusters per page |
+| 32 | build key (`u64`) |
+| 40 | resident hash (`u64`): XXH64, seed 0, of bytes 64 to the resident length |
+| 48 | most vertices per cluster (1 to 256) |
+| 52 | most triangles per cluster (1 to 256) |
+| 56 | reserved to byte 64 |
+
+Page capacity and the three limits are format parameters chosen by the writer
+(`WriteOptions::page_capacity`, `max_page_clusters`, `max_cluster_vertices`,
+`max_cluster_triangles`; defaults 128 KiB, 256, 256 and 256) and returned by
+`Reader::page_limits`, so a runtime sizes page slots and per-page tables from
+the header. About 200 clusters of the average size measured in
+`docs/PAGE_FORMAT.md` fill a 128 KiB page, so the default cluster limit rarely
+binds. The writer clamps the clusters-per-page limit to what the capacity can
+hold (`PageLimits::cluster_bound`, 63 for a 4 KiB page) and records the clamped
+value.
+
+**Buffer views.** The resident prefix and every page's disk form are at most
+`MAX_BUFFER_VIEW_BYTES` (128 MiB, the smallest common storage-buffer binding
+limit); page memory forms are at most 1 MiB. The writer returns `Limit` and the
+reader rejects larger values, so the resident prefix can be bound as one buffer
+and each page uploaded as one view.
+
+Chunk table entry: tag (4 printable ASCII bytes), flags (bit 0 *required*; other
+bits zero), offset, length. Entries are in increasing offset order; chunks are
+16-byte aligned, do not overlap, lie in the resident prefix, and every byte
+between them (and up to the resident length) is zero. Tags are unique.
+
+| Tag | Required | Record | Content |
+| --- | --- | --- | --- |
+| `MESH` | yes | one, 112 B | see below |
+| `GRPS` | yes | 48 B per group | LOD sphere (4 `f32`), error (`f32`), depth, first cluster, cluster count, first page, page count, parent count, reserved |
+| `NODE` | yes | 32 B per node | sphere (4 `f32`), error (`f32`), group (`i32`, -1 for internal nodes), child offset, child count |
+| `PAGE` | yes | 48 B per page | disk offset (`u64`), disk length, memory words, first cluster, cluster count, first dependency, dependency count, page hash (`u64`), flags (bit 0 pinned), reserved |
+| `PDEP` | yes | 4 B per entry | page indices |
+| `ATTR` | yes | 16 B + 16 B per channel | channel count, layout hash, reserved, reserved; then channel records |
+| `CSPH` | yes | 16 B per cluster | culling sphere (center, radius; 4 `f32`) |
+| `NAAB` | reserved, optional | | per-node boxes |
+| `FARF` | reserved, optional | | far-field (impostor) parameters |
+| `SRCI` | reserved, optional | | source vertex identifiers |
+
+`MESH` words: 0 level count, 1 `bvh_depth` (node count of the longest
+root-to-leaf path), 2 node width, 3 group count, 4 cluster count, 5 node count,
+6 page count, 7 pinned page count, 8-9 DAG triangles (`u64`), 10-11 source
+triangles (`u64`), 12-17 box of every decoded vertex (min, max), 18-21 sphere
+containing them (center, radius), 22 grid exponent (`i32`), 23 `q` (`f32`), 24
+attribute layout hash, 25 material count, 26-27 reserved.
+
+Cluster descriptors live in their page (owner group, refined group, counts,
+grid base, tight sphere, normal cone, material slot; `docs/PAGE_FORMAT.md`).
+What culling needs while pages are absent is resident: group LOD spheres and
+errors (`GRPS`), node spheres and errors (`NODE`) and one culling sphere per
+cluster (`CSPH`, bit-equal to the page descriptor's tight sphere, which contains
+every decoded vertex; `Reader::cluster_sphere`). Normal cones are in pages only
+and are optional for a runtime. The attribute layout hash is the low 32
+bits of XXH64 (seed 0) over the `ATTR` channel records; with no channels it is
+`0x51D8E999`. Every page header repeats it.
+
+**Ordering.** Groups are coarse-first, so a cluster's refined group has a larger
+index than its owner, a group's parents have smaller indices, and a page's
+dependencies are smaller page indices: the dependency graph is acyclic by one
+comparison per entry. Pinned pages form a prefix starting at page 0.
+
+**Dependencies.** Page `p` depends on every page of every parent group of every
+group with clusters in `p`, excluding `p`, sorted and unique. A runtime loads a
+page after its dependencies and evicts in reverse. Any set of pages that holds
+the pinned pages and is closed under dependencies (in particular every prefix of
+the page table at least as long as the pinned prefix) makes a resident group set
+(groups whose pages are all loaded) that is closed under parents and holds every
+parentless group, so `cut::select_cut` on it equals `cut::refine_sequential`.
+
+**Frames.** Positions, centers and boxes are in the mesh frame; the format
+stores no handedness or up axis, and cut selection uses only distances, so it
+does not depend on either. A runtime that renders right-handed with the view
+looking down -Z passes the camera position and the group centers in one frame
+(for example a camera-relative frame rebased in `f64` and stored as `f32`), with
+`CutView::scale` an upper bound of the instance transform's operator norm.
+`cut::max_scale` is such a bound for any 3x3 linear part, including nonuniform
+scale and shear (the square root of the largest Gershgorin row bound of `MᵀM`;
+the largest column length is not a bound under shear). Normal-cone tests need
+the view direction in the same frame as the cone axis.
+
+## Identity
+
+`v2::xxh64` and the streaming `v2::Xxh64` implement XXH64 in the crate (no
+dependency), checked against reference vectors. The page hash covers the disk
+bytes of a page, the resident hash covers the prefix after the header. They
+detect corruption, not tampering.
+
+`v2::build_key(&KeyInputs)` is XXH64 over the tag `MDAG2KEY`,
+`v2::BUILDER_REVISION`, every `Config` field in declaration order (`usize` as
+`u64`, `bool` as `u32`, `f32` as bits), the grid exponent, the attribute layout
+hash, the disk codec, page capacity, the three page limits, root budget and
+node width, and the input
+positions (bits) and indices (as `u32`, so `u16` and `u32` inputs agree). A
+cooker can test its cache before building. `BUILDER_REVISION` is bumped
+whenever equal inputs produce different bytes. The writer stores
+`WriteOptions::build_key` as given (zero when not set).
+
+## Validation (v2 reader)
+
+`Reader::open` reads only the resident prefix. Work is linear in its length,
+there is no recursion, and scratch (one byte and one word per node, one flag
+per group) is allocated only after the tables are checked against the prefix
+length.
+
+1. Magic, major 2, reserved header fields zero, page capacity a power of two
+   from 4 KiB to 1 MiB, page limits in range, resident length at most 128 MiB
+   (`Limit`), resident hash; chunk table as described above; the seven
+   required chunks present with the required bit set; cluster spheres finite
+   with radius not negative. An unknown chunk with the
+   required bit, an unknown flag bit, or `ATTR` channels (defined by a later
+   minor) are `Unsupported`; unknown optional chunks are skipped and readable
+   through `Reader::chunk`.
+2. Groups: finite spheres and errors (`f32::MAX` allowed), radius and error not
+   negative, depth below the level count (at most 64) and non-increasing,
+   cluster ranges partition the clusters in order, each group has at least one
+   cluster and its page span is exactly the pages that hold its clusters, parent
+   count at most the group index, parentless groups within the pinned pages.
+3. Nodes: one root per level at indices `0..level_count`, child ranges inside
+   the table and after the parent, every node reached exactly once, internal
+   nodes with 1 to `node_width` children, each group in exactly one leaf at its
+   level, node spheres containing each child's sphere (the group's for a leaf)
+   and errors at least each child's, both in upward-rounded `f64`, and
+   `bvh_depth` equal to the longest root-to-leaf path.
+4. Pages: disk ranges after the prefix, increasing and non-overlapping, each at
+   most 128 MiB; 1 to the header's cluster limit clusters and 64 disk bytes per
+   cluster; memory words at least the header
+   and descriptors and at most the capacity; cluster and dependency ranges
+   partition their tables in order; dependencies sorted, unique and below the
+   page's index (so pinned pages depend only on pinned pages); pinned flags form
+   a prefix whose length is the `MESH` pinned count.
+5. `MESH`: counts match the header and chunk lengths, an empty mesh has zero
+   counts, box and sphere finite (box ordered), exponent in -126..=127, `q`
+   bit-equal to the value derived from the exponent, reserved words zero.
+
+`Reader::transcode_page` (on load):
+
+6. Disk length and page hash match the record; the disk form transcodes
+   (`page::transcode_page`: pinned codec versions, descriptor counts at most
+   256, bits per channel at most 24, every offset inside the page, local indices
+   below the vertex count, every vertex referenced); memory words, cluster count
+   and attribute layout hash match.
+7. Each cluster's owner is the group whose range holds it, that group's page
+   span includes this page, its vertex and triangle counts are within the
+   header limits, its `CSPH` sphere equals its descriptor's tight sphere bit for
+   bit, and its material slot is below the material count;
+   a refined group has a larger index, a smaller depth, an error at most the
+   owner's, a sphere inside the owner's, a nonzero parent count, and every one
+   of its pages other than this one lists this page as a dependency.
+8. Every decoded vertex lies in its cluster's tight sphere, its group's LOD
+   sphere and the `MESH` box.
+9. Attribute channels: none are defined yet (rule 1 rejects them).
+
+`Reader::read_all` adds what no single page shows: exact parent counts, exact
+dependency lists, triangle totals, and that the last page ends the file.
+
+Not established: no GPU has decoded these pages (see `docs/PAGE_FORMAT.md`);
+sizes and timings of MDAG 2 files are not measured here; the group error plus
+`q` is an estimate, not a certified surface distance.
+
+## Reproduction (MDAG 2)
+
+`cargo test --release --features clusterlod --test dag_format_v2` covers round
+trip against the builder, cuts over page prefixes and dependency-closed page
+sets, and the rejection of each rule above. The fuzz target is
+`fuzz/r0220/fuzz_targets/dag_format_v2.rs` (`fuzz/README.md`).
