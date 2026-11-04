@@ -7,6 +7,7 @@
 mod dag;
 mod flat;
 pub use flat::{FlatDagCluster, FlatDagGroup};
+pub mod cut;
 pub mod dag_format;
 pub mod page;
 #[cfg(feature = "parallel")]
