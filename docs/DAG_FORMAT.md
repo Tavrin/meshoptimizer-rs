@@ -113,6 +113,72 @@ are outside that workspace. Returned errors distinguish invalid input, unsupport
 versions, limits, allocation failure and crate codec errors. No checksum or
 cryptographic authenticity is provided.
 
+## Runtime use: projected error, cuts and residency
+
+The tables above carry what a renderer needs to choose clusters; this section
+states the rules. They follow the pinned upstream `demo/clusterlod.h`. The
+module `clusterlod::cut` implements them over the flat group and cluster tables
+(builder output, or `Reader::group` and `Reader::cluster_record`) as a reference
+selector and validators. A GPU or streaming implementation should be compared
+against it.
+
+Terms: cluster `c` belongs to group `G(c)` and was produced by simplifying group
+`R(c)` (`refined`, -1 for source geometry). The clusters of group `Q` are `A(Q)`;
+the clusters with `R(c) = Q` are `B(Q)` and together replace `A(Q)`. Group `P` is
+a *parent* of `Q` when a cluster lies in both `B(Q)` and `A(P)`. A group without
+children `B` is *parentless*: a group that could not be simplified further, or
+the final group. All bounds used below are the **group records**: a cluster's
+own error is the error of `R(c)`, and the cluster's stored sphere is not used for
+level selection.
+
+**Projected error.** Errors and radii are lengths in the mesh frame. For an
+instance whose linear transform has largest singular value `s`, multiply error
+and radius by `s` (`cut::max_scale` returns a conservative value; centers and
+the camera are taken in one frame). With `d` the distance from the camera to the
+group center, `proj_y = 1 / tan(fov_y / 2)` and the viewport height in pixels:
+
+```
+perspective:  error * s / max(d - radius * s, znear) * (proj_y / 2) * viewport_height
+orthographic: error * s * pixels_per_unit        (independent of depth)
+```
+
+**Cut rule.** For a pixel threshold `t`, draw cluster `c` iff the projected error
+of `G(c)` is greater than `t` and (`R(c) = -1` or the projected error of `R(c)`
+is at most `t`). Terminal groups carry error `f32::MAX`, so their clusters are
+drawn whenever their producer is within the threshold. A threshold that must give
+the finest level draws exactly the clusters with `refined == -1`; do not obtain
+it by passing zero, because groups can have zero error.
+
+**Unique cut.** The rule draws exactly one cluster per surface region for every
+camera only if, for every parent `P` of every group `Q`, the error of `P` is at
+least that of `Q` and the sphere of `P` contains the sphere of `Q`. Containment
+makes `d - radius` of the parent no larger than the child's from any camera, so
+the projected error never decreases from child to parent. The builder gives
+monotonic errors when `simplify_error_merge_previous` is at least one. Merged
+spheres are computed in `f32`, and the builder does not guarantee containment
+after that rounding: on builder output, `cut::check_monotonic` can report a
+parent that misses a child sphere by rounding. `check_monotonic` verifies both
+properties in upward-rounded `f64` (a miss of one `f32` ulp is reported) and
+`cut::enforce_monotonic` repairs a DAG by raising a parent's error and growing its
+radius; apply it to builder output before relying on a unique cut. A fixed-error cut for proxies and fallbacks, independent of any camera,
+is the same rule applied to the raw group errors (`cut::select_error_cut`). The
+error is the builder's estimate; it is not a certificate of surface distance.
+
+**Resident cut.** The unit of residency is the group: all of `A(Q)` or none. The
+resident set must be closed under parents (`cut::group_parents` lists them) and
+contain every parentless group. With a partial set, draw `c` iff `G(c)` is
+resident, the projected error of `G(c)` exceeds `t` or `G(c)` is parentless, and
+(`R(c) = -1`, or the projected error of `R(c)` is at most `t`, or `R(c)` is not
+resident). This equals refining a drawn set from the parentless groups downward,
+replacing `B(Q)` by `A(Q)` whenever resident `Q` exceeds the threshold
+(`cut::refine_sequential`). That procedure fails with `Incomplete` when a cluster
+of `B(Q)` is not drawn, which is exactly a closure or monotonicity violation.
+
+Not provided by MDAG 1: tight per-cluster culling bounds (the stored cluster
+sphere is the producer's level-selection sphere unless `optimize_bounds` was
+set, and no box is stored), an all-level instance bound, and any page-dependency
+or residency table. `Reader` gives no knowledge of which groups span which pages.
+
 ## Layout reference
 
 Brian Karis, Rune Stubbe and Graham Wihlidal, [Nanite: A Deep Dive, SIGGRAPH 2021](https://advances.realtimerendering.com/s2021/Karis_Nanite_SIGGRAPH_Advances_2021_final.pdf),
