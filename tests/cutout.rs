@@ -808,9 +808,9 @@ fn folded_card_corner_on_both_outlines_keeps_each_triangles_attributes() {
     mesh.vertex([-1.0, 1.0, 0.0], [7.61, 0.75, 0.0], [0.0, 1.0]);
     mesh.i.extend([0, 1, 2, 0, 2, 3]);
     let data = vec![
-        45, 73, 83, 83, 99, 68, 27, 130, 58, 91, 0, 0, 0, 0, 0, 0, 232, 173, 232, 104, 124, 60,
-        15, 37, 159, 111, 247, 116, 58, 203, 186, 20, 43, 248, 66, 100, 145, 134, 23, 55, 0, 0, 0,
-        2, 245, 8, 253, 84, 20, 68, 55, 207, 55, 53, 179, 64, 90, 168, 29, 29, 110, 90, 218, 26,
+        45, 73, 83, 83, 99, 68, 27, 130, 58, 91, 0, 0, 0, 0, 0, 0, 232, 173, 232, 104, 124, 60, 15,
+        37, 159, 111, 247, 116, 58, 203, 186, 20, 43, 248, 66, 100, 145, 134, 23, 55, 0, 0, 0, 2,
+        245, 8, 253, 84, 20, 68, 55, 207, 55, 53, 179, 64, 90, 168, 29, 29, 110, 90, 218, 26,
     ];
     let mask = Mask { data, w: 8, h: 8 };
     let o = options(8, 128.0 / 255.0 * 3.0, 100, AlphaWrap::Clamp);
@@ -829,9 +829,17 @@ fn sliver_card_at_threshold_zero_is_unchanged() {
     mesh.vertex([1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [c(124.0), c(62.0)]);
     mesh.vertex([0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [c(116.0), c(58.0)]);
     mesh.i.extend([0, 1, 2]);
-    let mask = Mask { data: vec![0; 8 * 15], w: 8, h: 15 };
+    let mask = Mask {
+        data: vec![0; 8 * 15],
+        w: 8,
+        h: 15,
+    };
     let mut o = options(6, 0.0, 0, AlphaWrap::Clamp);
     o.vertex_cost = 0.0;
     let r = trim(&mesh, &mask, o).report;
-    assert_eq!((r.unchanged_cards, r.trimmed_cards, r.removed_cards), (1, 0, 0), "{r:?}");
+    assert_eq!(
+        (r.unchanged_cards, r.trimmed_cards, r.removed_cards),
+        (1, 0, 0),
+        "{r:?}"
+    );
 }
