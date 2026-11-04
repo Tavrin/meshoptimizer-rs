@@ -32,7 +32,8 @@ const MAX_OUTLINE: usize = 64;
 const MARGIN: f64 = 1.0 / 256.0;
 /// Scale-relative footprint margin, larger than f32 rounding of output UVs.
 const MARGIN_SCALE: f64 = 1.0 / 4_194_304.0;
-/// A card is trimmed only when its area shrinks by more than this fraction.
+/// A card is trimmed only when its area shrinks by more than this fraction
+/// and by more than the rounding of the two area sums.
 const MIN_GAIN: f64 = 1e-9;
 
 /// Texel lookup outside `0..width` and `0..height`. Not in C++ meshoptimizer.
@@ -312,7 +313,9 @@ impl<I: crate::Index> Convert<I> for TrimmedCardsGeneric {
 /// fan-triangulated. Other cards are clipped per source triangle and each
 /// piece is interpolated with that triangle's own barycentrics, so rendering
 /// is unchanged inside the kept area; such cards may exceed the vertex budget.
-/// Shared edge crossings are computed once per edge so pieces stay watertight.
+/// Shared edge crossings are computed once per edge so pieces stay watertight;
+/// pieces share new vertices only through equal input vertices or edges, so
+/// triangles that merely touch or overlap in UV keep their own attributes.
 /// Output winding matches each source triangle. Attributes are interpolated
 /// linearly in f64; normals are not renormalized.
 ///
@@ -624,9 +627,10 @@ enum Key {
     Original(u32),
     /// Fitted-polygon edge `k` crossing the canonical input edge.
     Cross(u32, u32, u32),
-    /// Fitted-polygon vertex inside one card triangle (local index), or on
-    /// a triangle edge (`u32::MAX`).
+    /// Fitted-polygon vertex inside one card triangle (local index).
     Corner(u32, u32),
+    /// Fitted-polygon vertex `k` on the canonical input edge.
+    OnEdge(u32, u32, u32),
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -1000,10 +1004,19 @@ fn process_card(
         FitKind::Polygon(start, len) => (start, len),
     };
     let q = &polygons[start..start + len];
+    // Areas summed from different vertex orders differ by rounding of the
+    // cross products, which dominates for slivers; such a difference is no gain.
+    let scale = s
+        .tris
+        .iter()
+        .flat_map(|t| t.p)
+        .fold(1.0f64, |m, p| m.max(p[0].abs()).max(p[1].abs()));
+    let terms = (s.tris.len() * 3 + len) as f64;
+    let keep_below = before * (1.0 - MIN_GAIN) - 8.0 * f64::EPSILON * terms * scale * scale;
     if convex_disk(store, s)? {
         if let Some(r) = affine_reference(input, store, s)? {
             let after = area2(q) * 0.5;
-            if after >= before * (1.0 - MIN_GAIN) {
+            if after >= keep_below {
                 return keep_card(input, store, out, s, before);
             }
             emit_polygon(input, store, out, s, q, r)?;
@@ -1014,7 +1027,7 @@ fn process_card(
         }
     }
     let after = clip_pieces(store, work, s, q)?;
-    if after >= before * (1.0 - MIN_GAIN) {
+    if after >= keep_below {
         return keep_card(input, store, out, s, before);
     }
     emit_pieces(input, store, out, s)?;
@@ -1745,22 +1758,27 @@ fn clip_pieces(
                 break;
             }
         }
+        // A fitted corner on the triangle outline is shared only with
+        // triangles that own the same input vertex or edge: triangles that
+        // merely touch it in UV (folded cards, seams) have other attributes.
+        for w in &mut s.a {
+            if let Key::Corner(k, _) = w.key {
+                if let Some(c) = (0..3).find(|&c| tri.p[c] == w.p) {
+                    w.key = Key::Original(tri.v[c]);
+                } else if let Some((lo, hi)) = (0..3).find_map(|e| {
+                    let (lo, hi, plo, phi) = tri.edge(e);
+                    (side(plo, phi, w.p) == 0.0).then_some((lo, hi))
+                }) {
+                    w.key = Key::OnEdge(k, lo, hi);
+                }
+            }
+        }
         s.a.dedup_by(|x, y| x.key == y.key);
         while s.a.len() > 1 && s.a[0].key == s.a[s.a.len() - 1].key {
             s.a.pop();
         }
         if s.a.len() < 3 {
             continue;
-        }
-        for w in &mut s.a {
-            if let Key::Corner(k, _) = w.key {
-                if (0..3).any(|e| {
-                    let (_, _, plo, phi) = tri.edge(e);
-                    side(plo, phi, w.p) == 0.0
-                }) {
-                    w.key = Key::Corner(k, u32::MAX);
-                }
-            }
         }
         let mut twice = 0.0;
         let origin = s.a[0].p;
@@ -1830,7 +1848,7 @@ fn emit_pieces(
                     Some(&id) => id,
                     None => {
                         match key {
-                            Key::Cross(_, lo, hi) => {
+                            Key::Cross(_, lo, hi) | Key::OnEdge(_, lo, hi) => {
                                 let (plo, phi) = (input.texel(lo), input.texel(hi));
                                 let d = sub(phi, plo);
                                 let t = dot(sub(vert.p, plo), d) / dot(d, d);
