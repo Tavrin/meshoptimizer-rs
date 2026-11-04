@@ -335,7 +335,7 @@ between them (and up to the resident length) is zero. Tags are unique.
 | `CSPH` | yes | 16 B per cluster | culling sphere (center, radius; 4 `f32`) |
 | `CREF` | yes | 4 B per cluster | refined group (`i32`, -1 for source geometry), equal to the page descriptor's |
 | `NAAB` | reserved, optional | | per-node boxes |
-| `FARF` | reserved, optional | | far-field (impostor) parameters |
+| `FARF` | optional | 64 | validated far-field (impostor) parameters |
 | `SRCI` | reserved, optional | | source vertex identifiers |
 
 `MESH` words: 0 level count, 1 `bvh_depth` (node count of the longest
@@ -567,3 +567,43 @@ older readers reject material-only files while opening the resident prefix,
 even when ATTR has no channels. The new reader accepts older single-material
 files without MATS; multi-material page tables require the declaration. Unknown
 required chunks remain `Unsupported`; a malformed MATS record is `Invalid`.
+
+
+## Optional foliage and far-field policy
+
+The v2 builder can reject alpha simplification steps using caller masks and UVs.
+See [the policy decisions](VG_L5_DECISIONS.md) for fixed views, repeat sampling,
+default coverage limits, deterministic workspace cost, and the stuck decision.
+This is a cooker proxy; whole-cut coverage under runtime filtering needs a
+consumer-side test. `v2::measure_fallback` reports the coarsest complete mesh's
+sampled quality, including pinned stuck regions, without certifying ray error.
+
+`FARF` has optional chunk flags zero and exactly 64 bytes, little endian:
+
+| Offset | Type | Meaning |
+| ---: | --- | --- |
+| 0 | u32 | Opaque caller tag |
+| 4 | u32 | Reserved zero |
+| 8 | u64 | XXH64 of external caller payload, seed zero |
+| 16 | u32 | Grid layout: 0 hemisphere, 1 sphere |
+| 20 | u32 | Views per axis, 2 through 64 |
+| 24 | u32 | View resolution, 1 through 4096 |
+| 28 | u32 | Reserved zero |
+| 32 | f64 | Texel world error |
+| 40 | f64 | View world error |
+| 48 | f32 | World handoff error, at least both preceding errors |
+| 52 | 3 u32 | Reserved zero |
+
+All error fields must be finite and nonnegative. The reader validates known
+`FARF` records even when the caller does not consume them, including length,
+flags, enum and reserved words. Older readers skip the optional chunk. No
+payload bytes or counts drive allocations. Duplicate tags remain invalid.
+
+Set `WriteOptions::far_field` from `FarField::from_switch`; it hashes caller
+payload bytes and rounds max(texel_error, view_error) upward to f32. Compute the
+switch from the all-level mesh sphere, then project the stored error with that
+same sphere, instance scale and cut view. Replace the entire root cut, including
+stuck regions, only when projected error <= the pixel threshold; `Finest` keeps
+geometry. Hemisphere grids cover only upper-hemisphere views. The metadata is
+not an executable payload and its hash is not authentication. When present it
+participates in the writer key; absence preserves existing keys and bytes.

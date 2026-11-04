@@ -809,7 +809,7 @@ fn rejects_each_validation_rule() {
     assert!(v2::Reader::open(&bad).is_ok());
     assert!(v2::Reader::read_all(&bad, &mut Workspace::default()).is_err());
     // Chunk extension: unknown optional chunks are skipped, unknown required ones rejected.
-    for (tag, flags, ok) in [(b"ZOPT", 0, true), (b"FARF", 0, true), (b"ZREQ", 1, false)] {
+    for (tag, flags, ok) in [(b"ZOPT", 0, true), (b"NAAB", 0, true), (b"ZREQ", 1, false)] {
         let ext = with_chunk(&file, tag, flags, b"payload");
         match v2::Reader::read_all(&ext, &mut Workspace::default()) {
             Ok(r) => assert!(ok && r.chunk(*tag) == Some(&b"payload"[..])),

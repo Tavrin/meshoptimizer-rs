@@ -870,8 +870,9 @@ fn validate(mesh: &MeshGeneric<'_>, c: Config, ctx: &mut Context<'_>) -> Result<
     Ok(())
 }
 #[derive(Clone, Copy)]
-struct BuildPolicy {
+struct BuildPolicy<'a> {
     material_component: Option<usize>,
+    alpha: Option<v2::AlphaCoverage<'a>>,
 }
 struct Prepared {
     merged_idx: Vec<u32>,
@@ -880,6 +881,7 @@ struct Prepared {
     bounds: LodBounds,
     stuck: bool,
     material_mixed: bool,
+    alpha_failed: bool,
 }
 fn prepare_group(
     group: &[Pending],
@@ -888,7 +890,7 @@ fn prepare_group(
     locks: &[support::VertexFlags],
     c: Config,
     ctx: &mut Context<'_>,
-    policy: Option<BuildPolicy>,
+    policy: Option<BuildPolicy<'_>>,
 ) -> Result<Prepared, Error> {
     let n = group.iter().map(|cl| cl.count).sum();
     let mut merged_idx = ctx.alloc::<u32>(n)?;
@@ -915,6 +917,23 @@ fn prepare_group(
     let stuck = mixed
         || (policy.is_some() && simplified.is_empty())
         || simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let alpha_failed = if !stuck {
+        if let Some(alpha) = policy.and_then(|p| p.alpha) {
+            v2::alpha_failed(
+                &merged_idx,
+                &simplified,
+                mesh,
+                policy.and_then(|p| p.material_component),
+                alpha,
+                ctx,
+            )?
+        } else {
+            false
+        }
+    } else {
+        false
+    };
+    let stuck = stuck || alpha_failed;
     let error = if policy.is_some() && !stuck {
         error.max(v2::step_error(
             &merged_idx,
@@ -940,6 +959,7 @@ fn prepare_group(
         bounds,
         stuck,
         material_mixed: mixed,
+        alpha_failed,
     })
 }
 fn build_internal(
@@ -981,10 +1001,10 @@ fn build_in_context_mode(
     ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
     _parallel: bool,
-    policy: Option<BuildPolicy>,
-) -> Result<(usize, usize), Error> {
+    policy: Option<BuildPolicy<'_>>,
+) -> Result<(usize, usize, usize), Error> {
     validate(&mesh, c, ctx)?;
-    let (mut stuck_count, mut mixed_count) = (0, 0);
+    let (mut stuck_count, mut mixed_count, mut alpha_count) = (0, 0, 0);
     let mut moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, ctx)?;
@@ -1091,10 +1111,12 @@ fn build_in_context_mode(
                 mut bounds,
                 stuck,
                 material_mixed,
+                alpha_failed,
             } = prepared;
             if stuck {
                 stuck_count += 1;
                 mixed_count += usize::from(material_mixed);
+                alpha_count += usize::from(alpha_failed);
                 output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
                 ctx.free(merged_idx)?;
                 ctx.free(gb)?;
@@ -1178,7 +1200,7 @@ fn build_in_context_mode(
     ctx.free(offsets)?;
     ctx.free(clusters)?;
     ctx.free(idx)?;
-    Ok((stuck_count, mixed_count))
+    Ok((stuck_count, mixed_count, alpha_count))
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave
 /// dilated positions changed and callbacks already emitted.

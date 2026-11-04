@@ -28,7 +28,7 @@ fn compute(
     group: &[Pending],
     idx: &[u32],
     moderate: bool,
-    policy: Option<BuildPolicy>,
+    policy: Option<BuildPolicy<'_>>,
 ) -> Result<Computed, Error> {
     let limits = Limits {
         max_bytes: usize::MAX,
@@ -94,7 +94,7 @@ pub(super) fn level(
     offsets: &[u32],
     moderate: bool,
     remaining_work: u64,
-    policy: Option<BuildPolicy>,
+    policy: Option<BuildPolicy<'_>>,
 ) -> Option<Vec<Computed>> {
     if offsets.len() <= 2 {
         return None;
@@ -201,6 +201,7 @@ mod tests {
                 bounds: LodBounds::default(),
                 stuck: true,
                 material_mixed: false,
+                alpha_failed: false,
             },
             usage: Usage { bytes: 0, work: 10 },
             live: 0,

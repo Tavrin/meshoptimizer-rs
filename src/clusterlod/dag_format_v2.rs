@@ -35,6 +35,10 @@ pub use writer::{
     DEFAULT_NODE_WIDTH,
 };
 
+#[path = "far_field.rs"]
+mod far_field;
+pub use far_field::{FarField, FAR_FIELD_BYTES};
+
 /// Major version written and accepted.
 pub const MAJOR: u32 = 2;
 /// Minor version written: the newest chunk set this crate knows. Readers
@@ -90,7 +94,7 @@ pub const TAG_CLUSTER_SPHERES: [u8; 4] = *b"CSPH";
 pub const TAG_CLUSTER_REFINED: [u8; 4] = *b"CREF";
 /// Reserved optional tag: per-node axis-aligned boxes.
 pub const TAG_NODE_BOXES: [u8; 4] = *b"NAAB";
-/// Reserved optional tag: far-field (impostor) parameters.
+/// Optional validated 64-byte far-field (impostor) record.
 pub const TAG_FAR_FIELD: [u8; 4] = *b"FARF";
 /// Reserved optional tag: source vertex identifiers kept in pages.
 pub const TAG_SOURCE_IDS: [u8; 4] = *b"SRCI";
@@ -804,6 +808,12 @@ impl<'a> Reader<'a> {
                     }
                     materials_at = Some((offset, len));
                 }
+                None if tag == TAG_FAR_FIELD => {
+                    if flags != 0 {
+                        return Err(Error::Invalid);
+                    }
+                    FarField::decode(&prefix[offset..end])?;
+                }
                 None if flags & CHUNK_REQUIRED != 0 => return Err(Error::Unsupported),
                 None => {}
             }
@@ -1248,6 +1258,12 @@ impl<'a> Reader<'a> {
             return Err(Error::Invalid);
         }
         Ok(le32(self.record(self.refined_at, CLUSTER_REFINED_BYTES, c)?, 0)? as i32)
+    }
+
+    /// Validated optional impostor handoff metadata.
+    pub fn far_field(&self) -> Option<FarField> {
+        self.chunk(TAG_FAR_FIELD)
+            .and_then(|b| FarField::decode(b).ok())
     }
 
     /// Bytes of the first chunk tagged `tag`, including optional chunks this

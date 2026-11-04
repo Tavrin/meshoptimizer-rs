@@ -27,3 +27,12 @@ as u16 triangle slots. Its texture files are unnecessary: normal and UV accessor
 and the material index are read from the glTF and binary buffer only. The rerun
 checks every decoded vertex against its exact builder source reference, including
 seam duplicates, and every decoded material range against the source slots.
+
+The foliage guard uses the same first mesh of Poly Haven `fern_02` as the
+impostor measurements in `docs/USING.md`: 2,384 triangles, CC0 1.0, with the
+separate 1k `Alpha` PNG converted losslessly to an 8-bit gray plane. Its glTF
+material is `MASK`, cutoff 0.5 and double sided. Texture data stays external.
+`l5_inputs.py` prepares the first primitive at extent 2 from the caller's glTF,
+binary buffer and decoded alpha plane; `vg_foliage_measure` emits CPU cut and
+coverage receipts. The source texture's row zero maps directly to UV v=0.
+The fixture uses nearest repeat alpha sampling; it does not model mipmaps.

@@ -67,3 +67,10 @@ count raised and one `CREF` entry changed. Seeds in
 `DAG_V2_SEED_DIR=fuzz/seeds/dag_format_v2 cargo test --release --features clusterlod --test dag_format_v2 empty_mesh_and_seeds`.
 Build and run with `FUZZ_GROUPS=r0220 FUZZ_SANITIZER=address fuzz/driver.py build` and
 `ASAN_OPTIONS=quarantine_size_mb=16 fuzz/driver.py run dag_format_v2` (same rule as 0.2.17).
+
+
+The far-field extension also decodes arbitrary input as a standalone `FARF`
+record and checks canonical re-encoding and conservative error ordering. Chunk
+mutations cover every reserved word, layout, grid, resolution and error field
+with resident hashes resealed. The foliage lane builds this source only; it
+runs no fuzz campaign.

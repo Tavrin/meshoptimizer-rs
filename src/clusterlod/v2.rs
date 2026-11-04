@@ -19,6 +19,8 @@ pub struct BuildMesh<'a> {
     pub attribute_protect_mask: u32,
     /// Optional material slot per source triangle.
     pub materials: Option<&'a [u16]>,
+    /// Opt-in alpha coverage policy; UV components refer to `attributes`.
+    pub alpha_coverage: Option<AlphaCoverage<'a>>,
     /// Optional source vertex locks.
     pub vertex_lock: Option<&'a [VertexFlags]>,
 }
@@ -34,6 +36,7 @@ impl<'a> BuildMesh<'a> {
             attribute_protect_mask: 0,
             materials: None,
             vertex_lock: None,
+            alpha_coverage: None,
         }
     }
 }
@@ -56,8 +59,12 @@ pub struct Built {
     pub clusters: Vec<FlatDagCluster>,
     /// Groups in fine-to-coarse emission order.
     pub groups: Vec<FlatDagGroup>,
-    /// Groups rejected by the retained-ratio, empty-output or mixed-slot rule.
+    /// Groups rejected by retained-ratio, empty-output, mixed-slot or alpha coverage rules.
     pub stuck_groups: usize,
+    /// Steps rejected by the alpha coverage rule and retained as pinned stuck groups.
+    pub alpha_coverage_stuck_groups: usize,
+    /// Steps with raised error (zero: the coverage policy rejects failing steps).
+    pub alpha_coverage_raised_groups: usize,
     /// Groups rejected because simplification, including fallback, mixed material slots.
     pub material_stuck_groups: usize,
 }
@@ -96,6 +103,9 @@ pub fn build(
         || (ac < 32 && mesh.attribute_protect_mask >> ac != 0)
     {
         return Err(Error::InvalidLayout);
+    }
+    if let Some(alpha) = mesh.alpha_coverage {
+        alpha.validate(ac)?;
     }
     let stride =
         ac + usize::from(mesh.normals.is_some()) * 3 + usize::from(mesh.materials.is_some());
@@ -199,7 +209,7 @@ pub fn build(
             0,
         )?)
     };
-    let (stuck_groups, material_stuck_groups) = super::build_in_context_mode(
+    let (stuck_groups, material_stuck_groups, alpha_stuck_groups) = super::build_in_context_mode(
         config,
         MeshGeneric {
             indices: if mesh.materials.is_some() {
@@ -287,8 +297,10 @@ pub fn build(
         cfg!(feature = "parallel"),
         Some(BuildPolicy {
             material_component: slot_component,
+            alpha: mesh.alpha_coverage,
         }),
     )?;
+    out.alpha_coverage_stuck_groups = alpha_stuck_groups;
     out.stuck_groups = stuck_groups;
     out.material_stuck_groups = material_stuck_groups;
     ctx.free(topology)?;
@@ -393,4 +405,252 @@ pub(super) fn step_error(
         Ok(())
     })?;
     Ok(measured)
+}
+
+/// Opt-in alpha silhouette guard, using nine fixed sphere-grid views (including
+/// repeated seam directions), nearest repeated UV sampling, cutoff 0.5, and
+/// two samples per axis. A failing step is stuck, never assigned a guessed error.
+#[derive(Clone, Copy, Debug)]
+#[non_exhaustive]
+pub struct AlphaCoverage<'a> {
+    /// Mask per material slot; missing slots and `None` are opaque.
+    pub masks: &'a [Option<crate::AlphaMask<'a>>],
+    /// First of two consecutive UV components in the source attributes.
+    pub uv_component: usize,
+    /// Inclusive output/input covered-area band (default 0.93 to 1.07).
+    pub ratio_band: [f64; 2],
+    /// Maximum mean absolute 3x3 box-blurred alpha difference (default 0.12).
+    pub blurred_difference: f64,
+    /// Pixels per view side, 8 to 128 (default 32).
+    pub resolution: u32,
+}
+impl<'a> AlphaCoverage<'a> {
+    /// Default guard for two consecutive UV channels and caller material masks.
+    pub const fn new(masks: &'a [Option<crate::AlphaMask<'a>>], uv_component: usize) -> Self {
+        Self {
+            masks,
+            uv_component,
+            ratio_band: [0.93, 1.07],
+            blurred_difference: 0.12,
+            resolution: 32,
+        }
+    }
+    fn validate(self, components: usize) -> Result<(), Error> {
+        if self
+            .uv_component
+            .checked_add(2)
+            .is_none_or(|end| end > components)
+        {
+            return Err(Error::InvalidLayout);
+        }
+        if !self.ratio_band.iter().all(|x| x.is_finite())
+            || self.ratio_band[0] < 0.0
+            || self.ratio_band[0] > 1.0
+            || self.ratio_band[1] < 1.0
+            || !self.blurred_difference.is_finite()
+            || !(0.0..=1.0).contains(&self.blurred_difference)
+            || !(8..=128).contains(&self.resolution)
+        {
+            return Err(Error::InvalidParameter);
+        }
+        Ok(())
+    }
+}
+
+pub(super) fn alpha_failed(
+    input: &[u32],
+    output: &[u32],
+    mesh: &MeshGeneric<'_>,
+    slot: Option<usize>,
+    alpha: AlphaCoverage<'_>,
+    ctx: &mut Context<'_>,
+) -> Result<bool, Error> {
+    let attrs = mesh.attributes.ok_or(Error::InvalidLayout)?;
+    ctx.tick(input.len())?;
+    let has_mask = input.iter().any(|&v| {
+        let m = slot
+            .and_then(|s| attrs.get(v as usize, s))
+            .map_or(0, |x| x as usize);
+        alpha.masks.get(m).is_some_and(Option::is_some)
+    });
+    if !has_mask {
+        return Ok(false);
+    }
+    let mut uvs = ctx.alloc::<[f32; 2]>(mesh.positions.len())?;
+    ctx.tick(uvs.len())?;
+    for (v, uv) in uvs.iter_mut().enumerate() {
+        *uv = [
+            attrs
+                .get(v, alpha.uv_component)
+                .ok_or(Error::InvalidLayout)?,
+            attrs
+                .get(v, alpha.uv_component + 1)
+                .ok_or(Error::InvalidLayout)?,
+        ];
+    }
+    // Use the input framing for both renders; independently fitting the output
+    // would conceal shrinkage. Source-referenced vertices stay inside this sphere.
+    let mut options = crate::ImpostorOptions {
+        grid: crate::ImpostorGrid::new(crate::ImpostorLayout::Sphere, 3)?,
+        view_resolution: alpha.resolution,
+        dilation: 0,
+        coverage_threshold: 1.0,
+        ..crate::ImpostorOptions::default()
+    };
+    let mut bounds = None;
+    let mut render = |indices: &[u32], ctx: &mut Context<'_>| {
+        options.bounds = bounds;
+        ctx.child(|ws| {
+            let sampler = |t: usize, uv: [f32; 2]| {
+                let m = slot
+                    .and_then(|s| attrs.get(indices[t * 3] as usize, s))
+                    .map_or(0, |x| x as usize);
+                let a = alpha.masks.get(m).copied().flatten().map_or(1.0, |mask| {
+                    let x = (f64::from(uv[0]) - libm::floor(f64::from(uv[0])))
+                        * f64::from(mask.width());
+                    let y = (f64::from(uv[1]) - libm::floor(f64::from(uv[1])))
+                        * f64::from(mask.height());
+                    mask.alpha(
+                        (x as u32).min(mask.width() - 1),
+                        (y as u32).min(mask.height() - 1),
+                    )
+                    .map_or(0.0, f32::from)
+                        / 255.0
+                });
+                [1.0, 1.0, 1.0, a]
+            };
+            let atlas = crate::bake_impostor(
+                indices,
+                Positions::from_packed(mesh.positions),
+                None,
+                crate::ImpostorAlbedo::Texture {
+                    uvs: &uvs,
+                    sampler: &sampler,
+                },
+                options,
+                ws,
+            )?;
+            bounds = Some(atlas.bounds);
+            Ok(atlas.albedo_alpha)
+        })
+    };
+    let before = render(input, ctx)?;
+    let after = render(output, ctx)?;
+    let r = alpha.resolution as usize;
+    let size = r * 3;
+    ctx.tick(9 * r * r * 20)?;
+    let mut failed = false;
+    for view in 0..9 {
+        let (ox, oy) = ((view % 3) * r, (view / 3) * r);
+        let mut sums = [0u64; 2];
+        let mut diff = 0.0;
+        for y in 0..r {
+            for x in 0..r {
+                let i = (oy + y) * size + ox + x;
+                sums[0] += u64::from(before[i][3]);
+                sums[1] += u64::from(after[i][3]);
+                let mut blur = [0i32; 2];
+                for dy in -1isize..=1 {
+                    for dx in -1isize..=1 {
+                        let xx = x.saturating_add_signed(dx).min(r - 1);
+                        let yy = y.saturating_add_signed(dy).min(r - 1);
+                        let i = (oy + yy) * size + ox + xx;
+                        blur[0] += i32::from(before[i][3]);
+                        blur[1] += i32::from(after[i][3]);
+                    }
+                }
+                diff += f64::from((blur[0] - blur[1]).abs()) / (9.0 * 255.0);
+            }
+        }
+        // An empty reference view must stay empty; do not divide by zero.
+        let ratio = if sums[0] == 0 {
+            if sums[1] == 0 {
+                1.0
+            } else {
+                f64::INFINITY
+            }
+        } else {
+            sums[1] as f64 / sums[0] as f64
+        };
+        failed |= ratio < alpha.ratio_band[0]
+            || ratio > alpha.ratio_band[1]
+            || diff / (r * r) as f64 > alpha.blurred_difference;
+    }
+    ctx.free(before)?;
+    ctx.free(after)?;
+    ctx.free(uvs)?;
+    Ok(failed)
+}
+
+/// Coarsest fixed-error extraction and sampled fallback quality. This is a
+/// measured lower estimate of surface deviation, never a ray-error certificate.
+#[derive(Debug)]
+#[non_exhaustive]
+pub struct FallbackReport {
+    /// Indices of every parentless group's clusters, including stuck regions.
+    pub indices: Vec<u32>,
+    /// Symmetric sampled source/fallback deviation.
+    pub quality: crate::LodQuality,
+}
+/// Extract the coarsest complete mesh and measure it against source geometry.
+///
+/// # Errors
+/// Invalid DAG topology, mesh inputs, quality settings, or workspace exhaustion.
+pub fn measure_fallback(
+    built: &Built,
+    options: &crate::LodQualityOptions,
+    workspace: &mut Workspace,
+) -> Result<FallbackReport, Error> {
+    let mut ctx = Context::new(workspace)?;
+    let mut parents = ctx.alloc::<bool>(built.groups.len())?;
+    ctx.tick(built.clusters.len())?;
+    for c in &built.clusters {
+        if c.refined >= 0 {
+            *parents
+                .get_mut(c.refined as usize)
+                .ok_or(Error::InvalidTopology)? = true;
+        }
+    }
+    let mut source = ctx.alloc::<u32>(0)?;
+    let mut indices = ctx.alloc::<u32>(0)?;
+    for c in &built.clusters {
+        ctx.tick(1)?;
+        let end = c
+            .first_index
+            .checked_add(c.index_count)
+            .ok_or(Error::SizeOverflow)?;
+        let t = built
+            .indices
+            .get(c.first_index as usize..end as usize)
+            .ok_or(Error::InvalidTopology)?;
+        if !*parents
+            .get(c.group as usize)
+            .ok_or(Error::InvalidTopology)?
+        {
+            ctx.tick(t.len())?;
+            grow_output(&mut ctx, &mut indices, t.len())?;
+            indices.extend_from_slice(t);
+        }
+        if c.refined < 0 {
+            ctx.tick(t.len())?;
+            grow_output(&mut ctx, &mut source, t.len())?;
+            source.extend_from_slice(t);
+        }
+    }
+    let mut quality = None;
+    ctx.child(|ws| {
+        quality = Some(crate::measure_lod_quality(
+            LodQualityMesh::new(&source, Positions::from_packed(&built.positions)),
+            LodQualityMesh::new(&indices, Positions::from_packed(&built.positions)),
+            options,
+            ws,
+        )?);
+        Ok(())
+    })?;
+    ctx.free(source)?;
+    ctx.free(parents)?;
+    Ok(FallbackReport {
+        indices,
+        quality: quality.ok_or(Error::InvalidTopology)?,
+    })
 }

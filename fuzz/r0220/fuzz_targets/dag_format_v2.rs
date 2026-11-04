@@ -256,7 +256,12 @@ fn check(data: &[u8]) {
                 let _ = r.transcode_page(p, bytes, &mut out, &mut ws);
             }
         }
-        let _ = r.chunk(v2::TAG_FAR_FIELD);
+        if let Some(far) = r.far_field() {
+            assert_eq!(
+                far.encode().expect("valid metadata").as_slice(),
+                r.chunk(v2::TAG_FAR_FIELD).expect("FARF bytes")
+            );
+        }
         check_cuts(&r, data);
     }
     let Ok(all) = v2::Reader::read_all(data, &mut ws) else {
@@ -321,12 +326,22 @@ fn edits(data: &[u8]) -> Vec<Vec<u8>> {
     edit(b"MESH", v2::MESH_BYTES, 100, &|n| {
         n ^ (1 + (pick >> 12) % 65536)
     });
+    for offset in [4, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60] {
+        edit(b"FARF", v2::FAR_FIELD_BYTES, offset, &|w| {
+            w ^ pick.wrapping_add(1)
+        });
+    }
     edit(b"CREF", 4, 0, &|q| q.wrapping_add(1 + (pick >> 16) % 3));
     out
 }
 
 fuzz_target!(|data: &[u8]| {
     check(data);
+    if let Ok(far) = v2::FarField::decode(data) {
+        let encoded = far.encode().expect("validated FARF");
+        assert_eq!(encoded.as_slice(), data);
+        assert!(f64::from(far.world_error) >= far.texel_error.max(far.view_error));
+    }
     // Exercise attribute block validation independently of resident/page hashes.
     if data.len() <= 1 << 18 && data.len().is_multiple_of(4) {
         let words: Vec<u32> = data

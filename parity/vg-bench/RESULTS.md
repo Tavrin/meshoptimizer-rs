@@ -307,3 +307,66 @@ times: that is the geometry the default claim hides.
   the equal-deviation rows at 5 and 8 px sit above it.
 - Not measured: pinned bytes and MDAG 2 pages, wasm32 page decode (needs the MDAG 2 transcoder and wasmtime),
   the Khronos multi-material mesh, Lucy, alpha coverage, GPU runtime timing (the engine's gate).
+
+## L5 foliage: opt-in alpha guard
+
+L5 working tree based on `be4d4e0f558bf0af91d86ff19d7636b1aadfadbf`.
+CC0 Poly Haven `fern_02`, first primitive: 1,660 vertices, 2,384 triangles,
+normalized to extent 2, original 1k Alpha map, nearest repeat sampling, cutoff
+0.5, double sided. Grid -16, 32 triangles per cluster, partition size 2, UV
+weights zero. Guard defaults: nine fixed sphere-grid views at 32 pixels per
+side, 2x2 samples, ratio [0.93, 1.07], blurred difference <= 0.12.
+
+Cuts use a +Z perspective camera, vertical FOV 1 radian, viewport 1080, near
+0.01 and threshold 1 px. Both builds are written and every MDAG 2 page is read
+back; cut spheres/errors come from those files, including monotonic repair and
+the quantisation error floor. Coverage uses nine fixed orthographic captures
+of the same cut, at resolution derived from its apparent perspective sphere
+diameter (clamped to 8..512). Reference and cut share the source framing;
+the reference is snapped source geometry. Ratios below are extrema across the
+nine views, and blurred differences are the maximum view mean absolute 3x3
+box-blurred alpha difference. This is a CPU proxy, not a runtime filtering gate.
+
+| Distance | Raster side | Coverage off | Coverage on | Triangles off / on | Blur off / on |
+| ---: | ---: | --- | --- | ---: | --- |
+| 4 | 512 | 1.000000..1.000000 | 1.000000..1.000000 | 2384 / 2384 | 0 / 0 |
+| 8 | 328 | 0.999737..1.000065 | 0.999737..1.000065 | 2335 / 2335 | 0.000062 / 0.000062 |
+| 16 | 164 | 0.997321..1.003597 | 0.997072..1.001202 | 1894 / 2015 | 0.002042 / 0.001830 |
+| 32 | 82 | 0.958935..1.004249 | 0.978378..1.001583 | 749 / 1446 | 0.010802 / 0.006432 |
+| 64 | 41 | 0.958500..1.017033 | 0.972357..1.005382 | 345 / 1344 | 0.015994 / 0.007953 |
+
+All on rows satisfy the default ratio and blurred-difference limits; these off
+rows also happen to pass the global band. The guard improves the far silhouette
+and blurred difference, at a triangle cost. At distance 64 that cost is +999
+triangles (+289.6%); at 32 it is +697 (+93.1%); at 16 it is +121 (+6.4%).
+There are 28 alpha-stuck groups, zero error raises, and 28 total stuck groups
+with the guard on, versus one ordinary stuck group off. Total DAG triangles
+fall from 4,668 to 3,434 because rejected coarse levels are not emitted; this
+storage reduction does not imply a reduction in selected triangles.
+
+Coarsest fallback report, sampled against snapped source geometry with density
+1 interior sample per square mesh unit plus corners:
+
+| Policy | Fallback triangles | Sampled symmetric max | Sampled symmetric RMS |
+| --- | ---: | ---: | ---: |
+| off | 29 | 0.59553633 | 0.17145327 |
+| on | 1297 | 0.08589226 | 0.00697120 |
+
+These distances are lower estimates of Hausdorff distance, not ray certificates.
+No elapsed-time comparison is claimed. See `l5_inputs.py` and the
+`vg_foliage_measure` crate example for reproduction with caller-owned assets.
+
+Input SHA-256 binding:
+
+- glTF: `33974295ee19670af4877705fc7d91f33f42d6302f0d44a625e072271223031f`
+- binary buffer: `fe1abb762bcbbc7ad9e86925c8080437a62add257d9280e9142fdc85c226e64c`
+- Alpha PNG: `ea3c64284c7ebdeedf484d2d816eae92825ec526140c3bb83859ddc7a64001f9`
+- decoded L8 plane: `0d8db8510f400bad58cc7011a80ae01fdef864eb01242f6c3d1513f0255330b9`
+
+Disabled-path identity was checked against a read-only archive of the starting
+revision, with position-only and UV-input non-alpha fixtures. Complete MDAG files
+compare byte-for-byte equal: 6,239 bytes in each case, SHA-256
+`70c74d49fc2f8d5fcd9d5246e977b8373889f29e4f5d8b8c08892c377c9a31b0`.
+Build keys also match: `96893b40f5e65797` (position-only) and
+`69cf6d2d4d2f7202` (UV input). The focused tests additionally compare disabled
+coverage with enabled-but-unmasked and fully transparent inputs.

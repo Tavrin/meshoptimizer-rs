@@ -1,13 +1,13 @@
 //! MDAG 2 writer and build key (requires the `clusterlod` feature).
 #[allow(unused_imports)] // MIN/MAX_PAGE_CAPACITY are named by rustdoc links.
 use super::{
-    parent_lists, prefix_hash, xxh64, DependencyLists, PageLimits, Xxh64, ATTRIBUTE_HEADER_BYTES,
-    CHUNK_ALIGN, CHUNK_ENTRY_BYTES, CHUNK_REQUIRED, CLUSTER_REFINED_BYTES, CLUSTER_SPHERE_BYTES,
-    DEFAULT_MAX_PAGE_CLUSTERS, DEFAULT_PAGE_CAPACITY, GROUP_BYTES, HEADER_BYTES, MAJOR,
-    MAX_BUFFER_VIEW_BYTES, MAX_LEVELS, MAX_PAGE_CAPACITY, MESH_BYTES, MINOR, MIN_PAGE_CAPACITY,
-    NODE_BYTES, PAGE_BYTES, PAGE_PINNED, RESIDENT_HASH_FIELD, TAG_ATTRIBUTES, TAG_CLUSTER_REFINED,
-    TAG_CLUSTER_SPHERES, TAG_DEPENDENCIES, TAG_GROUPS, TAG_MATERIALS, TAG_MESH, TAG_NODES,
-    TAG_PAGES,
+    parent_lists, prefix_hash, xxh64, DependencyLists, FarField, PageLimits, Xxh64,
+    ATTRIBUTE_HEADER_BYTES, CHUNK_ALIGN, CHUNK_ENTRY_BYTES, CHUNK_REQUIRED, CLUSTER_REFINED_BYTES,
+    CLUSTER_SPHERE_BYTES, DEFAULT_MAX_PAGE_CLUSTERS, DEFAULT_PAGE_CAPACITY, FAR_FIELD_BYTES,
+    GROUP_BYTES, HEADER_BYTES, MAJOR, MAX_BUFFER_VIEW_BYTES, MAX_LEVELS, MAX_PAGE_CAPACITY,
+    MESH_BYTES, MINOR, MIN_PAGE_CAPACITY, NODE_BYTES, PAGE_BYTES, PAGE_PINNED, RESIDENT_HASH_FIELD,
+    TAG_ATTRIBUTES, TAG_CLUSTER_REFINED, TAG_CLUSTER_SPHERES, TAG_DEPENDENCIES, TAG_FAR_FIELD,
+    TAG_GROUPS, TAG_MATERIALS, TAG_MESH, TAG_NODES, TAG_PAGES,
 };
 use crate::clusterlod::bounds_math::{add_up, containing_radius, f32_up};
 use crate::clusterlod::cut::{self, CutError, MonotonicReport};
@@ -96,6 +96,8 @@ pub struct WriteOptions {
     pub node_width: usize,
     /// Disk form of every page.
     pub disk_codec: DiskCodec,
+    /// Optional caller-owned impostor handoff. Omitted by default.
+    pub far_field: Option<FarField>,
     /// Key stored in the header, normally [`build_key`] of the build inputs.
     pub build_key: u64,
 }
@@ -115,6 +117,7 @@ impl WriteOptions {
             node_width: DEFAULT_NODE_WIDTH,
             disk_codec: DiskCodec::Compressed,
             build_key: 0,
+            far_field: None,
         }
     }
     fn root_budget_bytes(&self) -> usize {
@@ -182,6 +185,8 @@ pub struct KeyInputs<'a, I: crate::Index = u32> {
     pub materials: Option<&'a [u16]>,
     /// Supplied source normals (the v2 builder uses weight 0.5).
     pub normals: Option<&'a [[f32; 3]]>,
+    /// Opt-in alpha policy; masks and every setting participate in the key.
+    pub alpha_coverage: Option<crate::clusterlod::v2::AlphaCoverage<'a>>,
     /// Whether the measured-step policy is used.
     pub measured_steps: bool,
 }
@@ -209,6 +214,7 @@ impl<'a, I: crate::Index> KeyInputs<'a, I> {
             materials: None,
             normals: None,
             measured_steps: true,
+            alpha_coverage: None,
         }
     }
 }
@@ -286,7 +292,47 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
             u32::from(optimize_clusters_level),
         ],
     );
+    if let Some(alpha) = inputs.alpha_coverage {
+        h.update(b"ALPHA-L5-REJECT-1");
+        h.update(&(alpha.uv_component as u64).to_le_bytes());
+        h.update(&alpha.resolution.to_le_bytes());
+        for v in [
+            alpha.ratio_band[0],
+            alpha.ratio_band[1],
+            alpha.blurred_difference,
+        ] {
+            h.update(&v.to_le_bytes());
+        }
+        h.update(&(alpha.masks.len() as u64).to_le_bytes());
+        for mask in alpha.masks {
+            h.update(&[u8::from(mask.is_some())]);
+            if let Some(mask) = mask {
+                h.update(&mask.width().to_le_bytes());
+                h.update(&mask.height().to_le_bytes());
+                for y in 0..mask.height() {
+                    for x in 0..mask.width() {
+                        // Coordinates are inside the validated mask dimensions.
+                        if let Some(alpha) = mask.alpha(x, y) {
+                            h.update(&[alpha]);
+                        }
+                    }
+                }
+            }
+        }
+    }
     let o = inputs.options;
+    if let Some(far) = o.far_field {
+        h.update(b"FARF-L5-1");
+        // Invalid settings cannot be written; still key every input bit.
+        h.update(&far.caller_tag.to_le_bytes());
+        h.update(&far.payload_hash.to_le_bytes());
+        h.update(&[u8::from(far.grid.layout == crate::ImpostorLayout::Sphere)]);
+        h.update(&far.grid.views_per_axis.to_le_bytes());
+        h.update(&far.view_resolution.to_le_bytes());
+        h.update(&far.texel_error.to_le_bytes());
+        h.update(&far.view_error.to_le_bytes());
+        h.update(&far.world_error.to_le_bytes());
+    }
     let mut layout_hash = 0;
     if let Ok(value) = crate::clusterlod::attributes::layout_hash(inputs.channels) {
         layout_hash = value;
@@ -873,8 +919,10 @@ pub fn write<I: crate::Index>(
     let material_count = source.materials.map_or(u32::from(!order.is_empty()), |m| {
         m.iter().copied().max().map_or(0, |x| u32::from(x) + 1)
     });
-    let chunk_count = if source.materials.is_some() { 9 } else { 8 };
-    let lengths = [
+    let far_record = options.far_field.map(FarField::encode).transpose()?;
+    let base_count = if source.materials.is_some() { 9 } else { 8 };
+    let chunk_count = base_count + usize::from(far_record.is_some());
+    let mut lengths = [
         MESH_BYTES,
         GROUP_BYTES * count,
         NODE_BYTES * nodes.len(),
@@ -884,9 +932,13 @@ pub fn write<I: crate::Index>(
         CLUSTER_SPHERE_BYTES * order.len(),
         CLUSTER_REFINED_BYTES * order.len(),
         16,
+        0,
     ];
+    if far_record.is_some() {
+        lengths[base_count] = FAR_FIELD_BYTES;
+    }
     let lengths = &lengths[..chunk_count];
-    let tags = [
+    let mut tags = [
         TAG_MESH,
         TAG_GROUPS,
         TAG_NODES,
@@ -896,9 +948,13 @@ pub fn write<I: crate::Index>(
         TAG_CLUSTER_SPHERES,
         TAG_CLUSTER_REFINED,
         TAG_MATERIALS,
+        TAG_FAR_FIELD,
     ];
+    if far_record.is_some() {
+        tags[base_count] = TAG_FAR_FIELD;
+    }
     let tags = &tags[..chunk_count];
-    let mut chunk_at = [0usize; 9];
+    let mut chunk_at = [0usize; 10];
     let mut cursor = HEADER_BYTES + tags.len() * CHUNK_ENTRY_BYTES;
     for (at, len) in chunk_at.iter_mut().zip(lengths.iter().copied()) {
         *at = cursor;
@@ -932,7 +988,18 @@ pub fn write<I: crate::Index>(
     out.resize(HEADER_BYTES, 0);
     for ((tag, at), len) in tags.iter().zip(chunk_at).zip(lengths.iter().copied()) {
         out.extend_from_slice(tag);
-        put(&mut out, &[CHUNK_REQUIRED, uint(at)?, uint(len)?]);
+        put(
+            &mut out,
+            &[
+                if *tag == TAG_FAR_FIELD {
+                    0
+                } else {
+                    CHUNK_REQUIRED
+                },
+                uint(at)?,
+                uint(len)?,
+            ],
+        );
     }
     let f = f32::to_bits;
     put(
@@ -1043,6 +1110,10 @@ pub fn write<I: crate::Index>(
     align(&mut out);
     if source.materials.is_some() {
         put(&mut out, &[material_count, 0, 0, 0]);
+        align(&mut out);
+    }
+    if let Some(record) = far_record {
+        out.extend_from_slice(&record);
         align(&mut out);
     }
     if out.len() != resident {

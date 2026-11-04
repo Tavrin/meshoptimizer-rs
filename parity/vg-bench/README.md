@@ -84,3 +84,18 @@ five alternately ordered timing repeats at 1 and 8 threads, pinned to cores 2
 and 2-9, then the 64-direction cut tables for both policies on all five meshes.
 It never waits for machine quiet. Every build, cut table and resource receipt
 has a separate file so reruns can use a fresh evidence directory.
+
+## Foliage coverage
+
+Use `l5_inputs.py <gltf> <buffer> <alpha.raw> <width> <height> <out.input>` to
+prepare a caller-owned single-material foliage primitive (the CC0 fern in
+`CORPUS.md`). The raw alpha bytes must match the texture's original row order.
+Run the crate example `vg_foliage_measure <out.input>` in an admitted CPU scope
+with the `clusterlod` feature. It compares off/on 1 px cuts at five distances,
+reports all nine fixed sphere-grid views as ratio extrema and maximum blurred
+difference, and reports triangle cost and sampled fallback quality. Raster
+framing is held fixed against the snapped source. Grid exponent is -16 and
+cluster capacity is 32 triangles, partition size 2, UV weights zero. The cut
+uses repaired spheres and error values read from actual MDAG 2 files (including
+the quantisation error floor); every page is validated. The example performs
+no timing.
