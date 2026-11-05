@@ -26,7 +26,7 @@ fn grid(n: usize) -> (Vec<[f32; 3]>, Vec<u32>) {
     (p, idx)
 }
 #[test]
-fn default_floor_prices_every_step_and_preserves_legacy() {
+fn default_floor_prices_original_regions_and_preserves_legacy() {
     let (p, i) = grid(12);
     let normals = vec![[0., 0., 1.]; p.len()];
     let mut c = cl::default_config(32).unwrap();
@@ -112,15 +112,34 @@ fn default_floor_prices_every_step_and_preserves_legacy() {
         "fixture must prepare multiple groups in parallel"
     );
     let mut measured_groups = 0;
+    let original_positions: Vec<_> = built
+        .vertex_source
+        .iter()
+        .map(|&id| p[id as usize])
+        .collect();
     for (g, group) in built.groups.iter().enumerate() {
         let mut input = Vec::new();
+        let mut pending = vec![g];
+        let mut seen = std::collections::BTreeSet::new();
+        while let Some(region) = pending.pop() {
+            if !seen.insert(region) {
+                continue;
+            }
+            for cluster in built.clusters.iter().filter(|c| c.group as usize == region) {
+                if cluster.refined < 0 {
+                    input.extend_from_slice(
+                        &built.indices[cluster.first_index as usize
+                            ..(cluster.first_index + cluster.index_count) as usize],
+                    );
+                } else {
+                    pending.push(cluster.refined as usize);
+                }
+            }
+        }
         let mut output = Vec::new();
         for c in &built.clusters {
             let t =
                 &built.indices[c.first_index as usize..(c.first_index + c.index_count) as usize];
-            if c.group as usize == g {
-                input.extend_from_slice(t);
-            }
             if c.refined == g as i32 {
                 output.extend_from_slice(t);
             }
@@ -131,7 +150,7 @@ fn default_floor_prices_every_step_and_preserves_legacy() {
         measured_groups += 1;
         let mut area = 0f64;
         for t in input.as_chunks::<3>().0 {
-            let [a, b, c] = t.map(|v| built.positions[v as usize].map(f64::from));
+            let [a, b, c] = t.map(|v| original_positions[v as usize].map(f64::from));
             let u = [0, 1, 2].map(|k| b[k] - a[k]);
             let v = [0, 1, 2].map(|k| c[k] - a[k]);
             let n = [
@@ -146,7 +165,7 @@ fn default_floor_prices_every_step_and_preserves_legacy() {
         let q = meshoptimizer_rs::measure_lod_quality(
             meshoptimizer_rs::LodQualityMesh::new(
                 &input,
-                meshoptimizer_rs::Positions::from_packed(&built.positions),
+                meshoptimizer_rs::Positions::from_packed(&original_positions),
             ),
             meshoptimizer_rs::LodQualityMesh::new(
                 &output,

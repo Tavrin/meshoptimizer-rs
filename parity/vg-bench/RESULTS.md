@@ -1,7 +1,59 @@
 # Virtual-geometry benchmark results
 
-Current rerun: base `420220c49b375936a3d47b45955638e86a99cf63`, builder revision 3.
+Earlier policy rerun: base `420220c49b375936a3d47b45955638e86a99cf63`, builder revision 3.
 The historical MDAG 1 tables below retain their original source revision and method.
+
+## MDAG 2 source-region repair (builder revision 4)
+
+Before is revision 3 at `1ef3ecf72cdb0fe9f6d5056e76534c0690819568`; after is the repaired v2 path.
+Both use identical normalized inputs, normals at weight 0.5, grid -22, and 128 triangles per cluster.
+Errors now include the sampled symmetric deviation from the original leaf-triangle union, before snapping,
+and inherited child errors. Shared refined groups are visited once per region. The previous step floor
+remains an additional bound. This does not certify continuous Hausdorff distance.
+
+Cut evaluation: 64 directions, six spans, 200,000 source samples. Ratios below are in scene units
+over views at threshold 1 px; median and p95 use the harness order statistics. All 30 cut self-checks passed.
+
+| Mesh | Before median / p95 | After median / p95 | Before / after mean cut triangles |
+| --- | ---: | ---: | ---: |
+| bunny | 1.055 / 1.140 | 1.026 / 1.036 | 22381 / 40166 |
+| dead_tree_trunk_02 | 1.033 / 1.180 | 1.000 / 1.061 | 34241 / 53880 |
+| namaqualand_boulder_02 | 0.919 / 1.000 | 1.000 / 1.000 | 48675 / 66314 |
+| coast_rocks_01 | 1.039 / 1.233 | 1.000 / 1.000 | 66636 / 337586 |
+| dragon | 1.222 / 1.728 | 1.000 / 1.000 | 80162 / 435717 |
+
+P95 per-view maximum deviation in pixels, thresholds 0.5 / 1 / 2 / 4 px:
+
+| Mesh | Before | After |
+| --- | ---: | ---: |
+| bunny | 0.723 / 2.511 / 4.500 / 8.104 | 0.723 / 2.511 / 4.500 / 4.500 |
+| dead_tree_trunk_02 | 0.631 / 1.596 / 5.407 / 10.722 | 0.631 / 1.596 / 5.407 / 6.723 |
+| namaqualand_boulder_02 | 0.534 / 1.188 / 2.859 / 9.623 | 0.534 / 1.188 / 2.859 / 9.623 |
+| coast_rocks_01 | 1.459 / 2.909 / 5.298 / 10.224 | 1.459 / 2.088 / 2.088 / 2.088 |
+| dragon | 1.671 / 3.286 / 8.377 / 12.704 | 1.285 / 1.880 / 1.880 / 1.880 |
+
+The repaired rocks and dragon deviation curves plateau at coarser thresholds.
+The higher selected-triangle counts above record the geometry retention cost.
+
+Build plus write milliseconds: median / p95 (nearest rank, maximum of five). Five interleaved repeats,
+alternating policy order, pinned to core 2 for 1T and cores 2–9 for 8T on a shared machine.
+The added source-region pass is serial and retains workspace accounting. Cost ratios use these paired runs;
+historical revision-3 timings below came from a different session.
+
+| Mesh | 1T before | 1T after | Cost | 8T before | 8T after | Cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | 1145.1 / 1262.7 | 5417.1 / 5865.5 | 4.73x | 472.5 / 498.4 | 4473.0 / 4956.2 | 9.47x |
+| dead_tree_trunk_02 | 1598.7 / 1983.8 | 7009.2 / 9214.7 | 4.38x | 551.0 / 638.8 | 5773.0 / 7806.0 | 10.48x |
+| namaqualand_boulder_02 | 1638.7 / 1696.6 | 7670.0 / 8070.1 | 4.68x | 524.1 / 566.1 | 6510.6 / 6713.1 | 12.42x |
+| coast_rocks_01 | 9903.4 / 10221.6 | 76837.2 / 81096.6 | 7.76x | 3073.3 / 3168.1 | 68553.2 / 70858.9 | 22.31x |
+| dragon | 12778.0 / 13013.3 | 135646.0 / 136033.4 | 10.62x | 3978.4 / 4364.8 | 125110.1 / 131801.9 | 31.45x |
+
+The old step-only floor is insufficient independently of sampling: A contains unit XY triangles at
+z=0,1,2; B retains z=1,2; C retains z=2. Step deviations are 1 and 1, while original-to-final
+deviation is 2. The regression verifies that the recorded final replacement error is 2.
+
+Half attribute decoding now expands subnormals exactly, including both signs and signed zero.
+The standalone legacy half helper retains its upstream flush behavior. WGSL is validated with naga.
 
 ## MDAG 2 measured-policy rerun
 

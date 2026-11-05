@@ -25,7 +25,8 @@ use alloc::vec::Vec;
 /// Bumped whenever equal inputs produce different bytes; part of [`build_key`].
 /// Revision 2 added the `CREF` chunk and extended the resident hash over the
 /// header. Revision 3 adds the measured build policy, attributes and materials.
-pub const BUILDER_REVISION: u32 = 3;
+/// Revision 4 measures replacements against their original source regions.
+pub const BUILDER_REVISION: u32 = 4;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -187,7 +188,7 @@ pub struct KeyInputs<'a, I: crate::Index = u32> {
     pub normals: Option<&'a [[f32; 3]]>,
     /// Opt-in alpha policy; masks and every setting participate in the key.
     pub alpha_coverage: Option<crate::clusterlod::v2::AlphaCoverage<'a>>,
-    /// Whether the measured-step policy is used.
+    /// Whether the v2 sampled step and original-source error policy is used.
     pub measured_steps: bool,
 }
 

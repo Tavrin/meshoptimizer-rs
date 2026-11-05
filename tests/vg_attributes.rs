@@ -507,3 +507,70 @@ fn builder_and_container_material_roundtrip_and_identity() {
     key.normals = Some(&normals);
     assert_ne!(mat, v2::build_key(&key));
 }
+
+#[test]
+fn half_subnormals_match_ieee_attribute_vectors() {
+    // The review reproduction: a single accepted smallest subnormal.
+    let words = [13, 1, 1, 1, 99, 5, 0, 0, 0, 0, 0, 0, 0x0000_0001];
+    assert_eq!(
+        Block::new(&words, 1).unwrap().decode(0, 0).unwrap()[0].to_bits(),
+        0x3380_0000
+    );
+    let words: Vec<u32> = include_str!("../docs/attribute_vectors.txt")
+        .split("# Separate F16x2 block,")
+        .nth(1)
+        .unwrap()
+        .lines()
+        .filter_map(|line| line.strip_prefix("# "))
+        .take_while(|line| !line.starts_with("Expected"))
+        .flat_map(str::split_whitespace)
+        .map(|word| u32::from_str_radix(word, 16).unwrap())
+        .collect();
+    let block = Block::new(&words, 2).unwrap();
+    assert_eq!(
+        block.decode(0, 0).unwrap().map(f32::to_bits),
+        [0x3380_0000, 0x387f_c000, 0, 0]
+    );
+    assert_eq!(
+        block.decode(0, 1).unwrap().map(f32::to_bits),
+        [0xb380_0000, 0xb87f_c000, 0, 0]
+    );
+    // Exhaust the accepted half domain, including signed zeros, for both layouts.
+    for encoding in [5, 6] {
+        for half in 0..=u16::MAX {
+            if half & 0x7c00 == 0x7c00 {
+                continue;
+            }
+            let mut words = vec![
+                14,
+                1,
+                2,
+                1,
+                99,
+                encoding,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                u32::from(half) * 0x10001,
+                0,
+            ];
+            if encoding == 5 {
+                words.truncate(13);
+                words[0] = 13;
+                words[2] = 1;
+            }
+            let got = Block::new(&words, 1).unwrap().decode(0, 0).unwrap()[0];
+            let sign = u32::from(half & 0x8000) << 16;
+            let exp = (half >> 10) & 31;
+            let expected = if exp == 0 {
+                (f32::from(half & 1023) * 2f32.powi(-24)).to_bits() | sign
+            } else {
+                sign | ((u32::from(exp) + 112) << 23) | (u32::from(half & 1023) << 13)
+            };
+            assert_eq!(got.to_bits(), expected, "{half:04x}");
+        }
+    }
+}

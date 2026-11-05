@@ -69,9 +69,10 @@ pub struct Built {
     pub material_stuck_groups: usize,
 }
 /// Build a snapped DAG with normals weighted by 0.5, protected material seams,
-/// and a sampled symmetric simplification-step error floor (4000 area-scaled
-/// interior samples, plus all corners). The floor is a measurement, not a
-/// continuous Hausdorff certificate. Errors are accumulated monotonically.
+/// and a sampled symmetric original-source error floor (4000 area-scaled
+/// interior samples, plus all corners). Each region is the union of its leaf
+/// triangles before snapping. Errors also bound inherited child errors.
+/// Sampling is not a continuous Hausdorff certificate.
 /// Dilation is rejected: this path retains exact source attribute references.
 ///
 /// # Errors
@@ -306,7 +307,91 @@ pub fn build(
     ctx.free(topology)?;
     ctx.free(weights)?;
     ctx.free(locks)?;
+    source_error_floor(&mut out, mesh.positions, &mut ctx)?;
     Ok(out)
+}
+
+// A cluster split can send siblings to different parents. Follow refined groups
+// once per region, not once per cluster: each replacement represents the union
+// of all source triangles under the group, including siblings in other parents.
+fn source_error_floor(
+    out: &mut Built,
+    original_positions: &[[f32; 3]],
+    ctx: &mut Context<'_>,
+) -> Result<(), Error> {
+    let mut source_positions = ctx.alloc(out.positions.len())?;
+    ctx.tick(source_positions.len())?;
+    for (p, &id) in source_positions.iter_mut().zip(&out.vertex_source) {
+        *p = original_positions[id as usize];
+    }
+    let mut heads = ctx.alloc::<Option<usize>>(out.groups.len())?;
+    let mut next = ctx.alloc::<Option<usize>>(out.clusters.len())?;
+    ctx.tick(out.clusters.len())?;
+    for (i, c) in out.clusters.iter().enumerate().rev() {
+        if c.refined >= 0 {
+            let g = c.refined as usize;
+            next[i] = heads[g];
+            heads[g] = Some(i);
+        }
+    }
+    let mut visited = ctx.alloc::<usize>(out.groups.len())?;
+    let mut stack = ctx.alloc::<usize>(0)?;
+    let mut source = ctx.alloc::<u32>(0)?;
+    let mut simplified = ctx.alloc::<u32>(0)?;
+    for g in 0..out.groups.len() {
+        if out.groups[g].error == f32::MAX {
+            continue;
+        }
+        source.clear();
+        simplified.clear();
+        stack.clear();
+        grow_output(ctx, &mut stack, 1)?;
+        stack.push(g);
+        visited[g] = g + 1;
+        let mut inherited = 0f32;
+        while let Some(region) = stack.pop() {
+            let group = &out.groups[region];
+            let start = group.first_cluster as usize;
+            for c in &out.clusters[start..start + group.cluster_count as usize] {
+                ctx.tick(1)?;
+                if c.refined >= 0 {
+                    let child = c.refined as usize;
+                    inherited = inherited.max(out.groups[child].error);
+                    if visited[child] != g + 1 {
+                        visited[child] = g + 1;
+                        grow_output(ctx, &mut stack, 1)?;
+                        stack.push(child);
+                    }
+                } else {
+                    let start = c.first_index as usize;
+                    let triangles = &out.indices[start..start + c.index_count as usize];
+                    ctx.tick(triangles.len())?;
+                    grow_output(ctx, &mut source, triangles.len())?;
+                    source.extend_from_slice(triangles);
+                }
+            }
+        }
+        let mut cursor = heads[g];
+        while let Some(i) = cursor {
+            let c = &out.clusters[i];
+            let start = c.first_index as usize;
+            let triangles = &out.indices[start..start + c.index_count as usize];
+            ctx.tick(triangles.len())?;
+            grow_output(ctx, &mut simplified, triangles.len())?;
+            simplified.extend_from_slice(triangles);
+            cursor = next[i];
+        }
+        let measured = region_error(&source, &simplified, &source_positions, &out.positions, ctx)?;
+        out.groups[g].error = out.groups[g].error.max(inherited).max(measured);
+    }
+    ctx.free(source_positions)?;
+    ctx.free(heads)?;
+    ctx.free(next)?;
+    ctx.free(visited)?;
+    ctx.free(stack)?;
+    ctx.free(source)?;
+    ctx.free(simplified)?;
+    Ok(())
 }
 
 fn grow_output<T>(ctx: &mut Context<'_>, values: &mut Vec<T>, extra: usize) -> Result<(), Error> {
@@ -377,6 +462,16 @@ pub(super) fn step_error(
     positions: &[[f32; 3]],
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
+    region_error(input, output, positions, positions, ctx)
+}
+
+fn region_error(
+    input: &[u32],
+    output: &[u32],
+    positions: &[[f32; 3]],
+    output_positions: &[[f32; 3]],
+    ctx: &mut Context<'_>,
+) -> Result<f32, Error> {
     let mut area = 0f64;
     ctx.tick(input.len())?;
     for t in input.as_chunks::<3>().0 {
@@ -397,7 +492,7 @@ pub(super) fn step_error(
     ctx.child(|ws| {
         let q = crate::measure_lod_quality(
             LodQualityMesh::new(input, Positions::from_packed(positions)),
-            LodQualityMesh::new(output, Positions::from_packed(positions)),
+            LodQualityMesh::new(output, Positions::from_packed(output_positions)),
             &options,
             ws,
         )?;
@@ -653,4 +748,49 @@ pub fn measure_fallback(
         indices,
         quality: quality.ok_or(Error::InvalidTopology)?,
     })
+}
+
+#[cfg(test)]
+mod source_error_tests {
+    use super::*;
+
+    #[test]
+    fn successive_unit_steps_bound_original_region() {
+        let positions: Vec<_> = (0..3)
+            .flat_map(|z| [[0., 0., z as f32], [1., 0., z as f32], [0., 1., z as f32]])
+            .collect();
+        let a: Vec<u32> = (0..9).collect();
+        let b: Vec<u32> = (3..9).collect();
+        let c: Vec<u32> = (6..9).collect();
+        let mut workspace = Workspace::default();
+        let mut ctx = Context::new(&mut workspace).expect("workspace");
+        assert_eq!(step_error(&a, &b, &positions, &mut ctx), Ok(1.));
+        assert_eq!(step_error(&b, &c, &positions, &mut ctx), Ok(1.));
+        assert_eq!(step_error(&a, &c, &positions, &mut ctx), Ok(2.));
+        let mut built = Built {
+            positions: positions.clone(),
+            vertex_source: (0..9).collect(),
+            indices: [a, b, c].concat(),
+            ..Built::default()
+        };
+        for (g, (first, count)) in [(0, 9), (9, 6), (15, 3)].into_iter().enumerate() {
+            built.groups.push(FlatDagGroup {
+                first_cluster: g as u32,
+                cluster_count: 1,
+                error: if g == 2 { f32::MAX } else { 1. },
+                ..FlatDagGroup::default()
+            });
+            built.clusters.push(FlatDagCluster {
+                first_index: first,
+                index_count: count,
+                group: g as u32,
+                refined: g as i32 - 1,
+                ..FlatDagCluster::default()
+            });
+        }
+        source_error_floor(&mut built, &positions, &mut ctx).expect("source measurement");
+        assert_eq!(built.groups[0].error, 1.);
+        assert_eq!(built.groups[1].error, 2.);
+        assert_eq!(built.groups[2].error, f32::MAX);
+    }
 }

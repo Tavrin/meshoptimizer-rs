@@ -129,7 +129,11 @@ a *parent* of `Q` when a cluster lies in both `B(Q)` and `A(P)`. A group without
 children `B` is *parentless*: a group that could not be simplified further, or
 the final group. All bounds used below are the **group records**: a cluster's
 own error is the error of `R(c)`, and the cluster's stored sphere is not used for
-level selection.
+level selection. The MDAG 2 builder measures each replacement `B(Q)` against
+the union of original leaf triangles reachable through `A(Q)`, before snapping.
+Shared refined groups are visited once per region. Its stored error bounds this
+sampled symmetric deviation and every inherited child error; it is not a
+continuous Hausdorff bound. Legacy builds retain upstream error semantics.
 
 **Projected error.** Errors and radii are lengths in the mesh frame. For an
 instance whose linear transform has largest singular value `s`, multiply error
@@ -163,7 +167,8 @@ Hierarchy-node culling is separate from these group-level refinement decisions.
 `cut::check_monotonic` still validates stored error ordering and sphere
 containment in upward-rounded `f64`, and `cut::enforce_monotonic` raises parent
 errors and grows radii. These geometric properties order ideal projections,
-but do not replace the runtime clamp. Builder output is unchanged. A fixed-error
+but do not replace the runtime clamp. The runtime clamp does not alter stored
+builder output. A fixed-error
 cut for proxies and fallbacks uses the same clamp with raw group errors
 (`cut::select_error_cut`); the error is an estimate, not a surface-distance
 certificate.
@@ -402,7 +407,7 @@ node width, the input positions (bits) and indices (as `u32`, so `u16` and
 vertex flags (presence word, count, one byte each), attributes (presence word,
 vertex count, component count, value bits), attribute weights (count, bits)
 and the protect mask. A cooker can test its cache before building.
-`BUILDER_REVISION` (3) is bumped whenever equal inputs produce different bytes.
+`BUILDER_REVISION` (4) is bumped whenever equal inputs produce different bytes.
 The writer stores `WriteOptions::build_key` as given (zero when not set).
 
 **Versioning.** The minor version is informational. A later minor may add
@@ -521,10 +526,17 @@ The fuzz target is
 
 `clusterlod::v2::build` is the static build entry point for MDAG 2. It snaps
 positions before building, uses supplied normals as three attributes of weight
-0.5, and measures every accepted simplification step with `measure_lod_quality`:
-4000 area-scaled interior samples plus triangle corners in each direction. The
-maximum of the two one-sided maxima floors the simplifier's error; inherited
-errors remain monotonic. This is sampled evidence, **not a continuous surface
+0.5, and measures every accepted replacement against its original source region
+with `measure_lod_quality`: 4000 area-scaled interior samples plus triangle
+corners in each direction. The region is the union of source leaf triangles
+under the replaced clusters, using positions before snapping. Shared refined
+groups contribute their source triangles once. The maximum of the two one-sided
+maxima floors the existing step estimate and inherited child errors. A final
+fine-to-coarse pass restores monotonicity after these source measurements.
+The density is 4000 divided by source-region area (clamped below at 1e-12);
+each triangle rounds its interior count up, so this is not a hard 4000-sample
+cap. Corners are always included, degenerates have corners only, and the same
+density is used in both directions. Workspace memory/work limits still apply. This is sampled evidence, **not a continuous surface
 error certificate**. The writer adds the grid displacement as before. Legacy
 cluster-LOD APIs and MDAG 1 retain their upstream error semantics.
 
@@ -546,7 +558,7 @@ opaque and unique. At most 16 channels are accepted; a channel's last source
 component must be below 32. Encoding IDs and errors are in `PAGE_FORMAT.md`.
 The hash is the low 32 bits of XXH64 of the channel records, seed zero. The
 build key includes layout fields, source normals, source per-triangle slots,
-and the measured-step policy. Builder revision is 3.
+and the measured-step policy. Builder revision is 4 (source-region error measurements require a recook).
 
 `Source` accepts this layout, an attribute view in snapshot-vertex order, and an
 optional slot per vertex. The writer rejects mixed-slot source triangles and

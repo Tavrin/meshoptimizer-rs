@@ -408,7 +408,15 @@ impl<'a> Block<'a> {
             }
             Encoding::F16x2 | Encoding::F16x4 => {
                 for c in 0..e.components() {
-                    x[c] = crate::dequantize_half((p[c / 2] >> ((c % 2) * 16)) as u16);
+                    let half = (p[c / 2] >> ((c % 2) * 16)) as u16;
+                    // The legacy quantization API intentionally flushes subnormals.
+                    // Attribute payloads use IEEE half, matching the WGSL decoder.
+                    x[c] = if half & 0x7c00 == 0 {
+                        let magnitude = f32::from(half & 0x03ff) * (1.0 / 16777216.0);
+                        f32::from_bits(magnitude.to_bits() | (u32::from(half & 0x8000) << 16))
+                    } else {
+                        crate::dequantize_half(half)
+                    };
                 }
             }
             Encoding::Unorm8x4 => {
