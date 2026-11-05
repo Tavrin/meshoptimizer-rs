@@ -566,13 +566,13 @@ fn region_error(
     };
     let mut measured = 0.0;
     ctx.child(|ws| {
-        let q = crate::measure_lod_quality(
+        let maximum = crate::lod_quality::measure_max(
             LodQualityMesh::new(input, Positions::from_packed(positions)),
             LodQualityMesh::new(output, Positions::from_packed(output_positions)),
             &options,
             ws,
         )?;
-        measured = super::bounds_math::f32_up(q.symmetric.max);
+        measured = super::bounds_math::f32_up(maximum);
         Ok(())
     })?;
     Ok(measured)

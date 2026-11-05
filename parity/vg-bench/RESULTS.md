@@ -3,6 +3,166 @@
 Earlier policy rerun: base `420220c49b375936a3d47b45955638e86a99cf63`, builder revision 3.
 The historical MDAG 1 tables below retain their original source revision and method.
 
+## MDAG 2 compact distance records
+
+Starting source: `ab13064a1cf8f02957663eacbc83cec001221f56` (builder revision 5).
+The builder now measures only the symmetric maximum. Each sample first tries the
+previous target triangle, then traverses the existing BVH until a distance witnesses
+that it cannot raise the running maximum. Samples that can raise it finish the
+original exact query. The reverse direction starts with the forward maximum.
+Repeated corners reuse their earlier bound through a budgeted vertex bitset.
+Distance-only BVH records omit unused normals, reducing each triangle record
+from 152 to 80 bytes. Public statistics retain their complete normal records.
+Cached witnesses try the existing face-distance candidate before edge distances;
+samples that can raise the maximum still finish the unchanged exact query.
+Every sample visit/count, interior sample, distance arithmetic, recorded error, grouping
+and file format are retained. Public RMS and normal statistics use the full query.
+
+Build plus write milliseconds: six counterbalanced interleaved repeats, rotating
+the retained revision-3, current and reference binary order; core 2 at 1T and
+cores 2–9 at 8T on a shared host. Cells are median / maximum (p95 of six).
+The reference is built from the pinned harness dependencies and measured in
+each repeat on the same inputs and cores. Profiles are separate.
+
+| Mesh | Revision 3 1T | Current 1T | Reference 1T | Revision 3 8T | Current 8T | Reference 8T | 8T / revision 3 | 8T / reference |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | 1024.8 / 1203.5 | 1182.8 / 1286.3 | 557.4 / 643.6 | 387.1 / 407.5 | 516.4 / 541.5 | 528.7 / 554.9 | 1.33x | 0.98x |
+| dead_tree_trunk_02 | 1375.2 / 1486.4 | 1250.9 / 1326.1 | 640.9 / 675.5 | 497.0 / 531.5 | 552.7 / 586.1 | 651.7 / 659.4 | 1.11x | 0.85x |
+| namaqualand_boulder_02 | 1461.8 / 1560.0 | 1416.5 / 1492.5 | 784.8 / 862.6 | 513.7 / 570.2 | 580.7 / 600.9 | 780.4 / 809.0 | 1.13x | 0.74x |
+| coast_rocks_01 | 9706.5 / 10123.0 | 11605.6 / 12411.2 | 7688.5 / 8165.4 | 3078.4 / 3258.5 | 4868.3 / 5104.9 | 7576.8 / 8101.6 | 1.58x | 0.64x |
+| dragon | 11454.6 / 11502.7 | 14742.5 / 15191.5 | 9716.4 / 12602.3 | 3642.2 / 3690.2 | 5510.8 / 5758.0 | 9728.6 / 9765.1 | 1.51x | 0.57x |
+
+Complete output bytes match the pinned starting source at 1T and 8T on all five
+meshes, and match between thread counts. SHA-256 of each complete file:
+
+| Mesh | SHA-256 (1T = 8T = starting source) |
+| --- | --- |
+| bunny | `eaba70a062072139b2c536ccf46b7a109fed74695301740ae53cd09b8b7612d5` |
+| dead_tree_trunk_02 | `80bb1fff3126c18609ee9a159b3d5a2da1003cc8aa4343cea95d85ee3d568108` |
+| namaqualand_boulder_02 | `3ba6e6bcafc566fb5d37f2ca3f513a035032d8e5d2d182cff286ed6f4c32d98f` |
+| coast_rocks_01 | `c510ac833c759d10abf712a61b811ecdc4509b5be18c467a37c218b28a23886e` |
+| dragon | `a7f7931c35c3f5a5a206142470e9c13eca68bd40caf5d74db9a7596e3db4c50b` |
+
+IBS op sampling uses dragon separately from timing. Percentages below are
+self samples; cached-witness work appears in sample / face-witness routines.
+A dash means no separate symbol entry (inlining can move attribution).
+Kernel symbols may be restricted; raw profiles retain warnings and loss counts.
+
+| Routine | Starting source | Current |
+| --- | ---: | ---: |
+| Tree query | 76.39% | 17.03% |
+| Sample / cached witness | 0.88% | 2.08% |
+| Closest helper | — | 10.17% |
+| Face witness | — | 2.55% |
+| BVH partition | 3.82% | 0.00% |
+| BVH construction | 1.98% | 35.71% |
+| Memory copies | 9.24% | 0.32% |
+
+Decision: timing bars met on all five meshes.
+
+## MDAG 2 corner-query reuse
+
+Starting source: `ab13064a1cf8f02957663eacbc83cec001221f56` (builder revision 5).
+The builder now measures only the symmetric maximum. Each sample first tries the
+previous target triangle, then traverses the existing BVH until a distance witnesses
+that it cannot raise the running maximum. Samples that can raise it finish the
+original exact query. The reverse direction starts with the forward maximum.
+Repeated corners reuse their earlier bound through a budgeted vertex bitset.
+Every sample visit/count, interior sample, distance arithmetic, recorded error, grouping
+and file format are retained. Public RMS and normal statistics use the full query.
+
+Build plus write milliseconds: six counterbalanced interleaved repeats, rotating
+the retained revision-3, current and reference binary order; core 2 at 1T and
+cores 2–9 at 8T on a shared host. Cells are median / maximum (p95 of six).
+The reference is built from the pinned harness dependencies and measured in
+each repeat on the same inputs and cores. Profiles are separate.
+
+| Mesh | Revision 3 1T | Current 1T | Reference 1T | Revision 3 8T | Current 8T | Reference 8T | 8T / revision 3 | 8T / reference |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | 1199.6 / 1624.4 | 2042.1 / 2365.3 | 887.9 / 1173.5 | 526.9 / 824.7 | 1032.3 / 1320.2 | 824.4 / 1102.6 | 1.96x | 1.25x |
+| dead_tree_trunk_02 | 1871.2 / 2051.8 | 1995.6 / 3090.9 | 858.9 / 1032.0 | 560.1 / 805.2 | 1009.7 / 1337.3 | 808.4 / 1005.1 | 1.80x | 1.25x |
+| namaqualand_boulder_02 | 1939.7 / 2770.5 | 2550.7 / 3498.4 | 1068.4 / 1502.3 | 625.3 / 1076.8 | 1048.7 / 1323.6 | 1063.0 / 1350.6 | 1.68x | 0.99x |
+| coast_rocks_01 | 10021.8 / 14328.9 | 18123.9 / 21470.4 | 8641.9 / 12996.6 | 3218.3 / 3434.2 | 7058.9 / 8644.5 | 8640.6 / 10243.3 | 2.19x | 0.82x |
+| dragon | 13586.2 / 14883.2 | 24294.2 / 24688.6 | 13337.0 / 14379.0 | 4054.3 / 5089.4 | 9467.7 / 9804.2 | 11936.1 / 13437.6 | 2.34x | 0.79x |
+
+Complete output bytes match the pinned starting source at 1T and 8T on all five
+meshes, and match between thread counts. SHA-256 of each complete file:
+
+| Mesh | SHA-256 (1T = 8T = starting source) |
+| --- | --- |
+| bunny | `eaba70a062072139b2c536ccf46b7a109fed74695301740ae53cd09b8b7612d5` |
+| dead_tree_trunk_02 | `80bb1fff3126c18609ee9a159b3d5a2da1003cc8aa4343cea95d85ee3d568108` |
+| namaqualand_boulder_02 | `3ba6e6bcafc566fb5d37f2ca3f513a035032d8e5d2d182cff286ed6f4c32d98f` |
+| coast_rocks_01 | `c510ac833c759d10abf712a61b811ecdc4509b5be18c467a37c218b28a23886e` |
+| dragon | `a7f7931c35c3f5a5a206142470e9c13eca68bd40caf5d74db9a7596e3db4c50b` |
+
+IBS op sampling uses dragon separately from timing. Percentages below are
+self samples; cached-witness distance work appears in the sample routine.
+A dash means no separate symbol entry (inlining can move attribution).
+Kernel symbols may be restricted; raw profiles retain warnings and loss counts.
+
+| Routine | Starting source | Current |
+| --- | ---: | ---: |
+| Tree query | 75.81% | 10.95% |
+| Sample / cached witness | 0.90% | 2.07% |
+| Closest helper | — | 8.27% |
+| BVH partition | 3.88% | 13.30% |
+| BVH construction | 1.99% | 7.36% |
+| Memory copies | 9.40% | 33.99% |
+
+Decision: not qualified; retain the measured improvement and failed timing bars.
+
+## MDAG 2 maximum-only distance queries
+
+Starting source: `ab13064a1cf8f02957663eacbc83cec001221f56` (builder revision 5).
+The builder now measures only the symmetric maximum. Each sample first tries the
+previous target triangle, then traverses the existing BVH until a distance witnesses
+that it cannot raise the running maximum. Samples that can raise it finish the
+original exact query. The reverse direction starts with the forward maximum.
+Every corner and interior sample, distance arithmetic, recorded error, grouping
+and file format are retained. Public RMS and normal statistics use the full query.
+
+Build plus write milliseconds: five interleaved repeats, alternating order against
+a retained revision-3 binary; core 2 at 1T and cores 2–9 at 8T on a shared host.
+Cells are median / maximum. The reference columns retain the earlier five-run
+reference measurements from the build-time table below; they are historical controls,
+not contemporaneous interleaved reference measurements. Profiles are separate.
+
+| Mesh | Revision 3 1T | Current 1T | Reference 1T | Revision 3 8T | Current 8T | Reference 8T | 8T / revision 3 | 8T / reference |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | 985.4 / 1217.0 | 1913.9 / 1971.7 | 516 | 361.6 / 375.3 | 744.3 / 838.5 | 511 | 2.06x | 1.46x |
+| dead_tree_trunk_02 | 1392.2 / 1448.4 | 2023.3 / 2162.2 | 659 | 455.4 / 467.0 | 749.1 / 828.2 | 632 | 1.64x | 1.19x |
+| namaqualand_boulder_02 | 2019.5 / 2383.0 | 2954.1 / 3347.5 | 993 | 990.5 / 1289.1 | 1773.0 / 1951.6 | 783 | 1.79x | 2.26x |
+| coast_rocks_01 | 16059.6 / 19269.0 | 31254.3 / 39524.4 | 9464 | 4661.5 / 8555.5 | 16021.2 / 22069.2 | 7571 | 3.44x | 2.12x |
+| dragon | 14540.0 / 24078.7 | 29524.7 / 37839.1 | 11661 | 4508.7 / 5504.8 | 11221.4 / 18773.6 | 11344 | 2.49x | 0.99x |
+
+Complete output bytes match the pinned starting source at 1T and 8T on all five
+meshes, and match between thread counts. SHA-256 of each complete file:
+
+| Mesh | SHA-256 (1T = 8T = starting source) |
+| --- | --- |
+| bunny | `eaba70a062072139b2c536ccf46b7a109fed74695301740ae53cd09b8b7612d5` |
+| dead_tree_trunk_02 | `80bb1fff3126c18609ee9a159b3d5a2da1003cc8aa4343cea95d85ee3d568108` |
+| namaqualand_boulder_02 | `3ba6e6bcafc566fb5d37f2ca3f513a035032d8e5d2d182cff286ed6f4c32d98f` |
+| coast_rocks_01 | `c510ac833c759d10abf712a61b811ecdc4509b5be18c467a37c218b28a23886e` |
+| dragon | `a7f7931c35c3f5a5a206142470e9c13eca68bd40caf5d74db9a7596e3db4c50b` |
+
+IBS op sampling uses dragon separately from timing. Percentages below are
+self samples; cached-witness distance work appears in the sample routine.
+A dash means no separate symbol entry (inlining can move attribution).
+Kernel symbols may be restricted; raw profiles retain warnings and loss counts.
+
+| Routine | Starting source | Current |
+| --- | ---: | ---: |
+| Tree query | 75.69% | 16.57% |
+| Sample / cached witness | 0.88% | 3.75% |
+| Closest helper | — | 13.67% |
+| BVH partition | 3.89% | 11.27% |
+| BVH construction | 2.00% | 5.97% |
+| Memory copies | 9.45% | 28.10% |
+
+Decision: not qualified; retain the measured improvement and failed timing bars.
+
 ## MDAG 2 local source regions (builder revision 5)
 
 Candidate starts at `c7377dd7d96d02c394daaf34c6c1ce8b4422caf2`. The retained revision-3
