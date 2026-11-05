@@ -111,6 +111,22 @@ fn default_floor_prices_original_regions_and_preserves_legacy() {
         built.groups.iter().filter(|g| g.depth == 0).count() > 1,
         "fixture must prepare multiple groups in parallel"
     );
+    // Each original region has exactly one replacement owner, even when its
+    // simplified result was split into multiple clusters.
+    let mut owners = vec![None; built.groups.len()];
+    for cluster in &built.clusters {
+        if cluster.refined >= 0 {
+            let owner = &mut owners[cluster.refined as usize];
+            if let Some(previous) = *owner {
+                assert_eq!(
+                    previous, cluster.group,
+                    "source region split across parents"
+                );
+            } else {
+                *owner = Some(cluster.group);
+            }
+        }
+    }
     let mut measured_groups = 0;
     let original_positions: Vec<_> = built
         .vertex_source

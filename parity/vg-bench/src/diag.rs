@@ -467,3 +467,80 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
     }
     Ok(lines)
 }
+
+/// Per-level stored error distribution and ownership of replacement clusters.
+pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
+    let mut owners = vec![Vec::new(); o.groups.len()];
+    let mut inherited = vec![0f32; o.groups.len()];
+    for c in &o.clusters {
+        if c.refined >= 0 {
+            let child = c.refined as usize;
+            if !owners[child].contains(&c.group) {
+                owners[child].push(c.group);
+            }
+            inherited[c.group as usize] = inherited[c.group as usize].max(o.groups[child].error);
+        }
+    }
+    let mut lines = Vec::new();
+    for depth in 0..o.level_count {
+        let mut groups: Vec<_> = o.groups.iter().enumerate().filter(|(_, g)| g.depth == depth as i32).collect();
+        let stuck = groups.iter().filter(|(_, g)| g.error == f32::MAX).count();
+        let shared = groups.iter().filter(|(i, _)| owners[*i].len() > 1).count();
+        groups.retain(|(_, g)| g.error < f32::MAX);
+        groups.sort_by(|a, b| a.1.error.total_cmp(&b.1.error));
+        let pct = |p: f64| {
+            groups.get(((groups.len().saturating_sub(1)) as f64 * p).round() as usize).map_or(0.0, |(_, g)| g.error)
+        };
+        lines.push(
+            label
+                .clone()
+                .text("kind", "plateau_level")
+                .with("depth", depth)
+                .with("finite", groups.len())
+                .with("stuck", stuck)
+                .with("shared", shared)
+                .with("median", pct(0.5))
+                .with("p95", pct(0.95))
+                .with("max", pct(1.0))
+                .to_string(),
+        );
+        for &(id, g) in groups.iter().rev().take(3) {
+            let mut seen = vec![false; o.groups.len()];
+            let mut stack = vec![id];
+            let mut source_triangles = 0usize;
+            while let Some(region) = stack.pop() {
+                if seen[region] {
+                    continue;
+                }
+                seen[region] = true;
+                let r = &o.groups[region];
+                for c in &o.clusters[r.first_cluster as usize..(r.first_cluster + r.cluster_count) as usize] {
+                    if c.refined < 0 {
+                        source_triangles += c.index_count as usize / 3;
+                    } else {
+                        stack.push(c.refined as usize);
+                    }
+                }
+            }
+            let input = &o.clusters[g.first_cluster as usize..(g.first_cluster + g.cluster_count) as usize];
+            let input_triangles: usize = input.iter().map(|c| c.index_count as usize / 3).sum();
+            let split_children =
+                input.iter().filter(|c| c.refined >= 0 && owners[c.refined as usize].len() > 1).count();
+            lines.push(
+                label
+                    .clone()
+                    .text("kind", "plateau_max")
+                    .with("depth", depth)
+                    .with("group", id)
+                    .with("error", g.error)
+                    .with("inherited", inherited[id])
+                    .with("parents", owners[id].len())
+                    .with("source_triangles", source_triangles)
+                    .with("input_triangles", input_triangles)
+                    .with("split_child_links", split_children)
+                    .to_string(),
+            );
+        }
+    }
+    lines
+}

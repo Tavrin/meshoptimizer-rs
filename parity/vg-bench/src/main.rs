@@ -44,6 +44,7 @@ fn main() {
         Some("build") => build(&args[1..]),
         Some("eval") => eval(&args[1..]),
         Some("diag") => diag(&args[1..]),
+        Some("plateau") => plateau(&args[1..]),
         _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
     };
     if let Err(e) = result {
@@ -270,4 +271,15 @@ fn shape_clusters(shape: &str) -> usize {
         .and_then(|s| s.split([',', '}']).next())
         .and_then(|n| n.parse().ok())
         .unwrap_or(usize::MAX)
+}
+
+/// Report stored errors and shared replacement ownership without cut sampling.
+fn plateau(args: &[String]) -> Result<(), String> {
+    let p = positional(args);
+    let (src, name) = load(&p)?;
+    let o = build_variant(&src, num(args, "--jobs", 8), flag(args, "--set"))?;
+    for line in diag::plateau(&o, &Json::new().text("mesh", &name)) {
+        println!("{line}");
+    }
+    Ok(())
 }

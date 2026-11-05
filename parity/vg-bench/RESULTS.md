@@ -3,6 +3,194 @@
 Earlier policy rerun: base `420220c49b375936a3d47b45955638e86a99cf63`, builder revision 3.
 The historical MDAG 1 tables below retain their original source revision and method.
 
+## MDAG 2 local source regions (builder revision 5)
+
+Candidate starts at `c7377dd7d96d02c394daaf34c6c1ce8b4422caf2`. The retained revision-3
+binary from the earlier source-region comparison is the interleaved timing control.
+Inputs, normals at 0.5, grid -22 and 128 triangles per cluster are unchanged.
+
+Decision: keep replacement siblings in one next-level partition. Recursive source unions
+otherwise include geometry assigned to sibling parents. This inflates local measurements
+and inherited maxima spread that inflation. Component pruning was already disabled.
+The original-source sampled bound and regression remain; errors are not scaled down.
+Independent measurements run in worker-sized parallel batches for unlimited workspaces;
+finite workspaces remain serial. Nearest-triangle spatial indices and the existing
+4000 area-scaled interior sampling rule plus all corners remain in use. This is not a
+continuous Hausdorff certificate or a hard total sample cap.
+
+Quality: 64 directions, six spans, 200,000 source samples. Ratios use scene units at 1 px.
+
+| Mesh | Median / p95 ratio | Mean triangles (1 px) | / revision 3 | P95 deviation at 0.5 / 1 / 2 / 4 px | Quality / triangle / trend |
+| --- | ---: | ---: | ---: | --- | --- |
+| bunny | 1.000 / 1.103 | 22865 | 1.02x | 0.723 / 2.511 / 4.500 / 8.434 | pass / pass / pass |
+| dead_tree_trunk_02 | 0.905 / 1.061 | 36457 | 1.06x | 0.631 / 1.596 / 5.407 / 10.806 | pass / pass / pass |
+| namaqualand_boulder_02 | 0.979 / 1.000 | 49815 | 1.02x | 0.534 / 1.188 / 2.859 / 9.623 | pass / pass / pass |
+| coast_rocks_01 | 0.980 / 1.000 | 85340 | 1.28x | 1.459 / 2.811 / 5.420 / 10.240 | pass / FAIL / pass |
+| dragon | 0.930 / 1.000 | 97201 | 1.21x | 1.531 / 2.831 / 4.575 / 9.805 | pass / pass / pass |
+
+Build plus write ms: median / p95 (maximum of five). Five interleaved repeats,
+alternating binary order; core 2 for 1T, cores 2–9 for 8T, shared host.
+Profiling runs are excluded. Speedup compares candidate 1T and 8T medians.
+
+| Mesh | Revision 3 1T | Candidate 1T | Revision 3 8T | Candidate 8T | 8T cost | Speedup | <= 2x |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| bunny | 951.3 / 980.9 | 3811.0 / 3902.3 | 370.7 / 400.3 | 1390.0 / 1418.2 | 3.75x | 2.74x | FAIL |
+| dead_tree_trunk_02 | 1405.1 / 1459.9 | 5354.8 / 5380.9 | 473.0 / 498.9 | 1966.3 / 1987.4 | 4.16x | 2.72x | FAIL |
+| namaqualand_boulder_02 | 1510.0 / 1578.8 | 5689.9 / 5935.2 | 530.7 / 538.3 | 1880.6 / 1947.4 | 3.54x | 3.03x | FAIL |
+| coast_rocks_01 | 10006.1 / 10119.5 | 45298.1 / 48439.2 | 2988.8 / 3079.9 | 16548.3 / 17477.5 | 5.54x | 2.74x | FAIL |
+| dragon | 12061.9 / 12874.9 | 73141.9 / 76878.4 | 3850.3 / 3977.1 | 29086.2 / 29870.4 | 7.55x | 2.51x | FAIL |
+
+Complete candidate files compare byte-identical at 1T and 8T on all five meshes.
+All 15 candidate cut self-checks passed. The earlier 30 revision-3/revision-4 checks
+remain historical evidence, separate from this candidate.
+
+Per-level diagnosis follows. Errors are in normalized scene units; finite groups exclude
+pinned terminal/stuck groups. Diagnostic percentiles use round((n-1)*p).
+Shared means replacement clusters appear in multiple
+parent groups. Candidate shared count is zero by construction.
+
+| Mesh | Policy | Level | Finite | Stuck/root | Shared | Median | P95 | Max |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | baseline | 0 | 33 | 0 | 29 | 0.00177223 | 0.00222124 | 0.00243506 |
+| bunny | baseline | 1 | 18 | 0 | 15 | 0.526145 | 0.637505 | 0.658737 |
+| bunny | baseline | 2 | 9 | 0 | 9 | 0.940634 | 1.08831 | 1.08831 |
+| bunny | baseline | 3 | 5 | 0 | 5 | 1.13405 | 1.29861 | 1.29861 |
+| bunny | baseline | 4 | 3 | 0 | 0 | 1.29861 | 1.33374 | 1.33374 |
+| bunny | baseline | 5 | 1 | 0 | 0 | 1.33374 | 1.33374 | 1.33374 |
+| bunny | baseline | 6 | 1 | 0 | 0 | 1.33374 | 1.33374 | 1.33374 |
+| bunny | baseline | 7 | 1 | 0 | 0 | 1.33374 | 1.33374 | 1.33374 |
+| bunny | baseline | 8 | 1 | 0 | 0 | 1.33374 | 1.33374 | 1.33374 |
+| bunny | baseline | 9 | 1 | 0 | 0 | 1.33374 | 1.33374 | 1.33374 |
+| bunny | baseline | 10 | 0 | 1 | 0 | 0 | 0 | 0 |
+| bunny | candidate | 0 | 33 | 0 | 0 | 0.00177223 | 0.00222124 | 0.00243506 |
+| bunny | candidate | 1 | 14 | 0 | 0 | 0.00373443 | 0.00466539 | 0.0046853 |
+| bunny | candidate | 2 | 8 | 0 | 0 | 0.00834481 | 0.0154591 | 0.0154591 |
+| bunny | candidate | 3 | 4 | 0 | 0 | 0.0187442 | 0.316141 | 0.316141 |
+| bunny | candidate | 4 | 3 | 0 | 0 | 0.0427703 | 0.316141 | 0.316141 |
+| bunny | candidate | 5 | 1 | 0 | 0 | 0.316141 | 0.316141 | 0.316141 |
+| bunny | candidate | 6 | 1 | 0 | 0 | 0.316141 | 0.316141 | 0.316141 |
+| bunny | candidate | 7 | 1 | 0 | 0 | 0.316141 | 0.316141 | 0.316141 |
+| bunny | candidate | 8 | 1 | 0 | 0 | 0.316141 | 0.316141 | 0.316141 |
+| bunny | candidate | 9 | 1 | 0 | 0 | 0.371513 | 0.371513 | 0.371513 |
+| bunny | candidate | 10 | 0 | 1 | 0 | 0 | 0 | 0 |
+| dead_tree_trunk_02 | baseline | 0 | 42 | 0 | 36 | 0.00208594 | 0.00251979 | 0.002854 |
+| dead_tree_trunk_02 | baseline | 1 | 22 | 0 | 17 | 0.166303 | 0.306285 | 0.374169 |
+| dead_tree_trunk_02 | baseline | 2 | 11 | 0 | 11 | 0.347631 | 0.504235 | 0.504235 |
+| dead_tree_trunk_02 | baseline | 3 | 5 | 0 | 3 | 0.504235 | 0.671609 | 0.671609 |
+| dead_tree_trunk_02 | baseline | 4 | 3 | 0 | 1 | 0.671609 | 1.18252 | 1.18252 |
+| dead_tree_trunk_02 | baseline | 5 | 2 | 0 | 0 | 1.18252 | 1.18252 | 1.18252 |
+| dead_tree_trunk_02 | baseline | 6 | 1 | 0 | 0 | 1.18252 | 1.18252 | 1.18252 |
+| dead_tree_trunk_02 | baseline | 7 | 1 | 0 | 0 | 1.18252 | 1.18252 | 1.18252 |
+| dead_tree_trunk_02 | baseline | 8 | 1 | 0 | 0 | 1.18252 | 1.18252 | 1.18252 |
+| dead_tree_trunk_02 | baseline | 9 | 1 | 0 | 0 | 1.18252 | 1.18252 | 1.18252 |
+| dead_tree_trunk_02 | baseline | 10 | 0 | 1 | 0 | 0 | 0 | 0 |
+| dead_tree_trunk_02 | candidate | 0 | 42 | 0 | 0 | 0.00208594 | 0.00251979 | 0.002854 |
+| dead_tree_trunk_02 | candidate | 1 | 19 | 0 | 0 | 0.00407997 | 0.00456704 | 0.00458682 |
+| dead_tree_trunk_02 | candidate | 2 | 10 | 0 | 0 | 0.00828203 | 0.00952198 | 0.00952198 |
+| dead_tree_trunk_02 | candidate | 3 | 5 | 0 | 0 | 0.012856 | 0.0844187 | 0.0844187 |
+| dead_tree_trunk_02 | candidate | 4 | 2 | 1 | 0 | 0.0388646 | 0.0388646 | 0.0388646 |
+| dead_tree_trunk_02 | candidate | 5 | 1 | 0 | 0 | 0.0388646 | 0.0388646 | 0.0388646 |
+| dead_tree_trunk_02 | candidate | 6 | 1 | 0 | 0 | 0.116048 | 0.116048 | 0.116048 |
+| dead_tree_trunk_02 | candidate | 7 | 1 | 0 | 0 | 0.120019 | 0.120019 | 0.120019 |
+| dead_tree_trunk_02 | candidate | 8 | 1 | 0 | 0 | 0.120047 | 0.120047 | 0.120047 |
+| dead_tree_trunk_02 | candidate | 9 | 1 | 0 | 0 | 0.334763 | 0.334763 | 0.334763 |
+| dead_tree_trunk_02 | candidate | 10 | 0 | 1 | 0 | 0 | 0 | 0 |
+| namaqualand_boulder_02 | baseline | 0 | 48 | 0 | 39 | 0.00348059 | 0.00434942 | 0.00597123 |
+| namaqualand_boulder_02 | baseline | 1 | 26 | 0 | 23 | 0.282625 | 0.4595 | 0.566619 |
+| namaqualand_boulder_02 | baseline | 2 | 12 | 0 | 11 | 0.496391 | 0.709417 | 0.8042 |
+| namaqualand_boulder_02 | baseline | 3 | 7 | 0 | 4 | 0.8042 | 1.02058 | 1.02058 |
+| namaqualand_boulder_02 | baseline | 4 | 3 | 0 | 1 | 0.962413 | 1.02058 | 1.02058 |
+| namaqualand_boulder_02 | baseline | 5 | 2 | 0 | 0 | 1.19399 | 1.19399 | 1.19399 |
+| namaqualand_boulder_02 | baseline | 6 | 1 | 0 | 0 | 1.19399 | 1.19399 | 1.19399 |
+| namaqualand_boulder_02 | baseline | 7 | 1 | 0 | 0 | 1.19399 | 1.19399 | 1.19399 |
+| namaqualand_boulder_02 | baseline | 8 | 1 | 0 | 0 | 1.19399 | 1.19399 | 1.19399 |
+| namaqualand_boulder_02 | baseline | 9 | 1 | 0 | 0 | 1.19399 | 1.19399 | 1.19399 |
+| namaqualand_boulder_02 | baseline | 10 | 0 | 1 | 0 | 0 | 0 | 0 |
+| namaqualand_boulder_02 | candidate | 0 | 48 | 0 | 0 | 0.00348059 | 0.00434942 | 0.00597123 |
+| namaqualand_boulder_02 | candidate | 1 | 21 | 0 | 0 | 0.00660356 | 0.00889838 | 0.00970853 |
+| namaqualand_boulder_02 | candidate | 2 | 10 | 0 | 0 | 0.0135642 | 0.0222201 | 0.0222201 |
+| namaqualand_boulder_02 | candidate | 3 | 6 | 0 | 0 | 0.0371459 | 0.0932827 | 0.0932827 |
+| namaqualand_boulder_02 | candidate | 4 | 3 | 0 | 0 | 0.0801461 | 0.283415 | 0.283415 |
+| namaqualand_boulder_02 | candidate | 5 | 1 | 1 | 0 | 0.0801461 | 0.0801461 | 0.0801461 |
+| namaqualand_boulder_02 | candidate | 6 | 1 | 0 | 0 | 0.0801461 | 0.0801461 | 0.0801461 |
+| namaqualand_boulder_02 | candidate | 7 | 1 | 0 | 0 | 0.120418 | 0.120418 | 0.120418 |
+| namaqualand_boulder_02 | candidate | 8 | 1 | 0 | 0 | 0.181246 | 0.181246 | 0.181246 |
+| namaqualand_boulder_02 | candidate | 9 | 1 | 0 | 0 | 0.270338 | 0.270338 | 0.270338 |
+| namaqualand_boulder_02 | candidate | 10 | 0 | 1 | 0 | 0 | 0 | 0 |
+| coast_rocks_01 | baseline | 0 | 330 | 0 | 300 | 0.000590465 | 0.000777104 | 0.00104335 |
+| coast_rocks_01 | baseline | 1 | 172 | 0 | 157 | 0.0725723 | 0.196015 | 0.907263 |
+| coast_rocks_01 | baseline | 2 | 88 | 0 | 80 | 0.215401 | 0.903007 | 1.01785 |
+| coast_rocks_01 | baseline | 3 | 45 | 0 | 41 | 0.47846 | 0.971783 | 1.01785 |
+| coast_rocks_01 | baseline | 4 | 22 | 0 | 18 | 0.775523 | 1.01785 | 1.04986 |
+| coast_rocks_01 | baseline | 5 | 11 | 0 | 8 | 0.971783 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 6 | 6 | 0 | 2 | 1.01785 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 7 | 3 | 0 | 1 | 1.01785 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 8 | 2 | 0 | 0 | 1.10531 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 9 | 1 | 0 | 0 | 1.10531 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 10 | 1 | 0 | 0 | 1.10531 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 11 | 1 | 0 | 0 | 1.10531 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 12 | 1 | 0 | 0 | 1.10531 | 1.10531 | 1.10531 |
+| coast_rocks_01 | baseline | 13 | 0 | 1 | 0 | 0 | 0 | 0 |
+| coast_rocks_01 | candidate | 0 | 330 | 0 | 0 | 0.000590465 | 0.000777104 | 0.00104335 |
+| coast_rocks_01 | candidate | 1 | 139 | 0 | 0 | 0.00113766 | 0.00170308 | 0.00207366 |
+| coast_rocks_01 | candidate | 2 | 65 | 0 | 0 | 0.0022303 | 0.00341727 | 0.00424364 |
+| coast_rocks_01 | candidate | 3 | 32 | 0 | 0 | 0.00484461 | 0.0161506 | 0.0257305 |
+| coast_rocks_01 | candidate | 4 | 16 | 0 | 0 | 0.0230879 | 0.0523281 | 0.0557702 |
+| coast_rocks_01 | candidate | 5 | 5 | 4 | 0 | 0.0470242 | 0.139238 | 0.139238 |
+| coast_rocks_01 | candidate | 6 | 3 | 0 | 0 | 0.051685 | 0.139238 | 0.139238 |
+| coast_rocks_01 | candidate | 7 | 2 | 0 | 0 | 0.143412 | 0.143412 | 0.143412 |
+| coast_rocks_01 | candidate | 8 | 1 | 0 | 0 | 0.143702 | 0.143702 | 0.143702 |
+| coast_rocks_01 | candidate | 9 | 1 | 0 | 0 | 0.143702 | 0.143702 | 0.143702 |
+| coast_rocks_01 | candidate | 10 | 1 | 0 | 0 | 0.156346 | 0.156346 | 0.156346 |
+| coast_rocks_01 | candidate | 11 | 1 | 0 | 0 | 0.211475 | 0.211475 | 0.211475 |
+| coast_rocks_01 | candidate | 12 | 1 | 0 | 0 | 0.211475 | 0.211475 | 0.211475 |
+| coast_rocks_01 | candidate | 13 | 0 | 1 | 0 | 0 | 0 | 0 |
+| dragon | baseline | 0 | 421 | 0 | 377 | 0.000297262 | 0.000448512 | 0.000836411 |
+| dragon | baseline | 1 | 225 | 0 | 211 | 0.14593 | 0.310831 | 1.13113 |
+| dragon | baseline | 2 | 119 | 0 | 108 | 0.311115 | 0.587344 | 1.32528 |
+| dragon | baseline | 3 | 57 | 0 | 49 | 0.49583 | 1.23571 | 1.33616 |
+| dragon | baseline | 4 | 30 | 0 | 26 | 0.727314 | 1.33616 | 1.34527 |
+| dragon | baseline | 5 | 14 | 0 | 12 | 1.22074 | 1.33616 | 1.34527 |
+| dragon | baseline | 6 | 7 | 0 | 3 | 1.34527 | 1.38236 | 1.38236 |
+| dragon | baseline | 7 | 3 | 0 | 1 | 1.34527 | 1.38236 | 1.38236 |
+| dragon | baseline | 8 | 2 | 0 | 0 | 1.38236 | 1.38236 | 1.38236 |
+| dragon | baseline | 9 | 1 | 0 | 0 | 1.38236 | 1.38236 | 1.38236 |
+| dragon | baseline | 10 | 1 | 0 | 0 | 1.38236 | 1.38236 | 1.38236 |
+| dragon | baseline | 11 | 1 | 0 | 0 | 1.38236 | 1.38236 | 1.38236 |
+| dragon | baseline | 12 | 1 | 0 | 0 | 1.38236 | 1.38236 | 1.38236 |
+| dragon | baseline | 13 | 0 | 1 | 0 | 0 | 0 | 0 |
+| dragon | candidate | 0 | 421 | 0 | 0 | 0.000297262 | 0.000448512 | 0.000836411 |
+| dragon | candidate | 1 | 178 | 0 | 0 | 0.000632439 | 0.000884998 | 0.00704157 |
+| dragon | candidate | 2 | 86 | 0 | 0 | 0.00132934 | 0.00288472 | 0.0201112 |
+| dragon | candidate | 3 | 41 | 0 | 0 | 0.00386858 | 0.027323 | 0.1423 |
+| dragon | candidate | 4 | 20 | 2 | 0 | 0.0316778 | 0.146025 | 0.15175 |
+| dragon | candidate | 5 | 6 | 5 | 0 | 0.15175 | 0.340193 | 0.340193 |
+| dragon | candidate | 6 | 3 | 1 | 0 | 0.24596 | 0.340193 | 0.340193 |
+| dragon | candidate | 7 | 1 | 0 | 0 | 0.363541 | 0.363541 | 0.363541 |
+| dragon | candidate | 8 | 1 | 0 | 0 | 0.363541 | 0.363541 | 0.363541 |
+| dragon | candidate | 9 | 1 | 0 | 0 | 0.363541 | 0.363541 | 0.363541 |
+| dragon | candidate | 10 | 1 | 0 | 0 | 0.363541 | 0.363541 | 0.363541 |
+| dragon | candidate | 11 | 1 | 0 | 0 | 0.363541 | 0.363541 | 0.363541 |
+| dragon | candidate | 12 | 1 | 0 | 0 | 0.418577 | 0.418577 | 0.418577 |
+| dragon | candidate | 13 | 0 | 1 | 0 | 0 | 0 | 0 |
+
+First reported group reaching each policy's largest finite error:
+
+| Mesh | Policy | Group / level | Error / inherited | Original / input triangles | Split child links |
+| --- | --- | --- | ---: | ---: | ---: |
+| bunny | baseline | 65 / 4 | 1.33374 / 1.13405 | 64005 / 1471 | 14 |
+| bunny | candidate | 66 / 9 | 0.371513 / 0.316141 | 69451 / 136 | 0 |
+| dead_tree_trunk_02 | baseline | 80 / 4 | 1.18252 / 0.640142 | 83128 / 1800 | 6 |
+| dead_tree_trunk_02 | candidate | 83 / 9 | 0.334763 / 0.120047 | 81896 / 158 | 0 |
+| namaqualand_boulder_02 | baseline | 96 / 5 | 1.19399 / 0.962413 | 97964 / 1228 | 1 |
+| namaqualand_boulder_02 | candidate | 87 / 4 | 0.283415 / 0.0932827 | 7424 / 484 | 0 |
+| coast_rocks_01 | baseline | 664 / 5 | 1.10531 / 1.04986 | 196102 / 1897 | 7 |
+| coast_rocks_01 | candidate | 599 / 11 | 0.211475 / 0.156346 | 616562 / 323 | 0 |
+| dragon | baseline | 872 / 6 | 1.38236 / 1.32528 | 659946 / 1409 | 12 |
+| dragon | candidate | 768 / 12 | 0.418577 / 0.363541 | 766224 / 202 | 0 |
+
+Acceptance is not met; retain this candidate as the measured result, not a qualified replacement.
+
 ## MDAG 2 source-region repair (builder revision 4)
 
 Before is revision 3 at `1ef3ecf72cdb0fe9f6d5056e76534c0690819568`; after is the repaired v2 path.

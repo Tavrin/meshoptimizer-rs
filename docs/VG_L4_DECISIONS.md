@@ -83,3 +83,68 @@ The repaired rocks and dragon p95 deviation curves plateau at coarser
 thresholds. The results retain those curves and the higher selected-triangle
 counts alongside the increased cooking times; no cut-efficiency improvement
 is inferred from the lower measured/claimed ratios.
+
+
+## Local source-region ownership
+
+Decision: keep each v2 replacement's sibling clusters in one next-level
+partition. Recursive source regions otherwise include sibling geometry owned
+by other parents, inflating source-to-replacement distances before inherited
+maxima spread them further. Component pruning is already disabled; disabling
+it again cannot address this ownership problem. Preserve the original-source
+regression and upward-rounded sampled bound rather than reducing stored errors.
+
+Builder revision 5 identifies the changed grouping; MDAG 2 records and the
+legacy build path are unchanged. Independent source-region measurements use
+worker-sized parallel batches only for unlimited workspaces, with summed live
+scratch peaks and ordered inherited-error propagation. Finite limits stay
+serial. The sample rule remains 4000 area-scaled interiors, per-triangle
+rounding and all corners, using triangle spatial indices in both directions.
+
+Qualification and any remaining acceptance failures are recorded in the
+current section of `parity/vg-bench/RESULTS.md`.
+
+Rejected alternatives: lowering or renormalizing measured errors would discard
+the original-source guarantee; replacing it with step-only maxima fails the
+successive-unit-step regression. Disabling component pruning cannot repair this
+path because the simplifier does not enable the prune option. Assigning source
+triangles to one of several sibling parents would need a new provenance rule;
+keeping the already-defined replacement region intact preserves the existing
+union-based regression and source-region meaning. Alpha and material guards are
+absent from the five-mesh geometry benchmark inputs.
+
+
+## Local source-region code validation
+
+Formatting, all-target/all-feature Clippy with warnings denied, release tests,
+all-feature release tests and public-text checks exited 0. Direct starting-source
+comparisons matched complete legacy records and byte-identical MDAG 1 files on
+the nonplanar 4/12/24 grid family. All 19 registered fuzz targets built with ASAN;
+no campaigns ran. The first fuzz driver attempt compiled every target but exited
+1 when writing its receipt into a missing scratch directory. After creating that
+directory, the full build driver and receipt write exited 0. The initial failure
+is retained with the external evidence.
+
+## Local source-region qualification
+
+The measured candidate does not pass all numerical acceptance bars. It is retained as an unqualified result.
+Full quality, timing and per-level distributions are recorded in `parity/vg-bench/RESULTS.md`.
+
+Failed numerical bars:
+- bunny: timing.
+- dead_tree_trunk_02: timing.
+- namaqualand_boulder_02: timing.
+- coast_rocks_01: triangles, timing.
+- dragon: timing.
+
+IBS op sampling is separate from wall-time repeats. Baseline attribution:
+63.21% nearest-triangle queries, 16.81% memory moves, 7.08% BVH partition selection,
+3.40% BVH range construction (562K samples, none lost). Kernel symbols were restricted;
+user-space function attribution is available.
+Candidate nearest-triangle query: 76.49% of samples.
+Candidate BVH partition selection: 3.74% of samples.
+Candidate BVH range construction: 1.93% of samples.
+
+The source measurement retains every former sample: per-triangle-rounded
+area-scaled interiors and all corners. Its cost is not hidden by lowering errors
+or weakening the original-source regression. No continuous surface bound is claimed.

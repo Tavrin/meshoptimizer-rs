@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Keep v2 replacement siblings in one parent partition so original-source error
+  regions remain local. Measure independent regions in parallel worker-sized
+  batches with ordered error propagation and workspace accounting. Builder
+  revision 5 requires a recook; the container and legacy output are unchanged.
+
 - Add opt-in MDAG 2 alpha coverage rejection with caller material masks and UV
   channels, deterministic fixed-view scalar raster checks, separately reported
   stuck/error-raise counts, and coverage settings and mask bytes in build keys.

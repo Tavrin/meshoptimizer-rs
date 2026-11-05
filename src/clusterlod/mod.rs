@@ -459,6 +459,60 @@ fn partition(
     ctx.free(sorted)?;
     Ok(offsets)
 }
+// A replacement's clusters are one source region. Keeping them together avoids
+// recursively charging each parent for source geometry owned by sibling parents.
+fn localize_partitions(
+    clusters: &mut [Pending],
+    offsets: Vec<u32>,
+    ctx: &mut Context<'_>,
+) -> Result<Vec<u32>, Error> {
+    ctx.tick(clusters.len())?;
+    let count = clusters
+        .iter()
+        .filter_map(|c| usize::try_from(c.refined).ok())
+        .max()
+        .map_or(0, |i| i + 1);
+    let mut owners = ctx.filled(count, usize::MAX)?;
+    let mut assignments = ctx.alloc::<usize>(clusters.len())?;
+    let mut counts = ctx.alloc::<u32>(offsets.len())?;
+    for (part, pair) in offsets.windows(2).enumerate() {
+        for i in pair[0] as usize..pair[1] as usize {
+            ctx.tick(1)?;
+            let refined = clusters[i].refined;
+            let owner = if refined < 0 {
+                part
+            } else {
+                let owner = &mut owners[refined as usize];
+                if *owner == usize::MAX {
+                    *owner = part;
+                }
+                *owner
+            };
+            assignments[i] = owner;
+            counts[owner + 1] += 1;
+        }
+    }
+    ctx.tick(counts.len().saturating_mul(2))?;
+    for i in 1..counts.len() {
+        counts[i] += counts[i - 1];
+    }
+    let mut write = ctx.copy(&counts)?;
+    let mut sorted = ctx.alloc::<Pending>(clusters.len())?;
+    for (i, &cluster) in clusters.iter().enumerate() {
+        ctx.tick(1)?;
+        let at = &mut write[assignments[i]];
+        sorted[*at as usize] = cluster;
+        *at += 1;
+    }
+    clusters.copy_from_slice(&sorted);
+    counts.dedup();
+    ctx.free(owners)?;
+    ctx.free(assignments)?;
+    ctx.free(write)?;
+    ctx.free(sorted)?;
+    ctx.free(offsets)?;
+    Ok(counts)
+}
 // Reuse the existing byte-sized boundary storage as simplifier flags. Bit 7
 // is private discovery state and is removed from every entry before return.
 fn lock_boundary(
@@ -1053,6 +1107,11 @@ fn build_in_context_mode(
             c,
             ctx,
         )?;
+        let group_offsets = if policy.is_some() {
+            localize_partitions(&mut clusters, group_offsets, ctx)?
+        } else {
+            group_offsets
+        };
         lock_boundary(
             &mut locks,
             &clusters,

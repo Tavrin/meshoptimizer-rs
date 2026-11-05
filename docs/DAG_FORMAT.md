@@ -133,7 +133,10 @@ level selection. The MDAG 2 builder measures each replacement `B(Q)` against
 the union of original leaf triangles reachable through `A(Q)`, before snapping.
 Shared refined groups are visited once per region. Its stored error bounds this
 sampled symmetric deviation and every inherited child error; it is not a
-continuous Hausdorff bound. Legacy builds retain upstream error semantics.
+continuous Hausdorff bound. Builder revision 5 keeps `B(Q)` together in one
+parent partition so these source regions remain local. Readers and runtimes
+continue to support shared DAGs and apply the ancestor clamp across every
+parent. Legacy builds retain upstream error semantics.
 
 **Projected error.** Errors and radii are lengths in the mesh frame. For an
 instance whose linear transform has largest singular value `s`, multiply error
@@ -407,7 +410,7 @@ node width, the input positions (bits) and indices (as `u32`, so `u16` and
 vertex flags (presence word, count, one byte each), attributes (presence word,
 vertex count, component count, value bits), attribute weights (count, bits)
 and the protect mask. A cooker can test its cache before building.
-`BUILDER_REVISION` (4) is bumped whenever equal inputs produce different bytes.
+`BUILDER_REVISION` (5) is bumped whenever equal inputs produce different bytes.
 The writer stores `WriteOptions::build_key` as given (zero when not set).
 
 **Versioning.** The minor version is informational. A later minor may add
@@ -558,7 +561,7 @@ opaque and unique. At most 16 channels are accepted; a channel's last source
 component must be below 32. Encoding IDs and errors are in `PAGE_FORMAT.md`.
 The hash is the low 32 bits of XXH64 of the channel records, seed zero. The
 build key includes layout fields, source normals, source per-triangle slots,
-and the measured-step policy. Builder revision is 4 (source-region error measurements require a recook).
+and the measured-step policy. Builder revision is 5 (local source-region ownership requires a recook).
 
 `Source` accepts this layout, an attribute view in snapshot-vertex order, and an
 optional slot per vertex. The writer rejects mixed-slot source triangles and
@@ -580,6 +583,24 @@ even when ATTR has no channels. The new reader accepts older single-material
 files without MATS; multi-material page tables require the declaration. Unknown
 required chunks remain `Unsupported`; a malformed MATS record is `Invalid`.
 
+
+### Local source regions in the v2 builder
+
+The v2 builder keeps all clusters emitted by one replacement in the same next
+partition. Original leaf regions therefore stay local: following a refined
+group does not pull source triangles owned by a sibling parent into a region.
+This changes builder output and requires builder revision 5; the container
+format and legacy builder are unchanged. Component pruning is not enabled.
+
+The sampled symmetric error still bounds the original leaf union before
+snapping, the measured step, the simplifier estimate and inherited child errors.
+Each measurement builds nearest-triangle spatial indices in both directions,
+uses 4000 area-scaled interior samples with per-triangle rounding plus every
+corner, and rounds the maximum upward. This remains a sampled lower estimate
+of continuous Hausdorff distance. With the parallel feature and unlimited
+workspace, independent regions run in bounded worker-sized batches; simultaneous
+scratch peaks and work are charged before ordered error assembly. Finite
+workspace limits retain serial execution. Thread count does not affect output.
 
 ## Optional foliage and far-field policy
 

@@ -334,64 +334,140 @@ fn source_error_floor(
             heads[g] = Some(i);
         }
     }
-    let mut visited = ctx.alloc::<usize>(out.groups.len())?;
-    let mut stack = ctx.alloc::<usize>(0)?;
-    let mut source = ctx.alloc::<u32>(0)?;
-    let mut simplified = ctx.alloc::<u32>(0)?;
-    for g in 0..out.groups.len() {
-        if out.groups[g].error == f32::MAX {
-            continue;
-        }
-        source.clear();
-        simplified.clear();
-        stack.clear();
-        grow_output(ctx, &mut stack, 1)?;
-        stack.push(g);
-        visited[g] = g + 1;
-        let mut inherited = 0f32;
-        while let Some(region) = stack.pop() {
-            let group = &out.groups[region];
-            let start = group.first_cluster as usize;
-            for c in &out.clusters[start..start + group.cluster_count as usize] {
-                ctx.tick(1)?;
-                if c.refined >= 0 {
-                    let child = c.refined as usize;
-                    inherited = inherited.max(out.groups[child].error);
-                    if visited[child] != g + 1 {
-                        visited[child] = g + 1;
-                        grow_output(ctx, &mut stack, 1)?;
-                        stack.push(child);
-                    }
-                } else {
-                    let start = c.first_index as usize;
-                    let triangles = &out.indices[start..start + c.index_count as usize];
-                    ctx.tick(triangles.len())?;
-                    grow_output(ctx, &mut source, triangles.len())?;
-                    source.extend_from_slice(triangles);
+    let mut measured = ctx.alloc::<f32>(out.groups.len())?;
+    #[cfg(feature = "parallel")]
+    let parallel = {
+        let limits = ctx.workspace.limits();
+        limits.max_bytes == usize::MAX && limits.max_work == u64::MAX
+    };
+    #[cfg(not(feature = "parallel"))]
+    let parallel = false;
+    if parallel {
+        #[cfg(feature = "parallel")]
+        {
+            use rayon::prelude::*;
+            // Limit live scratch to one job per worker. Account for the sum of
+            // simultaneous peaks; bounded workspaces use the serial path below.
+            let width = rayon::current_num_threads();
+            for (batch, values) in measured.chunks_mut(width).enumerate() {
+                let mut usages = ctx.alloc::<crate::Usage>(values.len())?;
+                let mut results = ctx.alloc::<Option<Result<f32, Error>>>(values.len())?;
+                results
+                    .par_iter_mut()
+                    .zip(usages.par_iter_mut())
+                    .enumerate()
+                    .for_each(|(i, (result, usage))| {
+                        let mut ws = Workspace::new(crate::Limits {
+                            max_bytes: usize::MAX,
+                            max_work: u64::MAX,
+                        });
+                        *result = Some(Context::new(&mut ws).and_then(|mut local| {
+                            measure_region(
+                                out,
+                                batch * width + i,
+                                &heads,
+                                &next,
+                                &source_positions,
+                                &mut local,
+                            )
+                        }));
+                        *usage = ws.usage();
+                    });
+                let peak = usages.iter().try_fold(0usize, |sum, u| {
+                    sum.checked_add(u.bytes).ok_or(Error::SizeOverflow)
+                })?;
+                ctx.absorb(peak, 0, 0)?;
+                for ((value, result), usage) in
+                    values.iter_mut().zip(results.iter_mut()).zip(&usages)
+                {
+                    ctx.absorb(0, usage.work, 0)?;
+                    *value = result.take().ok_or(Error::InvalidTopology)??;
                 }
+                ctx.free(usages)?;
+                ctx.free(results)?;
             }
         }
-        let mut cursor = heads[g];
-        while let Some(i) = cursor {
-            let c = &out.clusters[i];
-            let start = c.first_index as usize;
-            let triangles = &out.indices[start..start + c.index_count as usize];
-            ctx.tick(triangles.len())?;
-            grow_output(ctx, &mut simplified, triangles.len())?;
-            simplified.extend_from_slice(triangles);
-            cursor = next[i];
+    } else {
+        for (g, value) in measured.iter_mut().enumerate() {
+            *value = measure_region(out, g, &heads, &next, &source_positions, ctx)?;
         }
-        let measured = region_error(&source, &simplified, &source_positions, &out.positions, ctx)?;
-        out.groups[g].error = out.groups[g].error.max(inherited).max(measured);
+    }
+    // Measurement is independent of inherited errors. Commit in emission order.
+    ctx.release(&measured)?;
+    for (g, value) in measured.into_iter().enumerate() {
+        let group = &out.groups[g];
+        let mut inherited = 0f32;
+        for c in &out.clusters
+            [group.first_cluster as usize..(group.first_cluster + group.cluster_count) as usize]
+        {
+            ctx.tick(1)?;
+            if c.refined >= 0 {
+                inherited = inherited.max(out.groups[c.refined as usize].error);
+            }
+        }
+        out.groups[g].error = out.groups[g].error.max(inherited).max(value);
     }
     ctx.free(source_positions)?;
     ctx.free(heads)?;
     ctx.free(next)?;
+    Ok(())
+}
+
+fn measure_region(
+    out: &Built,
+    g: usize,
+    heads: &[Option<usize>],
+    next: &[Option<usize>],
+    source_positions: &[[f32; 3]],
+    ctx: &mut Context<'_>,
+) -> Result<f32, Error> {
+    if out.groups[g].error == f32::MAX {
+        return Ok(0.0);
+    }
+    let mut visited = ctx.alloc::<bool>(out.groups.len())?;
+    let mut stack = ctx.alloc::<usize>(0)?;
+    let mut source = ctx.alloc::<u32>(0)?;
+    let mut simplified = ctx.alloc::<u32>(0)?;
+    grow_output(ctx, &mut stack, 1)?;
+    stack.push(g);
+    visited[g] = true;
+    while let Some(region) = stack.pop() {
+        let group = &out.groups[region];
+        let start = group.first_cluster as usize;
+        for c in &out.clusters[start..start + group.cluster_count as usize] {
+            ctx.tick(1)?;
+            if c.refined >= 0 {
+                let child = c.refined as usize;
+                if !visited[child] {
+                    visited[child] = true;
+                    grow_output(ctx, &mut stack, 1)?;
+                    stack.push(child);
+                }
+            } else {
+                let start = c.first_index as usize;
+                let triangles = &out.indices[start..start + c.index_count as usize];
+                ctx.tick(triangles.len())?;
+                grow_output(ctx, &mut source, triangles.len())?;
+                source.extend_from_slice(triangles);
+            }
+        }
+    }
+    let mut cursor = heads[g];
+    while let Some(i) = cursor {
+        let c = &out.clusters[i];
+        let start = c.first_index as usize;
+        let triangles = &out.indices[start..start + c.index_count as usize];
+        ctx.tick(triangles.len())?;
+        grow_output(ctx, &mut simplified, triangles.len())?;
+        simplified.extend_from_slice(triangles);
+        cursor = next[i];
+    }
+    let measured = region_error(&source, &simplified, source_positions, &out.positions, ctx)?;
     ctx.free(visited)?;
     ctx.free(stack)?;
     ctx.free(source)?;
     ctx.free(simplified)?;
-    Ok(())
+    Ok(measured)
 }
 
 fn grow_output<T>(ctx: &mut Context<'_>, values: &mut Vec<T>, extra: usize) -> Result<(), Error> {
