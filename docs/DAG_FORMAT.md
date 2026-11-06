@@ -640,3 +640,8 @@ stuck regions, only when projected error <= the pixel threshold; `Finest` keeps
 geometry. Hemisphere grids cover only upper-hemisphere views. The metadata is
 not an executable payload and its hash is not authentication. When present it
 participates in the writer key; absence preserves existing keys and bytes.
+
+Release campaigns for 0.2.19, 2026-11-06 (AddressSanitizer, `-rss_limit_mb=512`, stopped when a chunk
+added no coverage, zero crashes): `attr_page` 5,997 CPU-s, 2,441,137 executions; `v2_build` 3,012
+CPU-s, 6,493 executions; `dag_format_v2` 2,996 CPU-s, 2,957,774 executions. Seed line coverage:
+`attributes.rs` 92.65%, `page.rs` 93.69%, `v2.rs` 94.32%, `dag_format_v2.rs` 91.28%, `far_field.rs` 62.86%.
