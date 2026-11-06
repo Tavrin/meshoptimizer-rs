@@ -36,7 +36,7 @@ R0217 = ['hidden', 'dag_reader', 'character', 'process', 'parallel_equiv', 'widt
 CODEC = ['buffer_stream', 'sequence_stream', 'vertex', 'vertex_into', 'simd', 'vertex_encode', 'vertex_encode_into']
 PARALLEL = ['parallel_clod']
 MESHLET = ['build_meshlets_spatial']
-R0220 = ['dag_format_v2']
+R0220 = ['dag_format_v2', 'attr_page', 'v2_build']
 R0218 = ['trim_cards', 'bake', 'reconstruct', 'layout']
 GROUPS = {
     'r0218': (ROOT / 'fuzz/r0218', R0218),
@@ -215,8 +215,12 @@ def cover(names):
         # cargo-fuzz writes the instrumented binary to <target-dir>/<triple>/release/<name>,
         # so coverage builds get a target dir of their own.
         cov_dir = TARGET_DIR / 'cov'
+        artifacts = ROOT / 'fuzz/artifacts' / name
+        artifacts.mkdir(parents=True, exist_ok=True)
         subprocess.run(['cargo', '+nightly', 'fuzz', 'coverage', '--fuzz-dir', str(fuzz_dir), '--target-dir',
-                        str(cov_dir), '-O', '-a', name, str(seeds)], check=True, env=env(), cwd=ROOT)
+                        str(cov_dir), '-O', '-a', name, str(seeds), '--',
+                        '-timeout=60', '-rss_limit_mb=512', f'-artifact_prefix={artifacts}/'],
+                       check=True, env=env(), cwd=ROOT)
         # The profile lands in <fuzz-dir>/coverage/<name>/coverage.profdata; reach.py reads it.
         print('coverage', name, 'ok', flush=True)
 
