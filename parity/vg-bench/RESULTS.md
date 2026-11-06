@@ -1,5 +1,47 @@
 # Virtual-geometry benchmark results
 
+**Human HOLD:** the sizing addendum completed 3/5 meshes. Larger-mesh sizing, helper design, latest-documentation gates and target cleanup are deferred. [Status and exact resume commands](0220/HOLD.md).
+
+## 0.2.20 weighted replacement regions
+
+**Verdict: NOT QUALIFIED.** The weighted-region candidate is retained with the failed bars recorded.
+
+Source base `5dbdc379581b6153e5a2b9e2fc61755778518366`, builder revision 6.
+Container major/minor and all chunk layouts are unchanged. Cook keys change.
+Complete raw rows, source/corpus/binary/lock hashes, diagnostic distributions and
+per-mesh pass/fail booleans are retained in [summary](0220/summary.json).
+
+Five counterbalanced interleaved repeats of baseline, candidate and pinned reference,
+build plus serialise time, 1T on CPU 0 and 8T on CPUs 0–7. Shared host. The reference is Bevy MeshletMesh at `8cc060f01c3d4d5920781124cc8c32013bb47730`;
+its cached source is verified unchanged. Quality uses 64 directions, six spans,
+200,000 source samples and the unchanged normal weight, grid and thresholds.
+Cut ratios use log-log interpolation at equal measured p95 deviation.
+
+| Mesh | Build/reference 1T | 8T | Resident B/DAG tri candidate / reference | File B/DAG tri candidate / reference | Cut/reference tris 5 / 8 px | Measured/claimed median / p95 (1 px) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| bunny | 2.119 | 0.722 | 14.918 / 13.782 | 13.130 / 13.011 | 0.721 / 0.794 | 1.000 / 1.041 |
+| dead_tree_trunk_02 | 1.872 | 0.680 | 15.037 / 14.522 | 13.357 / 13.837 | 0.709 / 0.781 | 0.967 / 1.061 |
+| namaqualand_boulder_02 | 1.838 | 0.624 | 15.146 / 14.671 | 13.396 / 13.928 | 0.929 / 0.943 | 0.970 / 1.000 |
+| coast_rocks_01 | 1.330 | 0.457 | 14.177 / 13.233 | 12.567 / 12.487 | 1.093 / 1.675 | 0.866 / 1.000 |
+| dragon | 1.372 | 0.459 | 14.411 / 13.322 | 12.623 / 11.684 | 0.761 / 1.072 | 0.976 / 1.000 |
+
+Bar passes out of five (all meshes must pass):
+
+| Bar | Passes | Verdict |
+| --- | ---: | --- |
+| file_per_triangle | 2/5 | FAIL |
+| build_1T | 0/5 | FAIL |
+| build_8T | 2/5 | FAIL |
+| resident | 0/5 | FAIL |
+| cut_5px | 4/5 | FAIL |
+| cut_8px | 3/5 | FAIL |
+| error_median | 5/5 | PASS |
+| error_p95 | 5/5 | PASS |
+| self_checks | 5/5 | PASS |
+| thread_identity | 5/5 | PASS |
+
+Full timing, resident accounting, causes, gates and custody: [report](0220/REPORT.md), [tables](0220/TABLE.md).
+
 ## Final 0.2.19 candidate qualification
 
 Qualification verdict: **NOT QUALIFIED**. See the linked report for code gates and C++ failure-write observations.

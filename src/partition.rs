@@ -378,11 +378,36 @@ fn partition(
     target: usize,
     ctx: &mut Context<'_>,
 ) -> Result<usize, Error> {
+    partition_weighted(out, indices, counts, None, vertices, p, target, ctx)
+}
+
+// Internal indivisible regions can represent several clusters. The public
+// partitioner retains unit weights and its original ordering and work charges.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn partition_weighted(
+    out: &mut [u32],
+    indices: &[u32],
+    counts: &[u32],
+    weights: Option<&[u32]>,
+    vertices: usize,
+    p: Option<Positions<'_>>,
+    target: usize,
+    ctx: &mut Context<'_>,
+) -> Result<usize, Error> {
     if target == 0 {
         return Err(Error::InvalidParameter);
     }
     let max = target.checked_add(target / 3).ok_or(Error::SizeOverflow)?;
     let n = counts.len();
+    if let Some(weights) = weights {
+        if weights.len() != n || weights.contains(&0) {
+            return Err(Error::InvalidLayout);
+        }
+        ctx.tick(weights.len())?;
+        weights.iter().try_fold(0u32, |sum, &w| {
+            sum.checked_add(w).ok_or(Error::SizeOverflow)
+        })?;
+    }
     ctx.large_memo();
     if n > i32::MAX as usize || vertices > u32::MAX as usize || indices.len() > u32::MAX as usize {
         return Err(Error::SizeOverflow);
@@ -461,7 +486,7 @@ fn partition(
         let mut g = Group {
             group: i as i32,
             next: -1,
-            size: 1,
+            size: weights.map_or(1, |w| w[i]),
             vertices: verts.len() as u32,
             ..Group::default()
         };
@@ -675,4 +700,48 @@ pub fn partition_clusters_into(
     workspace: &mut Workspace,
 ) -> Result<usize, Error> {
     partition_clusters_into_generic::<u32>(out, indices, counts, vertex_count, p, target, workspace)
+}
+
+#[cfg(test)]
+mod weighted_tests {
+    use super::*;
+
+    #[test]
+    fn indivisible_regions_charge_their_cluster_counts() {
+        let indices = [0, 1, 1, 2, 2, 3, 3, 4];
+        let counts = [2; 4];
+        let mut out = [0; 4];
+        let mut ws = Workspace::default();
+        let mut ctx = Context::new(&mut ws).expect("context");
+        let groups = partition_weighted(
+            &mut out,
+            &indices,
+            &counts,
+            Some(&[3; 4]),
+            5,
+            None,
+            4,
+            &mut ctx,
+        )
+        .expect("weighted partition");
+        // The maximum is five clusters: two three-cluster regions cannot merge.
+        assert_eq!(groups, 4);
+        let groups =
+            partition(&mut out, &indices, &counts, 5, None, 4, &mut ctx).expect("unit partition");
+        assert_eq!(groups, 1);
+        assert_eq!(out, [0; 4]);
+        assert_eq!(
+            partition_weighted(
+                &mut out,
+                &indices,
+                &counts,
+                Some(&[u32::MAX; 4]),
+                5,
+                None,
+                4,
+                &mut ctx,
+            ),
+            Err(Error::SizeOverflow)
+        );
+    }
 }

@@ -1,0 +1,10 @@
+[package]
+name="vg-0220-legacy-identity"
+version="0.0.0"
+edition="2021"
+[workspace]
+[dependencies]
+baseline={package="meshoptimizer-rs",path="@BASELINE_DIR@",features=["clusterlod","parallel"]}
+candidate={package="meshoptimizer-rs",path="@CANDIDATE_DIR@",features=["clusterlod","parallel"]}
+rayon="=1.11.0"
+lz4_flex={version="0.14",features=["frame"]}

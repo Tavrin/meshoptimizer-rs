@@ -1,0 +1,13 @@
+{
+  "binary_sha256": "dfd5627c4386cd2d65c88aad55c1c1517f04b90c1dbcc5f4a36b4a4e313b31b5",
+  "measured_rows": 3,
+  "complete": false,
+  "configuration": {
+    "max_bytes": 1073741824,
+    "max_work": 17179869184,
+    "cluster_triangles": 128,
+    "normal_weight": 0.5,
+    "grid_exponent": -22,
+    "finite_serial": true
+  }
+}

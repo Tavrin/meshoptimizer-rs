@@ -1,0 +1,18 @@
+{
+  "status": "human HOLD",
+  "active_jobs": 0,
+  "sizing_completed": 3,
+  "sizing_total": 5,
+  "unmeasured": [
+    "coast_rocks_01",
+    "dragon"
+  ],
+  "suggested_limits_helper": "deferred",
+  "heavy_gates_after_latest_docs": "not run",
+  "target_removed": false,
+  "quiet_checks": {
+    "rustfmt_v2_file": 0,
+    "public_text": 0,
+    "diff_whitespace": 0
+  }
+}

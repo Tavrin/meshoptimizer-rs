@@ -99,3 +99,34 @@ cluster capacity is 32 triangles, partition size 2, UV weights zero. The cut
 uses repaired spheres and error values read from actual MDAG 2 files (including
 the quantisation error floor); every page is validated. The example performs
 no timing.
+
+## 0.2.20 partition qualification
+
+`plateau ours <input.vgm> --set v2=1 --jobs 8` reports per-level group sizes,
+triangle counts, pinned triangles, achieved simplification ratios, inherited
+errors, and stored error percentiles. `diag ours <input.vgm> --set v2=1
+--groups-only --jobs 8` measures the local steps without repeating world cuts.
+These local ratios are diagnostics, not substitutes for the original-source
+error floor or the full orbit quality gate.
+
+`qualify0220.py` runs one qualification campaign in an admitted CPU job. Set
+`VG_CORPUS` to the frozen corpus and `VG_EVIDENCE` to a fresh evidence directory
+containing `baseline-vg-bench` and `candidate-vg-bench`. Both binaries must be
+built from the locked harness; retain their source and binary hashes separately.
+The script creates `final/`, rotates and reverses the candidate, baseline, and
+reference build order over five repeats at 1 and 8 threads, pins the first one
+and eight CPUs in its admitted affinity, checks complete candidate and baseline
+file identity between thread counts, and runs the original 64-direction,
+six-span, 200,000-sample quality campaign. An existing `final/` fails closed.
+The `shape` rows additionally break resident bytes into metadata, descriptors,
+positions, triangles, and attributes; page headers account for the remainder.
+
+
+`limits ours <input.vgm> --bytes <cap> --work <visits> --jobs 8` builds through
+`v2::build` with fresh finite workspace limits and reports accounted peak bytes,
+counted work and per-source-triangle ratios. Normal weight is 0.5 and grid -22.
+The JSON `pass` and `result` fields describe the build outcome; command exit 0
+means the diagnostic ran, including an intentionally budget-limited build.
+Finite limits use serial accounting despite the configured worker pool. The
+interrupted calibration and commands awaiting authorization are recorded in
+[the hold record](0220/HOLD.md).

@@ -27,7 +27,8 @@ use alloc::vec::Vec;
 /// header. Revision 3 adds the measured build policy, attributes and materials.
 /// Revision 4 measures replacements against their original source regions.
 /// Revision 5 keeps replacement siblings in one parent source region.
-pub const BUILDER_REVISION: u32 = 5;
+/// Revision 6 partitions sibling regions with their cluster counts as weights.
+pub const BUILDER_REVISION: u32 = 6;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 

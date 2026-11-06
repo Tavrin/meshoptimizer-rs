@@ -1,0 +1,56 @@
+{
+  "complete": false,
+  "status": "human HOLD; campaign interrupted",
+  "measurements": [
+    {
+      "kind": "limits",
+      "mesh": "bunny",
+      "source_triangles": 69451,
+      "source_vertices": 35947,
+      "max_bytes": 1073741824,
+      "max_work": 17179869184,
+      "peak_bytes": 20792603,
+      "work": 121001449,
+      "bytes_per_source_triangle": 299.3852212351154,
+      "work_per_source_triangle": 1742.2563965961613,
+      "pass": true,
+      "result": "Ok(())",
+      "case": "bunny-default"
+    },
+    {
+      "kind": "limits",
+      "mesh": "dead_tree_trunk_02",
+      "source_triangles": 83128,
+      "source_vertices": 46112,
+      "max_bytes": 1073741824,
+      "max_work": 17179869184,
+      "peak_bytes": 24057919,
+      "work": 140396021,
+      "bytes_per_source_triangle": 289.4081296314118,
+      "work_per_source_triangle": 1688.9137354441343,
+      "pass": true,
+      "result": "Ok(())",
+      "case": "dead_tree_trunk_02-default"
+    },
+    {
+      "kind": "limits",
+      "mesh": "namaqualand_boulder_02",
+      "source_triangles": 97964,
+      "source_vertices": 53437,
+      "max_bytes": 1073741824,
+      "max_work": 17179869184,
+      "peak_bytes": 27456109,
+      "work": 166471905,
+      "bytes_per_source_triangle": 280.2673328977992,
+      "work_per_source_triangle": 1699.3171471152668,
+      "pass": true,
+      "result": "Ok(())",
+      "case": "namaqualand_boulder_02-default"
+    }
+  ],
+  "unmeasured": [
+    "coast_rocks_01",
+    "dragon"
+  ],
+  "helper": "deferred until larger-mesh calibration"
+}

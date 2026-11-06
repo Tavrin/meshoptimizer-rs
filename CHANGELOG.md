@@ -11,6 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Document finite `clusterlod::v2::build` storage/work sizing and the completed
+  small-mesh calibration. Larger-mesh measurements and a suggested-limits helper
+  remain pending; no triangle-count guarantee is implied.
+- The MDAG 2 builder partitions whole replacement regions using their cluster counts as
+  weights, preserving sibling ownership without moving clusters after partitioning. Builder
+  revision 6 invalidates cook keys; the container layout and legacy builder stay compatible.
+  The sampled original-source, single-step and inherited error floors are retained. Qualification
+  results and remaining performance limits are recorded in `parity/vg-bench/RESULTS.md`.
+
 ## [0.2.19] - 2026-11-06
 
 Offline support for streamed, Nanite-style cluster rendering. Everything here is additive: the

@@ -45,6 +45,7 @@ fn main() {
         Some("eval") => eval(&args[1..]),
         Some("diag") => diag(&args[1..]),
         Some("plateau") => plateau(&args[1..]),
+        Some("limits") => limits(&args[1..]),
         _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
     };
     if let Err(e) = result {
@@ -242,8 +243,10 @@ fn diag(args: &[String]) -> Result<(), String> {
     match builder.as_str() {
         "ours" => {
             let o = build_variant(&src, jobs, set)?;
-            for line in diag::world_cuts(&o, &src, samples, jobs, true, &label)? {
-                println!("{line}");
+            if !args.iter().any(|a| a == "--groups-only") {
+                for line in diag::world_cuts(&o, &src, samples, jobs, true, &label)? {
+                    println!("{line}");
+                }
             }
             if !args.iter().any(|a| a == "--no-groups") {
                 for line in diag::group_steps(&o, &src, jobs, &label)? {
@@ -281,5 +284,48 @@ fn plateau(args: &[String]) -> Result<(), String> {
     for line in diag::plateau(&o, &Json::new().text("mesh", &name)) {
         println!("{line}");
     }
+    Ok(())
+}
+
+/// Measure the build's accounted peak storage and work with finite budgets.
+fn limits(args: &[String]) -> Result<(), String> {
+    use meshoptimizer_rs::{
+        clusterlod::{
+            default_config,
+            page::QuantGrid,
+            v2::{self, BuildMesh},
+        },
+        Limits, Workspace,
+    };
+    let p = positional(args);
+    let (src, name) = load(&p)?;
+    let threads = num(args, "--jobs", 8);
+    let budget = Limits { max_bytes: num(args, "--bytes", 1usize << 30), max_work: num(args, "--work", 1u64 << 34) };
+    let pool = rayon::ThreadPoolBuilder::new().num_threads(threads).build().map_err(|e| e.to_string())?;
+    let grid = QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?;
+    let config = default_config(128).map_err(|e| format!("{e:?}"))?;
+    let mut ws = Workspace::new(budget);
+    let result = pool.install(|| {
+        let mut input = BuildMesh::new(&src.indices, &src.positions);
+        input.normals = Some(&src.normals);
+        v2::build(config, input, grid, &mut ws)
+    });
+    let usage = ws.usage();
+    println!(
+        "{}",
+        Json::new()
+            .text("kind", "limits")
+            .text("mesh", &name)
+            .with("source_triangles", src.triangles())
+            .with("source_vertices", src.positions.len())
+            .with("max_bytes", budget.max_bytes)
+            .with("max_work", budget.max_work)
+            .with("peak_bytes", usage.bytes)
+            .with("work", usage.work)
+            .with("bytes_per_source_triangle", usage.bytes as f64 / src.triangles() as f64)
+            .with("work_per_source_triangle", usage.work as f64 / src.triangles() as f64)
+            .with("pass", result.is_ok())
+            .text("result", &format!("{:?}", result.as_ref().map(|_| ())))
+    );
     Ok(())
 }

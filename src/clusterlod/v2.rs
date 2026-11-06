@@ -75,6 +75,33 @@ pub struct Built {
 /// Sampling is not a continuous Hausdorff certificate.
 /// Dilation is rejected: this path retains exact source attribute references.
 ///
+/// # Sizing resource limits
+/// The default [`crate::Limits`] supplies 1 GiB of accounted storage and 2^34
+/// counted visits. These are initial profiling ceilings, not bounds for every
+/// mesh. Finite limits select serial budget accounting even with `parallel`.
+/// Inspect [`crate::Workspace::usage`] after a successful build: divide `bytes` and
+/// `work` by the source triangle count, then provision headroom for comparable
+/// assets. Storage includes crate-owned output and retained scratch capacities;
+/// caller buffers, allocator overhead, thread stacks and later serialization
+/// need separate memory allowances. Work counts visits, not instructions or time.
+///
+/// Calibration with fresh finite workspaces, `default_config(128)`, normals at
+/// weight 0.5 and grid exponent -22 measured:
+///
+/// | Source triangles | Peak accounted bytes | Counted visits | Bytes/triangle | Visits/triangle |
+/// | ---: | ---: | ---: | ---: | ---: |
+/// | 69,451 | 20,792,603 | 121,001,449 | 299.4 | 1,742.3 |
+/// | 83,128 | 24,057,919 | 140,396,021 | 289.4 | 1,688.9 |
+/// | 97,964 | 27,456,109 | 166,471,905 | 280.3 | 1,699.3 |
+///
+/// These observations cover only the listed meshes; larger-mesh calibration is
+/// incomplete. Triangle count alone does not bound unused vertices, attribute
+/// storage, material duplication, locked boundaries or topology-dependent query
+/// work. Profile representative inputs and configurations before choosing a
+/// per-triangle allowance. A failed call reports only the executed prefix and
+/// can underestimate the complete build's storage and work. `LimitExceeded`
+/// can mean either budget was exhausted; test storage and work independently.
+///
 /// # Errors
 /// Legacy build errors, invalid channel lengths, mixed source slots, unsupported
 /// dilation, or exhausted workspace limits. No partial result is returned.
@@ -470,7 +497,11 @@ fn measure_region(
     Ok(measured)
 }
 
-fn grow_output<T>(ctx: &mut Context<'_>, values: &mut Vec<T>, extra: usize) -> Result<(), Error> {
+pub(super) fn grow_output<T>(
+    ctx: &mut Context<'_>,
+    values: &mut Vec<T>,
+    extra: usize,
+) -> Result<(), Error> {
     let needed = values.len().checked_add(extra).ok_or(Error::SizeOverflow)?;
     if needed > values.capacity() {
         let capacity = needed.max(values.capacity().saturating_mul(2)).max(4);

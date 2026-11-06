@@ -1,0 +1,16 @@
+{
+  "exit": 0,
+  "comparisons": [
+    "legacy grids and MDAG 1: 98621 bytes identical",
+    "bunny 1T legacy clusterlod fields and MDAG 1: 1473293 bytes identical",
+    "bunny 8T legacy clusterlod fields and MDAG 1: 1473293 bytes identical",
+    "dead_tree_trunk_02 1T legacy clusterlod fields and MDAG 1: 1797394 bytes identical",
+    "dead_tree_trunk_02 8T legacy clusterlod fields and MDAG 1: 1797394 bytes identical",
+    "namaqualand_boulder_02 1T legacy clusterlod fields and MDAG 1: 2116321 bytes identical",
+    "namaqualand_boulder_02 8T legacy clusterlod fields and MDAG 1: 2116321 bytes identical",
+    "coast_rocks_01 1T legacy clusterlod fields and MDAG 1: 14413424 bytes identical",
+    "coast_rocks_01 8T legacy clusterlod fields and MDAG 1: 14413424 bytes identical",
+    "dragon 1T legacy clusterlod fields and MDAG 1: 17692544 bytes identical",
+    "dragon 8T legacy clusterlod fields and MDAG 1: 17692544 bytes identical"
+  ]
+}

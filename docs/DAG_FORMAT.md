@@ -410,7 +410,7 @@ node width, the input positions (bits) and indices (as `u32`, so `u16` and
 vertex flags (presence word, count, one byte each), attributes (presence word,
 vertex count, component count, value bits), attribute weights (count, bits)
 and the protect mask. A cooker can test its cache before building.
-`BUILDER_REVISION` (5) is bumped whenever equal inputs produce different bytes.
+`BUILDER_REVISION` (6) is bumped whenever equal inputs produce different bytes.
 The writer stores `WriteOptions::build_key` as given (zero when not set).
 
 **Versioning.** The minor version is informational. A later minor may add
@@ -589,8 +589,11 @@ required chunks remain `Unsupported`; a malformed MATS record is `Invalid`.
 The v2 builder keeps all clusters emitted by one replacement in the same next
 partition. Original leaf regions therefore stay local: following a refined
 group does not pull source triangles owned by a sibling parent into a region.
-This changes builder output and requires builder revision 5; the container
-format and legacy builder are unchanged. Component pruning is not enabled.
+Revision 5 gathered siblings after partitioning. Revision 6 instead partitions
+whole replacement regions, weighted by their cluster counts. This preserves
+sibling ownership while letting graph adjacency and the partition size limit
+operate on the actual indivisible regions. The container format and legacy
+builder are unchanged. Component pruning is not enabled.
 
 The sampled symmetric error still bounds the original leaf union before
 snapping, the measured step, the simplifier estimate and inherited child errors.
@@ -645,3 +648,40 @@ Release campaigns for 0.2.19, 2026-11-06 (AddressSanitizer, `-rss_limit_mb=512`,
 added no coverage, zero crashes): `attr_page` 5,997 CPU-s, 2,441,137 executions; `v2_build` 3,012
 CPU-s, 6,493 executions; `dag_format_v2` 2,996 CPU-s, 2,957,774 executions. Seed line coverage:
 `attributes.rs` 92.65%, `page.rs` 93.69%, `v2.rs` 94.32%, `dag_format_v2.rs` 91.28%, `far_field.rs` 62.86%.
+
+
+### Sizing finite v2 build limits
+
+`clusterlod::v2::build` accounts both output and retained scratch capacity.
+`Workspace::usage().bytes` is the accounted high-water mark, rather than process
+RSS; source buffers, allocator overhead, thread stacks, serialization and runtime
+residency need separate allowances. `usage().work` counts record visits, including
+nested simplification and sampled original-source distance queries. It is neither
+an instruction count nor a duration. Finite budgets use serial accounting even
+when the `parallel` feature is enabled; unlimited parallel scratch has a different
+peak and must be measured separately.
+
+Start profiling with `Limits::default()` (1 GiB and 2^34 visits). For a successful
+representative build with T source triangles, record B/T and W/T, where B is the
+peak accounted bytes and W is counted work. Choose per-triangle allowances above
+the observed maxima, with fixed overhead and headroom, and validate them on the
+largest representative inputs. Account separately for source vertex count,
+unused vertices, attributes, material seams, locked boundaries and topology:
+triangle count alone cannot guarantee a budget.
+
+The current finite-budget calibration uses fresh workspaces, 128-triangle
+clusters, normal weight 0.5 and grid exponent -22:
+
+| Mesh | Source triangles | Peak accounted bytes | Counted visits | Bytes/source triangle | Visits/source triangle |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| bunny | 69,451 | 20,792,603 | 121,001,449 | 299.4 | 1,742.3 |
+| dead_tree_trunk_02 | 83,128 | 24,057,919 | 140,396,021 | 289.4 | 1,688.9 |
+| namaqualand_boulder_02 | 97,964 | 27,456,109 | 166,471,905 | 280.3 | 1,699.3 |
+
+Larger-mesh calibration is incomplete; these numbers are empirical observations,
+not upper bounds or a validated sizing rule for larger assets. Use successful
+high-budget runs for calibration. A failed call's usage covers only its executed
+prefix, so it can understate both eventual peak storage and total work.
+`LimitExceeded` can indicate either storage or work exhaustion. Raising both
+budgets together demonstrates success but does not identify which budget was too
+small; vary one budget at a time to isolate the limit.

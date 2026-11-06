@@ -459,59 +459,103 @@ fn partition(
     ctx.free(sorted)?;
     Ok(offsets)
 }
-// A replacement's clusters are one source region. Keeping them together avoids
-// recursively charging each parent for source geometry owned by sibling parents.
-fn localize_partitions(
+// Partition replacement regions as indivisible weighted graph vertices. Moving
+// siblings after partitioning damages both the balanced sizes and the boundary
+// adjacency the partitioner optimized. Pending siblings are contiguous because
+// ordered group assembly emits each replacement as one run.
+fn partition_regions(
     clusters: &mut [Pending],
-    offsets: Vec<u32>,
+    indices: &[u32],
+    remap: &[u32],
+    p: Positions<'_>,
+    c: Config,
     ctx: &mut Context<'_>,
 ) -> Result<Vec<u32>, Error> {
-    ctx.tick(clusters.len())?;
-    let count = clusters
-        .iter()
-        .filter_map(|c| usize::try_from(c.refined).ok())
-        .max()
-        .map_or(0, |i| i + 1);
-    let mut owners = ctx.filled(count, usize::MAX)?;
-    let mut assignments = ctx.alloc::<usize>(clusters.len())?;
-    let mut counts = ctx.alloc::<u32>(offsets.len())?;
-    for (part, pair) in offsets.windows(2).enumerate() {
-        for i in pair[0] as usize..pair[1] as usize {
-            ctx.tick(1)?;
-            let refined = clusters[i].refined;
-            let owner = if refined < 0 {
-                part
-            } else {
-                let owner = &mut owners[refined as usize];
-                if *owner == usize::MAX {
-                    *owner = part;
-                }
-                *owner
-            };
-            assignments[i] = owner;
-            counts[owner + 1] += 1;
+    if clusters.len() <= c.partition_size || clusters.iter().all(|cl| cl.refined < 0) {
+        return partition(clusters, indices, remap, p, c, ctx);
+    }
+    let mut starts = ctx.alloc::<usize>(0)?;
+    for (i, cl) in clusters.iter().enumerate() {
+        ctx.tick(1)?;
+        if i == 0 || cl.refined < 0 || cl.refined != clusters[i - 1].refined {
+            v2::grow_output(ctx, &mut starts, 1)?;
+            starts.push(i);
         }
     }
-    ctx.tick(counts.len().saturating_mul(2))?;
-    for i in 1..counts.len() {
-        counts[i] += counts[i - 1];
+    v2::grow_output(ctx, &mut starts, 1)?;
+    starts.push(clusters.len());
+    let units = starts.len() - 1;
+    let mut counts = ctx.alloc::<u32>(units)?;
+    let mut weights = ctx.alloc::<u32>(units)?;
+    let mut idx = ctx.alloc::<u32>(indices.len())?;
+    let mut off = 0;
+    for (unit, pair) in starts.windows(2).enumerate() {
+        weights[unit] = u32::try_from(pair[1] - pair[0]).map_err(|_| Error::SizeOverflow)?;
+        for cl in &clusters[pair[0]..pair[1]] {
+            ctx.tick(cl.count)?;
+            counts[unit] = counts[unit]
+                .checked_add(cl.count as u32)
+                .ok_or(Error::SizeOverflow)?;
+            for &v in &indices[cl.offset..cl.offset + cl.count] {
+                idx[off] = remap[v as usize];
+                off += 1;
+            }
+        }
     }
-    let mut write = ctx.copy(&counts)?;
+    let mut assignments = ctx.alloc::<u32>(units)?;
+    let mut parts = 0;
+    ctx.child(|ws| {
+        parts = crate::partition::partition_weighted(
+            &mut assignments,
+            &idx[..off],
+            &counts,
+            Some(&weights),
+            remap.len(),
+            if c.partition_spatial { Some(p) } else { None },
+            c.partition_size,
+            &mut Context::new(ws)?,
+        )?;
+        Ok(())
+    })?;
+    if c.partition_sort {
+        let mut centers = ctx.alloc(parts)?;
+        for (unit, pair) in starts.windows(2).enumerate() {
+            centers[assignments[unit] as usize] = clusters[pair[1] - 1].bounds.center;
+        }
+        let order = ctx.child(|ws| {
+            crate::spatial_sort_remap_generic::<u32>(Positions::from_packed(&centers), ws)
+        })?;
+        for v in &mut assignments {
+            *v = order[*v as usize];
+        }
+        ctx.free(centers)?;
+        ctx.free(order)?;
+    }
+    let mut offsets = ctx.alloc::<u32>(parts + 1)?;
+    for (&part, &weight) in assignments.iter().zip(&weights) {
+        offsets[part as usize + 1] += weight;
+    }
+    for i in 1..offsets.len() {
+        offsets[i] += offsets[i - 1];
+    }
+    let mut write = ctx.copy(&offsets)?;
     let mut sorted = ctx.alloc::<Pending>(clusters.len())?;
-    for (i, &cluster) in clusters.iter().enumerate() {
-        ctx.tick(1)?;
-        let at = &mut write[assignments[i]];
-        sorted[*at as usize] = cluster;
-        *at += 1;
+    for (unit, pair) in starts.windows(2).enumerate() {
+        ctx.tick(pair[1] - pair[0])?;
+        let at = &mut write[assignments[unit] as usize];
+        let len = pair[1] - pair[0];
+        sorted[*at as usize..*at as usize + len].copy_from_slice(&clusters[pair[0]..pair[1]]);
+        *at += len as u32;
     }
     clusters.copy_from_slice(&sorted);
-    counts.dedup();
-    ctx.free(owners)?;
+    ctx.free(starts)?;
+    ctx.free(counts)?;
+    ctx.free(weights)?;
+    ctx.free(idx)?;
     ctx.free(assignments)?;
     ctx.free(write)?;
     ctx.free(sorted)?;
-    ctx.free(offsets)?;
-    Ok(counts)
+    Ok(offsets)
 }
 // Reuse the existing byte-sized boundary storage as simplifier flags. Bit 7
 // is private discovery state and is removed from every entry before return.
@@ -1099,7 +1143,12 @@ fn build_in_context_mode(
     }
     let mut depth = 0;
     while clusters.len() > 1 {
-        let group_offsets = partition(
+        let partitioner = if policy.is_some() {
+            partition_regions
+        } else {
+            partition
+        };
+        let group_offsets = partitioner(
             &mut clusters,
             &idx,
             &remap,
@@ -1107,11 +1156,6 @@ fn build_in_context_mode(
             c,
             ctx,
         )?;
-        let group_offsets = if policy.is_some() {
-            localize_partitions(&mut clusters, group_offsets, ctx)?
-        } else {
-            group_offsets
-        };
         lock_boundary(
             &mut locks,
             &clusters,

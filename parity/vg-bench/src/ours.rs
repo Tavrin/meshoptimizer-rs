@@ -432,11 +432,35 @@ fn shape_v2(o: &Ours, src: &Source, label: &Json, file: &[u8]) -> Result<String,
     let m = r.mesh();
     let mut words = 0u64;
     let mut pinned = 0u64;
+    let mut position_bytes = 0u64;
+    let mut triangle_bytes = 0u64;
+    let mut vertices = 0u64;
+    let mut attribute_bytes = 0u64;
     for p in 0..m.page_count as usize {
         let page = r.page(p).map_err(|e| format!("{e:?}"))?;
         words += u64::from(page.memory_words);
         if p < m.pinned_page_count as usize {
             pinned += u64::from(page.memory_words) * 4;
+        }
+        let mut decoded = vec![0; page.memory_words as usize];
+        let view = r
+            .transcode_page(
+                p,
+                &file[page.disk_offset as usize..(page.disk_offset + u64::from(page.disk_length)) as usize],
+                &mut decoded,
+                &mut ws,
+            )
+            .map_err(|e| format!("{e:?}"))?;
+        for c in 0..view.cluster_count() {
+            let d = view.cluster(c).map_err(|e| format!("{e:?}"))?;
+            vertices += u64::from(d.vertex_count);
+            position_bytes += (u64::from(d.vertex_count) * u64::from(d.bits.iter().sum::<u32>())).div_ceil(32) * 4;
+            triangle_bytes += u64::from(d.triangle_count * 3).div_ceil(4) * 4;
+            // PageView already validated the descriptor and the block word count.
+            let at = view.words()[4 + c * 16 + 9] as usize;
+            if at != 0 {
+                attribute_bytes += u64::from(view.words()[at]) * 4;
+            }
         }
     }
     Ok(label
@@ -449,6 +473,13 @@ fn shape_v2(o: &Ours, src: &Source, label: &Json, file: &[u8]) -> Result<String,
         .with("hierarchy_depth", m.bvh_depth)
         .with("pages", m.page_count)
         .with("pinned_bytes", pinned)
+        .with("metadata_bytes", v2::resident_len(file).map_err(|e| format!("{e:?}"))?)
+        .with("page_memory_bytes", words * 4)
+        .with("position_bytes", position_bytes)
+        .with("triangle_bytes", triangle_bytes)
+        .with("attribute_bytes", attribute_bytes)
+        .with("descriptor_bytes", o.clusters.len() * 64)
+        .with("cluster_vertices", vertices)
         .with("file_bytes", file.len())
         .with("file_zstd19_bytes", zstd19(file))
         .with("resident_bytes", v2::resident_len(file).map_err(|e| format!("{e:?}"))? as u64 + words * 4)

@@ -485,6 +485,32 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
     for depth in 0..o.level_count {
         let mut groups: Vec<_> = o.groups.iter().enumerate().filter(|(_, g)| g.depth == depth as i32).collect();
         let stuck = groups.iter().filter(|(_, g)| g.error == f32::MAX).count();
+        let input_tris = |g: &meshoptimizer_rs::clusterlod::FlatDagGroup| -> usize {
+            o.clusters[g.first_cluster as usize..(g.first_cluster + g.cluster_count) as usize]
+                .iter()
+                .map(|c| c.index_count as usize / 3)
+                .sum()
+        };
+        let pinned_triangles: usize =
+            groups.iter().filter(|(_, g)| g.error == f32::MAX).map(|(_, g)| input_tris(g)).sum();
+        let triangles: usize = groups.iter().map(|(_, g)| input_tris(g)).sum();
+        let inherited_groups = groups.iter().filter(|(id, g)| g.error < f32::MAX && g.error == inherited[*id]).count();
+        let mut sizes: Vec<usize> = groups.iter().map(|(_, g)| g.cluster_count as usize).collect();
+        sizes.sort_unstable();
+        let size =
+            |p: f64| sizes.get((sizes.len().saturating_sub(1) as f64 * p).round() as usize).copied().unwrap_or(0);
+        let mut ratios: Vec<f64> = groups
+            .iter()
+            .filter(|(_, g)| g.error < f32::MAX)
+            .map(|(id, g)| {
+                let output: usize =
+                    o.clusters.iter().filter(|c| c.refined == *id as i32).map(|c| c.index_count as usize / 3).sum();
+                output as f64 / input_tris(g).max(1) as f64
+            })
+            .collect();
+        ratios.sort_by(f64::total_cmp);
+        let ratio =
+            |p: f64| ratios.get((ratios.len().saturating_sub(1) as f64 * p).round() as usize).copied().unwrap_or(0.0);
         let shared = groups.iter().filter(|(i, _)| owners[*i].len() > 1).count();
         groups.retain(|(_, g)| g.error < f32::MAX);
         groups.sort_by(|a, b| a.1.error.total_cmp(&b.1.error));
@@ -499,6 +525,14 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
                 .with("finite", groups.len())
                 .with("stuck", stuck)
                 .with("shared", shared)
+                .with("triangles", triangles)
+                .with("pinned_triangles", pinned_triangles)
+                .with("inherited_groups", inherited_groups)
+                .with("clusters_p5", size(0.05))
+                .with("clusters_median", size(0.5))
+                .with("clusters_max", size(1.0))
+                .with("retained_ratio_median", ratio(0.5))
+                .with("retained_ratio_p95", ratio(0.95))
                 .with("median", pct(0.5))
                 .with("p95", pct(0.95))
                 .with("max", pct(1.0))
