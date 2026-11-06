@@ -1,0 +1,16 @@
+wasm://wasm/determinism.wasm-002e08a6:1
+
+
+RuntimeError: unreachable
+    at determinism.wasm._RNvCs5fGHjzWXRav_7___rustc12___rust_abort (wasm://wasm/determinism.wasm-002e08a6:wasm-function[408]:0xa46ae)
+    at determinism.wasm._RNvCs5fGHjzWXRav_7___rustc18___rust_start_panic (wasm://wasm/determinism.wasm-002e08a6:wasm-function[393]:0xa2cd4)
+    at determinism.wasm._RNvCs5fGHjzWXRav_7___rustc10rust_panic (wasm://wasm/determinism.wasm-002e08a6:wasm-function[404]:0xa30cf)
+    at determinism.wasm._RNvNtCsiuSwmoQr08c_3std9panicking15panic_with_hook (wasm://wasm/determinism.wasm-002e08a6:wasm-function[402]:0xa30b3)
+    at determinism.wasm._RNCNvNtCsiuSwmoQr08c_3std9panicking13panic_handler0B5_ (wasm://wasm/determinism.wasm-002e08a6:wasm-function[400]:0xa2ea4)
+    at determinism.wasm._RINvNtNtCsiuSwmoQr08c_3std3sys9backtrace26___rust_end_short_backtraceNCNvNtB6_9panicking13panic_handler0zEB6_ (wasm://wasm/determinism.wasm-002e08a6:wasm-function[399]:0xa2e0c)
+    at determinism.wasm._RNvCs5fGHjzWXRav_7___rustc17rust_begin_unwind (wasm://wasm/determinism.wasm-002e08a6:wasm-function[414]:0xa5299)
+    at determinism.wasm._RNvNtCs4NIexwV1FGX_4core9panicking9panic_fmt (wasm://wasm/determinism.wasm-002e08a6:wasm-function[440]:0xa5d19)
+    at determinism.wasm._RNvNtCs4NIexwV1FGX_4core6result13unwrap_failed (wasm://wasm/determinism.wasm-002e08a6:wasm-function[452]:0xa6e77)
+    at determinism.wasm.decode_bench (wasm://wasm/determinism.wasm-002e08a6:wasm-function[40]:0x8721)
+
+Node.js v22.22.0

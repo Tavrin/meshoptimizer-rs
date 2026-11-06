@@ -1,0 +1,6 @@
+     Locking 9 packages to highest compatible versions
+      Adding rayon v1.11.0 (available: v1.12.0)
+   Compiling meshoptimizer-baseline v0.2.18 (<target>/base)
+   Compiling meshoptimizer-rs v0.2.18 (<worktree>)
+   Compiling combined-proof v0.0.0 (<target>/par-none)
+    Finished `release` profile [optimized] target(s) in 28.41s

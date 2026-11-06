@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<worktree>/parity/0219-qualify/supplement.py", line 7, in stage
+    try:f()
+        ^^^
+  File "<worktree>/parity/0219-qualify/supplement.py", line 22, in <lambda>
+    if binary.exists():stage('wasm-timing-'+variant,lambda variant=variant,binary=binary:q.run('wasm-timing-'+variant,['node',q.A/'wasm_timing.mjs',binary]))
+                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<worktree>/parity/0219-qualify/run.py", line 76, in run
+    raise SystemExit(p.returncode)
+SystemExit: 1

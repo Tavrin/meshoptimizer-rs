@@ -6,8 +6,7 @@
 //! target prefixes a selector byte (0 = decode_vertex_buffer, 1 = _into).
 //! Sequence-stream layout: count, chunk, width bytes, source.
 use meshoptimizer_rs::codec::{
-    encode_index_buffer, encode_index_sequence, encode_vertex_buffer, IndexEncoding,
-    VertexEncoding,
+    encode_index_buffer, encode_index_sequence, encode_vertex_buffer, IndexEncoding, VertexEncoding,
 };
 use meshoptimizer_rs::Workspace;
 use std::{fs, path::PathBuf};
@@ -135,9 +134,7 @@ fn main() {
     }
     // Triangle index buffers for the streaming triangle decoder.
     for tris in [1usize, 2, 5, 16, 33, 64] {
-        let indices: Vec<u32> = (0..tris as u32)
-            .flat_map(|t| [t, t + 1, t + 2])
-            .collect();
+        let indices: Vec<u32> = (0..tris as u32).flat_map(|t| [t, t + 1, t + 2]).collect();
         let mut ws = Workspace::default();
         for version in [1u8, 0] {
             let Ok(e) = IndexEncoding::new(version) else {

@@ -4,13 +4,18 @@
 //! contract. Positions are explicit mutable packed XYZ because border dilation
 //! changes them. Callback identifiers retain the demo's refinement semantics.
 #![allow(clippy::too_many_arguments)]
+mod bounds_math;
 mod dag;
 mod flat;
 pub use flat::{FlatDagCluster, FlatDagGroup};
+pub mod attributes;
+pub mod cut;
 pub mod dag_format;
+pub mod page;
 #[cfg(feature = "parallel")]
 mod parallel;
 mod support;
+pub mod v2;
 use crate::processing::{cross, dot, finite, point, sub, Context};
 use crate::{Attributes, Error, MeshletSettings, Positions, VertexFlags, Workspace};
 use alloc::vec::Vec;
@@ -454,6 +459,60 @@ fn partition(
     ctx.free(sorted)?;
     Ok(offsets)
 }
+// A replacement's clusters are one source region. Keeping them together avoids
+// recursively charging each parent for source geometry owned by sibling parents.
+fn localize_partitions(
+    clusters: &mut [Pending],
+    offsets: Vec<u32>,
+    ctx: &mut Context<'_>,
+) -> Result<Vec<u32>, Error> {
+    ctx.tick(clusters.len())?;
+    let count = clusters
+        .iter()
+        .filter_map(|c| usize::try_from(c.refined).ok())
+        .max()
+        .map_or(0, |i| i + 1);
+    let mut owners = ctx.filled(count, usize::MAX)?;
+    let mut assignments = ctx.alloc::<usize>(clusters.len())?;
+    let mut counts = ctx.alloc::<u32>(offsets.len())?;
+    for (part, pair) in offsets.windows(2).enumerate() {
+        for i in pair[0] as usize..pair[1] as usize {
+            ctx.tick(1)?;
+            let refined = clusters[i].refined;
+            let owner = if refined < 0 {
+                part
+            } else {
+                let owner = &mut owners[refined as usize];
+                if *owner == usize::MAX {
+                    *owner = part;
+                }
+                *owner
+            };
+            assignments[i] = owner;
+            counts[owner + 1] += 1;
+        }
+    }
+    ctx.tick(counts.len().saturating_mul(2))?;
+    for i in 1..counts.len() {
+        counts[i] += counts[i - 1];
+    }
+    let mut write = ctx.copy(&counts)?;
+    let mut sorted = ctx.alloc::<Pending>(clusters.len())?;
+    for (i, &cluster) in clusters.iter().enumerate() {
+        ctx.tick(1)?;
+        let at = &mut write[assignments[i]];
+        sorted[*at as usize] = cluster;
+        *at += 1;
+    }
+    clusters.copy_from_slice(&sorted);
+    counts.dedup();
+    ctx.free(owners)?;
+    ctx.free(assignments)?;
+    ctx.free(write)?;
+    ctx.free(sorted)?;
+    ctx.free(offsets)?;
+    Ok(counts)
+}
 // Reuse the existing byte-sized boundary storage as simplifier flags. Bit 7
 // is private discovery state and is removed from every entry before return.
 fn lock_boundary(
@@ -864,12 +923,19 @@ fn validate(mesh: &MeshGeneric<'_>, c: Config, ctx: &mut Context<'_>) -> Result<
     }
     Ok(())
 }
+#[derive(Clone, Copy)]
+struct BuildPolicy<'a> {
+    material_component: Option<usize>,
+    alpha: Option<v2::AlphaCoverage<'a>>,
+}
 struct Prepared {
     merged_idx: Vec<u32>,
     gb: Vec<LodBounds>,
     simplified: Vec<u32>,
     bounds: LodBounds,
     stuck: bool,
+    material_mixed: bool,
+    alpha_failed: bool,
 }
 fn prepare_group(
     group: &[Pending],
@@ -878,6 +944,7 @@ fn prepare_group(
     locks: &[support::VertexFlags],
     c: Config,
     ctx: &mut Context<'_>,
+    policy: Option<BuildPolicy<'_>>,
 ) -> Result<Prepared, Error> {
     let n = group.iter().map(|cl| cl.count).sum();
     let mut merged_idx = ctx.alloc::<u32>(n)?;
@@ -891,7 +958,46 @@ fn prepare_group(
     let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
     let mut bounds = merged(&gb, ctx)?;
     let (simplified, error) = simplify(&merged_idx, mesh, locks, c, target, ctx)?;
-    let stuck = simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let mixed = policy
+        .and_then(|p| p.material_component)
+        .is_some_and(|slot| {
+            mesh.attributes.is_some_and(|a| {
+                simplified.as_chunks::<3>().0.iter().any(|t| {
+                    a.get(t[0] as usize, slot) != a.get(t[1] as usize, slot)
+                        || a.get(t[0] as usize, slot) != a.get(t[2] as usize, slot)
+                })
+            })
+        });
+    let stuck = mixed
+        || (policy.is_some() && simplified.is_empty())
+        || simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let alpha_failed = if !stuck {
+        if let Some(alpha) = policy.and_then(|p| p.alpha) {
+            v2::alpha_failed(
+                &merged_idx,
+                &simplified,
+                mesh,
+                policy.and_then(|p| p.material_component),
+                alpha,
+                ctx,
+            )?
+        } else {
+            false
+        }
+    } else {
+        false
+    };
+    let stuck = stuck || alpha_failed;
+    let error = if policy.is_some() && !stuck {
+        error.max(v2::step_error(
+            &merged_idx,
+            &simplified,
+            mesh.positions,
+            ctx,
+        )?)
+    } else {
+        error
+    };
     if stuck {
         bounds.error = f32::MAX;
     } else {
@@ -906,6 +1012,8 @@ fn prepare_group(
         simplified,
         bounds,
         stuck,
+        material_mixed: mixed,
+        alpha_failed,
     })
 }
 fn build_internal(
@@ -921,7 +1029,7 @@ fn build_internal(
     workspace: &mut Workspace,
 ) -> Result<(), Error> {
     let mut ctx = Context::new(workspace)?;
-    build_in_context_mode(c, mesh, callback, &mut ctx, parallel)
+    build_in_context_mode(c, mesh, callback, &mut ctx, parallel, None).map(|_| ())
 }
 fn build_in_context(
     c: Config,
@@ -934,7 +1042,7 @@ fn build_in_context(
     ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
-    build_in_context_mode(c, mesh, callback, ctx, false)
+    build_in_context_mode(c, mesh, callback, ctx, false, None).map(|_| ())
 }
 fn build_in_context_mode(
     c: Config,
@@ -947,8 +1055,10 @@ fn build_in_context_mode(
     ) -> Result<i32, Error>,
     ctx: &mut Context<'_>,
     _parallel: bool,
-) -> Result<(), Error> {
+    policy: Option<BuildPolicy<'_>>,
+) -> Result<(usize, usize, usize), Error> {
     validate(&mesh, c, ctx)?;
+    let (mut stuck_count, mut mixed_count, mut alpha_count) = (0, 0, 0);
     let mut moderate = ctx.moderate;
     let p = Positions::from_packed(mesh.positions);
     let remap = position_remap(p, ctx)?;
@@ -997,6 +1107,11 @@ fn build_in_context_mode(
             c,
             ctx,
         )?;
+        let group_offsets = if policy.is_some() {
+            localize_partitions(&mut clusters, group_offsets, ctx)?
+        } else {
+            group_offsets
+        };
         lock_boundary(
             &mut locks,
             &clusters,
@@ -1021,6 +1136,7 @@ fn build_in_context_mode(
                 &group_offsets,
                 moderate,
                 remaining_work,
+                policy,
             )
             .map(Vec::into_iter)
         } else {
@@ -1037,11 +1153,14 @@ fn build_in_context_mode(
                 ctx.absorb(item.usage.bytes, item.usage.work, item.live)?;
                 (item.prepared, item.clustered)
             } else {
-                (prepare_group(group, &idx, &mesh, &locks, c, ctx)?, None)
+                (
+                    prepare_group(group, &idx, &mesh, &locks, c, ctx, policy)?,
+                    None,
+                )
             };
             #[cfg(not(feature = "parallel"))]
             let (prepared, _clustered) = (
-                prepare_group(group, &idx, &mesh, &locks, c, ctx)?,
+                prepare_group(group, &idx, &mesh, &locks, c, ctx, policy)?,
                 speculative,
             );
             let Prepared {
@@ -1050,8 +1169,13 @@ fn build_in_context_mode(
                 simplified,
                 mut bounds,
                 stuck,
+                material_mixed,
+                alpha_failed,
             } = prepared;
             if stuck {
+                stuck_count += 1;
+                mixed_count += usize::from(material_mixed);
+                alpha_count += usize::from(alpha_failed);
                 output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
                 ctx.free(merged_idx)?;
                 ctx.free(gb)?;
@@ -1135,7 +1259,7 @@ fn build_in_context_mode(
     ctx.free(offsets)?;
     ctx.free(clusters)?;
     ctx.free(idx)?;
-    Ok(())
+    Ok((stuck_count, mixed_count, alpha_count))
 }
 /// `clodBuild`, with explicit callback return identifiers. A late error may leave
 /// dilated positions changed and callbacks already emitted.

@@ -1,0 +1,12 @@
+     Locking 3 packages to highest compatible versions
+   Compiling combined-proof v0.0.0 (<target>/legacy-none)
+warning: constant `CASES` is never used
+ --> <worktree>/parity/0219-qualify/legacy-candidate.rs:3:11
+  |
+3 | pub const CASES: &[&str] = &[
+  |           ^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `combined-proof` (bin "legacy_exact") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 1.01s

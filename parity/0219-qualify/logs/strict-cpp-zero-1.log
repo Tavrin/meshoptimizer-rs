@@ -1,0 +1,63 @@
+{
+  "runs": [
+    {
+      "receipt": "decode-all/differential.json",
+      "cases": 318608,
+      "forced_level_differences": 0,
+      "cpp_success_differences": 0,
+      "cpp_failure_write_differences": 74863,
+      "cpp_default_isa_divergences": 0,
+      "retained_0218_failure_write_differences": 74863,
+      "same_failure_count_as_0218": true
+    },
+    {
+      "receipt": "decode-all/extended/differential.json",
+      "cases": 318608,
+      "forced_level_differences": 0,
+      "cpp_success_differences": 0,
+      "cpp_failure_write_differences": 149727,
+      "cpp_default_isa_divergences": 0,
+      "retained_0218_failure_write_differences": 149727,
+      "same_failure_count_as_0218": true
+    },
+    {
+      "receipt": "decode-none/differential-no-std.json",
+      "cases": 318608,
+      "forced_level_differences": 0,
+      "cpp_success_differences": 0,
+      "cpp_failure_write_differences": 74863,
+      "cpp_default_isa_divergences": 0,
+      "retained_0218_failure_write_differences": 74863,
+      "same_failure_count_as_0218": true
+    },
+    {
+      "receipt": "vdecode-all/differential.json",
+      "cases": 318608,
+      "forced_level_differences": 0,
+      "cpp_success_differences": 0,
+      "cpp_failure_write_differences": 74863,
+      "cpp_default_isa_divergences": 0,
+      "retained_0218_failure_write_differences": 74863,
+      "same_failure_count_as_0218": true
+    },
+    {
+      "receipt": "vdecode-none/differential-no-std.json",
+      "cases": 318608,
+      "forced_level_differences": 0,
+      "cpp_success_differences": 0,
+      "cpp_failure_write_differences": 74863,
+      "cpp_default_isa_divergences": 0,
+      "retained_0218_failure_write_differences": 74863,
+      "same_failure_count_as_0218": true
+    }
+  ],
+  "totals": {
+    "cases": 1593040,
+    "forced_level_differences": 0,
+    "cpp_success_differences": 0,
+    "cpp_failure_write_differences": 449179,
+    "cpp_default_isa_divergences": 0
+  },
+  "strict_zero_differences": false,
+  "note": "Failure-buffer observations are reported per reference arm and run, not deduplicated inputs. The inherited runner permits these on failed calls; the strict brief bar does not exclude them."
+}

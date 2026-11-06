@@ -1,0 +1,12 @@
+{
+  "samples": 3024,
+  "cells": 168,
+  "identity": {
+    "base_train_default": 168,
+    "base_train_scalar": 168,
+    "train_cpp_default": 168,
+    "train_cpp_scalar": 168
+  },
+  "regressions": [],
+  "worst_ratio": 1.0011134576482528
+}

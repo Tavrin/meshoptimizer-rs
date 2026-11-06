@@ -1,0 +1,20 @@
+{
+  "case": {
+    "n": 1,
+    "stride": 8,
+    "v": 0,
+    "ch": 0,
+    "ctrl": 0,
+    "sel": 1,
+    "length": 100
+  },
+  "input_hex": "010000000800000064000000a055ffffffff135aa1e82f76bd044b92d92067aef53c55ffffffff135aa1e82f76bd044b92d92067aef53c55ffffffff135aa1e82f76bd044b92d92067aef53c55ffffffff135aa1e82f76bd044b92d92067aef53c55ffffffff135aa1e82f76bd044b92",
+  "outputs": {
+    "rust": "0100000097de256ccccccccccccccccccccccc",
+    "cpp": "01000000cccccccccccccccccccccccccccccc"
+  },
+  "binary_sha256": {
+    "rust": "2f61f9009437d3e0701888c95d4b2243f2070f68accc202c2f74043371d245d4",
+    "cpp": "a78a263a2394ca8df783625a7c3077fe4407061f96706fb91ce6d8a2ce9de1b3"
+  }
+}

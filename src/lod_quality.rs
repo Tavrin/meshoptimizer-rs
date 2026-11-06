@@ -323,8 +323,8 @@ fn measure<I: crate::Index>(
     }
     validate(source, work)?;
     validate(level, work)?;
-    let a = direction(source, level, options, budget, work)?;
-    let b = direction(level, source, options, budget, work)?;
+    let a = direction::<I, false, 3>(source, level, options, budget, work, 0.0)?;
+    let b = direction::<I, false, 3>(level, source, options, budget, work, 0.0)?;
     let samples = a.count.checked_add(b.count).ok_or(Error::SizeOverflow)?;
     Ok(LodQuality {
         source_to_level: a.distance(),
@@ -340,6 +340,31 @@ fn measure<I: crate::Index>(
         }),
     })
 }
+// The builder consumes only the symmetric maximum. Keep the public statistics
+// path exact, including nearest-triangle ties, RMS and shading normals.
+#[cfg(feature = "clusterlod")]
+pub(crate) fn measure_max(
+    source: LodQualityMesh<'_>,
+    level: LodQualityMesh<'_>,
+    options: &LodQualityOptions,
+    workspace: &mut Workspace,
+) -> Result<f64, Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        validate_options(options)?;
+        let source: LodQualityMeshGeneric<'_, u32> = source.into();
+        let level: LodQualityMeshGeneric<'_, u32> = level.into();
+        validate(source, &mut work)?;
+        validate(level, &mut work)?;
+        let mut budget = Budget::new(workspace);
+        let a = direction::<u32, true, 0>(source, level, options, &mut budget, &mut work, 0.0)?;
+        let b = direction::<u32, true, 0>(level, source, options, &mut budget, &mut work, a.max)?;
+        Ok(libm::sqrt(b.max))
+    })();
+    workspace.finish(&work);
+    result
+}
+
 fn sub(a: V, b: V) -> V {
     core::array::from_fn(|k| a[k] - b[k])
 }
@@ -357,27 +382,35 @@ fn blend(p: [V; 3], w: V) -> V {
     core::array::from_fn(|k| p[0][k] * w[0] + p[1][k] * w[1] + p[2][k] * w[2])
 }
 #[derive(Clone, Copy)]
-struct Triangle {
+// Distance-only records omit unused normals; full statistics retain all three.
+struct Triangle<const NORMALS: usize = 3> {
     p: [V; 3],
-    n: [V; 3],
+    n: [V; NORMALS],
     id: usize,
 }
-impl Triangle {
+impl<const NORMALS: usize> Triangle<NORMALS> {
     fn read<I: crate::Index>(mesh: LodQualityMeshGeneric<'_, I>, i: usize) -> Result<Self, Error> {
         let ix = &mesh.indices[i * 3..i * 3 + 3];
-        Ok(Self {
+        let mut triangle = Self {
             p: [
                 position(mesh, ix[0])?,
                 position(mesh, ix[1])?,
                 position(mesh, ix[2])?,
             ],
-            n: [
-                normal(mesh, ix[0])?,
-                normal(mesh, ix[1])?,
-                normal(mesh, ix[2])?,
-            ],
+            n: [[0.0; 3]; NORMALS],
             id: i,
-        })
+        };
+        for (value, &index) in triangle.n.iter_mut().zip(ix) {
+            *value = normal(mesh, index)?;
+        }
+        Ok(triangle)
+    }
+    fn normals(&self) -> [V; 3] {
+        let mut normals = [[0.0; 3]; 3];
+        for (to, &from) in normals.iter_mut().zip(&self.n) {
+            *to = from;
+        }
+        normals
     }
     fn center(&self, axis: usize) -> f64 {
         self.p[0][axis] + self.p[1][axis] + self.p[2][axis]
@@ -390,11 +423,11 @@ struct Node {
     left: usize,
     right: usize,
 }
-struct Tree {
-    triangles: Vec<Triangle>,
+struct Tree<const NORMALS: usize = 3> {
+    triangles: Vec<Triangle<NORMALS>>,
     nodes: Vec<Node>,
 }
-impl Tree {
+impl<const NORMALS: usize> Tree<NORMALS> {
     fn build<I: crate::Index>(
         mesh: LodQualityMeshGeneric<'_, I>,
         budget: &mut Budget<'_>,
@@ -404,7 +437,7 @@ impl Tree {
         work.add(n)?; // initialization is charged before reserving/reading records
         let mut triangles = budget.reserved(n)?;
         for i in 0..n {
-            triangles.push(Triangle::read(mesh, i)?);
+            triangles.push(Triangle::<NORMALS>::read(mesh, i)?);
         }
         let count = n
             .checked_mul(2)
@@ -448,7 +481,19 @@ impl Tree {
         }
         Ok(id)
     }
-    fn query(&self, id: usize, p: V, best: &mut Hit, work: &mut Work) -> Result<(), Error> {
+    fn query<const MAX_ONLY: bool>(
+        &self,
+        id: usize,
+        p: V,
+        best: &mut Hit,
+        work: &mut Work,
+        cutoff: f64,
+    ) -> Result<(), Error> {
+        // A witnessed distance below the running maximum cannot raise it.
+        // Otherwise finish the exact nearest query with the original arithmetic.
+        if MAX_ONLY && best.distance <= cutoff {
+            return Ok(());
+        }
         work.add(1)?;
         let n = self.nodes[id];
         if box_distance(n, p) > best.distance {
@@ -462,7 +507,8 @@ impl Tree {
                     distance,
                     weights,
                     id: t.id,
-                    normals: t.n,
+                    normals: t.normals(),
+                    triangle: n.left,
                 };
             }
         } else {
@@ -472,17 +518,24 @@ impl Tree {
                 } else {
                     (n.right, n.left)
                 };
-            self.query(a, p, best, work)?;
-            self.query(b, p, best, work)?;
+            self.query::<MAX_ONLY>(a, p, best, work, cutoff)?;
+            self.query::<MAX_ONLY>(b, p, best, work, cutoff)?;
         }
         Ok(())
     }
 }
 // Metered median partition. A bounded number of quickselect passes falls back
 // to heapsort, preventing adversarial quadratic build work. No hidden sort scans.
-fn select(a: &mut [Triangle], mid: usize, axis: usize, work: &mut Work) -> Result<(), Error> {
-    let key = |t: Triangle| (t.center(axis), t.id);
-    let cmp = |a: Triangle, b: Triangle| key(a).0.total_cmp(&key(b).0).then(a.id.cmp(&b.id));
+fn select<const NORMALS: usize>(
+    a: &mut [Triangle<NORMALS>],
+    mid: usize,
+    axis: usize,
+    work: &mut Work,
+) -> Result<(), Error> {
+    let key = |t: Triangle<NORMALS>| (t.center(axis), t.id);
+    let cmp = |a: Triangle<NORMALS>, b: Triangle<NORMALS>| {
+        key(a).0.total_cmp(&key(b).0).then(a.id.cmp(&b.id))
+    };
     let mut lo = 0;
     let mut hi = a.len();
     let mut passes = 2 * (usize::BITS - a.len().leading_zeros());
@@ -514,16 +567,16 @@ fn select(a: &mut [Triangle], mid: usize, axis: usize, work: &mut Work) -> Resul
     }
     Ok(())
 }
-fn heap_sort(
-    a: &mut [Triangle],
-    cmp: impl Fn(Triangle, Triangle) -> core::cmp::Ordering + Copy,
+fn heap_sort<const NORMALS: usize>(
+    a: &mut [Triangle<NORMALS>],
+    cmp: impl Fn(Triangle<NORMALS>, Triangle<NORMALS>) -> core::cmp::Ordering + Copy,
     work: &mut Work,
 ) -> Result<(), Error> {
-    fn sift(
-        a: &mut [Triangle],
+    fn sift<const INNER_NORMALS: usize>(
+        a: &mut [Triangle<INNER_NORMALS>],
         mut root: usize,
         end: usize,
-        cmp: impl Fn(Triangle, Triangle) -> core::cmp::Ordering + Copy,
+        cmp: impl Fn(Triangle<INNER_NORMALS>, Triangle<INNER_NORMALS>) -> core::cmp::Ordering + Copy,
         work: &mut Work,
     ) -> Result<(), Error> {
         while root < end / 2 {
@@ -556,6 +609,7 @@ fn box_distance(n: Node, p: V) -> f64 {
         .sum()
 }
 struct Hit {
+    triangle: usize,
     distance: f64,
     weights: V,
     id: usize,
@@ -613,8 +667,38 @@ fn closest(t: [V; 3], p: V) -> (f64, V) {
     }
     best
 }
+// The face candidate is also tested by `closest`. A successful candidate is
+// sufficient to bound this sample below the running maximum; a failed witness
+// leaves the exact tree query unchanged. Degenerate/outside faces use edges.
+fn witness(t: [V; 3], p: V, cutoff: f64) -> Option<(f64, V)> {
+    let ab = sub(t[1], t[0]);
+    let ac = sub(t[2], t[0]);
+    let n = cross(ab, ac);
+    let nn = dot(n, n);
+    if nn > 0.0 {
+        let ap = sub(p, t[0]);
+        let v = dot(cross(ap, ac), n) / nn;
+        let w = dot(cross(ab, ap), n) / nn;
+        if v >= 0.0 && w >= 0.0 && v + w <= 1.0 {
+            let h = dot(ap, n);
+            let d = h * h / nn;
+            return if d <= cutoff {
+                Some((d, [1.0 - v - w, v, w]))
+            } else {
+                None
+            };
+        }
+    }
+    let (d, weights) = closest(t, p);
+    if d <= cutoff {
+        Some((d, weights))
+    } else {
+        None
+    }
+}
 #[derive(Default)]
 struct Stats {
+    witness: Option<usize>,
     count: u64,
     max: f64,
     sum: f64,
@@ -629,28 +713,51 @@ impl Stats {
             samples: self.count,
         }
     }
-    fn sample(
+    fn sample<const MAX_ONLY: bool, const NORMALS: usize>(
         &mut self,
-        t: Triangle,
+        t: Triangle<NORMALS>,
         weights: V,
-        tree: &Tree,
+        tree: &Tree<NORMALS>,
         normals: bool,
         work: &mut Work,
     ) -> Result<(), Error> {
         work.add(1)?;
         let p = blend(t.p, weights);
         let mut hit = Hit {
+            triangle: usize::MAX,
             distance: f64::INFINITY,
             weights: [0.0; 3],
             id: usize::MAX,
             normals: [[0.0; 3]; 3],
         };
-        tree.query(0, p, &mut hit, work)?;
+        // Nearby samples often share a useful target triangle. Its distance is
+        // an upper bound, so a successful witness needs no BVH traversal.
+        if MAX_ONLY {
+            if let Some(i) = self.witness {
+                work.add(1)?;
+                let t = tree.triangles[i];
+                if let Some((distance, weights)) = witness(t.p, p, self.max) {
+                    hit = Hit {
+                        triangle: i,
+                        distance,
+                        weights,
+                        id: t.id,
+                        normals: t.normals(),
+                    };
+                }
+            }
+        }
+        tree.query::<MAX_ONLY>(0, p, &mut hit, work, self.max)?;
+        if MAX_ONLY && hit.triangle != usize::MAX {
+            self.witness = Some(hit.triangle);
+        }
         self.count = self.count.checked_add(1).ok_or(Error::SizeOverflow)?;
         self.max = self.max.max(hit.distance);
-        self.sum += hit.distance;
-        if normals {
-            let a = unit(blend(t.n, weights)).map_err(|_| Error::NumericalFailure)?;
+        if !MAX_ONLY {
+            self.sum += hit.distance;
+        }
+        if !MAX_ONLY && normals {
+            let a = unit(blend(t.normals(), weights)).map_err(|_| Error::NumericalFailure)?;
             let b = unit(blend(hit.normals, hit.weights)).map_err(|_| Error::NumericalFailure)?;
             // atan2 remains accurate near zero and pi, unlike acos(dot).
             let angle = libm::atan2(
@@ -663,20 +770,31 @@ impl Stats {
         Ok(())
     }
 }
-fn direction<I: crate::Index>(
+fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
     source: LodQualityMeshGeneric<'_, I>,
     target: LodQualityMeshGeneric<'_, I>,
     options: &LodQualityOptions,
     budget: &mut Budget<'_>,
     work: &mut Work,
+    initial_max: f64,
 ) -> Result<Stats, Error> {
-    let tree = Tree::build(target, budget, work)?;
+    let tree = Tree::<NORMALS>::build(target, budget, work)?;
     // Always release local storage accounting, including after a failed query.
+    let mut corners = Vec::<u64>::new();
     let result = (|| {
-        let mut stats = Stats::default();
+        if MAX_ONLY {
+            let words = source.positions.len().div_ceil(64);
+            work.add(words)?;
+            corners = budget.reserved(words)?;
+            corners.resize(words, 0);
+        }
+        let mut stats = Stats {
+            max: initial_max,
+            ..Stats::default()
+        };
         for i in 0..source.indices.len() / 3 {
             work.add(1)?;
-            let t = Triangle::read(source, i)?;
+            let t = Triangle::<NORMALS>::read(source, i)?;
             let n = cross(sub(t.p[1], t.p[0]), sub(t.p[2], t.p[0]));
             let count = libm::ceil(0.5 * libm::sqrt(dot(n, n)) * options.samples_per_unit_area);
             if !count.is_finite() || count > f64::from(u32::MAX) {
@@ -684,13 +802,34 @@ fn direction<I: crate::Index>(
             }
             // Finite, nonnegative and checked <= u32::MAX: conversion cannot wrap.
             let count = count as u32;
-            for w in [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]] {
-                stats.sample(t, w, &tree, source.normals.is_some(), work)?;
+            for (corner, w) in [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]]
+                .into_iter()
+                .enumerate()
+            {
+                let vertex = source.indices[i * 3 + corner].to_u32() as usize;
+                let mask = 1u64 << (vertex % 64);
+                if MAX_ONLY && corners[vertex / 64] & mask != 0 {
+                    // This corner is already bounded by an earlier maximum.
+                    // Keep the sample visit/count; its distance cannot raise max.
+                    work.add(1)?;
+                    stats.count = stats.count.checked_add(1).ok_or(Error::SizeOverflow)?;
+                } else {
+                    stats.sample::<MAX_ONLY, NORMALS>(
+                        t,
+                        w,
+                        &tree,
+                        source.normals.is_some(),
+                        work,
+                    )?;
+                    if MAX_ONLY {
+                        corners[vertex / 64] |= mask;
+                    }
+                }
             }
             for j in 0..count {
                 let r = libm::sqrt((f64::from(j) + 0.5) / f64::from(count));
                 let t2 = (f64::from(j.reverse_bits()) + 0.5) / 4294967296.0;
-                stats.sample(
+                stats.sample::<MAX_ONLY, NORMALS>(
                     t,
                     [1.0 - r, r * (1.0 - t2), r * t2],
                     &tree,
@@ -701,6 +840,9 @@ fn direction<I: crate::Index>(
         }
         Ok(stats)
     })();
+    if MAX_ONLY {
+        budget.release(corners);
+    }
     budget.release(tree.nodes);
     budget.release(tree.triangles);
     result
@@ -793,6 +935,72 @@ impl<'a> From<LodQualityMesh<'a>> for LodQualityMeshGeneric<'a, u32> {
             indices: value.indices,
             positions: value.positions,
             normals: value.normals,
+        }
+    }
+}
+
+#[cfg(all(test, feature = "clusterlod"))]
+mod maximum_tests {
+    use super::*;
+
+    #[test]
+    fn maximum_only_matches_uneven_surfaces() {
+        let mut state = 17u32;
+        let mut random = || {
+            state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+            (state >> 8) as f32 / 16777216.0
+        };
+        let indices: Vec<u32> = (0..36).collect();
+        for scale in [1e-10, 1., 1e10] {
+            for _ in 0..16 {
+                let source: Vec<[f32; 3]> = (0..36)
+                    .map(|_| core::array::from_fn(|_| random() * scale))
+                    .collect();
+                let target: Vec<[f32; 3]> = source
+                    .iter()
+                    .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
+                    .collect();
+                let options = LodQualityOptions {
+                    samples_per_unit_area: 4. / f64::from(scale).powi(2),
+                };
+                let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
+                let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
+                let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
+                    .expect("full measurement");
+                let maximum = measure_max(a, b, &options, &mut Workspace::default())
+                    .expect("maximum measurement");
+                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+            }
+        }
+    }
+
+    #[test]
+    fn maximum_only_matches_full_queries() {
+        // Overlapping faces, repeated corners and degenerate segments exercise
+        // witness exits and exact queries that must raise the running maximum.
+        let indices = [0, 1, 2, 2, 1, 0, 0, 0, 3, 3, 4, 5];
+        let source = [
+            [0., 0., 0.],
+            [1., 0., 0.],
+            [0., 1., 0.],
+            [0., 0., 2.],
+            [1., 0., 2.],
+            [0., 1., 2.],
+        ];
+        for offset in [0., 1e-12, 0.125, 4.] {
+            let target = source.map(|p| [p[0], p[1], p[2] + offset]);
+            for density in [0., 1., 100.] {
+                let options = LodQualityOptions {
+                    samples_per_unit_area: density,
+                };
+                let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
+                let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
+                let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
+                    .expect("full measurement");
+                let maximum = measure_max(a, b, &options, &mut Workspace::default())
+                    .expect("maximum measurement");
+                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+            }
         }
     }
 }

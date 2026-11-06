@@ -1,0 +1,1 @@
+{"commands": 324, "failures": 7, "exact_runs": 34, "bench_meshes": 5, "bench_bar_passes": {"build_half_reference_1T": 0, "build_half_reference_8T": 0, "file_per_dag_triangle": 3, "resident_per_dag_triangle": 0, "fewer_cut_triangles_5px": 4, "fewer_cut_triangles_8px": 3, "measured_claimed_median_1_3": 5, "self_checks": 5, "thread_byte_identity": 5}}

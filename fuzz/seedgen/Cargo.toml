@@ -5,7 +5,13 @@ edition = "2021"
 publish = false
 
 [dependencies]
-meshoptimizer-rs = { path = "../..", default-features = false, features = ["std", "simd"] }
+meshoptimizer-rs = { path = "../..", default-features = false, features = ["std", "simd", "clusterlod", "parallel"] }
+
+rayon = "=1.11.0"
+
+[[bin]]
+name = "vg-seedgen"
+path = "src/vg.rs"
 
 [workspace]
 members = ["."]

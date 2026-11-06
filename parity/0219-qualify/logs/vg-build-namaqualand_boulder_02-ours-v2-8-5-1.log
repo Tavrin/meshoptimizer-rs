@@ -1,0 +1,24 @@
+{"kind":"build","builder":"ours-v2","mesh":"namaqualand_boulder_02","threads":8,"build_ms":451.922107,"dag_ms":451.892425,"hierarchy_ms":0.029682,"serialise_ms":86.572228,"file_bytes":2605070,"triangles":97964,"vmhwm_kib":144796}
+	Command being timed: "<target>/release/vg-bench build ours-v2 <target>/namaqualand_boulder_02.vgm --threads 8"
+	User time (seconds): 1.58
+	System time (seconds): 0.09
+	Percent of CPU this job got: 305%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.55
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 144796
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 46394
+	Voluntary context switches: 312
+	Involuntary context switches: 791
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

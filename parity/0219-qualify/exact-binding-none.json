@@ -1,0 +1,23 @@
+{
+  "binaries": {
+    "basics": "9bced3ce0c0cea6b49f9e03ddc08b00501f122f840591bfec6fa8aaab2f1b750",
+    "bounds": "d25cfb3ba804966508adddea012e78ca3798d60894cc4983e4da794249d3fe32",
+    "cache_table": "0476c808b27e030ff56cb2fb4b7d06ec3733b1bed7465157b5e8d604599e1e38",
+    "decode": "d16eb9bfa4a283f0fb81d58c81e8cbdbfcf915eee2fae11f70b0b5a01ed4a151",
+    "geometry": "1b71574f541d6b69c298f7f98de6834ce12aa7de77eabdf880d5eef0cd578fec",
+    "hsr": "b9744196b95d9e881b3ce003ec249e482f4c60f6bf9296157dc127b3455c3755",
+    "lodq": "01daa9870ef66e13236bf37e55b7b6fb921231561156f6de75d9a59e83e59c0f",
+    "lodq_diff": "9beed787eb0b07f192301b0313d25ef0c274ed281a871c04123c110e91bd3511",
+    "merge": "e43f52cf5efb7e09c9fe07d5f897b29e8a9b1099060cacaddd75b2a973444bdc",
+    "overdraw": "e7f833d477a1de58700c1363895fedcdcaef575b9d66ffe697a2d2b936e8f2cf",
+    "remap": "7ca131f73cdc1a40c6d8324e5c8f350358216f8c4e4572c593532484c3911e62",
+    "remap_cpp": "13b77f968933fce936c3170bc7c1ebf983402fa3717347fe00067b166526d10c",
+    "repair": "ff1695a781fdb95e8ba5a05a6cfa3c1bbff1d8c2c4d6c315ac6b8400bcbd6ef1",
+    "repair_corpus": "01b50b68007142ab36f7d1bd9a70cb0e250de4187e7936eed017a75c8279bdba",
+    "simplify": "b9de46085864e90f68532cf41347ae85aef4898d4a98d64ca21f846ca885fadc",
+    "spatial": "16acfdade1d87b7ab833cc0d17ac014ce05d2769777a94fb482cc74d2b60ef99",
+    "stream": "4bfe6ab21908e8f0995ead0458357e3361410e344112d27dfff91e74d005e985",
+    "vdecode": "17b86f8c64d4ac61b6c883e881e406e1885a571bb8e93524d68687f44f512c66"
+  },
+  "manifest": "[package]\nname=\"combined-proof\"\nversion=\"0.0.0\"\nedition=\"2021\"\n[dependencies]\nbaseline={package=\"meshoptimizer-baseline\",path=\"<target>/base\",default-features=false,features=[\"clusterlod\"]}\ncandidate={package=\"meshoptimizer-rs\",path=\"<worktree>\",default-features=false,features=[\"clusterlod\"]}\nmeshopt=\"=0.7.0\"\n[[bin]]\nname=\"remap\"\npath=\"<worktree>/parity/0216-remap/exact.rs\"\n[[bin]]\nname=\"spatial\"\npath=\"<worktree>/parity/0216-spatial/exact.rs\"\n[[bin]]\nname=\"repair\"\npath=\"<worktree>/parity/0216-repair/exact.rs\"\n[[bin]]\nname=\"simplify\"\npath=\"<worktree>/parity/0216-simplify/exact.rs\"\n[[bin]]\nname=\"decode\"\npath=\"<worktree>/parity/0216-decode/exact.rs\"\n[[bin]]\nname=\"bounds\"\npath=\"<worktree>/parity/0216-bounds/exact.rs\"\n[[bin]]\nname=\"vdecode\"\npath=\"<worktree>/parity/0216-vdecode/exact.rs\"\n[[bin]]\nname=\"stream\"\npath=\"<worktree>/parity/0216-stream/exact.rs\"\n[[bin]]\nname=\"remap_cpp\"\npath=\"<worktree>/parity/0216-remap/cpp-differential.rs\"\n[[bin]]\nname=\"repair_corpus\"\npath=\"<worktree>/parity/0216-repair/corpus.rs\"\n[[bin]]\nname=\"geometry\"\npath=\"<worktree>/parity/0215-toward-cpp/geometry-exact.rs\"\n[[bin]]\nname=\"lodq\"\npath=\"<worktree>/parity/0217-lodq/exact.rs\"\n[[bin]]\nname=\"hsr\"\npath=\"<worktree>/parity/0217-hsr/exact.rs\"\n[[bin]]\nname=\"cache_table\"\npath=\"<worktree>/parity/0215-cache-restore/table-exact.rs\"\n[[bin]]\nname=\"basics\"\npath=\"<worktree>/parity/0215-basics/exact.rs\"\n[[bin]]\nname=\"merge\"\npath=\"<worktree>/parity/0215-qualify/merge-exact.rs\"\n[[bin]]\nname=\"overdraw\"\npath=\"<worktree>/parity/0216-qualify/overdraw-exact.rs\"\n[[bin]]\nname=\"lodq_diff\"\npath=\"<worktree>/parity/0217-lodq/differential.rs\"\n[profile.release]\ncodegen-units=1\n"
+}

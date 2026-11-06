@@ -1,0 +1,12 @@
+    Building meshoptimizer-rs v0.2.18 (current)
+       Built [   2.357s] (current)
+     Parsing meshoptimizer-rs v0.2.18 (current)
+      Parsed [   0.058s] (current)
+    Building meshoptimizer-rs v0.2.18 (baseline)
+       Built [   0.903s] (baseline)
+     Parsing meshoptimizer-rs v0.2.18 (baseline)
+      Parsed [   0.039s] (baseline)
+    Checking meshoptimizer-rs v0.2.18 -> v0.2.18 (no change; assume minor)
+     Checked [   0.020s] 202 checks: 202 pass, 58 skip
+     Summary no semver update required
+    Finished [   4.331s] meshoptimizer-rs

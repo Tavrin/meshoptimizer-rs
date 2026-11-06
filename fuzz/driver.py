@@ -36,6 +36,7 @@ R0217 = ['hidden', 'dag_reader', 'character', 'process', 'parallel_equiv', 'widt
 CODEC = ['buffer_stream', 'sequence_stream', 'vertex', 'vertex_into', 'simd', 'vertex_encode', 'vertex_encode_into']
 PARALLEL = ['parallel_clod']
 MESHLET = ['build_meshlets_spatial']
+R0220 = ['dag_format_v2', 'attr_page', 'v2_build']
 R0218 = ['trim_cards', 'bake', 'reconstruct', 'layout']
 GROUPS = {
     'r0218': (ROOT / 'fuzz/r0218', R0218),
@@ -43,10 +44,12 @@ GROUPS = {
     'codec': (ROOT / 'fuzz/codec', CODEC),
     'parallel': (ROOT / 'fuzz/parallel-clod', PARALLEL),
     'p03': (ROOT / 'fuzz/p03', MESHLET),
+    'r0220': (ROOT / 'fuzz/r0220', R0220),
 }
-if os.environ.get('FUZZ_GROUPS'):
-    GROUPS = {g: v for g, v in GROUPS.items() if g in os.environ['FUZZ_GROUPS'].split(',')}
 TARGETS = [n for _, names in GROUPS.values() for n in names]
+# FUZZ_GROUPS=a,b builds only those groups; FUZZ_SANITIZER selects the cargo-fuzz sanitizer.
+BUILD_GROUPS = [g for g in os.environ.get('FUZZ_GROUPS', ','.join(GROUPS)).split(',') if g]
+SANITIZER = os.environ.get('FUZZ_SANITIZER', 'none')
 
 def sha(path):
     with open(path, 'rb') as f:
@@ -69,14 +72,16 @@ def env():
 
 def build():
     binding = {}
-    for g, (fuzz_dir, names) in GROUPS.items():
+    for g in BUILD_GROUPS:
+        fuzz_dir, names = GROUPS[g]
         subprocess.run(['cargo', '+nightly', 'fuzz', 'build', '--fuzz-dir', str(fuzz_dir), '--target-dir',
-                        str(TARGET_DIR), '-O', '-a', '--sanitizer', 'none'], check=True, env=env(), cwd=ROOT)
+                        str(TARGET_DIR), '-O', '-a', '--sanitizer', SANITIZER], check=True, env=env(), cwd=ROOT)
         for n in names:
             binding[n] = sha(binary(n))
     binding['commit'] = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=ROOT).stdout.strip()
+    binding['sanitizer'] = SANITIZER
     (S / 'build-binding.json').write_text(json.dumps(binding, indent=2, sort_keys=True) + '\n')
-    print('built', len(TARGETS), 'targets', flush=True)
+    print('built', len(binding) - 2, 'targets', flush=True)
 
 
 STATUS = re.compile(r'^#(\d+)\s+(\w+)\s+cov: (\d+) ft: (\d+)')
@@ -210,8 +215,12 @@ def cover(names):
         # cargo-fuzz writes the instrumented binary to <target-dir>/<triple>/release/<name>,
         # so coverage builds get a target dir of their own.
         cov_dir = TARGET_DIR / 'cov'
+        artifacts = ROOT / 'fuzz/artifacts' / name
+        artifacts.mkdir(parents=True, exist_ok=True)
         subprocess.run(['cargo', '+nightly', 'fuzz', 'coverage', '--fuzz-dir', str(fuzz_dir), '--target-dir',
-                        str(cov_dir), '-O', '-a', name, str(seeds)], check=True, env=env(), cwd=ROOT)
+                        str(cov_dir), '-O', '-a', name, str(seeds), '--',
+                        '-timeout=60', '-rss_limit_mb=512', f'-artifact_prefix={artifacts}/'],
+                       check=True, env=env(), cwd=ROOT)
         # The profile lands in <fuzz-dir>/coverage/<name>/coverage.profdata; reach.py reads it.
         print('coverage', name, 'ok', flush=True)
 

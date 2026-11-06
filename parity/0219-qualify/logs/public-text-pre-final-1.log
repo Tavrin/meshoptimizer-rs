@@ -1,0 +1,10 @@
+parity/0219-qualify/logs/timing-native-smoke-1.log:42:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/result.rs:1232:23
+parity/0219-qualify/logs/timing-native-smoke-1.log:48:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
+parity/0219-qualify/logs/timing-native-smoke-1.log:50:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/sys/backtrace.rs:166:18
+parity/0219-qualify/logs/timing-native-smoke-1.log:52:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/rt.rs:206:18
+parity/0219-qualify/logs/timing-native-smoke-1.log:72:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/rt.rs:205:5
+parity/0219-qualify/logs/timing-native-smoke-1.log:126:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/ops/function.rs:250:5
+parity/0219-qualify/logs/timing-native-smoke-1.log:128:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/sys/backtrace.rs:166:18
+parity/0219-qualify/logs/timing-native-smoke-1.log:130:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/rt.rs:206:18
+parity/0219-qualify/logs/timing-native-smoke-1.log:150:                               at <rustup>/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/std/src/rt.rs:205:5
+FAIL: private machine paths or project names in public text
