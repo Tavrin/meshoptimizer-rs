@@ -950,26 +950,28 @@ mod maximum_tests {
             state = state.wrapping_mul(1664525).wrapping_add(1013904223);
             (state >> 8) as f32 / 16777216.0
         };
-        let indices: Vec<u32> = (0..36).collect();
-        for scale in [1e-10, 1., 1e10] {
-            for _ in 0..16 {
-                let source: Vec<[f32; 3]> = (0..36)
-                    .map(|_| core::array::from_fn(|_| random() * scale))
-                    .collect();
-                let target: Vec<[f32; 3]> = source
-                    .iter()
-                    .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
-                    .collect();
-                let options = LodQualityOptions {
-                    samples_per_unit_area: 4. / f64::from(scale).powi(2),
-                };
-                let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
-                let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
-                let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
-                    .expect("full measurement");
-                let maximum = measure_max(a, b, &options, &mut Workspace::default())
-                    .expect("maximum measurement");
-                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+        for count in [1, 3, 4, 5, 8, 9, 17] {
+            let indices: Vec<u32> = (0..count * 3).collect();
+            for scale in [1e-10, 1., 1e10] {
+                for _ in 0..16 {
+                    let source: Vec<[f32; 3]> = (0..count * 3)
+                        .map(|_| core::array::from_fn(|_| random() * scale))
+                        .collect();
+                    let target: Vec<[f32; 3]> = source
+                        .iter()
+                        .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
+                        .collect();
+                    let options = LodQualityOptions {
+                        samples_per_unit_area: 4. / f64::from(scale).powi(2),
+                    };
+                    let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
+                    let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
+                    let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
+                        .expect("full measurement");
+                    let maximum = measure_max(a, b, &options, &mut Workspace::default())
+                        .expect("maximum measurement");
+                    assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+                }
             }
         }
     }

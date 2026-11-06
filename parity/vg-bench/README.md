@@ -127,6 +127,16 @@ positions, triangles, and attributes; page headers account for the remainder.
 counted work and per-source-triangle ratios. Normal weight is 0.5 and grid -22.
 The JSON `pass` and `result` fields describe the build outcome; command exit 0
 means the diagnostic ran, including an intentionally budget-limited build.
-Finite limits use serial accounting despite the configured worker pool. The
-interrupted calibration and commands awaiting authorization are recorded in
-[the hold record](0220/HOLD.md).
+Finite limits use serial accounting despite the configured worker pool. Use `--suggested` instead of explicit ceilings to validate the empirical
+`v2::suggested_limits` helper. The completed calibration and the earlier hold
+are recorded in [the sizing record](0220/HOLD.md).
+
+
+`continue0220.py` measures one byte-preserving calibration experiment. Set
+`VG_EVIDENCE` to the original campaign and `VG_CONTINUATION` to a fresh directory
+containing the experimental `candidate-vg-bench`. It counterbalances five repeats
+of the previous weighted policy, experiment and pinned reference at 1/8 threads,
+then requires complete output identity with the original artifacts at both thread
+counts. Only after that check does it reuse the original shape and quality rows.
+It also runs each finite build using `suggested_limits`. Existing output fails
+closed. Timing and quality execution remain separate evidence.

@@ -40,6 +40,35 @@ impl<'a> BuildMesh<'a> {
         }
     }
 }
+
+/// Suggest finite build budgets from the source triangle count.
+///
+/// This empirical starting point uses 16 MiB plus 512 bytes per triangle and
+/// 2^24 plus 4096 visits per triangle. It provides headroom over the five-mesh
+/// calibration (69,451 to 871,414 triangles, `default_config(128)`, normals at
+/// weight 0.5, grid -22). It is not a worst-case bound: unused vertices,
+/// attributes, material duplication, locks and overlapping surfaces can require
+/// more. Inspect successful [`Workspace::usage`] on representative inputs and
+/// provision caller buffers and serialization separately. Finite budgets use
+/// serial accounting even with the `parallel` feature.
+///
+/// # Errors
+/// [`Error::SizeOverflow`] if either budget cannot be represented.
+pub fn suggested_limits(source_triangles: usize) -> Result<crate::Limits, Error> {
+    let max_bytes = source_triangles
+        .checked_mul(512)
+        .and_then(|n| n.checked_add(1 << 24))
+        .ok_or(Error::SizeOverflow)?;
+    let max_work = u64::try_from(source_triangles)
+        .map_err(|_| Error::SizeOverflow)?
+        .checked_mul(4096)
+        .and_then(|n| n.checked_add(1 << 24))
+        .ok_or(Error::SizeOverflow)?;
+    Ok(crate::Limits {
+        max_bytes,
+        max_work,
+    })
+}
 /// Owned flat DAG ready for the MDAG 2 writer.
 #[derive(Default, Debug)]
 pub struct Built {
@@ -85,17 +114,19 @@ pub struct Built {
 /// caller buffers, allocator overhead, thread stacks and later serialization
 /// need separate memory allowances. Work counts visits, not instructions or time.
 ///
-/// Calibration with fresh finite workspaces, `default_config(128)`, normals at
-/// weight 0.5 and grid exponent -22 measured:
+/// Calibration of the retained builder, with fresh finite workspaces,
+/// `default_config(128)`, normals at weight 0.5 and grid -22:
 ///
 /// | Source triangles | Peak accounted bytes | Counted visits | Bytes/triangle | Visits/triangle |
 /// | ---: | ---: | ---: | ---: | ---: |
 /// | 69,451 | 20,792,603 | 121,001,449 | 299.4 | 1,742.3 |
 /// | 83,128 | 24,057,919 | 140,396,021 | 289.4 | 1,688.9 |
 /// | 97,964 | 27,456,109 | 166,471,905 | 280.3 | 1,699.3 |
+/// | 679,936 | 138,275,489 | 1,236,391,663 | 203.4 | 1,818.4 |
+/// | 871,414 | 170,885,388 | 1,647,221,498 | 196.1 | 1,890.3 |
 ///
-/// These observations cover only the listed meshes; larger-mesh calibration is
-/// incomplete. Triangle count alone does not bound unused vertices, attribute
+/// [`suggested_limits`] supplies an empirical starting budget for this range.
+/// Triangle count alone does not bound unused vertices, attribute
 /// storage, material duplication, locked boundaries or topology-dependent query
 /// work. Profile representative inputs and configurations before choosing a
 /// per-triangle allowance. A failed call reports only the executed prefix and

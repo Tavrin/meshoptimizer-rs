@@ -13,9 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Document finite `clusterlod::v2::build` storage/work sizing and the completed
-  small-mesh calibration. Larger-mesh measurements and a suggested-limits helper
-  remain pending; no triangle-count guarantee is implied.
+- Add `clusterlod::v2::suggested_limits` with checked empirical storage/work budgets,
+  calibrated on five meshes through 871,414 source triangles. This is a starting
+  budget, not a triangle-count guarantee.
 - The MDAG 2 builder partitions whole replacement regions using their cluster counts as
   weights, preserving sibling ownership without moving clusters after partitioning. Builder
   revision 6 invalidates cook keys; the container layout and legacy builder stay compatible.

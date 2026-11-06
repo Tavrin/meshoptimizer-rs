@@ -300,7 +300,11 @@ fn limits(args: &[String]) -> Result<(), String> {
     let p = positional(args);
     let (src, name) = load(&p)?;
     let threads = num(args, "--jobs", 8);
-    let budget = Limits { max_bytes: num(args, "--bytes", 1usize << 30), max_work: num(args, "--work", 1u64 << 34) };
+    let budget = if args.iter().any(|a| a == "--suggested") {
+        v2::suggested_limits(src.triangles()).map_err(|e| format!("{e:?}"))?
+    } else {
+        Limits { max_bytes: num(args, "--bytes", 1usize << 30), max_work: num(args, "--work", 1u64 << 34) }
+    };
     let pool = rayon::ThreadPoolBuilder::new().num_threads(threads).build().map_err(|e| e.to_string())?;
     let grid = QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?;
     let config = default_config(128).map_err(|e| format!("{e:?}"))?;

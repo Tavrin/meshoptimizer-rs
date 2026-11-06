@@ -26,6 +26,34 @@ fn grid(n: usize) -> (Vec<[f32; 3]>, Vec<u32>) {
     (p, idx)
 }
 #[test]
+fn suggested_limits_have_calibration_headroom_and_checked_sizes() {
+    for (triangles, bytes, work) in [
+        (69_451, 20_792_603, 121_001_449),
+        (83_128, 24_057_919, 140_396_021),
+        (97_964, 27_456_109, 166_471_905),
+        (679_936, 138_275_489, 1_236_391_663),
+        (871_414, 170_885_388, 1_647_221_498),
+    ] {
+        let limits = v2::suggested_limits(triangles).unwrap();
+        assert!(limits.max_bytes >= bytes * 2);
+        assert!(limits.max_work >= work * 2);
+    }
+    assert_eq!(
+        v2::suggested_limits(usize::MAX),
+        Err(meshoptimizer_rs::Error::SizeOverflow)
+    );
+    assert_eq!(
+        v2::suggested_limits(usize::MAX / 512),
+        Err(meshoptimizer_rs::Error::SizeOverflow)
+    );
+    #[cfg(target_pointer_width = "64")]
+    assert_eq!(
+        v2::suggested_limits((u64::MAX / 4096 + 1) as usize),
+        Err(meshoptimizer_rs::Error::SizeOverflow)
+    );
+    assert!(v2::suggested_limits(0).unwrap().max_work > 0);
+}
+#[test]
 fn default_floor_prices_original_regions_and_preserves_legacy() {
     let (p, i) = grid(12);
     let normals = vec![[0., 0., 1.]; p.len()];

@@ -1,0 +1,226 @@
+{
+  "meshes": {
+    "bunny": {
+      "resident_before": 14.84435035571301,
+      "file_before": 13.056244419482129,
+      "build_before": {
+        "1": 2.0141556262597295,
+        "8": 0.6784973931422126
+      },
+      "build_after": {
+        "1": 2.072944031370997,
+        "8": 0.687178923371606
+      },
+      "cut_before": {
+        "5": 0.6760678878523562,
+        "8": 0.9280066811860371
+      },
+      "cut_after": {
+        "5": 0.7212236712913747,
+        "8": 0.7939487913076717
+      },
+      "resident": 14.917625694499492,
+      "reference_resident": 13.781686333590432,
+      "file": 13.12989932910088,
+      "reference_file": 13.011237898894953,
+      "quality_median": 0.9999973854549695,
+      "quality_p95": 1.0413096414214693,
+      "bars": {
+        "file_per_triangle": false,
+        "build_1T": false,
+        "build_8T": false,
+        "resident": false,
+        "cut_5px": true,
+        "cut_8px": true,
+        "error_median": true,
+        "error_p95": true,
+        "self_checks": true,
+        "thread_identity": true
+      },
+      "candidate_over_previous": {
+        "1": 1.0291876180493744,
+        "8": 1.0127952300438299
+      }
+    },
+    "dead_tree_trunk_02": {
+      "resident_before": 14.969584887020114,
+      "file_before": 13.292813985289422,
+      "build_before": {
+        "1": 1.4054126322085794,
+        "8": 0.7243051357833927
+      },
+      "build_after": {
+        "1": 1.5844652147660754,
+        "8": 0.6723289151856321
+      },
+      "cut_before": {
+        "5": 0.710131939261112,
+        "8": 0.782001195146628
+      },
+      "cut_after": {
+        "5": 0.708788118367191,
+        "8": 0.7806825977392918
+      },
+      "resident": 15.036541889483066,
+      "reference_resident": 14.522359025168251,
+      "file": 13.356885628944452,
+      "reference_file": 13.83709507871875,
+      "quality_median": 0.967384321378768,
+      "quality_p95": 1.0608102823619128,
+      "bars": {
+        "file_per_triangle": true,
+        "build_1T": false,
+        "build_8T": false,
+        "resident": false,
+        "cut_5px": true,
+        "cut_8px": true,
+        "error_median": true,
+        "error_p95": true,
+        "self_checks": true,
+        "thread_identity": true
+      },
+      "candidate_over_previous": {
+        "1": 1.1274021440067166,
+        "8": 0.9282398839523011
+      }
+    },
+    "namaqualand_boulder_02": {
+      "resident_before": 15.060978539193188,
+      "file_before": 13.314337699773585,
+      "build_before": {
+        "1": 1.5425402152510523,
+        "8": 0.6245801312293631
+      },
+      "build_after": {
+        "1": 1.5743913045262592,
+        "8": 0.6408307518448405
+      },
+      "cut_before": {
+        "5": 0.9518855392569867,
+        "8": 0.9712441445503647
+      },
+      "cut_after": {
+        "5": 0.9291342016850122,
+        "8": 0.9425196990245231
+      },
+      "resident": 15.145860266426846,
+      "reference_resident": 14.6706990072664,
+      "file": 13.396221787318408,
+      "reference_file": 13.927627673728379,
+      "quality_median": 0.9704151048019655,
+      "quality_p95": 0.9999999952753089,
+      "bars": {
+        "file_per_triangle": true,
+        "build_1T": false,
+        "build_8T": false,
+        "resident": false,
+        "cut_5px": true,
+        "cut_8px": true,
+        "error_median": true,
+        "error_p95": true,
+        "self_checks": true,
+        "thread_identity": true
+      },
+      "candidate_over_previous": {
+        "1": 1.0206484660563764,
+        "8": 1.0260184719348842
+      }
+    },
+    "coast_rocks_01": {
+      "resident_before": 14.089065776018716,
+      "file_before": 12.486015699141475,
+      "build_before": {
+        "1": 1.2460146681120579,
+        "8": 0.43226156999276216
+      },
+      "build_after": {
+        "1": 1.2346339538295465,
+        "8": 0.41241520940096915
+      },
+      "cut_before": {
+        "5": 1.1135357655279432,
+        "8": 1.6707628614935746
+      },
+      "cut_after": {
+        "5": 1.0933366970903293,
+        "8": 1.6745741542879544
+      },
+      "resident": 14.176838084764961,
+      "reference_resident": 13.232768916167458,
+      "file": 12.56746743781411,
+      "reference_file": 12.486601377647844,
+      "quality_median": 0.8660305617180097,
+      "quality_p95": 0.9999999734032121,
+      "bars": {
+        "file_per_triangle": false,
+        "build_1T": false,
+        "build_8T": true,
+        "resident": false,
+        "cut_5px": false,
+        "cut_8px": false,
+        "error_median": true,
+        "error_p95": true,
+        "self_checks": true,
+        "thread_identity": true
+      },
+      "candidate_over_previous": {
+        "1": 0.9908663079386094,
+        "8": 0.954087150074143
+      }
+    },
+    "dragon": {
+      "resident_before": 14.363063574622053,
+      "file_before": 12.57881963602583,
+      "build_before": {
+        "1": 1.2373211029335278,
+        "8": 0.433421227962465
+      },
+      "build_after": {
+        "1": 1.242639232973151,
+        "8": 0.43399419846107185
+      },
+      "cut_before": {
+        "5": 0.818480763614402,
+        "8": 1.298449097182184
+      },
+      "cut_after": {
+        "5": 0.7610754765413356,
+        "8": 1.0718669124325308
+      },
+      "resident": 14.41140822252544,
+      "reference_resident": 13.322183460588148,
+      "file": 12.62347283962574,
+      "reference_file": 11.68431118712833,
+      "quality_median": 0.9758004380434256,
+      "quality_p95": 0.9999999871647584,
+      "bars": {
+        "file_per_triangle": false,
+        "build_1T": false,
+        "build_8T": true,
+        "resident": false,
+        "cut_5px": true,
+        "cut_8px": false,
+        "error_median": true,
+        "error_p95": true,
+        "self_checks": true,
+        "thread_identity": true
+      },
+      "candidate_over_previous": {
+        "1": 1.0042981001673816,
+        "8": 1.001321971471726
+      }
+    }
+  },
+  "passes": {
+    "file_per_triangle": 2,
+    "build_1T": 0,
+    "build_8T": 2,
+    "resident": 0,
+    "cut_5px": 4,
+    "cut_8px": 3,
+    "error_median": 5,
+    "error_p95": 5,
+    "self_checks": 5,
+    "thread_identity": 5
+  }
+}

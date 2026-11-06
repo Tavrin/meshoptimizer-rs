@@ -1,6 +1,47 @@
 # Virtual-geometry benchmark results
 
-**Human HOLD:** the sizing addendum completed 3/5 meshes. Larger-mesh sizing, helper design, latest-documentation gates and target cleanup are deferred. [Status and exact resume commands](0220/HOLD.md).
+**Human HOLD:** final retained-source gates and remaining measurements are unrun;
+no active or queued lane jobs. [Remaining work](0220/HOLD.md).
+
+## Continuation disposition
+
+**NOT QUALIFIED.** Retain the weighted-region builder and add
+`clusterlod::v2::suggested_limits`. Reject the four-triangle calibration-tree
+experiment: 1-thread experiment/previous ratios are 1.029, 1.127, 1.021, 0.991
+and 1.004; 8-thread ratios are 1.013, 0.928, 1.026, 0.954 and 1.001, in table
+order. It adds no performance-bar passes. Its full source diff, timings, noise,
+source/binary custody and byte-identity receipts are in the
+[experiment record](0220/continuation/TABLE.md). No further policy variant is scheduled.
+
+Fresh retained-builder controls from that same five-repeat counterbalanced
+campaign follow. The rejected experiment and retained controls match every
+previous complete MDAG 2 artifact at 1/8 threads. Cuts, error claims and byte
+counts reuse the original measured rows under that identity proof; they were
+not sampled again. Shared-host timing varies and is not a new speedup claim
+for the unchanged retained builder.
+
+| Mesh | Retained/reference 1T | 8T | Cut ratios 5 / 8 px | File B/tri retained / reference | Resident B/tri retained / reference |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| bunny | 2.014 | 0.678 | 0.721 / 0.794 | 13.130 / 13.011 | 14.918 / 13.782 |
+| dead_tree_trunk_02 | 1.405 | 0.724 | 0.709 / 0.781 | 13.357 / 13.837 | 15.037 / 14.522 |
+| namaqualand_boulder_02 | 1.543 | 0.625 | 0.929 / 0.943 | 13.396 / 13.928 | 15.146 / 14.671 |
+| coast_rocks_01 | 1.246 | 0.432 | 1.093 / 1.675 | 12.567 / 12.487 | 14.177 / 13.233 |
+| dragon | 1.237 | 0.433 | 0.761 / 1.072 | 12.623 / 11.684 | 14.411 / 13.322 |
+
+| Bar | At continuation start → finish | Verdict |
+| --- | ---: | --- |
+| Build <= half reference, 1T | 0/5 → 0/5 | FAIL |
+| Build <= half reference, 8T | 2/5 → 2/5 | FAIL |
+| Cut triangles at equal deviation, 5 px | 4/5 → 4/5 | FAIL |
+| Cut triangles at equal deviation, 8 px | 3/5 → 3/5 | FAIL |
+| File bytes / DAG triangle | 2/5 → 2/5 | FAIL |
+| Resident bytes / DAG triangle | 0/5 → 0/5 | FAIL |
+| Measured/claimed median and p95 | 5/5 → 5/5 | PASS |
+| Cut checks and thread byte identity | 5/5 → 5/5 | PASS |
+
+Sizing, budget isolation, final gate exits and remaining limitations are in
+[the continuation report](0220/REPORT.md). The earlier human hold was lifted
+by the continuation brief; the previous milestone follows as history.
 
 ## 0.2.20 weighted replacement regions
 

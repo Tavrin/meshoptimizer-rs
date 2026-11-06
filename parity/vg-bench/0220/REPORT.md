@@ -1,6 +1,90 @@
 # 0.2.20 qualification disposition
 
-**Human HOLD:** the sizing addendum is incomplete. Its latest documentation has not had the heavy gates rerun; see [status and remaining commands](HOLD.md).
+**Human HOLD:** no active or queued lane jobs. Final retained-source gates,
+storage-only isolation, disk accounting, new cycle profiles and target cleanup
+are deferred. See [status](HOLD.md) and caller-owned `HOLD-REMAINING.md`.
+
+## Continuation decision
+
+**NOT QUALIFIED.** The weighted-region builder remains unchanged. The
+four-triangle distance-only leaf experiment is rejected: it adds no bar passes
+and regresses 1-thread medians on four of five meshes. Dragon changes by +0.43%
+at 1T and +0.13% at 8T. Rocks improves only 0.91% / 4.59%. The three smaller
+1T changes are +2.92%, +12.74% and +2.06%. Complete counterbalanced timings,
+p95/noise and experimental bar booleans are in
+[the rejected experiment](continuation/TABLE.md). The source patch and frozen
+binary are retained; no second variant or repeated timing job is scheduled.
+
+All ten experimental files and all ten retained controls match the prior
+weighted-region MDAG 2 artifacts exactly. Thus the original cut, error and size
+measurements apply without resampling. The fresh retained-arm ratios appear in
+[RESULTS](../RESULTS.md). The experiment's temporary storage reductions are not
+resident-size wins and do not override its timing regressions. Builder revision
+6, container layouts, grid -22 and attribute encodings remain unchanged.
+
+### Cut and calibration limits
+
+The cut policy is retained. Rocks remains 1.675 at 8 px, dragon 1.072; neither
+bar is closed. Fine-level simplification already achieves the requested 0.5
+retained ratio. The prior measured late-level error distributions, indivisible
+source ownership and non-root terminal geometry below remain the evidence for
+the limit. Reducing original-source, local-step or inherited floors has no
+accepted mixed-cut proof here, so no floor is weakened. This disposition does
+not claim that a different geometric algorithm cannot improve the cuts.
+
+Calibration remains the sampled cost target: the retained candidate's
+original diagnostic has 69.54% of 1T user-cycle self samples in construction,
+query and closest-triangle work. IBS remains unavailable: the prior corrected
+attempt exited 255; the current host still reports perf_event_paranoid=1.
+Cycle samples are diagnostic, not IBS acceptance. The rejected leaf experiment
+reduces counted work and scratch storage, but fails to produce a consistent
+1T time win.
+
+### Sizing and final validation
+
+The larger finite-budget calibration completes at 138,275,489 B /
+1,236,391,663 visits for rocks and 170,885,388 B / 1,647,221,498 visits for
+dragon. The helper suggests 16 MiB + 512T bytes and 2^24 + 4096T visits, with
+checked arithmetic and explicit empirical scope. It is not a guarantee for
+arbitrary topology, locks, attributes, materials or unused vertices.
+
+The original-policy dragon low-budget case exhausted exactly 268,435,456
+visits at 85,938,804 accounted bytes. Its complete high-budget run used
+170,885,388 bytes. These observations identify work as the failed low-budget
+case's limiting counter; the separate 512 MiB / high-work isolation remains
+unrun. [Completed calibration receipts](continuation/retained-calibration.json)
+retain both successful runs and the failed prefix.
+
+The helper passed all five builds on the rejected experiment, with peaks
+16,097,179 / 17,611,839 / 19,111,021 / 98,836,385 / 134,357,388 bytes. These are
+experimental scratch observations, not retained-policy validation or resident
+wins. [Experimental helper rows](continuation/limits.json) are kept separately.
+
+The original file-size regression is not recovered. Rocks had only 0.000586
+B/DAG triangle headroom over the reference before a 0.081452 increase (+0.652%).
+Its cluster count rises 11,120 to 11,188; dragon rises 14,244 to 14,337. All five
+file-byte ratios increase by 0.355% to 0.652%. These establish the structural
+regression and narrow margin; an exact position/triangle/attribute disk-stream
+breakdown is authored but unrun. No unmeasured compression recovery or container
+win is claimed. Resident bytes and precision remain unchanged from the retained
+weighted candidate.
+
+The final two jobs were cancelled before admission at the human's renewed HOLD.
+No post/attribution, retained-helper corpus or final-gate command ran. The earlier
+experimental maximum tests and v2 integration tests exited 0, and the one
+interleaved measurement campaign exited 0. Those do not qualify the final helper
+or documentation. Final fmt, clippy, release, all-feature release, rustdoc,
+public-text and legacy identity gates are **NOT RUN on the final retained source**.
+The previous milestone's zero exits below remain historical only.
+
+All remaining exact commands are in the caller-owned `HOLD-REMAINING.md`, mirrored
+with portable settings in [HOLD](HOLD.md). The target is retained to avoid IO during
+quiet time. No further job is scheduled, and Git state remains operator-owned.
+
+## Previous milestone record (historical)
+
+The following diagnosis and gates belong to the original weighted-region
+campaign. Its earlier hold is superseded by the continuation above.
 
 ### Decision and diagnosis
 
