@@ -332,6 +332,26 @@ fn edits(data: &[u8]) -> Vec<Vec<u8>> {
         });
     }
     edit(b"CREF", 4, 0, &|q| q.wrapping_add(1 + (pick >> 16) % 3));
+    // Mutate disk payload bytes too. Resealing both hashes lets uncompressed
+    // attribute/page mutations reach structural validation and CPU decoding.
+    if let Ok(r) = v2::Reader::open(data) {
+        if r.mesh().page_count > 0 {
+            let p = pick as usize % r.mesh().page_count as usize;
+            if let Ok(rec) = r.page(p) {
+                if let Some(bytes) = disk(data, rec.disk_range()) {
+                    if !bytes.is_empty() {
+                        let mut b = data.to_vec();
+                        let at = rec.disk_offset as usize + pick as usize % bytes.len();
+                        b[at] ^= 1 << ((pick >> 16) % 8);
+                        if reseal(&mut b).is_some() {
+                            out.push(b);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     out
 }
 
