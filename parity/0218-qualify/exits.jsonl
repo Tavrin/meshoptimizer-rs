@@ -1,0 +1,137 @@
+{"name": "reference", "attempt": 1, "exit": 0, "wall_seconds": 0.013189822988351807, "cpu_seconds": 0.022534999999999993, "log": "logs/reference-1.log"}
+{"name": "export-lod", "attempt": 1, "exit": 0, "wall_seconds": 0.13702859499608167, "cpu_seconds": 0.132538, "log": "logs/export-lod-1.log"}
+{"name": "det-lock-native-all", "attempt": 1, "exit": 0, "wall_seconds": 0.2567948260111734, "cpu_seconds": 0.052563, "log": "logs/det-lock-native-all-1.log"}
+{"name": "det-build-native-all", "attempt": 1, "exit": 0, "wall_seconds": 32.943698709015734, "cpu_seconds": 33.847590000000004, "log": "logs/det-build-native-all-1.log"}
+{"name": "det-run-native-all", "attempt": 1, "exit": 0, "wall_seconds": 0.05623334500705823, "cpu_seconds": 0.055503999999999554, "log": "logs/det-run-native-all-1.log"}
+{"name": "det-lock-native-all-debug", "attempt": 1, "exit": 0, "wall_seconds": 0.032902715989621356, "cpu_seconds": 0.03246099999999652, "log": "logs/det-lock-native-all-debug-1.log"}
+{"name": "det-build-native-all-debug", "attempt": 1, "exit": 0, "wall_seconds": 10.78454086300917, "cpu_seconds": 15.970711999999999, "log": "logs/det-build-native-all-debug-1.log"}
+{"name": "det-run-native-all-debug", "attempt": 1, "exit": 0, "wall_seconds": 1.1412927889905404, "cpu_seconds": 1.1400940000000066, "log": "logs/det-run-native-all-debug-1.log"}
+{"name": "det-lock-native-default", "attempt": 1, "exit": 0, "wall_seconds": 0.026067375991260633, "cpu_seconds": 0.026134000000001212, "log": "logs/det-lock-native-default-1.log"}
+{"name": "det-build-native-default", "attempt": 1, "exit": 0, "wall_seconds": 27.957584830990527, "cpu_seconds": 28.478348000000004, "log": "logs/det-build-native-default-1.log"}
+{"name": "det-run-native-default", "attempt": 1, "exit": 0, "wall_seconds": 0.06801976502174512, "cpu_seconds": 0.06647699999999546, "log": "logs/det-run-native-default-1.log"}
+{"name": "det-lock-native-nostd", "attempt": 1, "exit": 0, "wall_seconds": 0.030024677980691195, "cpu_seconds": 0.029934999999996492, "log": "logs/det-lock-native-nostd-1.log"}
+{"name": "det-build-native-nostd", "attempt": 1, "exit": 0, "wall_seconds": 32.06111467798473, "cpu_seconds": 27.21276900000001, "log": "logs/det-build-native-nostd-1.log"}
+{"name": "det-run-native-nostd", "attempt": 1, "exit": 0, "wall_seconds": 0.17882897099480033, "cpu_seconds": 0.0851779999999982, "log": "logs/det-run-native-nostd-1.log"}
+{"name": "det-lock-native-nostd-simd", "attempt": 1, "exit": 0, "wall_seconds": 0.4975265419925563, "cpu_seconds": 0.046583999999993964, "log": "logs/det-lock-native-nostd-simd-1.log"}
+{"name": "det-build-native-nostd-simd", "attempt": 1, "exit": 0, "wall_seconds": 30.95543641599943, "cpu_seconds": 27.491210000000006, "log": "logs/det-build-native-nostd-simd-1.log"}
+{"name": "det-run-native-nostd-simd", "attempt": 1, "exit": 0, "wall_seconds": 0.08706658100709319, "cpu_seconds": 0.08469200000000043, "log": "logs/det-run-native-nostd-simd-1.log"}
+{"name": "det-lock-wasm-nostd", "attempt": 1, "exit": 0, "wall_seconds": 0.04763247599476017, "cpu_seconds": 0.030471999999997834, "log": "logs/det-lock-wasm-nostd-1.log"}
+{"name": "det-build-wasm-nostd", "attempt": 1, "exit": 0, "wall_seconds": 20.819362359994557, "cpu_seconds": 21.165142000000003, "log": "logs/det-build-wasm-nostd-1.log"}
+{"name": "det-run-wasm-nostd", "attempt": 1, "exit": 0, "wall_seconds": 0.09076742400065996, "cpu_seconds": 0.12487300000000268, "log": "logs/det-run-wasm-nostd-1.log"}
+{"name": "det-lock-wasm-default", "attempt": 1, "exit": 0, "wall_seconds": 0.027391226001782343, "cpu_seconds": 0.027314999999984657, "log": "logs/det-lock-wasm-default-1.log"}
+{"name": "det-build-wasm-default", "attempt": 1, "exit": 0, "wall_seconds": 19.4367940640077, "cpu_seconds": 19.906854000000017, "log": "logs/det-build-wasm-default-1.log"}
+{"name": "det-run-wasm-default", "attempt": 1, "exit": 0, "wall_seconds": 0.07400736599811353, "cpu_seconds": 0.10335499999999342, "log": "logs/det-run-wasm-default-1.log"}
+{"name": "det-lock-wasm-default-simd128", "attempt": 1, "exit": 0, "wall_seconds": 0.02580260598915629, "cpu_seconds": 0.02516800000000785, "log": "logs/det-lock-wasm-default-simd128-1.log"}
+{"name": "det-build-wasm-default-simd128", "attempt": 1, "exit": 0, "wall_seconds": 21.36325332801789, "cpu_seconds": 21.792063, "log": "logs/det-build-wasm-default-simd128-1.log"}
+{"name": "det-run-wasm-default-simd128", "attempt": 1, "exit": 0, "wall_seconds": 0.10948298100265674, "cpu_seconds": 0.1462380000000163, "log": "logs/det-run-wasm-default-simd128-1.log"}
+{"name": "semver-default", "attempt": 1, "exit": 0, "wall_seconds": 4.450005710008554, "cpu_seconds": 4.790495999999981, "log": "logs/semver-default-1.log"}
+{"name": "semver-all-features", "attempt": 1, "exit": 0, "wall_seconds": 1.3212710740044713, "cpu_seconds": 1.6487319999999848, "log": "logs/semver-all-features-1.log"}
+{"name": "exact-lock-all", "attempt": 1, "exit": 0, "wall_seconds": 0.06448514500516467, "cpu_seconds": 0.046151000000003606, "log": "logs/exact-lock-all-1.log"}
+{"name": "exact-build-all", "attempt": 1, "exit": 0, "wall_seconds": 46.043765826005256, "cpu_seconds": 83.86932500000003, "log": "logs/exact-build-all-1.log"}
+{"name": "par-build-all", "attempt": 1, "exit": 0, "wall_seconds": 1.4752377870026976, "cpu_seconds": 1.4975589999999848, "log": "logs/par-build-all-1.log"}
+{"name": "exact-remap-all", "attempt": 1, "exit": 0, "wall_seconds": 8.130709769000532, "cpu_seconds": 8.128046000000062, "log": "logs/exact-remap-all-1.log"}
+{"name": "exact-spatial-all", "attempt": 1, "exit": 0, "wall_seconds": 44.041495666024275, "cpu_seconds": 44.468453999999966, "log": "logs/exact-spatial-all-1.log"}
+{"name": "exact-repair-all", "attempt": 1, "exit": 0, "wall_seconds": 0.04000520100817084, "cpu_seconds": 0.03911899999999946, "log": "logs/exact-repair-all-1.log"}
+{"name": "exact-simplify-all", "attempt": 1, "exit": 0, "wall_seconds": 94.10057112298091, "cpu_seconds": 94.23591499999998, "log": "logs/exact-simplify-all-1.log"}
+{"name": "exact-decode-all", "attempt": 1, "exit": 0, "wall_seconds": 1.7434964849962853, "cpu_seconds": 1.7397370000000656, "log": "logs/exact-decode-all-1.log"}
+{"name": "exact-bounds-all", "attempt": 1, "exit": 0, "wall_seconds": 5.489891816017916, "cpu_seconds": 5.388829999999949, "log": "logs/exact-bounds-all-1.log"}
+{"name": "exact-vdecode-all", "attempt": 1, "exit": 0, "wall_seconds": 2.0573762179992627, "cpu_seconds": 2.0535159999999983, "log": "logs/exact-vdecode-all-1.log"}
+{"name": "stream-cpp-build", "attempt": 1, "exit": 0, "wall_seconds": 0.4353582290059421, "cpu_seconds": 0.40508800000003475, "log": "logs/stream-cpp-build-1.log"}
+{"name": "exact-stream-all", "attempt": 1, "exit": 0, "wall_seconds": 35.29290170400054, "cpu_seconds": 35.80820800000005, "log": "logs/exact-stream-all-1.log"}
+{"name": "exact-remap_cpp-all", "attempt": 1, "exit": 0, "wall_seconds": 0.009272892988519743, "cpu_seconds": 0.007265999999980011, "log": "logs/exact-remap_cpp-all-1.log"}
+{"name": "exact-repair_corpus-all", "attempt": 1, "exit": 0, "wall_seconds": 0.46943520099739544, "cpu_seconds": 0.4558199999999637, "log": "logs/exact-repair_corpus-all-1.log"}
+{"name": "exact-geometry-all", "attempt": 1, "exit": 0, "wall_seconds": 34.41522355400957, "cpu_seconds": 34.500961999999994, "log": "logs/exact-geometry-all-1.log"}
+{"name": "exact-lodq-all", "attempt": 1, "exit": 0, "wall_seconds": 0.5860967249900568, "cpu_seconds": 0.5294059999999661, "log": "logs/exact-lodq-all-1.log"}
+{"name": "exact-hsr-all", "attempt": 1, "exit": 0, "wall_seconds": 0.058448910975130275, "cpu_seconds": 0.05555899999996328, "log": "logs/exact-hsr-all-1.log"}
+{"name": "exact-cache_table-all", "attempt": 1, "exit": 0, "wall_seconds": 1.3225817309867125, "cpu_seconds": 1.320462000000017, "log": "logs/exact-cache_table-all-1.log"}
+{"name": "exact-basics-all", "attempt": 1, "exit": 0, "wall_seconds": 1.4359615489956923, "cpu_seconds": 1.4306200000000082, "log": "logs/exact-basics-all-1.log"}
+{"name": "exact-merge-all", "attempt": 1, "exit": 0, "wall_seconds": 10.82371040500584, "cpu_seconds": 10.873150999999972, "log": "logs/exact-merge-all-1.log"}
+{"name": "exact-overdraw-all", "attempt": 1, "exit": 0, "wall_seconds": 29.72337391797919, "cpu_seconds": 29.108406999999907, "log": "logs/exact-overdraw-all-1.log"}
+{"name": "par-lod-all", "attempt": 1, "exit": 0, "wall_seconds": 8.310220461979043, "cpu_seconds": 11.3084360000001, "log": "logs/par-lod-all-1.log"}
+{"name": "par-spec-build-all", "attempt": 1, "exit": 0, "wall_seconds": 2.1459931469871663, "cpu_seconds": 1.7052089999999005, "log": "logs/par-spec-build-all-1.log"}
+{"name": "par-spec-lod-all", "attempt": 1, "exit": 0, "wall_seconds": 6.113847287022509, "cpu_seconds": 7.1535329999999995, "log": "logs/par-spec-lod-all-1.log"}
+{"name": "par-spec-inputs-all", "attempt": 1, "exit": 0, "wall_seconds": 289.5467882179946, "cpu_seconds": 276.9999839999999, "log": "logs/par-spec-inputs-all-1.log"}
+{"name": "test-all", "attempt": 1, "exit": 0, "wall_seconds": 144.09048678199179, "cpu_seconds": 231.32359900000012, "log": "logs/test-all-1.log"}
+{"name": "clippy-all", "attempt": 1, "exit": 0, "wall_seconds": 5.625744501012377, "cpu_seconds": 9.354049999999972, "log": "logs/clippy-all-1.log"}
+{"name": "lod-identity-lod-all", "attempt": 1, "exit": 0, "wall_seconds": 23.845566375006456, "cpu_seconds": 23.977646000000078, "log": "logs/lod-identity-lod-all-1.log"}
+{"name": "lod-identity-inputs-all", "attempt": 1, "exit": 0, "wall_seconds": 40.304850677988725, "cpu_seconds": 40.036927000000034, "log": "logs/lod-identity-inputs-all-1.log"}
+{"name": "fmt", "attempt": 1, "exit": 0, "wall_seconds": 0.5347821229952388, "cpu_seconds": 0.5073969999999406, "log": "logs/fmt-1.log"}
+{"name": "boundary", "attempt": 1, "exit": 0, "wall_seconds": 5.274747060000664, "cpu_seconds": 5.114303000000092, "log": "logs/boundary-1.log"}
+{"name": "exact-lock-none", "attempt": 1, "exit": 0, "wall_seconds": 0.06171279901172966, "cpu_seconds": 0.03897499999996512, "log": "logs/exact-lock-none-1.log"}
+{"name": "exact-build-none", "attempt": 1, "exit": 0, "wall_seconds": 25.452826820022892, "cpu_seconds": 49.0127649999999, "log": "logs/exact-build-none-1.log"}
+{"name": "par-build-none", "attempt": 1, "exit": 0, "wall_seconds": 22.4926010069903, "cpu_seconds": 41.626089000000036, "log": "logs/par-build-none-1.log"}
+{"name": "exact-remap-none", "attempt": 1, "exit": 0, "wall_seconds": 7.45071285800077, "cpu_seconds": 7.452859999999873, "log": "logs/exact-remap-none-1.log"}
+{"name": "exact-spatial-none", "attempt": 1, "exit": 0, "wall_seconds": 9.770569993008394, "cpu_seconds": 9.812188999999933, "log": "logs/exact-spatial-none-1.log"}
+{"name": "exact-repair-none", "attempt": 1, "exit": 0, "wall_seconds": 0.03514555501169525, "cpu_seconds": 0.03459000000015067, "log": "logs/exact-repair-none-1.log"}
+{"name": "exact-simplify-none", "attempt": 1, "exit": 0, "wall_seconds": 80.72563674999401, "cpu_seconds": 81.30343399999998, "log": "logs/exact-simplify-none-1.log"}
+{"name": "exact-decode-none", "attempt": 1, "exit": 0, "wall_seconds": 2.0326409400149714, "cpu_seconds": 2.0316720000001283, "log": "logs/exact-decode-none-1.log"}
+{"name": "exact-bounds-none", "attempt": 1, "exit": 0, "wall_seconds": 5.21689390798565, "cpu_seconds": 4.728239999999914, "log": "logs/exact-bounds-none-1.log"}
+{"name": "exact-vdecode-none", "attempt": 1, "exit": 0, "wall_seconds": 2.3184904899972025, "cpu_seconds": 1.5338499999999868, "log": "logs/exact-vdecode-none-1.log"}
+{"name": "exact-stream-none", "attempt": 1, "exit": 0, "wall_seconds": 30.74793089699233, "cpu_seconds": 30.762807999999893, "log": "logs/exact-stream-none-1.log"}
+{"name": "exact-remap_cpp-none", "attempt": 1, "exit": 0, "wall_seconds": 0.006823467992944643, "cpu_seconds": 0.006868000000253005, "log": "logs/exact-remap_cpp-none-1.log"}
+{"name": "exact-repair_corpus-none", "attempt": 1, "exit": 0, "wall_seconds": 0.39736167702358216, "cpu_seconds": 0.396663000000089, "log": "logs/exact-repair_corpus-none-1.log"}
+{"name": "exact-geometry-none", "attempt": 1, "exit": 0, "wall_seconds": 31.66037808600231, "cpu_seconds": 31.679451999999955, "log": "logs/exact-geometry-none-1.log"}
+{"name": "exact-lodq-none", "attempt": 1, "exit": 0, "wall_seconds": 0.5463892210100312, "cpu_seconds": 0.5457779999998564, "log": "logs/exact-lodq-none-1.log"}
+{"name": "exact-hsr-none", "attempt": 1, "exit": 0, "wall_seconds": 0.0456841140112374, "cpu_seconds": 0.04509899999986544, "log": "logs/exact-hsr-none-1.log"}
+{"name": "exact-cache_table-none", "attempt": 1, "exit": 0, "wall_seconds": 1.1801786799915135, "cpu_seconds": 1.1794240000000826, "log": "logs/exact-cache_table-none-1.log"}
+{"name": "exact-basics-none", "attempt": 1, "exit": 0, "wall_seconds": 1.2883319030224811, "cpu_seconds": 1.2875379999999694, "log": "logs/exact-basics-none-1.log"}
+{"name": "exact-merge-none", "attempt": 1, "exit": 0, "wall_seconds": 7.535567079001339, "cpu_seconds": 7.392368999999988, "log": "logs/exact-merge-none-1.log"}
+{"name": "exact-overdraw-none", "attempt": 1, "exit": 0, "wall_seconds": 30.075307460996555, "cpu_seconds": 30.474369999999894, "log": "logs/exact-overdraw-none-1.log"}
+{"name": "par-lod-none", "attempt": 1, "exit": 0, "wall_seconds": 7.38506956998026, "cpu_seconds": 10.620052000000143, "log": "logs/par-lod-none-1.log"}
+{"name": "par-spec-build-none", "attempt": 1, "exit": 0, "wall_seconds": 1.2410365949908737, "cpu_seconds": 1.2223059999999748, "log": "logs/par-spec-build-none-1.log"}
+{"name": "par-spec-lod-none", "attempt": 1, "exit": 0, "wall_seconds": 5.394953370006988, "cpu_seconds": 6.9505669999998645, "log": "logs/par-spec-lod-none-1.log"}
+{"name": "par-spec-inputs-none", "attempt": 1, "exit": 0, "wall_seconds": 275.1990417139896, "cpu_seconds": 255.22062799999992, "log": "logs/par-spec-inputs-none-1.log"}
+{"name": "test-none", "attempt": 1, "exit": 0, "wall_seconds": 19.27678788700723, "cpu_seconds": 49.67460399999999, "log": "logs/test-none-1.log"}
+{"name": "clippy-none", "attempt": 1, "exit": 0, "wall_seconds": 3.320239994995063, "cpu_seconds": 6.161639000000207, "log": "logs/clippy-none-1.log"}
+{"name": "lod-identity-lod-none", "attempt": 1, "exit": 0, "wall_seconds": 18.308893060981063, "cpu_seconds": 18.218386000000123, "log": "logs/lod-identity-lod-none-1.log"}
+{"name": "lod-identity-inputs-none", "attempt": 1, "exit": 0, "wall_seconds": 44.51534417597577, "cpu_seconds": 43.21763799999991, "log": "logs/lod-identity-inputs-none-1.log"}
+{"name": "identity-build", "attempt": 1, "exit": 0, "wall_seconds": 0.5938625629933085, "cpu_seconds": 0.8944920000000423, "log": "logs/identity-build-1.log"}
+{"name": "parallel_identity-all", "attempt": 1, "exit": 0, "wall_seconds": 56.44304982901667, "cpu_seconds": 89.79443799999987, "log": "logs/parallel_identity-all-1.log"}
+{"name": "stream_identity-all", "attempt": 1, "exit": 0, "wall_seconds": 72.25052433600649, "cpu_seconds": 72.35802899999987, "log": "logs/stream_identity-all-1.log"}
+{"name": "identity-none-build", "attempt": 1, "exit": 0, "wall_seconds": 0.37124676298117265, "cpu_seconds": 0.37252099999992083, "log": "logs/identity-none-build-1.log"}
+{"name": "stream_identity-none", "attempt": 1, "exit": 0, "wall_seconds": 191.51669055200182, "cpu_seconds": 188.05558499999978, "log": "logs/stream_identity-none-1.log"}
+{"name": "protocol-cpp", "attempt": 1, "exit": 0, "wall_seconds": 2.5509514010045677, "cpu_seconds": 2.401354, "log": "logs/protocol-cpp-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "protocol-build-all", "attempt": 1, "exit": 0, "wall_seconds": 21.370645738003077, "cpu_seconds": 19.678654, "log": "logs/protocol-build-all-1.log", "log_sha256": "1f97ae79b5df05d619f20e4053d178565316ec573c79fc1dc619a8e784f708bf"}
+{"name": "protocol-build-none", "attempt": 1, "exit": 0, "wall_seconds": 15.548972357995808, "cpu_seconds": 16.424112, "log": "logs/protocol-build-none-1.log", "log_sha256": "e4a1bb6fd37d5c383462d21c9f9b2056470efa2a3674f29d506e392c73c40cb9"}
+{"name": "protocol-differential", "attempt": 1, "exit": 0, "wall_seconds": 11.751382029993692, "cpu_seconds": 11.382056999999998, "log": "logs/protocol-differential-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "p03-build-all", "attempt": 1, "exit": 0, "wall_seconds": 5.337470981001388, "cpu_seconds": 6.001936000000006, "log": "logs/p03-build-all-1.log", "log_sha256": "663dd94b664a59f6a26f18fbfee0d11c1636e13740042a1afed0b088705fe5c4"}
+{"name": "p03-build-none", "attempt": 1, "exit": 0, "wall_seconds": 16.37765244199545, "cpu_seconds": 16.849554999999995, "log": "logs/p03-build-none-1.log", "log_sha256": "24ee231c5e23ddcccf4d6b5d280da124c06fbd7ff1c7b9cd76c5650df1da7557"}
+{"name": "p03-cpp-scalar", "attempt": 1, "exit": 0, "wall_seconds": 3.867643522011349, "cpu_seconds": 3.8505570000000127, "log": "logs/p03-cpp-scalar-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "p03-cpp-default", "attempt": 1, "exit": 0, "wall_seconds": 3.9038636419863906, "cpu_seconds": 3.285287000000002, "log": "logs/p03-cpp-default-1.log", "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+{"name": "decode-diff-build-all", "attempt": 1, "exit": 0, "wall_seconds": 15.492796753998846, "cpu_seconds": 16.351893999999994, "log": "logs/decode-diff-build-all-1.log", "log_sha256": "ed9d6eb14f2da4fbc288dc1b7d756228efedc67f57b860065918ad5012d20063"}
+{"name": "decode-diff-all", "attempt": 1, "exit": 0, "wall_seconds": 60.08300704197609, "cpu_seconds": 55.35503600000003, "log": "logs/decode-diff-all-1.log", "log_sha256": "bc5cb458f0435c0a669b734267abd44008691fcefff40c07e9cf406dff475984"}
+{"name": "build-extended-differential", "attempt": 1, "exit": 0, "wall_seconds": 2.0324098370037973, "cpu_seconds": 2.003133999999971, "log": "logs/build-extended-differential-1.log"}
+{"name": "build-cpp-avx2", "attempt": 1, "exit": 0, "wall_seconds": 0.6009247309993953, "cpu_seconds": 0.5986450000000225, "log": "logs/build-cpp-avx2-1.log"}
+{"name": "build-cpp-avx512", "attempt": 1, "exit": 0, "wall_seconds": 0.7668943269818556, "cpu_seconds": 0.7513610000000064, "log": "logs/build-cpp-avx512-1.log"}
+{"name": "decode-extended-differential", "attempt": 1, "exit": 0, "wall_seconds": 81.86509946800652, "cpu_seconds": 80.26967999999995, "log": "logs/decode-extended-differential-1.log"}
+{"name": "decode-diff-build-none", "attempt": 1, "exit": 0, "wall_seconds": 15.288402398990002, "cpu_seconds": 13.878468000000026, "log": "logs/decode-diff-build-none-1.log", "log_sha256": "526b6db39dbc42692b75414a2a28d6f2bdae9f24ddc8f97ea0157057133e1595"}
+{"name": "decode-diff-none", "attempt": 1, "exit": 0, "wall_seconds": 60.66104360600002, "cpu_seconds": 57.598339000000024, "log": "logs/decode-diff-none-1.log", "log_sha256": "bc5cb458f0435c0a669b734267abd44008691fcefff40c07e9cf406dff475984"}
+{"name": "vdecode-diff-build-all", "attempt": 1, "exit": 0, "wall_seconds": 1.214194903994212, "cpu_seconds": 1.210827000000009, "log": "logs/vdecode-diff-build-all-1.log", "log_sha256": "222a02ed477d249a21359df8cae975864a62d848f4739cadc5b00b6190a963c6"}
+{"name": "vdecode-diff-all", "attempt": 1, "exit": 0, "wall_seconds": 59.735197895992314, "cpu_seconds": 56.111482000000024, "log": "logs/vdecode-diff-all-1.log", "log_sha256": "c15f0105721bd875a82f4eb3f8c70e91bee08a2769ae79da89cbea4ef84215c4"}
+{"name": "vdecode-diff-build-none", "attempt": 1, "exit": 0, "wall_seconds": 1.2210313740069978, "cpu_seconds": 1.1441659999999985, "log": "logs/vdecode-diff-build-none-1.log", "log_sha256": "9576f1f7e73fc2bb1ec2336aae60cb485c591eadc60a1b998573411c34057e08"}
+{"name": "vdecode-diff-none", "attempt": 1, "exit": 0, "wall_seconds": 59.593744270008756, "cpu_seconds": 55.97390399999995, "log": "logs/vdecode-diff-none-1.log", "log_sha256": "c15f0105721bd875a82f4eb3f8c70e91bee08a2769ae79da89cbea4ef84215c4"}
+{"name": "lodq-oracle-build", "attempt": 1, "exit": 0, "wall_seconds": 0.35586342599708587, "cpu_seconds": 0.16134199999997634, "log": "logs/lodq-oracle-build-1.log"}
+{"name": "lodq-cpp-all", "attempt": 1, "exit": 0, "wall_seconds": 0.019106218998786062, "cpu_seconds": 0.01749700000002008, "log": "logs/lodq-cpp-all-1.log"}
+{"name": "lodq-cpp-none", "attempt": 1, "exit": 0, "wall_seconds": 0.018362962000537664, "cpu_seconds": 0.016738000000046327, "log": "logs/lodq-cpp-none-1.log"}
+{"name": "bounds-prepare-build", "attempt": 1, "exit": 0, "wall_seconds": 11.838492170005338, "cpu_seconds": 18.37913700000003, "log": "logs/bounds-prepare-build-1.log"}
+{"name": "bounds-prepare-tiny-smooth.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.016774338990217075, "cpu_seconds": 0.000755999999995538, "log": "logs/bounds-prepare-tiny-smooth.bin-1.log"}
+{"name": "bounds-prepare-medium-smooth.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.004884599999058992, "cpu_seconds": 0.00306299999994053, "log": "logs/bounds-prepare-medium-smooth.bin-1.log"}
+{"name": "bounds-prepare-medium-seams.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.004214956017676741, "cpu_seconds": 0.002386999999984596, "log": "logs/bounds-prepare-medium-seams.bin-1.log"}
+{"name": "bounds-prepare-medium-sparse.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.004734999005449936, "cpu_seconds": 0.003078000000058978, "log": "logs/bounds-prepare-medium-sparse.bin-1.log"}
+{"name": "bounds-prepare-million-smooth.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.3524522760126274, "cpu_seconds": 0.2982369999999719, "log": "logs/bounds-prepare-million-smooth.bin-1.log"}
+{"name": "bounds-prepare-real-214e.bin", "attempt": 1, "exit": 0, "wall_seconds": 1.8034124129917473, "cpu_seconds": 1.136868000000021, "log": "logs/bounds-prepare-real-214e.bin-1.log"}
+{"name": "bounds-prepare-real-a082.bin", "attempt": 1, "exit": 0, "wall_seconds": 1.8912069819925819, "cpu_seconds": 1.5933819999999628, "log": "logs/bounds-prepare-real-a082.bin-1.log"}
+{"name": "bounds-prepare-real-b6fd.bin", "attempt": 1, "exit": 0, "wall_seconds": 0.48450151400174946, "cpu_seconds": 0.2518389999999897, "log": "logs/bounds-prepare-real-b6fd.bin-1.log"}
+{"name": "build-base-scalar", "attempt": 1, "exit": 0, "wall_seconds": 17.08556050801417, "cpu_seconds": 18.232853999999975, "log": "logs/build-base-scalar-1.log"}
+{"name": "build-train-scalar", "attempt": 1, "exit": 0, "wall_seconds": 17.160671999008628, "cpu_seconds": 17.08999100000004, "log": "logs/build-train-scalar-1.log"}
+{"name": "build-base-default", "attempt": 1, "exit": 0, "wall_seconds": 18.178901906008832, "cpu_seconds": 19.988607999999985, "log": "logs/build-base-default-1.log"}
+{"name": "build-train-default", "attempt": 1, "exit": 0, "wall_seconds": 19.15829363098601, "cpu_seconds": 21.053288999999978, "log": "logs/build-train-default-1.log"}
+{"name": "build-cpp-scalar", "attempt": 1, "exit": 0, "wall_seconds": 8.436973169009434, "cpu_seconds": 10.393083000000033, "log": "logs/build-cpp-scalar-1.log"}
+{"name": "build-cpp-default", "attempt": 1, "exit": 0, "wall_seconds": 6.925126554997405, "cpu_seconds": 6.803936000000007, "log": "logs/build-cpp-default-1.log"}
+{"name": "lane-build-impostors", "attempt": 1, "exit": 0, "wall_seconds": 16.924934349983232, "cpu_seconds": 26.06652699999995, "log": "logs/lane-build-impostors-1.log"}
+{"name": "lane-build-cutout", "attempt": 1, "exit": 0, "wall_seconds": 0.8116955040022731, "cpu_seconds": 1.3848799999997254, "log": "logs/lane-build-cutout-1.log"}
+{"name": "lane-build-blend", "attempt": 1, "exit": 0, "wall_seconds": 1.1921604499802925, "cpu_seconds": 2.0423340000000962, "log": "logs/lane-build-blend-1.log"}
+{"name": "lane-cost-impostors", "attempt": 1, "exit": 0, "wall_seconds": 22.738403268012917, "cpu_seconds": 22.6942319999996, "log": "logs/lane-cost-impostors-1.log"}
+{"name": "lane-cost-cutout", "attempt": 1, "exit": 0, "wall_seconds": 60.451063498010626, "cpu_seconds": 60.39842000000033, "log": "logs/lane-cost-cutout-1.log"}
+{"name": "lane-cost-blend", "attempt": 1, "exit": 0, "wall_seconds": 4.450296939001419, "cpu_seconds": 4.445358999999939, "log": "logs/lane-cost-blend-1.log"}
+{"name": "lane-cost-blend-trim", "attempt": 1, "exit": 0, "wall_seconds": 11.828633136989083, "cpu_seconds": 11.824721999999724, "log": "logs/lane-cost-blend-trim-1.log"}

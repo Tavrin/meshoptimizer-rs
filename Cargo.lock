@@ -150,7 +150,7 @@ checksum = "5d15f86d12da44cd8d4ec3c73984537eb7f4cadcb9776a575a0a8a05ca11005c"
 
 [[package]]
 name = "meshoptimizer-rs"
-version = "0.2.17"
+version = "0.2.18"
 dependencies = [
  "libm",
  "naga",

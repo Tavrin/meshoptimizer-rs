@@ -1,0 +1,49 @@
+asset | views | config | IoU | RGB MAE | helper ms/view
+fern_02 | 8x8 | legacy plain blend | 0.740 | 22.4 | 1.37
+fern_02 | 8x8 | helper plain (0 steps) | 0.740 | 22.8 | 1.62
+fern_02 | 8x8 | parallax 1 steps | 0.821 | 17.1 | 2.28
+fern_02 | 8x8 | parallax 2 steps | 0.830 | 16.4 | 2.58
+fern_02 | 8x8 | parallax 3 steps | 0.831 | 16.2 | 2.87
+fern_02 | 8x8 | parallax 4 steps | 0.832 | 16.2 | 3.09
+fern_02 | 8x8 | parallax 6 steps | 0.831 | 16.2 | 3.66
+fern_02 | 8x8 | default | 0.831 | 16.2 | 2.88
+fern_02 | 12x12 | legacy plain blend | 0.840 | 15.8 | 1.40
+fern_02 | 12x12 | helper plain (0 steps) | 0.840 | 15.9 | 1.64
+fern_02 | 12x12 | parallax 1 steps | 0.902 | 11.2 | 2.32
+fern_02 | 12x12 | parallax 2 steps | 0.903 | 11.1 | 2.63
+fern_02 | 12x12 | parallax 3 steps | 0.904 | 11.0 | 2.90
+fern_02 | 12x12 | parallax 4 steps | 0.904 | 11.1 | 3.16
+fern_02 | 12x12 | parallax 6 steps | 0.904 | 11.1 | 3.74
+fern_02 | 12x12 | default | 0.904 | 11.0 | 2.87
+fir_sapling | 8x8 | legacy plain blend | 0.600 | 38.7 | 1.38
+fir_sapling | 8x8 | helper plain (0 steps) | 0.600 | 39.0 | 1.62
+fir_sapling | 8x8 | parallax 1 steps | 0.705 | 30.8 | 2.42
+fir_sapling | 8x8 | parallax 2 steps | 0.721 | 29.5 | 2.90
+fir_sapling | 8x8 | parallax 3 steps | 0.728 | 28.9 | 3.35
+fir_sapling | 8x8 | parallax 4 steps | 0.726 | 29.1 | 3.72
+fir_sapling | 8x8 | parallax 6 steps | 0.726 | 29.1 | 4.47
+fir_sapling | 8x8 | default | 0.728 | 28.9 | 3.36
+fir_sapling | 12x12 | legacy plain blend | 0.717 | 29.6 | 1.42
+fir_sapling | 12x12 | helper plain (0 steps) | 0.717 | 29.7 | 1.67
+fir_sapling | 12x12 | parallax 1 steps | 0.804 | 22.7 | 2.46
+fir_sapling | 12x12 | parallax 2 steps | 0.810 | 22.3 | 2.91
+fir_sapling | 12x12 | parallax 3 steps | 0.814 | 21.9 | 3.36
+fir_sapling | 12x12 | parallax 4 steps | 0.812 | 22.0 | 3.78
+fir_sapling | 12x12 | parallax 6 steps | 0.811 | 22.1 | 4.61
+fir_sapling | 12x12 | default | 0.814 | 21.9 | 3.33
+shrub_01 | 8x8 | legacy plain blend | 0.446 | 66.3 | 1.40
+shrub_01 | 8x8 | helper plain (0 steps) | 0.446 | 67.5 | 1.63
+shrub_01 | 8x8 | parallax 1 steps | 0.637 | 48.0 | 2.12
+shrub_01 | 8x8 | parallax 2 steps | 0.669 | 44.3 | 2.19
+shrub_01 | 8x8 | parallax 3 steps | 0.671 | 44.0 | 2.24
+shrub_01 | 8x8 | parallax 4 steps | 0.674 | 43.7 | 2.30
+shrub_01 | 8x8 | parallax 6 steps | 0.675 | 43.7 | 2.55
+shrub_01 | 8x8 | default | 0.671 | 44.0 | 2.24
+shrub_01 | 12x12 | legacy plain blend | 0.549 | 57.3 | 1.42
+shrub_01 | 12x12 | helper plain (0 steps) | 0.549 | 58.0 | 1.61
+shrub_01 | 12x12 | parallax 1 steps | 0.731 | 37.9 | 2.11
+shrub_01 | 12x12 | parallax 2 steps | 0.740 | 36.8 | 2.29
+shrub_01 | 12x12 | parallax 3 steps | 0.743 | 36.5 | 2.42
+shrub_01 | 12x12 | parallax 4 steps | 0.742 | 36.6 | 2.47
+shrub_01 | 12x12 | parallax 6 steps | 0.742 | 36.6 | 2.66
+shrub_01 | 12x12 | default | 0.743 | 36.5 | 2.30

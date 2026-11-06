@@ -1,0 +1,8 @@
+bake-vertex-colors-hemisphere-u32 048585433825782a
+bake-texture-sphere-u16 537cc99f556fbdd1
+bake-fixed-bounds-single-sided-box 566e1f36ee4db985
+bake-white-dense-grid a2576f32220114c4
+impostor-math-and-reconstruct 1fb55b0e62cc10cf
+trim-default-u32 b18c19faeb5ceadf
+trim-repeat-padding0-cost-stride8 74a9e73d6c65102e
+trim-clamp-fan-u16 902d5656b0dfd5a5

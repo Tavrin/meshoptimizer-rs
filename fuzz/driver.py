@@ -37,14 +37,16 @@ CODEC = ['buffer_stream', 'sequence_stream', 'vertex', 'vertex_into', 'simd', 'v
 PARALLEL = ['parallel_clod']
 MESHLET = ['build_meshlets_spatial']
 R0220 = ['dag_format_v2']
+R0218 = ['trim_cards', 'bake', 'reconstruct', 'layout']
 GROUPS = {
+    'r0218': (ROOT / 'fuzz/r0218', R0218),
     'r0217': (ROOT / 'fuzz/r0217', R0217),
     'codec': (ROOT / 'fuzz/codec', CODEC),
     'parallel': (ROOT / 'fuzz/parallel-clod', PARALLEL),
     'p03': (ROOT / 'fuzz/p03', MESHLET),
     'r0220': (ROOT / 'fuzz/r0220', R0220),
 }
-TARGETS = R0217 + CODEC + PARALLEL + MESHLET + R0220
+TARGETS = [n for _, names in GROUPS.values() for n in names]
 # FUZZ_GROUPS=a,b builds only those groups; FUZZ_SANITIZER selects the cargo-fuzz sanitizer.
 BUILD_GROUPS = [g for g in os.environ.get('FUZZ_GROUPS', ','.join(GROUPS)).split(',') if g]
 SANITIZER = os.environ.get('FUZZ_SANITIZER', 'none')

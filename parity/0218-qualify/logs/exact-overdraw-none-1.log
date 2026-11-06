@@ -1,0 +1,5 @@
+exact <target>/small-inputs/medium-seams.bin 36
+exact <target>/small-inputs/medium-smooth.bin 72
+exact <target>/small-inputs/medium-sparse.bin 108
+exact <target>/small-inputs/tiny-smooth.bin 144
+PASS: 20558672 exact observations; frozen corpus + 4096 existing seed mutations + every small-mesh work prefix
