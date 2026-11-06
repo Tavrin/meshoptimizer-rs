@@ -20,7 +20,7 @@ pub enum Encoding {
     F16x2,
     /// Four finite half floats; component error <= 16, absolute input <= 65504.
     F16x4,
-    /// Four components in [0,1]; component error <= 1/510 + 1e-7.
+    /// Four components in `[0, 1]`; component error <= 1/510 + 1e-7.
     Unorm8x4,
     /// One to four raw finite f32 components; bit-exact.
     Raw32xN(u8),

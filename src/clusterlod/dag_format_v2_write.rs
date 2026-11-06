@@ -54,7 +54,7 @@ pub struct Source<'a, I: crate::Index = u32> {
 }
 
 impl<'a, I: crate::Index> Source<'a, I> {
-    /// Tables for [`write`].
+    /// Tables for [`write()`].
     pub const fn new(
         groups: &'a [FlatDagGroup],
         clusters: &'a [FlatDagCluster],
@@ -137,7 +137,7 @@ impl WriteOptions {
     }
 }
 
-/// What [`write`] did. Not in C++ meshoptimizer.
+/// What [`write()`] did. Not in C++ meshoptimizer.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[non_exhaustive]
 pub struct WriteReport {

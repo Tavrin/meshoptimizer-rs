@@ -36,6 +36,12 @@ jobs:
         with:
           feature-group: all-features
 
+  wgsl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo run --locked --manifest-path parity/wgsl-check/Cargo.toml -- docs/page_decode.wgsl
   docs:
     runs-on: ubuntu-latest
     steps:

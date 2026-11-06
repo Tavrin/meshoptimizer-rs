@@ -4,7 +4,7 @@
 //! A file is `header | chunk table | resident chunks | pages`. The resident
 //! prefix holds the group, node, page and dependency tables and the refinement
 //! relation (each cluster's refined group); pages hold the clusters in the disk
-//! form of [`page`](super::super::page) and are fetched and transcoded one at a
+//! form of [`page`] and are fetched and transcoded one at a
 //! time. Groups are stored coarse-first, so a page's dependencies always have
 //! smaller page indices and every prefix of the page table that contains the
 //! pinned pages is a valid residency set.

@@ -290,14 +290,6 @@ fn page_attributes_material_ranges_and_wgsl_vectors() {
     let mut bad = memory.clone();
     bad[table + 2] = bad[table + 1];
     assert!(PageView::new(&bad, grid).is_err());
-    let source = include_str!("../docs/page_decode.wgsl");
-    let module = naga::front::wgsl::parse_str(source).unwrap();
-    naga::valid::Validator::new(
-        naga::valid::ValidationFlags::all(),
-        naga::valid::Capabilities::empty(),
-    )
-    .validate(&module)
-    .unwrap();
 }
 
 #[cfg(feature = "clusterlod")]

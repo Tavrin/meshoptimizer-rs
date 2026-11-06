@@ -382,16 +382,6 @@ fn reference_vectors_and_wgsl() {
         decoded.extend(t[..nt].iter().flat_map(|t| t.map(u32::from)));
     }
     assert_eq!(decoded, section("decoded"));
-
-    let source = std::fs::read_to_string(format!("{root}/docs/page_decode.wgsl")).unwrap();
-    let module = naga::front::wgsl::parse_str(&source).unwrap();
-    // No capabilities: rejects 64-bit integers, f16, subgroups and other extensions.
-    naga::valid::Validator::new(
-        naga::valid::ValidationFlags::all(),
-        naga::valid::Capabilities::empty(),
-    )
-    .validate(&module)
-    .unwrap();
 }
 
 #[cfg(feature = "clusterlod")]
