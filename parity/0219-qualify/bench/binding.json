@@ -1,0 +1,17 @@
+{
+  "binary": "0d72a068827017389ec14790f5744b63d68ef9bed4f1dfdcb62449d9b5f85c01",
+  "lock": "34dbf9e4da2b6d12826dfea3692c603eddd7d8f1b30b77977eb3a1ad5a0014f6",
+  "manifest": "# Benchmark harness for cluster-DAG builders. Not published and not part of the\n# crate package: it is its own workspace and is excluded by the package\n# include list in the crate manifest.\n[package]\nname = \"vg-bench\"\nversion = \"0.0.0\"\nedition = \"2021\"\npublish = false\ndescription = \"Benchmark harness comparing cluster-DAG builders\"\n\n[workspace]\n\n[features]\n# Builds the reference meshlet builder pinned in `BEVY_REV`. Large dependency\n# tree; the rest of the harness does not need it.\nbevy = [\"dep:bevy_pbr\", \"dep:bevy_mesh\", \"dep:bevy_asset\", \"dep:bevy_tasks\"]\n\n[dependencies]\nmeshoptimizer-rs = { path = \"<worktree>\", features = [\"clusterlod\", \"parallel\"] }\nrayon = \"=1.11.0\"\ngltf = { version = \"1\", default-features = false, features = [\"utils\"] }\nzstd = \"0.13\"\nlz4_flex = { version = \"0.14\", features = [\"frame\"] }\nbevy_pbr = { git = \"https://github.com/bevyengine/bevy\", rev = \"8cc060f01c3d4d5920781124cc8c32013bb47730\", default-features = false, features = [\"meshlet_processor\"], optional = true }\nbevy_mesh = { git = \"https://github.com/bevyengine/bevy\", rev = \"8cc060f01c3d4d5920781124cc8c32013bb47730\", optional = true }\nbevy_asset = { git = \"https://github.com/bevyengine/bevy\", rev = \"8cc060f01c3d4d5920781124cc8c32013bb47730\", optional = true }\nbevy_tasks = { git = \"https://github.com/bevyengine/bevy\", rev = \"8cc060f01c3d4d5920781124cc8c32013bb47730\", optional = true }\n\n[profile.release]\nopt-level = 3\ndebug = false\n",
+  "sources": {
+    "src/bevy_build.rs": "0c978cfc0f9e67f6da3508fbaef2c432bc097d1b08647d43a9e4f2dca5afd72c",
+    "src/bevyfile.rs": "0be2097d8fb4bb9a8f7f12ec63b37d9b0d88f87b7337bdce64dac60c9e82ad13",
+    "src/camera.rs": "bd0c1acc23ccc0f64eb5abc78424c4c6ea418749ce29d8926f5f1cab124e1eeb",
+    "src/cut.rs": "11c91cb8b3e97b2968e456307ab9af7088a289bf17a6b6dbef4ac00ed322d1fd",
+    "src/diag.rs": "57d5b2707e6ebc413b878d65a7980edc13101f476a1dff99b5d5f5a8fd75dda8",
+    "src/main.rs": "90d7545f3510c9dd92e4fb19036a02e8ad287cbe8122b1c95fb928e169e9b521",
+    "src/materials.rs": "bae1ce5237b15cc74e4bad2577a15e557601039215e64ee25b0048becb401053",
+    "src/ours.rs": "3e4366c97424ef7d65af47eaca66f99297ce37aaf56dac7944f0ec2ea1c11431",
+    "src/report.rs": "cc1ddbb82127753626272b18a2b789dca60a18021403ed4c8c22b8f7db8dce26",
+    "src/source.rs": "7549bae913a360fce054f73003b39f573281816534ddaa89f398e498c00a17cb"
+  }
+}

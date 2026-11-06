@@ -1,0 +1,24 @@
+{"kind":"build","builder":"ours-v2","mesh":"dragon","threads":1,"build_ms":13751.568335999998,"dag_ms":13751.441293999998,"hierarchy_ms":0.12704200000000002,"serialise_ms":771.220832,"file_bytes":21908744,"triangles":871414,"vmhwm_kib":320636}
+	Command being timed: "<target>/release/vg-bench build ours-v2 <target>/dragon.vgm --threads 1"
+	User time (seconds): 12.13
+	System time (seconds): 0.46
+	Percent of CPU this job got: 86%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:14.57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 320636
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 344203
+	Voluntary context switches: 2
+	Involuntary context switches: 173
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

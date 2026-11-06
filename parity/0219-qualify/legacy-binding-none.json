@@ -1,0 +1,4 @@
+{
+  "binary": "f8ed5f160962a390582f32434ed179c2408d94e4f07c7aa70ffe9bab198cb28d",
+  "manifest": "[package]\nname=\"combined-proof\"\nversion=\"0.0.0\"\nedition=\"2021\"\n[dependencies]\nbaseline={package=\"meshoptimizer-baseline\",path=\"<target>/base\",default-features=false,features=[\"clusterlod\"]}\ncandidate={package=\"meshoptimizer-rs\",path=\"<worktree>\",default-features=false,features=[\"clusterlod\"]}\n[[bin]]\nname=\"legacy_exact\"\npath=\"<worktree>/parity/0219-qualify/legacy_exact.rs\"\n[profile.release]\ncodegen-units=1\n"
+}

@@ -1,0 +1,16 @@
+{"name": "protocol-cpp", "cpu_seconds_upper_estimate": 180, "command": "c++ -std=c++17 -O3 -DNDEBUG -DMESHOPTIMIZER_NO_SIMD -fno-fast-math -ffp-contract=off -I<reference>/src <worktree>/parity/reference.cpp <reference>/src/vcacheoptimizer.cpp <reference>/src/overdrawoptimizer.cpp <reference>/src/allocator.cpp <reference>/src/simplifier.cpp <reference>/src/indexgenerator.cpp <reference>/src/vfetchoptimizer.cpp <reference>/src/quantization.cpp -o <target>/proof/0216b-protocol/cpp-reference"}
+{"name": "protocol-build-all", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/proof/0216b-protocol/Cargo.toml"}
+{"name": "protocol-build-none", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/proof/0216b-protocol/Cargo.toml"}
+{"name": "protocol-differential", "cpu_seconds_upper_estimate": 300, "command": "python3 <worktree>/parity/0216-qualify/protocol-modes.py"}
+{"name": "p03-build-all", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/p03/Cargo.toml --features all"}
+{"name": "p03-build-none", "cpu_seconds_upper_estimate": 300, "command": "cargo build --offline --release --manifest-path <target>/p03/Cargo.toml"}
+{"name": "p03-cpp-scalar", "cpu_seconds_upper_estimate": 300, "command": "c++ -std=c++17 -O3 -fno-fast-math -ffp-contract=off -DMESHOPTIMIZER_NO_SIMD -I<reference>/src -I<reference>/demo <target>/p03/reference.cpp <reference>/src/clusterizer.cpp <reference>/src/meshletutils.cpp <reference>/src/spatialorder.cpp <reference>/src/partition.cpp <reference>/src/allocator.cpp <reference>/src/simplifier.cpp <reference>/src/indexgenerator.cpp -o <target>/bin/p03-cpp-scalar"}
+{"name": "p03-cpp-default", "cpu_seconds_upper_estimate": 300, "command": "c++ -std=c++17 -O3 -fno-fast-math -ffp-contract=off -I<reference>/src -I<reference>/demo <target>/p03/reference.cpp <reference>/src/clusterizer.cpp <reference>/src/meshletutils.cpp <reference>/src/spatialorder.cpp <reference>/src/partition.cpp <reference>/src/allocator.cpp <reference>/src/simplifier.cpp <reference>/src/indexgenerator.cpp -o <target>/bin/p03-cpp-default"}
+{"name": "decode-diff-build-all", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-decode/build_differential.py"}
+{"name": "decode-diff-all", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-decode/differential.py"}
+{"name": "decode-diff-build-none", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-decode/build_differential.py"}
+{"name": "decode-diff-none", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-decode/differential.py"}
+{"name": "vdecode-diff-build-all", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-vdecode/build_differential.py"}
+{"name": "vdecode-diff-all", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-vdecode/differential.py"}
+{"name": "vdecode-diff-build-none", "cpu_seconds_upper_estimate": 180, "command": "python3 <worktree>/parity/0216-vdecode/build_differential.py"}
+{"name": "vdecode-diff-none", "cpu_seconds_upper_estimate": 1800, "command": "python3 <worktree>/parity/0216-vdecode/differential.py"}

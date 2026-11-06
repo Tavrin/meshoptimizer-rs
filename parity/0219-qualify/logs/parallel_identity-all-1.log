@@ -1,0 +1,9 @@
+PASS medium-seams checks so far 30
+PASS medium-smooth checks so far 60
+PASS medium-sparse checks so far 90
+PASS million-smooth checks so far 120
+PASS real-214e checks so far 150
+PASS real-a082 checks so far 180
+PASS real-b6fd checks so far 210
+PASS tiny-smooth checks so far 240
+TOTAL parallel-vs-serial checks 240 differences 0

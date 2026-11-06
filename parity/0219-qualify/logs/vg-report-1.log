@@ -1,0 +1,310 @@
+### bunny (69,451 source triangles)
+
+| Builder | Threads | Build ms median | p95 | noise (max-min) | Serialise ms median | Peak RSS MiB median | Repeats |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bevy | 1 | 495.5 | 589.5 | 109.5 | 2.0 | 57 | 5 |
+| bevy | 8 | 484.5 | 511.6 | 39.7 | 1.9 | 57 | 5 |
+| ours | 1 | 945.6 | 956.8 | 21.4 | 60.7 | 54 | 5 |
+| ours | 8 | 359.1 | 376.2 | 29.7 | 58.4 | 104 | 5 |
+
+| Metric | ours | bevy |
+| --- | ---: | ---: |
+| clusters | 1,129 | 1,165 |
+| levels | 11 | n/a |
+| hierarchy depth | 4 | 5 |
+| total / leaf triangles | n/a | 2.00 |
+| triangles per cluster, mean | n/a | 119.08 |
+| triangles per cluster, p5 | n/a | 102 |
+| vertices per cluster, mean | n/a | 78.40 |
+| vertices per cluster, p5 | n/a | 70 |
+| pages | 19 | n/a |
+| file bytes | 1,813,199 | 1,805,010 |
+| file bytes after zstd -19 | 1,629,941 | 1,231,804 |
+| decompressed stream after zstd -19 | n/a | 1,187,497 |
+| resident bytes | 2,061,524 | 1,911,892 |
+| whole-asset decode MB/s | n/a | 7,125.15 |
+
+ours: 14.8 resident B per DAG triangle, 29.7 per source triangle; file 13.1 B per DAG triangle.
+
+bevy: 13.8 resident B per DAG triangle, 27.5 per source triangle; file 13.0 B per DAG triangle.
+
+| Builder | Self-check | Result | Detail |
+| --- | --- | --- | --- |
+| ours | threshold 0 selects exactly the source clusters | pass | 69451 triangles of 69451 source, all leaves: true |
+| ours | huge threshold selects only the root set | pass | 1 clusters of 1129, min parent error 3.4028235e38 |
+| ours | hierarchical traversal equals the flat cut at 1 px | pass | 81 vs 81 clusters |
+| bevy | threshold 0 selects exactly the source clusters | pass | 69451 triangles of 69451 source, all leaves: true |
+| bevy | huge threshold selects only the root set | pass | 1 clusters of 1165, min parent error 3.4028235e38 |
+| bevy | hierarchical traversal equals the flat cut at 1 px | pass | 80 vs 80 clusters |
+
+Cut quality over all spans (mean triangles; p95 of per-view maximum deviation in pixels; measured/claimed p95):
+
+| Builder | Threshold px | Mean triangles | p95 max dev px | mean max dev px | p95 rms dev px | measured/claimed median | p95 | nodes | clusters tested | clusters drawn |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ours | 0 (source) | 69,451 | 0.00 | 0.00 | 0.00 | n/a | n/a | 80 | 1,129 | 546 |
+| ours | 0.5 | 33,408 | 0.72 | 0.44 | 0.09 | 1.00 | 1.08 | 47.7 | 551 | 268 |
+| ours | 1 | 22,865 | 2.51 | 1.22 | 0.18 | 1.00 | 1.10 | 42.1 | 381 | 186 |
+| ours | 2 | 13,891 | 4.50 | 2.15 | 0.50 | 0.99 | 1.10 | 33.2 | 235 | 116 |
+| ours | 4 | 9,328 | 8.43 | 3.62 | 1.13 | 0.99 | 1.10 | 25.1 | 160 | 79 |
+| bevy | 0 (source) | 69,451 | 2.76 | 0.70 | 0.95 | n/a | n/a | 24 | 1,165 | 552 |
+| bevy | 0.5 | 32,037 | 2.79 | 1.06 | 0.95 | 1.22 | 2.30 | 13.7 | 551 | 264 |
+| bevy | 1 | 21,298 | 4.60 | 1.67 | 0.98 | 1.16 | 1.77 | 10.7 | 372 | 179 |
+| bevy | 2 | 11,994 | 7.35 | 2.81 | 1.16 | 1.16 | 1.69 | 7.6 | 215 | 105 |
+| bevy | 4 | 6,439 | 10.60 | 4.66 | 1.69 | 1.06 | 1.44 | 4.9 | 118 | 58 |
+
+Mean cut triangles at equal p95 maximum deviation (log-log interpolation along the four thresholds; n/a outside the range of either curve):
+
+| p95 deviation px | bevy triangles | ours triangles | ratio bevy/ours |
+| ---: | ---: | ---: | ---: |
+| 3 | 30,175 | 19,641 | 1.54 |
+| 5 | 19,219 | 12,993 | 1.48 |
+| 8 | 10,394 | 9,646 | 1.08 |
+
+### coast_rocks_01 (679,936 source triangles)
+
+| Builder | Threads | Build ms median | p95 | noise (max-min) | Serialise ms median | Peak RSS MiB median | Repeats |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bevy | 1 | 7,508.1 | 7,649.8 | 390.6 | 25.7 | 479 | 5 |
+| bevy | 8 | 7,386.3 | 7,578.6 | 509.5 | 26.5 | 479 | 5 |
+| ours | 1 | 9,634.3 | 9,770.9 | 260.5 | 550.4 | 262 | 5 |
+| ours | 8 | 3,628.3 | 3,694.3 | 230.5 | 566.6 | 755 | 5 |
+
+| Metric | ours | bevy |
+| --- | ---: | ---: |
+| clusters | 11,120 | 11,427 |
+| levels | 14 | n/a |
+| hierarchy depth | 6 | 6 |
+| total / leaf triangles | n/a | 2.00 |
+| triangles per cluster, mean | n/a | 118.93 |
+| triangles per cluster, p5 | n/a | 101 |
+| vertices per cluster, mean | n/a | 80.59 |
+| vertices per cluster, p5 | n/a | 70 |
+| pages | 170 | n/a |
+| file bytes | 16,972,366 | 16,969,079 |
+| file bytes after zstd -19 | 15,199,551 | 10,785,121 |
+| decompressed stream after zstd -19 | n/a | 10,373,979 |
+| resident bytes | 19,151,408 | 17,983,108 |
+| whole-asset decode MB/s | n/a | 686.09 |
+
+ours: 14.1 resident B per DAG triangle, 28.2 per source triangle; file 12.5 B per DAG triangle.
+
+bevy: 13.2 resident B per DAG triangle, 26.4 per source triangle; file 12.5 B per DAG triangle.
+
+| Builder | Self-check | Result | Detail |
+| --- | --- | --- | --- |
+| ours | threshold 0 selects exactly the source clusters | pass | 679936 triangles of 679936 source, all leaves: true |
+| ours | huge threshold selects only the root set | pass | 24 clusters of 11120, min parent error 3.4028235e38 |
+| ours | hierarchical traversal equals the flat cut at 1 px | pass | 252 vs 252 clusters |
+| bevy | threshold 0 selects exactly the source clusters | pass | 679936 triangles of 679936 source, all leaves: true |
+| bevy | huge threshold selects only the root set | pass | 2 clusters of 11427, min parent error 3.4028235e38 |
+| bevy | hierarchical traversal equals the flat cut at 1 px | pass | 133 vs 133 clusters |
+
+Cut quality over all spans (mean triangles; p95 of per-view maximum deviation in pixels; measured/claimed p95):
+
+| Builder | Threshold px | Mean triangles | p95 max dev px | mean max dev px | p95 rms dev px | measured/claimed median | p95 | nodes | clusters tested | clusters drawn |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ours | 0 (source) | 679,936 | 0.00 | 0.00 | 0.00 | n/a | n/a | 698 | 11,120 | 5,360 |
+| ours | 0.5 | 163,992 | 1.46 | 0.71 | 0.13 | 1.00 | 1.03 | 231.3 | 2,761 | 1,358 |
+| ours | 1 | 85,340 | 2.81 | 1.30 | 0.32 | 0.98 | 1.00 | 136.1 | 1,462 | 727 |
+| ours | 2 | 47,182 | 5.42 | 2.35 | 0.60 | 0.94 | 1.00 | 86.1 | 814 | 406 |
+| ours | 4 | 27,118 | 10.24 | 4.31 | 1.10 | 0.92 | 1.00 | 59.4 | 468 | 236 |
+| bevy | 0 (source) | 679,936 | 2.86 | 0.72 | 0.61 | n/a | n/a | 209 | 11,427 | 5,400 |
+| bevy | 0.5 | 140,042 | 3.14 | 1.14 | 0.63 | 1.42 | 2.28 | 62.2 | 2,457 | 1,195 |
+| bevy | 1 | 62,240 | 4.16 | 1.71 | 0.70 | 1.17 | 1.54 | 31.5 | 1,123 | 557 |
+| bevy | 2 | 26,857 | 6.84 | 2.80 | 0.90 | 1.09 | 1.42 | 15.6 | 488 | 244 |
+| bevy | 4 | 11,299 | 10.95 | 4.48 | 1.37 | 0.83 | 1.25 | 8.0 | 205 | 103 |
+
+Mean cut triangles at equal p95 maximum deviation (log-log interpolation along the four thresholds; n/a outside the range of either curve):
+
+| p95 deviation px | bevy triangles | ours triangles | ratio bevy/ours |
+| ---: | ---: | ---: | ---: |
+| 3 | n/a | 80,478 | n/a |
+| 5 | 45,574 | 50,748 | 0.90 |
+| 8 | 20,122 | 33,620 | 0.60 |
+
+### dead_tree_trunk_02 (83,128 source triangles)
+
+| Builder | Threads | Build ms median | p95 | noise (max-min) | Serialise ms median | Peak RSS MiB median | Repeats |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bevy | 1 | 618.6 | 878.1 | 280.1 | 2.4 | 76 | 5 |
+| bevy | 8 | 629.8 | 642.5 | 15.8 | 2.4 | 76 | 5 |
+| ours | 1 | 1,096.7 | 1,360.4 | 290.2 | 72.7 | 52 | 5 |
+| ours | 8 | 395.4 | 411.5 | 30.8 | 72.1 | 115 | 5 |
+
+| Metric | ours | bevy |
+| --- | ---: | ---: |
+| clusters | 1,388 | 1,386 |
+| levels | 11 | n/a |
+| hierarchy depth | 4 | 5 |
+| total / leaf triangles | n/a | 1.99 |
+| triangles per cluster, mean | n/a | 119.43 |
+| triangles per cluster, p5 | n/a | 101 |
+| vertices per cluster, mean | n/a | 87.80 |
+| vertices per cluster, p5 | n/a | 74 |
+| pages | 22 | n/a |
+| file bytes | 2,206,647 | 2,290,399 |
+| file bytes after zstd -19 | 2,000,886 | 1,508,465 |
+| decompressed stream after zstd -19 | n/a | 1,459,810 |
+| resident bytes | 2,484,996 | 2,403,828 |
+| whole-asset decode MB/s | n/a | 6,638.08 |
+
+ours: 15.0 resident B per DAG triangle, 29.9 per source triangle; file 13.3 B per DAG triangle.
+
+bevy: 14.5 resident B per DAG triangle, 28.9 per source triangle; file 13.8 B per DAG triangle.
+
+| Builder | Self-check | Result | Detail |
+| --- | --- | --- | --- |
+| ours | threshold 0 selects exactly the source clusters | pass | 83128 triangles of 83128 source, all leaves: true |
+| ours | huge threshold selects only the root set | pass | 3 clusters of 1388, min parent error 3.4028235e38 |
+| ours | hierarchical traversal equals the flat cut at 1 px | pass | 131 vs 131 clusters |
+| bevy | threshold 0 selects exactly the source clusters | pass | 83128 triangles of 83128 source, all leaves: true |
+| bevy | huge threshold selects only the root set | pass | 6 clusters of 1386, min parent error 3.4028235e38 |
+| bevy | hierarchical traversal equals the flat cut at 1 px | pass | 113 vs 113 clusters |
+
+Cut quality over all spans (mean triangles; p95 of per-view maximum deviation in pixels; measured/claimed p95):
+
+| Builder | Threshold px | Mean triangles | p95 max dev px | mean max dev px | p95 rms dev px | measured/claimed median | p95 | nodes | clusters tested | clusters drawn |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ours | 0 (source) | 83,128 | 0.00 | 0.00 | 0.00 | n/a | n/a | 101 | 1,388 | 664 |
+| ours | 0.5 | 49,260 | 0.63 | 0.33 | 0.07 | 0.91 | 1.07 | 67.6 | 831 | 402 |
+| ours | 1 | 36,457 | 1.60 | 0.81 | 0.14 | 0.90 | 1.06 | 53.9 | 618 | 300 |
+| ours | 2 | 22,597 | 5.41 | 2.30 | 0.45 | 0.90 | 1.00 | 41.2 | 388 | 190 |
+| ours | 4 | 10,987 | 10.81 | 4.39 | 1.22 | 0.90 | 1.00 | 27.5 | 192 | 96 |
+| bevy | 0 (source) | 83,128 | 3.52 | 0.89 | 0.99 | n/a | n/a | 28 | 1,386 | 660 |
+| bevy | 0.5 | 47,794 | 3.52 | 1.16 | 0.99 | 1.17 | 1.36 | 18.8 | 807 | 388 |
+| bevy | 1 | 34,735 | 3.52 | 1.66 | 0.99 | 1.20 | 1.36 | 14.4 | 590 | 285 |
+| bevy | 2 | 21,335 | 7.47 | 2.97 | 1.10 | 1.03 | 1.32 | 10.1 | 367 | 180 |
+| bevy | 4 | 10,498 | 11.89 | 4.79 | 1.56 | 0.99 | 1.20 | 5.8 | 184 | 93 |
+
+Mean cut triangles at equal p95 maximum deviation (log-log interpolation along the four thresholds; n/a outside the range of either curve):
+
+| p95 deviation px | bevy triangles | ours triangles | ratio bevy/ours |
+| ---: | ---: | ---: | ---: |
+| 3 | n/a | 28,467 | n/a |
+| 5 | 32,811 | 23,300 | 1.41 |
+| 8 | 19,215 | 15,026 | 1.28 |
+
+### dragon (871,414 source triangles)
+
+| Builder | Threads | Build ms median | p95 | noise (max-min) | Serialise ms median | Peak RSS MiB median | Repeats |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bevy | 1 | 11,368.1 | 11,674.1 | 1,284.4 | 32.7 | 557 | 5 |
+| bevy | 8 | 10,365.8 | 10,786.4 | 706.4 | 31.8 | 556 | 5 |
+| ours | 1 | 14,082.1 | 14,551.6 | 800.0 | 744.5 | 313 | 5 |
+| ours | 8 | 4,655.9 | 5,053.8 | 430.3 | 747.7 | 1,002 | 5 |
+
+| Metric | ours | bevy |
+| --- | ---: | ---: |
+| clusters | 14,244 | 14,638 |
+| levels | 14 | n/a |
+| hierarchy depth | 6 | 6 |
+| total / leaf triangles | n/a | 2.00 |
+| triangles per cluster, mean | n/a | 118.95 |
+| triangles per cluster, p5 | n/a | 101 |
+| vertices per cluster, mean | n/a | 78.66 |
+| vertices per cluster, p5 | n/a | 69 |
+| pages | 222 | n/a |
+| file bytes | 21,908,744 | 20,343,858 |
+| file bytes after zstd -19 | 18,343,090 | 13,746,335 |
+| decompressed stream after zstd -19 | n/a | 12,396,875 |
+| resident bytes | 25,016,392 | 23,195,600 |
+| whole-asset decode MB/s | n/a | 1,488.14 |
+
+ours: 14.4 resident B per DAG triangle, 28.7 per source triangle; file 12.6 B per DAG triangle.
+
+bevy: 13.3 resident B per DAG triangle, 26.6 per source triangle; file 11.7 B per DAG triangle.
+
+| Builder | Self-check | Result | Detail |
+| --- | --- | --- | --- |
+| ours | threshold 0 selects exactly the source clusters | pass | 871414 triangles of 871414 source, all leaves: true |
+| ours | huge threshold selects only the root set | pass | 34 clusters of 14244, min parent error 3.4028235e38 |
+| ours | hierarchical traversal equals the flat cut at 1 px | pass | 510 vs 510 clusters |
+| bevy | threshold 0 selects exactly the source clusters | pass | 871414 triangles of 871414 source, all leaves: true |
+| bevy | huge threshold selects only the root set | pass | 9 clusters of 14638, min parent error 3.4028235e38 |
+| bevy | hierarchical traversal equals the flat cut at 1 px | pass | 207 vs 207 clusters |
+
+Cut quality over all spans (mean triangles; p95 of per-view maximum deviation in pixels; measured/claimed p95):
+
+| Builder | Threshold px | Mean triangles | p95 max dev px | mean max dev px | p95 rms dev px | measured/claimed median | p95 | nodes | clusters tested | clusters drawn |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ours | 0 (source) | 871,414 | 0.00 | 0.00 | 0.00 | n/a | n/a | 887 | 14,244 | 6,889 |
+| ours | 0.5 | 159,671 | 1.53 | 0.68 | 0.13 | 0.98 | 1.03 | 242.7 | 2,707 | 1,347 |
+| ours | 1 | 97,201 | 2.83 | 1.31 | 0.30 | 0.93 | 1.00 | 166.0 | 1,658 | 828 |
+| ours | 2 | 65,290 | 4.58 | 2.40 | 0.56 | 0.93 | 1.00 | 124.3 | 1,116 | 560 |
+| ours | 4 | 48,894 | 9.81 | 4.53 | 1.03 | 0.93 | 1.00 | 101.2 | 836 | 421 |
+| bevy | 0 (source) | 871,414 | 3.40 | 0.86 | 1.12 | n/a | n/a | 266 | 14,638 | 6,922 |
+| bevy | 0.5 | 121,426 | 3.69 | 1.49 | 1.13 | 2.03 | 3.02 | 61.2 | 2,169 | 1,076 |
+| bevy | 1 | 63,642 | 5.69 | 2.57 | 1.20 | 1.44 | 3.02 | 36.0 | 1,146 | 574 |
+| bevy | 2 | 34,536 | 14.21 | 4.33 | 1.40 | 1.15 | 2.73 | 21.8 | 622 | 313 |
+| bevy | 4 | 19,133 | 14.21 | 5.72 | 1.73 | 1.07 | 1.63 | 14.6 | 343 | 174 |
+
+Mean cut triangles at equal p95 maximum deviation (log-log interpolation along the four thresholds; n/a outside the range of either curve):
+
+| p95 deviation px | bevy triangles | ours triangles | ratio bevy/ours |
+| ---: | ---: | ---: | ---: |
+| 3 | n/a | 92,634 | n/a |
+| 5 | 77,127 | 63,127 | 1.22 |
+| 8 | 40,677 | 52,818 | 0.77 |
+
+### namaqualand_boulder_02 (97,964 source triangles)
+
+| Builder | Threads | Build ms median | p95 | noise (max-min) | Serialise ms median | Peak RSS MiB median | Repeats |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| bevy | 1 | 773.8 | 842.7 | 102.7 | 2.9 | 82 | 5 |
+| bevy | 8 | 789.6 | 822.4 | 76.4 | 3.0 | 81 | 5 |
+| ours | 1 | 1,247.5 | 1,266.7 | 42.3 | 84.4 | 61 | 5 |
+| ours | 8 | 434.7 | 453.2 | 30.5 | 85.4 | 137 | 5 |
+
+| Metric | ours | bevy |
+| --- | ---: | ---: |
+| clusters | 1,614 | 1,630 |
+| levels | 11 | n/a |
+| hierarchy depth | 4 | 5 |
+| total / leaf triangles | n/a | 1.99 |
+| triangles per cluster, mean | n/a | 119.89 |
+| triangles per cluster, p5 | n/a | 101 |
+| vertices per cluster, mean | n/a | 87.58 |
+| vertices per cluster, p5 | n/a | 76 |
+| pages | 26 | n/a |
+| file bytes | 2,605,070 | 2,721,737 |
+| file bytes after zstd -19 | 2,368,994 | 1,812,853 |
+| decompressed stream after zstd -19 | n/a | 1,755,031 |
+| resident bytes | 2,946,816 | 2,866,948 |
+| whole-asset decode MB/s | n/a | 7,593.30 |
+
+ours: 15.1 resident B per DAG triangle, 30.1 per source triangle; file 13.3 B per DAG triangle.
+
+bevy: 14.7 resident B per DAG triangle, 29.3 per source triangle; file 13.9 B per DAG triangle.
+
+| Builder | Self-check | Result | Detail |
+| --- | --- | --- | --- |
+| ours | threshold 0 selects exactly the source clusters | pass | 97964 triangles of 97964 source, all leaves: true |
+| ours | huge threshold selects only the root set | pass | 5 clusters of 1614, min parent error 3.4028235e38 |
+| ours | hierarchical traversal equals the flat cut at 1 px | pass | 239 vs 239 clusters |
+| bevy | threshold 0 selects exactly the source clusters | pass | 97964 triangles of 97964 source, all leaves: true |
+| bevy | huge threshold selects only the root set | pass | 4 clusters of 1630, min parent error 3.4028235e38 |
+| bevy | hierarchical traversal equals the flat cut at 1 px | pass | 230 vs 230 clusters |
+
+Cut quality over all spans (mean triangles; p95 of per-view maximum deviation in pixels; measured/claimed p95):
+
+| Builder | Threshold px | Mean triangles | p95 max dev px | mean max dev px | p95 rms dev px | measured/claimed median | p95 | nodes | clusters tested | clusters drawn |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ours | 0 (source) | 97,964 | 0.00 | 0.00 | 0.00 | n/a | n/a | 112 | 1,614 | 777 |
+| ours | 0.5 | 64,743 | 0.53 | 0.24 | 0.07 | 0.98 | 1.00 | 85.5 | 1,076 | 522 |
+| ours | 1 | 49,815 | 1.19 | 0.60 | 0.14 | 0.98 | 1.00 | 72.0 | 831 | 404 |
+| ours | 2 | 35,145 | 2.86 | 1.63 | 0.33 | 0.98 | 1.00 | 59.3 | 589 | 288 |
+| ours | 4 | 20,448 | 9.62 | 4.29 | 1.00 | 0.90 | 1.00 | 44.7 | 347 | 171 |
+| bevy | 0 (source) | 97,964 | 3.42 | 0.87 | 1.10 | n/a | n/a | 31 | 1,630 | 778 |
+| bevy | 0.5 | 63,716 | 3.42 | 1.10 | 1.10 | 1.10 | 1.38 | 22.4 | 1,074 | 516 |
+| bevy | 1 | 48,396 | 3.42 | 1.49 | 1.10 | 1.10 | 1.38 | 18.0 | 821 | 395 |
+| bevy | 2 | 33,012 | 3.77 | 2.57 | 1.10 | 1.08 | 1.29 | 13.6 | 565 | 273 |
+| bevy | 4 | 18,234 | 12.70 | 5.35 | 1.56 | 1.10 | 1.28 | 9.4 | 318 | 156 |
+
+Mean cut triangles at equal p95 maximum deviation (log-log interpolation along the four thresholds; n/a outside the range of either curve):
+
+| p95 deviation px | bevy triangles | ours triangles | ratio bevy/ours |
+| ---: | ---: | ---: | ---: |
+| 3 | n/a | 34,397 | n/a |
+| 5 | 28,770 | 27,386 | 1.05 |
+| 8 | 22,862 | 22,204 | 1.03 |
+

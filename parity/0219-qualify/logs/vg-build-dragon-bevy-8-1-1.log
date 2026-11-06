@@ -1,0 +1,24 @@
+{"kind":"build","builder":"bevy","mesh":"dragon","threads":8,"build_ms":10786.439589,"serialise_ms":46.782481000000004,"file_bytes":20343858,"triangles":871414,"vmhwm_kib":569288}
+	Command being timed: "<target>/release/vg-bench build bevy <target>/dragon.vgm --threads 8 --out <target>/dragon.bevy.bin"
+	User time (seconds): 10.47
+	System time (seconds): 0.66
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:11.13
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 569288
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 236653
+	Voluntary context switches: 39
+	Involuntary context switches: 62
+	Swaps: 0
+	File system inputs: 47832
+	File system outputs: 40768
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

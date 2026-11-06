@@ -1,0 +1,148 @@
+{
+  "all_equal": true,
+  "variants": {
+    "native-all": {
+      "binary_sha256": "b762eeaa7f63edcd9717a4b02959bd16b6b64c11a829f8a525c2c63756e769f5",
+      "cases": [
+        "v2-build-write",
+        "v2-material-attributes",
+        "v2-alpha-coverage",
+        "attribute-encodings"
+      ],
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "parallel",
+        "clusterlod",
+        "experimental",
+        "parity-internals"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-all-debug": {
+      "binary_sha256": "fe0483695b807591bc04957664a8ab0efc0d6fd1cf590a922980c16b9d7913a7",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "parallel",
+        "clusterlod",
+        "experimental",
+        "parity-internals"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "dev",
+      "target": "native"
+    },
+    "native-default": {
+      "binary_sha256": "6520a24a82e01248e12f07dd53ab70e99eef2e28796b70f617887ab6d094bd46",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-nostd": {
+      "binary_sha256": "b641381d94cfc9ea01040f4eafeeedf51c3532790f9629a348060769eed5d03e",
+      "equal_to_native_all": true,
+      "features": [
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-nostd-simd": {
+      "binary_sha256": "fde74bbd203acbe7e2cfe821f289fcaa47ccde2b35bfde87cfc6bbb1e8c62f27",
+      "equal_to_native_all": true,
+      "features": [
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "wasm-default": {
+      "binary_sha256": "e93c6f295f1e6874667691cb40fa06362f2727e2721cd6f647866c08bb8d78bf",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    },
+    "wasm-default-simd128": {
+      "binary_sha256": "e4ef3a5acb6910a04dea19f92e183b09b9b7cfdc35e9e565ea45443d862fe681",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    },
+    "wasm-nostd": {
+      "binary_sha256": "fe0a39df32741ea489e2a491169677edb845a58f544aa1f030a078e548e0f263",
+      "equal_to_native_all": true,
+      "features": [
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    }
+  }
+}
