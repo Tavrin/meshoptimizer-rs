@@ -1037,6 +1037,7 @@ fn prepare_group(
             &merged_idx,
             &simplified,
             mesh.positions,
+            error,
             ctx,
         )?)
     } else {

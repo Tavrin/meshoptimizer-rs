@@ -1,0 +1,35 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 13K of event 'cycles:u'
+# Event count (approx.): 57326742186
+#
+# Overhead  Command          Shared Object         Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+# ........  ...............  ....................  ...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    35.70%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Tree<0>>::build_range
+    18.45%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Tree<0>>::query::<true>
+    15.20%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::closest
+     5.76%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Stats>::sample::<true, 0>
+     4.13%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::direction::<u32, true, 0>
+     3.80%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::meshlet::flex::<false, true>
+     1.54%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::witness
+     1.21%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::clusterlod::support::simplify::run_state
+     1.15%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::support::simplify::State>::rank
+     1.10%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::attributes::Block>::decode
+     1.04%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::position::<u32>
+     0.65%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::meshlet::kd_build
+     0.62%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::support::simplify::State>::quadrics
+     0.59%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::meshlet_util::optimize
+     0.57%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::support::simplify::State>::pick::<meshoptimizer_rs::clusterlod::support::workspace::Tally>
+     0.54%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::meshlet_util::bounds::<false, 128, &[[f32; 3]]>
+     0.54%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::clusterlod::v2::region_error
+     0.53%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::clusterlod::page::encode_page
+     0.51%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::page::PageView>::new
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

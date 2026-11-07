@@ -1,0 +1,17 @@
+{
+  "applied": false,
+  "compiled": false,
+  "tested": false,
+  "patch_sha256": "c31283d63ae982a9970b4c46ff86d7826edb7cbc37fffa3728e29ef01e8f81eb",
+  "files": {
+    "src/lod_quality.rs": "f969dd64de276c2d3bfe60bea80d3c5c3cf2703cbef624c6109320d0b88788e4",
+    "src/clusterlod/v2.rs": "34b7430e8d79a991ecc09011921c9d62dbee703bf9d70ad31dbbba3f64fdb939",
+    "src/clusterlod/dag_format_v2_write.rs": "6bdf688f603856ebbf047d1675c84338b1d649e526825f67e3071490219a92ed",
+    "parity/vg-bench/src/source.rs": "18ce86524e4ef44be2a46984ec5403462f72b37f7f83b270c8e4f4c983e24165",
+    "parity/vg-bench/src/ours.rs": "dd6fb9a5c60f278bfa826282064f520f751f1ac42b3491c3b28a35411d49bcdd",
+    "parity/vg-bench/src/main.rs": "71a8f4b6bb838e3195c13fb8dd05d2d9a68f7184c387a115e088951b62339653",
+    "parity/vg-bench/src/shading.rs": "5403f0cee4554c6dc4de698d387044b1f77c6595e7219ac9a046d45cc5fab1b3",
+    "tests/vg_build_v2.rs": "8f9857c0a82cfdf3683604b910f7511342f24493a69059b50c2b1e728031b534"
+  },
+  "rust_syntax_parse_exit": 0
+}

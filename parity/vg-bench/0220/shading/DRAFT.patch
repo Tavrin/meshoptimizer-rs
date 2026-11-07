@@ -1,0 +1,1208 @@
+--- a/src/lod_quality.rs
++++ b/src/lod_quality.rs
+@@ -323,8 +323,8 @@
+     }
+     validate(source, work)?;
+     validate(level, work)?;
+-    let a = direction::<I, false, 3>(source, level, options, budget, work, 0.0)?;
+-    let b = direction::<I, false, 3>(level, source, options, budget, work, 0.0)?;
++    let a = direction::<I, false, 3, false>(source, level, options, budget, work, 0.0)?;
++    let b = direction::<I, false, 3, false>(level, source, options, budget, work, 0.0)?;
+     let samples = a.count.checked_add(b.count).ok_or(Error::SizeOverflow)?;
+     Ok(LodQuality {
+         source_to_level: a.distance(),
+@@ -367,14 +367,45 @@
+         validate(source, &mut work)?;
+         validate(level, &mut work)?;
+         let mut budget = Budget::new(workspace);
+-        let a = direction::<u32, true, 0>(source, level, options, &mut budget, &mut work, cutoff)?;
+-        let b = direction::<u32, true, 0>(level, source, options, &mut budget, &mut work, a.max)?;
++        let a = direction::<u32, true, 0, false>(source, level, options, &mut budget, &mut work, cutoff)?;
++        let b = direction::<u32, true, 0, false>(level, source, options, &mut budget, &mut work, a.max)?;
+         // Avoid a sqrt round trip when no sample exceeds the existing floor.
+         Ok(if b.max == cutoff {
+             floor
+         } else {
+             libm::sqrt(b.max)
+         })
++    })();
++    workspace.finish(&work);
++    result
++}
++
++// Both maxima use the same original sample stream and exact nearest queries.
++// Unlike the public statistics path, undefined interpolated normals contribute
++// the maximum chord (two) rather than failing a valid geometric build.
++// Returns geometric distance and unit-normal chord maxima. Chords are exactly
++// 2*sin(angle/2); compare their squares without per-sample trigonometry.
++#[cfg(feature = "clusterlod")]
++pub(crate) fn measure_normal_max(
++    source: LodQualityMesh<'_>,
++    level: LodQualityMesh<'_>,
++    options: &LodQualityOptions,
++    workspace: &mut Workspace,
++) -> Result<(f64, f64), Error> {
++    let mut work = workspace.begin();
++    let result = (|| {
++        validate_options(options)?;
++        if source.normals.is_none() || level.normals.is_none() {
++            return Err(Error::InvalidParameter);
++        }
++        let source: LodQualityMeshGeneric<'_, u32> = source.into();
++        let level: LodQualityMeshGeneric<'_, u32> = level.into();
++        validate(source, &mut work)?;
++        validate(level, &mut work)?;
++        let mut budget = Budget::new(workspace);
++        let a = direction::<u32, false, 3, true>(source, level, options, &mut budget, &mut work, 0.0)?;
++        let b = direction::<u32, false, 3, true>(level, source, options, &mut budget, &mut work, 0.0)?;
++        Ok((libm::sqrt(a.max.max(b.max)), libm::sqrt(a.normal_chord_squared_max.max(b.normal_chord_squared_max))))
+     })();
+     workspace.finish(&work);
+     result
+@@ -718,6 +749,7 @@
+     max: f64,
+     sum: f64,
+     angle_max: f64,
++    normal_chord_squared_max: f64,
+     angle_sum: f64,
+ }
+ impl Stats {
+@@ -728,7 +760,7 @@
+             samples: self.count,
+         }
+     }
+-    fn sample<const MAX_ONLY: bool, const NORMALS: usize>(
++    fn sample<const MAX_ONLY: bool, const NORMALS: usize, const NORMAL_MAX: bool>(
+         &mut self,
+         t: Triangle<NORMALS>,
+         weights: V,
+@@ -768,24 +800,33 @@
+         }
+         self.count = self.count.checked_add(1).ok_or(Error::SizeOverflow)?;
+         self.max = self.max.max(hit.distance);
+-        if !MAX_ONLY {
++        if !MAX_ONLY && !NORMAL_MAX {
+             self.sum += hit.distance;
+         }
+         if !MAX_ONLY && normals {
+-            let a = unit(blend(t.normals(), weights)).map_err(|_| Error::NumericalFailure)?;
+-            let b = unit(blend(hit.normals, hit.weights)).map_err(|_| Error::NumericalFailure)?;
+-            // atan2 remains accurate near zero and pi, unlike acos(dot).
+-            let angle = libm::atan2(
+-                libm::sqrt(dot(cross(a, b), cross(a, b))),
+-                dot(a, b).clamp(-1.0, 1.0),
+-            );
+-            self.angle_max = self.angle_max.max(angle);
+-            self.angle_sum += angle;
++            let a = unit(blend(t.normals(), weights));
++            let b = unit(blend(hit.normals, hit.weights));
++            if NORMAL_MAX {
++                let squared = match (a, b) {
++                    (Ok(a), Ok(b)) => { let delta = sub(a, b); dot(delta, delta).clamp(0.0, 4.0) }
++                    // Undefined interpolants mean the largest unit-normal chord.
++                    _ => 4.0,
++                };
++                self.normal_chord_squared_max = self.normal_chord_squared_max.max(squared);
++            } else {
++                let (a, b) = (a?, b?);
++                let angle = libm::atan2(
++                    libm::sqrt(dot(cross(a, b), cross(a, b))),
++                    dot(a, b).clamp(-1.0, 1.0),
++                );
++                self.angle_max = self.angle_max.max(angle);
++                self.angle_sum += angle;
++            }
+         }
+         Ok(())
+     }
+ }
+-fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
++fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize, const NORMAL_MAX: bool>(
+     source: LodQualityMeshGeneric<'_, I>,
+     target: LodQualityMeshGeneric<'_, I>,
+     options: &LodQualityOptions,
+@@ -797,7 +838,7 @@
+     // Always release local storage accounting, including after a failed query.
+     let mut corners = Vec::<u64>::new();
+     let result = (|| {
+-        if MAX_ONLY {
++        if MAX_ONLY || NORMAL_MAX {
+             let words = source.positions.len().div_ceil(64);
+             work.add(words)?;
+             corners = budget.reserved(words)?;
+@@ -823,20 +864,20 @@
+             {
+                 let vertex = source.indices[i * 3 + corner].to_u32() as usize;
+                 let mask = 1u64 << (vertex % 64);
+-                if MAX_ONLY && corners[vertex / 64] & mask != 0 {
++                if (MAX_ONLY || NORMAL_MAX) && corners[vertex / 64] & mask != 0 {
+                     // This corner is already bounded by an earlier maximum.
+                     // Keep the sample visit/count; its distance cannot raise max.
+                     work.add(1)?;
+                     stats.count = stats.count.checked_add(1).ok_or(Error::SizeOverflow)?;
+                 } else {
+-                    stats.sample::<MAX_ONLY, NORMALS>(
++                    stats.sample::<MAX_ONLY, NORMALS, NORMAL_MAX>(
+                         t,
+                         w,
+                         &tree,
+                         source.normals.is_some(),
+                         work,
+                     )?;
+-                    if MAX_ONLY {
++                    if MAX_ONLY || NORMAL_MAX {
+                         corners[vertex / 64] |= mask;
+                     }
+                 }
+@@ -844,7 +885,7 @@
+             for j in 0..count {
+                 let r = libm::sqrt((f64::from(j) + 0.5) / f64::from(count));
+                 let t2 = (f64::from(j.reverse_bits()) + 0.5) / 4294967296.0;
+-                stats.sample::<MAX_ONLY, NORMALS>(
++                stats.sample::<MAX_ONLY, NORMALS, NORMAL_MAX>(
+                     t,
+                     [1.0 - r, r * (1.0 - t2), r * t2],
+                     &tree,
+@@ -855,7 +896,7 @@
+         }
+         Ok(stats)
+     })();
+-    if MAX_ONLY {
++    if MAX_ONLY || NORMAL_MAX {
+         budget.release(corners);
+     }
+     budget.release(tree.nodes);
+--- a/src/clusterlod/v2.rs
++++ b/src/clusterlod/v2.rs
+@@ -1,6 +1,9 @@
+ //! Build policy for MDAG 2. Legacy demo entry points retain upstream semantics.
+ use super::*;
+ use crate::{LodQualityMesh, LodQualityOptions};
++
++// Disabled until the recorded shading-weight comparison chooses a default.
++pub(super) const DEFAULT_NORMAL_ERROR_WEIGHT: f32 = 0.0;
+ 
+ /// Inputs for a static virtual-geometry build.
+ #[non_exhaustive]
+@@ -11,6 +14,13 @@
+     pub positions: &'a [[f32; 3]],
+     /// Optional unit normals, weighted by 0.5 in simplification.
+     pub normals: Option<&'a [[f32; 3]]>,
++    /// Weight of sampled normal-loss displacement; zero disables it.
++    /// Only applies when normals are supplied. Must be finite and nonnegative.
++    /// For each original-source region, L is its largest source/replacement
++    /// triangle edge and theta its maximum sampled normal angle. The error is
++    /// at least 2 * weight * L * sin(theta / 2), inherited monotonically.
++    /// This is a shading proxy, not a BRDF or texture-error certificate.
++    pub normal_error_weight: f32,
+     /// Optional checked attributes in source vertex order.
+     pub attributes: Option<Attributes<'a>>,
+     /// Weights for the supplied attribute components.
+@@ -31,6 +41,7 @@
+             indices,
+             positions,
+             normals: None,
++            normal_error_weight: DEFAULT_NORMAL_ERROR_WEIGHT,
+             attributes: None,
+             attribute_weights: &[],
+             attribute_protect_mask: 0,
+@@ -114,7 +125,7 @@
+ /// caller buffers, allocator overhead, thread stacks and later serialization
+ /// need separate memory allowances. Work counts visits, not instructions or time.
+ ///
+-/// Calibration of the retained builder, with fresh finite workspaces,
++/// Calibration with normal-error weight zero and fresh finite workspaces,
+ /// `default_config(128)`, normals at weight 0.5 and grid -22:
+ ///
+ /// | Source triangles | Peak accounted bytes | Counted visits | Bytes/triangle | Visits/triangle |
+@@ -143,6 +154,9 @@
+     workspace: &mut Workspace,
+ ) -> Result<Built, Error> {
+     let mut ctx = Context::new(workspace)?;
++    if !mesh.normal_error_weight.is_finite() || mesh.normal_error_weight < 0.0 {
++        return Err(Error::InvalidParameter);
++    }
+     if config.simplify_dilate_borders || config.simplify_error_merge_previous < 1.0 {
+         return Err(Error::InvalidParameter);
+     }
+@@ -365,18 +379,43 @@
+     ctx.free(topology)?;
+     ctx.free(weights)?;
+     ctx.free(locks)?;
+-    source_error_floor(&mut out, mesh.positions, &mut ctx)?;
++    source_error_floor(&mut out, mesh.positions, mesh.normals, mesh.normal_error_weight, &mut ctx)?;
+     Ok(out)
+ }
+ 
+ // A cluster split can send siblings to different parents. Follow refined groups
+ // once per region, not once per cluster: each replacement represents the union
+ // of all source triangles under the group, including siblings in other parents.
++#[derive(Clone, Copy)]
++struct NormalMetric<'a> {
++    normals: &'a [[f32; 3]],
++    weight: f32,
++}
++
+ fn source_error_floor(
+     out: &mut Built,
+     original_positions: &[[f32; 3]],
++    normals: Option<&[[f32; 3]]>,
++    normal_weight: f32,
+     ctx: &mut Context<'_>,
+ ) -> Result<(), Error> {
++    let normal_count = if normals.is_some() && normal_weight > 0.0 {
++        out.positions.len()
++    } else {
++        0
++    };
++    let mut mapped_normals = ctx.alloc::<[f32; 3]>(normal_count)?;
++    ctx.tick(mapped_normals.len())?;
++    if let Some(normals) = normals {
++        for (normal, &id) in mapped_normals.iter_mut().zip(&out.vertex_source) {
++            *normal = normals[id as usize];
++        }
++    }
++    let normal_metric = if mapped_normals.is_empty() {
++        None
++    } else {
++        Some(NormalMetric { normals: &mapped_normals, weight: normal_weight })
++    };
+     let mut source_positions = ctx.alloc(out.positions.len())?;
+     ctx.tick(source_positions.len())?;
+     for (p, &id) in source_positions.iter_mut().zip(&out.vertex_source) {
+@@ -426,6 +465,7 @@
+                                 &heads,
+                                 &next,
+                                 &source_positions,
++                                normal_metric,
+                                 &mut local,
+                             )
+                         }));
+@@ -447,7 +487,7 @@
+         }
+     } else {
+         for (g, value) in measured.iter_mut().enumerate() {
+-            *value = measure_region(out, g, &heads, &next, &source_positions, ctx)?;
++            *value = measure_region(out, g, &heads, &next, &source_positions, normal_metric, ctx)?;
+         }
+     }
+     // Measurement is independent of inherited errors. Commit in emission order.
+@@ -466,6 +506,7 @@
+         out.groups[g].error = out.groups[g].error.max(inherited).max(value);
+     }
+     ctx.free(source_positions)?;
++    ctx.free(mapped_normals)?;
+     ctx.free(heads)?;
+     ctx.free(next)?;
+     Ok(())
+@@ -477,6 +518,7 @@
+     heads: &[Option<usize>],
+     next: &[Option<usize>],
+     source_positions: &[[f32; 3]],
++    normal_metric: Option<NormalMetric<'_>>,
+     ctx: &mut Context<'_>,
+ ) -> Result<f32, Error> {
+     if out.groups[g].error == f32::MAX {
+@@ -526,6 +568,7 @@
+         source_positions,
+         &out.positions,
+         out.groups[g].error,
++        normal_metric,
+         ctx,
+     )?;
+     ctx.free(visited)?;
+@@ -608,7 +651,7 @@
+     floor: f32,
+     ctx: &mut Context<'_>,
+ ) -> Result<f32, Error> {
+-    region_error(input, output, positions, positions, floor, ctx)
++    region_error(input, output, positions, positions, floor, None, ctx)
+ }
+ 
+ fn region_error(
+@@ -617,9 +660,13 @@
+     positions: &[[f32; 3]],
+     output_positions: &[[f32; 3]],
+     floor: f32,
++    normal_metric: Option<NormalMetric<'_>>,
+     ctx: &mut Context<'_>,
+ ) -> Result<f32, Error> {
+     let mut area = 0f64;
++    let mut edge_squared = 0f64;
++    let reference_normal = normal_metric.and_then(|m| input.first().map(|&i| m.normals[i as usize]));
++    let mut constant_normals = normal_metric.is_some();
+     ctx.tick(input.len())?;
+     for t in input.as_chunks::<3>().0 {
+         let [a, b, c] = t.map(|i| positions[i as usize].map(f64::from));
+@@ -631,22 +678,51 @@
+             u[0] * v[1] - u[1] * v[0],
+         ];
+         area += libm::sqrt(n.iter().map(|x| x * x).sum::<f64>()) * 0.5;
+-    }
++        if let Some(metric) = normal_metric {
++            constant_normals &= t.iter().all(|&i| Some(metric.normals[i as usize]) == reference_normal);
++            for edge in [u, v, core::array::from_fn(|k| v[k] - u[k])] {
++                edge_squared = edge_squared.max(edge.iter().map(|x| x * x).sum());
++            }
++        }
++    }
++    if let Some(metric) = normal_metric {
++        ctx.tick(output.len())?;
++        for t in output.as_chunks::<3>().0 {
++            constant_normals &= t.iter().all(|&i| Some(metric.normals[i as usize]) == reference_normal);
++            let p = t.map(|i| output_positions[i as usize].map(f64::from));
++            for (a, b) in [(0, 1), (1, 2), (2, 0)] {
++                let edge: [f64; 3] = core::array::from_fn(|k| p[b][k] - p[a][k]);
++                edge_squared = edge_squared.max(edge.iter().map(|x| x * x).sum());
++            }
++        }
++    }
++    let local_edge = libm::sqrt(edge_squared);
++    // A unit-normal chord is at most two. An already larger positional floor
++    // makes the angular pass unnecessary without changing the stored result.
++    let normal_metric = normal_metric.filter(|m|
++        !constant_normals && (f64::from(m.weight) * 2.0) * local_edge > f64::from(floor));
+     let options = LodQualityOptions {
+         samples_per_unit_area: 4000.0 / area.max(1e-12),
+     };
+     let mut measured = 0.0;
+     ctx.child(|ws| {
+-        let maximum = crate::lod_quality::measure_max(
+-            LodQualityMesh::new(input, Positions::from_packed(positions)),
+-            LodQualityMesh::new(output, Positions::from_packed(output_positions)),
+-            &options,
+-            floor,
+-            ws,
+-        )?;
++        let mut source = LodQualityMesh::new(input, Positions::from_packed(positions));
++        let mut target = LodQualityMesh::new(output, Positions::from_packed(output_positions));
++        let maximum = if let Some(metric) = normal_metric {
++            source.normals = Some(metric.normals);
++            target.normals = Some(metric.normals);
++            let (geometry, chord) =
++                crate::lod_quality::measure_normal_max(source, target, &options, ws)?;
++            geometry.max((f64::from(metric.weight) * chord) * local_edge).max(f64::from(floor))
++        } else {
++            crate::lod_quality::measure_max(source, target, &options, floor, ws)?
++        };
+         measured = super::bounds_math::f32_up(maximum);
+         Ok(())
+     })?;
++    if !measured.is_finite() {
++        return Err(Error::NumericalFailure);
++    }
+     Ok(measured)
+ }
+ 
+@@ -936,9 +1012,51 @@
+                 ..FlatDagCluster::default()
+             });
+         }
+-        source_error_floor(&mut built, &positions, &mut ctx).expect("source measurement");
++        source_error_floor(&mut built, &positions, None, 0.0, &mut ctx).expect("source measurement");
+         assert_eq!(built.groups[0].error, 1.);
+         assert_eq!(built.groups[1].error, 2.);
+         assert_eq!(built.groups[2].error, f32::MAX);
+     }
+ }
++
++#[cfg(test)]
++mod normal_error_tests {
++    use super::*;
++    fn patch() -> (Vec<[f32;3]>, Vec<u32>, Vec<[f32;3]>, [u32;6]) {
++        let mut positions=Vec::new();
++        for y in 0..3 {for x in 0..3 {positions.push([x as f32*0.5,y as f32*0.5,0.0]);}}
++        let mut indices=Vec::new();
++        for y in 0..2 {for x in 0..2 {
++            let a=(y*3+x) as u32;indices.extend_from_slice(&[a,a+1,a+4,a,a+4,a+3]);
++        }}
++        let mut normals=alloc::vec![[0.,0.,1.];9];
++        normals[4]=[core::f32::consts::FRAC_1_SQRT_2,0.,core::f32::consts::FRAC_1_SQRT_2];
++        (positions,indices,normals,[0,2,8,0,8,6])
++    }
++    #[test]
++    fn planar_geometry_prices_lost_interpolated_normal_variation() {
++        let (p,i,n,out)=patch();
++        let mut ws=Workspace::default();let mut ctx=Context::new(&mut ws).expect("context");
++        let mut errors=Vec::new();
++        for weight in [0.0,0.25,0.5,1.0] {
++            errors.push(region_error(&i,&out,&p,&p,0.0,Some(NormalMetric{normals:&n,weight}),&mut ctx).expect("measurement"));
++        }
++        assert_eq!(errors[0],0.0);
++        let expected=2.0f64.sqrt() * (2.0-2.0f64.sqrt()).sqrt();
++        assert!((f64::from(errors[3])-expected).abs()<4e-7);
++        assert_eq!((errors[1]*4.0).to_bits(),errors[3].to_bits());
++        assert_eq!((errors[2]*2.0).to_bits(),errors[3].to_bits());
++        assert_eq!(region_error(&i,&out,&p,&p,0.0,Some(NormalMetric{normals:&n,weight:f32::MAX}),&mut ctx),Err(Error::NumericalFailure));
++    }
++    #[test]
++    fn undefined_interpolants_are_worst_case_only_on_new_path() {
++        let p=[[0.,0.,0.],[1.,0.,0.],[0.,1.,0.]];let i=[0,1,2];
++        let n=[[-1.,0.,0.],[1.,0.,0.],[1.,0.,0.]];let m=[[0.,0.,1.];3];
++        let mut a=LodQualityMesh::new(&i,Positions::from_packed(&p));a.normals=Some(&n);
++        let mut b=LodQualityMesh::new(&i,Positions::from_packed(&p));b.normals=Some(&m);
++        let options=LodQualityOptions{samples_per_unit_area:4.0};
++        assert_eq!(crate::measure_lod_quality(a,b,&options,&mut Workspace::default()),Err(Error::NumericalFailure));
++        let (geometry,chord)=crate::lod_quality::measure_normal_max(a,b,&options,&mut Workspace::default()).expect("conservative maxima");
++        assert_eq!(geometry,0.0);assert_eq!(chord,2.0);
++    }
++}
+--- a/src/clusterlod/dag_format_v2_write.rs
++++ b/src/clusterlod/dag_format_v2_write.rs
+@@ -28,7 +28,9 @@
+ /// Revision 4 measures replacements against their original source regions.
+ /// Revision 5 keeps replacement siblings in one parent source region.
+ /// Revision 6 partitions sibling regions with their cluster counts as weights.
+-pub const BUILDER_REVISION: u32 = 6;
++/// Revision 8 prices sampled interpolated-normal loss in original-source regions.
++/// Revision 7 was reserved for an abandoned codec experiment.
++pub const BUILDER_REVISION: u32 = 8;
+ /// Default culling-hierarchy node width.
+ pub const DEFAULT_NODE_WIDTH: usize = 4;
+ 
+@@ -188,6 +190,8 @@
+     pub materials: Option<&'a [u16]>,
+     /// Supplied source normals (the v2 builder uses weight 0.5).
+     pub normals: Option<&'a [[f32; 3]]>,
++    /// Match clusterlod::v2::BuildMesh::normal_error_weight.
++    pub normal_error_weight: f32,
+     /// Opt-in alpha policy; masks and every setting participate in the key.
+     pub alpha_coverage: Option<crate::clusterlod::v2::AlphaCoverage<'a>>,
+     /// Whether the v2 sampled step and original-source error policy is used.
+@@ -216,6 +220,7 @@
+             channels: &[],
+             materials: None,
+             normals: None,
++            normal_error_weight: crate::clusterlod::v2::DEFAULT_NORMAL_ERROR_WEIGHT,
+             measured_steps: true,
+             alpha_coverage: None,
+         }
+@@ -237,6 +242,9 @@
+     };
+     h.update(b"MDAG2KEY");
+     u32s(&mut h, &[BUILDER_REVISION]);
++    u32s(&mut h, &[if inputs.normals.is_some() && inputs.measured_steps {
++        inputs.normal_error_weight.to_bits()
++    } else { 0 }]);
+     let Config {
+         max_vertices,
+         min_triangles,
+--- a/parity/vg-bench/src/source.rs
++++ b/parity/vg-bench/src/source.rs
+@@ -8,6 +8,8 @@
+     pub positions: Vec<[f32; 3]>,
+     pub normals: Vec<[f32; 3]>,
+     pub uvs: Vec<[f32; 2]>,
++    /// Optional diagnostic tangents; VGM1 remains unchanged.
++    pub tangents: Vec<[f32; 4]>,
+     pub indices: Vec<u32>,
+     pub materials: Vec<u16>,
+ }
+@@ -100,6 +102,60 @@
+             .collect();
+     }
+ 
++    /// Deterministic area-weighted UV gradients, orthogonalized to the normal.
++    /// Returns (degenerate UV triangles, fallback tangent vertices).
++    /// This is a diagnostic derivation, not an authored tangent set.
++    pub fn derive_tangents(&mut self) -> R<(usize, usize)> {
++        let n = self.positions.len();
++        if self.normals.len() != n || self.uvs.len() != n {
++            return Err("tangent source channel length".into());
++        }
++        let mut ts = vec![[0.0f64; 3]; n];
++        let mut bs = vec![[0.0f64; 3]; n];
++        let mut degenerate = 0;
++        for ix in self.indices.chunks_exact(3) {
++            let ids = [ix[0] as usize, ix[1] as usize, ix[2] as usize];
++            if ids.iter().any(|&i| i >= n) { return Err("tangent index".into()); }
++            let p = ids.map(|i| self.positions[i].map(f64::from));
++            let uv = ids.map(|i| self.uvs[i].map(f64::from));
++            let a: [f64; 3] = core::array::from_fn(|k| p[1][k] - p[0][k]);
++            let b: [f64; 3] = core::array::from_fn(|k| p[2][k] - p[0][k]);
++            let u = [uv[1][0] - uv[0][0], uv[1][1] - uv[0][1]];
++            let v = [uv[2][0] - uv[0][0], uv[2][1] - uv[0][1]];
++            let det = u[0] * v[1] - u[1] * v[0];
++            if det == 0.0 { degenerate += 1; continue; }
++            let cross = [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
++            let area = cross.iter().map(|x|x*x).sum::<f64>().sqrt();
++            for &i in &ids {
++                for k in 0..3 {
++                    ts[i][k] += (a[k]*v[1]-b[k]*u[1]) / det * area;
++                    bs[i][k] += (b[k]*u[0]-a[k]*v[0]) / det * area;
++                }
++            }
++        }
++        let unit = |x: [f64;3]| {
++            let len = x.iter().map(|v|v*v).sum::<f64>().sqrt();
++            (len > 0.0 && len.is_finite()).then(||x.map(|v|v/len))
++        };
++        let mut fallback = 0;
++        self.tangents.clear();
++        for i in 0..n {
++            let normal = unit(self.normals[i].map(f64::from)).ok_or("invalid tangent normal")?;
++            let dot = ts[i].iter().zip(normal).map(|(a,b)|a*b).sum::<f64>();
++            let ortho = core::array::from_fn(|k| ts[i][k]-normal[k]*dot);
++            let tangent = if let Some(t) = unit(ortho) { t } else {
++                fallback += 1;
++                let axis = if normal[0].abs() <= normal[1].abs() && normal[0].abs() <= normal[2].abs() { [1.,0.,0.] }
++                    else if normal[1].abs() <= normal[2].abs() { [0.,1.,0.] } else { [0.,0.,1.] };
++                unit([normal[1]*axis[2]-normal[2]*axis[1],normal[2]*axis[0]-normal[0]*axis[2],normal[0]*axis[1]-normal[1]*axis[0]]).ok_or("tangent fallback")?
++            };
++            let cross = [normal[1]*tangent[2]-normal[2]*tangent[1],normal[2]*tangent[0]-normal[0]*tangent[2],normal[0]*tangent[1]-normal[1]*tangent[0]];
++            let sign = if cross.iter().zip(bs[i]).map(|(a,b)|a*b).sum::<f64>() < 0.0 {-1.0} else {1.0};
++            self.tangents.push([tangent[0] as f32,tangent[1] as f32,tangent[2] as f32,sign]);
++        }
++        Ok((degenerate, fallback))
++    }
++
+     /// Write the cached form: `VGM1`, vertex count, index count, then little-endian arrays.
+     pub fn save(&self, path: &Path) -> R<()> {
+         let mut b = Vec::with_capacity(12 + self.positions.len() * 32 + self.indices.len() * 4);
+@@ -135,7 +191,7 @@
+         let ub = nv * 6;
+         let uvs = (0..nv).map(|i| [f(ub + i * 2), f(ub + i * 2 + 1)]).collect();
+         let indices = (0..ni).map(|i| word(12 + nv * 32 + i * 4)).collect();
+-        Ok(Self { positions, normals, uvs, indices, materials: Vec::new() })
++        Ok(Self { positions, normals, uvs, tangents: Vec::new(), indices, materials: Vec::new() })
+     }
+ }
+ 
+--- a/parity/vg-bench/src/ours.rs
++++ b/parity/vg-bench/src/ours.rs
+@@ -34,6 +34,8 @@
+ pub struct Timing {
+     pub dag_ms: f64,
+     pub hierarchy_ms: f64,
++    pub accounted_bytes: usize,
++    pub work: u64,
+ }
+ 
+ fn unlimited() -> Workspace {
+@@ -125,7 +127,7 @@
+         let hierarchy_ms = t1.elapsed().as_secs_f64() * 1e3;
+         Ok((
+             Ours { groups, clusters, indices, nodes, level_count, positions, v2_file: true },
+-            Timing { dag_ms, hierarchy_ms },
++            Timing { dag_ms, hierarchy_ms, accounted_bytes: 0, work: 0 },
+         ))
+     })
+ }
+@@ -140,14 +142,23 @@
+                 attributes::{Channel, Encoding},
+                 dag_format::v2,
+             };
+-            let channels = [
++            let with_tangent = src.tangents.len() == src.positions.len();
++            let mut channels = vec![
+                 Channel { tag: 1, encoding: Encoding::Oct16x2, source_offset: 0 },
+                 Channel { tag: 2, encoding: Encoding::UnormRange16x2, source_offset: 3 },
+             ];
+-            let values: Vec<f32> =
+-                src.normals.iter().zip(&src.uvs).flat_map(|(n, u)| [n[0], n[1], n[2], u[0], u[1]]).collect();
++            if with_tangent {
++                channels.push(Channel { tag: 3, encoding: Encoding::OctSign, source_offset: 5 });
++            }
++            let stride = if with_tangent { 9 } else { 5 };
++            let mut values = Vec::with_capacity(src.positions.len()*stride);
++            for v in 0..src.positions.len() {
++                values.extend_from_slice(&src.normals[v]);
++                values.extend_from_slice(&src.uvs[v]);
++                if with_tangent { values.extend_from_slice(&src.tangents[v]); }
++            }
+             let attrs =
+-                Attributes::from_interleaved(&values, src.positions.len(), 5, 5, 0).map_err(|e| format!("{e:?}"))?;
++                Attributes::from_interleaved(&values, src.positions.len(), stride, stride, 0).map_err(|e| format!("{e:?}"))?;
+             let mut source = v2::Source::new(&self.groups, &self.clusters, &self.positions, &self.indices);
+             source.channels = &channels;
+             source.attributes = Some(attrs);
+@@ -389,8 +400,32 @@
+         .to_string())
+ }
+ 
++#[derive(Clone, Copy)]
++pub struct V2Settings {
++    pub normal_error_weight: f32,
++    pub uv_weight: Option<f32>,
++    pub tangent_weight: Option<f32>,
++    pub duplicate_normals: bool,
++}
++impl Default for V2Settings {
++    fn default() -> Self {
++        Self {
++            normal_error_weight: meshoptimizer_rs::clusterlod::v2::BuildMesh::new(&[], &[]).normal_error_weight,
++            uv_weight: None, tangent_weight: None, duplicate_normals: false,
++        }
++    }
++}
++impl V2Settings {
++    pub fn attributes(self) -> bool {
++        self.uv_weight.is_some() || self.tangent_weight.is_some() || self.duplicate_normals
++    }
++}
++
+ /// Build through the library's default MDAG 2 policy, with the measured floor.
+ pub fn build_v2(src: &Source, threads: usize, config: Config) -> Result<(Ours, Timing), String> {
++    build_v2_with(src, threads, config, V2Settings::default())
++}
++pub fn build_v2_with(src: &Source, threads: usize, config: Config, settings: V2Settings) -> Result<(Ours, Timing), String> {
+     use meshoptimizer_rs::clusterlod::{
+         page::QuantGrid,
+         v2::{self, BuildMesh},
+@@ -399,11 +434,29 @@
+     pool.install(|| {
+         let mut input = BuildMesh::new(&src.indices, &src.positions);
+         input.normals = Some(&src.normals);
++        input.normal_error_weight = settings.normal_error_weight;
++        let mut values = Vec::new();
++        let mut weights = Vec::new();
++        if settings.attributes() {
++            if src.tangents.len() != src.positions.len() { return Err("derive tangents before attribute build".into()); }
++            let components = if settings.duplicate_normals {9} else {6};
++            if settings.duplicate_normals { weights.extend_from_slice(&[1.0;3]); }
++            weights.extend_from_slice(&[settings.uv_weight.unwrap_or(1.0);2]);
++            weights.extend_from_slice(&[settings.tangent_weight.unwrap_or(1.0);4]);
++            for v in 0..src.positions.len() {
++                if settings.duplicate_normals { values.extend_from_slice(&src.normals[v]); }
++                values.extend_from_slice(&src.uvs[v]);
++                values.extend_from_slice(&src.tangents[v]);
++            }
++            input.attributes = Some(Attributes::from_interleaved(&values, src.positions.len(), components, components, 0).map_err(|e|format!("{e:?}"))?);
++            input.attribute_weights = &weights;
++        }
+         let mut ws = unlimited();
+         let t = Instant::now();
+         let built = v2::build(config, input, QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?, &mut ws)
+             .map_err(|e| format!("{e:?}"))?;
+         let dag_ms = t.elapsed().as_secs_f64() * 1e3;
++        let usage = ws.usage();
+         let mut positions = src.positions.clone();
+         for (v, &s) in built.vertex_source.iter().enumerate() {
+             positions[s as usize] = built.positions[v];
+@@ -422,7 +475,7 @@
+         let t = Instant::now();
+         o.rebuild_hierarchy()?;
+         let hierarchy_ms = t.elapsed().as_secs_f64() * 1e3;
+-        Ok((o, Timing { dag_ms, hierarchy_ms }))
++        Ok((o, Timing { dag_ms, hierarchy_ms, accounted_bytes: usage.bytes, work: usage.work }))
+     })
+ }
+ fn shape_v2(o: &Ours, src: &Source, label: &Json, file: &[u8]) -> Result<String, String> {
+--- a/parity/vg-bench/src/main.rs
++++ b/parity/vg-bench/src/main.rs
+@@ -10,6 +10,7 @@
+ mod ours;
+ mod report;
+ mod source;
++mod shading;
+ 
+ use report::Json;
+ use source::Source;
+@@ -46,12 +47,27 @@
+         Some("diag") => diag(&args[1..]),
+         Some("plateau") => plateau(&args[1..]),
+         Some("limits") => limits(&args[1..]),
++        Some("shade-eval") => shading::evaluate(&args[1..]),
+         _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
+     };
+     if let Err(e) = result {
+         eprintln!("error: {e}");
+         std::process::exit(1);
+     }
++}
++
++fn v2_settings(args: &[String]) -> Result<ours::V2Settings, String> {
++    let read = |key: &str| flag(args,key).map(|s|s.parse::<f32>().map_err(|e|format!("{key}: {e}"))).transpose();
++    let normal_error_weight = read("--normal-error-weight")?.unwrap_or(ours::V2Settings::default().normal_error_weight);
++    let uv_weight = read("--uv-weight")?;
++    let tangent_weight = read("--tangent-weight")?;
++    for v in [Some(normal_error_weight),uv_weight,tangent_weight].into_iter().flatten() {
++        if !v.is_finite() || v < 0.0 { return Err("invalid diagnostic weight".into()); }
++    }
++    let duplicate_normals = match flag(args,"--duplicate-normals").as_deref() {
++        None | Some("0") => false, Some("1") => true, _ => return Err("duplicate-normals needs 0 or 1".into()),
++    };
++    Ok(ours::V2Settings { normal_error_weight,uv_weight,tangent_weight,duplicate_normals })
+ }
+ 
+ /// `prep <mesh.ply|gltf> <out.vgm> [--extent 2.0]`
+@@ -80,17 +96,26 @@
+ fn build(args: &[String]) -> Result<(), String> {
+     let p = positional(args);
+     let builder = p.first().ok_or("missing builder")?.as_str().to_string();
+-    let (src, name) = load(&p)?;
++    let (mut src, name) = load(&p)?;
++    let settings = v2_settings(args)?;
++    let tangent_stats = if settings.attributes() {src.derive_tangents()?} else {(0,0)};
+     let threads: usize = num(args, "--threads", 1);
+     let label =
+-        Json::new().text("kind", "build").text("builder", &builder).text("mesh", &name).with("threads", threads);
++        Json::new().text("kind", "build").text("builder", &builder).text("mesh", &name).with("threads", threads)
++            .with("normal_error_weight",settings.normal_error_weight)
++            .with("uv_weight",settings.uv_weight.unwrap_or(-1.0))
++            .with("tangent_weight",settings.tangent_weight.unwrap_or(-1.0))
++            .with("duplicate_normals",settings.duplicate_normals)
++            .with("tangent_degenerate_triangles",tangent_stats.0)
++            .with("tangent_fallback_vertices",tangent_stats.1);
+     let line = match builder.as_str() {
+         "ours" | "ours-v2" => {
+             let (o, t) = if builder == "ours-v2" {
+-                ours::build_v2(
++                ours::build_v2_with(
+                     &src,
+                     threads,
+                     meshoptimizer_rs::clusterlod::default_config(128).map_err(|e| format!("{e:?}"))?,
++                    settings,
+                 )?
+             } else {
+                 ours::build(&src, threads)?
+@@ -101,7 +126,7 @@
+             }
+             label
+                 .with("build_ms", t.dag_ms + t.hierarchy_ms)
+-                .with("dag_ms", t.dag_ms)
++                .with("dag_ms", t.dag_ms).with("accounted_bytes", t.accounted_bytes).with("work", t.work)
+                 .with("hierarchy_ms", t.hierarchy_ms)
+                 .with("serialise_ms", write_ms)
+                 .with("file_bytes", file.len())
+@@ -312,6 +337,7 @@
+     let result = pool.install(|| {
+         let mut input = BuildMesh::new(&src.indices, &src.positions);
+         input.normals = Some(&src.normals);
++        input.normal_error_weight = num(args, "--normal-error-weight", input.normal_error_weight);
+         v2::build(config, input, grid, &mut ws)
+     });
+     let usage = ws.usage();
+--- /dev/null
++++ b/parity/vg-bench/src/shading.rs
+@@ -0,0 +1,367 @@
++//! Independent area-probe evaluator for decoded one-pixel cuts.
++use crate::{camera, report::Json, source::Source};
++use meshoptimizer_rs::{
++    clusterlod::{
++        cut::{self, CutView, Projection, Threshold},
++        dag_format::v2::Reader,
++        FlatDagCluster, FlatDagGroup,
++    },
++    Limits, Workspace,
++};
++use rayon::prelude::*;
++use std::{collections::BTreeMap, fs, path::Path};
++
++type V = [f64; 3];
++type R<T> = Result<T, String>;
++fn sub(a: V, b: V) -> V { core::array::from_fn(|k|a[k]-b[k]) }
++fn dot(a: V, b: V) -> f64 { a.iter().zip(b).map(|(a,b)|a*b).sum() }
++fn cross(a: V, b: V) -> V { [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]] }
++fn unit(a: V) -> Option<V> {
++    let l=dot(a,a).sqrt();
++    (l>0.0 && l.is_finite()).then(||a.map(|x|x/l))
++}
++fn blend(p: [V;3], w: V) -> V { core::array::from_fn(|k|p[0][k]*w[0]+p[1][k]*w[1]+p[2][k]*w[2]) }
++fn angle(a: Option<V>, b: Option<V>) -> f64 {
++    match (a,b) {
++        (Some(a),Some(b))=>dot(cross(a,b),cross(a,b)).sqrt().atan2(dot(a,b).clamp(-1.,1.)).to_degrees(),
++        _=>180.0,
++    }
++}
++#[derive(Clone,Copy)]
++struct Probe { p: V, normal: Option<V>, uv: [f64;2], tangent: Option<V>, sign: f64 }
++#[derive(Clone,Copy)]
++struct Mesh<'a> {
++    p: &'a [[f32;3]], n: &'a [[f32;3]], uv: &'a [[f32;2]], t: &'a [[f32;4]], ix: &'a [u32],
++}
++impl Mesh<'_> {
++    fn triangle(&self, id: usize) -> [V;3] {
++        core::array::from_fn(|k|self.p[self.ix[id*3+k] as usize].map(f64::from))
++    }
++    fn at(&self,id:usize,w:V) -> Probe {
++        let ids=[self.ix[id*3] as usize,self.ix[id*3+1] as usize,self.ix[id*3+2] as usize];
++        let normals=ids.map(|i|unit(self.n[i].map(f64::from)).unwrap_or([0.;3]));
++        let normal=unit(blend(normals,w));
++        let uv=core::array::from_fn(|k|ids.iter().zip(w).map(|(&i,w)|f64::from(self.uv[i][k])*w).sum());
++        let mut tangent=None;
++        let mut sign=1.0;
++        if !self.t.is_empty() {
++            let raw:V=core::array::from_fn(|k|ids.iter().zip(w).map(|(&i,w)|f64::from(self.t[i][k])*w).sum());
++            if let Some(n)=normal { tangent=unit(sub(raw,n.map(|x|x*dot(raw,n)))); }
++            let value: f64=ids.iter().zip(w).map(|(&i,w)|f64::from(self.t[i][3])*w).sum();
++            sign=if value<0.0 {-1.0} else {1.0};
++        }
++        Probe {p:blend(self.triangle(id),w),normal,uv,tangent,sign}
++    }
++    fn samples(&self,count:usize) -> R<Vec<Probe>> {
++        let mut cdf=Vec::with_capacity(self.ix.len()/3);
++        let mut total=0.0;
++        for id in 0..self.ix.len()/3 {
++            let p=self.triangle(id); let n=cross(sub(p[1],p[0]),sub(p[2],p[0]));
++            total+=0.5*dot(n,n).sqrt(); cdf.push(total);
++        }
++        if total<=0.0 || !total.is_finite() {return Err("empty/nonfinite sampled surface".into());}
++        let mut result=Vec::with_capacity(count);
++        for i in 0..count {
++            let location=(i as f64+0.5)/count as f64*total;
++            let id=cdf.partition_point(|&x|x<=location).min(cdf.len()-1);
++            let r=((f64::from((i as u32).reverse_bits())+0.5)/4294967296.0).sqrt();
++            let mut ordinal=i+1; let mut factor=1.0/3.0; let mut t=0.0;
++            while ordinal>0 {t+=(ordinal%3) as f64*factor;factor/=3.0;ordinal/=3;}
++            result.push(self.at(id,[1.0-r,r*(1.0-t),r*t]));
++        }
++        Ok(result)
++    }
++}
++#[derive(Clone,Copy)]
++struct Node {lo:V,hi:V,start:usize,end:usize,left:usize,right:usize}
++#[derive(Clone,Copy)]
++struct Hit {d:f64,id:usize,w:V}
++struct Tree<'a> {mesh:Mesh<'a>,order:Vec<usize>,nodes:Vec<Node>}
++impl<'a> Tree<'a> {
++    fn new(mesh:Mesh<'a>) -> R<Self> {
++        if mesh.ix.is_empty() || !mesh.ix.len().is_multiple_of(3) {return Err("empty/invalid tree".into());}
++        let mut result=Self {mesh,order:(0..mesh.ix.len()/3).collect(),nodes:Vec::new()};
++        result.build(0,result.order.len()); Ok(result)
++    }
++    fn build(&mut self,start:usize,end:usize)->usize {
++        let mut lo=[f64::INFINITY;3];let mut hi=[f64::NEG_INFINITY;3];
++        for &id in &self.order[start..end] {for p in self.mesh.triangle(id) {for k in 0..3 {lo[k]=lo[k].min(p[k]);hi[k]=hi[k].max(p[k]);}}}
++        let index=self.nodes.len();
++        self.nodes.push(Node{lo,hi,start,end,left:usize::MAX,right:usize::MAX});
++        if end-start>8 {
++            let axis=(0..3).max_by(|&a,&b|(hi[a]-lo[a]).total_cmp(&(hi[b]-lo[b]))).unwrap_or(0);
++            let mid=start+(end-start)/2;let mesh=self.mesh;
++            let key=|id:usize|mesh.triangle(id).iter().map(|p|p[axis]).sum::<f64>();
++            self.order[start..end].select_nth_unstable_by(mid-start,|&a,&b|key(a).total_cmp(&key(b)).then(a.cmp(&b)));
++            let left=self.build(start,mid);let right=self.build(mid,end);
++            self.nodes[index].left=left;self.nodes[index].right=right;
++        }
++        index
++    }
++    fn box_distance(&self,id:usize,p:V)->f64 {
++        let n=self.nodes[id];(0..3).map(|k|(n.lo[k]-p[k]).max(0.0).max(p[k]-n.hi[k]).powi(2)).sum()
++    }
++    fn query(&self,id:usize,p:V,best:&mut Hit) {
++        if self.box_distance(id,p)>best.d {return;}
++        let node=self.nodes[id];
++        if node.left==usize::MAX {
++            for &id in &self.order[node.start..node.end] {
++                let (d,w)=closest(self.mesh.triangle(id),p);
++                if d<best.d || (d==best.d && id<best.id) {*best=Hit{d,w,id};}
++            }
++        } else {
++            let (a,b)=if self.box_distance(node.left,p)<=self.box_distance(node.right,p) {(node.left,node.right)} else {(node.right,node.left)};
++            self.query(a,p,best);self.query(b,p,best);
++        }
++    }
++    fn nearest(&self,p:V)->Hit {
++        let mut hit=Hit{d:f64::INFINITY,id:usize::MAX,w:[1.,0.,0.]};
++        self.query(0,p,&mut hit);assert!(hit.id!=usize::MAX && hit.d.is_finite());hit
++    }
++}
++fn closest(t:[V;3],p:V)->(f64,V) {
++    let mut best=(f64::INFINITY,[1.,0.,0.]);
++    for (a,b) in [(0,1),(1,2),(2,0)] {
++        let edge=sub(t[b],t[a]);let len=dot(edge,edge);
++        let s=if len>0.0 {(dot(sub(p,t[a]),edge)/len).clamp(0.,1.)} else {0.0};
++        let mut w=[0.;3];w[a]=1.-s;w[b]=s;
++        let d=if s==0.0 {let x=sub(p,t[a]);dot(x,x)} else if s==1.0 {let x=sub(p,t[b]);dot(x,x)} else {
++            let x=sub(p,if s<=0.5 {t[a]}else{t[b]});let v=cross(x,edge);dot(v,v)/len
++        };
++        if d<best.0 {best=(d,w);}
++    }
++    let ab=sub(t[1],t[0]);let ac=sub(t[2],t[0]);let n=cross(ab,ac);let nn=dot(n,n);
++    if nn>0.0 {
++        let ap=sub(p,t[0]);let v=dot(cross(ap,ac),n)/nn;let w=dot(cross(ab,ap),n)/nn;
++        if v>=0.0 && w>=0.0 && v+w<=1.0 {
++            let h=dot(ap,n);let d=h*h/nn;
++            if d<best.0 {best=(d,[1.-v-w,v,w]);}
++        }
++    }
++    best
++}
++struct Decoded {
++    groups:Vec<FlatDagGroup>, clusters:Vec<FlatDagCluster>,
++    p:Vec<[f32;3]>,n:Vec<[f32;3]>,uv:Vec<[f32;2]>,t:Vec<[f32;4]>,ix:Vec<u32>,q:f64,
++}
++impl Decoded {
++    fn read(path:&Path)->R<Self> {
++        let file=fs::read(path).map_err(|e|e.to_string())?;
++        let mut ws=Workspace::new(Limits{max_bytes:usize::MAX,max_work:u64::MAX});
++        let r=Reader::read_all(&file,&mut ws).map_err(|e|format!("{e:?}"))?;
++        let m=r.mesh();let mut old=vec![FlatDagCluster::default();m.cluster_count as usize];
++        let mut p=Vec::new();let mut n=Vec::new();let mut uv=Vec::new();let mut t=Vec::new();let mut ix=Vec::new();
++        let with_tangent=(0..r.attribute_count()).any(|i|r.attribute_channel(i).is_ok_and(|c|c.tag==3));
++        for page in 0..m.page_count as usize {
++            let rec=r.page(page).map_err(|e|format!("{e:?}"))?;
++            let mut words=vec![0;rec.memory_words as usize];
++            let view=r.transcode_page(page,&file[rec.disk_offset as usize..rec.disk_offset as usize+rec.disk_length as usize],&mut words,&mut ws).map_err(|e|format!("{e:?}"))?;
++            for c in 0..view.cluster_count() {
++                let desc=view.cluster(c).map_err(|e|format!("{e:?}"))?;
++                let global=rec.first_cluster as usize+c;
++                let base=u32::try_from(p.len()).map_err(|e|e.to_string())?;
++                let mut positions=[[0f32;3];256];let nv=view.decode_positions(c,&mut positions).map_err(|e|format!("{e:?}"))?;
++                p.extend_from_slice(&positions[..nv]);
++                let attrs=view.attributes(c).map_err(|e|format!("{e:?}"))?.ok_or("missing attributes")?;
++                let channel=|tag| (0..attrs.channel_count()).find(|&k|attrs.channel(k).is_ok_and(|c|c.tag==tag)).ok_or("missing channel");
++                let nc=channel(1)?;let uc=channel(2)?;let tc=if with_tangent {Some(channel(3)?)} else {None};
++                for v in 0..nv {
++                    let normal=attrs.decode(nc,v).map_err(|e|format!("{e:?}"))?;n.push([normal[0],normal[1],normal[2]]);
++                    let value=attrs.decode(uc,v).map_err(|e|format!("{e:?}"))?;uv.push([value[0],value[1]]);
++                    if let Some(k)=tc {t.push(attrs.decode(k,v).map_err(|e|format!("{e:?}"))?);}
++                }
++                let start=u32::try_from(ix.len()).map_err(|e|e.to_string())?;
++                let mut triangles=[[0u8;3];256];let nt=view.decode_triangles(c,&mut triangles).map_err(|e|format!("{e:?}"))?;
++                for tri in &triangles[..nt] {ix.extend(tri.map(|v|base+u32::from(v)));}
++                let (center,radius)=r.cluster_sphere(global).map_err(|e|format!("{e:?}"))?;
++                let record=&mut old[global];
++                record.first_index=start;record.index_count=(nt*3) as u32;
++                record.refined=r.cluster_refined(global).map_err(|e|format!("{e:?}"))?;
++                record.center=center;record.radius=radius;
++                assert_eq!(nt,desc.triangle_count as usize);
++            }
++        }
++        // Resident groups are coarse-first; the public CPU cut tables are fine-first.
++        let mut groups=Vec::new();let mut clusters=Vec::new();
++        for old_id in (0..m.group_count as usize).rev() {
++            let g=r.group(old_id).map_err(|e|format!("{e:?}"))?;
++            let gid=groups.len() as u32;let first=clusters.len() as u32;
++            for cid in g.first_cluster..g.first_cluster+g.cluster_count {
++                let mut c=old[cid as usize];c.group=gid;
++                if c.refined>=0 {c.refined=m.group_count as i32-1-c.refined;}
++                clusters.push(c);
++            }
++            let mut group=FlatDagGroup::default();group.center=g.center;group.radius=g.radius;group.error=g.error;
++            group.depth=g.depth as i32;group.first_cluster=first;group.cluster_count=g.cluster_count;
++            groups.push(group);
++        }
++        cut::check_monotonic(&groups,&clusters).map_err(|e|format!("decoded cut monotonicity: {e:?}"))?;
++        Ok(Self{groups,clusters,p,n,uv,t,ix,q:f64::from(m.max_displacement)})
++    }
++    fn mesh<'a>(&'a self,ix:&'a [u32])->Mesh<'a> {Mesh{p:&self.p,n:&self.n,uv:&self.uv,t:&self.t,ix}}
++    fn select(&self,view:&CutView,threshold:Threshold)->R<Vec<u32>> {
++        let mut out=vec![0;self.clusters.len()];
++        let n=cut::select_cut(&self.groups,&self.clusters,view,threshold,None,&mut out).map_err(|e|format!("{e:?}"))?;
++        out.truncate(n);out.sort_unstable();Ok(out)
++    }
++    fn indices(&self,ids:&[u32])->Vec<u32> {
++        ids.iter().flat_map(|&id| {let c=&self.clusters[id as usize];self.ix[c.first_index as usize..(c.first_index+c.index_count) as usize].iter().copied()}).collect()
++    }
++    fn claim(&self,ids:&[u32])->f64 {
++        ids.iter().map(|&id| {let r=self.clusters[id as usize].refined;if r<0 {self.q}else{f64::from(self.groups[r as usize].error)}}).fold(self.q,f64::max)
++    }
++}
++struct Measured {
++    frequency:usize,triangles:usize,normal:Vec<f32>,uv:Vec<f32>,tangent:Vec<f32>,
++    normal_max:f64,tangent_max:f64,geometry:f64,ratio:f64,sign_mismatches:u64,
++}
++fn measure_cut(dag:&Decoded,ids:&[u32],frequency:usize,source_tree:&Tree<'_>,source_samples:&[Probe],samples:usize)->R<Measured> {
++    let indices=dag.indices(ids);let mesh=dag.mesh(&indices);let tree=Tree::new(mesh)?;
++    let reverse=mesh.samples(samples)?;
++    let mut row=Measured{frequency,triangles:indices.len()/3,normal:Vec::with_capacity(samples*2),uv:Vec::with_capacity(samples*2),tangent:Vec::new(),normal_max:0.,tangent_max:0.,geometry:0.,ratio:0.,sign_mismatches:0};
++    let tangents=!mesh.t.is_empty() && !source_tree.mesh.t.is_empty();
++    for (points,target) in [(source_samples,&tree),(reverse.as_slice(),source_tree)] {
++        for point in points {
++            let hit=target.nearest(point.p);let other=target.mesh.at(hit.id,hit.w);
++            let normal=angle(point.normal,other.normal);row.normal.push(normal as f32);row.normal_max=row.normal_max.max(normal);
++            let uv=((point.uv[0]-other.uv[0]).powi(2)+(point.uv[1]-other.uv[1]).powi(2)).sqrt();
++            if !uv.is_finite() || !normal.is_finite() {return Err("nonfinite probe measurement".into());}
++            row.uv.push(uv as f32);
++            row.geometry=row.geometry.max(hit.d.sqrt());
++            if tangents {
++                let value=angle(point.tangent,other.tangent);
++                row.tangent.push(value as f32);row.tangent_max=row.tangent_max.max(value);
++                row.sign_mismatches+=u64::from(point.sign!=other.sign);
++            }
++        }
++    }
++    row.ratio=row.geometry/dag.claim(ids);
++    if !row.ratio.is_finite() {return Err("nonfinite geometric ratio".into());}
++    row.normal.sort_unstable_by(f32::total_cmp);row.uv.sort_unstable_by(f32::total_cmp);row.tangent.sort_unstable_by(f32::total_cmp);
++    Ok(row)
++}
++fn quantile<'a>(values:impl Iterator<Item=(&'a [f32],usize)>+Clone,q:f64)->f64 {
++    let count:usize=values.clone().map(|(v,f)|v.len()*f).sum();
++    if count==0 {return 0.0;}
++    let rank=((count as f64*q).ceil() as usize).max(1);
++    let mut lo=values.clone().filter_map(|(v,_)|v.first()).map(|x|x.to_bits()).min().unwrap_or(0);
++    let mut hi=values.clone().filter_map(|(v,_)|v.last()).map(|x|x.to_bits()).max().unwrap_or(0);
++    while lo<hi {
++        let mid=lo+(hi-lo)/2;
++        let n:usize=values.clone().map(|(v,f)|v.partition_point(|x|x.to_bits()<=mid)*f).sum();
++        if n>=rank {hi=mid;}else{lo=mid+1;}
++    }
++    f64::from(f32::from_bits(lo))
++}
++pub fn evaluate(args:&[String])->R<()> {
++    let positional=crate::positional(args);
++    let path=positional.first().ok_or("shade-eval source.vgm artifact...")?;
++    if positional.len()<2 {return Err("missing shade artifacts".into());}
++    let samples=crate::num(args,"--samples",65536usize);
++    if samples==0 {return Err("zero probes".into());}
++    let dirs=crate::num(args,"--dirs",64usize);let jobs=crate::num(args,"--jobs",8usize);
++    if dirs==0 || jobs==0 {return Err("zero directions/jobs".into());}
++    let mut source=Source::load(Path::new(path.as_str()))?;
++    let tangent_stats=match crate::flag(args,"--with-tangents").as_deref() { Some("1")=>source.derive_tangents()?, None|Some("0")=>(0,0), _=>return Err("with-tangents needs 0 or 1".into()) };
++    let src=Mesh{p:&source.positions,n:&source.normals,uv:&source.uvs,t:&source.tangents,ix:&source.indices};
++    let source_tree=Tree::new(src)?;let probes=src.samples(samples)?;
++    let pool=rayon::ThreadPoolBuilder::new().num_threads(jobs).build().map_err(|e|e.to_string())?;
++    let directions=camera::directions(dirs);let spans=[64.,128.,256.,512.,1024.,2048.];
++    for artifact in &positional[1..] {
++        let dag=Decoded::read(Path::new(artifact.as_str()))?;
++        if !dag.t.is_empty() && source.tangents.is_empty() {return Err("artifact tangents require source tangents".into());}
++        let mut unique:BTreeMap<Vec<u32>,usize>=BTreeMap::new();
++        for &span in &spans {for &direction in &directions {
++            let eye=camera::View::orbit(direction,camera::distance_for_span(f64::from(source.radius()),span)).eye;
++            let view=CutView{position:eye.map(|x|x as f32),projection:Projection::Perspective{proj_y:camera::proj11() as f32,znear:camera::NEAR as f32},viewport_height:camera::VIEWPORT_H as f32,scale:1.0};
++            let ids=dag.select(&view,Threshold::Pixels(1.0))?;
++            if unique.is_empty() {
++                let finest=dag.select(&view,Threshold::Finest)?;
++                if dag.indices(&finest).len()!=source.indices.len() {return Err("finest triangle identity".into());}
++                let mut oracle=vec![0;dag.clusters.len()];
++                let n=cut::refine_sequential(&dag.groups,&dag.clusters,&view,Threshold::Pixels(1.0),None,&mut oracle).map_err(|e|format!("cut oracle: {e:?}"))?;
++                oracle.truncate(n);oracle.sort_unstable();if oracle!=ids {return Err("cut oracle mismatch".into());}
++            }
++            *unique.entry(ids).or_default()+=1;
++        }}
++        let cases:Vec<_>=unique.into_iter().collect();
++        let measured:Vec<Measured>=pool.install(||cases.par_iter().map(|(ids,f)|measure_cut(&dag,ids,*f,&source_tree,&probes,samples)).collect::<R<Vec<_>>>())?;
++        let views=dirs*spans.len();
++        let avg=measured.iter().map(|r|r.triangles*r.frequency).sum::<usize>() as f64/views as f64;
++        let ratios:Vec<f64>=measured.iter().flat_map(|r|std::iter::repeat_n(r.ratio,r.frequency)).collect();
++        let mut ratios=ratios;ratios.sort_by(f64::total_cmp);
++        let q=|v:&[f64],f:f64|v[((v.len() as f64*f).ceil() as usize).saturating_sub(1)];
++        let mut line=Json::new().text("kind","shading_cut").text("artifact",artifact)
++            .with("threshold_px",1).with("views",views).with("unique_cuts",measured.len())
++            .with("samples_each_direction",samples).with("pooled_samples",2*samples*views)
++            .with("mean_triangles",avg)
++            .with("normal_p95_deg",quantile(measured.iter().map(|r|(r.normal.as_slice(),r.frequency)),0.95))
++            .with("normal_max_deg",measured.iter().map(|r|r.normal_max).fold(0.,f64::max))
++            .with("uv_p95",quantile(measured.iter().map(|r|(r.uv.as_slice(),r.frequency)),0.95))
++            .with("geometric_median_ratio",q(&ratios,0.5)).with("geometric_p95_ratio",q(&ratios,0.95)).with("geometric_max_ratio",q(&ratios,1.0))
++            .with("tangent_degenerate_triangles",tangent_stats.0).with("tangent_fallback_vertices",tangent_stats.1)
++            .with("cut_oracle_pass",true);
++        if !dag.t.is_empty() {
++            line=line.with("tangent_p95_deg",quantile(measured.iter().map(|r|(r.tangent.as_slice(),r.frequency)),0.95))
++                .with("tangent_max_deg",measured.iter().map(|r|r.tangent_max).fold(0.,f64::max))
++                .with("tangent_sign_mismatch_fraction",measured.iter().map(|r|r.sign_mismatches*r.frequency as u64).sum::<u64>() as f64/(2*samples*views) as f64);
++        }
++        println!("{line}");
++    }
++    Ok(())
++}
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn quantiles_keep_view_multiplicity() {
++        let a=[1.,3.];let b=[2.,4.];let v=[(a.as_slice(),1),(b.as_slice(),3)];
++        assert_eq!(quantile(v.iter().copied(),0.5),2.);
++        assert_eq!(quantile(v.iter().copied(),0.95),4.);
++    }
++    #[test]
++    fn nearest_interpolation_preserves_known_normal_angle() {
++        let p=[[0.,0.,0.],[1.,0.,0.],[0.,1.,0.]];
++        let n=[[0.,0.,1.];3];let other=[[0.5,0.,0.8660254];3];
++        let uv=[[0.,0.],[1.,0.],[0.,1.]];let ix=[0,1,2];
++        let a=Mesh{p:&p,n:&n,uv:&uv,t:&[],ix:&ix};
++        let b=Mesh{n:&other,..a};let tree=Tree::new(b).expect("tree");
++        for point in a.samples(128).expect("samples") {
++            let hit=tree.nearest(point.p);let target=tree.mesh.at(hit.id,hit.w);
++            assert!(hit.d<1e-28);
++            assert!((angle(point.normal,target.normal)-30.).abs()<1e-5);
++        }
++    }
++    #[test]
++    fn gradient_tangent_matches_planar_uv_chart() {
++        let mut src=Source{positions:vec![[0.,0.,0.],[1.,0.,0.],[0.,1.,0.]],normals:vec![[0.,0.,1.];3],uvs:vec![[0.,0.],[1.,0.],[0.,1.]],indices:vec![0,1,2],..Source::default()};
++        assert_eq!(src.derive_tangents().expect("tangents"),(0,0));
++        assert!(src.tangents.iter().all(|t|*t==[1.,0.,0.,1.]));
++    }
++    #[test]
++    fn nearest_tree_matches_brute_force_with_ties_and_degenerates() {
++        let mut p=Vec::new();
++        for id in 0..32 {
++            let x=(id%4) as f32*0.7;let y=(id/4) as f32*0.4;
++            let z=((id*7)%11) as f32*0.13;
++            p.extend([[x,y,z],[x+0.3,y,z+0.1],[x,y+0.2,z-0.1]]);
++        }
++        let first=[p[0],p[1],p[2]];p.extend(first);p.extend([[2.,2.,2.];3]);
++        let n=vec![[0.,0.,1.];p.len()];let uv=vec![[0.,0.];p.len()];
++        let ix:Vec<_>=(0..p.len() as u32).collect();
++        let mesh=Mesh{p:&p,n:&n,uv:&uv,t:&[],ix:&ix};let tree=Tree::new(mesh).expect("tree");
++        let queries=p.iter().map(|x|x.map(f64::from)).chain((0..101).map(|i|[
++            (i%17) as f64*0.23-0.4,(i%13) as f64*0.31-0.2,(i%7) as f64*0.21-0.3]));
++        for point in queries {
++            let mut brute=Hit{d:f64::INFINITY,id:usize::MAX,w:[0.;3]};
++            for id in 0..ix.len()/3 {
++                let (d,w)=closest(mesh.triangle(id),point);
++                if d<brute.d || (d==brute.d && id<brute.id) {brute=Hit{d,id,w};}
++            }
++            let hit=tree.nearest(point);
++            assert_eq!(hit.id,brute.id,"query {point:?}");
++            assert_eq!(hit.d.to_bits(),brute.d.to_bits());assert_eq!(hit.w,brute.w);
++        }
++    }
++
++}
+--- a/tests/vg_build_v2.rs
++++ b/tests/vg_build_v2.rs
+@@ -251,3 +251,60 @@
+     c.simplify_dilate_borders = true;
+     assert!(v2::build(c, BuildMesh::new(&i, &p), grid, &mut Workspace::default()).is_err());
+ }
++
++#[test]
++fn normal_error_weight_is_optional_and_keyed() {
++    use meshoptimizer_rs::clusterlod::{self,dag_format::v2 as format,page::QuantGrid,v2::{self,BuildMesh}};
++    use meshoptimizer_rs::{Workspace,Error};
++    let p=[[0.,0.,0.],[1.,0.,0.],[0.,1.,0.]];let i=[0u32,1,2];
++    let c=clusterlod::default_config(16).expect("config");let grid=QuantGrid::new(-22).expect("grid");
++    let build=|weight| {
++        let mut mesh=BuildMesh::new(&i,&p);mesh.normal_error_weight=weight;
++        v2::build(c,mesh,grid,&mut Workspace::default())
++    };
++    let a=build(0.0).expect("disabled");let b=build(1.0).expect("absent normals");
++    assert_eq!(a.positions,b.positions);assert_eq!(a.indices,b.indices);
++    let encode=|out:&v2::Built| {
++        format::write(&format::Source::new(&out.groups,&out.clusters,&out.positions,&out.indices),
++                      &format::WriteOptions::new(grid),&mut Workspace::default()).expect("write").0
++    };
++    assert_eq!(encode(&a),encode(&b));
++    for weight in [-1.0,f32::NAN,f32::INFINITY] {assert!(matches!(build(weight),Err(Error::InvalidParameter)));}
++    let normals=[[0.,0.,1.];3];let options=format::WriteOptions::new(grid);
++    let mut keys=Vec::new();
++    for weight in [0.0,0.25,0.5,1.0] {
++        let mut input=format::KeyInputs::new(&c,&options,&p,&i);input.normals=Some(&normals);input.normal_error_weight=weight;
++        keys.push(format::build_key(&input));
++    }
++    keys.sort_unstable();assert!(keys.windows(2).all(|w|w[0]!=w[1]));
++    let mut plain=format::KeyInputs::new(&c,&options,&p,&i);plain.normal_error_weight=0.0;
++    let old=format::build_key(&plain);plain.normal_error_weight=1.0;assert_eq!(old,format::build_key(&plain));
++}
++#[test]
++fn shading_error_is_inherited_without_changing_topology() {
++    use meshoptimizer_rs::clusterlod::{self,page::QuantGrid,v2::{self,BuildMesh}};
++    use meshoptimizer_rs::Workspace;
++    let mut p=Vec::new();let mut n=Vec::new();let mut i=Vec::new();
++    for y in 0..9 {for x in 0..9 {
++        p.push([x as f32/8.0,y as f32/8.0,0.0]);
++        let k=(x as f32/8.0-0.5)*0.5;let len=libm::sqrt(f64::from(k*k+1.0)) as f32;
++        n.push([k/len,0.,1./len]);
++    }}
++    for y in 0..8 {for x in 0..8 {let a=(y*9+x) as u32;i.extend_from_slice(&[a,a+1,a+10,a,a+10,a+9]);}}
++    let mut config=clusterlod::default_config(16).expect("config");config.partition_size=2;
++    let build=|weight| {
++        let mut mesh=BuildMesh::new(&i,&p);mesh.normals=Some(&n);mesh.normal_error_weight=weight;
++        v2::build(config,mesh,QuantGrid::new(-22).expect("grid"),&mut Workspace::default()).expect("build")
++    };
++    let baseline=build(0.0);
++    for weight in [0.25,0.5,1.0] {
++        let out=build(weight);assert_eq!(out.positions,baseline.positions);assert_eq!(out.indices,baseline.indices);
++        assert_eq!(out.groups.len(),baseline.groups.len());
++        for (g,b) in out.groups.iter().zip(&baseline.groups) {assert!(g.error>=b.error);}
++        for g in &out.groups {
++            for c in &out.clusters[g.first_cluster as usize..(g.first_cluster+g.cluster_count) as usize] {
++                if c.refined>=0 {assert!(g.error>=out.groups[c.refined as usize].error);}
++            }
++        }
++    }
++}

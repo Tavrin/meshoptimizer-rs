@@ -119,11 +119,11 @@ pub struct Built {
 ///
 /// | Source triangles | Peak accounted bytes | Counted visits | Bytes/triangle | Visits/triangle |
 /// | ---: | ---: | ---: | ---: | ---: |
-/// | 69,451 | 20,792,603 | 121,001,449 | 299.4 | 1,742.3 |
-/// | 83,128 | 24,057,919 | 140,396,021 | 289.4 | 1,688.9 |
-/// | 97,964 | 27,456,109 | 166,471,905 | 280.3 | 1,699.3 |
-/// | 679,936 | 138,275,489 | 1,236,391,663 | 203.4 | 1,818.4 |
-/// | 871,414 | 170,885,388 | 1,647,221,498 | 196.1 | 1,890.3 |
+/// | 69,451 | 20,792,603 | 120,376,811 | 299.4 | 1,733.3 |
+/// | 83,128 | 24,057,919 | 138,556,852 | 289.4 | 1,666.8 |
+/// | 97,964 | 27,456,109 | 164,606,079 | 280.3 | 1,680.3 |
+/// | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
+/// | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
 ///
 /// [`suggested_limits`] supplies an empirical starting budget for this range.
 /// Triangle count alone does not bound unused vertices, attribute
@@ -520,7 +520,14 @@ fn measure_region(
         simplified.extend_from_slice(triangles);
         cursor = next[i];
     }
-    let measured = region_error(&source, &simplified, source_positions, &out.positions, ctx)?;
+    let measured = region_error(
+        &source,
+        &simplified,
+        source_positions,
+        &out.positions,
+        out.groups[g].error,
+        ctx,
+    )?;
     ctx.free(visited)?;
     ctx.free(stack)?;
     ctx.free(source)?;
@@ -598,9 +605,10 @@ pub(super) fn step_error(
     input: &[u32],
     output: &[u32],
     positions: &[[f32; 3]],
+    floor: f32,
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
-    region_error(input, output, positions, positions, ctx)
+    region_error(input, output, positions, positions, floor, ctx)
 }
 
 fn region_error(
@@ -608,6 +616,7 @@ fn region_error(
     output: &[u32],
     positions: &[[f32; 3]],
     output_positions: &[[f32; 3]],
+    floor: f32,
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
     let mut area = 0f64;
@@ -632,6 +641,7 @@ fn region_error(
             LodQualityMesh::new(input, Positions::from_packed(positions)),
             LodQualityMesh::new(output, Positions::from_packed(output_positions)),
             &options,
+            floor,
             ws,
         )?;
         measured = super::bounds_math::f32_up(maximum);
@@ -902,9 +912,9 @@ mod source_error_tests {
         let c: Vec<u32> = (6..9).collect();
         let mut workspace = Workspace::default();
         let mut ctx = Context::new(&mut workspace).expect("workspace");
-        assert_eq!(step_error(&a, &b, &positions, &mut ctx), Ok(1.));
-        assert_eq!(step_error(&b, &c, &positions, &mut ctx), Ok(1.));
-        assert_eq!(step_error(&a, &c, &positions, &mut ctx), Ok(2.));
+        assert_eq!(step_error(&a, &b, &positions, 0.0, &mut ctx), Ok(1.));
+        assert_eq!(step_error(&b, &c, &positions, 0.0, &mut ctx), Ok(1.));
+        assert_eq!(step_error(&a, &c, &positions, 0.0, &mut ctx), Ok(2.));
         let mut built = Built {
             positions: positions.clone(),
             vertex_source: (0..9).collect(),

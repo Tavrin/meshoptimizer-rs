@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Calibrate MDAG 2 sampled maxima above error floors already retained by the caller,
+  preserving all samples and output bytes while avoiding queries that cannot raise stored errors.
 - Add `clusterlod::v2::suggested_limits` with checked empirical storage/work budgets,
   calibrated on five meshes through 871,414 source triangles. This is a starting
   budget, not a triangle-count guarantee.

@@ -674,20 +674,16 @@ The finite-budget calibration of the retained builder uses fresh workspaces,
 
 | Mesh | Source triangles | Peak accounted bytes | Counted visits | Bytes/source triangle | Visits/source triangle |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| bunny | 69,451 | 20,792,603 | 121,001,449 | 299.4 | 1,742.3 |
-| dead_tree_trunk_02 | 83,128 | 24,057,919 | 140,396,021 | 289.4 | 1,688.9 |
-| namaqualand_boulder_02 | 97,964 | 27,456,109 | 166,471,905 | 280.3 | 1,699.3 |
-| coast_rocks_01 | 679,936 | 138,275,489 | 1,236,391,663 | 203.4 | 1,818.4 |
-| dragon | 871,414 | 170,885,388 | 1,647,221,498 | 196.1 | 1,890.3 |
+| bunny | 69,451 | 20,792,603 | 120,376,811 | 299.4 | 1,733.3 |
+| dead_tree_trunk_02 | 83,128 | 24,057,919 | 138,556,852 | 289.4 | 1,666.8 |
+| namaqualand_boulder_02 | 97,964 | 27,456,109 | 164,606,079 | 280.3 | 1,680.3 |
+| coast_rocks_01 | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
+| dragon | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
 
 `clusterlod::v2::suggested_limits(T)` suggests 16 MiB + 512T bytes and
 2^24 + 4096T visits, using checked arithmetic. These allowances exceed twice
 the observed peaks and work across this range. They are empirical starting
-budgets, rather than upper bounds for arbitrary meshes. The helper passed on all five meshes in the rejected leaf experiment. Final
-retained-builder helper validation and gates are pending under human hold; the
-original-policy calibration above is complete. The four-triangle distance-tree experiment
-was rejected after its interleaved timing campaign. Use successful
-high-budget runs for calibration. A failed call's usage covers only its executed
+budgets, rather than upper bounds for arbitrary meshes. The helper passed on all five meshes with the selected builder. Initial retained-source gates and the storage-only dragon isolation also passed. Variant measurements and final gate receipts are recorded in the benchmark continuation report. Use successful high-budget runs for calibration. A failed call's usage covers only its executed
 prefix, so it can understate both eventual peak storage and total work.
 `LimitExceeded` can indicate either storage or work exhaustion. Raising both
 budgets together demonstrates success but does not identify which budget was too

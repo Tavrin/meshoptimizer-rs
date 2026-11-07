@@ -1,0 +1,72 @@
+[
+  {
+    "kind": "limits",
+    "mesh": "bunny",
+    "source_triangles": 69451,
+    "source_vertices": 35947,
+    "max_bytes": 52336128,
+    "max_work": 301248512,
+    "peak_bytes": 20792603,
+    "work": 121001449,
+    "bytes_per_source_triangle": 299.3852212351154,
+    "work_per_source_triangle": 1742.2563965961613,
+    "pass": true,
+    "result": "Ok(())"
+  },
+  {
+    "kind": "limits",
+    "mesh": "dead_tree_trunk_02",
+    "source_triangles": 83128,
+    "source_vertices": 46112,
+    "max_bytes": 59338752,
+    "max_work": 357269504,
+    "peak_bytes": 24057919,
+    "work": 140396021,
+    "bytes_per_source_triangle": 289.4081296314118,
+    "work_per_source_triangle": 1688.9137354441343,
+    "pass": true,
+    "result": "Ok(())"
+  },
+  {
+    "kind": "limits",
+    "mesh": "namaqualand_boulder_02",
+    "source_triangles": 97964,
+    "source_vertices": 53437,
+    "max_bytes": 66934784,
+    "max_work": 418037760,
+    "peak_bytes": 27456109,
+    "work": 166471905,
+    "bytes_per_source_triangle": 280.2673328977992,
+    "work_per_source_triangle": 1699.3171471152668,
+    "pass": true,
+    "result": "Ok(())"
+  },
+  {
+    "kind": "limits",
+    "mesh": "coast_rocks_01",
+    "source_triangles": 679936,
+    "source_vertices": 348785,
+    "max_bytes": 364904448,
+    "max_work": 2801795072,
+    "peak_bytes": 138275489,
+    "work": 1236391663,
+    "bytes_per_source_triangle": 203.36544763036522,
+    "work_per_source_triangle": 1818.3941768048758,
+    "pass": true,
+    "result": "Ok(())"
+  },
+  {
+    "kind": "limits",
+    "mesh": "dragon",
+    "source_triangles": 871414,
+    "source_vertices": 437645,
+    "max_bytes": 462941184,
+    "max_work": 3586088960,
+    "peak_bytes": 170885388,
+    "work": 1647221498,
+    "bytes_per_source_triangle": 196.101265299846,
+    "work_per_source_triangle": 1890.2857860901936,
+    "pass": true,
+    "result": "Ok(())"
+  }
+]

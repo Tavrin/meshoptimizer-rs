@@ -342,24 +342,39 @@ fn measure<I: crate::Index>(
 }
 // The builder consumes only the symmetric maximum. Keep the public statistics
 // path exact, including nearest-triangle ties, RMS and shading normals.
+// The private floor is already retained by the builder: return the greater of
+// that floor and the sampled maximum without querying irrelevant distances.
 #[cfg(feature = "clusterlod")]
 pub(crate) fn measure_max(
     source: LodQualityMesh<'_>,
     level: LodQualityMesh<'_>,
     options: &LodQualityOptions,
+    floor: f32,
     workspace: &mut Workspace,
 ) -> Result<f64, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         validate_options(options)?;
+        if !floor.is_finite() || floor < 0.0 {
+            return Err(Error::InvalidParameter);
+        }
+        // The caller already retains this floor. Its square is exact in f64
+        // for every finite f32, so queries need only find samples above it.
+        let floor = if floor == 0.0 { 0.0 } else { f64::from(floor) };
+        let cutoff = floor * floor;
         let source: LodQualityMeshGeneric<'_, u32> = source.into();
         let level: LodQualityMeshGeneric<'_, u32> = level.into();
         validate(source, &mut work)?;
         validate(level, &mut work)?;
         let mut budget = Budget::new(workspace);
-        let a = direction::<u32, true, 0>(source, level, options, &mut budget, &mut work, 0.0)?;
+        let a = direction::<u32, true, 0>(source, level, options, &mut budget, &mut work, cutoff)?;
         let b = direction::<u32, true, 0>(level, source, options, &mut budget, &mut work, a.max)?;
-        Ok(libm::sqrt(b.max))
+        // Avoid a sqrt round trip when no sample exceeds the existing floor.
+        Ok(if b.max == cutoff {
+            floor
+        } else {
+            libm::sqrt(b.max)
+        })
     })();
     workspace.finish(&work);
     result
@@ -968,9 +983,20 @@ mod maximum_tests {
                     let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
                     let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
                         .expect("full measurement");
-                    let maximum = measure_max(a, b, &options, &mut Workspace::default())
-                        .expect("maximum measurement");
-                    assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+                    let rounded = full.symmetric.max as f32;
+                    for floor in [
+                        0.0,
+                        f32::from_bits(rounded.to_bits().saturating_sub(1)),
+                        rounded,
+                        f32::from_bits(rounded.to_bits() + 1),
+                    ] {
+                        let maximum = measure_max(a, b, &options, floor, &mut Workspace::default())
+                            .expect("maximum measurement");
+                        assert_eq!(
+                            maximum.to_bits(),
+                            full.symmetric.max.max(f64::from(floor)).to_bits()
+                        );
+                    }
                 }
             }
         }
@@ -999,9 +1025,14 @@ mod maximum_tests {
                 let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
                 let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
                     .expect("full measurement");
-                let maximum = measure_max(a, b, &options, &mut Workspace::default())
-                    .expect("maximum measurement");
-                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+                for floor in [0.0, f32::MIN_POSITIVE, 0.03125, 1.0, f32::MAX] {
+                    let maximum = measure_max(a, b, &options, floor, &mut Workspace::default())
+                        .expect("maximum measurement");
+                    assert_eq!(
+                        maximum.to_bits(),
+                        full.symmetric.max.max(f64::from(floor)).to_bits()
+                    );
+                }
             }
         }
     }

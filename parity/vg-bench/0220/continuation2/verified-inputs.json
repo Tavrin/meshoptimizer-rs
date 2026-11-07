@@ -1,0 +1,10 @@
+{
+  "vgm_inputs": {
+    "bunny.vgm": "080825fd6fe11138dcf047d2637d3937394d0d1a82d8ebd74e6100a2b7286320",
+    "coast_rocks_01.vgm": "6a3011fbd0f94df851bbf5c98d2cb14643932a47d80cbafbb33a3124a695d94b",
+    "dead_tree_trunk_02.vgm": "a939434317818772c38c2228221f4015b674cdbe92f476e4e39fc103b9a6d383",
+    "dragon.vgm": "f8a8e4e04081d36a1ef02ab2f3f28a64e5a26e6cd31df20e0a82fe131703db94",
+    "namaqualand_boulder_02.vgm": "77d2e2c62e14c0cfd63b318bdfc42c514e9acc7902dcbffd58835204db260ce8"
+  },
+  "control_binary": "4eca28cd982f1563be70eaf92f47ec88ff89c213c88715ea5ab42622b7d84d17"
+}
