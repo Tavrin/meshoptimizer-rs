@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add an opt-in sampled normal-loss displacement to MDAG 2 original-source
+  group errors through `BuildMesh::normal_error_weight`, with geometric floors
+  and monotone inheritance retained. Builder revision 8 binds this weight in
+  cook keys; the container layout is unchanged. Validation and default selection
+  remain pending; the candidate default is disabled (zero).
 - Calibrate MDAG 2 sampled maxima above error floors already retained by the caller,
   preserving all samples and output bytes while avoiding queries that cannot raise stored errors.
 - Add `clusterlod::v2::suggested_limits` with checked empirical storage/work budgets,

@@ -2,6 +2,9 @@
 use super::*;
 use crate::{LodQualityMesh, LodQualityOptions};
 
+// Disabled until the recorded shading-weight comparison chooses a default.
+pub(super) const DEFAULT_NORMAL_ERROR_WEIGHT: f32 = 0.0;
+
 /// Inputs for a static virtual-geometry build.
 #[non_exhaustive]
 pub struct BuildMesh<'a> {
@@ -11,6 +14,13 @@ pub struct BuildMesh<'a> {
     pub positions: &'a [[f32; 3]],
     /// Optional unit normals, weighted by 0.5 in simplification.
     pub normals: Option<&'a [[f32; 3]]>,
+    /// Weight of sampled normal-loss displacement; zero disables it.
+    /// Only applies when normals are supplied. Must be finite and nonnegative.
+    /// For each original-source region, L is its largest source/replacement
+    /// triangle edge and theta its maximum sampled normal angle. The error is
+    /// at least 2 * weight * L * sin(theta / 2), inherited monotonically.
+    /// This is a shading proxy, not a BRDF or texture-error certificate.
+    pub normal_error_weight: f32,
     /// Optional checked attributes in source vertex order.
     pub attributes: Option<Attributes<'a>>,
     /// Weights for the supplied attribute components.
@@ -31,6 +41,7 @@ impl<'a> BuildMesh<'a> {
             indices,
             positions,
             normals: None,
+            normal_error_weight: DEFAULT_NORMAL_ERROR_WEIGHT,
             attributes: None,
             attribute_weights: &[],
             attribute_protect_mask: 0,
@@ -114,7 +125,7 @@ pub struct Built {
 /// caller buffers, allocator overhead, thread stacks and later serialization
 /// need separate memory allowances. Work counts visits, not instructions or time.
 ///
-/// Calibration of the retained builder, with fresh finite workspaces,
+/// Calibration with normal-error weight zero and fresh finite workspaces,
 /// `default_config(128)`, normals at weight 0.5 and grid -22:
 ///
 /// | Source triangles | Peak accounted bytes | Counted visits | Bytes/triangle | Visits/triangle |
@@ -143,6 +154,9 @@ pub fn build(
     workspace: &mut Workspace,
 ) -> Result<Built, Error> {
     let mut ctx = Context::new(workspace)?;
+    if !mesh.normal_error_weight.is_finite() || mesh.normal_error_weight < 0.0 {
+        return Err(Error::InvalidParameter);
+    }
     if config.simplify_dilate_borders || config.simplify_error_merge_previous < 1.0 {
         return Err(Error::InvalidParameter);
     }
@@ -365,18 +379,52 @@ pub fn build(
     ctx.free(topology)?;
     ctx.free(weights)?;
     ctx.free(locks)?;
-    source_error_floor(&mut out, mesh.positions, &mut ctx)?;
+    source_error_floor(
+        &mut out,
+        mesh.positions,
+        mesh.normals,
+        mesh.normal_error_weight,
+        &mut ctx,
+    )?;
     Ok(out)
 }
 
 // A cluster split can send siblings to different parents. Follow refined groups
 // once per region, not once per cluster: each replacement represents the union
 // of all source triangles under the group, including siblings in other parents.
+#[derive(Clone, Copy)]
+struct NormalMetric<'a> {
+    normals: &'a [[f32; 3]],
+    weight: f32,
+}
+
 fn source_error_floor(
     out: &mut Built,
     original_positions: &[[f32; 3]],
+    normals: Option<&[[f32; 3]]>,
+    normal_weight: f32,
     ctx: &mut Context<'_>,
 ) -> Result<(), Error> {
+    let normal_count = if normals.is_some() && normal_weight > 0.0 {
+        out.positions.len()
+    } else {
+        0
+    };
+    let mut mapped_normals = ctx.alloc::<[f32; 3]>(normal_count)?;
+    ctx.tick(mapped_normals.len())?;
+    if let Some(normals) = normals {
+        for (normal, &id) in mapped_normals.iter_mut().zip(&out.vertex_source) {
+            *normal = normals[id as usize];
+        }
+    }
+    let normal_metric = if mapped_normals.is_empty() {
+        None
+    } else {
+        Some(NormalMetric {
+            normals: &mapped_normals,
+            weight: normal_weight,
+        })
+    };
     let mut source_positions = ctx.alloc(out.positions.len())?;
     ctx.tick(source_positions.len())?;
     for (p, &id) in source_positions.iter_mut().zip(&out.vertex_source) {
@@ -426,6 +474,7 @@ fn source_error_floor(
                                 &heads,
                                 &next,
                                 &source_positions,
+                                normal_metric,
                                 &mut local,
                             )
                         }));
@@ -447,7 +496,7 @@ fn source_error_floor(
         }
     } else {
         for (g, value) in measured.iter_mut().enumerate() {
-            *value = measure_region(out, g, &heads, &next, &source_positions, ctx)?;
+            *value = measure_region(out, g, &heads, &next, &source_positions, normal_metric, ctx)?;
         }
     }
     // Measurement is independent of inherited errors. Commit in emission order.
@@ -466,6 +515,7 @@ fn source_error_floor(
         out.groups[g].error = out.groups[g].error.max(inherited).max(value);
     }
     ctx.free(source_positions)?;
+    ctx.free(mapped_normals)?;
     ctx.free(heads)?;
     ctx.free(next)?;
     Ok(())
@@ -477,6 +527,7 @@ fn measure_region(
     heads: &[Option<usize>],
     next: &[Option<usize>],
     source_positions: &[[f32; 3]],
+    normal_metric: Option<NormalMetric<'_>>,
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
     if out.groups[g].error == f32::MAX {
@@ -526,6 +577,7 @@ fn measure_region(
         source_positions,
         &out.positions,
         out.groups[g].error,
+        normal_metric,
         ctx,
     )?;
     ctx.free(visited)?;
@@ -608,7 +660,7 @@ pub(super) fn step_error(
     floor: f32,
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
-    region_error(input, output, positions, positions, floor, ctx)
+    region_error(input, output, positions, positions, floor, None, ctx)
 }
 
 fn region_error(
@@ -617,9 +669,14 @@ fn region_error(
     positions: &[[f32; 3]],
     output_positions: &[[f32; 3]],
     floor: f32,
+    normal_metric: Option<NormalMetric<'_>>,
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
     let mut area = 0f64;
+    let mut edge_squared = 0f64;
+    let reference_normal =
+        normal_metric.and_then(|m| input.first().map(|&i| m.normals[i as usize]));
+    let mut constant_normals = normal_metric.is_some();
     ctx.tick(input.len())?;
     for t in input.as_chunks::<3>().0 {
         let [a, b, c] = t.map(|i| positions[i as usize].map(f64::from));
@@ -631,22 +688,58 @@ fn region_error(
             u[0] * v[1] - u[1] * v[0],
         ];
         area += libm::sqrt(n.iter().map(|x| x * x).sum::<f64>()) * 0.5;
+        if let Some(metric) = normal_metric {
+            constant_normals &= t
+                .iter()
+                .all(|&i| Some(metric.normals[i as usize]) == reference_normal);
+            for edge in [u, v, core::array::from_fn(|k| v[k] - u[k])] {
+                edge_squared = edge_squared.max(edge.iter().map(|x| x * x).sum());
+            }
+        }
     }
+    if let Some(metric) = normal_metric {
+        ctx.tick(output.len())?;
+        for t in output.as_chunks::<3>().0 {
+            constant_normals &= t
+                .iter()
+                .all(|&i| Some(metric.normals[i as usize]) == reference_normal);
+            let p = t.map(|i| output_positions[i as usize].map(f64::from));
+            for (a, b) in [(0, 1), (1, 2), (2, 0)] {
+                let edge: [f64; 3] = core::array::from_fn(|k| p[b][k] - p[a][k]);
+                edge_squared = edge_squared.max(edge.iter().map(|x| x * x).sum());
+            }
+        }
+    }
+    let local_edge = libm::sqrt(edge_squared);
+    // A unit-normal chord is at most two. An already larger positional floor
+    // makes the angular pass unnecessary without changing the stored result.
+    let normal_metric = normal_metric.filter(|m| {
+        !constant_normals && (f64::from(m.weight) * 2.0) * local_edge > f64::from(floor)
+    });
     let options = LodQualityOptions {
         samples_per_unit_area: 4000.0 / area.max(1e-12),
     };
     let mut measured = 0.0;
     ctx.child(|ws| {
-        let maximum = crate::lod_quality::measure_max(
-            LodQualityMesh::new(input, Positions::from_packed(positions)),
-            LodQualityMesh::new(output, Positions::from_packed(output_positions)),
-            &options,
-            floor,
-            ws,
-        )?;
+        let mut source = LodQualityMesh::new(input, Positions::from_packed(positions));
+        let mut target = LodQualityMesh::new(output, Positions::from_packed(output_positions));
+        let maximum = if let Some(metric) = normal_metric {
+            source.normals = Some(metric.normals);
+            target.normals = Some(metric.normals);
+            let (geometry, chord) =
+                crate::lod_quality::measure_normal_max(source, target, &options, ws)?;
+            geometry
+                .max((f64::from(metric.weight) * chord) * local_edge)
+                .max(f64::from(floor))
+        } else {
+            crate::lod_quality::measure_max(source, target, &options, floor, ws)?
+        };
         measured = super::bounds_math::f32_up(maximum);
         Ok(())
     })?;
+    if !measured.is_finite() {
+        return Err(Error::NumericalFailure);
+    }
     Ok(measured)
 }
 
@@ -936,9 +1029,104 @@ mod source_error_tests {
                 ..FlatDagCluster::default()
             });
         }
-        source_error_floor(&mut built, &positions, &mut ctx).expect("source measurement");
+        source_error_floor(&mut built, &positions, None, 0.0, &mut ctx)
+            .expect("source measurement");
         assert_eq!(built.groups[0].error, 1.);
         assert_eq!(built.groups[1].error, 2.);
         assert_eq!(built.groups[2].error, f32::MAX);
+    }
+}
+
+#[cfg(test)]
+mod normal_error_tests {
+    use super::*;
+    fn patch() -> (Vec<[f32; 3]>, Vec<u32>, Vec<[f32; 3]>, [u32; 6]) {
+        let mut positions = Vec::new();
+        for y in 0..3 {
+            for x in 0..3 {
+                positions.push([x as f32 * 0.5, y as f32 * 0.5, 0.0]);
+            }
+        }
+        let mut indices = Vec::new();
+        for y in 0..2 {
+            for x in 0..2 {
+                let a = (y * 3 + x) as u32;
+                indices.extend_from_slice(&[a, a + 1, a + 4, a, a + 4, a + 3]);
+            }
+        }
+        let mut normals = alloc::vec![[0.,0.,1.];9];
+        normals[4] = [
+            core::f32::consts::FRAC_1_SQRT_2,
+            0.,
+            core::f32::consts::FRAC_1_SQRT_2,
+        ];
+        (positions, indices, normals, [0, 2, 8, 0, 8, 6])
+    }
+    #[test]
+    fn planar_geometry_prices_lost_interpolated_normal_variation() {
+        let (p, i, n, out) = patch();
+        let mut ws = Workspace::default();
+        let mut ctx = Context::new(&mut ws).expect("context");
+        let mut errors = Vec::new();
+        for weight in [0.0, 0.25, 0.5, 1.0] {
+            errors.push(
+                region_error(
+                    &i,
+                    &out,
+                    &p,
+                    &p,
+                    0.0,
+                    Some(NormalMetric {
+                        normals: &n,
+                        weight,
+                    }),
+                    &mut ctx,
+                )
+                .expect("measurement"),
+            );
+        }
+        assert_eq!(errors[0], 0.0);
+        let expected = 2.0f64.sqrt() * (2.0 - 2.0f64.sqrt()).sqrt();
+        assert!((f64::from(errors[3]) - expected).abs() < 4e-7);
+        assert_eq!((errors[1] * 4.0).to_bits(), errors[3].to_bits());
+        assert_eq!((errors[2] * 2.0).to_bits(), errors[3].to_bits());
+        assert_eq!(
+            region_error(
+                &i,
+                &out,
+                &p,
+                &p,
+                0.0,
+                Some(NormalMetric {
+                    normals: &n,
+                    weight: f32::MAX
+                }),
+                &mut ctx
+            ),
+            Err(Error::NumericalFailure)
+        );
+    }
+    #[test]
+    fn undefined_interpolants_are_worst_case_only_on_new_path() {
+        let p = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+        let i = [0, 1, 2];
+        let n = [[-1., 0., 0.], [1., 0., 0.], [1., 0., 0.]];
+        let m = [[0., 0., 1.]; 3];
+        let mut a = LodQualityMesh::new(&i, Positions::from_packed(&p));
+        a.normals = Some(&n);
+        let mut b = LodQualityMesh::new(&i, Positions::from_packed(&p));
+        b.normals = Some(&m);
+        let options = LodQualityOptions {
+            samples_per_unit_area: 4.0,
+        };
+        assert_eq!(
+            crate::measure_lod_quality(a, b, &options, &mut Workspace::default()),
+            Err(Error::NumericalFailure)
+        );
+        let (geometry, chord) =
+            crate::lod_quality::measure_normal_max(a, b, &options, &mut Workspace::default())
+                .expect("conservative maxima");
+        assert_eq!(geometry, 0.0);
+        assert_eq!(chord, 2.0);
     }
 }

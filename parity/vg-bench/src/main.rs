@@ -9,6 +9,7 @@ mod diag;
 mod materials;
 mod ours;
 mod report;
+mod shading;
 mod source;
 
 use report::Json;
@@ -46,12 +47,31 @@ fn main() {
         Some("diag") => diag(&args[1..]),
         Some("plateau") => plateau(&args[1..]),
         Some("limits") => limits(&args[1..]),
+        Some("shade-eval") => shading::evaluate(&args[1..]),
         _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
     };
     if let Err(e) = result {
         eprintln!("error: {e}");
         std::process::exit(1);
     }
+}
+
+fn v2_settings(args: &[String]) -> Result<ours::V2Settings, String> {
+    let read = |key: &str| flag(args, key).map(|s| s.parse::<f32>().map_err(|e| format!("{key}: {e}"))).transpose();
+    let normal_error_weight = read("--normal-error-weight")?.unwrap_or(ours::V2Settings::default().normal_error_weight);
+    let uv_weight = read("--uv-weight")?;
+    let tangent_weight = read("--tangent-weight")?;
+    for v in [Some(normal_error_weight), uv_weight, tangent_weight].into_iter().flatten() {
+        if !v.is_finite() || v < 0.0 {
+            return Err("invalid diagnostic weight".into());
+        }
+    }
+    let duplicate_normals = match flag(args, "--duplicate-normals").as_deref() {
+        None | Some("0") => false,
+        Some("1") => true,
+        _ => return Err("duplicate-normals needs 0 or 1".into()),
+    };
+    Ok(ours::V2Settings { normal_error_weight, uv_weight, tangent_weight, duplicate_normals })
 }
 
 /// `prep <mesh.ply|gltf> <out.vgm> [--extent 2.0]`
@@ -80,17 +100,29 @@ fn load(p: &[&String]) -> Result<(Source, String), String> {
 fn build(args: &[String]) -> Result<(), String> {
     let p = positional(args);
     let builder = p.first().ok_or("missing builder")?.as_str().to_string();
-    let (src, name) = load(&p)?;
+    let (mut src, name) = load(&p)?;
+    let settings = v2_settings(args)?;
+    let tangent_stats = if settings.attributes() { src.derive_tangents()? } else { (0, 0) };
     let threads: usize = num(args, "--threads", 1);
-    let label =
-        Json::new().text("kind", "build").text("builder", &builder).text("mesh", &name).with("threads", threads);
+    let label = Json::new()
+        .text("kind", "build")
+        .text("builder", &builder)
+        .text("mesh", &name)
+        .with("threads", threads)
+        .with("normal_error_weight", settings.normal_error_weight)
+        .with("uv_weight", settings.uv_weight.unwrap_or(-1.0))
+        .with("tangent_weight", settings.tangent_weight.unwrap_or(-1.0))
+        .with("duplicate_normals", settings.duplicate_normals)
+        .with("tangent_degenerate_triangles", tangent_stats.0)
+        .with("tangent_fallback_vertices", tangent_stats.1);
     let line = match builder.as_str() {
         "ours" | "ours-v2" => {
             let (o, t) = if builder == "ours-v2" {
-                ours::build_v2(
+                ours::build_v2_with(
                     &src,
                     threads,
                     meshoptimizer_rs::clusterlod::default_config(128).map_err(|e| format!("{e:?}"))?,
+                    settings,
                 )?
             } else {
                 ours::build(&src, threads)?
@@ -102,6 +134,8 @@ fn build(args: &[String]) -> Result<(), String> {
             label
                 .with("build_ms", t.dag_ms + t.hierarchy_ms)
                 .with("dag_ms", t.dag_ms)
+                .with("accounted_bytes", t.accounted_bytes)
+                .with("work", t.work)
                 .with("hierarchy_ms", t.hierarchy_ms)
                 .with("serialise_ms", write_ms)
                 .with("file_bytes", file.len())
@@ -312,6 +346,7 @@ fn limits(args: &[String]) -> Result<(), String> {
     let result = pool.install(|| {
         let mut input = BuildMesh::new(&src.indices, &src.positions);
         input.normals = Some(&src.normals);
+        input.normal_error_weight = num(args, "--normal-error-weight", input.normal_error_weight);
         v2::build(config, input, grid, &mut ws)
     });
     let usage = ws.usage();

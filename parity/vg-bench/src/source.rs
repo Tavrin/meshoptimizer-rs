@@ -8,6 +8,8 @@ pub struct Source {
     pub positions: Vec<[f32; 3]>,
     pub normals: Vec<[f32; 3]>,
     pub uvs: Vec<[f32; 2]>,
+    /// Optional diagnostic tangents; VGM1 remains unchanged.
+    pub tangents: Vec<[f32; 4]>,
     pub indices: Vec<u32>,
     pub materials: Vec<u16>,
 }
@@ -100,6 +102,81 @@ impl Source {
             .collect();
     }
 
+    /// Deterministic area-weighted UV gradients, orthogonalized to the normal.
+    /// Returns (degenerate UV triangles, fallback tangent vertices).
+    /// This is a diagnostic derivation, not an authored tangent set.
+    pub fn derive_tangents(&mut self) -> R<(usize, usize)> {
+        let n = self.positions.len();
+        if self.normals.len() != n || self.uvs.len() != n {
+            return Err("tangent source channel length".into());
+        }
+        let mut ts = vec![[0.0f64; 3]; n];
+        let mut bs = vec![[0.0f64; 3]; n];
+        let mut degenerate = 0;
+        for ix in self.indices.chunks_exact(3) {
+            let ids = [ix[0] as usize, ix[1] as usize, ix[2] as usize];
+            if ids.iter().any(|&i| i >= n) {
+                return Err("tangent index".into());
+            }
+            let p = ids.map(|i| self.positions[i].map(f64::from));
+            let uv = ids.map(|i| self.uvs[i].map(f64::from));
+            let a: [f64; 3] = core::array::from_fn(|k| p[1][k] - p[0][k]);
+            let b: [f64; 3] = core::array::from_fn(|k| p[2][k] - p[0][k]);
+            let u = [uv[1][0] - uv[0][0], uv[1][1] - uv[0][1]];
+            let v = [uv[2][0] - uv[0][0], uv[2][1] - uv[0][1]];
+            let det = u[0] * v[1] - u[1] * v[0];
+            if det == 0.0 {
+                degenerate += 1;
+                continue;
+            }
+            let cross = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+            let area = cross.iter().map(|x| x * x).sum::<f64>().sqrt();
+            for &i in &ids {
+                for k in 0..3 {
+                    ts[i][k] += (a[k] * v[1] - b[k] * u[1]) / det * area;
+                    bs[i][k] += (b[k] * u[0] - a[k] * v[0]) / det * area;
+                }
+            }
+        }
+        let unit = |x: [f64; 3]| {
+            let len = x.iter().map(|v| v * v).sum::<f64>().sqrt();
+            (len > 0.0 && len.is_finite()).then(|| x.map(|v| v / len))
+        };
+        let mut fallback = 0;
+        self.tangents.clear();
+        for i in 0..n {
+            let normal = unit(self.normals[i].map(f64::from)).ok_or("invalid tangent normal")?;
+            let dot = ts[i].iter().zip(normal).map(|(a, b)| a * b).sum::<f64>();
+            let ortho = core::array::from_fn(|k| ts[i][k] - normal[k] * dot);
+            let tangent = if let Some(t) = unit(ortho) {
+                t
+            } else {
+                fallback += 1;
+                let axis = if normal[0].abs() <= normal[1].abs() && normal[0].abs() <= normal[2].abs() {
+                    [1., 0., 0.]
+                } else if normal[1].abs() <= normal[2].abs() {
+                    [0., 1., 0.]
+                } else {
+                    [0., 0., 1.]
+                };
+                unit([
+                    normal[1] * axis[2] - normal[2] * axis[1],
+                    normal[2] * axis[0] - normal[0] * axis[2],
+                    normal[0] * axis[1] - normal[1] * axis[0],
+                ])
+                .ok_or("tangent fallback")?
+            };
+            let cross = [
+                normal[1] * tangent[2] - normal[2] * tangent[1],
+                normal[2] * tangent[0] - normal[0] * tangent[2],
+                normal[0] * tangent[1] - normal[1] * tangent[0],
+            ];
+            let sign = if cross.iter().zip(bs[i]).map(|(a, b)| a * b).sum::<f64>() < 0.0 { -1.0 } else { 1.0 };
+            self.tangents.push([tangent[0] as f32, tangent[1] as f32, tangent[2] as f32, sign]);
+        }
+        Ok((degenerate, fallback))
+    }
+
     /// Write the cached form: `VGM1`, vertex count, index count, then little-endian arrays.
     pub fn save(&self, path: &Path) -> R<()> {
         let mut b = Vec::with_capacity(12 + self.positions.len() * 32 + self.indices.len() * 4);
@@ -135,7 +212,7 @@ impl Source {
         let ub = nv * 6;
         let uvs = (0..nv).map(|i| [f(ub + i * 2), f(ub + i * 2 + 1)]).collect();
         let indices = (0..ni).map(|i| word(12 + nv * 32 + i * 4)).collect();
-        Ok(Self { positions, normals, uvs, indices, materials: Vec::new() })
+        Ok(Self { positions, normals, uvs, tangents: Vec::new(), indices, materials: Vec::new() })
     }
 }
 

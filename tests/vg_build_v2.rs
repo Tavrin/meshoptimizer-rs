@@ -251,3 +251,115 @@ fn invalid_inputs_and_limits_fail_closed() {
     c.simplify_dilate_borders = true;
     assert!(v2::build(c, BuildMesh::new(&i, &p), grid, &mut Workspace::default()).is_err());
 }
+
+#[test]
+fn normal_error_weight_is_optional_and_keyed() {
+    use meshoptimizer_rs::clusterlod::{
+        self,
+        dag_format::v2 as format,
+        page::QuantGrid,
+        v2::{self, BuildMesh},
+    };
+    use meshoptimizer_rs::{Error, Workspace};
+    let p = [[0., 0., 0.], [1., 0., 0.], [0., 1., 0.]];
+    let i = [0u32, 1, 2];
+    let c = clusterlod::default_config(16).expect("config");
+    let grid = QuantGrid::new(-22).expect("grid");
+    let build = |weight| {
+        let mut mesh = BuildMesh::new(&i, &p);
+        mesh.normal_error_weight = weight;
+        v2::build(c, mesh, grid, &mut Workspace::default())
+    };
+    let a = build(0.0).expect("disabled");
+    let b = build(1.0).expect("absent normals");
+    assert_eq!(a.positions, b.positions);
+    assert_eq!(a.indices, b.indices);
+    let encode = |out: &v2::Built| {
+        format::write(
+            &format::Source::new(&out.groups, &out.clusters, &out.positions, &out.indices),
+            &format::WriteOptions::new(grid),
+            &mut Workspace::default(),
+        )
+        .expect("write")
+        .0
+    };
+    assert_eq!(encode(&a), encode(&b));
+    for weight in [-1.0, f32::NAN, f32::INFINITY] {
+        assert!(matches!(build(weight), Err(Error::InvalidParameter)));
+    }
+    let normals = [[0., 0., 1.]; 3];
+    let options = format::WriteOptions::new(grid);
+    let mut keys = Vec::new();
+    for weight in [0.0, 0.25, 0.5, 1.0] {
+        let mut input = format::KeyInputs::new(&c, &options, &p, &i);
+        input.normals = Some(&normals);
+        input.normal_error_weight = weight;
+        keys.push(format::build_key(&input));
+    }
+    keys.sort_unstable();
+    assert!(keys.windows(2).all(|w| w[0] != w[1]));
+    let mut plain = format::KeyInputs::new(&c, &options, &p, &i);
+    plain.normal_error_weight = 0.0;
+    let old = format::build_key(&plain);
+    plain.normal_error_weight = 1.0;
+    assert_eq!(old, format::build_key(&plain));
+}
+#[test]
+fn shading_error_is_inherited_without_changing_topology() {
+    use meshoptimizer_rs::clusterlod::{
+        self,
+        page::QuantGrid,
+        v2::{self, BuildMesh},
+    };
+    use meshoptimizer_rs::Workspace;
+    let mut p = Vec::new();
+    let mut n = Vec::new();
+    let mut i = Vec::new();
+    for y in 0..9 {
+        for x in 0..9 {
+            p.push([x as f32 / 8.0, y as f32 / 8.0, 0.0]);
+            let k = (x as f32 / 8.0 - 0.5) * 0.5;
+            let len = libm::sqrt(f64::from(k * k + 1.0)) as f32;
+            n.push([k / len, 0., 1. / len]);
+        }
+    }
+    for y in 0..8 {
+        for x in 0..8 {
+            let a = (y * 9 + x) as u32;
+            i.extend_from_slice(&[a, a + 1, a + 10, a, a + 10, a + 9]);
+        }
+    }
+    let mut config = clusterlod::default_config(16).expect("config");
+    config.partition_size = 2;
+    let build = |weight| {
+        let mut mesh = BuildMesh::new(&i, &p);
+        mesh.normals = Some(&n);
+        mesh.normal_error_weight = weight;
+        v2::build(
+            config,
+            mesh,
+            QuantGrid::new(-22).expect("grid"),
+            &mut Workspace::default(),
+        )
+        .expect("build")
+    };
+    let baseline = build(0.0);
+    for weight in [0.25, 0.5, 1.0] {
+        let out = build(weight);
+        assert_eq!(out.positions, baseline.positions);
+        assert_eq!(out.indices, baseline.indices);
+        assert_eq!(out.groups.len(), baseline.groups.len());
+        for (g, b) in out.groups.iter().zip(&baseline.groups) {
+            assert!(g.error >= b.error);
+        }
+        for g in &out.groups {
+            for c in &out.clusters
+                [g.first_cluster as usize..(g.first_cluster + g.cluster_count) as usize]
+            {
+                if c.refined >= 0 {
+                    assert!(g.error >= out.groups[c.refined as usize].error);
+                }
+            }
+        }
+    }
+}

@@ -1,12 +1,13 @@
-# Unapplied shading proposal
+# Applied shading candidate
 
-**Not implemented in the library source; not compiled or tested.**
-The [draft patch](DRAFT.patch) is review material. Finish retained-source gates
-before applying it. Its zero default is a placeholder pending the requested
-five-mesh measurements, not a selected default. No UV/tangent recommendation or
-new shading-quality result exists. Rust syntax parsing alone passed.
+Continuation 3 applies [the original draft](DRAFT.patch) to the calibration
+commit. The candidate adds sampled normal-loss displacement to MDAG 2 group
+errors and binds its weight in builder revision 8. Container layouts are unchanged.
+Static review also restores the public quality API's `NumericalFailure` for
+undefined interpolated normals, which the draft accidentally changed.
 
-[Current disposition](../REPORT.md) records the admission block, completed
-calibration evidence, unmeasured work and pending checks. Exact experiment and
-finalization scripts remain in the caller-owned evidence handoff. No queued
-pipeline is intentionally left to apply this proposal unattended.
+**BLOCKED: no admission within 45 minutes; compilation, tests and comparison did not run.**
+Weight zero remains a disabled placeholder, not a measured default selection.
+No new normal/UV/tangent recommendation or shading-quality result is claimed.
+Formatting and the public-text scan pass. Full gate and measurement status is
+recorded in [the disposition](../REPORT.md) for this continuation.

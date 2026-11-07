@@ -28,7 +28,9 @@ use alloc::vec::Vec;
 /// Revision 4 measures replacements against their original source regions.
 /// Revision 5 keeps replacement siblings in one parent source region.
 /// Revision 6 partitions sibling regions with their cluster counts as weights.
-pub const BUILDER_REVISION: u32 = 6;
+/// Revision 8 prices sampled interpolated-normal loss in original-source regions.
+/// Revision 7 was reserved for an abandoned codec experiment.
+pub const BUILDER_REVISION: u32 = 8;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -188,6 +190,8 @@ pub struct KeyInputs<'a, I: crate::Index = u32> {
     pub materials: Option<&'a [u16]>,
     /// Supplied source normals (the v2 builder uses weight 0.5).
     pub normals: Option<&'a [[f32; 3]]>,
+    /// Match clusterlod::v2::BuildMesh::normal_error_weight.
+    pub normal_error_weight: f32,
     /// Opt-in alpha policy; masks and every setting participate in the key.
     pub alpha_coverage: Option<crate::clusterlod::v2::AlphaCoverage<'a>>,
     /// Whether the v2 sampled step and original-source error policy is used.
@@ -216,6 +220,7 @@ impl<'a, I: crate::Index> KeyInputs<'a, I> {
             channels: &[],
             materials: None,
             normals: None,
+            normal_error_weight: crate::clusterlod::v2::DEFAULT_NORMAL_ERROR_WEIGHT,
             measured_steps: true,
             alpha_coverage: None,
         }
@@ -237,6 +242,14 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
     };
     h.update(b"MDAG2KEY");
     u32s(&mut h, &[BUILDER_REVISION]);
+    u32s(
+        &mut h,
+        &[if inputs.normals.is_some() && inputs.measured_steps {
+            inputs.normal_error_weight.to_bits()
+        } else {
+            0
+        }],
+    );
     let Config {
         max_vertices,
         min_triangles,
