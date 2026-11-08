@@ -525,3 +525,142 @@ fn ancestor_clamp_handles_error_inversions_and_dag_joins() {
     assert_eq!(raw[..n], sequential[..j]);
     assert_unique_cover(&leaves(&groups, &clusters), &clusters, &raw[..n]);
 }
+
+/// A view from `Rng::view` pushed up to about 3,000 times farther away
+/// (perspective) or with up to 1,000 times fewer pixels per unit
+/// (orthographic), so that many views reach the root cut.
+fn far_view(rng: &mut Rng, scales: &[f32]) -> CutView {
+    let mut view = rng.view(scales);
+    let far = 10f32.powf(3.5 * rng.unit());
+    match &mut view.projection {
+        Projection::Perspective { .. } => view.position.iter_mut().for_each(|v| *v *= far),
+        Projection::Orthographic { pixels_per_unit } => *pixels_per_unit /= far.min(1000.),
+    }
+    view
+}
+
+/// Test 8.1: whenever the fast path holds, the full cut is exactly the root
+/// cut, on raw and repaired builder output, perspective and orthographic,
+/// with uniform scales and a shear.
+#[test]
+fn instance_fast_path_selects_exactly_the_full_cut() {
+    let mut rng = Rng(0x2545_f491_4f6c_dd1d);
+    let shear = cut::max_scale([[1., 0.7, 0.], [0., 1., 0.3], [0.2, 0., 1.5]]);
+    let mut dags = raw_fixtures();
+    dags.extend(fixtures());
+    for (groups, clusters) in dags {
+        // Independent E_root and containment of every root producer's sphere.
+        let mut parentless = vec![true; groups.len()];
+        for c in clusters.iter().filter(|c| c.refined >= 0) {
+            parentless[c.refined as usize] = false;
+        }
+        let producers: Vec<&FlatDagGroup> = clusters
+            .iter()
+            .filter(|c| parentless[c.group as usize] && c.refined >= 0)
+            .map(|c| &groups[c.refined as usize])
+            .collect();
+        let bounds = cut::root_bounds(&groups, &clusters).unwrap();
+        let expected = producers.iter().map(|q| q.error).fold(0., f32::max);
+        assert_eq!(bounds.error, expected);
+        assert_eq!(cut::root_error(&groups, &clusters), Ok(expected));
+        assert!(!producers.is_empty() && bounds.error < f32::MAX);
+        for q in &producers {
+            let d = (0..3)
+                .map(|i| (f64::from(q.center[i]) - f64::from(bounds.center[i])).powi(2))
+                .sum::<f64>()
+                .sqrt();
+            assert!(d + f64::from(q.radius) <= f64::from(bounds.radius));
+        }
+        let mut roots = vec![0; clusters.len()];
+        let r = cut::root_clusters(&groups, &clusters, &mut roots).unwrap();
+        let want: Vec<u32> = (0..clusters.len() as u32)
+            .filter(|&c| parentless[clusters[c as usize].group as usize])
+            .collect();
+        assert_eq!(roots[..r], want[..]);
+        assert_eq!(
+            cut::root_clusters(&groups, &clusters, &mut roots[..r - 1]),
+            Err(CutError::BufferTooSmall)
+        );
+
+        let sphere = [
+            bounds.center[0],
+            bounds.center[1],
+            bounds.center[2],
+            bounds.radius,
+        ];
+        let (mut out, mut fast) = (vec![0; clusters.len()], [0usize; 2]);
+        for i in 0..1000 {
+            let view = far_view(&mut rng, &[1., 2.5, shear]);
+            let t = Threshold::Pixels(0.25 + 7.75 * (i % 32) as f32 / 31.);
+            let n = cut::select_cut(&groups, &clusters, &view, t, None, &mut out).unwrap();
+            let root = cut::is_root_cut(sphere, bounds.error, &view, t);
+            if root {
+                assert_eq!(out[..n], roots[..r], "view {i}");
+            }
+            fast[usize::from(root)] += 1;
+        }
+        assert!(fast[0] > 100 && fast[1] > 100, "both outcomes: {fast:?}");
+        let view = far_view(&mut rng, &[1.]);
+        assert!(!cut::is_root_cut(
+            sphere,
+            bounds.error,
+            &view,
+            Threshold::Finest
+        ));
+        assert!(!cut::is_root_cut(
+            sphere,
+            f32::NAN,
+            &view,
+            Threshold::Pixels(1.)
+        ));
+        assert!(!cut::is_root_cut(sphere, 0., &view, Threshold::Pixels(-1.)));
+        assert!(cut::is_root_cut(sphere, 0., &view, Threshold::Pixels(0.)));
+    }
+}
+
+/// The impostor gather writes the fixed-error cut's index spans in cluster
+/// order and the cluster of every triangle.
+#[test]
+fn error_cut_gather_concatenates_cut_clusters() {
+    for (groups, clusters) in fixtures() {
+        let len = clusters
+            .iter()
+            .map(|c| (c.first_index + c.index_count) as usize)
+            .max()
+            .unwrap();
+        let indices: Vec<u32> = (0..len as u32).map(|i| i ^ 0x55).collect();
+        for error in [0., 0.2, f32::MAX] {
+            let mut cut_clusters = vec![0; clusters.len()];
+            let k = cut::select_error_cut(&groups, &clusters, error, &mut cut_clusters).unwrap();
+            let mut want = Vec::new();
+            let mut want_tri = Vec::new();
+            for &c in &cut_clusters[..k] {
+                let cl = &clusters[c as usize];
+                let span = cl.first_index as usize..(cl.first_index + cl.index_count) as usize;
+                want.extend_from_slice(&indices[span]);
+                want_tri.extend(std::iter::repeat_n(c, cl.index_count as usize / 3));
+            }
+            let mut out = vec![0; len];
+            let mut tri = vec![0; len / 3];
+            let n = cut::gather_error_cut(
+                &groups,
+                &clusters,
+                &indices,
+                error,
+                &mut out,
+                Some(&mut tri),
+            )
+            .unwrap();
+            assert_eq!(out[..n], want[..]);
+            assert_eq!(tri[..n / 3], want_tri[..]);
+            assert_eq!(
+                cut::gather_error_cut(&groups, &clusters, &indices, error, &mut out[..n - 1], None),
+                Err(CutError::BufferTooSmall)
+            );
+            assert_eq!(
+                cut::gather_error_cut(&groups, &clusters, &indices[..1], error, &mut out, None),
+                Err(CutError::InvalidTable)
+            );
+        }
+    }
+}

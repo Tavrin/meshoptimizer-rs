@@ -7,7 +7,7 @@
 mod bounds_math;
 mod dag;
 mod flat;
-pub use flat::{FlatDagCluster, FlatDagGroup};
+pub use flat::{FlatDagCluster, FlatDagGroup, LodBounds};
 pub mod attributes;
 pub mod cut;
 pub mod dag_format;
@@ -137,16 +137,6 @@ pub struct MeshGeneric<'a, I: crate::Index = u32> {
     pub attribute_weights: &'a [f32],
     /// Bit K protects discontinuities in component K.
     pub attribute_protect_mask: u32,
-}
-/// Conservative sphere and accumulated error.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct LodBounds {
-    /// Sphere center.
-    pub center: [f32; 3],
-    /// Sphere radius.
-    pub radius: f32,
-    /// Absolute simplification error; terminal groups use `f32::MAX`.
-    pub error: f32,
 }
 /// Cluster emitted by the demo builder.
 #[derive(Debug, Default, PartialEq)]

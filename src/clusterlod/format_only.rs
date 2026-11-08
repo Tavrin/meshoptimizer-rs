@@ -3,7 +3,7 @@
 mod bounds_math;
 #[path = "flat.rs"]
 mod flat;
-pub use flat::{FlatDagCluster, FlatDagGroup};
+pub use flat::{FlatDagCluster, FlatDagGroup, LodBounds};
 #[path = "dag_format.rs"]
 pub mod dag_format;
 #[path = "page.rs"]
