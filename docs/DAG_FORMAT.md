@@ -185,6 +185,38 @@ only when resident `Q` passes the clamped decision (`cut::refine_sequential`).
 That procedure reports `Incomplete` when residency lacks a needed parent output;
 a projected-error rounding inversion no longer causes `Incomplete`.
 
+**Instance fast path.** The *root cut* is every cluster of every parentless
+group (`cut::root_clusters`; MDAG 2: `Reader::root_clusters`, ranges inside
+the pinned pages). It is the cut of a view exactly when no *root producer*
+refines, a root producer being `R(c)` for a root cluster `c` with
+`R(c) != -1`: a refining group needs every parent to refine, so following
+parents from any refining group ends at a refining root producer. Two values
+bound the root producers: `E_root`, the largest root-producer error (zero if
+there is none), and `S`, a sphere containing every root producer's LOD sphere
+(`cut::root_bounds`; MDAG 2: `Reader::root_error` and `Reader::root_sphere`,
+computed once by `Reader::open` from `GRPS` and `CREF`, no format change).
+Parentless group records are not part of the bound, and neither is the MDAG 2
+`MESH` sphere, which bounds decoded vertices rather than LOD spheres. If
+`(S, E_root)` projects at or below `t`, the cut is the root cut and a runtime
+draws the root clusters without evaluating any group (`cut::is_root_cut`). A
+containing sphere is never nearer to the camera and `E_root` is at least every
+producer's error, so this projection is at least every producer's; the
+perspective denominator is reduced by a relative 2^-44 so that the inequality
+survives `f64` rounding, and the comparison with `t` is done in `f64`. The
+test is sufficient only: it is false for `Threshold::Finest`, for invalid
+inputs, and between the point where the first producer and the last producer
+stop refining. A mesh with a far-field impostor (`FARF`) tests the impostor
+switch first, because the impostor's world error is not ordered with
+`E_root`. For a whole cell or assembly impostor, `cut::gather_error_cut`
+concatenates the triangles of a fixed-error cut into one list for
+`bake_impostor`, with the source cluster of every triangle for the sampler.
+
+**Streaming priority.** `Reader::page_priority_bounds` gives, per MDAG 2 page,
+the largest error of the groups with a cluster on the page and a sphere
+containing their LOD spheres. When this bound passes `cut::is_root_cut`, no
+group on the page refines, so the cut does not need the page unless it is
+pinned; the bound's projected error relative to `t` orders requests.
+
 Not provided by MDAG 1: tight per-cluster culling bounds (the stored cluster
 sphere is the producer's level-selection sphere unless `optimize_bounds` was
 set, and no box is stored), an all-level instance bound, and any page-dependency

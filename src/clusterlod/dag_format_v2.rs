@@ -20,8 +20,9 @@
 //!
 //! Wire specification: `docs/DAG_FORMAT.md`, section "MDAG 2".
 use super::Error;
-use crate::clusterlod::bounds_math::containing_radius;
+use crate::clusterlod::bounds_math::{containing_radius, enclosing_sphere};
 use crate::clusterlod::page::{self, PageView, QuantGrid};
+use crate::clusterlod::LodBounds;
 use crate::Workspace;
 use alloc::vec::Vec;
 use core::ops::Range;
@@ -738,6 +739,37 @@ pub struct Reader<'a> {
     attributes_at: usize,
     attribute_count: usize,
     materials_declared: bool,
+    root: LodBounds,
+}
+
+/// Cluster ranges of the parentless groups of an MDAG 2 file, see
+/// [`Reader::root_clusters`]. Not in C++ meshoptimizer.
+#[derive(Clone, Debug)]
+pub struct RootClusters<'a> {
+    reader: Reader<'a>,
+    next: usize,
+}
+
+impl Iterator for RootClusters<'_> {
+    type Item = Range<u32>;
+    fn next(&mut self) -> Option<Range<u32>> {
+        let count = self.reader.mesh.group_count as usize;
+        let parentless = |g: usize| {
+            self.reader
+                .group(g)
+                .ok()
+                .filter(|r| r.parent_count == 0)
+                .map(|r| r.clusters())
+        };
+        let (first, mut range) = (self.next..count).find_map(|g| parentless(g).map(|r| (g, r)))?;
+        let mut g = first + 1;
+        while let Some(r) = parentless(g) {
+            range.end = r.end;
+            g += 1;
+        }
+        self.next = g;
+        Some(range)
+    }
 }
 
 impl<'a> Reader<'a> {
@@ -896,6 +928,7 @@ impl<'a> Reader<'a> {
             attributes_at: attr_at.0 + ATTRIBUTE_HEADER_BYTES,
             attribute_count: channels,
             materials_declared: materials_at.is_some(),
+            root: LodBounds::default(),
         };
         for c in 0..mesh.cluster_count as usize {
             let (center, radius) = reader.cluster_sphere(c)?;
@@ -907,7 +940,107 @@ impl<'a> Reader<'a> {
         reader.validate_groups()?;
         reader.validate_nodes()?;
         reader.validate_links()?;
+        let mut reader = reader;
+        reader.root = reader.compute_root()?;
         Ok(reader)
+    }
+
+    /// Producers of the clusters of parentless groups, once per cluster.
+    fn root_producers(&self) -> impl Iterator<Item = GroupRecord> + Clone + '_ {
+        RootClusters {
+            reader: *self,
+            next: 0,
+        }
+        .flatten()
+        .filter_map(|c| usize::try_from(self.cluster_refined(c as usize).ok()?).ok())
+        .filter_map(|q| self.group(q).ok())
+    }
+
+    /// `E_root` and `S` (see [`Self::root_error`]); runs after validation, so
+    /// every record read here exists and is finite.
+    fn compute_root(&self) -> Result<LodBounds, Error> {
+        let producers = self.root_producers();
+        let error = producers.clone().map(|q| q.error).fold(0.0f32, f32::max);
+        let none = producers.clone().next().is_none();
+        let (center, radius) = match enclosing_sphere(producers.map(|q| (q.center, q.radius))) {
+            Some(s) => s,
+            None if none => ([0.0; 3], 0.0),
+            None => return Err(Error::Invalid),
+        };
+        Ok(LodBounds {
+            center,
+            radius,
+            error,
+        })
+    }
+
+    /// `E_root`: the largest error among the groups that produced a cluster of
+    /// a parentless group (zero when none did), computed once by
+    /// [`Self::open`] from `GRPS` and `CREF`. With [`Self::root_sphere`] it is
+    /// the instance fast-path bound: `clusterlod::cut::is_root_cut` on the two
+    /// tells a runtime, without testing any group, that the cut of a view is
+    /// the root cut ([`Self::root_clusters`]). Parentless groups' own records
+    /// are not part of the bound.
+    pub fn root_error(&self) -> f32 {
+        self.root.error
+    }
+
+    /// `S`: `[x, y, z, radius]` of a sphere containing the LOD sphere of every
+    /// group counted by [`Self::root_error`], in the mesh frame; zero when there
+    /// is none. Computed once by [`Self::open`]. The `MESH` sphere bounds
+    /// decoded vertices, not LOD spheres, and is not a substitute.
+    pub fn root_sphere(&self) -> [f32; 4] {
+        let c = self.root.center;
+        [c[0], c[1], c[2], self.root.radius]
+    }
+
+    /// The root cut: clusters of the parentless groups, as ascending,
+    /// non-overlapping ranges (adjacent groups merged). They lie in pinned
+    /// pages. The ranges are not one prefix in general: a group whose
+    /// simplification got stuck is parentless at a finer level, so its clusters
+    /// follow coarser groups that do have parents.
+    pub fn root_clusters(&self) -> RootClusters<'a> {
+        RootClusters {
+            reader: *self,
+            next: 0,
+        }
+    }
+
+    /// Streaming priority bounds, one per page: the error is the largest error
+    /// of the groups with a cluster on the page and the sphere contains their
+    /// LOD spheres. A cluster on page `p` is drawn only if its group refines
+    /// or is parentless, so when this bound projects at or below the
+    /// threshold (`clusterlod::cut::is_root_cut` with it), no group on the
+    /// page refines and the page is not needed by the cut unless it holds a
+    /// parentless group, which is pinned. Pages holding a parentless group
+    /// usually carry `f32::MAX`. Writes `out[..page_count]` and reads only the
+    /// resident prefix.
+    ///
+    /// # Errors
+    /// `Limit` if `out` is shorter than the page count.
+    pub fn page_priority_bounds(&self, out: &mut [LodBounds]) -> Result<(), Error> {
+        let (pages, groups) = (self.mesh.page_count, self.mesh.group_count as usize);
+        let out = out.get_mut(..pages as usize).ok_or(Error::Limit)?;
+        // Group page spans are ordered like the clusters they hold, so the
+        // groups touching page `p` are one run starting at `lo`.
+        let mut lo = 0usize;
+        for (p, bound) in (0..pages).zip(out.iter_mut()) {
+            while lo < groups && self.group(lo)?.pages().end <= p {
+                lo += 1;
+            }
+            let touching = (lo..groups)
+                .map_while(|g| self.group(g).ok())
+                .take_while(|r| r.first_page <= p);
+            let error = touching.clone().map(|r| r.error).fold(0.0f32, f32::max);
+            let (center, radius) =
+                enclosing_sphere(touching.map(|r| (r.center, r.radius))).ok_or(Error::Invalid)?;
+            *bound = LodBounds {
+                center,
+                radius,
+                error,
+            };
+        }
+        Ok(())
     }
 
     /// Rule 6: the refinement relation (`CREF`) against groups, parent counts

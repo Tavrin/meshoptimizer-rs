@@ -16,7 +16,7 @@
 //! `R(c) = Q` are `B(Q)`, which together replace `A(Q)`. A group `P` is a
 //! *parent* of `Q` when some cluster lies in `B(Q)` and in `A(P)`; a group with
 //! no children `B` is *parentless* (a stuck group or the final group).
-use super::bounds_math::{abs_sum3_up, add_up, f32_up, sqrt_up};
+use super::bounds_math::{abs_sum3_up, add_up, enclosing_sphere, f32_up, sqrt_up};
 use super::{FlatDagCluster, FlatDagGroup, LodBounds};
 use alloc::vec::Vec;
 
@@ -581,6 +581,200 @@ pub fn enforce_monotonic(
         report.groups_changed += usize::from(raised || grown);
     }
     Ok(report)
+}
+
+/// Producers of root clusters: `R(c)` for every cluster `c` of a parentless
+/// group with `R(c) != -1`, once per cluster.
+fn root_producers<'t>(
+    groups: &'t [FlatDagGroup],
+    clusters: &'t [FlatDagCluster],
+    children: &'t Children,
+) -> impl Iterator<Item = &'t FlatDagGroup> + Clone + 't {
+    groups
+        .iter()
+        .enumerate()
+        .filter(|(g, _)| children.of(*g).is_empty())
+        .flat_map(move |(_, group)| clusters[span(group)].iter())
+        .filter_map(move |c| usize::try_from(c.refined).ok().map(|q| &groups[q]))
+}
+
+/// Root bounds of a DAG for the instance fast path: `error` is `E_root`, the
+/// largest error among the producers `R(c)` of the clusters of parentless
+/// groups (zero when no root cluster has a producer), and the sphere `S`
+/// contains the LOD sphere of every such producer (zero when there is none).
+///
+/// The root cut (every cluster of every parentless group, see
+/// [`root_clusters`]) is the cut of a view exactly when no root producer
+/// refines; [`is_root_cut`] with these bounds is a sufficient test. Parentless
+/// group records are not used: their own spheres need not contain the
+/// producers' and their errors are usually `f32::MAX`.
+///
+/// # Errors
+/// `InvalidTable` for invalid tables or a non-finite producer bound;
+/// `Allocation`.
+pub fn root_bounds(
+    groups: &[FlatDagGroup],
+    clusters: &[FlatDagCluster],
+) -> Result<LodBounds, CutError> {
+    validate(groups, clusters)?;
+    let children = Children::build(groups.len(), clusters)?;
+    let producers = root_producers(groups, clusters, &children);
+    let mut error = 0.0f32;
+    for q in producers.clone() {
+        if !group_is_finite(q) {
+            return Err(CutError::InvalidTable);
+        }
+        error = error.max(q.error);
+    }
+    let none = producers.clone().next().is_none();
+    let (center, radius) = match enclosing_sphere(producers.map(|q| (q.center, q.radius))) {
+        Some(s) => s,
+        None if none => ([0.0; 3], 0.0),
+        None => return Err(CutError::InvalidTable),
+    };
+    Ok(LodBounds {
+        center,
+        radius,
+        error,
+    })
+}
+
+/// `E_root` of [`root_bounds`]: the largest error among the producers of root
+/// clusters, zero when no root cluster has a producer.
+///
+/// # Errors
+/// As [`root_bounds`].
+pub fn root_error(groups: &[FlatDagGroup], clusters: &[FlatDagCluster]) -> Result<f32, CutError> {
+    root_bounds(groups, clusters).map(|b| b.error)
+}
+
+/// The root cut: the clusters of every parentless group, in ascending order.
+/// Writes them and returns how many. Every resident set contains them, and
+/// they are what [`select_cut`] returns whenever [`is_root_cut`] holds.
+///
+/// # Errors
+/// `InvalidTable`, `BufferTooSmall`, `Allocation`.
+pub fn root_clusters(
+    groups: &[FlatDagGroup],
+    clusters: &[FlatDagCluster],
+    out: &mut [u32],
+) -> Result<usize, CutError> {
+    validate(groups, clusters)?;
+    let children = Children::build(groups.len(), clusters)?;
+    let mut n = 0;
+    for (g, group) in groups.iter().enumerate() {
+        if !children.of(g).is_empty() {
+            continue;
+        }
+        for c in span(group) {
+            *out.get_mut(n).ok_or(CutError::BufferTooSmall)? = c as u32;
+            n += 1;
+        }
+    }
+    Ok(n)
+}
+
+/// Relative margin taken off the root sphere's perspective denominator in
+/// [`is_root_cut`]: it covers the `f64` rounding of the distance and radius
+/// terms of [`projected_error`] (a few units of 2^-53 each), so that the test
+/// stays sufficient after rounding and not only in exact arithmetic.
+const ROOT_MARGIN: f64 = 1.0 / (1u64 << 44) as f64;
+
+/// The instance fast path: true when every root producer projects at or below
+/// the threshold, so the cut of this view is the root cut ([`root_clusters`])
+/// and no group needs to be evaluated.
+///
+/// `sphere` is `[x, y, z, radius]` and `root_error` is `E_root`, both from
+/// [`root_bounds`] or from the MDAG 2 reader (`Reader::root_sphere`,
+/// `Reader::root_error`), with the sphere center in the frame of
+/// `view.position` and `view.scale` set as for [`select_cut`]. Because the
+/// sphere contains every producer's LOD sphere and `root_error` is at least
+/// every producer's error, the projection of `(sphere, root_error)` is at least
+/// each producer's [`projected_error`]; the perspective denominator is reduced
+/// by a relative 2^-44 so that the inequality also holds after rounding. The
+/// value is compared with `t` in `f64`. So when this returns true no producer
+/// refines, and the ancestor clamp of [`select_cut`] then stops every chain at
+/// the root, with or without residency.
+///
+/// The test is sufficient, not necessary: it returns false for
+/// [`Threshold::Finest`], for an invalid view, threshold or bound, and near the
+/// threshold where only some producers refine. A caller that gets false runs
+/// the full cut. For a mesh with a far-field impostor, test the impostor's own
+/// switch first: its world error is not ordered with `E_root`.
+pub fn is_root_cut(sphere: [f32; 4], root_error: f32, view: &CutView, t: Threshold) -> bool {
+    let Threshold::Pixels(t) = t else {
+        return false;
+    };
+    let bound_ok = sphere.iter().all(|v| v.is_finite())
+        && sphere[3] >= 0.0
+        && root_error.is_finite()
+        && root_error >= 0.0;
+    if !(bound_ok && t.is_finite() && t >= 0.0) || view.validate().is_err() {
+        return false;
+    }
+    let s = f64::from(view.scale);
+    let error = f64::from(root_error) * s;
+    let pixels = match view.projection {
+        Projection::Perspective { proj_y, znear } => {
+            let d = |i: usize| f64::from(sphere[i]) - f64::from(view.position[i]);
+            let distance = libm::sqrt(d(0) * d(0) + d(1) * d(1) + d(2) * d(2));
+            let reach = f64::from(sphere[3]) * s;
+            let denominator =
+                (distance - reach - ROOT_MARGIN * (distance + 2.0 * reach)).max(f64::from(znear));
+            error / denominator * (f64::from(proj_y) * 0.5) * f64::from(view.viewport_height)
+        }
+        Projection::Orthographic { pixels_per_unit } => error * f64::from(pixels_per_unit),
+    };
+    pixels <= f64::from(t)
+}
+
+/// Gathers the fixed-error cut ([`select_error_cut`]) as one triangle list, for
+/// baking a far-field impostor of a whole cell or assembly: writes the
+/// `indices` spans of the cut clusters, concatenated in ascending cluster
+/// order, into `out`, and returns the index count. With `triangle_clusters`,
+/// writes the cut cluster of every written triangle, so a texture sampler
+/// can map a triangle of the list back to its cluster's material.
+///
+/// `indices` is the index prefix the cluster table refers to (the flat output
+/// of [`build_dag_into`](super::build_dag_into)).
+///
+/// # Errors
+/// `InvalidTable` if a cut cluster's span is outside `indices` or not whole
+/// triangles; `BufferTooSmall` if `out` or `triangle_clusters` is short; plus
+/// the errors of [`select_error_cut`].
+pub fn gather_error_cut(
+    groups: &[FlatDagGroup],
+    clusters: &[FlatDagCluster],
+    indices: &[u32],
+    error: f32,
+    out: &mut [u32],
+    mut triangle_clusters: Option<&mut [u32]>,
+) -> Result<usize, CutError> {
+    let mut cut = vec_filled(clusters.len(), 0u32)?;
+    let k = select_error_cut(groups, clusters, error, &mut cut)?;
+    let (mut n, mut triangles) = (0usize, 0usize);
+    for &c in &cut[..k] {
+        let cluster = &clusters[c as usize];
+        let first = cluster.first_index as usize;
+        let count = cluster.index_count as usize;
+        let span = first
+            .checked_add(count)
+            .and_then(|end| indices.get(first..end))
+            .filter(|s| s.len() % 3 == 0)
+            .ok_or(CutError::InvalidTable)?;
+        out.get_mut(n..n + count)
+            .ok_or(CutError::BufferTooSmall)?
+            .copy_from_slice(span);
+        n += count;
+        if let Some(tc) = triangle_clusters.as_deref_mut() {
+            let end = triangles + count / 3;
+            tc.get_mut(triangles..end)
+                .ok_or(CutError::BufferTooSmall)?
+                .fill(c);
+            triangles = end;
+        }
+    }
+    Ok(n)
 }
 
 /// A conservative largest singular value of a 3x3 linear transform, never below

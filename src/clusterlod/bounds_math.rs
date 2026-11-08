@@ -56,6 +56,39 @@ pub(crate) fn f32_up(v: f64) -> f32 {
     }
 }
 
+/// A sphere containing every sphere of `spheres` (center, radius), centered on
+/// the middle of their bounding box, with the radius from
+/// [`containing_radius`] rounded up to `f32`. `None` when `spheres` is empty
+/// or the result is not finite.
+pub(crate) fn enclosing_sphere<I>(spheres: I) -> Option<([f32; 3], f32)>
+where
+    I: Iterator<Item = ([f32; 3], f32)> + Clone,
+{
+    let mut lo = [f64::INFINITY; 3];
+    let mut hi = [f64::NEG_INFINITY; 3];
+    for (center, radius) in spheres.clone() {
+        for i in 0..3 {
+            let (c, r) = (f64::from(center[i]), f64::from(radius));
+            lo[i] = lo[i].min(c - r);
+            hi[i] = hi[i].max(c + r);
+        }
+    }
+    if !(lo.iter().chain(&hi).all(|v| v.is_finite())) {
+        return None;
+    }
+    let center = [0, 1, 2].map(|i| (0.5 * (lo[i] + hi[i])) as f32);
+    let mut radius = 0.0f64;
+    for (c, r) in spheres {
+        radius = radius.max(containing_radius(center, c, r));
+    }
+    let radius = f32_up(radius);
+    (finite_center(center) && radius.is_finite()).then_some((center, radius))
+}
+
+fn finite_center(c: [f32; 3]) -> bool {
+    c.iter().all(|v| v.is_finite())
+}
+
 /// Upper bound of `|center_p - center_q| + radius_q`: the radius a sphere at
 /// `center_p` needs to contain the sphere at `center_q` with `radius_q`.
 pub(crate) fn containing_radius(center_p: [f32; 3], center_q: [f32; 3], radius_q: f32) -> f64 {
