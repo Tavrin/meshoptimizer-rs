@@ -1,0 +1,24 @@
+{
+  "binary": "fcf9d804bb9c9cfc3b2efe725469bcca457f055b2d295554aaa2242e0b864f95",
+  "cpus": {
+    "1": "0",
+    "8": "0,1,2,3,4,5,6,7"
+  },
+  "directions": 16,
+  "repeats": 5,
+  "samples_each_direction": 16384,
+  "spans": [
+    64,
+    128,
+    256,
+    512,
+    1024,
+    2048
+  ],
+  "threshold_px": 1,
+  "weights": [
+    0.0,
+    0.25
+  ],
+  "worker_identity": true
+}

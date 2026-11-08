@@ -1,0 +1,5 @@
+{
+  "initial_exit": 101,
+  "reason": "Grid-size adapter initially passed n to the separate attribute-only fixture helper; restored that helper to its original 12-grid fixture. V2 comparison grids remain 12/24/48.",
+  "retry_exit": 0
+}

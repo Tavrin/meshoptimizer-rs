@@ -1,0 +1,11 @@
+# Logs, exit records and large receipts belong under $QUALIFY_LOGS, never in the repository.
+*.log
+logs/
+full-logs/
+instruction-cache/
+exits.jsonl
+jobs.jsonl
+submissions.jsonl
+counts.jsonl
+stream-cases-*.tsv
+__pycache__/

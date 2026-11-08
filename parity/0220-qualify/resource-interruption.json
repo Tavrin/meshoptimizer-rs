@@ -1,0 +1,8 @@
+{
+  "admission": "4052279\t4\t1127\t447\t137\t6.0\tpython3 <worktree>/parity/0220-qualify/gate.py fmt\tscript:<worktree>/parity/0220-qualify/gate.py\t4\t1794120043\tmeshopt-0220q\t\t\t-\t-\t-\t0\t\t\tunknown",
+  "exit": 137,
+  "journal": "systemd-oomd killed the admitted scope due to user-slice memory pressure 66.25% > 50.00% for >20 seconds with reclaim activity.",
+  "phase": "release doctests",
+  "reported_peak_gb": 6.0,
+  "retry_change": "RUST_TEST_THREADS=2; same command, assertions, timeout and declared reservation."
+}
