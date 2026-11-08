@@ -13,6 +13,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replace regular quadric and sloppy grid error estimates with independently
+  sampled step deviations in MDAG 2 builds. Either heuristic could pin every
+  coarse ancestor to one large error: a regular estimate of 3.216 corresponded
+  to a sampled step deviation of 0.942 on a 91,216-triangle source. Monotone
+  inheritance and the final original-source error pass remain intact.
+  `v2::build` keeps partial steps that miss `simplify_threshold` while strictly
+  removing triangles; these can repeat to release boundary locks through
+  repartitioning, within the format depth limit. Builder revision 9 invalidates
+  cook keys; legacy builders and MDAG 1 are unchanged.
+  Parent partitions grow to accommodate two largest replacement regions,
+  allowing partial regions to merge and release shared boundary locks instead
+  of becoming isolated pinned groups.
+- Add `clusterlod::v2::health` and `health_from_reader`: a structural cooker
+  report over a built DAG or an opened MDAG 2 with per-depth group, triangle,
+  pinned, sloppy and partial counts and error min/median/max, linked
+  equal-error chains and pinned groups with their reasons, and a documented
+  pass/fail rule (`docs/DAG_FORMAT.md`, "Structural build health gate").
+  `Built::diagnostics` retains each group's error terms and acceptance reason;
+  the container layout is unchanged.
+
 - Price sampled interpolated-normal loss in MDAG 2 original-source group errors,
   using a local-edge normal-chord displacement and monotone inheritance. The new
   `BuildMesh::normal_error_weight` defaults to 0; zero disables it and absent

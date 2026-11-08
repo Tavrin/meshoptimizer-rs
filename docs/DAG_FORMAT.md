@@ -587,6 +587,21 @@ inside each range when cluster optimization is enabled. Dilation is rejected by 
 references must remain attached to snapped source vertices. Error merge factors
 below one are rejected to preserve monotonic accumulation.
 
+**Partial steps and measured errors (builder revision 9).** A step that
+removes triangles but retains more than `simplify_threshold` is accepted as a
+partial step. Partial steps can repeat while each strictly removes triangles;
+the format depth limit still bounds the build. This gives repartitioning a
+chance to release boundary locks instead of prematurely pinning the region.
+Weighted parent partitions accommodate at least twice the largest replacement
+region's cluster count. This lets a region that fills the nominal partition
+target merge with neighbours and release its shared boundary locks; replacement
+siblings remain indivisible. The nominal target still applies to leaf groups.
+Every accepted step stores its independently sampled deviation rather than a
+regular quadric or sloppy grid estimate. The final original-source pass
+prices accumulated deviation and the explicit normal-error metric; monotone
+inheritance remains intact. `simplify_error_factor_sloppy` scales only legacy
+builds. These rules apply to `v2::build` only.
+
 `ATTR` now contains `channel_count, layout_hash, 0, 0`, followed by 16-byte
 channel records: `caller_tag, encoding, source_component_offset, 0`. Tags are
 opaque and unique. At most 16 channels are accepted; a channel's last source
@@ -755,7 +770,7 @@ The five-mesh weight comparison, default decision, and UV/tangent recommendation
 are recorded in the [sampled shading table](../parity/vg-bench/0220/shading/TABLE.md).
 
 
-Calibration of the selected default normal-error weight 0, with fresh
+Builder-revision-8 calibration of the selected default normal-error weight 0, with fresh
 finite suggested budgets, normals via the dedicated field, no UV/tangent
 attributes, `default_config(128)` and grid -22:
 
@@ -767,10 +782,54 @@ attributes, `default_config(128)` and grid -22:
 | coast_rocks_01 | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
 | dragon | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
 
-Every selected-default finite build succeeds with at least twice its measured
+Every finite build in that calibration succeeded with at least twice its measured
 accounted peak and counted work available. The helper uses fixed overhead plus
 power-of-two per-triangle factors, chosen above twice the initial successful
 1T observations and then validated with finite budgets. These are empirical
 allowances for this corpus and input policy. Additional attributes, unused
 vertices, material duplication, locks or different topology require profiling.
 The UV/tangent comparison does not qualify these budgets for those channels.
+
+### Structural build health gate
+
+`clusterlod::v2::health(&built, 3, &mut workspace)` returns a `HealthReport`
+over a `Built` DAG; `health_from_reader(&reader, &cluster_triangles, 3, &mut
+workspace)` returns the same report over an opened MDAG 2, given each cluster's
+triangle count from its transcoded page. The report holds a per-depth table
+(groups, stored triangles, pinned, sloppy and partial groups, finite error
+min / upper median / max), every pinned group with its reason, and every
+linked equal-error chain. `Built::diagnostics` records, per group, the
+simplifier estimate, whether the sloppy fallback produced it, the sampled step
+and original-source terms (the source term includes the existing measured
+error floor and is not an independent measurement of raw deviation), the
+inherited child error and the acceptance or rejection reason. Containers do not
+store those reasons: the reader path reports pins at the coarsest depth as
+roots and every other pin as `UnknownPinned`.
+
+**Rule.** The report fails on any pinned group that is not a final root, and on
+any equal-error chain: a finite positive stored error exactly equal along
+`minimum_levels` or more consecutive linked depths (each link joins a group to a
+parent one depth coarser) while the stored triangle count strictly falls at
+every link. Such a chain means a coarser level claims no more error than a finer
+one, so a pixel-threshold cut either refines the whole chain or none of it and
+can never select the coarse levels. Three levels is the recommended cooker
+rule, two the smallest accepted; the cooker should record the report with the
+asset. Zero-error chains (exact planar reductions) and the final roots pass.
+Chains can overlap; each reports its coarsest group and its length.
+
+This is a structural check on stored values, before or after the writer adds
+quantization displacement. It does not certify continuous surface deviation,
+shading quality or runtime cut cost, and a failing report is evidence to
+inspect the asset and the build policy, not a request to raise errors.
+
+The saturation that motivated the rule: a 91,216-triangle consumer mesh built
+at builder revision 8 first introduced error 3.29 at depth 4. That maximum
+remained through depth 9 as stored triangles fell from 5,684 to 192. One depth-4 group had fallen back to
+sloppy simplification and stored `simplify_error_factor_sloppy` times the
+grid-clustering estimate, 3.29, while its sampled step deviation was 1.99 and
+its sampled original-source deviation lower still. The coarsest finite levels
+each had a single group, so monotone inheritance carried 3.29 through those
+levels and the one-pixel cut drew 4,836 triangles with the mesh 32 px tall.
+Removing only the sloppy estimate was insufficient: the regular simplifier
+then reported 3.216 for a step whose sampled deviation was 0.942. Revision 9
+measures both paths: see "Partial steps and measured errors" above.

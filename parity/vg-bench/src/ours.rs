@@ -28,6 +28,8 @@ pub struct Ours {
     pub level_count: usize,
     pub positions: Vec<[f32; 3]>,
     pub v2_file: bool,
+    pub grid_exponent: i32,
+    pub diagnostics: Vec<meshoptimizer_rs::clusterlod::v2::GroupDiagnostics>,
 }
 
 /// Wall times of the build phases in milliseconds.
@@ -126,7 +128,17 @@ pub fn build_with(
         let nodes = build_hierarchy(&meta, NODE_WIDTH, level_count, &mut ws).map_err(|e| format!("{e:?}"))?;
         let hierarchy_ms = t1.elapsed().as_secs_f64() * 1e3;
         Ok((
-            Ours { groups, clusters, indices, nodes, level_count, positions, v2_file: true },
+            Ours {
+                groups,
+                clusters,
+                indices,
+                nodes,
+                level_count,
+                positions,
+                v2_file: true,
+                grid_exponent: -22,
+                diagnostics: Vec::new(),
+            },
             Timing { dag_ms, hierarchy_ms, accounted_bytes: 0, work: 0 },
         ))
     })
@@ -167,7 +179,8 @@ impl Ours {
             v2::write(
                 &source,
                 &v2::WriteOptions::new(
-                    meshoptimizer_rs::clusterlod::page::QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?,
+                    meshoptimizer_rs::clusterlod::page::QuantGrid::new(self.grid_exponent)
+                        .map_err(|e| format!("{e:?}"))?,
                 ),
                 &mut ws,
             )
@@ -408,6 +421,8 @@ pub struct V2Settings {
     pub uv_weight: Option<f32>,
     pub tangent_weight: Option<f32>,
     pub duplicate_normals: bool,
+    /// Position grid exponent; -22 suits the 2 m `prep` extent.
+    pub grid_exponent: i32,
 }
 impl Default for V2Settings {
     fn default() -> Self {
@@ -416,6 +431,7 @@ impl Default for V2Settings {
             uv_weight: None,
             tangent_weight: None,
             duplicate_normals: false,
+            grid_exponent: -22,
         }
     }
 }
@@ -471,8 +487,8 @@ pub fn build_v2_with(
         }
         let mut ws = unlimited();
         let t = Instant::now();
-        let built = v2::build(config, input, QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?, &mut ws)
-            .map_err(|e| format!("{e:?}"))?;
+        let grid = QuantGrid::new(settings.grid_exponent).map_err(|e| format!("{e:?}"))?;
+        let built = v2::build(config, input, grid, &mut ws).map_err(|e| format!("{e:?}"))?;
         let dag_ms = t.elapsed().as_secs_f64() * 1e3;
         let usage = ws.usage();
         let mut positions = src.positions.clone();
@@ -482,6 +498,8 @@ pub fn build_v2_with(
         let indices = built.indices.iter().map(|&i| built.vertex_source[i as usize]).collect();
         let level_count = built.groups.iter().map(|g| g.depth as usize + 1).max().unwrap_or(0);
         let mut o = Ours {
+            grid_exponent: settings.grid_exponent,
+            diagnostics: built.diagnostics,
             groups: built.groups,
             clusters: built.clusters,
             indices,

@@ -9,6 +9,7 @@ mod diag;
 mod materials;
 mod ours;
 mod report;
+mod saturation;
 mod shading;
 mod source;
 
@@ -46,6 +47,9 @@ fn main() {
         Some("eval") => eval(&args[1..]),
         Some("diag") => diag(&args[1..]),
         Some("plateau") => plateau(&args[1..]),
+        Some("cooked") => saturation::cooked(&args[1..]),
+        Some("raw-prep") => saturation::raw_prep(&args[1..]),
+        Some("rebuild") => saturation::rebuild(&args[1..]),
         Some("limits") => limits(&args[1..]),
         Some("shade-eval") => shading::evaluate(&args[1..]),
         _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
@@ -71,7 +75,13 @@ fn v2_settings(args: &[String]) -> Result<ours::V2Settings, String> {
         Some("1") => true,
         _ => return Err("duplicate-normals needs 0 or 1".into()),
     };
-    Ok(ours::V2Settings { normal_error_weight, uv_weight, tangent_weight, duplicate_normals })
+    Ok(ours::V2Settings {
+        normal_error_weight,
+        uv_weight,
+        tangent_weight,
+        duplicate_normals,
+        grid_exponent: ours::V2Settings::default().grid_exponent,
+    })
 }
 
 /// `prep <mesh.ply|gltf> <out.vgm> [--extent 2.0]`
@@ -166,7 +176,7 @@ fn eval(args: &[String]) -> Result<(), String> {
     let label = Json::new().text("builder", &shown).text("mesh", &name);
     let settings = cut::Settings {
         dirs: num(args, "--dirs", 64),
-        spans: vec![64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0],
+        spans: vec![32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0],
         // The first entry selects the source clusters: it isolates the reference
         // format's position quantisation from simplification error.
         thresholds: vec![1e-9, 0.5, 1.0, 2.0, 4.0],
@@ -210,8 +220,12 @@ fn eval(args: &[String]) -> Result<(), String> {
 /// rules prototyped in `diag::price_removed_components` and `diag::price_measured_steps`.
 fn build_variant(src: &Source, jobs: usize, set: Option<String>) -> Result<ours::Ours, String> {
     let v = config(set)?;
-    let (mut o, _) =
-        if v.v2 { ours::build_v2(src, jobs, v.config)? } else { ours::build_with(src, jobs, v.config, v.normals)? };
+    let (mut o, _) = if v.v2 {
+        let settings = ours::V2Settings { grid_exponent: v.grid, ..ours::V2Settings::default() };
+        ours::build_v2_with(src, jobs, v.config, settings)?
+    } else {
+        ours::build_with(src, jobs, v.config, v.normals)?
+    };
     if v.removed {
         let raised = diag::price_removed_components(&mut o, src);
         eprintln!("removed-component rule raised {raised} groups");
@@ -232,6 +246,7 @@ struct Variant {
     removed: bool,
     measured: bool,
     v2: bool,
+    grid: i32,
 }
 
 /// Apply `key=value,...` overrides to the default configuration.
@@ -241,6 +256,7 @@ fn config(set: Option<String>) -> Result<Variant, String> {
     let mut removed = false;
     let mut measured = false;
     let mut v2 = false;
+    let mut grid = ours::V2Settings::default().grid_exponent;
     for kv in set.iter().flat_map(|s| s.split(',')).filter(|s| !s.is_empty()) {
         let (k, v) = kv.split_once('=').ok_or(format!("bad override {kv}"))?;
         let f: f32 = v.parse().map_err(|_| format!("bad value {kv}"))?;
@@ -256,10 +272,11 @@ fn config(set: Option<String>) -> Result<Variant, String> {
             "removed" => removed = f != 0.0,
             "measured" => measured = f != 0.0,
             "v2" => v2 = f != 0.0,
+            "grid" => grid = f as i32,
             _ => return Err(format!("unknown override {k}")),
         }
     }
-    Ok(Variant { config: c, normals, removed, measured, v2 })
+    Ok(Variant { config: c, normals, removed, measured, v2, grid })
 }
 
 /// `diag <ours|bevy> <in.vgm> [--artifact file] [--set k=v,...] [--jobs 8] [--samples 200000] [--no-groups]`
