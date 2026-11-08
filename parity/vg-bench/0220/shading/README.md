@@ -1,13 +1,18 @@
-# Applied shading candidate
+# Measured shading term
 
-Continuation 3 applies [the original draft](DRAFT.patch) to the calibration
-commit. The candidate adds sampled normal-loss displacement to MDAG 2 group
-errors and binds its weight in builder revision 8. Container layouts are unchanged.
-Static review also restores the public quality API's `NumericalFailure` for
-undefined interpolated normals, which the draft accidentally changed.
+Continuation 4 is complete: revision 8 compiled, the five-mesh weight and
+UV/tangent comparisons ran, finite budgets and worker/default/legacy byte
+identity passed, and every final gate exited zero. See [TABLE.md](TABLE.md)
+and [the disposition](../REPORT.md).
 
-**BLOCKED: no admission within 45 minutes; compilation, tests and comparison did not run.**
-Weight zero remains a disabled placeholder, not a measured default selection.
-No new normal/UV/tangent recommendation or shading-quality result is claimed.
-Formatting and the public-text scan pass. Full gate and measurement status is
-recorded in [the disposition](../REPORT.md) for this continuation.
+The measured default remains **zero**: no tested weight met both dragon
+selection bars. Opt-in shading mode uses normal-error weight 1, dedicated
+normals only (simplifier weight 0.5), UV weight 1 and tangent weight 1.
+Tangents in the matrix are derived from authored UVs; authored tangent
+quality remains outside this evidence.
+
+The term prices sampled normal-loss displacement without changing MDAG 2
+container or page layouts. Original full qualification remains NOT QUALIFIED.
+The prior continuation files preserve historical blocked attempts;
+[continuation4-status.json](continuation4-status.json) records the final state
+and cleanup receipt. No commit or integration action was taken.

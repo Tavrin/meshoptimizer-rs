@@ -1,0 +1,9 @@
+{
+  "uv_weight": 1.0,
+  "tangent_weight": 1.0,
+  "normal_error_weight": 1.0,
+  "simplifier_normal_weight": 0.5,
+  "duplicate_normals": false,
+  "criterion": "All three meshes: normal, UV, tangent p95 and tangent handedness mismatch fraction <= 1.10 of correctly packed 1/1. Minimize geometric mean triangle ratio; ties prefer larger weights.",
+  "tangent_provenance": "Derived from authored UVs; no authored tangent qualification."
+}

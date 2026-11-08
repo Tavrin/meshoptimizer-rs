@@ -1,0 +1,14 @@
+{
+  "all_features_attempt1": {
+    "exit": 137,
+    "cause": "systemd-oomd killed scope; user journal confirms 70 processes killed",
+    "wrapper_pid": 3666330,
+    "declared_gib": 4,
+    "scope_cap_gib": 10
+  },
+  "retry": {
+    "cargo_build_jobs": 2,
+    "declared_gib": 4,
+    "protocol": "Sequential all-features tests, harness evaluator tests/build, one study campaign under one admission."
+  }
+}

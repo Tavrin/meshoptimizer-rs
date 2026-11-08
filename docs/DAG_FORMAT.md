@@ -561,7 +561,7 @@ opaque and unique. At most 16 channels are accepted; a channel's last source
 component must be below 32. Encoding IDs and errors are in `PAGE_FORMAT.md`.
 The hash is the low 32 bits of XXH64 of the channel records, seed zero. The
 build key includes layout fields, source normals, source per-triangle slots,
-and the measured-step policy. Builder revision is 5 (local source-region ownership requires a recook).
+and the measured-step policy. Builder revision is 8 (sampled normal-loss pricing requires a recook).
 
 `Source` accepts this layout, an attribute view in snapshot-vertex order, and an
 optional slot per vertex. The writer rejects mixed-slot source triangles and
@@ -680,7 +680,7 @@ The finite-budget calibration of the retained builder uses fresh workspaces,
 | coast_rocks_01 | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
 | dragon | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
 
-`clusterlod::v2::suggested_limits(T)` suggests 16 MiB + 512T bytes and
+`clusterlod::v2::suggested_limits(T)` suggests 16 MiB + 1024T bytes and
 2^24 + 4096T visits, using checked arithmetic. These allowances exceed twice
 the observed peaks and work across this range. They are empirical starting
 budgets, rather than upper bounds for arbitrary meshes. The helper passed on all five meshes with the selected builder. Initial retained-source gates and the storage-only dragon isolation also passed. Variant measurements and final gate receipts are recorded in the benchmark continuation report. Use successful high-budget runs for calibration. A failed call's usage covers only its executed
@@ -688,3 +688,57 @@ prefix, so it can understate both eventual peak storage and total work.
 `LimitExceeded` can indicate either storage or work exhaustion. Raising both
 budgets together demonstrates success but does not identify which budget was too
 small; vary one budget at a time to isolate the limit.
+
+
+## Sampled shading error
+
+`BuildMesh::normal_error_weight` prices source normal variation discarded between
+surviving vertices. For an original-source region, take the maximum sampled
+angle between source and nearest replacement interpolated normals in both
+surface directions. With regional maximum source/replacement triangle edge L,
+its displacement proxy is `2 * weight * L * sin(angle / 2)`. This unit-normal
+chord is monotone through 180 degrees and is a conservative local lever-arm
+choice. Maximize it with every positional floor and inherit it through parents.
+This is a sampled shading proxy, not a continuous normal, BRDF or texture bound.
+Undefined interior normal interpolants contribute 180 degrees on this new private
+path; the public quality-statistics API retains its strict numerical refusal.
+
+The default weight is 0. Zero disables this term; absent normals also
+leave the geometric builder unchanged. Weights must be finite and nonnegative.
+The angular pass shares the existing region samples and exact nearest queries.
+Repeated corners are deduplicated. Constant-normal regions, and regions whose
+geometric floor already exceeds the largest possible chord displacement, keep
+the positional-only path. Topology and attribute references are unchanged by
+this weight; only stored errors and resulting runtime cuts change.
+
+Set normals only through `BuildMesh::normals`; their simplifier weight remains
+0.5. Pack UV and tangent components through the existing `attributes` and
+`attribute_weights` fields. Packing normals there as well weights them a second
+time. `KeyInputs::normal_error_weight` must match the build input when computing
+a cook key. Its constructor uses the same default; builder revision 8 invalidates
+prior keys without changing the MDAG 2 container or page layouts. Legacy entry
+points retain their earlier semantics and byte output.
+
+The five-mesh weight comparison, default decision, and UV/tangent recommendation
+are recorded in the [sampled shading table](../parity/vg-bench/0220/shading/TABLE.md).
+
+
+Calibration of the selected default normal-error weight 0, with fresh
+finite suggested budgets, normals via the dedicated field, no UV/tangent
+attributes, `default_config(128)` and grid -22:
+
+| Mesh | Source triangles | Peak accounted bytes | Counted visits | Bytes/source triangle | Visits/source triangle |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| bunny | 69,451 | 20,792,603 | 120,376,811 | 299.4 | 1,733.3 |
+| dead_tree_trunk_02 | 83,128 | 24,057,919 | 138,556,852 | 289.4 | 1,666.8 |
+| namaqualand_boulder_02 | 97,964 | 27,456,109 | 164,606,079 | 280.3 | 1,680.3 |
+| coast_rocks_01 | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
+| dragon | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
+
+Every selected-default finite build succeeds with at least twice its measured
+accounted peak and counted work available. The helper uses fixed overhead plus
+power-of-two per-triangle factors, chosen above twice the initial successful
+1T observations and then validated with finite budgets. These are empirical
+allowances for this corpus and input policy. Additional attributes, unused
+vertices, material duplication, locks or different topology require profiling.
+The UV/tangent comparison does not qualify these budgets for those channels.

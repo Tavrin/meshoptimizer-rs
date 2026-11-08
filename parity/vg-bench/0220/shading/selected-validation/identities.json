@@ -1,0 +1,32 @@
+[
+  {
+    "mesh": "bunny",
+    "sha256": "09950be193b9d4d16ee73a054393d6f07e26a69d43eceb1dc2a92f113fb92767",
+    "same_as": "bunny.normal-0p0.1T.bin",
+    "default_weight": 0.0
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "sha256": "efb8767288cf7c6602d8c9a3a8dd6d3c8a8c14d0156660ce284d31e7d1b1d5ad",
+    "same_as": "dead_tree_trunk_02.normal-0p0.1T.bin",
+    "default_weight": 0.0
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "sha256": "cfd7ade3b678ded01fdea405bda275805b0570fa882e60ebb929bc185f874264",
+    "same_as": "namaqualand_boulder_02.normal-0p0.1T.bin",
+    "default_weight": 0.0
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "sha256": "7970c56e4488443e89fd3c29c780aa6ddcac247a9686d96b2278e291a190014d",
+    "same_as": "coast_rocks_01.normal-0p0.1T.bin",
+    "default_weight": 0.0
+  },
+  {
+    "mesh": "dragon",
+    "sha256": "7f241134d26d6fa3ba3df9050f5bad21d5d6cd4a9c6284b5f96b1fcd59c5263d",
+    "same_as": "dragon.normal-0p0.1T.bin",
+    "default_weight": 0.0
+  }
+]

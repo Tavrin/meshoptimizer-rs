@@ -2,7 +2,7 @@
 use super::*;
 use crate::{LodQualityMesh, LodQualityOptions};
 
-// Disabled until the recorded shading-weight comparison chooses a default.
+// The measured shading-weight comparison did not meet both default-selection bars.
 pub(super) const DEFAULT_NORMAL_ERROR_WEIGHT: f32 = 0.0;
 
 /// Inputs for a static virtual-geometry build.
@@ -15,7 +15,7 @@ pub struct BuildMesh<'a> {
     /// Optional unit normals, weighted by 0.5 in simplification.
     pub normals: Option<&'a [[f32; 3]]>,
     /// Weight of sampled normal-loss displacement; zero disables it.
-    /// Only applies when normals are supplied. Must be finite and nonnegative.
+    /// Defaults to 0. Only applies when normals are supplied. Must be finite and nonnegative.
     /// For each original-source region, L is its largest source/replacement
     /// triangle edge and theta its maximum sampled normal angle. The error is
     /// at least 2 * weight * L * sin(theta / 2), inherited monotonically.
@@ -54,10 +54,10 @@ impl<'a> BuildMesh<'a> {
 
 /// Suggest finite build budgets from the source triangle count.
 ///
-/// This empirical starting point uses 16 MiB plus 512 bytes per triangle and
+/// This empirical starting point uses 16 MiB plus 1024 bytes per triangle and
 /// 2^24 plus 4096 visits per triangle. It provides headroom over the five-mesh
 /// calibration (69,451 to 871,414 triangles, `default_config(128)`, normals at
-/// weight 0.5, grid -22). It is not a worst-case bound: unused vertices,
+/// simplifier weight 0.5, normal-error weight 0, grid -22). It is not a worst-case bound: unused vertices,
 /// attributes, material duplication, locks and overlapping surfaces can require
 /// more. Inspect successful [`Workspace::usage`] on representative inputs and
 /// provision caller buffers and serialization separately. Finite budgets use
@@ -67,7 +67,7 @@ impl<'a> BuildMesh<'a> {
 /// [`Error::SizeOverflow`] if either budget cannot be represented.
 pub fn suggested_limits(source_triangles: usize) -> Result<crate::Limits, Error> {
     let max_bytes = source_triangles
-        .checked_mul(512)
+        .checked_mul(1024)
         .and_then(|n| n.checked_add(1 << 24))
         .ok_or(Error::SizeOverflow)?;
     let max_work = u64::try_from(source_triangles)
@@ -135,6 +135,20 @@ pub struct Built {
 /// | 97,964 | 27,456,109 | 164,606,079 | 280.3 | 1,680.3 |
 /// | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
 /// | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
+///
+/// Calibration of the selected default normal-error weight 0, with fresh finite
+/// suggested budgets, the same configuration, dedicated normals and no extra attributes:
+///
+/// | Source triangles | Peak accounted bytes | Counted visits |
+/// | ---: | ---: | ---: |
+/// | 69,451 | 20,792,603 | 120,376,811 |
+/// | 83,128 | 24,057,919 | 138,556,852 |
+/// | 97,964 | 27,456,109 | 164,606,079 |
+/// | 679,936 | 138,275,489 | 1,226,583,317 |
+/// | 871,414 | 170,885,388 | 1,637,258,603 |
+///
+/// Each suggested budget exceeds twice the selected-default observation.
+/// Additional UV/tangent channels are outside this calibration.
 ///
 /// [`suggested_limits`] supplies an empirical starting budget for this range.
 /// Triangle count alone does not bound unused vertices, attribute
@@ -1040,7 +1054,13 @@ mod source_error_tests {
 #[cfg(test)]
 mod normal_error_tests {
     use super::*;
-    fn patch() -> (Vec<[f32; 3]>, Vec<u32>, Vec<[f32; 3]>, [u32; 6]) {
+    struct Patch {
+        positions: Vec<[f32; 3]>,
+        indices: Vec<u32>,
+        normals: Vec<[f32; 3]>,
+        replacement: [u32; 6],
+    }
+    fn patch() -> Patch {
         let mut positions = Vec::new();
         for y in 0..3 {
             for x in 0..3 {
@@ -1060,11 +1080,21 @@ mod normal_error_tests {
             0.,
             core::f32::consts::FRAC_1_SQRT_2,
         ];
-        (positions, indices, normals, [0, 2, 8, 0, 8, 6])
+        Patch {
+            positions,
+            indices,
+            normals,
+            replacement: [0, 2, 8, 0, 8, 6],
+        }
     }
     #[test]
     fn planar_geometry_prices_lost_interpolated_normal_variation() {
-        let (p, i, n, out) = patch();
+        let Patch {
+            positions: p,
+            indices: i,
+            normals: n,
+            replacement: out,
+        } = patch();
         let mut ws = Workspace::default();
         let mut ctx = Context::new(&mut ws).expect("context");
         let mut errors = Vec::new();

@@ -1,13 +1,16 @@
 # Virtual-geometry benchmark results
 
-**Continuation 3 is BLOCKED / INCOMPLETE; original qualification remains NOT QUALIFIED.**
-The shading candidate is applied but uncompiled, untested and unmeasured: the
-first 4 GiB test submission received no admission within 45 minutes.
+**0.2.20 remains NOT QUALIFIED against the complete original bars.** The latest
+priority adds sampled shading error and selects its default from a five-mesh
+one-pixel comparison. Further rocks/dragon cut and storage work was superseded.
 
-See [the disposition](0220/REPORT.md) for gates, historical bars and remaining
-work, and [the requested table](0220/shading/TABLE.md) for twenty explicitly
-unmeasured cells. No default or numerical attribute-weight set was selected.
-The target is removed; HEAD and index are unchanged.
+See the [current disposition](0220/REPORT.md) for original-bar limits, retained
+calibration improvement, final gate exits, budget validation and custody.
+The [complete shading table](0220/shading/TABLE.md) reports weights 0, 0.25, 0.5
+and 1: mean cut triangles, normal p95/maximum, geometric measured/claimed error,
+and build time, plus the existing UV/tangent weight matrix and recommendation.
 
-[Previous results](RESULTS-before-continuation3.md) remain historical
-and do not qualify the applied candidate.
+Earlier campaigns remain historical in
+[the previous results](0220/continuation2/RESULTS-before-shading.md),
+[the initial weighted-region table](0220/TABLE.md) and
+[rejected/retained continuation evidence](0220/continuation2/TABLE.md).

@@ -1,8 +1,11 @@
-# Continuation 3 stopping condition reached
+# Current lane status
 
-No heavy job was admitted within 45 minutes. The first test submission was
-stopped before compilation. This is the brief's stop, not a human hold.
+The shading-priority implementation, sampled corpus comparison, default choice,
+attribute-weight recommendation, finite-budget validation and final source gates
+are complete. The full original qualification remains **NOT QUALIFIED**; the
+unclosed limits and superseded work are in [REPORT](REPORT.md).
 
-The applied shading candidate is uncompiled, untested and unmeasured. No default
-or numerical attribute-weight recommendation is selected. The target is removed.
-No lane job remains intentionally queued. See [REPORT](REPORT.md).
+No further measurement variant is scheduled. Operator-owned Git state is
+unchanged. The dedicated target has been removed; the cleanup receipt is in
+[the final status](shading/continuation4-status.json). Historical
+hold instructions are archived in [the prior hold](continuation2/HOLD-before-shading.md).
