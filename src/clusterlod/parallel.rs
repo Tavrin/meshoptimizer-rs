@@ -195,6 +195,7 @@ mod tests {
     fn work_bound_falls_back_before_serial_exhaustion_or_overflow() {
         let result = Computed {
             prepared: Prepared {
+                diagnostics: v2::GroupDiagnostics::default(),
                 merged_idx: Vec::new(),
                 gb: Vec::new(),
                 simplified: Vec::new(),

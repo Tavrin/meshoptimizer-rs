@@ -2,6 +2,12 @@
 use super::*;
 use crate::{LodQualityMesh, LodQualityOptions};
 
+mod health;
+pub use health::{
+    health, health_from_reader, DepthHealth, EqualErrorChain, GroupDiagnostics, GroupStatus,
+    HealthReport, PinnedGroup,
+};
+
 // The measured shading-weight comparison did not meet both default-selection bars.
 pub(super) const DEFAULT_NORMAL_ERROR_WEIGHT: f32 = 0.0;
 
@@ -56,7 +62,7 @@ impl<'a> BuildMesh<'a> {
 ///
 /// This empirical starting point uses 16 MiB plus 1024 bytes per triangle and
 /// 2^24 plus 4096 visits per triangle. It provides headroom over the five-mesh
-/// calibration (69,451 to 871,414 triangles, `default_config(128)`, normals at
+/// builder-revision-8 calibration (69,451 to 871,414 triangles, `default_config(128)`, normals at
 /// simplifier weight 0.5, normal-error weight 0, grid -22). It is not a worst-case bound: unused vertices,
 /// attributes, material duplication, locks and overlapping surfaces can require
 /// more. Inspect successful [`Workspace::usage`] on representative inputs and
@@ -99,6 +105,8 @@ pub struct Built {
     pub clusters: Vec<FlatDagCluster>,
     /// Groups in fine-to-coarse emission order.
     pub groups: Vec<FlatDagGroup>,
+    /// Error terms and acceptance reasons in group emission order.
+    pub diagnostics: Vec<GroupDiagnostics>,
     /// Groups rejected by retained-ratio, empty-output, mixed-slot or alpha coverage rules.
     pub stuck_groups: usize,
     /// Steps rejected by the alpha coverage rule and retained as pinned stuck groups.
@@ -115,6 +123,17 @@ pub struct Built {
 /// Sampling is not a continuous Hausdorff certificate.
 /// Dilation is rejected: this path retains exact source attribute references.
 ///
+/// A step that removes triangles but retains more than `simplify_threshold`
+/// is kept as a partial step ([`GroupStatus::PartialReduction`]). Partial
+/// steps can repeat while each strictly removes triangles; the format depth
+/// limit still bounds the build. Parent partitions accommodate twice the
+/// largest replacement region so partial regions can merge and release shared
+/// boundary locks. Every accepted step stores its independently
+/// sampled deviation rather than a regular quadric or sloppy grid estimate.
+/// The original-source pass prices accumulated deviation and preserves
+/// monotone inheritance. `simplify_error_factor_sloppy` affects legacy builds
+/// only. [`health()`] reports partial, sloppy and pinned groups per depth.
+///
 /// # Sizing resource limits
 /// The default [`crate::Limits`] supplies 1 GiB of accounted storage and 2^34
 /// counted visits. These are initial profiling ceilings, not bounds for every
@@ -125,7 +144,7 @@ pub struct Built {
 /// caller buffers, allocator overhead, thread stacks and later serialization
 /// need separate memory allowances. Work counts visits, not instructions or time.
 ///
-/// Calibration with normal-error weight zero and fresh finite workspaces,
+/// Builder-revision-8 calibration with normal-error weight zero and fresh finite workspaces,
 /// `default_config(128)`, normals at weight 0.5 and grid -22:
 ///
 /// | Source triangles | Peak accounted bytes | Counted visits | Bytes/triangle | Visits/triangle |
@@ -310,7 +329,7 @@ pub fn build(
             attribute_weights: &weights,
             attribute_protect_mask: protect,
         },
-        &mut |g, mut cs, _p, ctx| {
+        &mut |g, diagnostics, mut cs, _p, ctx| {
             if g.depth < 0 || g.depth as u32 >= super::dag_format::v2::MAX_LEVELS {
                 return Err(Error::LimitExceeded);
             }
@@ -324,6 +343,8 @@ pub fn build(
             )
             .map_err(|_| Error::SizeOverflow)?;
             grow_output(ctx, &mut out.groups, 1)?;
+            grow_output(ctx, &mut out.diagnostics, 1)?;
+            out.diagnostics.push(diagnostics);
             out.groups.push(FlatDagGroup {
                 center: g.simplified.center,
                 radius: g.simplified.radius,
@@ -525,6 +546,10 @@ fn source_error_floor(
             if c.refined >= 0 {
                 inherited = inherited.max(out.groups[c.refined as usize].error);
             }
+        }
+        if let Some(diagnostic) = out.diagnostics.get_mut(g) {
+            diagnostic.source_error = value;
+            diagnostic.inherited_error = inherited;
         }
         out.groups[g].error = out.groups[g].error.max(inherited).max(value);
     }

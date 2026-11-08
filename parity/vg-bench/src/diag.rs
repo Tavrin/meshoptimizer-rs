@@ -393,7 +393,7 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
         }
     }
     // (depth, error, inherited, local s2l, local l2s, input tris, output tris)
-    type Row = (i32, f32, f32, f64, f64, usize, usize);
+    type Row = (i32, f32, f32, f64, f64, usize, usize, usize);
     let rows: Vec<Row> = pool.install(|| {
         (0..g_count)
             .into_par_iter()
@@ -409,11 +409,28 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
                     q.level_to_source.max,
                     members[g].len() / 3,
                     patch[g].len() / 3,
+                    g,
                 ))
             })
             .collect()
     });
-    let mut lines = Vec::new();
+    let mut lines: Vec<String> = rows
+        .iter()
+        .map(|r| {
+            label
+                .clone()
+                .text("kind", "diag_step")
+                .with("group", r.7)
+                .with("depth", r.0)
+                .with("error", r.1)
+                .with("inherited", r.2)
+                .with("s2l", r.3)
+                .with("l2s", r.4)
+                .with("in_tris", r.5)
+                .with("out_tris", r.6)
+                .to_string()
+        })
+        .collect();
     let max_depth = rows.iter().map(|r| r.0).max().unwrap_or(0);
     let pct = |v: &mut Vec<f64>, p: f64| {
         if v.is_empty() {
@@ -470,6 +487,67 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
 
 /// Per-level stored error distribution and ownership of replacement clusters.
 pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
+    let mut diagnostic_lines = Vec::new();
+    for (id, d) in o.diagnostics.iter().enumerate() {
+        diagnostic_lines.push(
+            label
+                .clone()
+                .text("kind", "error_terms")
+                .with("group", id)
+                .with("depth", o.groups[id].depth)
+                .text("status", &format!("{:?}", d.status))
+                .with("simplifier", d.simplifier_error)
+                .with("step", d.step_error)
+                .with("source_floor", d.source_error)
+                .with("inherited", d.inherited_error)
+                .with("sloppy", d.sloppy_fallback)
+                .with("error", o.groups[id].error)
+                .to_string(),
+        );
+    }
+    let built = meshoptimizer_rs::clusterlod::v2::Built {
+        groups: o.groups.clone(),
+        clusters: o.clusters.clone(),
+        diagnostics: o.diagnostics.clone(),
+        ..Default::default()
+    };
+    match meshoptimizer_rs::clusterlod::v2::health(&built, 3, &mut Workspace::default()) {
+        Ok(h) => {
+            for chain in &h.equal_error_chains {
+                diagnostic_lines.push(
+                    label
+                        .clone()
+                        .text("kind", "health_chain")
+                        .with("group", chain.group)
+                        .with("levels", chain.levels)
+                        .with("error", chain.error)
+                        .to_string(),
+                );
+            }
+            for pin in &h.pinned_groups {
+                diagnostic_lines.push(
+                    label
+                        .clone()
+                        .text("kind", "health_pin")
+                        .with("group", pin.group)
+                        .text("reason", &format!("{:?}", pin.reason))
+                        .to_string(),
+                );
+            }
+            diagnostic_lines.push(
+                label
+                    .clone()
+                    .text("kind", "health")
+                    .with("pass", h.passed)
+                    .with("chains", h.equal_error_chains.len())
+                    .with("pinned", h.pinned_groups.len())
+                    .to_string(),
+            );
+        }
+        Err(e) => diagnostic_lines
+            .push(label.clone().text("kind", "health_error").text("error", &format!("{e:?}")).to_string()),
+    }
+
     let mut owners = vec![Vec::new(); o.groups.len()];
     let mut inherited = vec![0f32; o.groups.len()];
     for c in &o.clusters {
@@ -481,7 +559,7 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
             inherited[c.group as usize] = inherited[c.group as usize].max(o.groups[child].error);
         }
     }
-    let mut lines = Vec::new();
+    let mut lines = diagnostic_lines;
     for depth in 0..o.level_count {
         let mut groups: Vec<_> = o.groups.iter().enumerate().filter(|(_, g)| g.depth == depth as i32).collect();
         let stuck = groups.iter().filter(|(_, g)| g.error == f32::MAX).count();
@@ -533,6 +611,7 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
                 .with("clusters_max", size(1.0))
                 .with("retained_ratio_median", ratio(0.5))
                 .with("retained_ratio_p95", ratio(0.95))
+                .with("min", pct(0.0))
                 .with("median", pct(0.5))
                 .with("p95", pct(0.95))
                 .with("max", pct(1.0))

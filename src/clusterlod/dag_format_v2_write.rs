@@ -29,8 +29,10 @@ use alloc::vec::Vec;
 /// Revision 5 keeps replacement siblings in one parent source region.
 /// Revision 6 partitions sibling regions with their cluster counts as weights.
 /// Revision 8 prices sampled interpolated-normal loss in original-source regions.
+/// Revision 9 keeps partial reductions instead of the sloppy fallback and
+/// independently measures regular and remaining sloppy steps.
 /// Revision 7 was reserved for an abandoned codec experiment.
-pub const BUILDER_REVISION: u32 = 8;
+pub const BUILDER_REVISION: u32 = 9;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
