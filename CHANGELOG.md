@@ -20,15 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replace regular quadric and sloppy grid error estimates with independently
-  sampled step deviations in MDAG 2 builds. Either heuristic could pin every
-  coarse ancestor to one large error: a regular estimate of 3.216 corresponded
-  to a sampled step deviation of 0.942 on a 91,216-triangle source. Monotone
-  inheritance and the final original-source error pass remain intact.
+- Sample step deviation independently in MDAG 2 builds. Regular steps keep
+  the quadric estimate as a floor. Sloppy steps rely on sampling because the
+  grid estimate can saturate coarse ancestors. The original-source error
+  pass and monotone inheritance are retained.
   `v2::build` keeps partial steps that miss `simplify_threshold` while strictly
   removing triangles; these can repeat to release boundary locks through
-  repartitioning, within the format depth limit. Builder revision 9 invalidates
-  cook keys; legacy builders and MDAG 1 are unchanged.
+  repartitioning. Remaining geometry is pinned at the format depth limit.
+  Builder revision 10 invalidates cook keys and omits the legacy sloppy-error
+  multiplier and edge-error cap from measured build keys.
   Parent partitions grow to accommodate two largest replacement regions,
   allowing partial regions to merge and release shared boundary locks instead
   of becoming isolated pinned groups.
@@ -37,8 +37,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pinned, sloppy and partial counts and error min/median/max, linked
   equal-error chains and pinned groups with their reasons, and a documented
   pass/fail rule (`docs/DAG_FORMAT.md`, "Structural build health gate").
-  `build_with_diagnostics` collects each group's error terms and acceptance reason
-  for `health_with_diagnostics`. The container layout is unchanged.
+  `build_with_diagnostics` collects group error terms and acceptance reasons
+  for `health_with_diagnostics`. The chain test accounts for all distinct child
+  groups and the container's quantization displacement. Root inference checks
+  topology, and unsupported chain lengths return `InvalidParameter`.
+  `GroupDiagnostics::error_measured` marks stored errors that an unfloored
+  original-source geometric sample reaches, or that a measured child passes up
+  unchanged; the step deviation, quadric floor, normal-loss price and additive
+  margin never mark it. With diagnostics, a chain whose coarsest group is
+  measured is reported with `EqualErrorChain::measured` and does not fail;
+  `health_with_diagnostics` returns `InvalidTopology` for a measured group
+  whose stored error is none of its own step, source or inherited terms.
+  Reports without diagnostics, including container reports, fail every chain.
+  A container cannot reproduce the exemption, so the cook gate runs on
+  `health_with_diagnostics` at build time and the cooker stores the verdict and
+  report with the cache entry; a cache hit reuses it. Builder output is
+  unchanged.
 
 - Price sampled interpolated-normal loss in MDAG 2 original-source group errors,
   using a local-edge normal-chord displacement and monotone inheritance. The new

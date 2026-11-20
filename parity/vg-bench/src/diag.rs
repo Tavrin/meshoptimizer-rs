@@ -525,6 +525,7 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
                         .with("group", chain.group)
                         .with("levels", chain.levels)
                         .with("error", chain.error)
+                        .with("measured", chain.measured)
                         .to_string(),
                 );
             }

@@ -31,8 +31,10 @@ use alloc::vec::Vec;
 /// Revision 8 prices sampled interpolated-normal loss in original-source regions.
 /// Revision 9 keeps partial reductions instead of the sloppy fallback and
 /// independently measures regular and remaining sloppy steps.
+/// Revision 10 restores the regular quadric error floor, pins surviving
+/// geometry at the depth limit and omits legacy-only knobs from measured keys.
 /// Revision 7 was reserved for an abandoned codec experiment.
-pub const BUILDER_REVISION: u32 = 9;
+pub const BUILDER_REVISION: u32 = 10;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -296,8 +298,20 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
             simplify_threshold.to_bits(),
             simplify_error_merge_previous.to_bits(),
             simplify_error_merge_additive.to_bits(),
-            simplify_error_factor_sloppy.to_bits(),
-            simplify_error_edge_limit.to_bits(),
+        ],
+    );
+    if !inputs.measured_steps {
+        u32s(
+            &mut h,
+            &[
+                simplify_error_factor_sloppy.to_bits(),
+                simplify_error_edge_limit.to_bits(),
+            ],
+        );
+    }
+    u32s(
+        &mut h,
+        &[
             b(simplify_error_clamped),
             b(simplify_permissive),
             b(simplify_fallback_permissive),

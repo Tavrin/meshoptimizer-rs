@@ -434,7 +434,7 @@ bytes of a page, the resident hash covers the whole resident prefix, header
 included (its own field read as zero). They detect corruption, not tampering.
 
 `v2::build_key(&KeyInputs)` is XXH64 over the tag `MDAG2KEY`,
-`v2::BUILDER_REVISION`, every `Config` field in declaration order (`usize` as
+`v2::BUILDER_REVISION`, the applicable `Config` fields (`usize` as
 `u64`, `bool` as `u32`, `f32` as bits), the grid exponent, the attribute layout
 hash, the disk codec, page capacity, the three page limits, root budget and
 node width, the input positions (bits) and indices (as `u32`, so `u16` and
@@ -442,7 +442,9 @@ node width, the input positions (bits) and indices (as `u32`, so `u16` and
 vertex flags (presence word, count, one byte each), attributes (presence word,
 vertex count, component count, value bits), attribute weights (count, bits)
 and the protect mask. A cooker can test its cache before building.
-`BUILDER_REVISION` (6) is bumped whenever equal inputs produce different bytes.
+Measured v2 keys omit `simplify_error_factor_sloppy` and
+`simplify_error_edge_limit`. Keys for legacy builder results retain both.
+`BUILDER_REVISION` (10) is bumped whenever equal inputs produce different bytes.
 The writer stores `WriteOptions::build_key` as given (zero when not set).
 
 **Versioning.** The minor version is informational. A later minor may add
@@ -579,28 +581,30 @@ The builder retains source attributes and duplicates vertices by `(source ID,
 material slot)`. The slot is an exactly represented f32 component with weight
 zero and its protect bit set. Every simplified triangle is checked after all
 fallbacks; a mixed-slot triangle makes its entire group stuck. Stuck groups stay
-pinned. `Built::stuck_groups` reports all rejected simplification attempts and
-`material_stuck_groups` counts mixed-slot rejections specifically.
+pinned. `Built::stuck_groups` counts build-time rejections and any group pinned at the
+depth limit. `material_stuck_groups` counts mixed-slot rejections specifically.
 `WriteReport::stuck_groups` reports parentless groups below the coarsest level. Within each
 cluster triangles are stably sorted by slot, then optimized independently
 inside each range when cluster optimization is enabled. Dilation is rejected by this entry point because attribute
 references must remain attached to snapped source vertices. Error merge factors
 below one are rejected to preserve monotonic accumulation.
 
-**Partial steps and measured errors (builder revision 9).** A step that
+**Partial steps and measured errors.** A step that
 removes triangles but retains more than `simplify_threshold` is accepted as a
-partial step. Partial steps can repeat while each strictly removes triangles;
-the format depth limit still bounds the build. This gives repartitioning a
-chance to release boundary locks instead of prematurely pinning the region.
+partial step. Partial steps can repeat while each strictly removes triangles.
+This gives repartitioning a chance to release boundary locks. The last available
+format level is reserved for the final root or for pinning surviving geometry.
 Weighted parent partitions accommodate at least twice the largest replacement
 region's cluster count. This lets a region that fills the nominal partition
 target merge with neighbours and release its shared boundary locks; replacement
-siblings remain indivisible. The nominal target still applies to leaf groups.
-Every accepted step stores its independently sampled deviation rather than a
-regular quadric or sloppy grid estimate. The final original-source pass
-prices accumulated deviation and the explicit normal-error metric; monotone
-inheritance remains intact. `simplify_error_factor_sloppy` scales only legacy
-builds. These rules apply to `v2::build` only.
+siblings remain indivisible. The target is set from the largest region for the
+whole level, so smaller regions also use the enlarged target. The nominal
+target still applies to leaf groups.
+Revision 10 uses the larger of the independently sampled deviation and the
+regular quadric estimate for regular steps. Sloppy steps use their sampled
+deviation alone. The final original-source pass prices accumulated deviation
+and the explicit normal-error metric and preserves monotone inheritance. `simplify_error_factor_sloppy` and
+`simplify_error_edge_limit` apply only to legacy builds.
 
 `ATTR` now contains `channel_count, layout_hash, 0, 0`, followed by 16-byte
 channel records: `caller_tag, encoding, source_component_offset, 0`. Tags are
@@ -608,7 +612,7 @@ opaque and unique. At most 16 channels are accepted; a channel's last source
 component must be below 32. Encoding IDs and errors are in `PAGE_FORMAT.md`.
 The hash is the low 32 bits of XXH64 of the channel records, seed zero. The
 build key includes layout fields, source normals, source per-triangle slots,
-and the measured-step policy. Builder revision is 8 (sampled normal-loss pricing requires a recook).
+and the measured-step policy.
 
 `Source` accepts this layout, an attribute view in snapshot-vertex order, and an
 optional slot per vertex. The writer rejects mixed-slot source triangles and
@@ -724,8 +728,9 @@ largest representative inputs. Account separately for source vertex count,
 unused vertices, attributes, material seams, locked boundaries and topology:
 triangle count alone cannot guarantee a budget.
 
-The finite-budget calibration of the retained builder uses fresh workspaces,
-128-triangle clusters, normal weight 0.5 and grid exponent -22:
+The finite-budget calibration for `suggested_limits` used builder revision 8,
+fresh workspaces, 128-triangle clusters, a simplifier normal weight of 0.5 and
+grid exponent -22.
 
 | Mesh | Source triangles | Peak accounted bytes | Counted visits | Bytes/source triangle | Visits/source triangle |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -800,36 +805,83 @@ The UV/tangent comparison does not qualify these budgets for those channels.
 
 ### Structural build health gate
 
-`clusterlod::v2::health` returns a `HealthReport` over a `Built` DAG.
-`health_from_reader` reads the same structure from an opened MDAG 2 and the
-cluster triangle counts from its transcoded pages. The report records groups,
-triangles, pins and finite error min / upper median / max by depth, the
-inferred reason for each pin, and each linked equal-error chain.
-`build_with_diagnostics` collects per-group diagnostics that
-`health_with_diagnostics` uses for partial and sloppy counts and recorded
-pin reasons. These diagnostics contain the simplifier estimate, whether the
-sloppy fallback produced it, the sampled step
-and original-source terms (the source term includes the existing measured
-error floor and is not an independent measurement of raw deviation), the
-inherited child error and the acceptance or rejection reason. Containers do not
-store those reasons: the reader path reports pins at the coarsest depth as
-roots and every other pin as `UnknownPinned`.
+`clusterlod::v2::health(&built, 3, &mut workspace)` returns a `HealthReport`
+over a `Built` DAG; `health_from_reader(&reader, &cluster_triangles, 3, &mut
+workspace)` returns the same report over an opened MDAG 2, given each cluster's
+triangle count from its transcoded page. The report holds a per-depth table
+(groups, stored triangles, pinned, sloppy and partial groups, finite error
+min / upper median / max), every pinned group with its reason, and every
+linked equal-error chain. To include build-time reasons and partial/sloppy
+counts, collect the diagnostics with `build_with_diagnostics` and pass them
+to `health_with_diagnostics`. They contain the simplifier estimate, its fallback
+flag, sampled step and original-source terms, inherited error, and step status.
+The original-source term includes the existing measured error floor.
 
-**Rule.** The report fails on any pinned group that is not a final root, and on
-any equal-error chain: a finite positive stored error exactly equal along
-`minimum_levels` or more consecutive linked depths (each link joins a group to a
-parent one depth coarser) while the stored triangle count strictly falls at
-every link. Such a chain means a coarser level claims no more error than a finer
-one, so a pixel-threshold cut either refines the whole chain or none of it and
-can never select the coarse levels. Three levels is the recommended cooker
-rule, two the smallest accepted; the cooker should record the report with the
-asset. Zero-error chains (exact planar reductions) and the final roots pass.
-Chains can overlap; each reports its coarsest group and its length.
+Build-time reasons are absent from the container. The builder emits a final
+root only when a single cluster remains. The reader and the built report
+without diagnostics classify a pin as a root if it has no parent, consists of
+one cluster and is the sole group at the coarsest depth. They report other pins
+as `UnknownPinned`.
 
-This is a structural check on stored values, before or after the writer adds
-quantization displacement. It does not certify continuous surface deviation,
-shading quality or runtime cut cost, and a failing report is evidence to
-inspect the asset and the build policy, not a request to raise errors.
+**Rule.** Any non-root pin or unmeasured equal-error chain fails the report
+(see below for measured chains). A chain has
+the same finite positive error over at least `minimum_levels` consecutive
+linked depths. Each parent must store fewer triangles than the sum over all
+of its distinct children. Intermediate levels on a plateau are unselectable
+at the shared error threshold. The coarsest level on the plateau becomes
+eligible once the threshold is at least the chain error. Three levels is the
+recommended cooker rule. Valid lengths range from 2 through 64. Overlapping
+chains report their coarsest group and length.
+
+Stored errors cannot tell a plateau started by an inflated estimate from a
+real deviation that monotone inheritance must carry to coarser groups. The
+builder therefore marks each group's diagnostics with `error_measured`. A
+group is measured when its final stored error is reached by an *unfloored*
+original-source sample of the geometric deviation (computed without the step
+floor whenever diagnostics are collected), or when it equals a child's stored
+error, inherited unchanged, and that child is itself measured. The step's own
+deviation, which is taken against the step's input rather than the original
+source, the regular quadric floor, the angular normal-loss price and
+`simplify_error_merge_additive` are not measurements, and a pinned group is
+never measured. "The coarsest group of a chain is measured" means exactly this
+flag on the group that the chain reports; the groups below it are not
+checked separately, because a plateau of equal errors can only reach them
+through inheritance of that value. `health_with_diagnostics` still reports a
+chain whose coarsest group is measured, with `EqualErrorChain::measured` set,
+but such a chain does not fail the report. It also rejects a diagnostics table
+whose measured group does not store one of its own `step_error`,
+`source_error` or `inherited_error` (`InvalidTopology`). Without diagnostics
+(`health` and `health_from_reader`) every chain fails.
+
+The container does not record the distinction, so an opened container cannot
+reproduce the exemption: its audit reports chains informationally and fails them
+all. The cook gate therefore runs `health_with_diagnostics` on the fresh
+`build_with_diagnostics` result at build time, and the cooker stores that
+verdict and report with the cache entry. A cache hit has only the container
+and reuses the stored verdict; it does not re-run the gate.
+
+Revision-10 example: the 91,216-triangle fixture has one three-level plateau
+at 0.11053995 (groups 46, 63 and 68 at depths 0 to 2). Group 46's step sampled
+0.11053928, and its unfloored original-source pass sampled 0.11053995 against
+a quadric estimate of 0.0192, so it is measured directly. Group 63's
+replacement keeps that point; its unfloored original-source maximum is the
+same value. Group 68's own maximum is 0.07064,
+and it stores 0.11053995 only because monotone inheritance requires it. At
+100 times the build sampling density, these maxima are unchanged.
+Revision-9 errors produce the same chain. The revision-9 rule compared each
+child alone with its parent and missed it. The depth-1 and depth-2 outputs on
+this path (625 and 722 triangles) are selectable only within the
+bounding-sphere slack. The median ratio of camera distances that select them
+over 64 directions is 1.0036 and 1.0084. Their siblings in the same parents
+have ratios of 6.0 and 3.0. The cut is still correct for the stored and sampled
+errors. Those outputs are no more accurate than the depth-3 replacement that
+the cut selects at 0.1105.
+
+Zero-error chains, including exact planar reductions, pass the chain test.
+On the reader path, errors at or below the container's quantization
+displacement count as zero for this test. Per-depth statistics still show
+stored errors. The report checks structure. Sampled surface deviation,
+shading quality and runtime cut cost require separate measurements.
 
 The saturation that motivated the rule: a 91,216-triangle consumer mesh built
 at builder revision 8 first introduced error 3.29 at depth 4. That maximum
@@ -841,4 +893,31 @@ each had a single group, so monotone inheritance carried 3.29 through those
 levels and the one-pixel cut drew 4,836 triangles with the mesh 32 px tall.
 Removing only the sloppy estimate was insufficient: the regular simplifier
 then reported 3.216 for a step whose sampled deviation was 0.942. Revision 9
-measures both paths: see "Partial steps and measured errors" above.
+also changed partitioning and kept progressing partial steps.
+
+**Higher-density error check.** The revision-9 builds below used
+`default_config(128)`, supplied normals at simplifier weight 0.5, and
+normal-error weight zero. The grid exponent was -16 for the 91,216-triangle
+fixture and -22 for the five corpus meshes. For every finite group at depth 4
+or coarser, `measure_lod_quality` compared the unsnapped original-source region
+with its snapped replacement. The density in both directions was
+`400000 / max(source_region_area, 1e-12)` interior samples per square unit,
+100 times the build density. Both passes also included triangle corners.
+Excess is the positive part of the sampled maximum minus the error stored in
+MDAG 2, including its quantization displacement. The table shows nearest-rank
+p95 across groups.
+
+| Mesh | Source triangles | Groups | Symmetric sample visits | Max / p95 excess | Max / p95 excess (world units) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 91k dragon fixture | 91,216 | 6 | 6,322,275 | 0 / 0% | 0 / 0 |
+| bunny | 69,451 | 6 | 6,049,729 | 0.137 / 0.137% | 0.0001879 / 0.0001879 |
+| dead_tree_trunk_02 | 83,128 | 6 | 6,080,099 | 0 / 0% | 0 / 0 |
+| namaqualand_boulder_02 | 97,964 | 6 | 6,509,665 | 0 / 0% | 0 / 0 |
+| coast_rocks_01 | 679,936 | 17 | 35,019,173 | 1.877 / 1.877% | 0.0001405 / 0.0001405 |
+| dragon | 871,414 | 18 | 42,617,594 | 10.567 / 10.567% | 0.004889 / 0.004889 |
+
+Across the 59 groups the maximum and p95 excess were 10.567% and 3.165%,
+respectively. The rocks and corpus dragon exceeded the 1% maximum-excess
+trigger, so revision 10 keeps the regular quadric floor in addition to sampled
+deviation. Sloppy steps keep the sampled deviation alone. The regular floor
+is a heuristic.

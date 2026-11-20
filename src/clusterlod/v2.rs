@@ -105,7 +105,7 @@ pub struct Built {
     pub clusters: Vec<FlatDagCluster>,
     /// Groups in fine-to-coarse emission order.
     pub groups: Vec<FlatDagGroup>,
-    /// Groups rejected by retained-ratio, empty-output, mixed-slot or alpha coverage rules.
+    /// Groups pinned by build rejection rules or the format depth limit.
     pub stuck_groups: usize,
     /// Steps rejected by the alpha coverage rule and retained as pinned stuck groups.
     pub alpha_coverage_stuck_groups: usize,
@@ -123,14 +123,15 @@ pub struct Built {
 ///
 /// A step that removes triangles but retains more than `simplify_threshold`
 /// is kept as a partial step ([`GroupStatus::PartialReduction`]). Partial
-/// steps can repeat while each strictly removes triangles; the format depth
-/// limit still bounds the build. Parent partitions accommodate twice the
-/// largest replacement region so partial regions can merge and release shared
-/// boundary locks. Every accepted step stores its independently
-/// sampled deviation rather than a regular quadric or sloppy grid estimate.
+/// steps can repeat while each strictly removes triangles. Remaining geometry
+/// is pinned if it reaches the final available level. Parent partitions
+/// accommodate twice the largest replacement region so partial regions can
+/// merge and release shared boundary locks. Accepted steps use the larger of
+/// their sampled deviation and regular quadric estimate. Sloppy steps use
+/// their sampled deviation alone.
 /// The original-source pass prices accumulated deviation and preserves
-/// monotone inheritance. `simplify_error_factor_sloppy` affects legacy builds
-/// only. [`health_with_diagnostics`] reports partial, sloppy and pinned groups per depth.
+/// monotone inheritance. [`health_with_diagnostics`] reports partial, sloppy
+/// and pinned groups per depth.
 ///
 /// # Sizing resource limits
 /// The default [`crate::Limits`] supplies 1 GiB of accounted storage and 2^34
@@ -187,8 +188,8 @@ pub fn build(
     build_impl(config, mesh, grid, workspace, false).map(|(built, _)| built)
 }
 
-/// Build a DAG and collect per-group error terms and acceptance reasons in
-/// group emission order.
+/// Build a DAG as in [`build()`] and collect its per-group error terms and
+/// acceptance reasons in group emission order.
 ///
 /// # Errors
 /// Same as [`build()`], including workspace limits for the diagnostics.
@@ -353,9 +354,6 @@ fn build_impl(
             attribute_protect_mask: protect,
         },
         &mut |g, diagnostics, mut cs, _p, ctx| {
-            if g.depth < 0 || g.depth as u32 >= super::dag_format::v2::MAX_LEVELS {
-                return Err(Error::LimitExceeded);
-            }
             let gid = u32::try_from(out.groups.len()).map_err(|_| Error::SizeOverflow)?;
             let first = u32::try_from(out.clusters.len()).map_err(|_| Error::SizeOverflow)?;
             u32::try_from(
@@ -502,7 +500,11 @@ fn source_error_floor(
             heads[g] = Some(i);
         }
     }
+    // Diagnostics need the geometric original-source sample without the
+    // step floor; plain builds keep the floor-skipping query.
+    let exact = !diagnostics.is_empty();
     let mut measured = ctx.alloc::<f32>(out.groups.len())?;
+    let mut geometric = ctx.alloc::<f32>(if exact { out.groups.len() } else { 0 })?;
     #[cfg(feature = "parallel")]
     let parallel = {
         let limits = ctx.workspace.limits();
@@ -519,7 +521,7 @@ fn source_error_floor(
             let width = rayon::current_num_threads();
             for (batch, values) in measured.chunks_mut(width).enumerate() {
                 let mut usages = ctx.alloc::<crate::Usage>(values.len())?;
-                let mut results = ctx.alloc::<Option<Result<f32, Error>>>(values.len())?;
+                let mut results = ctx.alloc::<Option<Result<(f32, f32), Error>>>(values.len())?;
                 results
                     .par_iter_mut()
                     .zip(usages.par_iter_mut())
@@ -537,6 +539,7 @@ fn source_error_floor(
                                 &next,
                                 &source_positions,
                                 normal_metric,
+                                exact,
                                 &mut local,
                             )
                         }));
@@ -546,11 +549,18 @@ fn source_error_floor(
                     sum.checked_add(u.bytes).ok_or(Error::SizeOverflow)
                 })?;
                 ctx.absorb(peak, 0, 0)?;
-                for ((value, result), usage) in
-                    values.iter_mut().zip(results.iter_mut()).zip(&usages)
+                for (i, ((value, result), usage)) in values
+                    .iter_mut()
+                    .zip(results.iter_mut())
+                    .zip(&usages)
+                    .enumerate()
                 {
                     ctx.absorb(0, usage.work, 0)?;
-                    *value = result.take().ok_or(Error::InvalidTopology)??;
+                    let (total, geo) = result.take().ok_or(Error::InvalidTopology)??;
+                    *value = total;
+                    if exact {
+                        geometric[batch * width + i] = geo;
+                    }
                 }
                 ctx.free(usages)?;
                 ctx.free(results)?;
@@ -558,33 +568,89 @@ fn source_error_floor(
         }
     } else {
         for (g, value) in measured.iter_mut().enumerate() {
-            *value = measure_region(out, g, &heads, &next, &source_positions, normal_metric, ctx)?;
+            let (total, geo) = measure_region(
+                out,
+                g,
+                &heads,
+                &next,
+                &source_positions,
+                normal_metric,
+                exact,
+                ctx,
+            )?;
+            *value = total;
+            if exact {
+                geometric[g] = geo;
+            }
         }
     }
-    // Measurement is independent of inherited errors. Commit in emission order.
+    // Measurement is independent of inherited errors. Commit in emission order,
+    // so children are final before their parents.
     ctx.release(&measured)?;
+    let mut sampled = ctx.alloc::<bool>(diagnostics.len())?;
     for (g, value) in measured.into_iter().enumerate() {
+        let geometric_sample = geometric.get(g).copied().unwrap_or(0.0);
         let group = &out.groups[g];
+        let span =
+            group.first_cluster as usize..(group.first_cluster + group.cluster_count) as usize;
+        let floor = group.error;
         let mut inherited = 0f32;
-        for c in &out.clusters
-            [group.first_cluster as usize..(group.first_cluster + group.cluster_count) as usize]
-        {
+        for c in &out.clusters[span.clone()] {
             ctx.tick(1)?;
             if c.refined >= 0 {
                 inherited = inherited.max(out.groups[c.refined as usize].error);
             }
         }
+        let error = floor.max(inherited).max(value);
         if let Some(diagnostic) = diagnostics.get_mut(g) {
             diagnostic.source_error = value;
             diagnostic.inherited_error = inherited;
+            let mut child_errors = ctx.alloc::<(f32, bool)>(0)?;
+            for c in &out.clusters[span] {
+                ctx.tick(1)?;
+                if c.refined >= 0 {
+                    grow_output(ctx, &mut child_errors, 1)?;
+                    child_errors.push((
+                        out.groups[c.refined as usize].error,
+                        sampled[c.refined as usize],
+                    ));
+                }
+            }
+            let backed = error_is_measured(error, geometric_sample, inherited, &child_errors);
+            ctx.free(child_errors)?;
+            diagnostic.error_measured = backed;
+            sampled[g] = backed;
         }
-        out.groups[g].error = out.groups[g].error.max(inherited).max(value);
+        out.groups[g].error = error;
     }
+    ctx.free(sampled)?;
+    ctx.free(geometric)?;
     ctx.free(source_positions)?;
     ctx.free(mapped_normals)?;
     ctx.free(heads)?;
     ctx.free(next)?;
     Ok(())
+}
+
+/// Whether a group's final stored `error` is a real deviation. Either an
+/// unfloored original-source geometric sample reaches it (the step deviation,
+/// the quadric floor, the angular price and the additive margin cannot), or it
+/// is a child's error inherited unchanged from a child that was itself measured.
+/// A pinned group is never measured.
+fn error_is_measured(
+    error: f32,
+    geometric_sample: f32,
+    inherited: f32,
+    children: &[(f32, bool)],
+) -> bool {
+    if error == f32::MAX {
+        return false;
+    }
+    geometric_sample >= error
+        || (error == inherited
+            && children
+                .iter()
+                .any(|&(child_error, sampled)| sampled && child_error == error))
 }
 
 fn measure_region(
@@ -594,10 +660,11 @@ fn measure_region(
     next: &[Option<usize>],
     source_positions: &[[f32; 3]],
     normal_metric: Option<NormalMetric<'_>>,
+    exact: bool,
     ctx: &mut Context<'_>,
-) -> Result<f32, Error> {
+) -> Result<(f32, f32), Error> {
     if out.groups[g].error == f32::MAX {
-        return Ok(0.0);
+        return Ok((0.0, 0.0));
     }
     let mut visited = ctx.alloc::<bool>(out.groups.len())?;
     let mut stack = ctx.alloc::<usize>(0)?;
@@ -644,6 +711,7 @@ fn measure_region(
         &out.positions,
         out.groups[g].error,
         normal_metric,
+        exact,
         ctx,
     )?;
     ctx.free(visited)?;
@@ -726,7 +794,8 @@ pub(super) fn step_error(
     floor: f32,
     ctx: &mut Context<'_>,
 ) -> Result<f32, Error> {
-    region_error(input, output, positions, positions, floor, None, ctx)
+    region_error(input, output, positions, positions, floor, None, false, ctx)
+        .map(|(total, _)| total)
 }
 
 fn region_error(
@@ -736,8 +805,9 @@ fn region_error(
     output_positions: &[[f32; 3]],
     floor: f32,
     normal_metric: Option<NormalMetric<'_>>,
+    exact: bool,
     ctx: &mut Context<'_>,
-) -> Result<f32, Error> {
+) -> Result<(f32, f32), Error> {
     let mut area = 0f64;
     let mut edge_squared = 0f64;
     let reference_normal =
@@ -786,27 +856,38 @@ fn region_error(
         samples_per_unit_area: 4000.0 / area.max(1e-12),
     };
     let mut measured = 0.0;
+    let mut geometric = 0.0;
     ctx.child(|ws| {
         let mut source = LodQualityMesh::new(input, Positions::from_packed(positions));
         let mut target = LodQualityMesh::new(output, Positions::from_packed(output_positions));
-        let maximum = if let Some(metric) = normal_metric {
+        // `sample` is the geometric deviation without the floor or the angular
+        // price; it is only computed when `exact`.
+        let (maximum, sample) = if let Some(metric) = normal_metric {
             source.normals = Some(metric.normals);
             target.normals = Some(metric.normals);
             let (geometry, chord) =
                 crate::lod_quality::measure_normal_max(source, target, &options, ws)?;
-            geometry
+            let total = geometry
                 .max((f64::from(metric.weight) * chord) * local_edge)
-                .max(f64::from(floor))
+                .max(f64::from(floor));
+            (total, geometry)
+        } else if exact {
+            let sample = crate::lod_quality::measure_max(source, target, &options, 0.0, ws)?;
+            (sample.max(f64::from(floor)), sample)
         } else {
-            crate::lod_quality::measure_max(source, target, &options, floor, ws)?
+            (
+                crate::lod_quality::measure_max(source, target, &options, floor, ws)?,
+                0.0,
+            )
         };
         measured = super::bounds_math::f32_up(maximum);
+        geometric = super::bounds_math::f32_up(sample);
         Ok(())
     })?;
-    if !measured.is_finite() {
+    if !measured.is_finite() || !geometric.is_finite() {
         return Err(Error::NumericalFailure);
     }
-    Ok(measured)
+    Ok((measured, geometric))
 }
 
 /// Opt-in alpha silhouette guard, using nine fixed sphere-grid views (including
@@ -1162,9 +1243,11 @@ mod normal_error_tests {
                         normals: &n,
                         weight,
                     }),
+                    false,
                     &mut ctx,
                 )
-                .expect("measurement"),
+                .expect("measurement")
+                .0,
             );
         }
         assert_eq!(errors[0], 0.0);
@@ -1183,6 +1266,7 @@ mod normal_error_tests {
                     normals: &n,
                     weight: f32::MAX
                 }),
+                false,
                 &mut ctx
             ),
             Err(Error::NumericalFailure)

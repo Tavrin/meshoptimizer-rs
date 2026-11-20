@@ -312,9 +312,12 @@ Accuracy columns are the worst median and p95 measured-to-claimed ratios over al
 | namaqualand_boulder_02 | true | 0 | 1 | 1.017 | 1.017 |
 | dead_tree_trunk_02 | true | 0 | 1 | 1.094 | 1.119 |
 
-### Final 0.2.20 candidate rerun
+### 0.2.20 candidate rerun (builder revision 9)
 
-One release-profile execution per row. Far-field cuts use 64 orbit directions
+Measured on the revision-9 candidate (a56d033b), before builder revision 10
+restored the regular quadric floor for regular steps. These rows characterize
+revision 9; they were not re-measured for revision 10. One release-profile
+execution per row. Far-field cuts use 64 orbit directions
 at a one-pixel threshold. Shading cuts use 16 directions at six projected
 spans and 16,384 probes in each direction per unique cut.
 
