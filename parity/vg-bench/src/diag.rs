@@ -508,10 +508,14 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
     let built = meshoptimizer_rs::clusterlod::v2::Built {
         groups: o.groups.clone(),
         clusters: o.clusters.clone(),
-        diagnostics: o.diagnostics.clone(),
         ..Default::default()
     };
-    match meshoptimizer_rs::clusterlod::v2::health(&built, 3, &mut Workspace::default()) {
+    match meshoptimizer_rs::clusterlod::v2::health_with_diagnostics(
+        &built,
+        &o.diagnostics,
+        3,
+        &mut Workspace::default(),
+    ) {
         Ok(h) => {
             for chain in &h.equal_error_chains {
                 diagnostic_lines.push(
@@ -521,6 +525,7 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
                         .with("group", chain.group)
                         .with("levels", chain.levels)
                         .with("error", chain.error)
+                        .with("measured", chain.measured)
                         .to_string(),
                 );
             }

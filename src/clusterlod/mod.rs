@@ -55,8 +55,7 @@ pub struct Config {
     pub simplify_error_merge_additive: f32,
     /// Error multiplier after sloppy fallback in legacy builds.
     pub simplify_error_factor_sloppy: f32,
-    /// Optional edge-length cap on the simplifier estimate; zero disables it.
-    /// V2 measures accepted geometry independently of this heuristic cap.
+    /// Legacy edge-length cap on the simplifier estimate; zero disables it.
     pub simplify_error_edge_limit: f32,
     /// Clamp attribute error to positional scale.
     pub simplify_error_clamped: bool,
@@ -661,7 +660,7 @@ fn simplify(
     locks: &[support::VertexFlags],
     c: Config,
     target: usize,
-    allow_partial: bool,
+    measured: bool,
     ctx: &mut Context<'_>,
 ) -> Result<(Vec<u32>, f32, bool), Error> {
     let p = support::Positions::from_packed(mesh.positions);
@@ -721,7 +720,7 @@ fn simplify(
     let mut sloppy = false;
     if result.indices.len() > target
         && c.simplify_fallback_sloppy
-        && !(allow_partial && result.indices.len() < indices.len())
+        && !(measured && result.indices.len() < indices.len())
     {
         sloppy = true;
         let mut subset = ctx.alloc::<[f32; 3]>(indices.len())?;
@@ -747,7 +746,9 @@ fn simplify(
         ctx.free(result.indices)?;
         result = next?;
         result.error *= support::simplify_scale(p)?;
-        result.error *= c.simplify_error_factor_sloppy;
+        if !measured {
+            result.error *= c.simplify_error_factor_sloppy;
+        }
         for v in &mut result.indices {
             *v = indices[*v as usize];
         }
@@ -761,7 +762,7 @@ fn simplify(
         ctx.free(result.indices)?;
         result.indices = fallback;
     }
-    if c.simplify_error_edge_limit > 0. {
+    if !measured && c.simplify_error_edge_limit > 0. {
         let mut maxsq = 0f32;
         for t in indices.as_chunks::<3>().0 {
             ctx.tick(1)?;
@@ -1122,13 +1123,18 @@ fn prepare_group(
     let simplifier_error = error;
     let inherited_error = bounds.error;
     let stuck = stuck || alpha_failed;
-    let error = if policy.is_some() && !stuck {
-        // Both regular quadric errors and the sloppy grid estimate are
-        // heuristics. Measure the accepted geometry independently; the final
-        // original-source pass also prices accumulated deviation and shading.
+    let step_error = if policy.is_some() && !stuck {
+        // Measure accepted geometry independently of the simplifier estimate.
         v2::step_error(&merged_idx, &simplified, mesh.positions, 0.0, ctx)?
     } else {
         error
+    };
+    // Keep the regular estimate as a floor for missed samples. The sloppy
+    // grid estimate can saturate every coarser level through inheritance.
+    let error = if sloppy_fallback {
+        step_error
+    } else {
+        step_error.max(simplifier_error)
     };
     if stuck {
         bounds.error = f32::MAX;
@@ -1149,10 +1155,11 @@ fn prepare_group(
         diagnostics: v2::GroupDiagnostics {
             status,
             simplifier_error,
-            step_error: error,
+            step_error,
             source_error: 0.0,
             inherited_error,
             sloppy_fallback,
+            error_measured: false,
         },
     })
 }
@@ -1241,7 +1248,11 @@ fn build_in_context_mode(
         };
     }
     let mut depth = 0;
-    while clusters.len() > 1 {
+    // Leave the last level available to pin the current geometry. Even a
+    // progressing replacement can leave multiple clusters for another step.
+    while clusters.len() > 1
+        && (policy.is_none() || (depth as u32) + 1 < dag_format::v2::MAX_LEVELS)
+    {
         let partitioner = if policy.is_some() {
             partition_regions
         } else {
@@ -1414,7 +1425,18 @@ fn build_in_context_mode(
         depth += 1;
     }
     if !clusters.is_empty() {
-        let mut bounds = clusters[0].bounds;
+        let (mut bounds, status) = if clusters.len() == 1 {
+            (clusters[0].bounds, v2::GroupStatus::Root)
+        } else {
+            let mut group_bounds = ctx.alloc::<LodBounds>(clusters.len())?;
+            for (bounds, cluster) in group_bounds.iter_mut().zip(&clusters) {
+                *bounds = cluster.bounds;
+            }
+            let bounds = merged(&group_bounds, ctx)?;
+            ctx.free(group_bounds)?;
+            stuck_count += 1;
+            (bounds, v2::GroupStatus::DepthLimit)
+        };
         bounds.error = f32::MAX;
         output(
             &clusters,
@@ -1424,7 +1446,7 @@ fn build_in_context_mode(
             bounds,
             depth,
             v2::GroupDiagnostics {
-                status: v2::GroupStatus::Root,
+                status,
                 ..v2::GroupDiagnostics::default()
             },
             callback,

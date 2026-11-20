@@ -327,9 +327,9 @@ impl Bvh<'_> {
         let sides = &mut self.sides[..];
         let temp = &mut self.temp[..n];
         mark_sides(&self.axes[axis][start..start + n], split, sides);
-        for k in 0..3 {
+        for (k, order) in self.axes.iter_mut().enumerate() {
             if k != axis {
-                reorder(&mut self.axes[k][start..start + n], split, sides, temp);
+                reorder(&mut order[start..start + n], split, sides, temp);
             }
         }
         Ok(())

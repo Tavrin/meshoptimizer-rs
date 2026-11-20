@@ -177,6 +177,31 @@ fn canonical(tris: impl Iterator<Item = [[u32; 3]; 3]>) -> Vec<[[u32; 3]; 3]> {
 }
 
 #[test]
+fn measured_build_keys_ignore_legacy_error_knobs() {
+    let (positions, indices) = grid(4);
+    let config = clusterlod::default_config(16).unwrap();
+    let options = v2::WriteOptions::new(QuantGrid::new(GRID).unwrap());
+    let key = |config: &clusterlod::Config, measured_steps| {
+        let mut inputs = v2::KeyInputs::new(config, &options, &positions, &indices);
+        inputs.measured_steps = measured_steps;
+        v2::build_key(&inputs)
+    };
+    for other in [
+        clusterlod::Config {
+            simplify_error_factor_sloppy: config.simplify_error_factor_sloppy + 1.0,
+            ..config
+        },
+        clusterlod::Config {
+            simplify_error_edge_limit: config.simplify_error_edge_limit + 1.0,
+            ..config
+        },
+    ] {
+        assert_eq!(key(&config, true), key(&other, true));
+        assert_ne!(key(&config, false), key(&other, false));
+    }
+}
+
+#[test]
 fn xxh64_vectors_and_build_key() {
     for (input, hash) in [
         (&b""[..], 0xef46_db37_51d8_e999u64),

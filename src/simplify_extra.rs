@@ -2538,10 +2538,10 @@ mod solve_tests {
             s.locked.fill(true);
             s.remap.0.extend([0, 1, 2]);
             s.wedge.0.extend([0, 1, 2]);
-            for i in 0..3 {
-                s.q[i].a00 = 1.;
-                s.q[i].a11 = 1.;
-                s.q[i].a22 = 1.;
+            for q in &mut s.q[..3] {
+                q.a00 = 1.;
+                q.a11 = 1.;
+                q.a22 = 1.;
             }
             s.q[fail].b0 = f32::INFINITY;
             let mut work = ws.begin();

@@ -31,8 +31,10 @@ use alloc::vec::Vec;
 /// Revision 8 prices sampled interpolated-normal loss in original-source regions.
 /// Revision 9 keeps partial reductions instead of the sloppy fallback and
 /// independently measures regular and remaining sloppy steps.
+/// Revision 10 restores the regular quadric error floor, pins surviving
+/// geometry at the depth limit and omits legacy-only knobs from measured keys.
 /// Revision 7 was reserved for an abandoned codec experiment.
-pub const BUILDER_REVISION: u32 = 9;
+pub const BUILDER_REVISION: u32 = 10;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -296,8 +298,20 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
             simplify_threshold.to_bits(),
             simplify_error_merge_previous.to_bits(),
             simplify_error_merge_additive.to_bits(),
-            simplify_error_factor_sloppy.to_bits(),
-            simplify_error_edge_limit.to_bits(),
+        ],
+    );
+    if !inputs.measured_steps {
+        u32s(
+            &mut h,
+            &[
+                simplify_error_factor_sloppy.to_bits(),
+                simplify_error_edge_limit.to_bits(),
+            ],
+        );
+    }
+    u32s(
+        &mut h,
+        &[
             b(simplify_error_clamped),
             b(simplify_permissive),
             b(simplify_fallback_permissive),
@@ -721,14 +735,15 @@ pub fn write<I: crate::Index>(
         let mut group = fine[flip(g)];
         let first = group.first_cluster as usize;
         group.first_cluster = uint(order.len())?;
-        for c in first..first + group.cluster_count as usize {
-            let refined = source.clusters[c].refined;
+        let owned = &source.clusters[first..first + group.cluster_count as usize];
+        for (offset, cluster) in owned.iter().enumerate() {
+            let refined = cluster.refined;
             let refined = if refined < 0 {
                 -1
             } else {
                 flip(refined as usize) as i32
             };
-            order.push(c);
+            order.push(first + offset);
             links.push((g as u32, refined));
         }
         groups.push(group);
