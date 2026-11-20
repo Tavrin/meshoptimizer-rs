@@ -721,14 +721,15 @@ pub fn write<I: crate::Index>(
         let mut group = fine[flip(g)];
         let first = group.first_cluster as usize;
         group.first_cluster = uint(order.len())?;
-        for c in first..first + group.cluster_count as usize {
-            let refined = source.clusters[c].refined;
+        let owned = &source.clusters[first..first + group.cluster_count as usize];
+        for (offset, cluster) in owned.iter().enumerate() {
+            let refined = cluster.refined;
             let refined = if refined < 0 {
                 -1
             } else {
                 flip(refined as usize) as i32
             };
-            order.push(c);
+            order.push(first + offset);
             links.push((g as u32, refined));
         }
         groups.push(group);

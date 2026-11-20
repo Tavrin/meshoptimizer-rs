@@ -4,8 +4,8 @@ use crate::{LodQualityMesh, LodQualityOptions};
 
 mod health;
 pub use health::{
-    health, health_from_reader, DepthHealth, EqualErrorChain, GroupDiagnostics, GroupStatus,
-    HealthReport, PinnedGroup,
+    health, health_from_reader, health_with_diagnostics, DepthHealth, EqualErrorChain,
+    GroupDiagnostics, GroupStatus, HealthReport, PinnedGroup,
 };
 
 // The measured shading-weight comparison did not meet both default-selection bars.
@@ -105,8 +105,6 @@ pub struct Built {
     pub clusters: Vec<FlatDagCluster>,
     /// Groups in fine-to-coarse emission order.
     pub groups: Vec<FlatDagGroup>,
-    /// Error terms and acceptance reasons in group emission order.
-    pub diagnostics: Vec<GroupDiagnostics>,
     /// Groups rejected by retained-ratio, empty-output, mixed-slot or alpha coverage rules.
     pub stuck_groups: usize,
     /// Steps rejected by the alpha coverage rule and retained as pinned stuck groups.
@@ -132,7 +130,7 @@ pub struct Built {
 /// sampled deviation rather than a regular quadric or sloppy grid estimate.
 /// The original-source pass prices accumulated deviation and preserves
 /// monotone inheritance. `simplify_error_factor_sloppy` affects legacy builds
-/// only. [`health()`] reports partial, sloppy and pinned groups per depth.
+/// only. [`health_with_diagnostics`] reports partial, sloppy and pinned groups per depth.
 ///
 /// # Sizing resource limits
 /// The default [`crate::Limits`] supplies 1 GiB of accounted storage and 2^34
@@ -186,6 +184,30 @@ pub fn build(
     grid: page::QuantGrid,
     workspace: &mut Workspace,
 ) -> Result<Built, Error> {
+    build_impl(config, mesh, grid, workspace, false).map(|(built, _)| built)
+}
+
+/// Build a DAG and collect per-group error terms and acceptance reasons in
+/// group emission order.
+///
+/// # Errors
+/// Same as [`build()`], including workspace limits for the diagnostics.
+pub fn build_with_diagnostics(
+    config: Config,
+    mesh: BuildMesh<'_>,
+    grid: page::QuantGrid,
+    workspace: &mut Workspace,
+) -> Result<(Built, Vec<GroupDiagnostics>), Error> {
+    build_impl(config, mesh, grid, workspace, true)
+}
+
+fn build_impl(
+    config: Config,
+    mesh: BuildMesh<'_>,
+    grid: page::QuantGrid,
+    workspace: &mut Workspace,
+    collect_diagnostics: bool,
+) -> Result<(Built, Vec<GroupDiagnostics>), Error> {
     let mut ctx = Context::new(workspace)?;
     if !mesh.normal_error_weight.is_finite() || mesh.normal_error_weight < 0.0 {
         return Err(Error::InvalidParameter);
@@ -222,6 +244,7 @@ pub fn build(
         attribute_stride: stride,
         ..Built::default()
     };
+    let mut group_diagnostics = Vec::new();
     // Sort unique (source, slot) pairs; no allocation proportional to slot IDs.
     let mut pairs = ctx.alloc::<(u32, u16)>(if mesh.materials.is_some() {
         mesh.indices.len()
@@ -343,8 +366,10 @@ pub fn build(
             )
             .map_err(|_| Error::SizeOverflow)?;
             grow_output(ctx, &mut out.groups, 1)?;
-            grow_output(ctx, &mut out.diagnostics, 1)?;
-            out.diagnostics.push(diagnostics);
+            if collect_diagnostics {
+                grow_output(ctx, &mut group_diagnostics, 1)?;
+                group_diagnostics.push(diagnostics);
+            }
             out.groups.push(FlatDagGroup {
                 center: g.simplified.center,
                 radius: g.simplified.radius,
@@ -416,12 +441,13 @@ pub fn build(
     ctx.free(locks)?;
     source_error_floor(
         &mut out,
+        &mut group_diagnostics,
         mesh.positions,
         mesh.normals,
         mesh.normal_error_weight,
         &mut ctx,
     )?;
-    Ok(out)
+    Ok((out, group_diagnostics))
 }
 
 // A cluster split can send siblings to different parents. Follow refined groups
@@ -435,6 +461,7 @@ struct NormalMetric<'a> {
 
 fn source_error_floor(
     out: &mut Built,
+    diagnostics: &mut [GroupDiagnostics],
     original_positions: &[[f32; 3]],
     normals: Option<&[[f32; 3]]>,
     normal_weight: f32,
@@ -547,7 +574,7 @@ fn source_error_floor(
                 inherited = inherited.max(out.groups[c.refined as usize].error);
             }
         }
-        if let Some(diagnostic) = out.diagnostics.get_mut(g) {
+        if let Some(diagnostic) = diagnostics.get_mut(g) {
             diagnostic.source_error = value;
             diagnostic.inherited_error = inherited;
         }
@@ -1068,7 +1095,7 @@ mod source_error_tests {
                 ..FlatDagCluster::default()
             });
         }
-        source_error_floor(&mut built, &positions, None, 0.0, &mut ctx)
+        source_error_floor(&mut built, &mut [], &positions, None, 0.0, &mut ctx)
             .expect("source measurement");
         assert_eq!(built.groups[0].error, 1.);
         assert_eq!(built.groups[1].error, 2.);

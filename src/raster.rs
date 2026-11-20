@@ -227,7 +227,7 @@ fn analyze(
             extent,
             ..CoverageStatistics::default()
         };
-        for axis in 0..3 {
+        for (axis, view_coverage) in result_coverage.coverage.iter_mut().enumerate() {
             // reserve initializes positive zero; clear only between views.
             if axis != 0 {
                 buffer.fill(Pixel::default());
@@ -253,7 +253,7 @@ fn analyze(
                 (false, false) => scan_pixels::<false, true>(&buffer, &mut overdraw, &mut work)?,
             };
             if coverage {
-                result_coverage.coverage[axis] = covered as f32 / (VIEWPORT * VIEWPORT) as f32;
+                *view_coverage = covered as f32 / (VIEWPORT * VIEWPORT) as f32;
             }
         }
         overdraw.overdraw = if overdraw.pixels_covered == 0 {

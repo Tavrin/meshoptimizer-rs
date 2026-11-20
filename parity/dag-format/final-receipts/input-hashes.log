@@ -1,5 +1,5 @@
 Traceback (most recent call last):
-  File "/tmp/dag-input-hashes.py", line 7, in <module>
+  File "dag-input-hashes.py", line 7, in <module>
     with p.open('rb') as f:
          ^^^^^^^^^^^^
   File "/usr/lib/python3.12/pathlib.py", line 1015, in open

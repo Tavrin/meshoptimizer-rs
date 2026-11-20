@@ -488,7 +488,8 @@ pub fn build_v2_with(
         let mut ws = unlimited();
         let t = Instant::now();
         let grid = QuantGrid::new(settings.grid_exponent).map_err(|e| format!("{e:?}"))?;
-        let built = v2::build(config, input, grid, &mut ws).map_err(|e| format!("{e:?}"))?;
+        let (built, diagnostics) =
+            v2::build_with_diagnostics(config, input, grid, &mut ws).map_err(|e| format!("{e:?}"))?;
         let dag_ms = t.elapsed().as_secs_f64() * 1e3;
         let usage = ws.usage();
         let mut positions = src.positions.clone();
@@ -499,7 +500,7 @@ pub fn build_v2_with(
         let level_count = built.groups.iter().map(|g| g.depth as usize + 1).max().unwrap_or(0);
         let mut o = Ours {
             grid_exponent: settings.grid_exponent,
-            diagnostics: built.diagnostics,
+            diagnostics,
             groups: built.groups,
             clusters: built.clusters,
             indices,

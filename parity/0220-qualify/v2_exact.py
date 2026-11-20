@@ -49,8 +49,8 @@ def generate():
     src.mkdir(parents=True, exist_ok=True)
     for arm, alias in [('before', 'baseline'), ('after', 'candidate')]:
         text = rewrite(s, 'use meshoptimizer_rs', f'use {alias}', 1)
-        if arm == 'before':
-            # The baseline predates the opt-in normal-error term; weight zero is its only behaviour.
+        if arm == 'before' and 'pub normal_error_weight:' not in (q.T / 'base/src/clusterlod/v2.rs').read_text():
+            # Older releases only support weight zero.
             text = rewrite(text, '    m.normal_error_weight = weight;', '    let _ = weight;', 1)
         (src / (arm + '-v2.rs')).write_text(text)
     p = src / 'v2_exact.rs'

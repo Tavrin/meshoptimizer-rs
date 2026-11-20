@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add instance root-cut helpers and MDAG 2 reader page priority bounds. A
+  runtime can select the root cut from resident metadata without testing
+  individual groups, and conservatively rule out pages using bounds that
+  cover every group on the page.
+
 ### Changed
 
 - Replace regular quadric and sloppy grid error estimates with independently
@@ -30,8 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   pinned, sloppy and partial counts and error min/median/max, linked
   equal-error chains and pinned groups with their reasons, and a documented
   pass/fail rule (`docs/DAG_FORMAT.md`, "Structural build health gate").
-  `Built::diagnostics` retains each group's error terms and acceptance reason;
-  the container layout is unchanged.
+  `build_with_diagnostics` collects each group's error terms and acceptance reason
+  for `health_with_diagnostics`. The container layout is unchanged.
 
 - Price sampled interpolated-normal loss in MDAG 2 original-source group errors,
   using a local-edge normal-chord displacement and monotone inheritance. The new

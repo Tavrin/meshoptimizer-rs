@@ -1,0 +1,12 @@
+{
+  "after.wasm": {
+    "measured_sha256": "39d2f359d2397419a3e431e91aa7588143984296d299078e9d5675a7c2289545",
+    "path_prefixes_scrubbed": 6,
+    "scrubbed_sha256": "996869d4f943bd322dffe6e94c8df46bbfd4a5a73e67544d7ee1efa4e8f54445"
+  },
+  "before.wasm": {
+    "measured_sha256": "f84843627af49773d5bebce2a99ddfb739d97c4d32ae0a9c600787d09536bdd9",
+    "path_prefixes_scrubbed": 6,
+    "scrubbed_sha256": "35065a2652ebd13528baf420e439c6d5af09e760bc15a3970d2059637b838f9d"
+  }
+}

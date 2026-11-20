@@ -311,3 +311,24 @@ Accuracy columns are the worst median and p95 measured-to-claimed ratios over al
 | coast_rocks_01 | true | 0 | 1 | 1.006 | 1.082 |
 | namaqualand_boulder_02 | true | 0 | 1 | 1.017 | 1.017 |
 | dead_tree_trunk_02 | true | 0 | 1 | 1.094 | 1.119 |
+
+### Final 0.2.20 candidate rerun
+
+One release-profile execution per row. Far-field cuts use 64 orbit directions
+at a one-pixel threshold. Shading cuts use 16 directions at six projected
+spans and 16,384 probes in each direction per unique cut.
+
+All previously reported revision 9 far-field triangle means reproduced to the displayed precision.
+
+| Mesh | Normal-error weight | Mean cut triangles | Normal p95 / max degrees | Geometric ratio p95 |
+| --- | ---: | ---: | ---: | ---: |
+| bunny | 0 | 22,431.25 | 8.29 / 39.04 | 1.0559 |
+| bunny | 0.25 | 33,583.99 | 4.11 / 33.57 | 0.8869 |
+| dead_tree_trunk_02 | 0 | 33,659.88 | 28.40 / 175.70 | 0.9360 |
+| dead_tree_trunk_02 | 0.25 | 68,407.50 | 6.76 / 83.34 | 0.8495 |
+| namaqualand_boulder_02 | 0 | 48,721.73 | 20.73 / 147.77 | 0.9551 |
+| namaqualand_boulder_02 | 0.25 | 77,556.04 | 7.06 / 72.22 | 0.8616 |
+| coast_rocks_01 | 0 | 73,566.82 | 41.31 / 168.25 | 0.9828 |
+| coast_rocks_01 | 0.25 | 240,955.26 | 15.58 / 108.55 | 0.4814 |
+| dragon | 0 | 84,398.65 | 10.51 / 179.87 | 0.9263 |
+| dragon | 0.25 | 340,491.17 | 3.78 / 132.17 | 0.4270 |

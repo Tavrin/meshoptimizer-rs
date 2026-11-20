@@ -216,8 +216,9 @@ pub fn rebuild(args: &[String]) -> Result<(), String> {
         mesh.normals = Some(&src.normals);
     }
     let mut ws = Workspace::new(Limits { max_bytes: usize::MAX, max_work: u64::MAX });
-    let built = v2::build(default_config(128).map_err(|e| format!("{e:?}"))?, mesh, grid, &mut ws)
-        .map_err(|e| format!("{e:?}"))?;
+    let config = default_config(128).map_err(|e| format!("{e:?}"))?;
+    let (built, diagnostics) =
+        v2::build_with_diagnostics(config, mesh, grid, &mut ws).map_err(|e| format!("{e:?}"))?;
     let file_source = format::Source::new(&built.groups, &built.clusters, &built.positions, &built.indices);
     let (file, _) =
         format::write(&file_source, &format::WriteOptions::new(grid), &mut ws).map_err(|e| format!("{e:?}"))?;
@@ -229,7 +230,7 @@ pub fn rebuild(args: &[String]) -> Result<(), String> {
         clusters: built.clusters,
         indices: built.indices,
         positions: built.positions,
-        diagnostics: built.diagnostics,
+        diagnostics,
         nodes: Vec::new(),
         level_count,
         v2_file: true,

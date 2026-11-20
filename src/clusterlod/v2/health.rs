@@ -124,12 +124,29 @@ pub struct HealthReport {
 /// accuracy, and a failing report is evidence to inspect the asset and the
 /// build policy, not a request to raise errors artificially.
 ///
+/// Use [`health_with_diagnostics`] for recorded pin reasons and counts of
+/// partial and sloppy steps.
+///
 /// # Errors
 /// `InvalidParameter` if `minimum_levels < 2`; `InvalidTopology` for malformed
-/// tables, a diagnostics table of the wrong length, or a recorded root with
-/// parents; allocation and workspace limit errors.
+/// tables; allocation and workspace limit errors.
 pub fn health(
     built: &Built,
+    minimum_levels: u32,
+    workspace: &mut Workspace,
+) -> Result<HealthReport, Error> {
+    health_with_diagnostics(built, &[], minimum_levels, workspace)
+}
+
+/// Inspect a built DAG with its diagnostics in group emission order, as
+/// returned by [`super::build_with_diagnostics`].
+///
+/// # Errors
+/// Same as [`health()`], plus `InvalidTopology` for a nonempty diagnostics table
+/// of the wrong length or a recorded root with parents.
+pub fn health_with_diagnostics(
+    built: &Built,
+    diagnostics: &[GroupDiagnostics],
     minimum_levels: u32,
     workspace: &mut Workspace,
 ) -> Result<HealthReport, Error> {
@@ -137,7 +154,7 @@ pub fn health(
     report(
         &built.groups,
         &built.clusters,
-        &built.diagnostics,
+        diagnostics,
         minimum_levels,
         &mut ctx,
     )
@@ -374,14 +391,6 @@ mod tests {
                 index_count: triangles * 3,
                 ..FlatDagCluster::default()
             });
-            b.diagnostics.push(GroupDiagnostics {
-                status: if id == 3 {
-                    GroupStatus::Root
-                } else {
-                    GroupStatus::Simplified
-                },
-                ..GroupDiagnostics::default()
-            });
         }
         b
     }
@@ -461,7 +470,6 @@ mod tests {
         let mut c = chain(1.0);
         c.groups.reverse();
         c.clusters.reverse();
-        c.diagnostics.reverse();
         for (id, g) in c.groups.iter_mut().enumerate() {
             g.first_cluster = id as u32;
         }
@@ -479,11 +487,13 @@ mod tests {
     fn rejects_pins_with_recorded_or_inferred_reason() {
         let mut b = chain(0.0);
         b.groups[1].error = f32::MAX;
-        b.diagnostics[1].status = GroupStatus::AlphaCoverage;
-        let report = health(&b, 3, &mut Workspace::default()).expect("valid");
+        let mut diagnostics = alloc::vec![GroupDiagnostics::default(); b.groups.len()];
+        diagnostics[1].status = GroupStatus::AlphaCoverage;
+        diagnostics[3].status = GroupStatus::Root;
+        let report =
+            health_with_diagnostics(&b, &diagnostics, 3, &mut Workspace::default()).expect("valid");
         assert!(!report.passed);
         assert_eq!(report.pinned_groups[0].reason, GroupStatus::AlphaCoverage);
-        b.diagnostics.clear();
         let report = health(&b, 3, &mut Workspace::default()).expect("valid");
         assert_eq!(report.pinned_groups[0].reason, GroupStatus::UnknownPinned);
         assert_eq!(report.pinned_groups[1].reason, GroupStatus::Root);

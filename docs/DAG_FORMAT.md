@@ -691,11 +691,19 @@ geometry. Hemisphere grids cover only upper-hemisphere views. The metadata is
 not an executable payload and its hash is not authentication. When present it
 participates in the writer key; absence preserves existing keys and bytes.
 
-Release campaigns for 0.2.19, 2026-11-06 (AddressSanitizer, `-rss_limit_mb=512`, stopped when a chunk
-added no coverage, zero crashes): `attr_page` 5,997 CPU-s, 2,441,137 executions; `v2_build` 3,012
-CPU-s, 6,493 executions; `dag_format_v2` 2,996 CPU-s, 2,957,774 executions. Seed line coverage:
+Release campaigns for 0.2.19, 2026-11-06 (AddressSanitizer, `-rss_limit_mb=512`, zero crashes):
+`attr_page` 5,997 CPU-s, 2,441,137 executions; `dag_format_v2` 2,996 CPU-s,
+2,957,774 executions. Both stopped when a chunk added no coverage. The initial
+`v2_build` run (3,012 CPU-s, 6,493 executions) appeared to plateau because
+restarts every 600 seconds spent most of the final chunk replaying the corpus.
+The continuous rerun on v0.2.19 used 6,565.6 CPU-s, completed 13,561 executions
+and increased coverage from 11,095 to 11,168 before stopping coverage-flat,
+with zero crashes. Seed line coverage:
 `attributes.rs` 92.65%, `page.rs` 93.69%, `v2.rs` 94.32%, `dag_format_v2.rs` 91.28%, `far_field.rs` 62.86%.
 
+### 0.2.20 release fuzz
+
+Release campaign receipt pending.
 
 ### Sizing finite v2 build limits
 
@@ -792,14 +800,15 @@ The UV/tangent comparison does not qualify these budgets for those channels.
 
 ### Structural build health gate
 
-`clusterlod::v2::health(&built, 3, &mut workspace)` returns a `HealthReport`
-over a `Built` DAG; `health_from_reader(&reader, &cluster_triangles, 3, &mut
-workspace)` returns the same report over an opened MDAG 2, given each cluster's
-triangle count from its transcoded page. The report holds a per-depth table
-(groups, stored triangles, pinned, sloppy and partial groups, finite error
-min / upper median / max), every pinned group with its reason, and every
-linked equal-error chain. `Built::diagnostics` records, per group, the
-simplifier estimate, whether the sloppy fallback produced it, the sampled step
+`clusterlod::v2::health` returns a `HealthReport` over a `Built` DAG.
+`health_from_reader` reads the same structure from an opened MDAG 2 and the
+cluster triangle counts from its transcoded pages. The report records groups,
+triangles, pins and finite error min / upper median / max by depth, the
+inferred reason for each pin, and each linked equal-error chain.
+`build_with_diagnostics` collects per-group diagnostics that
+`health_with_diagnostics` uses for partial and sloppy counts and recorded
+pin reasons. These diagnostics contain the simplifier estimate, whether the
+sloppy fallback produced it, the sampled step
 and original-source terms (the source term includes the existing measured
 error floor and is not an independent measurement of raw deviation), the
 inherited child error and the acceptance or rejection reason. Containers do not

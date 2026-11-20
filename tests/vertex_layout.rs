@@ -50,8 +50,8 @@ fn padded_layout_matches_independently_written_bytes() {
     let uv =
         VertexFieldSnapshot::from_vertices(&vertices, offset_of!(Vertex, uv), |v| &v.uv).unwrap();
     for (i, vertex) in vertices.iter().enumerate() {
-        for j in 0..2 {
-            assert_eq!(uv.attributes().unwrap().get(i, j), Some(vertex.uv[j]));
+        for (j, &component) in vertex.uv.iter().enumerate() {
+            assert_eq!(uv.attributes().unwrap().get(i, j), Some(component));
         }
     }
     assert_eq!(

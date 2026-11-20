@@ -31,3 +31,10 @@ path = "fuzz_targets/v2_build.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "health_reader"
+path = "fuzz_targets/health_reader.rs"
+test = false
+doc = false
+bench = false

@@ -38,17 +38,18 @@ fn built_and_container_reports_agree() {
     let grid = QuantGrid::new(-10).unwrap();
     let mut config = cl::default_config(32).unwrap();
     config.partition_size = 4;
-    let built = v2::build(
+    let (built, diagnostics) = v2::build_with_diagnostics(
         config,
         BuildMesh::new(&indices, &positions),
         grid,
         &mut Workspace::default(),
     )
     .unwrap();
-    let from_built = v2::health(&built, 3, &mut Workspace::default()).unwrap();
+    let from_built =
+        v2::health_with_diagnostics(&built, &diagnostics, 3, &mut Workspace::default()).unwrap();
     assert!(from_built.depths.len() >= 3);
     assert_eq!(from_built.depths[0].triangles as usize, indices.len() / 3);
-    assert_eq!(built.diagnostics.len(), built.groups.len());
+    assert_eq!(diagnostics.len(), built.groups.len());
     assert!(from_built
         .pinned_groups
         .iter()
@@ -116,7 +117,7 @@ fn repeated_partial_reductions_do_not_pin_progressing_geometry() {
     config.partition_size = 4;
     // Every half-sized replacement is partial under this stricter trigger.
     config.simplify_threshold = 0.1;
-    let built = v2::build(
+    let (built, diagnostics) = v2::build_with_diagnostics(
         config,
         BuildMesh::new(&indices, &positions),
         QuantGrid::new(-10).unwrap(),
@@ -127,7 +128,7 @@ fn repeated_partial_reductions_do_not_pin_progressing_geometry() {
     let partial_depths: std::collections::BTreeSet<_> = built
         .groups
         .iter()
-        .zip(&built.diagnostics)
+        .zip(&diagnostics)
         .filter(|(_, d)| d.status == GroupStatus::PartialReduction)
         .map(|(g, _)| g.depth)
         .collect();

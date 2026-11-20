@@ -7097,8 +7097,10 @@
   "interrupt_disposition": "# timing-defaults burst 6 interruption (2026-10-24 08:53 CEST)\n\nBurst 6 (run 20261023T193247Z) was killed by the outer `timeout 840` in measure.sh while row 64\n(vertex-streaming-s32-v1-l0, 1 iteration, unresolved at pair 4) was at pair 81. Cause: profiles.py\nchecks its 690 s burst budget only between rows, and an unresolved row runs to pair 255.\n\nDisposition: the row moved to `interrupted[]` in timing-defaults.json with reason and the\npre-edit sha256 (copy: timing-defaults.pre-interrupt-disposition.json). The case reruns from\npair 0 under the unchanged rule. measure.sh: outer timeout 840 -> 1800 s, and completed streams\nare skipped (release.sh asserts on a completed stream). profiles.py is untouched, so the\nsource-inventory binding holds.\n\nRejected: resuming the row at pair 81 (needs a profiles.py change and an amendment).\nKnown effect: the rerun gets a second pair-4 decisiveness check; that check stops on a decisive\npass or fail alike. Reversal cost: free (the pre-edit receipt is kept).\n",
   "portable_raw_evidence": {
     "path": "enc03-allocating-profiles.json.gz",
-    "sha256": "1e181f816bb30b9062dbe9f9e62131866c99e367316c02515d45479a9412c43c",
-    "uncompressed_bytes": 63341932,
-    "full_report_and_raw_receipts": true
+    "sha256": "ebc1d11bcbe8e4442ec66023db991e4722c122652dc10132b2ff17496408096f",
+    "uncompressed_bytes": 63328032,
+    "full_report_and_raw_receipts": true,
+    "original_sha256": "1e181f816bb30b9062dbe9f9e62131866c99e367316c02515d45479a9412c43c",
+    "machine_paths_redacted": true
   }
 }
