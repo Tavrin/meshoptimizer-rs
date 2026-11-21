@@ -707,7 +707,23 @@ with zero crashes. Seed line coverage:
 
 ### 0.2.20 release fuzz
 
-Release campaign receipt pending.
+Release campaign on the 0.2.20 candidate, 2026-11-21: libFuzzer via cargo-fuzz with
+AddressSanitizer, one continuous process per target, stopped after 600 seconds without new
+coverage once at least 600 CPU-seconds had run, or at 7,200 CPU-seconds. Zero crashes.
+
+| Target | Stop reason | CPU seconds | Executions | Coverage |
+|---|---|---:|---:|---:|
+| `v2_build` | coverage flat | 6,558.8 | 9,774 | 11,518 |
+| `dag_format_v2` | coverage flat | 3,184.1 | 1,914,977 | 3,093 |
+| `attr_page` | coverage flat | 2,634.9 | 736,780 | 4,800 |
+| `health_reader` | coverage flat | 1,053.1 | 31,673,801 | 1,559 |
+| `parallel_clod` | CPU cap | 7,208.1 | 487,047 | 7,363 |
+| `parallel_equiv` | CPU cap | 7,202.8 | 32,427 | 3,688 |
+
+The two parallel-build targets ran with `-rss_limit_mb=2048`. At the 512 MB default they stopped on
+process memory while the live heap was about 35 MB (worker-thread allocator caches and sanitizer
+quarantine); the stopping inputs replay alone in under 90 MB. With 2 GB they peaked near 1 GB and
+ran to the CPU cap.
 
 ### Sizing finite v2 build limits
 
