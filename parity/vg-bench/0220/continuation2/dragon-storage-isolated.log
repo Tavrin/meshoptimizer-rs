@@ -1,0 +1,1 @@
+{"kind":"limits","mesh":"dragon","source_triangles":871414,"source_vertices":437645,"max_bytes":536870912,"max_work":17179869184,"peak_bytes":170885388,"work":1647221498,"bytes_per_source_triangle":196.101265299846,"work_per_source_triangle":1890.2857860901936,"pass":true,"result":"Ok(())"}

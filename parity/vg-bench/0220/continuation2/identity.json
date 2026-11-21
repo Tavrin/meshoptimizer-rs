@@ -1,0 +1,52 @@
+{
+  "bunny": {
+    "1": {
+      "ours": "09950be193b9d4d16ee73a054393d6f07e26a69d43eceb1dc2a92f113fb92767",
+      "baseline": "09950be193b9d4d16ee73a054393d6f07e26a69d43eceb1dc2a92f113fb92767"
+    },
+    "8": {
+      "ours": "09950be193b9d4d16ee73a054393d6f07e26a69d43eceb1dc2a92f113fb92767",
+      "baseline": "09950be193b9d4d16ee73a054393d6f07e26a69d43eceb1dc2a92f113fb92767"
+    }
+  },
+  "dead_tree_trunk_02": {
+    "1": {
+      "ours": "efb8767288cf7c6602d8c9a3a8dd6d3c8a8c14d0156660ce284d31e7d1b1d5ad",
+      "baseline": "efb8767288cf7c6602d8c9a3a8dd6d3c8a8c14d0156660ce284d31e7d1b1d5ad"
+    },
+    "8": {
+      "ours": "efb8767288cf7c6602d8c9a3a8dd6d3c8a8c14d0156660ce284d31e7d1b1d5ad",
+      "baseline": "efb8767288cf7c6602d8c9a3a8dd6d3c8a8c14d0156660ce284d31e7d1b1d5ad"
+    }
+  },
+  "namaqualand_boulder_02": {
+    "1": {
+      "ours": "cfd7ade3b678ded01fdea405bda275805b0570fa882e60ebb929bc185f874264",
+      "baseline": "cfd7ade3b678ded01fdea405bda275805b0570fa882e60ebb929bc185f874264"
+    },
+    "8": {
+      "ours": "cfd7ade3b678ded01fdea405bda275805b0570fa882e60ebb929bc185f874264",
+      "baseline": "cfd7ade3b678ded01fdea405bda275805b0570fa882e60ebb929bc185f874264"
+    }
+  },
+  "coast_rocks_01": {
+    "1": {
+      "ours": "7970c56e4488443e89fd3c29c780aa6ddcac247a9686d96b2278e291a190014d",
+      "baseline": "7970c56e4488443e89fd3c29c780aa6ddcac247a9686d96b2278e291a190014d"
+    },
+    "8": {
+      "ours": "7970c56e4488443e89fd3c29c780aa6ddcac247a9686d96b2278e291a190014d",
+      "baseline": "7970c56e4488443e89fd3c29c780aa6ddcac247a9686d96b2278e291a190014d"
+    }
+  },
+  "dragon": {
+    "1": {
+      "ours": "7f241134d26d6fa3ba3df9050f5bad21d5d6cd4a9c6284b5f96b1fcd59c5263d",
+      "baseline": "7f241134d26d6fa3ba3df9050f5bad21d5d6cd4a9c6284b5f96b1fcd59c5263d"
+    },
+    "8": {
+      "ours": "7f241134d26d6fa3ba3df9050f5bad21d5d6cd4a9c6284b5f96b1fcd59c5263d",
+      "baseline": "7f241134d26d6fa3ba3df9050f5bad21d5d6cd4a9c6284b5f96b1fcd59c5263d"
+    }
+  }
+}

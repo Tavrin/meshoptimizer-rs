@@ -1,0 +1,37 @@
+{
+  "completed": true,
+  "stages": [
+    {
+      "stage": "clippy",
+      "exit": 0
+    },
+    {
+      "stage": "release",
+      "exit": 0
+    },
+    {
+      "stage": "doc",
+      "exit": 0
+    },
+    {
+      "stage": "public-text",
+      "exit": 1
+    },
+    {
+      "stage": "campaign",
+      "exit": 0
+    },
+    {
+      "stage": "supplement",
+      "exit": 0
+    },
+    {
+      "stage": "v2-equivalence",
+      "exit": 101
+    },
+    {
+      "stage": "bench",
+      "exit": 0
+    }
+  ]
+}

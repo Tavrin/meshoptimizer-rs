@@ -27,7 +27,14 @@ use alloc::vec::Vec;
 /// header. Revision 3 adds the measured build policy, attributes and materials.
 /// Revision 4 measures replacements against their original source regions.
 /// Revision 5 keeps replacement siblings in one parent source region.
-pub const BUILDER_REVISION: u32 = 5;
+/// Revision 6 partitions sibling regions with their cluster counts as weights.
+/// Revision 8 prices sampled interpolated-normal loss in original-source regions.
+/// Revision 9 keeps partial reductions instead of the sloppy fallback and
+/// independently measures regular and remaining sloppy steps.
+/// Revision 10 restores the regular quadric error floor, pins surviving
+/// geometry at the depth limit and omits legacy-only knobs from measured keys.
+/// Revision 7 was reserved for an abandoned codec experiment.
+pub const BUILDER_REVISION: u32 = 10;
 /// Default culling-hierarchy node width.
 pub const DEFAULT_NODE_WIDTH: usize = 4;
 
@@ -187,6 +194,8 @@ pub struct KeyInputs<'a, I: crate::Index = u32> {
     pub materials: Option<&'a [u16]>,
     /// Supplied source normals (the v2 builder uses weight 0.5).
     pub normals: Option<&'a [[f32; 3]]>,
+    /// Match clusterlod::v2::BuildMesh::normal_error_weight.
+    pub normal_error_weight: f32,
     /// Opt-in alpha policy; masks and every setting participate in the key.
     pub alpha_coverage: Option<crate::clusterlod::v2::AlphaCoverage<'a>>,
     /// Whether the v2 sampled step and original-source error policy is used.
@@ -215,6 +224,7 @@ impl<'a, I: crate::Index> KeyInputs<'a, I> {
             channels: &[],
             materials: None,
             normals: None,
+            normal_error_weight: crate::clusterlod::v2::DEFAULT_NORMAL_ERROR_WEIGHT,
             measured_steps: true,
             alpha_coverage: None,
         }
@@ -236,6 +246,14 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
     };
     h.update(b"MDAG2KEY");
     u32s(&mut h, &[BUILDER_REVISION]);
+    u32s(
+        &mut h,
+        &[if inputs.normals.is_some() && inputs.measured_steps {
+            inputs.normal_error_weight.to_bits()
+        } else {
+            0
+        }],
+    );
     let Config {
         max_vertices,
         min_triangles,
@@ -280,8 +298,20 @@ pub fn build_key<I: crate::Index>(inputs: &KeyInputs<'_, I>) -> u64 {
             simplify_threshold.to_bits(),
             simplify_error_merge_previous.to_bits(),
             simplify_error_merge_additive.to_bits(),
-            simplify_error_factor_sloppy.to_bits(),
-            simplify_error_edge_limit.to_bits(),
+        ],
+    );
+    if !inputs.measured_steps {
+        u32s(
+            &mut h,
+            &[
+                simplify_error_factor_sloppy.to_bits(),
+                simplify_error_edge_limit.to_bits(),
+            ],
+        );
+    }
+    u32s(
+        &mut h,
+        &[
             b(simplify_error_clamped),
             b(simplify_permissive),
             b(simplify_fallback_permissive),
@@ -705,14 +735,15 @@ pub fn write<I: crate::Index>(
         let mut group = fine[flip(g)];
         let first = group.first_cluster as usize;
         group.first_cluster = uint(order.len())?;
-        for c in first..first + group.cluster_count as usize {
-            let refined = source.clusters[c].refined;
+        let owned = &source.clusters[first..first + group.cluster_count as usize];
+        for (offset, cluster) in owned.iter().enumerate() {
+            let refined = cluster.refined;
             let refined = if refined < 0 {
                 -1
             } else {
                 flip(refined as usize) as i32
             };
-            order.push(c);
+            order.push(first + offset);
             links.push((g as u32, refined));
         }
         groups.push(group);

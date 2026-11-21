@@ -185,6 +185,38 @@ only when resident `Q` passes the clamped decision (`cut::refine_sequential`).
 That procedure reports `Incomplete` when residency lacks a needed parent output;
 a projected-error rounding inversion no longer causes `Incomplete`.
 
+**Instance fast path.** The *root cut* is every cluster of every parentless
+group (`cut::root_clusters`; MDAG 2: `Reader::root_clusters`, ranges inside
+the pinned pages). It is the cut of a view exactly when no *root producer*
+refines, a root producer being `R(c)` for a root cluster `c` with
+`R(c) != -1`: a refining group needs every parent to refine, so following
+parents from any refining group ends at a refining root producer. Two values
+bound the root producers: `E_root`, the largest root-producer error (zero if
+there is none), and `S`, a sphere containing every root producer's LOD sphere
+(`cut::root_bounds`; MDAG 2: `Reader::root_error` and `Reader::root_sphere`,
+computed once by `Reader::open` from `GRPS` and `CREF`, no format change).
+Parentless group records are not part of the bound, and neither is the MDAG 2
+`MESH` sphere, which bounds decoded vertices rather than LOD spheres. If
+`(S, E_root)` projects at or below `t`, the cut is the root cut and a runtime
+draws the root clusters without evaluating any group (`cut::is_root_cut`). A
+containing sphere is never nearer to the camera and `E_root` is at least every
+producer's error, so this projection is at least every producer's; the
+perspective denominator is reduced by a relative 2^-44 so that the inequality
+survives `f64` rounding, and the comparison with `t` is done in `f64`. The
+test is sufficient only: it is false for `Threshold::Finest`, for invalid
+inputs, and between the point where the first producer and the last producer
+stop refining. A mesh with a far-field impostor (`FARF`) tests the impostor
+switch first, because the impostor's world error is not ordered with
+`E_root`. For a whole cell or assembly impostor, `cut::gather_error_cut`
+concatenates the triangles of a fixed-error cut into one list for
+`bake_impostor`, with the source cluster of every triangle for the sampler.
+
+**Streaming priority.** `Reader::page_priority_bounds` gives, per MDAG 2 page,
+the largest error of the groups with a cluster on the page and a sphere
+containing their LOD spheres. When this bound passes `cut::is_root_cut`, no
+group on the page refines, so the cut does not need the page unless it is
+pinned; the bound's projected error relative to `t` orders requests.
+
 Not provided by MDAG 1: tight per-cluster culling bounds (the stored cluster
 sphere is the producer's level-selection sphere unless `optimize_bounds` was
 set, and no box is stored), an all-level instance bound, and any page-dependency
@@ -402,7 +434,7 @@ bytes of a page, the resident hash covers the whole resident prefix, header
 included (its own field read as zero). They detect corruption, not tampering.
 
 `v2::build_key(&KeyInputs)` is XXH64 over the tag `MDAG2KEY`,
-`v2::BUILDER_REVISION`, every `Config` field in declaration order (`usize` as
+`v2::BUILDER_REVISION`, the applicable `Config` fields (`usize` as
 `u64`, `bool` as `u32`, `f32` as bits), the grid exponent, the attribute layout
 hash, the disk codec, page capacity, the three page limits, root budget and
 node width, the input positions (bits) and indices (as `u32`, so `u16` and
@@ -410,7 +442,9 @@ node width, the input positions (bits) and indices (as `u32`, so `u16` and
 vertex flags (presence word, count, one byte each), attributes (presence word,
 vertex count, component count, value bits), attribute weights (count, bits)
 and the protect mask. A cooker can test its cache before building.
-`BUILDER_REVISION` (5) is bumped whenever equal inputs produce different bytes.
+Measured v2 keys omit `simplify_error_factor_sloppy` and
+`simplify_error_edge_limit`. Keys for legacy builder results retain both.
+`BUILDER_REVISION` (10) is bumped whenever equal inputs produce different bytes.
 The writer stores `WriteOptions::build_key` as given (zero when not set).
 
 **Versioning.** The minor version is informational. A later minor may add
@@ -547,13 +581,30 @@ The builder retains source attributes and duplicates vertices by `(source ID,
 material slot)`. The slot is an exactly represented f32 component with weight
 zero and its protect bit set. Every simplified triangle is checked after all
 fallbacks; a mixed-slot triangle makes its entire group stuck. Stuck groups stay
-pinned. `Built::stuck_groups` reports all rejected simplification attempts and
-`material_stuck_groups` counts mixed-slot rejections specifically.
+pinned. `Built::stuck_groups` counts build-time rejections and any group pinned at the
+depth limit. `material_stuck_groups` counts mixed-slot rejections specifically.
 `WriteReport::stuck_groups` reports parentless groups below the coarsest level. Within each
 cluster triangles are stably sorted by slot, then optimized independently
 inside each range when cluster optimization is enabled. Dilation is rejected by this entry point because attribute
 references must remain attached to snapped source vertices. Error merge factors
 below one are rejected to preserve monotonic accumulation.
+
+**Partial steps and measured errors.** A step that
+removes triangles but retains more than `simplify_threshold` is accepted as a
+partial step. Partial steps can repeat while each strictly removes triangles.
+This gives repartitioning a chance to release boundary locks. The last available
+format level is reserved for the final root or for pinning surviving geometry.
+Weighted parent partitions accommodate at least twice the largest replacement
+region's cluster count. This lets a region that fills the nominal partition
+target merge with neighbours and release its shared boundary locks; replacement
+siblings remain indivisible. The target is set from the largest region for the
+whole level, so smaller regions also use the enlarged target. The nominal
+target still applies to leaf groups.
+Revision 10 uses the larger of the independently sampled deviation and the
+regular quadric estimate for regular steps. Sloppy steps use their sampled
+deviation alone. The final original-source pass prices accumulated deviation
+and the explicit normal-error metric and preserves monotone inheritance. `simplify_error_factor_sloppy` and
+`simplify_error_edge_limit` apply only to legacy builds.
 
 `ATTR` now contains `channel_count, layout_hash, 0, 0`, followed by 16-byte
 channel records: `caller_tag, encoding, source_component_offset, 0`. Tags are
@@ -561,7 +612,7 @@ opaque and unique. At most 16 channels are accepted; a channel's last source
 component must be below 32. Encoding IDs and errors are in `PAGE_FORMAT.md`.
 The hash is the low 32 bits of XXH64 of the channel records, seed zero. The
 build key includes layout fields, source normals, source per-triangle slots,
-and the measured-step policy. Builder revision is 5 (local source-region ownership requires a recook).
+and the measured-step policy.
 
 `Source` accepts this layout, an attribute view in snapshot-vertex order, and an
 optional slot per vertex. The writer rejects mixed-slot source triangles and
@@ -589,8 +640,11 @@ required chunks remain `Unsupported`; a malformed MATS record is `Invalid`.
 The v2 builder keeps all clusters emitted by one replacement in the same next
 partition. Original leaf regions therefore stay local: following a refined
 group does not pull source triangles owned by a sibling parent into a region.
-This changes builder output and requires builder revision 5; the container
-format and legacy builder are unchanged. Component pruning is not enabled.
+Revision 5 gathered siblings after partitioning. Revision 6 instead partitions
+whole replacement regions, weighted by their cluster counts. This preserves
+sibling ownership while letting graph adjacency and the partition size limit
+operate on the actual indivisible regions. The container format and legacy
+builder are unchanged. Component pruning is not enabled.
 
 The sampled symmetric error still bounds the original leaf union before
 snapping, the measured step, the simplifier estimate and inherited child errors.
@@ -641,7 +695,245 @@ geometry. Hemisphere grids cover only upper-hemisphere views. The metadata is
 not an executable payload and its hash is not authentication. When present it
 participates in the writer key; absence preserves existing keys and bytes.
 
-Release campaigns for 0.2.19, 2026-11-06 (AddressSanitizer, `-rss_limit_mb=512`, stopped when a chunk
-added no coverage, zero crashes): `attr_page` 5,997 CPU-s, 2,441,137 executions; `v2_build` 3,012
-CPU-s, 6,493 executions; `dag_format_v2` 2,996 CPU-s, 2,957,774 executions. Seed line coverage:
+Release campaigns for 0.2.19, 2026-11-06 (AddressSanitizer, `-rss_limit_mb=512`, zero crashes):
+`attr_page` 5,997 CPU-s, 2,441,137 executions; `dag_format_v2` 2,996 CPU-s,
+2,957,774 executions. Both stopped when a chunk added no coverage. The initial
+`v2_build` run (3,012 CPU-s, 6,493 executions) appeared to plateau because
+restarts every 600 seconds spent most of the final chunk replaying the corpus.
+The continuous rerun on v0.2.19 used 6,565.6 CPU-s, completed 13,561 executions
+and increased coverage from 11,095 to 11,168 before stopping coverage-flat,
+with zero crashes. Seed line coverage:
 `attributes.rs` 92.65%, `page.rs` 93.69%, `v2.rs` 94.32%, `dag_format_v2.rs` 91.28%, `far_field.rs` 62.86%.
+
+### 0.2.20 release fuzz
+
+Release campaign on the 0.2.20 candidate, 2026-11-21: libFuzzer via cargo-fuzz with
+AddressSanitizer, one continuous process per target, stopped after 600 seconds without new
+coverage once at least 600 CPU-seconds had run, or at 7,200 CPU-seconds. Zero crashes.
+
+| Target | Stop reason | CPU seconds | Executions | Coverage |
+|---|---|---:|---:|---:|
+| `v2_build` | coverage flat | 6,558.8 | 9,774 | 11,518 |
+| `dag_format_v2` | coverage flat | 3,184.1 | 1,914,977 | 3,093 |
+| `attr_page` | coverage flat | 2,634.9 | 736,780 | 4,800 |
+| `health_reader` | coverage flat | 1,053.1 | 31,673,801 | 1,559 |
+| `parallel_clod` | CPU cap | 7,208.1 | 487,047 | 7,363 |
+| `parallel_equiv` | CPU cap | 7,202.8 | 32,427 | 3,688 |
+
+The two parallel-build targets ran with `-rss_limit_mb=2048`. At the 512 MB default they stopped on
+process memory while the live heap was about 35 MB (worker-thread allocator caches and sanitizer
+quarantine); the stopping inputs replay alone in under 90 MB. With 2 GB they peaked near 1 GB and
+ran to the CPU cap.
+
+### Sizing finite v2 build limits
+
+`clusterlod::v2::build` accounts both output and retained scratch capacity.
+`Workspace::usage().bytes` is the accounted high-water mark, rather than process
+RSS; source buffers, allocator overhead, thread stacks, serialization and runtime
+residency need separate allowances. `usage().work` counts record visits, including
+nested simplification and sampled original-source distance queries. It is neither
+an instruction count nor a duration. Finite budgets use serial accounting even
+when the `parallel` feature is enabled; unlimited parallel scratch has a different
+peak and must be measured separately.
+
+Start profiling with `Limits::default()` (1 GiB and 2^34 visits). For a successful
+representative build with T source triangles, record B/T and W/T, where B is the
+peak accounted bytes and W is counted work. Choose per-triangle allowances above
+the observed maxima, with fixed overhead and headroom, and validate them on the
+largest representative inputs. Account separately for source vertex count,
+unused vertices, attributes, material seams, locked boundaries and topology:
+triangle count alone cannot guarantee a budget.
+
+The finite-budget calibration for `suggested_limits` used builder revision 8,
+fresh workspaces, 128-triangle clusters, a simplifier normal weight of 0.5 and
+grid exponent -22.
+
+| Mesh | Source triangles | Peak accounted bytes | Counted visits | Bytes/source triangle | Visits/source triangle |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| bunny | 69,451 | 20,792,603 | 120,376,811 | 299.4 | 1,733.3 |
+| dead_tree_trunk_02 | 83,128 | 24,057,919 | 138,556,852 | 289.4 | 1,666.8 |
+| namaqualand_boulder_02 | 97,964 | 27,456,109 | 164,606,079 | 280.3 | 1,680.3 |
+| coast_rocks_01 | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
+| dragon | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
+
+`clusterlod::v2::suggested_limits(T)` suggests 16 MiB + 1024T bytes and
+2^24 + 4096T visits, using checked arithmetic. These allowances exceed twice
+the observed peaks and work across this range. They are empirical starting
+budgets, rather than upper bounds for arbitrary meshes. The helper passed on all five meshes with the selected builder. Initial retained-source gates and the storage-only dragon isolation also passed. Variant measurements and final gate receipts are recorded in the benchmark continuation report. Use successful high-budget runs for calibration. A failed call's usage covers only its executed
+prefix, so it can understate both eventual peak storage and total work.
+`LimitExceeded` can indicate either storage or work exhaustion. Raising both
+budgets together demonstrates success but does not identify which budget was too
+small; vary one budget at a time to isolate the limit.
+
+
+## Sampled shading error
+
+`BuildMesh::normal_error_weight` prices source normal variation discarded between
+surviving vertices. For an original-source region, take the maximum sampled
+angle between source and nearest replacement interpolated normals in both
+surface directions. With regional maximum source/replacement triangle edge L,
+its displacement proxy is `2 * weight * L * sin(angle / 2)`. This unit-normal
+chord is monotone through 180 degrees and is a conservative local lever-arm
+choice. Maximize it with every positional floor and inherit it through parents.
+This is a sampled shading proxy, not a continuous normal, BRDF or texture bound.
+Undefined interior normal interpolants contribute 180 degrees on this new private
+path; the public quality-statistics API retains its strict numerical refusal.
+
+The default weight is 0. Zero disables this term; absent normals also
+leave the geometric builder unchanged. Weights must be finite and nonnegative.
+The angular pass shares the existing region samples and exact nearest queries.
+Repeated corners are deduplicated. Constant-normal regions, and regions whose
+geometric floor already exceeds the largest possible chord displacement, keep
+the positional-only path. Topology and attribute references are unchanged by
+this weight; only stored errors and resulting runtime cuts change.
+
+Set normals only through `BuildMesh::normals`; their simplifier weight remains
+0.5. Pack UV and tangent components through the existing `attributes` and
+`attribute_weights` fields. Packing normals there as well weights them a second
+time. `KeyInputs::normal_error_weight` must match the build input when computing
+a cook key. Its constructor uses the same default; builder revision 8 invalidates
+prior keys without changing the MDAG 2 container or page layouts. Legacy entry
+points retain their earlier semantics and byte output.
+
+The five-mesh weight comparison, default decision, and UV/tangent recommendation
+are recorded in the [sampled shading table](../parity/vg-bench/0220/shading/TABLE.md).
+
+
+Builder-revision-8 calibration of the selected default normal-error weight 0, with fresh
+finite suggested budgets, normals via the dedicated field, no UV/tangent
+attributes, `default_config(128)` and grid -22:
+
+| Mesh | Source triangles | Peak accounted bytes | Counted visits | Bytes/source triangle | Visits/source triangle |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| bunny | 69,451 | 20,792,603 | 120,376,811 | 299.4 | 1,733.3 |
+| dead_tree_trunk_02 | 83,128 | 24,057,919 | 138,556,852 | 289.4 | 1,666.8 |
+| namaqualand_boulder_02 | 97,964 | 27,456,109 | 164,606,079 | 280.3 | 1,680.3 |
+| coast_rocks_01 | 679,936 | 138,275,489 | 1,226,583,317 | 203.4 | 1,804.0 |
+| dragon | 871,414 | 170,885,388 | 1,637,258,603 | 196.1 | 1,878.9 |
+
+Every finite build in that calibration succeeded with at least twice its measured
+accounted peak and counted work available. The helper uses fixed overhead plus
+power-of-two per-triangle factors, chosen above twice the initial successful
+1T observations and then validated with finite budgets. These are empirical
+allowances for this corpus and input policy. Additional attributes, unused
+vertices, material duplication, locks or different topology require profiling.
+The UV/tangent comparison does not qualify these budgets for those channels.
+
+### Structural build health gate
+
+`clusterlod::v2::health(&built, 3, &mut workspace)` returns a `HealthReport`
+over a `Built` DAG; `health_from_reader(&reader, &cluster_triangles, 3, &mut
+workspace)` returns the same report over an opened MDAG 2, given each cluster's
+triangle count from its transcoded page. The report holds a per-depth table
+(groups, stored triangles, pinned, sloppy and partial groups, finite error
+min / upper median / max), every pinned group with its reason, and every
+linked equal-error chain. To include build-time reasons and partial/sloppy
+counts, collect the diagnostics with `build_with_diagnostics` and pass them
+to `health_with_diagnostics`. They contain the simplifier estimate, its fallback
+flag, sampled step and original-source terms, inherited error, and step status.
+The original-source term includes the existing measured error floor.
+
+Build-time reasons are absent from the container. The builder emits a final
+root only when a single cluster remains. The reader and the built report
+without diagnostics classify a pin as a root if it has no parent, consists of
+one cluster and is the sole group at the coarsest depth. They report other pins
+as `UnknownPinned`.
+
+**Rule.** Any non-root pin or unmeasured equal-error chain fails the report
+(see below for measured chains). A chain has
+the same finite positive error over at least `minimum_levels` consecutive
+linked depths. Each parent must store fewer triangles than the sum over all
+of its distinct children. Intermediate levels on a plateau are unselectable
+at the shared error threshold. The coarsest level on the plateau becomes
+eligible once the threshold is at least the chain error. Three levels is the
+recommended cooker rule. Valid lengths range from 2 through 64. Overlapping
+chains report their coarsest group and length.
+
+Stored errors cannot tell a plateau started by an inflated estimate from a
+real deviation that monotone inheritance must carry to coarser groups. The
+builder therefore marks each group's diagnostics with `error_measured`. A
+group is measured when its final stored error is reached by an *unfloored*
+original-source sample of the geometric deviation (computed without the step
+floor whenever diagnostics are collected), or when it equals a child's stored
+error, inherited unchanged, and that child is itself measured. The step's own
+deviation, which is taken against the step's input rather than the original
+source, the regular quadric floor, the angular normal-loss price and
+`simplify_error_merge_additive` are not measurements, and a pinned group is
+never measured. "The coarsest group of a chain is measured" means exactly this
+flag on the group that the chain reports; the groups below it are not
+checked separately, because a plateau of equal errors can only reach them
+through inheritance of that value. `health_with_diagnostics` still reports a
+chain whose coarsest group is measured, with `EqualErrorChain::measured` set,
+but such a chain does not fail the report. It also rejects a diagnostics table
+whose measured group does not store one of its own `step_error`,
+`source_error` or `inherited_error` (`InvalidTopology`). Without diagnostics
+(`health` and `health_from_reader`) every chain fails.
+
+The container does not record the distinction, so an opened container cannot
+reproduce the exemption: its audit reports chains informationally and fails them
+all. The cook gate therefore runs `health_with_diagnostics` on the fresh
+`build_with_diagnostics` result at build time, and the cooker stores that
+verdict and report with the cache entry. A cache hit has only the container
+and reuses the stored verdict; it does not re-run the gate.
+
+Revision-10 example: the 91,216-triangle fixture has one three-level plateau
+at 0.11053995 (groups 46, 63 and 68 at depths 0 to 2). Group 46's step sampled
+0.11053928, and its unfloored original-source pass sampled 0.11053995 against
+a quadric estimate of 0.0192, so it is measured directly. Group 63's
+replacement keeps that point; its unfloored original-source maximum is the
+same value. Group 68's own maximum is 0.07064,
+and it stores 0.11053995 only because monotone inheritance requires it. At
+100 times the build sampling density, these maxima are unchanged.
+Revision-9 errors produce the same chain. The revision-9 rule compared each
+child alone with its parent and missed it. The depth-1 and depth-2 outputs on
+this path (625 and 722 triangles) are selectable only within the
+bounding-sphere slack. The median ratio of camera distances that select them
+over 64 directions is 1.0036 and 1.0084. Their siblings in the same parents
+have ratios of 6.0 and 3.0. The cut is still correct for the stored and sampled
+errors. Those outputs are no more accurate than the depth-3 replacement that
+the cut selects at 0.1105.
+
+Zero-error chains, including exact planar reductions, pass the chain test.
+On the reader path, errors at or below the container's quantization
+displacement count as zero for this test. Per-depth statistics still show
+stored errors. The report checks structure. Sampled surface deviation,
+shading quality and runtime cut cost require separate measurements.
+
+The saturation that motivated the rule: a 91,216-triangle consumer mesh built
+at builder revision 8 first introduced error 3.29 at depth 4. That maximum
+remained through depth 9 as stored triangles fell from 5,684 to 192. One depth-4 group had fallen back to
+sloppy simplification and stored `simplify_error_factor_sloppy` times the
+grid-clustering estimate, 3.29, while its sampled step deviation was 1.99 and
+its sampled original-source deviation lower still. The coarsest finite levels
+each had a single group, so monotone inheritance carried 3.29 through those
+levels and the one-pixel cut drew 4,836 triangles with the mesh 32 px tall.
+Removing only the sloppy estimate was insufficient: the regular simplifier
+then reported 3.216 for a step whose sampled deviation was 0.942. Revision 9
+also changed partitioning and kept progressing partial steps.
+
+**Higher-density error check.** The revision-9 builds below used
+`default_config(128)`, supplied normals at simplifier weight 0.5, and
+normal-error weight zero. The grid exponent was -16 for the 91,216-triangle
+fixture and -22 for the five corpus meshes. For every finite group at depth 4
+or coarser, `measure_lod_quality` compared the unsnapped original-source region
+with its snapped replacement. The density in both directions was
+`400000 / max(source_region_area, 1e-12)` interior samples per square unit,
+100 times the build density. Both passes also included triangle corners.
+Excess is the positive part of the sampled maximum minus the error stored in
+MDAG 2, including its quantization displacement. The table shows nearest-rank
+p95 across groups.
+
+| Mesh | Source triangles | Groups | Symmetric sample visits | Max / p95 excess | Max / p95 excess (world units) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 91k dragon fixture | 91,216 | 6 | 6,322,275 | 0 / 0% | 0 / 0 |
+| bunny | 69,451 | 6 | 6,049,729 | 0.137 / 0.137% | 0.0001879 / 0.0001879 |
+| dead_tree_trunk_02 | 83,128 | 6 | 6,080,099 | 0 / 0% | 0 / 0 |
+| namaqualand_boulder_02 | 97,964 | 6 | 6,509,665 | 0 / 0% | 0 / 0 |
+| coast_rocks_01 | 679,936 | 17 | 35,019,173 | 1.877 / 1.877% | 0.0001405 / 0.0001405 |
+| dragon | 871,414 | 18 | 42,617,594 | 10.567 / 10.567% | 0.004889 / 0.004889 |
+
+Across the 59 groups the maximum and p95 excess were 10.567% and 3.165%,
+respectively. The rocks and corpus dragon exceeded the 1% maximum-excess
+trigger, so revision 10 keeps the regular quadric floor in addition to sampled
+deviation. Sloppy steps keep the sampled deviation alone. The regular floor
+is a heuristic.

@@ -177,6 +177,31 @@ fn canonical(tris: impl Iterator<Item = [[u32; 3]; 3]>) -> Vec<[[u32; 3]; 3]> {
 }
 
 #[test]
+fn measured_build_keys_ignore_legacy_error_knobs() {
+    let (positions, indices) = grid(4);
+    let config = clusterlod::default_config(16).unwrap();
+    let options = v2::WriteOptions::new(QuantGrid::new(GRID).unwrap());
+    let key = |config: &clusterlod::Config, measured_steps| {
+        let mut inputs = v2::KeyInputs::new(config, &options, &positions, &indices);
+        inputs.measured_steps = measured_steps;
+        v2::build_key(&inputs)
+    };
+    for other in [
+        clusterlod::Config {
+            simplify_error_factor_sloppy: config.simplify_error_factor_sloppy + 1.0,
+            ..config
+        },
+        clusterlod::Config {
+            simplify_error_edge_limit: config.simplify_error_edge_limit + 1.0,
+            ..config
+        },
+    ] {
+        assert_eq!(key(&config, true), key(&other, true));
+        assert_ne!(key(&config, false), key(&other, false));
+    }
+}
+
+#[test]
 fn xxh64_vectors_and_build_key() {
     for (input, hash) in [
         (&b""[..], 0xef46_db37_51d8_e999u64),
@@ -871,5 +896,95 @@ fn empty_mesh_and_seeds() {
             let b = build(grid(n));
             std::fs::write(format!("{dir}/{name}.bin"), write(&b, codec, capacity).0).unwrap();
         }
+    }
+}
+
+/// The reader's fast-path bounds equal the flat-table reference, its root
+/// ranges are the parentless groups' clusters, the fast path selects exactly
+/// the full cut, and a page whose priority bound passes holds no cut cluster
+/// unless it is pinned.
+#[test]
+fn reader_fast_path_and_page_priority_bounds() {
+    let mut rng = Rng(0x6a09_e667_f3bc_c908);
+    for mesh in [grid(32), sphere(24, 40)] {
+        let b = build(mesh);
+        let (file, _) = write(&b, DiskCodec::Compressed, 4096);
+        let r = v2::Reader::open(&file).unwrap();
+        let (groups, clusters) = fine_tables(&r, &transcode_all(&r, &file));
+        let reference = cut::root_bounds(&groups, &clusters).unwrap();
+        let s = r.root_sphere();
+        assert_eq!(r.root_error(), reference.error);
+        assert_eq!(
+            s,
+            [
+                reference.center[0],
+                reference.center[1],
+                reference.center[2],
+                reference.radius
+            ]
+        );
+        // File cluster of every fine-table cluster, as `fine_tables` orders them.
+        let n = r.mesh().group_count as usize;
+        let file_cluster: Vec<u32> = (0..n)
+            .flat_map(|i| r.group(n - 1 - i).unwrap().clusters())
+            .collect();
+        let mut roots = vec![0; clusters.len()];
+        let k = cut::root_clusters(&groups, &clusters, &mut roots).unwrap();
+        let mut from_reader: Vec<u32> = r.root_clusters().flatten().collect();
+        let mut from_tables: Vec<u32> = roots[..k]
+            .iter()
+            .map(|&c| file_cluster[c as usize])
+            .collect();
+        from_tables.sort_unstable();
+        assert_eq!(from_reader, from_tables);
+        let ranges: Vec<_> = r.root_clusters().collect();
+        assert!(ranges.windows(2).all(|w| w[0].end < w[1].start));
+        from_reader.dedup();
+        assert_eq!(from_reader.len(), k);
+        let pinned_clusters = (0..r.mesh().pinned_page_count as usize)
+            .map(|p| r.page(p).unwrap().cluster_count)
+            .sum::<u32>();
+        assert!(from_reader.iter().all(|&c| c < pinned_clusters));
+
+        let pages = r.mesh().page_count as usize;
+        let mut bounds = vec![LodBounds::default(); pages];
+        assert_eq!(
+            r.page_priority_bounds(&mut bounds[..pages - 1]),
+            Err(Error::Limit)
+        );
+        r.page_priority_bounds(&mut bounds).unwrap();
+        let page_of = |c: u32| {
+            (0..pages)
+                .find(|&p| r.page(p).unwrap().first_cluster + r.page(p).unwrap().cluster_count > c)
+                .unwrap()
+        };
+        let cluster_page: Vec<usize> = file_cluster.iter().map(|&c| page_of(c)).collect();
+        let (mut out, mut fast, mut skipped) = (vec![0; clusters.len()], 0, 0);
+        for i in 0..300 {
+            let mut view = rng.view();
+            let far = 10f32.powf(3. * rng.unit());
+            view.position.iter_mut().for_each(|v| *v *= far);
+            let t = Threshold::Pixels(0.25 + 7.75 * (i % 16) as f32 / 15.);
+            let m = cut::select_cut(&groups, &clusters, &view, t, None, &mut out).unwrap();
+            if cut::is_root_cut(s, r.root_error(), &view, t) {
+                assert_eq!(out[..m], roots[..k]);
+                fast += 1;
+            }
+            for (p, bound) in bounds.iter().enumerate() {
+                let sphere = [
+                    bound.center[0],
+                    bound.center[1],
+                    bound.center[2],
+                    bound.radius,
+                ];
+                if p >= r.mesh().pinned_page_count as usize
+                    && cut::is_root_cut(sphere, bound.error, &view, t)
+                {
+                    assert!(out[..m].iter().all(|&c| cluster_page[c as usize] != p));
+                    skipped += 1;
+                }
+            }
+        }
+        assert!(fast > 20 && fast < 280 && skipped > 100, "{fast} {skipped}");
     }
 }

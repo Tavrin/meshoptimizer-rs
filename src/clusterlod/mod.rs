@@ -7,7 +7,7 @@
 mod bounds_math;
 mod dag;
 mod flat;
-pub use flat::{FlatDagCluster, FlatDagGroup};
+pub use flat::{FlatDagCluster, FlatDagGroup, LodBounds};
 pub mod attributes;
 pub mod cut;
 pub mod dag_format;
@@ -35,6 +35,8 @@ pub struct Config {
     /// Sort partitions spatially.
     pub partition_sort: bool,
     /// Target clusters per partition.
+    /// V2 parent partitions grow to accommodate twice the largest indivisible
+    /// replacement region, allowing partial regions to merge.
     pub partition_size: usize,
     /// Use the spatial meshlet builder.
     pub cluster_spatial: bool,
@@ -44,15 +46,16 @@ pub struct Config {
     pub cluster_split_factor: f32,
     /// Target triangle ratio at each level.
     pub simplify_ratio: f32,
-    /// Maximum retained ratio before declaring a group stuck.
+    /// Maximum retained ratio before declaring a legacy group stuck.
+    /// V2 reports reductions above this threshold as partial steps.
     pub simplify_threshold: f32,
     /// Multiplier applied to inherited error.
     pub simplify_error_merge_previous: f32,
     /// Additive fraction of this level's error.
     pub simplify_error_merge_additive: f32,
-    /// Error multiplier after sloppy fallback.
+    /// Error multiplier after sloppy fallback in legacy builds.
     pub simplify_error_factor_sloppy: f32,
-    /// Optional edge-length error cap; zero disables it.
+    /// Legacy edge-length cap on the simplifier estimate; zero disables it.
     pub simplify_error_edge_limit: f32,
     /// Clamp attribute error to positional scale.
     pub simplify_error_clamped: bool,
@@ -137,16 +140,6 @@ pub struct MeshGeneric<'a, I: crate::Index = u32> {
     pub attribute_weights: &'a [f32],
     /// Bit K protects discontinuities in component K.
     pub attribute_protect_mask: u32,
-}
-/// Conservative sphere and accumulated error.
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct LodBounds {
-    /// Sphere center.
-    pub center: [f32; 3],
-    /// Sphere radius.
-    pub radius: f32,
-    /// Absolute simplification error; terminal groups use `f32::MAX`.
-    pub error: f32,
 }
 /// Cluster emitted by the demo builder.
 #[derive(Debug, Default, PartialEq)]
@@ -459,59 +452,113 @@ fn partition(
     ctx.free(sorted)?;
     Ok(offsets)
 }
-// A replacement's clusters are one source region. Keeping them together avoids
-// recursively charging each parent for source geometry owned by sibling parents.
-fn localize_partitions(
+// Partition replacement regions as indivisible weighted graph vertices. Moving
+// siblings after partitioning damages both the balanced sizes and the boundary
+// adjacency the partitioner optimized. Pending siblings are contiguous because
+// ordered group assembly emits each replacement as one run.
+fn partition_regions(
     clusters: &mut [Pending],
-    offsets: Vec<u32>,
+    indices: &[u32],
+    remap: &[u32],
+    p: Positions<'_>,
+    c: Config,
     ctx: &mut Context<'_>,
 ) -> Result<Vec<u32>, Error> {
-    ctx.tick(clusters.len())?;
-    let count = clusters
-        .iter()
-        .filter_map(|c| usize::try_from(c.refined).ok())
-        .max()
-        .map_or(0, |i| i + 1);
-    let mut owners = ctx.filled(count, usize::MAX)?;
-    let mut assignments = ctx.alloc::<usize>(clusters.len())?;
-    let mut counts = ctx.alloc::<u32>(offsets.len())?;
-    for (part, pair) in offsets.windows(2).enumerate() {
-        for i in pair[0] as usize..pair[1] as usize {
-            ctx.tick(1)?;
-            let refined = clusters[i].refined;
-            let owner = if refined < 0 {
-                part
-            } else {
-                let owner = &mut owners[refined as usize];
-                if *owner == usize::MAX {
-                    *owner = part;
-                }
-                *owner
-            };
-            assignments[i] = owner;
-            counts[owner + 1] += 1;
+    if clusters.len() <= c.partition_size || clusters.iter().all(|cl| cl.refined < 0) {
+        return partition(clusters, indices, remap, p, c, ctx);
+    }
+    let mut starts = ctx.alloc::<usize>(0)?;
+    for (i, cl) in clusters.iter().enumerate() {
+        ctx.tick(1)?;
+        if i == 0 || cl.refined < 0 || cl.refined != clusters[i - 1].refined {
+            v2::grow_output(ctx, &mut starts, 1)?;
+            starts.push(i);
         }
     }
-    ctx.tick(counts.len().saturating_mul(2))?;
-    for i in 1..counts.len() {
-        counts[i] += counts[i - 1];
+    v2::grow_output(ctx, &mut starts, 1)?;
+    starts.push(clusters.len());
+    let units = starts.len() - 1;
+    let mut counts = ctx.alloc::<u32>(units)?;
+    let mut weights = ctx.alloc::<u32>(units)?;
+    let mut idx = ctx.alloc::<u32>(indices.len())?;
+    let mut off = 0;
+    for (unit, pair) in starts.windows(2).enumerate() {
+        weights[unit] = u32::try_from(pair[1] - pair[0]).map_err(|_| Error::SizeOverflow)?;
+        for cl in &clusters[pair[0]..pair[1]] {
+            ctx.tick(cl.count)?;
+            counts[unit] = counts[unit]
+                .checked_add(cl.count as u32)
+                .ok_or(Error::SizeOverflow)?;
+            for &v in &indices[cl.offset..cl.offset + cl.count] {
+                idx[off] = remap[v as usize];
+                off += 1;
+            }
+        }
     }
-    let mut write = ctx.copy(&counts)?;
+    let mut assignments = ctx.alloc::<u32>(units)?;
+    let mut parts = 0;
+    // A partial replacement can occupy an entire nominal partition. Give it
+    // room to join another region on the next level; otherwise the same
+    // boundary locks can strand it in a singleton partition indefinitely.
+    let region_partition_size = weights
+        .iter()
+        .copied()
+        .max()
+        .map_or(c.partition_size, |weight| {
+            c.partition_size.max((weight as usize).saturating_mul(2))
+        });
+    ctx.child(|ws| {
+        parts = crate::partition::partition_weighted(
+            &mut assignments,
+            &idx[..off],
+            &counts,
+            Some(&weights),
+            remap.len(),
+            if c.partition_spatial { Some(p) } else { None },
+            region_partition_size,
+            &mut Context::new(ws)?,
+        )?;
+        Ok(())
+    })?;
+    if c.partition_sort {
+        let mut centers = ctx.alloc(parts)?;
+        for (unit, pair) in starts.windows(2).enumerate() {
+            centers[assignments[unit] as usize] = clusters[pair[1] - 1].bounds.center;
+        }
+        let order = ctx.child(|ws| {
+            crate::spatial_sort_remap_generic::<u32>(Positions::from_packed(&centers), ws)
+        })?;
+        for v in &mut assignments {
+            *v = order[*v as usize];
+        }
+        ctx.free(centers)?;
+        ctx.free(order)?;
+    }
+    let mut offsets = ctx.alloc::<u32>(parts + 1)?;
+    for (&part, &weight) in assignments.iter().zip(&weights) {
+        offsets[part as usize + 1] += weight;
+    }
+    for i in 1..offsets.len() {
+        offsets[i] += offsets[i - 1];
+    }
+    let mut write = ctx.copy(&offsets)?;
     let mut sorted = ctx.alloc::<Pending>(clusters.len())?;
-    for (i, &cluster) in clusters.iter().enumerate() {
-        ctx.tick(1)?;
-        let at = &mut write[assignments[i]];
-        sorted[*at as usize] = cluster;
-        *at += 1;
+    for (unit, pair) in starts.windows(2).enumerate() {
+        ctx.tick(pair[1] - pair[0])?;
+        let at = &mut write[assignments[unit] as usize];
+        let len = pair[1] - pair[0];
+        sorted[*at as usize..*at as usize + len].copy_from_slice(&clusters[pair[0]..pair[1]]);
+        *at += len as u32;
     }
     clusters.copy_from_slice(&sorted);
-    counts.dedup();
-    ctx.free(owners)?;
+    ctx.free(starts)?;
+    ctx.free(counts)?;
+    ctx.free(weights)?;
+    ctx.free(idx)?;
     ctx.free(assignments)?;
     ctx.free(write)?;
     ctx.free(sorted)?;
-    ctx.free(offsets)?;
-    Ok(counts)
+    Ok(offsets)
 }
 // Reuse the existing byte-sized boundary storage as simplifier flags. Bit 7
 // is private discovery state and is removed from every entry before return.
@@ -553,14 +600,69 @@ fn lock_boundary(
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod region_partition_tests {
+    use super::*;
+
+    #[test]
+    fn full_partial_regions_can_merge_and_release_their_shared_boundary() {
+        let positions: Vec<_> = (0..=16)
+            .flat_map(|x| [[x as f32, 0., 0.], [x as f32, 1., 0.]])
+            .collect();
+        let indices: Vec<u32> = (0..16)
+            .flat_map(|x| [2 * x, 2 * x + 2, 2 * x + 1, 2 * x + 1, 2 * x + 2, 2 * x + 3])
+            .collect();
+        let mut clusters: Vec<_> = (0..32)
+            .map(|i| Pending {
+                offset: i * 3,
+                count: 3,
+                refined: (i / 16) as i32,
+                ..Pending::default()
+            })
+            .collect();
+        let remap: Vec<u32> = (0..positions.len() as u32).collect();
+        let mut locks = alloc::vec![support::VertexFlags::default(); positions.len()];
+        let mut workspace = Workspace::default();
+        let mut ctx = Context::new(&mut workspace).expect("workspace");
+        lock_boundary(
+            &mut locks,
+            &clusters,
+            &[0, 16, 32],
+            &indices,
+            &remap,
+            None,
+            &mut ctx,
+        )
+        .expect("initial boundaries");
+        assert_ne!(locks[16].bits() & 1, 0);
+        let offsets = partition_regions(
+            &mut clusters,
+            &indices,
+            &remap,
+            Positions::from_packed(&positions),
+            default_config(128).expect("config"),
+            &mut ctx,
+        )
+        .expect("partition");
+        lock_boundary(
+            &mut locks, &clusters, &offsets, &indices, &remap, None, &mut ctx,
+        )
+        .expect("merged boundaries");
+        assert_eq!(locks[16].bits() & 1, 0);
+        assert_eq!(locks[17].bits() & 1, 0);
+    }
+}
+
 fn simplify(
     indices: &[u32],
     mesh: &MeshGeneric<'_>,
     locks: &[support::VertexFlags],
     c: Config,
     target: usize,
+    measured: bool,
     ctx: &mut Context<'_>,
-) -> Result<(Vec<u32>, f32), Error> {
+) -> Result<(Vec<u32>, f32, bool), Error> {
     let p = support::Positions::from_packed(mesh.positions);
     debug_assert!(locks.iter().all(|f| f.bits() & !7 == 0));
     let a = match mesh.attributes {
@@ -613,7 +715,14 @@ fn simplify(
         ctx.free(result.indices)?;
         result = next;
     }
-    if result.indices.len() > target && c.simplify_fallback_sloppy {
+    // A measured-policy step that still removed triangles is kept as a partial
+    // step instead of degrading to grid clustering; the next level retries it.
+    let mut sloppy = false;
+    if result.indices.len() > target
+        && c.simplify_fallback_sloppy
+        && !(measured && result.indices.len() < indices.len())
+    {
+        sloppy = true;
         let mut subset = ctx.alloc::<[f32; 3]>(indices.len())?;
         let mut slocks = ctx.alloc(indices.len())?;
         let mut seq = ctx.alloc(indices.len())?;
@@ -637,7 +746,9 @@ fn simplify(
         ctx.free(result.indices)?;
         result = next?;
         result.error *= support::simplify_scale(p)?;
-        result.error *= c.simplify_error_factor_sloppy;
+        if !measured {
+            result.error *= c.simplify_error_factor_sloppy;
+        }
         for v in &mut result.indices {
             *v = indices[*v as usize];
         }
@@ -651,7 +762,7 @@ fn simplify(
         ctx.free(result.indices)?;
         result.indices = fallback;
     }
-    if c.simplify_error_edge_limit > 0. {
+    if !measured && c.simplify_error_edge_limit > 0. {
         let mut maxsq = 0f32;
         for t in indices.as_chunks::<3>().0 {
             ctx.tick(1)?;
@@ -673,7 +784,7 @@ fn simplify(
             .min(crate::math::sqrt(maxsq) * c.simplify_error_edge_limit);
     }
     finite(result.error)?;
-    Ok((result.indices, result.error))
+    Ok((result.indices, result.error, sloppy))
 }
 fn edge_slot(table: &[u64], key: u64, ctx: &mut Context<'_>) -> Result<usize, Error> {
     let mask = table.len() - 1;
@@ -820,8 +931,10 @@ fn output(
     c: Config,
     bounds: LodBounds,
     depth: i32,
+    diagnostics: v2::GroupDiagnostics,
     callback: &mut impl FnMut(
         Group,
+        v2::GroupDiagnostics,
         Vec<ClusterGeneric>,
         &[[f32; 3]],
         &mut Context<'_>,
@@ -860,6 +973,7 @@ fn output(
             depth,
             simplified: bounds,
         },
+        diagnostics,
         out,
         mesh.positions,
         ctx,
@@ -936,6 +1050,7 @@ struct Prepared {
     stuck: bool,
     material_mixed: bool,
     alpha_failed: bool,
+    diagnostics: v2::GroupDiagnostics,
 }
 fn prepare_group(
     group: &[Pending],
@@ -957,7 +1072,11 @@ fn prepare_group(
     }
     let target = ((merged_idx.len() / 3) as f32 * c.simplify_ratio) as usize * 3;
     let mut bounds = merged(&gb, ctx)?;
-    let (simplified, error) = simplify(&merged_idx, mesh, locks, c, target, ctx)?;
+    // Every accepted partial step strictly removes triangles. Repartitioning
+    // its survivors can release boundary locks at the following level.
+    let allow_partial = policy.is_some();
+    let (simplified, error, sloppy_fallback) =
+        simplify(&merged_idx, mesh, locks, c, target, allow_partial, ctx)?;
     let mixed = policy
         .and_then(|p| p.material_component)
         .is_some_and(|slot| {
@@ -968,9 +1087,10 @@ fn prepare_group(
                 })
             })
         });
-    let stuck = mixed
-        || (policy.is_some() && simplified.is_empty())
-        || simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let over_threshold = simplified.len() as f32 > merged_idx.len() as f32 * c.simplify_threshold;
+    let partial = allow_partial && over_threshold && simplified.len() < merged_idx.len();
+    let stuck =
+        mixed || (policy.is_some() && simplified.is_empty()) || (over_threshold && !partial);
     let alpha_failed = if !stuck {
         if let Some(alpha) = policy.and_then(|p| p.alpha) {
             v2::alpha_failed(
@@ -987,16 +1107,34 @@ fn prepare_group(
     } else {
         false
     };
+    let status = if mixed {
+        v2::GroupStatus::MixedMaterial
+    } else if simplified.is_empty() {
+        v2::GroupStatus::Empty
+    } else if stuck {
+        v2::GroupStatus::RetainedRatio
+    } else if alpha_failed {
+        v2::GroupStatus::AlphaCoverage
+    } else if partial {
+        v2::GroupStatus::PartialReduction
+    } else {
+        v2::GroupStatus::Simplified
+    };
+    let simplifier_error = error;
+    let inherited_error = bounds.error;
     let stuck = stuck || alpha_failed;
-    let error = if policy.is_some() && !stuck {
-        error.max(v2::step_error(
-            &merged_idx,
-            &simplified,
-            mesh.positions,
-            ctx,
-        )?)
+    let step_error = if policy.is_some() && !stuck {
+        // Measure accepted geometry independently of the simplifier estimate.
+        v2::step_error(&merged_idx, &simplified, mesh.positions, 0.0, ctx)?
     } else {
         error
+    };
+    // Keep the regular estimate as a floor for missed samples. The sloppy
+    // grid estimate can saturate every coarser level through inheritance.
+    let error = if sloppy_fallback {
+        step_error
+    } else {
+        step_error.max(simplifier_error)
     };
     if stuck {
         bounds.error = f32::MAX;
@@ -1014,6 +1152,15 @@ fn prepare_group(
         stuck,
         material_mixed: mixed,
         alpha_failed,
+        diagnostics: v2::GroupDiagnostics {
+            status,
+            simplifier_error,
+            step_error,
+            source_error: 0.0,
+            inherited_error,
+            sloppy_fallback,
+            error_measured: false,
+        },
     })
 }
 fn build_internal(
@@ -1022,6 +1169,7 @@ fn build_internal(
     mesh: MeshGeneric<'_>,
     callback: &mut impl FnMut(
         Group,
+        v2::GroupDiagnostics,
         Vec<ClusterGeneric>,
         &[[f32; 3]],
         &mut Context<'_>,
@@ -1036,6 +1184,7 @@ fn build_in_context(
     mesh: MeshGeneric<'_>,
     callback: &mut impl FnMut(
         Group,
+        v2::GroupDiagnostics,
         Vec<ClusterGeneric>,
         &[[f32; 3]],
         &mut Context<'_>,
@@ -1049,6 +1198,7 @@ fn build_in_context_mode(
     mut mesh: MeshGeneric<'_>,
     callback: &mut impl FnMut(
         Group,
+        v2::GroupDiagnostics,
         Vec<ClusterGeneric>,
         &[[f32; 3]],
         &mut Context<'_>,
@@ -1098,8 +1248,17 @@ fn build_in_context_mode(
         };
     }
     let mut depth = 0;
-    while clusters.len() > 1 {
-        let group_offsets = partition(
+    // Leave the last level available to pin the current geometry. Even a
+    // progressing replacement can leave multiple clusters for another step.
+    while clusters.len() > 1
+        && (policy.is_none() || (depth as u32) + 1 < dag_format::v2::MAX_LEVELS)
+    {
+        let partitioner = if policy.is_some() {
+            partition_regions
+        } else {
+            partition
+        };
+        let group_offsets = partitioner(
             &mut clusters,
             &idx,
             &remap,
@@ -1107,11 +1266,6 @@ fn build_in_context_mode(
             c,
             ctx,
         )?;
-        let group_offsets = if policy.is_some() {
-            localize_partitions(&mut clusters, group_offsets, ctx)?
-        } else {
-            group_offsets
-        };
         lock_boundary(
             &mut locks,
             &clusters,
@@ -1171,18 +1325,39 @@ fn build_in_context_mode(
                 stuck,
                 material_mixed,
                 alpha_failed,
+                diagnostics,
             } = prepared;
             if stuck {
                 stuck_count += 1;
                 mixed_count += usize::from(material_mixed);
                 alpha_count += usize::from(alpha_failed);
-                output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
+                output(
+                    group,
+                    &idx,
+                    &mesh,
+                    c,
+                    bounds,
+                    depth,
+                    diagnostics,
+                    callback,
+                    ctx,
+                )?;
                 ctx.free(merged_idx)?;
                 ctx.free(gb)?;
                 ctx.free(simplified)?;
                 continue;
             }
-            let refined = output(group, &idx, &mesh, c, bounds, depth, callback, ctx)?;
+            let refined = output(
+                group,
+                &idx,
+                &mesh,
+                c,
+                bounds,
+                depth,
+                diagnostics,
+                callback,
+                ctx,
+            )?;
             if c.simplify_dilate_borders {
                 dilate(
                     &mut mesh,
@@ -1250,9 +1425,33 @@ fn build_in_context_mode(
         depth += 1;
     }
     if !clusters.is_empty() {
-        let mut bounds = clusters[0].bounds;
+        let (mut bounds, status) = if clusters.len() == 1 {
+            (clusters[0].bounds, v2::GroupStatus::Root)
+        } else {
+            let mut group_bounds = ctx.alloc::<LodBounds>(clusters.len())?;
+            for (bounds, cluster) in group_bounds.iter_mut().zip(&clusters) {
+                *bounds = cluster.bounds;
+            }
+            let bounds = merged(&group_bounds, ctx)?;
+            ctx.free(group_bounds)?;
+            stuck_count += 1;
+            (bounds, v2::GroupStatus::DepthLimit)
+        };
         bounds.error = f32::MAX;
-        output(&clusters, &idx, &mesh, c, bounds, depth, callback, ctx)?;
+        output(
+            &clusters,
+            &idx,
+            &mesh,
+            c,
+            bounds,
+            depth,
+            v2::GroupDiagnostics {
+                status,
+                ..v2::GroupDiagnostics::default()
+            },
+            callback,
+            ctx,
+        )?;
     }
     ctx.free(remap)?;
     ctx.free(locks)?;
@@ -1307,7 +1506,7 @@ fn build_with_output_mode<I: crate::Index>(
         parallel,
         c,
         mesh,
-        &mut |g, clusters, _positions, ctx| {
+        &mut |g, _diagnostics, clusters, _positions, ctx| {
             let result = I::with_clusters(&clusters, ctx.bytes(), ctx.workspace, |clusters| {
                 output(g, clusters)
             });
@@ -1363,7 +1562,7 @@ fn build_mode(
         parallel,
         c,
         mesh,
-        &mut |g, clusters, _positions, ctx| {
+        &mut |g, _diagnostics, clusters, _positions, ctx| {
             if result.len() >= i32::MAX as usize {
                 return Err(Error::SizeOverflow);
             }
@@ -1663,7 +1862,7 @@ pub fn build_with_output(
         false,
         c,
         mesh.into(),
-        &mut |g, clusters, _positions, ctx| {
+        &mut |g, _diagnostics, clusters, _positions, ctx| {
             let clusters: Vec<Cluster> = clusters.into_iter().map(Into::into).collect();
             let result = output(g, &clusters);
             for cl in &clusters {
@@ -1721,7 +1920,7 @@ pub fn build_parallel_with_output(
         true,
         c,
         mesh.into(),
-        &mut |g, clusters, _positions, ctx| {
+        &mut |g, _diagnostics, clusters, _positions, ctx| {
             let clusters: Vec<Cluster> = clusters.into_iter().map(Into::into).collect();
             let result = output(g, &clusters);
             for cl in &clusters {

@@ -1,0 +1,15 @@
+{
+  "source_head": "f160904e20aeac7d40b05ec13b493b413361bcde",
+  "exits": {
+    "format": 0,
+    "fmt": 0,
+    "clippy": 0,
+    "release": 0,
+    "release-all-features": 0,
+    "doc": 0,
+    "legacy-identity": 0,
+    "helper-build": 0,
+    "helper-corpus": 0
+  },
+  "scope": "Retained source before calibration scan candidate; public-text tracked separately"
+}

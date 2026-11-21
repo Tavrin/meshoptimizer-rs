@@ -68,7 +68,7 @@ dependencies = [
 
 [[package]]
 name = "meshoptimizer-rs"
-version = "0.2.19"
+version = "0.2.20"
 dependencies = [
  "libm",
 ]

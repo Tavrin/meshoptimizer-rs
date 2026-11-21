@@ -1,0 +1,42 @@
+[
+  {
+    "name": "fmt",
+    "exit": 0
+  },
+  {
+    "name": "clippy",
+    "exit": 0
+  },
+  {
+    "name": "release",
+    "exit": 0
+  },
+  {
+    "name": "release-all-features",
+    "exit": 0
+  },
+  {
+    "name": "doc",
+    "exit": 0
+  },
+  {
+    "name": "public-text",
+    "exit": 0
+  },
+  {
+    "name": "legacy-identity",
+    "exit": 101
+  },
+  {
+    "name": "legacy-identity",
+    "exit": 101
+  },
+  {
+    "name": "legacy-identity",
+    "exit": 101
+  },
+  {
+    "name": "legacy-identity",
+    "exit": 0
+  }
+]

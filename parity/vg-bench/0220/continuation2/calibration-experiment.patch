@@ -1,0 +1,58 @@
+--- a/src/lod_quality.rs
++++ b/src/lod_quality.rs
+@@ -452,15 +452,17 @@
+     fn build_range(&mut self, start: usize, end: usize, work: &mut Work) -> Result<usize, Error> {
+         let mut lo = [f64::INFINITY; 3];
+         let mut hi = [f64::NEG_INFINITY; 3];
+-        for t in &self.triangles[start..end] {
+-            work.add(1)?;
++        // Batch fixed scans when fuel fits; scan preserves the charged prefix
++        // on exhaustion without a budget branch in every bounding visit.
++        work.scan(self.triangles[start..end].iter(), |t| {
+             for p in t.p {
+                 for k in 0..3 {
+                     lo[k] = lo[k].min(p[k]);
+                     hi[k] = hi[k].max(p[k]);
+                 }
+             }
+-        }
++            Ok(())
++        })?;
+         let id = self.nodes.len();
+         self.nodes.push(Node {
+             lo,
+@@ -501,7 +503,16 @@
+         }
+         if n.right == usize::MAX {
+             let t = self.triangles[n.left];
+-            let (distance, weights) = closest(t.p, p);
++            // A face witness below the maximum needs no edge distances.
++            // A failed witness still runs the unchanged exact calculation.
++            let (distance, weights) = if MAX_ONLY {
++                match witness(t.p, p, cutoff) {
++                    Some(hit) => hit,
++                    None => closest(t.p, p),
++                }
++            } else {
++                closest(t.p, p)
++            };
+             if distance < best.distance || (distance == best.distance && t.id < best.id) {
+                 *best = Hit {
+                     distance,
+@@ -548,13 +559,13 @@
+         let pivot = a[lo + (hi - lo) / 2];
+         let mut store = lo;
+         a.swap(lo + (hi - lo) / 2, hi - 1);
+-        for i in lo..hi - 1 {
+-            work.add(1)?;
++        work.scan(lo..hi - 1, |i| {
+             if cmp(a[i], pivot).is_lt() {
+                 a.swap(i, store);
+                 store += 1;
+             }
+-        }
++            Ok(())
++        })?;
+         a.swap(store, hi - 1);
+         if store == mid {
+             break;

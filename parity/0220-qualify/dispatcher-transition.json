@@ -1,0 +1,9 @@
+{
+  "admission_pid": 4052279,
+  "dispatcher_pid": 3105833,
+  "dispatcher_stopped": false,
+  "dispatcher_terminated": true,
+  "reason": "Retain the pending admission and group remaining 4 GB stages; all-features doctest remains a separate 9 GB job.",
+  "retained_admission_exit": 137,
+  "stage": "fmt"
+}

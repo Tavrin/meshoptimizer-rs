@@ -28,6 +28,11 @@ checks that a finite, nonempty coarsest mesh can be extracted.
 payload byte and reseals both page and resident hashes. This allows mutations
 of uncompressed attribute/page bytes to reach validation behind the hash gate.
 
+`health_reader` reseals the MDAG 2 resident prefix and opens it with the
+reader. It derives the cluster triangle counts and minimum chain length from
+the input bytes and passes them to `clusterlod::v2::health_from_reader`.
+The existing `dag_format_v2` seeds provide valid starting prefixes.
+
 Generate fixed inputs with `cargo run --release --manifest-path
 fuzz/seedgen/Cargo.toml --bin vg-seedgen -- fuzz/seeds`, using the required build
 admission environment. The generator uses the crate writer to emit MDAG files

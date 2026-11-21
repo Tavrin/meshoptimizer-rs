@@ -1,5 +1,8 @@
 # Changelog
 
+[0.2.20]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.19...v0.2.20
+[0.2.19]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.18...v0.2.19
+[0.2.18]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.17...v0.2.18
 [0.2.17]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.16...v0.2.17
 [0.2.16]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.15...v0.2.16
 [0.2.15]: https://github.com/Tavrin/meshoptimizer-rs/compare/v0.2.14...v0.2.15
@@ -10,6 +13,67 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.2.20] - 2026-11-21
+
+### Added
+
+- Add instance root-cut helpers and MDAG 2 reader page priority bounds. A
+  runtime can select the root cut from resident metadata without testing
+  individual groups, and conservatively rule out pages using bounds that
+  cover every group on the page.
+
+### Changed
+
+- Sample step deviation independently in MDAG 2 builds. Regular steps keep
+  the quadric estimate as a floor. Sloppy steps rely on sampling because the
+  grid estimate can saturate coarse ancestors. The original-source error
+  pass and monotone inheritance are retained.
+  `v2::build` keeps partial steps that miss `simplify_threshold` while strictly
+  removing triangles; these can repeat to release boundary locks through
+  repartitioning. Remaining geometry is pinned at the format depth limit.
+  Builder revision 10 invalidates cook keys and omits the legacy sloppy-error
+  multiplier and edge-error cap from measured build keys.
+  Parent partitions grow to accommodate two largest replacement regions,
+  allowing partial regions to merge and release shared boundary locks instead
+  of becoming isolated pinned groups.
+- Add `clusterlod::v2::health` and `health_from_reader`: a structural cooker
+  report over a built DAG or an opened MDAG 2 with per-depth group, triangle,
+  pinned, sloppy and partial counts and error min/median/max, linked
+  equal-error chains and pinned groups with their reasons, and a documented
+  pass/fail rule (`docs/DAG_FORMAT.md`, "Structural build health gate").
+  `build_with_diagnostics` collects group error terms and acceptance reasons
+  for `health_with_diagnostics`. The chain test accounts for all distinct child
+  groups and the container's quantization displacement. Root inference checks
+  topology, and unsupported chain lengths return `InvalidParameter`.
+  `GroupDiagnostics::error_measured` marks stored errors that an unfloored
+  original-source geometric sample reaches, or that a measured child passes up
+  unchanged; the step deviation, quadric floor, normal-loss price and additive
+  margin never mark it. With diagnostics, a chain whose coarsest group is
+  measured is reported with `EqualErrorChain::measured` and does not fail;
+  `health_with_diagnostics` returns `InvalidTopology` for a measured group
+  whose stored error is none of its own step, source or inherited terms.
+  Reports without diagnostics, including container reports, fail every chain.
+  A container cannot reproduce the exemption, so the cook gate runs on
+  `health_with_diagnostics` at build time and the cooker stores the verdict and
+  report with the cache entry; a cache hit reuses it. Builder output is
+  unchanged.
+
+- Price sampled interpolated-normal loss in MDAG 2 original-source group errors,
+  using a local-edge normal-chord displacement and monotone inheritance. The new
+  `BuildMesh::normal_error_weight` defaults to 0; zero disables it and absent
+  normals leave geometry unchanged. Builder revision 8 binds the weight in cook
+  keys. Legacy builders and container layouts are unchanged.
+- Calibrate MDAG 2 sampled maxima above error floors already retained by the caller,
+  preserving all samples and output bytes while avoiding queries that cannot raise stored errors.
+- Add `clusterlod::v2::suggested_limits` with checked empirical storage/work budgets,
+  calibrated on five meshes through 871,414 source triangles. This is a starting
+  budget, not a triangle-count guarantee.
+- The MDAG 2 builder partitions whole replacement regions using their cluster counts as
+  weights, preserving sibling ownership without moving clusters after partitioning. Builder
+  revision 6 invalidates cook keys; the container layout and legacy builder stay compatible.
+  The sampled original-source, single-step and inherited error floors are retained. Qualification
+  results and remaining performance limits are recorded in `parity/vg-bench/RESULTS.md`.
 
 ## [0.2.19] - 2026-11-06
 

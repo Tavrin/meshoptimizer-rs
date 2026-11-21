@@ -1,0 +1,5 @@
+{
+  "baseline_revision": 5,
+  "candidate_revision": 8,
+  "notes": "Compare complete MDAG2 bytes and retained direct build fields; changed output is disclosed, never normalized."
+}

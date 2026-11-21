@@ -393,7 +393,7 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
         }
     }
     // (depth, error, inherited, local s2l, local l2s, input tris, output tris)
-    type Row = (i32, f32, f32, f64, f64, usize, usize);
+    type Row = (i32, f32, f32, f64, f64, usize, usize, usize);
     let rows: Vec<Row> = pool.install(|| {
         (0..g_count)
             .into_par_iter()
@@ -409,11 +409,28 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
                     q.level_to_source.max,
                     members[g].len() / 3,
                     patch[g].len() / 3,
+                    g,
                 ))
             })
             .collect()
     });
-    let mut lines = Vec::new();
+    let mut lines: Vec<String> = rows
+        .iter()
+        .map(|r| {
+            label
+                .clone()
+                .text("kind", "diag_step")
+                .with("group", r.7)
+                .with("depth", r.0)
+                .with("error", r.1)
+                .with("inherited", r.2)
+                .with("s2l", r.3)
+                .with("l2s", r.4)
+                .with("in_tris", r.5)
+                .with("out_tris", r.6)
+                .to_string()
+        })
+        .collect();
     let max_depth = rows.iter().map(|r| r.0).max().unwrap_or(0);
     let pct = |v: &mut Vec<f64>, p: f64| {
         if v.is_empty() {
@@ -470,6 +487,72 @@ pub fn group_steps(o: &Ours, src: &Source, jobs: usize, label: &Json) -> Result<
 
 /// Per-level stored error distribution and ownership of replacement clusters.
 pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
+    let mut diagnostic_lines = Vec::new();
+    for (id, d) in o.diagnostics.iter().enumerate() {
+        diagnostic_lines.push(
+            label
+                .clone()
+                .text("kind", "error_terms")
+                .with("group", id)
+                .with("depth", o.groups[id].depth)
+                .text("status", &format!("{:?}", d.status))
+                .with("simplifier", d.simplifier_error)
+                .with("step", d.step_error)
+                .with("source_floor", d.source_error)
+                .with("inherited", d.inherited_error)
+                .with("sloppy", d.sloppy_fallback)
+                .with("error", o.groups[id].error)
+                .to_string(),
+        );
+    }
+    let built = meshoptimizer_rs::clusterlod::v2::Built {
+        groups: o.groups.clone(),
+        clusters: o.clusters.clone(),
+        ..Default::default()
+    };
+    match meshoptimizer_rs::clusterlod::v2::health_with_diagnostics(
+        &built,
+        &o.diagnostics,
+        3,
+        &mut Workspace::default(),
+    ) {
+        Ok(h) => {
+            for chain in &h.equal_error_chains {
+                diagnostic_lines.push(
+                    label
+                        .clone()
+                        .text("kind", "health_chain")
+                        .with("group", chain.group)
+                        .with("levels", chain.levels)
+                        .with("error", chain.error)
+                        .with("measured", chain.measured)
+                        .to_string(),
+                );
+            }
+            for pin in &h.pinned_groups {
+                diagnostic_lines.push(
+                    label
+                        .clone()
+                        .text("kind", "health_pin")
+                        .with("group", pin.group)
+                        .text("reason", &format!("{:?}", pin.reason))
+                        .to_string(),
+                );
+            }
+            diagnostic_lines.push(
+                label
+                    .clone()
+                    .text("kind", "health")
+                    .with("pass", h.passed)
+                    .with("chains", h.equal_error_chains.len())
+                    .with("pinned", h.pinned_groups.len())
+                    .to_string(),
+            );
+        }
+        Err(e) => diagnostic_lines
+            .push(label.clone().text("kind", "health_error").text("error", &format!("{e:?}")).to_string()),
+    }
+
     let mut owners = vec![Vec::new(); o.groups.len()];
     let mut inherited = vec![0f32; o.groups.len()];
     for c in &o.clusters {
@@ -481,10 +564,36 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
             inherited[c.group as usize] = inherited[c.group as usize].max(o.groups[child].error);
         }
     }
-    let mut lines = Vec::new();
+    let mut lines = diagnostic_lines;
     for depth in 0..o.level_count {
         let mut groups: Vec<_> = o.groups.iter().enumerate().filter(|(_, g)| g.depth == depth as i32).collect();
         let stuck = groups.iter().filter(|(_, g)| g.error == f32::MAX).count();
+        let input_tris = |g: &meshoptimizer_rs::clusterlod::FlatDagGroup| -> usize {
+            o.clusters[g.first_cluster as usize..(g.first_cluster + g.cluster_count) as usize]
+                .iter()
+                .map(|c| c.index_count as usize / 3)
+                .sum()
+        };
+        let pinned_triangles: usize =
+            groups.iter().filter(|(_, g)| g.error == f32::MAX).map(|(_, g)| input_tris(g)).sum();
+        let triangles: usize = groups.iter().map(|(_, g)| input_tris(g)).sum();
+        let inherited_groups = groups.iter().filter(|(id, g)| g.error < f32::MAX && g.error == inherited[*id]).count();
+        let mut sizes: Vec<usize> = groups.iter().map(|(_, g)| g.cluster_count as usize).collect();
+        sizes.sort_unstable();
+        let size =
+            |p: f64| sizes.get((sizes.len().saturating_sub(1) as f64 * p).round() as usize).copied().unwrap_or(0);
+        let mut ratios: Vec<f64> = groups
+            .iter()
+            .filter(|(_, g)| g.error < f32::MAX)
+            .map(|(id, g)| {
+                let output: usize =
+                    o.clusters.iter().filter(|c| c.refined == *id as i32).map(|c| c.index_count as usize / 3).sum();
+                output as f64 / input_tris(g).max(1) as f64
+            })
+            .collect();
+        ratios.sort_by(f64::total_cmp);
+        let ratio =
+            |p: f64| ratios.get((ratios.len().saturating_sub(1) as f64 * p).round() as usize).copied().unwrap_or(0.0);
         let shared = groups.iter().filter(|(i, _)| owners[*i].len() > 1).count();
         groups.retain(|(_, g)| g.error < f32::MAX);
         groups.sort_by(|a, b| a.1.error.total_cmp(&b.1.error));
@@ -499,6 +608,15 @@ pub fn plateau(o: &Ours, label: &Json) -> Vec<String> {
                 .with("finite", groups.len())
                 .with("stuck", stuck)
                 .with("shared", shared)
+                .with("triangles", triangles)
+                .with("pinned_triangles", pinned_triangles)
+                .with("inherited_groups", inherited_groups)
+                .with("clusters_p5", size(0.05))
+                .with("clusters_median", size(0.5))
+                .with("clusters_max", size(1.0))
+                .with("retained_ratio_median", ratio(0.5))
+                .with("retained_ratio_p95", ratio(0.95))
+                .with("min", pct(0.0))
                 .with("median", pct(0.5))
                 .with("p95", pct(0.95))
                 .with("max", pct(1.0))

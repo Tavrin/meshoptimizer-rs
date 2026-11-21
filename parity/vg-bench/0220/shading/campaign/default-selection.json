@@ -1,0 +1,8 @@
+{
+  "eligible": [],
+  "chosen_default": 0.0,
+  "qualified": false,
+  "dragon_normal_p95_limit": 3.008072137832642,
+  "dragon_triangle_limit": 170753.58333333334,
+  "reason": "No tested weight satisfies both requested conditions; disabled default retained."
+}

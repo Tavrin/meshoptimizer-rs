@@ -1,0 +1,4 @@
+{
+  "binary": "ff9fe0d0a0dffd2e4f9df656f9d2bb3d1611b70b8ea81e13bfa75b048fc9c048",
+  "manifest": "[package]\nname=\"combined-proof\"\nversion=\"0.0.0\"\nedition=\"2021\"\n[dependencies]\nbaseline={package=\"meshoptimizer-baseline\",path=\"<target>/base\",default-features=false,features=[\"std\", \"simd\", \"parallel\", \"clusterlod\", \"experimental\", \"parity-internals\"]}\ncandidate={package=\"meshoptimizer-rs\",path=\"<worktree>\",default-features=false,features=[\"std\", \"simd\", \"parallel\", \"clusterlod\", \"experimental\", \"parity-internals\"]}\n[[bin]]\nname=\"v2-exact\"\npath=\"<worktree>/parity/0220-qualify/v2_exact.rs\"\n[profile.release]\ncodegen-units=1\n"
+}

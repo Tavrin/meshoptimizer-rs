@@ -28,12 +28,16 @@ pub struct Ours {
     pub level_count: usize,
     pub positions: Vec<[f32; 3]>,
     pub v2_file: bool,
+    pub grid_exponent: i32,
+    pub diagnostics: Vec<meshoptimizer_rs::clusterlod::v2::GroupDiagnostics>,
 }
 
 /// Wall times of the build phases in milliseconds.
 pub struct Timing {
     pub dag_ms: f64,
     pub hierarchy_ms: f64,
+    pub accounted_bytes: usize,
+    pub work: u64,
 }
 
 fn unlimited() -> Workspace {
@@ -124,8 +128,18 @@ pub fn build_with(
         let nodes = build_hierarchy(&meta, NODE_WIDTH, level_count, &mut ws).map_err(|e| format!("{e:?}"))?;
         let hierarchy_ms = t1.elapsed().as_secs_f64() * 1e3;
         Ok((
-            Ours { groups, clusters, indices, nodes, level_count, positions, v2_file: true },
-            Timing { dag_ms, hierarchy_ms },
+            Ours {
+                groups,
+                clusters,
+                indices,
+                nodes,
+                level_count,
+                positions,
+                v2_file: true,
+                grid_exponent: -22,
+                diagnostics: Vec::new(),
+            },
+            Timing { dag_ms, hierarchy_ms, accounted_bytes: 0, work: 0 },
         ))
     })
 }
@@ -140,21 +154,33 @@ impl Ours {
                 attributes::{Channel, Encoding},
                 dag_format::v2,
             };
-            let channels = [
+            let with_tangent = src.tangents.len() == src.positions.len();
+            let mut channels = vec![
                 Channel { tag: 1, encoding: Encoding::Oct16x2, source_offset: 0 },
                 Channel { tag: 2, encoding: Encoding::UnormRange16x2, source_offset: 3 },
             ];
-            let values: Vec<f32> =
-                src.normals.iter().zip(&src.uvs).flat_map(|(n, u)| [n[0], n[1], n[2], u[0], u[1]]).collect();
-            let attrs =
-                Attributes::from_interleaved(&values, src.positions.len(), 5, 5, 0).map_err(|e| format!("{e:?}"))?;
+            if with_tangent {
+                channels.push(Channel { tag: 3, encoding: Encoding::OctSign, source_offset: 5 });
+            }
+            let stride = if with_tangent { 9 } else { 5 };
+            let mut values = Vec::with_capacity(src.positions.len() * stride);
+            for v in 0..src.positions.len() {
+                values.extend_from_slice(&src.normals[v]);
+                values.extend_from_slice(&src.uvs[v]);
+                if with_tangent {
+                    values.extend_from_slice(&src.tangents[v]);
+                }
+            }
+            let attrs = Attributes::from_interleaved(&values, src.positions.len(), stride, stride, 0)
+                .map_err(|e| format!("{e:?}"))?;
             let mut source = v2::Source::new(&self.groups, &self.clusters, &self.positions, &self.indices);
             source.channels = &channels;
             source.attributes = Some(attrs);
             v2::write(
                 &source,
                 &v2::WriteOptions::new(
-                    meshoptimizer_rs::clusterlod::page::QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?,
+                    meshoptimizer_rs::clusterlod::page::QuantGrid::new(self.grid_exponent)
+                        .map_err(|e| format!("{e:?}"))?,
                 ),
                 &mut ws,
             )
@@ -389,8 +415,42 @@ pub fn shape(o: &Ours, src: &Source, label: &Json) -> Result<String, String> {
         .to_string())
 }
 
+#[derive(Clone, Copy)]
+pub struct V2Settings {
+    pub normal_error_weight: f32,
+    pub uv_weight: Option<f32>,
+    pub tangent_weight: Option<f32>,
+    pub duplicate_normals: bool,
+    /// Position grid exponent; -22 suits the 2 m `prep` extent.
+    pub grid_exponent: i32,
+}
+impl Default for V2Settings {
+    fn default() -> Self {
+        Self {
+            normal_error_weight: meshoptimizer_rs::clusterlod::v2::BuildMesh::new(&[], &[]).normal_error_weight,
+            uv_weight: None,
+            tangent_weight: None,
+            duplicate_normals: false,
+            grid_exponent: -22,
+        }
+    }
+}
+impl V2Settings {
+    pub fn attributes(self) -> bool {
+        self.uv_weight.is_some() || self.tangent_weight.is_some() || self.duplicate_normals
+    }
+}
+
 /// Build through the library's default MDAG 2 policy, with the measured floor.
 pub fn build_v2(src: &Source, threads: usize, config: Config) -> Result<(Ours, Timing), String> {
+    build_v2_with(src, threads, config, V2Settings::default())
+}
+pub fn build_v2_with(
+    src: &Source,
+    threads: usize,
+    config: Config,
+    settings: V2Settings,
+) -> Result<(Ours, Timing), String> {
     use meshoptimizer_rs::clusterlod::{
         page::QuantGrid,
         v2::{self, BuildMesh},
@@ -399,11 +459,39 @@ pub fn build_v2(src: &Source, threads: usize, config: Config) -> Result<(Ours, T
     pool.install(|| {
         let mut input = BuildMesh::new(&src.indices, &src.positions);
         input.normals = Some(&src.normals);
+        input.normal_error_weight = settings.normal_error_weight;
+        let mut values = Vec::new();
+        let mut weights = Vec::new();
+        if settings.attributes() {
+            if src.tangents.len() != src.positions.len() {
+                return Err("derive tangents before attribute build".into());
+            }
+            let components = if settings.duplicate_normals { 9 } else { 6 };
+            if settings.duplicate_normals {
+                weights.extend_from_slice(&[1.0; 3]);
+            }
+            weights.extend_from_slice(&[settings.uv_weight.unwrap_or(1.0); 2]);
+            weights.extend_from_slice(&[settings.tangent_weight.unwrap_or(1.0); 4]);
+            for v in 0..src.positions.len() {
+                if settings.duplicate_normals {
+                    values.extend_from_slice(&src.normals[v]);
+                }
+                values.extend_from_slice(&src.uvs[v]);
+                values.extend_from_slice(&src.tangents[v]);
+            }
+            input.attributes = Some(
+                Attributes::from_interleaved(&values, src.positions.len(), components, components, 0)
+                    .map_err(|e| format!("{e:?}"))?,
+            );
+            input.attribute_weights = &weights;
+        }
         let mut ws = unlimited();
         let t = Instant::now();
-        let built = v2::build(config, input, QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?, &mut ws)
-            .map_err(|e| format!("{e:?}"))?;
+        let grid = QuantGrid::new(settings.grid_exponent).map_err(|e| format!("{e:?}"))?;
+        let (built, diagnostics) =
+            v2::build_with_diagnostics(config, input, grid, &mut ws).map_err(|e| format!("{e:?}"))?;
         let dag_ms = t.elapsed().as_secs_f64() * 1e3;
+        let usage = ws.usage();
         let mut positions = src.positions.clone();
         for (v, &s) in built.vertex_source.iter().enumerate() {
             positions[s as usize] = built.positions[v];
@@ -411,6 +499,8 @@ pub fn build_v2(src: &Source, threads: usize, config: Config) -> Result<(Ours, T
         let indices = built.indices.iter().map(|&i| built.vertex_source[i as usize]).collect();
         let level_count = built.groups.iter().map(|g| g.depth as usize + 1).max().unwrap_or(0);
         let mut o = Ours {
+            grid_exponent: settings.grid_exponent,
+            diagnostics,
             groups: built.groups,
             clusters: built.clusters,
             indices,
@@ -422,7 +512,7 @@ pub fn build_v2(src: &Source, threads: usize, config: Config) -> Result<(Ours, T
         let t = Instant::now();
         o.rebuild_hierarchy()?;
         let hierarchy_ms = t.elapsed().as_secs_f64() * 1e3;
-        Ok((o, Timing { dag_ms, hierarchy_ms }))
+        Ok((o, Timing { dag_ms, hierarchy_ms, accounted_bytes: usage.bytes, work: usage.work }))
     })
 }
 fn shape_v2(o: &Ours, src: &Source, label: &Json, file: &[u8]) -> Result<String, String> {
@@ -432,11 +522,35 @@ fn shape_v2(o: &Ours, src: &Source, label: &Json, file: &[u8]) -> Result<String,
     let m = r.mesh();
     let mut words = 0u64;
     let mut pinned = 0u64;
+    let mut position_bytes = 0u64;
+    let mut triangle_bytes = 0u64;
+    let mut vertices = 0u64;
+    let mut attribute_bytes = 0u64;
     for p in 0..m.page_count as usize {
         let page = r.page(p).map_err(|e| format!("{e:?}"))?;
         words += u64::from(page.memory_words);
         if p < m.pinned_page_count as usize {
             pinned += u64::from(page.memory_words) * 4;
+        }
+        let mut decoded = vec![0; page.memory_words as usize];
+        let view = r
+            .transcode_page(
+                p,
+                &file[page.disk_offset as usize..(page.disk_offset + u64::from(page.disk_length)) as usize],
+                &mut decoded,
+                &mut ws,
+            )
+            .map_err(|e| format!("{e:?}"))?;
+        for c in 0..view.cluster_count() {
+            let d = view.cluster(c).map_err(|e| format!("{e:?}"))?;
+            vertices += u64::from(d.vertex_count);
+            position_bytes += (u64::from(d.vertex_count) * u64::from(d.bits.iter().sum::<u32>())).div_ceil(32) * 4;
+            triangle_bytes += u64::from(d.triangle_count * 3).div_ceil(4) * 4;
+            // PageView already validated the descriptor and the block word count.
+            let at = view.words()[4 + c * 16 + 9] as usize;
+            if at != 0 {
+                attribute_bytes += u64::from(view.words()[at]) * 4;
+            }
         }
     }
     Ok(label
@@ -449,6 +563,13 @@ fn shape_v2(o: &Ours, src: &Source, label: &Json, file: &[u8]) -> Result<String,
         .with("hierarchy_depth", m.bvh_depth)
         .with("pages", m.page_count)
         .with("pinned_bytes", pinned)
+        .with("metadata_bytes", v2::resident_len(file).map_err(|e| format!("{e:?}"))?)
+        .with("page_memory_bytes", words * 4)
+        .with("position_bytes", position_bytes)
+        .with("triangle_bytes", triangle_bytes)
+        .with("attribute_bytes", attribute_bytes)
+        .with("descriptor_bytes", o.clusters.len() * 64)
+        .with("cluster_vertices", vertices)
         .with("file_bytes", file.len())
         .with("file_zstd19_bytes", zstd19(file))
         .with("resident_bytes", v2::resident_len(file).map_err(|e| format!("{e:?}"))? as u64 + words * 4)

@@ -1,0 +1,3 @@
+{"name": "fmt", "exit": 0, "command": ["cargo", "fmt"]}
+{"name": "v2-tests", "exit": 0, "command": ["cargo", "test", "--release", "--all-features", "--test", "vg_build_v2"]}
+{"name": "harness", "exit": 0, "command": ["cargo", "build", "--release", "--locked", "--manifest-path", "parity/vg-bench/Cargo.toml"]}

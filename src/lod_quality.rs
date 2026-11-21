@@ -323,8 +323,8 @@ fn measure<I: crate::Index>(
     }
     validate(source, work)?;
     validate(level, work)?;
-    let a = direction::<I, false, 3>(source, level, options, budget, work, 0.0)?;
-    let b = direction::<I, false, 3>(level, source, options, budget, work, 0.0)?;
+    let a = direction::<I, false, 3, false>(source, level, options, budget, work, 0.0)?;
+    let b = direction::<I, false, 3, false>(level, source, options, budget, work, 0.0)?;
     let samples = a.count.checked_add(b.count).ok_or(Error::SizeOverflow)?;
     Ok(LodQuality {
         source_to_level: a.distance(),
@@ -342,24 +342,89 @@ fn measure<I: crate::Index>(
 }
 // The builder consumes only the symmetric maximum. Keep the public statistics
 // path exact, including nearest-triangle ties, RMS and shading normals.
+// The private floor is already retained by the builder: return the greater of
+// that floor and the sampled maximum without querying irrelevant distances.
 #[cfg(feature = "clusterlod")]
 pub(crate) fn measure_max(
     source: LodQualityMesh<'_>,
     level: LodQualityMesh<'_>,
     options: &LodQualityOptions,
+    floor: f32,
     workspace: &mut Workspace,
 ) -> Result<f64, Error> {
     let mut work = workspace.begin();
     let result = (|| {
         validate_options(options)?;
+        if !floor.is_finite() || floor < 0.0 {
+            return Err(Error::InvalidParameter);
+        }
+        // The caller already retains this floor. Its square is exact in f64
+        // for every finite f32, so queries need only find samples above it.
+        let floor = if floor == 0.0 { 0.0 } else { f64::from(floor) };
+        let cutoff = floor * floor;
         let source: LodQualityMeshGeneric<'_, u32> = source.into();
         let level: LodQualityMeshGeneric<'_, u32> = level.into();
         validate(source, &mut work)?;
         validate(level, &mut work)?;
         let mut budget = Budget::new(workspace);
-        let a = direction::<u32, true, 0>(source, level, options, &mut budget, &mut work, 0.0)?;
-        let b = direction::<u32, true, 0>(level, source, options, &mut budget, &mut work, a.max)?;
-        Ok(libm::sqrt(b.max))
+        let a = direction::<u32, true, 0, false>(
+            source,
+            level,
+            options,
+            &mut budget,
+            &mut work,
+            cutoff,
+        )?;
+        let b = direction::<u32, true, 0, false>(
+            level,
+            source,
+            options,
+            &mut budget,
+            &mut work,
+            a.max,
+        )?;
+        // Avoid a sqrt round trip when no sample exceeds the existing floor.
+        Ok(if b.max == cutoff {
+            floor
+        } else {
+            libm::sqrt(b.max)
+        })
+    })();
+    workspace.finish(&work);
+    result
+}
+
+// Both maxima use the same original sample stream and exact nearest queries.
+// Unlike the public statistics path, undefined interpolated normals contribute
+// the maximum chord (two) rather than failing a valid geometric build.
+// Returns geometric distance and unit-normal chord maxima. Chords are exactly
+// 2*sin(angle/2); compare their squares without per-sample trigonometry.
+#[cfg(feature = "clusterlod")]
+pub(crate) fn measure_normal_max(
+    source: LodQualityMesh<'_>,
+    level: LodQualityMesh<'_>,
+    options: &LodQualityOptions,
+    workspace: &mut Workspace,
+) -> Result<(f64, f64), Error> {
+    let mut work = workspace.begin();
+    let result = (|| {
+        validate_options(options)?;
+        if source.normals.is_none() || level.normals.is_none() {
+            return Err(Error::InvalidParameter);
+        }
+        let source: LodQualityMeshGeneric<'_, u32> = source.into();
+        let level: LodQualityMeshGeneric<'_, u32> = level.into();
+        validate(source, &mut work)?;
+        validate(level, &mut work)?;
+        let mut budget = Budget::new(workspace);
+        let a =
+            direction::<u32, false, 3, true>(source, level, options, &mut budget, &mut work, 0.0)?;
+        let b =
+            direction::<u32, false, 3, true>(level, source, options, &mut budget, &mut work, 0.0)?;
+        Ok((
+            libm::sqrt(a.max.max(b.max)),
+            libm::sqrt(a.normal_chord_squared_max.max(b.normal_chord_squared_max)),
+        ))
     })();
     workspace.finish(&work);
     result
@@ -703,6 +768,7 @@ struct Stats {
     max: f64,
     sum: f64,
     angle_max: f64,
+    normal_chord_squared_max: f64,
     angle_sum: f64,
 }
 impl Stats {
@@ -713,7 +779,7 @@ impl Stats {
             samples: self.count,
         }
     }
-    fn sample<const MAX_ONLY: bool, const NORMALS: usize>(
+    fn sample<const MAX_ONLY: bool, const NORMALS: usize, const NORMAL_MAX: bool>(
         &mut self,
         t: Triangle<NORMALS>,
         weights: V,
@@ -753,24 +819,44 @@ impl Stats {
         }
         self.count = self.count.checked_add(1).ok_or(Error::SizeOverflow)?;
         self.max = self.max.max(hit.distance);
-        if !MAX_ONLY {
+        if !MAX_ONLY && !NORMAL_MAX {
             self.sum += hit.distance;
         }
         if !MAX_ONLY && normals {
-            let a = unit(blend(t.normals(), weights)).map_err(|_| Error::NumericalFailure)?;
-            let b = unit(blend(hit.normals, hit.weights)).map_err(|_| Error::NumericalFailure)?;
-            // atan2 remains accurate near zero and pi, unlike acos(dot).
-            let angle = libm::atan2(
-                libm::sqrt(dot(cross(a, b), cross(a, b))),
-                dot(a, b).clamp(-1.0, 1.0),
-            );
-            self.angle_max = self.angle_max.max(angle);
-            self.angle_sum += angle;
+            let a = unit(blend(t.normals(), weights));
+            let b = unit(blend(hit.normals, hit.weights));
+            if NORMAL_MAX {
+                let squared = match (a, b) {
+                    (Ok(a), Ok(b)) => {
+                        let delta = sub(a, b);
+                        dot(delta, delta).clamp(0.0, 4.0)
+                    }
+                    // Undefined interpolants mean the largest unit-normal chord.
+                    _ => 4.0,
+                };
+                self.normal_chord_squared_max = self.normal_chord_squared_max.max(squared);
+            } else {
+                let (a, b) = (
+                    a.map_err(|_| Error::NumericalFailure)?,
+                    b.map_err(|_| Error::NumericalFailure)?,
+                );
+                let angle = libm::atan2(
+                    libm::sqrt(dot(cross(a, b), cross(a, b))),
+                    dot(a, b).clamp(-1.0, 1.0),
+                );
+                self.angle_max = self.angle_max.max(angle);
+                self.angle_sum += angle;
+            }
         }
         Ok(())
     }
 }
-fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
+fn direction<
+    I: crate::Index,
+    const MAX_ONLY: bool,
+    const NORMALS: usize,
+    const NORMAL_MAX: bool,
+>(
     source: LodQualityMeshGeneric<'_, I>,
     target: LodQualityMeshGeneric<'_, I>,
     options: &LodQualityOptions,
@@ -782,7 +868,7 @@ fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
     // Always release local storage accounting, including after a failed query.
     let mut corners = Vec::<u64>::new();
     let result = (|| {
-        if MAX_ONLY {
+        if MAX_ONLY || NORMAL_MAX {
             let words = source.positions.len().div_ceil(64);
             work.add(words)?;
             corners = budget.reserved(words)?;
@@ -808,20 +894,20 @@ fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
             {
                 let vertex = source.indices[i * 3 + corner].to_u32() as usize;
                 let mask = 1u64 << (vertex % 64);
-                if MAX_ONLY && corners[vertex / 64] & mask != 0 {
+                if (MAX_ONLY || NORMAL_MAX) && corners[vertex / 64] & mask != 0 {
                     // This corner is already bounded by an earlier maximum.
                     // Keep the sample visit/count; its distance cannot raise max.
                     work.add(1)?;
                     stats.count = stats.count.checked_add(1).ok_or(Error::SizeOverflow)?;
                 } else {
-                    stats.sample::<MAX_ONLY, NORMALS>(
+                    stats.sample::<MAX_ONLY, NORMALS, NORMAL_MAX>(
                         t,
                         w,
                         &tree,
                         source.normals.is_some(),
                         work,
                     )?;
-                    if MAX_ONLY {
+                    if MAX_ONLY || NORMAL_MAX {
                         corners[vertex / 64] |= mask;
                     }
                 }
@@ -829,7 +915,7 @@ fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
             for j in 0..count {
                 let r = libm::sqrt((f64::from(j) + 0.5) / f64::from(count));
                 let t2 = (f64::from(j.reverse_bits()) + 0.5) / 4294967296.0;
-                stats.sample::<MAX_ONLY, NORMALS>(
+                stats.sample::<MAX_ONLY, NORMALS, NORMAL_MAX>(
                     t,
                     [1.0 - r, r * (1.0 - t2), r * t2],
                     &tree,
@@ -840,7 +926,7 @@ fn direction<I: crate::Index, const MAX_ONLY: bool, const NORMALS: usize>(
         }
         Ok(stats)
     })();
-    if MAX_ONLY {
+    if MAX_ONLY || NORMAL_MAX {
         budget.release(corners);
     }
     budget.release(tree.nodes);
@@ -950,26 +1036,39 @@ mod maximum_tests {
             state = state.wrapping_mul(1664525).wrapping_add(1013904223);
             (state >> 8) as f32 / 16777216.0
         };
-        let indices: Vec<u32> = (0..36).collect();
-        for scale in [1e-10, 1., 1e10] {
-            for _ in 0..16 {
-                let source: Vec<[f32; 3]> = (0..36)
-                    .map(|_| core::array::from_fn(|_| random() * scale))
-                    .collect();
-                let target: Vec<[f32; 3]> = source
-                    .iter()
-                    .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
-                    .collect();
-                let options = LodQualityOptions {
-                    samples_per_unit_area: 4. / f64::from(scale).powi(2),
-                };
-                let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
-                let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
-                let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
-                    .expect("full measurement");
-                let maximum = measure_max(a, b, &options, &mut Workspace::default())
-                    .expect("maximum measurement");
-                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+        for count in [1, 3, 4, 5, 8, 9, 17] {
+            let indices: Vec<u32> = (0..count * 3).collect();
+            for scale in [1e-10, 1., 1e10] {
+                for _ in 0..16 {
+                    let source: Vec<[f32; 3]> = (0..count * 3)
+                        .map(|_| core::array::from_fn(|_| random() * scale))
+                        .collect();
+                    let target: Vec<[f32; 3]> = source
+                        .iter()
+                        .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
+                        .collect();
+                    let options = LodQualityOptions {
+                        samples_per_unit_area: 4. / f64::from(scale).powi(2),
+                    };
+                    let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
+                    let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
+                    let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
+                        .expect("full measurement");
+                    let rounded = full.symmetric.max as f32;
+                    for floor in [
+                        0.0,
+                        f32::from_bits(rounded.to_bits().saturating_sub(1)),
+                        rounded,
+                        f32::from_bits(rounded.to_bits() + 1),
+                    ] {
+                        let maximum = measure_max(a, b, &options, floor, &mut Workspace::default())
+                            .expect("maximum measurement");
+                        assert_eq!(
+                            maximum.to_bits(),
+                            full.symmetric.max.max(f64::from(floor)).to_bits()
+                        );
+                    }
+                }
             }
         }
     }
@@ -997,9 +1096,14 @@ mod maximum_tests {
                 let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
                 let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
                     .expect("full measurement");
-                let maximum = measure_max(a, b, &options, &mut Workspace::default())
-                    .expect("maximum measurement");
-                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
+                for floor in [0.0, f32::MIN_POSITIVE, 0.03125, 1.0, f32::MAX] {
+                    let maximum = measure_max(a, b, &options, floor, &mut Workspace::default())
+                        .expect("maximum measurement");
+                    assert_eq!(
+                        maximum.to_bits(),
+                        full.symmetric.max.max(f64::from(floor)).to_bits()
+                    );
+                }
             }
         }
     }

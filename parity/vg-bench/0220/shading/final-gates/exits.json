@@ -1,0 +1,106 @@
+[
+  {
+    "name": "fmt",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ]
+  },
+  {
+    "name": "clippy",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "clippy",
+      "--all-targets",
+      "--all-features",
+      "--",
+      "-D",
+      "warnings"
+    ]
+  },
+  {
+    "name": "release",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--release",
+      "--lib",
+      "--tests"
+    ]
+  },
+  {
+    "name": "release-all-features",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--release",
+      "--all-features",
+      "--lib",
+      "--tests"
+    ]
+  },
+  {
+    "name": "doc",
+    "exit": 0,
+    "command": [
+      "env",
+      "RUSTDOCFLAGS=-D warnings",
+      "cargo",
+      "doc",
+      "--no-deps",
+      "--all-features"
+    ]
+  },
+  {
+    "name": "public-text",
+    "exit": 0,
+    "command": [
+      "bash",
+      "parity/tools/check_public_text.sh"
+    ]
+  },
+  {
+    "name": "legacy-identity",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "run",
+      "--release",
+      "--locked",
+      "--offline",
+      "--manifest-path",
+      "${VG_EVIDENCE}/legacy-identity/Cargo.toml"
+    ]
+  },
+  {
+    "name": "harness-tests",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--release",
+      "--locked",
+      "--manifest-path",
+      "parity/vg-bench/Cargo.toml",
+      "shading::tests"
+    ]
+  },
+  {
+    "name": "all-features-doctests",
+    "exit": 0,
+    "command": [
+      "cargo",
+      "test",
+      "--release",
+      "--all-features",
+      "--doc"
+    ],
+    "declared_gib": 9,
+    "cargo_build_jobs": 2
+  }
+]

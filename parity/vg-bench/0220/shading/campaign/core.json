@@ -1,0 +1,782 @@
+[
+  {
+    "mesh": "bunny",
+    "weight": 0.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/bunny.normal-0p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 35,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 22671.645833333332,
+      "normal_p95_deg": 9.344507217407227,
+      "normal_max_deg": 61.855671987665545,
+      "uv_p95": 0.05528988689184189,
+      "geometric_median_ratio": 0.9085296420775337,
+      "geometric_p95_ratio": 0.9757525142476416,
+      "geometric_max_ratio": 1.053095434715192,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 1157.6170379999999,
+        "p95": 1221.3600190000002,
+        "noise": 137.7626220000002,
+        "accounted_bytes": 20792627,
+        "work": 120376811
+      },
+      "8": {
+        "median": 389.69026799999995,
+        "p95": 457.22608099999997,
+        "noise": 75.14272399999999,
+        "accounted_bytes": 100584018,
+        "work": 120376811
+      }
+    }
+  },
+  {
+    "mesh": "bunny",
+    "weight": 0.25,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/bunny.normal-0p25.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 25,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 32683.739583333332,
+      "normal_p95_deg": 4.471808433532715,
+      "normal_max_deg": 33.56789799523667,
+      "uv_p95": 0.02875281125307083,
+      "geometric_median_ratio": 0.46058749616311623,
+      "geometric_p95_ratio": 0.8869307695025652,
+      "geometric_max_ratio": 0.8869307695025652,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 2320.6840380000003,
+        "p95": 2355.1562919999997,
+        "noise": 127.26966399999947,
+        "accounted_bytes": 26224463,
+        "work": 175361796
+      },
+      "8": {
+        "median": 638.8947559999999,
+        "p95": 768.1224559999998,
+        "noise": 167.70358299999987,
+        "accounted_bytes": 131018214,
+        "work": 175361796
+      }
+    }
+  },
+  {
+    "mesh": "bunny",
+    "weight": 0.5,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/bunny.normal-0p5.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 22,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 42171.552083333336,
+      "normal_p95_deg": 3.3682215213775635,
+      "normal_max_deg": 26.004863256335103,
+      "uv_p95": 0.0142174968495965,
+      "geometric_median_ratio": 0.38073186943230175,
+      "geometric_p95_ratio": 0.8537738162342262,
+      "geometric_max_ratio": 0.8537738162342262,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 2388.5254860000005,
+        "p95": 2610.3642699999996,
+        "noise": 446.09292599999935,
+        "accounted_bytes": 26224463,
+        "work": 175361796
+      },
+      "8": {
+        "median": 691.155953,
+        "p95": 701.9863869999999,
+        "noise": 83.96661099999983,
+        "accounted_bytes": 131018214,
+        "work": 175361796
+      }
+    }
+  },
+  {
+    "mesh": "bunny",
+    "weight": 1.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/bunny.normal-1p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 12,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 51164.854166666664,
+      "normal_p95_deg": 2.277676820755005,
+      "normal_max_deg": 11.87415476598684,
+      "uv_p95": 0.0007544067339040339,
+      "geometric_median_ratio": 0.19794755685929785,
+      "geometric_p95_ratio": 0.8537738162342262,
+      "geometric_max_ratio": 0.8537738162342262,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 2325.3419740000004,
+        "p95": 2469.648219,
+        "noise": 281.685794,
+        "accounted_bytes": 26224463,
+        "work": 175361796
+      },
+      "8": {
+        "median": 652.124832,
+        "p95": 717.928349,
+        "noise": 102.319972,
+        "accounted_bytes": 131018214,
+        "work": 175361796
+      }
+    }
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "weight": 0.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dead_tree_trunk_02.normal-0p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 32,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 35979,
+      "normal_p95_deg": 29.68263053894043,
+      "normal_max_deg": 175.00570727029472,
+      "uv_p95": 0.0052644601091742516,
+      "geometric_median_ratio": 0.832533449337619,
+      "geometric_p95_ratio": 0.9321708775815143,
+      "geometric_max_ratio": 1.0309058121053505,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 1200.5871140000002,
+        "p95": 1341.290076,
+        "noise": 170.9417559999997,
+        "accounted_bytes": 24057943,
+        "work": 138556852
+      },
+      "8": {
+        "median": 478.21573700000005,
+        "p95": 530.558714,
+        "noise": 71.05974400000008,
+        "accounted_bytes": 85066596,
+        "work": 138556852
+      }
+    }
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "weight": 0.25,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dead_tree_trunk_02.normal-0p25.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 8,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 67593.66666666667,
+      "normal_p95_deg": 7.4757232666015625,
+      "normal_max_deg": 165.53013226320397,
+      "uv_p95": 0.0002372610615566373,
+      "geometric_median_ratio": 0.2093183779021441,
+      "geometric_p95_ratio": 0.8495384334140731,
+      "geometric_max_ratio": 0.8495384334140731,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 2974.0183150000003,
+        "p95": 3141.075742,
+        "noise": 290.6204939999998,
+        "accounted_bytes": 30596503,
+        "work": 239031205
+      },
+      "8": {
+        "median": 1019.696557,
+        "p95": 1033.7466450000002,
+        "noise": 74.41698500000018,
+        "accounted_bytes": 110903676,
+        "work": 239031205
+      }
+    }
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "weight": 0.5,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dead_tree_trunk_02.normal-0p5.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 4,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 76634.33333333333,
+      "normal_p95_deg": 3.2188525199890137,
+      "normal_max_deg": 42.49240140461912,
+      "uv_p95": 8.976190292742103e-05,
+      "geometric_median_ratio": 0.8495384334140731,
+      "geometric_p95_ratio": 0.8495384334140731,
+      "geometric_max_ratio": 0.8495384334140731,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 2860.304717,
+        "p95": 2946.6278429999998,
+        "noise": 108.27300699999932,
+        "accounted_bytes": 30596503,
+        "work": 239031205
+      },
+      "8": {
+        "median": 1011.230916,
+        "p95": 1030.716236,
+        "noise": 81.186557,
+        "accounted_bytes": 110903676,
+        "work": 239031205
+      }
+    }
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "weight": 1.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dead_tree_trunk_02.normal-1p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 2,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 82288.33333333333,
+      "normal_p95_deg": 0.0019767365884035826,
+      "normal_max_deg": 29.627902984156,
+      "uv_p95": 2.509892055968521e-06,
+      "geometric_median_ratio": 0.8495384334140731,
+      "geometric_p95_ratio": 0.8495384334140731,
+      "geometric_max_ratio": 0.8495384334140731,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 2990.040749,
+        "p95": 3532.478813,
+        "noise": 608.6126900000004,
+        "accounted_bytes": 30596503,
+        "work": 239031205
+      },
+      "8": {
+        "median": 980.085673,
+        "p95": 1043.9396350000002,
+        "noise": 95.03106700000023,
+        "accounted_bytes": 110903676,
+        "work": 239031205
+      }
+    }
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "weight": 0.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/namaqualand_boulder_02.normal-0p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 15,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 49338.885416666664,
+      "normal_p95_deg": 19.52007293701172,
+      "normal_max_deg": 170.29955914366647,
+      "uv_p95": 0.0007330633234232664,
+      "geometric_median_ratio": 0.7999376139144018,
+      "geometric_p95_ratio": 0.8615533426960349,
+      "geometric_max_ratio": 0.8615533426960349,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 1409.304295,
+        "p95": 1910.881776,
+        "noise": 527.6025030000001,
+        "accounted_bytes": 27456133,
+        "work": 164606079
+      },
+      "8": {
+        "median": 491.111264,
+        "p95": 527.7170189999999,
+        "noise": 66.39844600000004,
+        "accounted_bytes": 115322172,
+        "work": 164606079
+      }
+    }
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "weight": 0.25,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/namaqualand_boulder_02.normal-0p25.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 8,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 77562.66666666667,
+      "normal_p95_deg": 7.143642425537109,
+      "normal_max_deg": 72.2240613083516,
+      "uv_p95": 0.00014062179252505302,
+      "geometric_median_ratio": 0.36524896634390186,
+      "geometric_p95_ratio": 0.8615533426960349,
+      "geometric_max_ratio": 0.8615533426960349,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 3226.412036,
+        "p95": 3476.018734,
+        "noise": 375.85788,
+        "accounted_bytes": 35150785,
+        "work": 261380271
+      },
+      "8": {
+        "median": 997.4169149999999,
+        "p95": 1036.00981,
+        "noise": 125.85993699999995,
+        "accounted_bytes": 151230456,
+        "work": 261380271
+      }
+    }
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "weight": 0.5,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/namaqualand_boulder_02.normal-0p5.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 4,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 88493.66666666667,
+      "normal_p95_deg": 3.6726856231689453,
+      "normal_max_deg": 49.14397739513554,
+      "uv_p95": 6.20623177383095e-05,
+      "geometric_median_ratio": 0.8615533426960349,
+      "geometric_p95_ratio": 0.8615533426960349,
+      "geometric_max_ratio": 0.8615533426960349,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 3216.218128,
+        "p95": 3833.585781,
+        "noise": 655.7833810000002,
+        "accounted_bytes": 35150785,
+        "work": 261380271
+      },
+      "8": {
+        "median": 982.1955579999999,
+        "p95": 1009.0239799999999,
+        "noise": 42.228025999999886,
+        "accounted_bytes": 151230456,
+        "work": 261380271
+      }
+    }
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "weight": 1.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/namaqualand_boulder_02.normal-1p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 3,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 95926.33333333333,
+      "normal_p95_deg": 0.0019796642009168863,
+      "normal_max_deg": 29.29487203396493,
+      "uv_p95": 2.8704489523079246e-06,
+      "geometric_median_ratio": 0.8615533426960349,
+      "geometric_p95_ratio": 0.8615533426960349,
+      "geometric_max_ratio": 0.8615533426960349,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 3247.078559,
+        "p95": 3333.456597,
+        "noise": 197.48175899999978,
+        "accounted_bytes": 35150785,
+        "work": 261380271
+      },
+      "8": {
+        "median": 922.713725,
+        "p95": 1062.18264,
+        "noise": 146.11717499999986,
+        "accounted_bytes": 151230456,
+        "work": 261380271
+      }
+    }
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "weight": 0.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/coast_rocks_01.normal-0p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 44,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 84123.95833333333,
+      "normal_p95_deg": 34.80766296386719,
+      "normal_max_deg": 172.83885272643,
+      "uv_p95": 0.0021841709967702627,
+      "geometric_median_ratio": 0.7361460430910394,
+      "geometric_p95_ratio": 0.8439095810175493,
+      "geometric_max_ratio": 1.0166211425608667,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 10302.466664,
+        "p95": 12177.320527,
+        "noise": 2033.6703609999986,
+        "accounted_bytes": 138275513,
+        "work": 1226583317
+      },
+      "8": {
+        "median": 3687.547624,
+        "p95": 3923.7975340000007,
+        "noise": 375.36892000000034,
+        "accounted_bytes": 456324184,
+        "work": 1226583317
+      }
+    }
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "weight": 0.25,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/coast_rocks_01.normal-0p25.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 67,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 221583.875,
+      "normal_p95_deg": 20.264142990112305,
+      "normal_max_deg": 140.646525028556,
+      "uv_p95": 0.00030784422415308654,
+      "geometric_median_ratio": 0.3257266691962035,
+      "geometric_p95_ratio": 0.5282614280768156,
+      "geometric_max_ratio": 0.5622254826451101,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 28742.165285000003,
+        "p95": 30910.344479,
+        "noise": 3068.122206,
+        "accounted_bytes": 174082613,
+        "work": 2196768536
+      },
+      "8": {
+        "median": 9434.027675999998,
+        "p95": 9769.906517999998,
+        "noise": 574.3937019999976,
+        "accounted_bytes": 579546916,
+        "work": 2196768536
+      }
+    }
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "weight": 0.5,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/coast_rocks_01.normal-0p5.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 64,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 324687.8645833333,
+      "normal_p95_deg": 14.064688682556152,
+      "normal_max_deg": 168.64637016903055,
+      "uv_p95": 0.00016014266293495893,
+      "geometric_median_ratio": 0.20286988900126784,
+      "geometric_p95_ratio": 0.2644094451654457,
+      "geometric_max_ratio": 0.286358920407765,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 30162.500143,
+        "p95": 31083.684267,
+        "noise": 1206.0438369999974,
+        "accounted_bytes": 174082613,
+        "work": 2305793439
+      },
+      "8": {
+        "median": 9573.96592,
+        "p95": 9857.617922000001,
+        "noise": 844.0498290000032,
+        "accounted_bytes": 595043548,
+        "work": 2305793439
+      }
+    }
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "weight": 1.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/coast_rocks_01.normal-1p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 48,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 423064.4791666667,
+      "normal_p95_deg": 9.369330406188965,
+      "normal_max_deg": 168.64637016903055,
+      "uv_p95": 9.039761789608747e-05,
+      "geometric_median_ratio": 0.10144369129306811,
+      "geometric_p95_ratio": 0.12650223805992808,
+      "geometric_max_ratio": 0.1370864047922294,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 30664.337777,
+        "p95": 32687.935918,
+        "noise": 2952.920425999997,
+        "accounted_bytes": 174082613,
+        "work": 2305793439
+      },
+      "8": {
+        "median": 9627.531719999999,
+        "p95": 10073.421505,
+        "noise": 670.6540399999994,
+        "accounted_bytes": 595043548,
+        "work": 2305793439
+      }
+    }
+  },
+  {
+    "mesh": "dragon",
+    "weight": 0.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dragon.normal-0p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 40,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 85376.79166666667,
+      "normal_p95_deg": 10.708271980285645,
+      "normal_max_deg": 176.9114772850792,
+      "uv_p95": 0.07722557336091995,
+      "geometric_median_ratio": 0.8065544600405254,
+      "geometric_p95_ratio": 0.9299515441575291,
+      "geometric_max_ratio": 1.0893521927270924,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 13798.229206,
+        "p95": 14759.074551,
+        "noise": 1356.26289,
+        "accounted_bytes": 170885412,
+        "work": 1637258603
+      },
+      "8": {
+        "median": 4752.91493,
+        "p95": 5161.665563,
+        "noise": 556.2359909999996,
+        "accounted_bytes": 594007366,
+        "work": 1637258603
+      }
+    }
+  },
+  {
+    "mesh": "dragon",
+    "weight": 0.25,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dragon.normal-0p25.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 69,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 316645.1041666667,
+      "normal_p95_deg": 5.289273738861084,
+      "normal_max_deg": 165.09925375597064,
+      "uv_p95": 0.04279879108071327,
+      "geometric_median_ratio": 0.37582623344842947,
+      "geometric_p95_ratio": 0.5106899568087431,
+      "geometric_max_ratio": 0.5176353977701884,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 27868.056356,
+        "p95": 28481.219791,
+        "noise": 957.945238999997,
+        "accounted_bytes": 176137152,
+        "work": 2493108217
+      },
+      "8": {
+        "median": 8476.261252,
+        "p95": 9223.475125,
+        "noise": 846.0787600000003,
+        "accounted_bytes": 599259106,
+        "work": 2493108217
+      }
+    }
+  },
+  {
+    "mesh": "dragon",
+    "weight": 0.5,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dragon.normal-0p5.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 71,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 441581.7604166667,
+      "normal_p95_deg": 3.8471827507019043,
+      "normal_max_deg": 28.351626324655367,
+      "uv_p95": 0.026099152863025665,
+      "geometric_median_ratio": 0.19624780021215912,
+      "geometric_p95_ratio": 0.25831764050241196,
+      "geometric_max_ratio": 0.2646726595462167,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 41635.919157,
+        "p95": 44725.960845,
+        "noise": 3791.3930120000077,
+        "accounted_bytes": 215558520,
+        "work": 3294142763
+      },
+      "8": {
+        "median": 12996.729258999998,
+        "p95": 13361.667175000002,
+        "noise": 470.5619200000019,
+        "accounted_bytes": 771962842,
+        "work": 3294142763
+      }
+    }
+  },
+  {
+    "mesh": "dragon",
+    "weight": 1.0,
+    "quality": {
+      "kind": "shading_cut",
+      "artifact": "${VG_EVIDENCE}/shading/campaign/dragon.normal-1p0.8T.bin",
+      "threshold_px": 1,
+      "views": 96,
+      "unique_cuts": 58,
+      "samples_each_direction": 16384,
+      "pooled_samples": 3145728,
+      "mean_triangles": 563483.6145833334,
+      "normal_p95_deg": 2.7346110343933105,
+      "normal_max_deg": 179.86714567986547,
+      "uv_p95": 0.008187269791960716,
+      "geometric_median_ratio": 0.10090926941776904,
+      "geometric_p95_ratio": 0.9060413551651474,
+      "geometric_max_ratio": 0.9060413551651474,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "cut_oracle_pass": true
+    },
+    "timing": {
+      "1": {
+        "median": 41381.000191,
+        "p95": 42372.733068999994,
+        "noise": 2193.7083209999983,
+        "accounted_bytes": 215558520,
+        "work": 3294142763
+      },
+      "8": {
+        "median": 13419.169486,
+        "p95": 13727.450842,
+        "noise": 817.4815710000003,
+        "accounted_bytes": 771962842,
+        "work": 3294142763
+      }
+    }
+  }
+]

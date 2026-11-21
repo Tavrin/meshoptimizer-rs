@@ -1,0 +1,9 @@
+{
+  "RUSTFLAGS": null,
+  "CARGO_ENCODED_RUSTFLAGS": null,
+  "CARGO_BUILD_TARGET": null,
+  "CARGO_BUILD_JOBS": "2",
+  "RUSTUP_TOOLCHAIN": null,
+  "CC": null,
+  "CXX": null
+}

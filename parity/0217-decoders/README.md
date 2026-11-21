@@ -30,3 +30,7 @@ retained separately and is not a performance verdict. Copies and allocating outp
 arms. The reused harness's `scalar` label means the **before SIMD artifact**
 in this comparison. Report medians per case and aggregate ratios separately;
 these finite measurements do not establish a universal speed bound.
+
+The archived Wasm copies use relative diagnostic paths. The historical timing
+receipts retain the measured binary hashes. `receipts/scrubbed-wasm.json`
+binds each measured hash to the archived copy.

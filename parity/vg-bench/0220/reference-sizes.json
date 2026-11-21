@@ -1,0 +1,67 @@
+[
+  {
+    "kind": "reference_size",
+    "mesh": "bunny",
+    "positions": 294764,
+    "normals": 365360,
+    "uvs": 730720,
+    "indices": 418192,
+    "nodes": 9600,
+    "meshlets": 37280,
+    "cull": 55920,
+    "length_headers": 56,
+    "total": 1911892
+  },
+  {
+    "kind": "reference_size",
+    "mesh": "dead_tree_trunk_02",
+    "positions": 322500,
+    "normals": 486752,
+    "uvs": 973504,
+    "indices": 498936,
+    "nodes": 11200,
+    "meshlets": 44352,
+    "cull": 66528,
+    "length_headers": 56,
+    "total": 2403828
+  },
+  {
+    "kind": "reference_size",
+    "mesh": "namaqualand_boulder_02",
+    "positions": 422000,
+    "normals": 571012,
+    "uvs": 1142024,
+    "indices": 589056,
+    "nodes": 12400,
+    "meshlets": 52160,
+    "cull": 78240,
+    "length_headers": 56,
+    "total": 2866948
+  },
+  {
+    "kind": "reference_size",
+    "mesh": "coast_rocks_01",
+    "positions": 1837868,
+    "normals": 3683444,
+    "uvs": 7366888,
+    "indices": 4097092,
+    "nodes": 83600,
+    "meshlets": 365664,
+    "cull": 548496,
+    "length_headers": 56,
+    "total": 17983108
+  },
+  {
+    "kind": "reference_size",
+    "mesh": "dragon",
+    "positions": 2851124,
+    "normals": 4605932,
+    "uvs": 9211864,
+    "indices": 5249184,
+    "nodes": 106400,
+    "meshlets": 468416,
+    "cull": 702624,
+    "length_headers": 56,
+    "total": 23195600
+  }
+]

@@ -1,0 +1,124 @@
+diff --git a/src/lod_quality.rs b/src/lod_quality.rs
+index 9c3f0ea8..a092f227 100644
+--- a/src/lod_quality.rs
++++ b/src/lod_quality.rs
+@@ -439,7 +439,17 @@ impl<const NORMALS: usize> Tree<NORMALS> {
+         for i in 0..n {
+             triangles.push(Triangle::<NORMALS>::read(mesh, i)?);
+         }
+-        let count = n
++        // Distance-only queries need no per-triangle tie traversal. Small leaf
++        // ranges avoid the lowest partition/bounds levels without changing any
++        // closest-point arithmetic or the set of sampled points.
++        let leaves = if NORMALS == 0 {
++            n.div_ceil(4)
++                .checked_next_power_of_two()
++                .ok_or(Error::SizeOverflow)?
++        } else {
++            n
++        };
++        let count = leaves
+             .checked_mul(2)
+             .and_then(|n| n.checked_sub(1))
+             .ok_or(Error::SizeOverflow)?;
+@@ -466,9 +476,11 @@ impl<const NORMALS: usize> Tree<NORMALS> {
+             lo,
+             hi,
+             left: start,
+-            right: usize::MAX,
++            // The final four usize values encode leaf lengths 1..=4. An
++            // allocated node index cannot overlap these sentinel values.
++            right: usize::MAX - (end - start).min(4) + 1,
+         });
+-        if end - start > 1 {
++        if end - start > if NORMALS == 0 { 4 } else { 1 } {
+             let axis = (0..3)
+                 .max_by(|&a, &b| (hi[a] - lo[a]).total_cmp(&(hi[b] - lo[b])))
+                 .unwrap_or(0);
+@@ -499,17 +511,26 @@ impl<const NORMALS: usize> Tree<NORMALS> {
+         if box_distance(n, p) > best.distance {
+             return Ok(());
+         }
+-        if n.right == usize::MAX {
+-            let t = self.triangles[n.left];
+-            let (distance, weights) = closest(t.p, p);
+-            if distance < best.distance || (distance == best.distance && t.id < best.id) {
+-                *best = Hit {
+-                    distance,
+-                    weights,
+-                    id: t.id,
+-                    normals: t.normals(),
+-                    triangle: n.left,
+-                };
++        if n.right >= usize::MAX - 3 {
++            let count = usize::MAX - n.right + 1;
++            for i in n.left..n.left + count {
++                if MAX_ONLY {
++                    work.add(1)?;
++                }
++                let t = self.triangles[i];
++                let (distance, weights) = closest(t.p, p);
++                if distance < best.distance || (distance == best.distance && t.id < best.id) {
++                    *best = Hit {
++                        distance,
++                        weights,
++                        id: t.id,
++                        normals: t.normals(),
++                        triangle: i,
++                    };
++                }
++                if MAX_ONLY && best.distance <= cutoff {
++                    break;
++                }
+             }
+         } else {
+             let (a, b) =
+@@ -950,26 +971,28 @@ mod maximum_tests {
+             state = state.wrapping_mul(1664525).wrapping_add(1013904223);
+             (state >> 8) as f32 / 16777216.0
+         };
+-        let indices: Vec<u32> = (0..36).collect();
+-        for scale in [1e-10, 1., 1e10] {
+-            for _ in 0..16 {
+-                let source: Vec<[f32; 3]> = (0..36)
+-                    .map(|_| core::array::from_fn(|_| random() * scale))
+-                    .collect();
+-                let target: Vec<[f32; 3]> = source
+-                    .iter()
+-                    .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
+-                    .collect();
+-                let options = LodQualityOptions {
+-                    samples_per_unit_area: 4. / f64::from(scale).powi(2),
+-                };
+-                let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
+-                let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
+-                let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
+-                    .expect("full measurement");
+-                let maximum = measure_max(a, b, &options, &mut Workspace::default())
+-                    .expect("maximum measurement");
+-                assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
++        for count in [1, 3, 4, 5, 8, 9, 17] {
++            let indices: Vec<u32> = (0..count * 3).collect();
++            for scale in [1e-10, 1., 1e10] {
++                for _ in 0..16 {
++                    let source: Vec<[f32; 3]> = (0..count * 3)
++                        .map(|_| core::array::from_fn(|_| random() * scale))
++                        .collect();
++                    let target: Vec<[f32; 3]> = source
++                        .iter()
++                        .map(|p| core::array::from_fn(|k| p[k] + (random() - 0.5) * scale))
++                        .collect();
++                    let options = LodQualityOptions {
++                        samples_per_unit_area: 4. / f64::from(scale).powi(2),
++                    };
++                    let a = LodQualityMesh::new(&indices, Positions::from_packed(&source));
++                    let b = LodQualityMesh::new(&indices, Positions::from_packed(&target));
++                    let full = measure_lod_quality(a, b, &options, &mut Workspace::default())
++                        .expect("full measurement");
++                    let maximum = measure_max(a, b, &options, &mut Workspace::default())
++                        .expect("maximum measurement");
++                    assert_eq!(maximum.to_bits(), full.symmetric.max.to_bits());
++                }
+             }
+         }
+     }

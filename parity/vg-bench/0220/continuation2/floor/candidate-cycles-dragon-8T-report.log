@@ -1,0 +1,32 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 17K of event 'cycles:u'
+# Event count (approx.): 71169199613
+#
+# Overhead  Command          Shared Object         Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+# ........  ...............  ....................  .....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    38.97%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Tree<0>>::build_range
+    17.41%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Tree<0>>::query::<true>
+    13.96%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::closest
+     5.13%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Stats>::sample::<true, 0>
+     4.26%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::direction::<u32, true, 0>
+     3.54%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::meshlet::flex::<false, true>
+     1.64%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::position::<u32>
+     1.44%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::lod_quality::witness
+     1.18%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::support::simplify::State>::rank
+     1.07%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::clusterlod::support::simplify::run_state
+     0.74%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::support::simplify::State>::quadrics
+     0.72%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::attributes::Block>::decode
+     0.63%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::lod_quality::Triangle<0>>::read::<u32>
+     0.57%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::meshlet_util::optimize
+     0.56%  candidate-vg-be  candidate-vg-bench    [.] meshoptimizer_rs::clusterlod::v2::region_error
+     0.55%  candidate-vg-be  candidate-vg-bench    [.] <meshoptimizer_rs::clusterlod::support::simplify::State>::pick::<meshoptimizer_rs::clusterlod::support::workspace::Tally>
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

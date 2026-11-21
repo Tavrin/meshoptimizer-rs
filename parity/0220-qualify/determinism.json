@@ -1,0 +1,166 @@
+{
+  "all_equal": true,
+  "variants": {
+    "native-all": {
+      "binary_sha256": "35b420a6be310d088123716ef46afb22359e8200974d78fc85559823faf90299",
+      "cases": [
+        "v2-build-write",
+        "v2-material-attributes",
+        "v2-alpha-coverage",
+        "attribute-encodings",
+        "v2-normal-weight-zero",
+        "v2-normal-weight-quarter"
+      ],
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "parallel",
+        "clusterlod",
+        "experimental",
+        "parity-internals"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-all-debug": {
+      "binary_sha256": "338f6950e09ebfd354f83f31ff1fb8d8bf7f7e6c36f78cba45ec74f2cdec9234",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "parallel",
+        "clusterlod",
+        "experimental",
+        "parity-internals"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "dev",
+      "target": "native"
+    },
+    "native-default": {
+      "binary_sha256": "15c063582d878ee29b7b108807ad13c7b34695ead81bf5b821f32e3d4391f33a",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-nostd": {
+      "binary_sha256": "cbe0bce10d59fea928c12ba31148b9e8bf2651d0653518447a4fbe93ba52252b",
+      "equal_to_native_all": true,
+      "features": [
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "native-nostd-simd": {
+      "binary_sha256": "b50112a9dce07bad4ac38afd47b40b777daaed013d4ebc31b0ac3e882feddc7d",
+      "equal_to_native_all": true,
+      "features": [
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "native"
+    },
+    "wasm-default": {
+      "binary_sha256": "9a0187274c7ddf8bb5237cc934a42bb668072ad2ec1e6aa39d4533ae094b024b",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    },
+    "wasm-default-simd128": {
+      "binary_sha256": "aede6ba34b5e518d705608ad42c867343ec57222114fba947ba5417b13dedeaf",
+      "equal_to_native_all": true,
+      "features": [
+        "std",
+        "simd",
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    },
+    "wasm-nostd": {
+      "binary_sha256": "e1c1a247e4893ed1fa329dc69ae29496664809f12c8ffbaa2a523d646f6c826a",
+      "equal_to_native_all": true,
+      "features": [
+        "clusterlod"
+      ],
+      "hashes": [
+        "14f78f5cdb0992c1",
+        "e8d7939cae005fc7",
+        "2f95bb7ac09a359b",
+        "48243e838b2373b9",
+        "72c6e5156ec102a3",
+        "5e13de1ca73e55bc"
+      ],
+      "profile": "release",
+      "target": "wasm32-unknown-unknown"
+    }
+  }
+}

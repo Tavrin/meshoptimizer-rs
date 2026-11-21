@@ -1,0 +1,272 @@
+[
+  {
+    "mesh": "bunny",
+    "quality": {
+      "artifact": "<target>/bunny.shade-0.0.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 1.053095434715192,
+      "geometric_median_ratio": 0.9085296420775337,
+      "geometric_p95_ratio": 0.9757525142476416,
+      "kind": "shading_cut",
+      "mean_triangles": 22671.645833333332,
+      "normal_max_deg": 61.855671987665545,
+      "normal_p95_deg": 9.344507217407227,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 35,
+      "uv_p95": 0.05528988689184189,
+      "views": 96
+    },
+    "timing": {
+      "1": 1237.0861009999999,
+      "8": 361.249059
+    },
+    "weight": 0.0
+  },
+  {
+    "mesh": "bunny",
+    "quality": {
+      "artifact": "<target>/bunny.shade-0.25.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 0.8869307695025652,
+      "geometric_median_ratio": 0.46058749616311623,
+      "geometric_p95_ratio": 0.8869307695025652,
+      "kind": "shading_cut",
+      "mean_triangles": 32683.739583333332,
+      "normal_max_deg": 33.56789799523667,
+      "normal_p95_deg": 4.471808433532715,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 25,
+      "uv_p95": 0.02875281125307083,
+      "views": 96
+    },
+    "timing": {
+      "1": 2416.458172,
+      "8": 596.063677
+    },
+    "weight": 0.25
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "quality": {
+      "artifact": "<target>/dead_tree_trunk_02.shade-0.0.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 1.0309058121053505,
+      "geometric_median_ratio": 0.832533449337619,
+      "geometric_p95_ratio": 0.9321708775815143,
+      "kind": "shading_cut",
+      "mean_triangles": 35979,
+      "normal_max_deg": 175.00570727029472,
+      "normal_p95_deg": 29.68263053894043,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 32,
+      "uv_p95": 0.0052644601091742516,
+      "views": 96
+    },
+    "timing": {
+      "1": 1376.9407079999999,
+      "8": 446.87678400000004
+    },
+    "weight": 0.0
+  },
+  {
+    "mesh": "dead_tree_trunk_02",
+    "quality": {
+      "artifact": "<target>/dead_tree_trunk_02.shade-0.25.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 0.8495384334140731,
+      "geometric_median_ratio": 0.2093183779021441,
+      "geometric_p95_ratio": 0.8495384334140731,
+      "kind": "shading_cut",
+      "mean_triangles": 67593.66666666667,
+      "normal_max_deg": 165.53013226320397,
+      "normal_p95_deg": 7.4757232666015625,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 8,
+      "uv_p95": 0.0002372610615566373,
+      "views": 96
+    },
+    "timing": {
+      "1": 3319.9061279999996,
+      "8": 963.51406
+    },
+    "weight": 0.25
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "quality": {
+      "artifact": "<target>/namaqualand_boulder_02.shade-0.0.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 0.8615533426960349,
+      "geometric_median_ratio": 0.7999376139144018,
+      "geometric_p95_ratio": 0.8615533426960349,
+      "kind": "shading_cut",
+      "mean_triangles": 49338.885416666664,
+      "normal_max_deg": 170.29955914366647,
+      "normal_p95_deg": 19.52007293701172,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 15,
+      "uv_p95": 0.0007330633234232664,
+      "views": 96
+    },
+    "timing": {
+      "1": 1605.017331,
+      "8": 471.162049
+    },
+    "weight": 0.0
+  },
+  {
+    "mesh": "namaqualand_boulder_02",
+    "quality": {
+      "artifact": "<target>/namaqualand_boulder_02.shade-0.25.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 0.8615533426960349,
+      "geometric_median_ratio": 0.36524896634390186,
+      "geometric_p95_ratio": 0.8615533426960349,
+      "kind": "shading_cut",
+      "mean_triangles": 77562.66666666667,
+      "normal_max_deg": 72.2240613083516,
+      "normal_p95_deg": 7.143642425537109,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 8,
+      "uv_p95": 0.00014062179252505302,
+      "views": 96
+    },
+    "timing": {
+      "1": 3637.617625,
+      "8": 932.968083
+    },
+    "weight": 0.25
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "quality": {
+      "artifact": "<target>/coast_rocks_01.shade-0.0.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 1.0166211425608667,
+      "geometric_median_ratio": 0.7361460430910394,
+      "geometric_p95_ratio": 0.8439095810175493,
+      "kind": "shading_cut",
+      "mean_triangles": 84123.95833333333,
+      "normal_max_deg": 172.83885272643,
+      "normal_p95_deg": 34.80766296386719,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 44,
+      "uv_p95": 0.0021841709967702627,
+      "views": 96
+    },
+    "timing": {
+      "1": 11633.306091999999,
+      "8": 3275.968339
+    },
+    "weight": 0.0
+  },
+  {
+    "mesh": "coast_rocks_01",
+    "quality": {
+      "artifact": "<target>/coast_rocks_01.shade-0.25.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 0.5622254826451101,
+      "geometric_median_ratio": 0.3257266691962035,
+      "geometric_p95_ratio": 0.5282614280768156,
+      "kind": "shading_cut",
+      "mean_triangles": 221583.875,
+      "normal_max_deg": 140.646525028556,
+      "normal_p95_deg": 20.264142990112305,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 67,
+      "uv_p95": 0.00030784422415308654,
+      "views": 96
+    },
+    "timing": {
+      "1": 31951.670192,
+      "8": 8655.069064
+    },
+    "weight": 0.25
+  },
+  {
+    "mesh": "dragon",
+    "quality": {
+      "artifact": "<target>/dragon.shade-0.0.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 1.0893521927270924,
+      "geometric_median_ratio": 0.8065544600405254,
+      "geometric_p95_ratio": 0.9299515441575291,
+      "kind": "shading_cut",
+      "mean_triangles": 85376.79166666667,
+      "normal_max_deg": 176.9114772850792,
+      "normal_p95_deg": 10.708271980285645,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 40,
+      "uv_p95": 0.07722557336091995,
+      "views": 96
+    },
+    "timing": {
+      "1": 12723.656506,
+      "8": 4328.461664
+    },
+    "weight": 0.0
+  },
+  {
+    "mesh": "dragon",
+    "quality": {
+      "artifact": "<target>/dragon.shade-0.25.8T.bin",
+      "cut_oracle_pass": true,
+      "geometric_max_ratio": 0.5176353977701884,
+      "geometric_median_ratio": 0.37582623344842947,
+      "geometric_p95_ratio": 0.5106899568087431,
+      "kind": "shading_cut",
+      "mean_triangles": 316645.1041666667,
+      "normal_max_deg": 165.09925375597064,
+      "normal_p95_deg": 5.289273738861084,
+      "pooled_samples": 3145728,
+      "samples_each_direction": 16384,
+      "tangent_degenerate_triangles": 0,
+      "tangent_fallback_vertices": 0,
+      "threshold_px": 1,
+      "unique_cuts": 69,
+      "uv_p95": 0.04279879108071327,
+      "views": 96
+    },
+    "timing": {
+      "1": 25784.188669,
+      "8": 7462.599597
+    },
+    "weight": 0.25
+  }
+]

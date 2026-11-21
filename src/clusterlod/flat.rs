@@ -15,6 +15,16 @@ pub struct FlatDagCluster {
     /// Culling sphere radius.
     pub radius: f32,
 }
+/// Conservative sphere and accumulated error.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct LodBounds {
+    /// Sphere center.
+    pub center: [f32; 3],
+    /// Sphere radius.
+    pub radius: f32,
+    /// Absolute simplification error; terminal groups use `f32::MAX`.
+    pub error: f32,
+}
 /// One group in callback order, with monotonic selection bounds.
 #[derive(Clone, Copy, Debug, Default)]
 #[non_exhaustive]

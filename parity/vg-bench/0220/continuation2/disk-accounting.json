@@ -1,0 +1,142 @@
+{
+  "bunny": {
+    "baseline": {
+      "metadata": 30176,
+      "page_headers": 456,
+      "descriptors": 72256,
+      "stream_tables": 4516,
+      "positions": 711719,
+      "triangles": 150226,
+      "extension_headers": 9032,
+      "extensions": 834818,
+      "padding": 0,
+      "dag_triangles": 138876,
+      "file_bytes": 1813199
+    },
+    "ours": {
+      "metadata": 30864,
+      "page_headers": 432,
+      "descriptors": 72768,
+      "stream_tables": 4548,
+      "positions": 715347,
+      "triangles": 149829,
+      "extension_headers": 9096,
+      "extensions": 839139,
+      "padding": 0,
+      "dag_triangles": 138769,
+      "file_bytes": 1822023
+    }
+  },
+  "dead_tree_trunk_02": {
+    "baseline": {
+      "metadata": 37136,
+      "page_headers": 528,
+      "descriptors": 88832,
+      "stream_tables": 5552,
+      "positions": 841519,
+      "triangles": 178710,
+      "extension_headers": 11104,
+      "extensions": 1043266,
+      "padding": 0,
+      "dag_triangles": 166003,
+      "file_bytes": 2206647
+    },
+    "ours": {
+      "metadata": 37904,
+      "page_headers": 528,
+      "descriptors": 89600,
+      "stream_tables": 5600,
+      "positions": 845874,
+      "triangles": 178395,
+      "extension_headers": 11200,
+      "extensions": 1048890,
+      "padding": 0,
+      "dag_triangles": 166056,
+      "file_bytes": 2217991
+    }
+  },
+  "namaqualand_boulder_02": {
+    "baseline": {
+      "metadata": 42784,
+      "page_headers": 624,
+      "descriptors": 103296,
+      "stream_tables": 6456,
+      "positions": 1010479,
+      "triangles": 210603,
+      "extension_headers": 12912,
+      "extensions": 1217916,
+      "padding": 0,
+      "dag_triangles": 195659,
+      "file_bytes": 2605070
+    },
+    "ours": {
+      "metadata": 43552,
+      "page_headers": 624,
+      "descriptors": 103552,
+      "stream_tables": 6472,
+      "positions": 1018005,
+      "triangles": 210205,
+      "extension_headers": 12944,
+      "extensions": 1226300,
+      "padding": 0,
+      "dag_triangles": 195701,
+      "file_bytes": 2621654
+    }
+  },
+  "coast_rocks_01": {
+    "baseline": {
+      "metadata": 287408,
+      "page_headers": 4080,
+      "descriptors": 711680,
+      "stream_tables": 44480,
+      "positions": 6116113,
+      "triangles": 1476392,
+      "extension_headers": 88960,
+      "extensions": 8243253,
+      "padding": 0,
+      "dag_triangles": 1359310,
+      "file_bytes": 16972366
+    },
+    "ours": {
+      "metadata": 295696,
+      "page_headers": 3912,
+      "descriptors": 716032,
+      "stream_tables": 44752,
+      "positions": 6163121,
+      "triangles": 1475013,
+      "extension_headers": 89504,
+      "extensions": 8308715,
+      "padding": 0,
+      "dag_triangles": 1360397,
+      "file_bytes": 17096745
+    }
+  },
+  "dragon": {
+    "baseline": {
+      "metadata": 368160,
+      "page_headers": 5328,
+      "descriptors": 911616,
+      "stream_tables": 56976,
+      "positions": 8064112,
+      "triangles": 1897161,
+      "extension_headers": 113952,
+      "extensions": 10491439,
+      "padding": 0,
+      "dag_triangles": 1741717,
+      "file_bytes": 21908744
+    },
+    "ours": {
+      "metadata": 378848,
+      "page_headers": 5112,
+      "descriptors": 917568,
+      "stream_tables": 57348,
+      "positions": 8106829,
+      "triangles": 1899204,
+      "extension_headers": 114696,
+      "extensions": 10548191,
+      "padding": 0,
+      "dag_triangles": 1744987,
+      "file_bytes": 22027796
+    }
+  }
+}

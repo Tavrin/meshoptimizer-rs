@@ -1,0 +1,4906 @@
+{
+  "commands": 364,
+  "failed_commands": [
+    {
+      "name": "release",
+      "attempt": 1,
+      "exit": 137,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "log": "logs/release-1.log",
+      "interrupted_by": "systemd-oomd",
+      "raw_sha256": "01b1894e8e16eedf31154888b48205347bb719e6fc69a139741848e0c17b9e75"
+    },
+    {
+      "name": "public-text",
+      "attempt": 1,
+      "exit": 1,
+      "wall_seconds": 0.5477638730080798,
+      "cpu_seconds": 1.361726,
+      "log": "logs/public-text-1.log"
+    },
+    {
+      "name": "v2-exact-build-all",
+      "attempt": 1,
+      "exit": 101,
+      "wall_seconds": 0.14863812999101356,
+      "cpu_seconds": 0.12102199999999999,
+      "log": "logs/v2-exact-build-all-1.log"
+    }
+  ],
+  "exact_driver_runs": 34,
+  "exact_driver_failed": 0,
+  "determinism": {
+    "all_equal": true,
+    "variants": {
+      "native-all": {
+        "binary_sha256": "35b420a6be310d088123716ef46afb22359e8200974d78fc85559823faf90299",
+        "cases": [
+          "v2-build-write",
+          "v2-material-attributes",
+          "v2-alpha-coverage",
+          "attribute-encodings",
+          "v2-normal-weight-zero",
+          "v2-normal-weight-quarter"
+        ],
+        "equal_to_native_all": true,
+        "features": [
+          "std",
+          "simd",
+          "parallel",
+          "clusterlod",
+          "experimental",
+          "parity-internals"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "native"
+      },
+      "native-all-debug": {
+        "binary_sha256": "338f6950e09ebfd354f83f31ff1fb8d8bf7f7e6c36f78cba45ec74f2cdec9234",
+        "equal_to_native_all": true,
+        "features": [
+          "std",
+          "simd",
+          "parallel",
+          "clusterlod",
+          "experimental",
+          "parity-internals"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "dev",
+        "target": "native"
+      },
+      "native-default": {
+        "binary_sha256": "15c063582d878ee29b7b108807ad13c7b34695ead81bf5b821f32e3d4391f33a",
+        "equal_to_native_all": true,
+        "features": [
+          "std",
+          "simd",
+          "clusterlod"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "native"
+      },
+      "native-nostd": {
+        "binary_sha256": "cbe0bce10d59fea928c12ba31148b9e8bf2651d0653518447a4fbe93ba52252b",
+        "equal_to_native_all": true,
+        "features": [
+          "clusterlod"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "native"
+      },
+      "native-nostd-simd": {
+        "binary_sha256": "b50112a9dce07bad4ac38afd47b40b777daaed013d4ebc31b0ac3e882feddc7d",
+        "equal_to_native_all": true,
+        "features": [
+          "simd",
+          "clusterlod"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "native"
+      },
+      "wasm-default": {
+        "binary_sha256": "9a0187274c7ddf8bb5237cc934a42bb668072ad2ec1e6aa39d4533ae094b024b",
+        "equal_to_native_all": true,
+        "features": [
+          "std",
+          "simd",
+          "clusterlod"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "wasm32-unknown-unknown"
+      },
+      "wasm-default-simd128": {
+        "binary_sha256": "aede6ba34b5e518d705608ad42c867343ec57222114fba947ba5417b13dedeaf",
+        "equal_to_native_all": true,
+        "features": [
+          "std",
+          "simd",
+          "clusterlod"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "wasm32-unknown-unknown"
+      },
+      "wasm-nostd": {
+        "binary_sha256": "e1c1a247e4893ed1fa329dc69ae29496664809f12c8ffbaa2a523d646f6c826a",
+        "equal_to_native_all": true,
+        "features": [
+          "clusterlod"
+        ],
+        "hashes": [
+          "14f78f5cdb0992c1",
+          "e8d7939cae005fc7",
+          "2f95bb7ac09a359b",
+          "48243e838b2373b9",
+          "72c6e5156ec102a3",
+          "5e13de1ca73e55bc"
+        ],
+        "profile": "release",
+        "target": "wasm32-unknown-unknown"
+      }
+    }
+  },
+  "release-results": {
+    "cache_hits": 0,
+    "cells": [
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 110668.982,
+          "base-scalar": 110668.997,
+          "cpp-default": 120264.698,
+          "cpp-scalar": 120264.61,
+          "train-default": 110669.007,
+          "train-scalar": 110668.988
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.0000002258988883,
+          "default_cpp": 0.9202119062403499,
+          "scalar_base": 0.9999999186764112,
+          "scalar_cpp": 0.9202124215926863
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 12132762.333333334,
+          "base-scalar": 12132750.666666666,
+          "cpp-default": 10954177.666666666,
+          "cpp-scalar": 10954174.666666666,
+          "train-default": 12132750.666666666,
+          "train-scalar": 12132753.333333334
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 0.9999990384162858,
+          "default_cpp": 1.1075911890297683,
+          "scalar_base": 1.0000002197907747,
+          "scalar_cpp": 1.1075917358021559
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 15402271.333333334,
+          "base-scalar": 15402271.0,
+          "cpp-default": 14174405.333333334,
+          "cpp-scalar": 14174398.0,
+          "train-default": 15402276.333333334,
+          "train-scalar": 15402279.666666666
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.0000003246274456,
+          "default_cpp": 1.0866259268819178,
+          "scalar_base": 1.0000005626875845,
+          "scalar_cpp": 1.086626724229605
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 13143338.666666666,
+          "base-scalar": 13143338.0,
+          "cpp-default": 11864065.333333334,
+          "cpp-scalar": 11864037.666666666,
+          "train-default": 13143384.666666666,
+          "train-scalar": 13143334.333333334
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.0000034998717728,
+          "default_cpp": 1.1078314470958746,
+          "scalar_base": 0.9999997210246997,
+          "scalar_cpp": 1.1078297880207337
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2436547604.0,
+          "base-scalar": 2436547690.0,
+          "cpp-default": 2256439904.0,
+          "cpp-scalar": 2256439876.0,
+          "train-default": 2436547670.0,
+          "train-scalar": 2436547560.0
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.000000027087507,
+          "default_cpp": 1.079819438435175,
+          "scalar_base": 0.9999999466458217,
+          "scalar_cpp": 1.0798194030852166
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3275515499.0,
+          "base-scalar": 3275515415.0,
+          "cpp-default": 2813428695.0,
+          "cpp-scalar": 2813429172.0,
+          "train-default": 3275516120.0,
+          "train-scalar": 3275515361.0
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.0000001895884785,
+          "default_cpp": 1.1642435174636618,
+          "scalar_base": 0.999999983514045,
+          "scalar_cpp": 1.164243050295634
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 5916386961.0,
+          "base-scalar": 5916388060.0,
+          "cpp-default": 5024117590.0,
+          "cpp-scalar": 5024118652.0,
+          "train-default": 5916387926.0,
+          "train-scalar": 5916386245.0
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.0000001631063022,
+          "default_cpp": 1.1775974228342057,
+          "scalar_base": 0.999999693224991,
+          "scalar_cpp": 1.1775968393271936
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1476467373.0,
+          "base-scalar": 1476467362.0,
+          "cpp-default": 1250239553.0,
+          "cpp-scalar": 1250239662.0,
+          "train-default": 1476467504.0,
+          "train-scalar": 1476467364.0
+        },
+        "op": "simplify",
+        "ratios": {
+          "default_base": 1.000000088725293,
+          "default_cpp": 1.1809476835516497,
+          "scalar_base": 1.0000000013545847,
+          "scalar_cpp": 1.1809474686142216
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 125127.992,
+          "base-scalar": 125127.991,
+          "cpp-default": 127507.499,
+          "cpp-scalar": 127507.473,
+          "train-default": 125128.002,
+          "train-scalar": 125127.995
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 1.000000079918169,
+          "default_cpp": 0.9813383760275934,
+          "scalar_base": 1.0000000319672677,
+          "scalar_cpp": 0.9813385212331829
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 28218339.666666668,
+          "base-scalar": 28218339.666666668,
+          "cpp-default": 25953310.666666668,
+          "cpp-scalar": 25953309.666666668,
+          "train-default": 28218340.0,
+          "train-scalar": 28218340.0
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 1.0000000118126486,
+          "default_cpp": 1.0872732331695332,
+          "scalar_base": 1.0000000118126486,
+          "scalar_cpp": 1.087273275062966
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 28519681.333333332,
+          "base-scalar": 28519696.333333332,
+          "cpp-default": 26013188.0,
+          "cpp-scalar": 26013190.666666668,
+          "train-default": 28519677.666666668,
+          "train-scalar": 28519684.333333332
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 0.9999998714338136,
+          "default_cpp": 1.0963545747128982,
+          "scalar_base": 0.9999995792381566,
+          "scalar_cpp": 1.096354718603531
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 25059055.666666668,
+          "base-scalar": 25059050.666666668,
+          "cpp-default": 22981862.666666668,
+          "cpp-scalar": 22981862.333333332,
+          "train-default": 25059048.666666668,
+          "train-scalar": 25059051.333333332
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 0.9999997206598648,
+          "default_cpp": 1.0903837095420812,
+          "scalar_base": 1.0000000266038276,
+          "scalar_cpp": 1.0903838413907478
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3978099743.0,
+          "base-scalar": 3978099699.0,
+          "cpp-default": 3643735873.0,
+          "cpp-scalar": 3643735873.0,
+          "train-default": 3978099655.0,
+          "train-scalar": 3978099721.0
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 0.9999999778788855,
+          "default_cpp": 1.0917640009193939,
+          "scalar_base": 1.0000000055302787,
+          "scalar_cpp": 1.0917640190326716
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 5294761288.0,
+          "base-scalar": 5294760739.0,
+          "cpp-default": 4926652444.0,
+          "cpp-scalar": 4926652229.0,
+          "train-default": 5294761024.0,
+          "train-scalar": 5294760944.0
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 0.9999999501393952,
+          "default_cpp": 1.0747177894491637,
+          "scalar_base": 1.0000000387175192,
+          "scalar_cpp": 1.0747178201118364
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 8650064339.0,
+          "base-scalar": 8650060037.0,
+          "cpp-default": 7595289709.0,
+          "cpp-scalar": 7595290037.0,
+          "train-default": 8650062229.0,
+          "train-scalar": 8650059988.0
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 0.9999997560711785,
+          "default_cpp": 1.138871927261728,
+          "scalar_base": 0.9999999943352994,
+          "scalar_cpp": 1.13887158302866
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2159814977.0,
+          "base-scalar": 2159815359.0,
+          "cpp-default": 1892980759.0,
+          "cpp-scalar": 1892980616.0,
+          "train-default": 2159814962.0,
+          "train-scalar": 2159814953.0
+        },
+        "op": "simplify-attributes",
+        "ratios": {
+          "default_base": 0.9999999930549607,
+          "default_cpp": 1.140959807294058,
+          "scalar_base": 0.9999998120209682,
+          "scalar_cpp": 1.1409598887303134
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 19182.975,
+          "base-scalar": 19183.001,
+          "cpp-default": 15113.694,
+          "cpp-scalar": 15113.594,
+          "train-default": 19183.002,
+          "train-scalar": 19182.983
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 1.000001407498055,
+          "default_cpp": 1.2692464198362094,
+          "scalar_base": 0.9999990616692351,
+          "scalar_cpp": 1.2692535607347928
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3945210.6666666665,
+          "base-scalar": 3945223.0,
+          "cpp-default": 3114699.3333333335,
+          "cpp-scalar": 3114705.3333333335,
+          "train-default": 3945213.6666666665,
+          "train-scalar": 3945213.6666666665
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 1.0000007604156669,
+          "default_cpp": 1.2666435005283547,
+          "scalar_base": 0.9999976342697654,
+          "scalar_cpp": 1.2666410605347793
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 7124836.333333333,
+          "base-scalar": 7124820.666666667,
+          "cpp-default": 5116379.333333333,
+          "cpp-scalar": 5116385.333333333,
+          "train-default": 7124821.0,
+          "train-scalar": 7124824.0
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 0.9999978479037811,
+          "default_cpp": 1.3925513602131925,
+          "scalar_base": 1.0000004678480328,
+          "scalar_cpp": 1.3925503135156097
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 4822562.666666667,
+          "base-scalar": 4822574.666666667,
+          "cpp-default": 3838224.0,
+          "cpp-scalar": 3838233.0,
+          "train-default": 4822587.0,
+          "train-scalar": 4822569.0
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 1.0000050457267255,
+          "default_cpp": 1.2564631454547728,
+          "scalar_base": 0.9999988249706726,
+          "scalar_cpp": 1.256455509605592
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 414716921.0,
+          "base-scalar": 414716166.0,
+          "cpp-default": 338170857.0,
+          "cpp-scalar": 338170970.0,
+          "train-default": 414717233.0,
+          "train-scalar": 414716848.0
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 1.0000007523204002,
+          "default_cpp": 1.2263541473652178,
+          "scalar_base": 1.0000016444982278,
+          "scalar_cpp": 1.2263525991009814
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2966630255.0,
+          "base-scalar": 2966630179.0,
+          "cpp-default": 2299203572.0,
+          "cpp-scalar": 2299203757.0,
+          "train-default": 2966630305.0,
+          "train-scalar": 2966630968.0
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 1.0000000168541394,
+          "default_cpp": 1.2902860543224661,
+          "scalar_base": 1.0000002659583274,
+          "scalar_cpp": 1.290286238863344
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2930254701.0,
+          "base-scalar": 2930252885.0,
+          "cpp-default": 2315102270.0,
+          "cpp-scalar": 2315102238.0,
+          "train-default": 2930251923.0,
+          "train-scalar": 2930251746.0
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 0.999999051959545,
+          "default_cpp": 1.265711653852769,
+          "scalar_base": 0.9999996112963472,
+          "scalar_cpp": 1.2657115948932878
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 823995569.0,
+          "base-scalar": 823995585.0,
+          "cpp-default": 636188297.0,
+          "cpp-scalar": 636188308.0,
+          "train-default": 823995541.0,
+          "train-scalar": 823995540.0
+        },
+        "op": "simplify-sloppy",
+        "ratios": {
+          "default_base": 0.9999999660192348,
+          "default_cpp": 1.295207008499875,
+          "scalar_base": 0.9999999453880569,
+          "scalar_cpp": 1.295206984533265
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 120695.98,
+          "base-scalar": 120696.027,
+          "cpp-default": 128029.0,
+          "cpp-scalar": 128029.369,
+          "train-default": 120696.066,
+          "train-scalar": 120696.007
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 1.0000007125340877,
+          "default_cpp": 0.9427244296214139,
+          "scalar_base": 0.9999998342944627,
+          "scalar_cpp": 0.9427212517152997
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 15245354.666666666,
+          "base-scalar": 15245366.333333334,
+          "cpp-default": 13575305.333333334,
+          "cpp-scalar": 13575261.0,
+          "train-default": 15245354.333333334,
+          "train-scalar": 15245364.666666666
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 0.9999999781354164,
+          "default_cpp": 1.123021100372549,
+          "scalar_base": 0.999999890677165,
+          "scalar_cpp": 1.1230255290610374
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 17768498.666666668,
+          "base-scalar": 17768492.333333332,
+          "cpp-default": 16048490.0,
+          "cpp-scalar": 16048492.666666666,
+          "train-default": 17768498.666666668,
+          "train-scalar": 17768502.333333332
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 1.0,
+          "default_cpp": 1.107175732213228,
+          "scalar_base": 1.0000005627939508,
+          "scalar_cpp": 1.107175776715728
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 16437629.0,
+          "base-scalar": 16437607.333333334,
+          "cpp-default": 14578018.333333334,
+          "cpp-scalar": 14578017.0,
+          "train-default": 16437607.333333334,
+          "train-scalar": 16437628.666666666
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 0.9999986818861366,
+          "default_cpp": 1.1275611648633999,
+          "scalar_base": 1.0000012978368993,
+          "scalar_cpp": 1.1275627313829217
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2827254910.0,
+          "base-scalar": 2827257870.0,
+          "cpp-default": 2586110910.0,
+          "cpp-scalar": 2586110868.0,
+          "train-default": 2827253894.0,
+          "train-scalar": 2827255724.0
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 0.9999996406408221,
+          "default_cpp": 1.093245414598247,
+          "scalar_base": 0.9999992409606415,
+          "scalar_cpp": 1.0932461399794868
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 4103823387.0,
+          "base-scalar": 4103825046.0,
+          "cpp-default": 3277481670.0,
+          "cpp-scalar": 3277482008.0,
+          "train-default": 4103823967.0,
+          "train-scalar": 4103823005.0
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 1.0000001413316182,
+          "default_cpp": 1.2521272062522322,
+          "scalar_base": 0.9999995026591102,
+          "scalar_cpp": 1.2521267836049095
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 6764488551.0,
+          "base-scalar": 6764483084.0,
+          "cpp-default": 5498412074.0,
+          "cpp-scalar": 5498413942.0,
+          "train-default": 6764489109.0,
+          "train-scalar": 6764485572.0
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 1.0000000824896067,
+          "default_cpp": 1.2302623044545569,
+          "scalar_base": 1.0000003678034182,
+          "scalar_cpp": 1.2302612432157987
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1685869835.0,
+          "base-scalar": 1685869935.0,
+          "cpp-default": 1367454234.0,
+          "cpp-scalar": 1367454274.0,
+          "train-default": 1685869841.0,
+          "train-scalar": 1685869943.0
+        },
+        "op": "simplify-update",
+        "ratios": {
+          "default_base": 1.0000000035589935,
+          "default_cpp": 1.23285284368793,
+          "scalar_base": 1.0000000047453246,
+          "scalar_cpp": 1.2328528822163747
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 14311.991,
+          "base-scalar": 14311.983,
+          "cpp-default": 12179.61,
+          "cpp-scalar": 12179.604,
+          "train-default": 14312.01,
+          "train-scalar": 14311.992
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 1.0000013275581294,
+          "default_cpp": 1.175079497619382,
+          "scalar_base": 1.000000628843676,
+          "scalar_cpp": 1.1750785986145362
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1927448.3333333333,
+          "base-scalar": 1927424.6666666667,
+          "cpp-default": 1855631.3333333333,
+          "cpp-scalar": 1855637.0,
+          "train-default": 1927421.3333333333,
+          "train-scalar": 1927415.3333333333
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 0.99998599184241,
+          "default_cpp": 1.038687641618468,
+          "scalar_base": 0.9999951576144609,
+          "scalar_cpp": 1.0386812363265732
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2089671.3333333333,
+          "base-scalar": 2089674.6666666667,
+          "cpp-default": 2026518.6666666667,
+          "cpp-scalar": 2026549.3333333333,
+          "train-default": 2089678.0,
+          "train-scalar": 2089674.3333333333
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 1.000003190294359,
+          "default_cpp": 1.0311664207057225,
+          "scalar_base": 0.9999998404855365,
+          "scalar_cpp": 1.0311490073109495
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2563963.3333333335,
+          "base-scalar": 2563963.3333333335,
+          "cpp-default": 2545968.0,
+          "cpp-scalar": 2545968.0,
+          "train-default": 2563960.6666666665,
+          "train-scalar": 2563960.6666666665
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 0.9999989599435248,
+          "default_cpp": 1.0070671220795653,
+          "scalar_base": 0.9999989599435248,
+          "scalar_cpp": 1.0070671220795653
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 231765034.0,
+          "base-scalar": 231764492.0,
+          "cpp-default": 223393567.0,
+          "cpp-scalar": 223393795.0,
+          "train-default": 231765227.0,
+          "train-scalar": 231764526.0
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 1.000000832739938,
+          "default_cpp": 1.0374749376735632,
+          "scalar_base": 1.000000146700643,
+          "scalar_cpp": 1.037470740850255
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1469300127.0,
+          "base-scalar": 1469300121.0,
+          "cpp-default": 1515137728.0,
+          "cpp-scalar": 1515137728.0,
+          "train-default": 1469300489.0,
+          "train-scalar": 1469300198.0
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 1.000000246375804,
+          "default_cpp": 0.9697471469735588,
+          "scalar_base": 1.0000000524059032,
+          "scalar_cpp": 0.9697469549118112
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1602431051.0,
+          "base-scalar": 1602432555.0,
+          "cpp-default": 1648552926.0,
+          "cpp-scalar": 1648552834.0,
+          "train-default": 1602430922.0,
+          "train-scalar": 1602431296.0
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 0.9999999194973164,
+          "default_cpp": 0.9720227338336603,
+          "scalar_base": 0.9999992143195069,
+          "scalar_cpp": 0.9720230149445123
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 399616189.0,
+          "base-scalar": 399616188.0,
+          "cpp-default": 411114838.0,
+          "cpp-scalar": 411114864.0,
+          "train-default": 399616187.0,
+          "train-scalar": 399616169.0
+        },
+        "op": "simplify-prune",
+        "ratios": {
+          "default_base": 0.9999999949951978,
+          "default_cpp": 0.9720305619326735,
+          "scalar_base": 0.9999999524543786,
+          "scalar_cpp": 0.9720304566754853
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 9650.983,
+          "base-scalar": 9651.029,
+          "cpp-default": 8765.34,
+          "cpp-scalar": 8765.349,
+          "train-default": 9651.035,
+          "train-scalar": 9651.055
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 1.0000053880521809,
+          "default_cpp": 1.1010451391503353,
+          "scalar_base": 1.0000026940132498,
+          "scalar_cpp": 1.1010462903416625
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 927390.6666666666,
+          "base-scalar": 927384.6666666666,
+          "cpp-default": 889349.6666666666,
+          "cpp-scalar": 889358.6666666666,
+          "train-default": 927381.6666666666,
+          "train-scalar": 927388.0
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 0.9999902953519768,
+          "default_cpp": 1.0427638322984323,
+          "scalar_base": 1.0000035943373373,
+          "scalar_cpp": 1.0427604011280038
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3603341.6666666665,
+          "base-scalar": 3603339.0,
+          "cpp-default": 2945389.6666666665,
+          "cpp-scalar": 2945389.3333333335,
+          "train-default": 3603348.0,
+          "train-scalar": 3603338.6666666665
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 1.0000017576277576,
+          "default_cpp": 1.2233858361015957,
+          "scalar_base": 0.9999999074932074,
+          "scalar_cpp": 1.2233828057592384
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1441477.3333333333,
+          "base-scalar": 1441469.0,
+          "cpp-default": 1467038.3333333333,
+          "cpp-scalar": 1467038.3333333333,
+          "train-default": 1441471.3333333333,
+          "train-scalar": 1441468.3333333333
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 0.9999958376036436,
+          "default_cpp": 0.9825723708651103,
+          "scalar_base": 0.9999995375088422,
+          "scalar_cpp": 0.9825703259287704
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 134738254.0,
+          "base-scalar": 134738188.0,
+          "cpp-default": 124002680.0,
+          "cpp-scalar": 124002695.0,
+          "train-default": 134738204.0,
+          "train-scalar": 134738171.0
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 0.9999996289101386,
+          "default_cpp": 1.0865749353159142,
+          "scalar_base": 0.9999998738293854,
+          "scalar_cpp": 1.086574537755006
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1130775078.0,
+          "base-scalar": 1130775134.0,
+          "cpp-default": 1134747504.0,
+          "cpp-scalar": 1134747519.0,
+          "train-default": 1130775159.0,
+          "train-scalar": 1130775040.0
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 1.0000000716322826,
+          "default_cpp": 0.996499357798984,
+          "scalar_base": 0.9999999168711823,
+          "scalar_cpp": 0.9964992397573156
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1202768330.0,
+          "base-scalar": 1202769075.0,
+          "cpp-default": 1206386685.0,
+          "cpp-scalar": 1206386668.0,
+          "train-default": 1202768298.0,
+          "train-scalar": 1202768401.0
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 0.9999999733947101,
+          "default_cpp": 0.9970006408019996,
+          "scalar_base": 0.9999994396264303,
+          "scalar_cpp": 0.9970007402303289
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 471194165.0,
+          "base-scalar": 471194162.0,
+          "cpp-default": 425777897.0,
+          "cpp-scalar": 425777855.0,
+          "train-default": 471194179.0,
+          "train-scalar": 471194240.0
+        },
+        "op": "simplify-points",
+        "ratios": {
+          "default_base": 1.000000029711743,
+          "default_cpp": 1.106666603222008,
+          "scalar_base": 1.0000001655368558,
+          "scalar_cpp": 1.1066668556541064
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 25088.002,
+          "base-scalar": 25087.984,
+          "cpp-default": 23691.604,
+          "cpp-scalar": 23691.595,
+          "train-default": 25087.993,
+          "train-scalar": 25087.983
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 0.9999996412627836,
+          "default_cpp": 1.058940247355139,
+          "scalar_base": 0.9999999601402807,
+          "scalar_cpp": 1.05894022753639
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 8974843.666666666,
+          "base-scalar": 8974837.666666666,
+          "cpp-default": 8526055.333333334,
+          "cpp-scalar": 8526055.666666666,
+          "train-default": 8974835.0,
+          "train-scalar": 8974835.333333334
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 0.9999990343378684,
+          "default_cpp": 1.0526362601603256,
+          "scalar_base": 0.9999997400138678,
+          "scalar_cpp": 1.052636258102467
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 7557852.0,
+          "base-scalar": 7557842.666666667,
+          "cpp-default": 7417342.0,
+          "cpp-scalar": 7417348.0,
+          "train-default": 7557837.0,
+          "train-scalar": 7557839.666666667
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 0.9999980153091116,
+          "default_cpp": 1.0189414213339496,
+          "scalar_base": 0.9999996030613322,
+          "scalar_cpp": 1.0189409566150418
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 9039267.666666666,
+          "base-scalar": 9039274.0,
+          "cpp-default": 8596558.333333334,
+          "cpp-scalar": 8596558.333333334,
+          "train-default": 9039274.0,
+          "train-scalar": 9039271.0
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 1.0000007006467302,
+          "default_cpp": 1.05149917554215,
+          "scalar_base": 0.9999996681149393,
+          "scalar_cpp": 1.0514988265652823
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1119065523.0,
+          "base-scalar": 1119065538.0,
+          "cpp-default": 1058988704.0,
+          "cpp-scalar": 1058988723.0,
+          "train-default": 1119065509.0,
+          "train-scalar": 1119065577.0
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 0.9999999874895619,
+          "default_cpp": 1.0567303548877136,
+          "scalar_base": 1.0000000348505058,
+          "scalar_cpp": 1.0567304001404367
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1244048178.0,
+          "base-scalar": 1244049195.0,
+          "cpp-default": 1803466704.0,
+          "cpp-scalar": 1803466638.0,
+          "train-default": 1244048180.0,
+          "train-scalar": 1244048178.0
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 1.0000000016076547,
+          "default_cpp": 0.68980934177535,
+          "scalar_base": 0.9999991825082126,
+          "scalar_cpp": 0.6898093659107655
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1486651034.0,
+          "base-scalar": 1486651085.0,
+          "cpp-default": 2079319456.0,
+          "cpp-scalar": 2079319539.0,
+          "train-default": 1486651147.0,
+          "train-scalar": 1486651076.0
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 1.0000000760097678,
+          "default_cpp": 0.7149700555680272,
+          "scalar_base": 0.9999999939461249,
+          "scalar_cpp": 0.7149699928828496
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 371666321.0,
+          "base-scalar": 371666308.0,
+          "cpp-default": 519838821.0,
+          "cpp-scalar": 519838896.0,
+          "train-default": 371666365.0,
+          "train-scalar": 371666312.0
+        },
+        "op": "cache",
+        "ratios": {
+          "default_base": 1.0000001183857603,
+          "default_cpp": 0.7149646197739433,
+          "scalar_base": 1.0000000107623421,
+          "scalar_cpp": 0.7149644146674242
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 15593.02,
+          "base-scalar": 15592.974,
+          "cpp-default": 20212.754,
+          "cpp-scalar": 20212.755,
+          "train-default": 15592.992,
+          "train-scalar": 15592.974
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 0.9999982043247555,
+          "default_cpp": 0.7714432184748303,
+          "scalar_base": 1.0,
+          "scalar_cpp": 0.7714422897818729
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1578591.3333333333,
+          "base-scalar": 1578588.6666666667,
+          "cpp-default": 1600092.6666666667,
+          "cpp-scalar": 1600093.0,
+          "train-default": 1578594.6666666667,
+          "train-scalar": 1578597.3333333333
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 1.0000021115872506,
+          "default_cpp": 0.9865645281377453,
+          "scalar_base": 1.0000054901361257,
+          "scalar_cpp": 0.9865659891852119
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1580821.3333333333,
+          "base-scalar": 1580818.3333333333,
+          "cpp-default": 1593597.3333333333,
+          "cpp-scalar": 1593621.6666666667,
+          "train-default": 1580827.3333333333,
+          "train-scalar": 1580831.0
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 1.0000037954953374,
+          "default_cpp": 0.9919866833779842,
+          "scalar_base": 1.0000080127275852,
+          "scalar_cpp": 0.991973837370434
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1594450.3333333333,
+          "base-scalar": 1594425.6666666667,
+          "cpp-default": 1629260.6666666667,
+          "cpp-scalar": 1629276.0,
+          "train-default": 1594429.3333333333,
+          "train-scalar": 1594426.0
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 0.999986829316937,
+          "default_cpp": 0.978621386960384,
+          "scalar_base": 1.0000002090616955,
+          "scalar_cpp": 0.978610131125727
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 189357555.0,
+          "base-scalar": 189357579.0,
+          "cpp-default": 191781332.0,
+          "cpp-scalar": 191781352.0,
+          "train-default": 189357566.0,
+          "train-scalar": 189357586.0
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 1.0000000580911599,
+          "default_cpp": 0.9873618251853626,
+          "scalar_base": 1.000000036967097,
+          "scalar_cpp": 0.9873618265033401
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1086237869.0,
+          "base-scalar": 1086237886.0,
+          "cpp-default": 992614673.0,
+          "cpp-scalar": 992614621.0,
+          "train-default": 1086237736.0,
+          "train-scalar": 1086237746.0
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 0.9999998775590468,
+          "default_cpp": 1.09431964441654,
+          "scalar_base": 0.9999998711147882,
+          "scalar_cpp": 1.0943197118189538
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1180364964.0,
+          "base-scalar": 1180365037.0,
+          "cpp-default": 1076430783.0,
+          "cpp-scalar": 1076430893.0,
+          "train-default": 1180364999.0,
+          "train-scalar": 1180364929.0
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 1.0000000296518459,
+          "default_cpp": 1.096554481385544,
+          "scalar_base": 0.9999999085028812,
+          "scalar_cpp": 1.0965543042994028
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 295101796.0,
+          "base-scalar": 295101778.0,
+          "cpp-default": 269118348.0,
+          "cpp-scalar": 269118332.0,
+          "train-default": 295101793.0,
+          "train-scalar": 295101783.0
+        },
+        "op": "overdraw",
+        "ratios": {
+          "default_base": 0.9999999898340165,
+          "default_cpp": 1.0965502545370858,
+          "scalar_base": 1.000000016943307,
+          "scalar_cpp": 1.0965502825723519
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3166.991,
+          "base-scalar": 3166.973,
+          "cpp-default": 2619.603,
+          "cpp-scalar": 2619.595,
+          "train-default": 3167.001,
+          "train-scalar": 3167.009
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 1.000003157571335,
+          "default_cpp": 1.2089621977070573,
+          "scalar_base": 1.000011367321414,
+          "scalar_cpp": 1.2089689436725908
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 415194.3333333333,
+          "base-scalar": 415191.3333333333,
+          "cpp-default": 363837.0,
+          "cpp-scalar": 363843.0,
+          "train-default": 415191.3333333333,
+          "train-scalar": 415197.3333333333
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 0.9999927744678596,
+          "default_cpp": 1.141146539063738,
+          "scalar_base": 1.0000144511686981,
+          "scalar_cpp": 1.1411442114684995
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 438315.6666666667,
+          "base-scalar": 438327.6666666667,
+          "cpp-default": 395677.3333333333,
+          "cpp-scalar": 395677.3333333333,
+          "train-default": 438327.6666666667,
+          "train-scalar": 438321.6666666667
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 1.0000273775292845,
+          "default_cpp": 1.107790691405118,
+          "scalar_base": 0.9999863116101121,
+          "scalar_cpp": 1.1077755275342198
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 415423.0,
+          "base-scalar": 415423.0,
+          "cpp-default": 364030.0,
+          "cpp-scalar": 364030.0,
+          "train-default": 415426.0,
+          "train-scalar": 415429.0
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 1.000007221554897,
+          "default_cpp": 1.1411861659753317,
+          "scalar_base": 1.0000144431097941,
+          "scalar_cpp": 1.1411944070543636
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 50478553.0,
+          "base-scalar": 50478552.0,
+          "cpp-default": 44115714.0,
+          "cpp-scalar": 44115654.0,
+          "train-default": 50478555.0,
+          "train-scalar": 50478553.0
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 1.000000039620787,
+          "default_cpp": 1.1442307156130354,
+          "scalar_base": 1.000000019810394,
+          "scalar_cpp": 1.144232226501731
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 274942167.0,
+          "base-scalar": 274942101.0,
+          "cpp-default": 305129800.0,
+          "cpp-scalar": 305129792.0,
+          "train-default": 274942114.0,
+          "train-scalar": 274942114.0
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 0.9999998072321878,
+          "default_cpp": 0.9010660840075273,
+          "scalar_base": 1.0000000472826822,
+          "scalar_cpp": 0.9010661076319942
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 302673625.0,
+          "base-scalar": 302673620.0,
+          "cpp-default": 332040558.0,
+          "cpp-scalar": 332040545.0,
+          "train-default": 302673614.0,
+          "train-scalar": 302673578.0
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 0.9999999636572232,
+          "default_cpp": 0.9115561539322554,
+          "scalar_base": 0.9999998612366681,
+          "scalar_cpp": 0.9115560812008666
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 75043607.0,
+          "base-scalar": 75043563.0,
+          "cpp-default": 82383253.0,
+          "cpp-scalar": 82383264.0,
+          "train-default": 75043581.0,
+          "train-scalar": 75043553.0
+        },
+        "op": "fetch",
+        "ratios": {
+          "default_base": 0.9999996535347775,
+          "default_cpp": 0.9109082036369698,
+          "scalar_base": 0.999999866744067,
+          "scalar_cpp": 0.9109077421355871
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 58077.004,
+          "base-scalar": 58076.985,
+          "cpp-default": 44894.225,
+          "cpp-scalar": 44894.224,
+          "train-default": 58077.031,
+          "train-scalar": 58076.993
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 1.0000004649000145,
+          "default_cpp": 1.293641465021392,
+          "scalar_base": 1.0000001377481975,
+          "scalar_cpp": 1.2936406474026592
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 26865406.333333332,
+          "base-scalar": 26865405.333333332,
+          "cpp-default": 26953611.333333332,
+          "cpp-scalar": 26953608.0,
+          "train-default": 26865402.666666668,
+          "train-scalar": 26865399.666666668
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 0.9999998635171707,
+          "default_cpp": 0.996727389677925,
+          "scalar_base": 0.9999997890719833,
+          "scalar_cpp": 0.9967274016401317
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 20801201.333333332,
+          "base-scalar": 20801205.0,
+          "cpp-default": 20691688.333333332,
+          "cpp-scalar": 20691688.333333332,
+          "train-default": 20801215.0,
+          "train-scalar": 20801206.666666668
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 1.0000006570133353,
+          "default_cpp": 1.0052932687223124,
+          "scalar_base": 1.0000000801235633,
+          "scalar_cpp": 1.0052928659841114
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 26977507.666666668,
+          "base-scalar": 26977501.666666668,
+          "cpp-default": 26981605.666666668,
+          "cpp-scalar": 26981604.333333332,
+          "train-default": 26977505.0,
+          "train-scalar": 26977510.666666668
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 0.9999999011522228,
+          "default_cpp": 0.9998480199170751,
+          "scalar_base": 1.0000003336113221,
+          "scalar_cpp": 0.9998482793455834
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3947004703.0,
+          "base-scalar": 3947005326.0,
+          "cpp-default": 3870401685.0,
+          "cpp-scalar": 3870401433.0,
+          "train-default": 3947004746.0,
+          "train-scalar": 3947004686.0
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 1.0000000108943372,
+          "default_cpp": 1.0197920183057176,
+          "scalar_base": 0.9999998378517516,
+          "scalar_cpp": 1.0197920692016238
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 13316595068.0,
+          "base-scalar": 13316595479.0,
+          "cpp-default": 13286169820.0,
+          "cpp-scalar": 13286169657.0,
+          "train-default": 13316595055.0,
+          "train-scalar": 13316597058.0
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 0.9999999990237745,
+          "default_cpp": 1.0022899929334186,
+          "scalar_base": 1.0000001185738503,
+          "scalar_cpp": 1.0022901559881834
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 14357736751.0,
+          "base-scalar": 14357737023.0,
+          "cpp-default": 14278321990.0,
+          "cpp-scalar": 14278320638.0,
+          "train-default": 14357736600.0,
+          "train-scalar": 14357736817.0
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 0.9999999894830222,
+          "default_cpp": 1.0055619007650631,
+          "scalar_base": 0.999999985652335,
+          "scalar_cpp": 1.0055620111785866
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3456872529.0,
+          "base-scalar": 3456872523.0,
+          "cpp-default": 3427834571.0,
+          "cpp-scalar": 3427834562.0,
+          "train-default": 3456872564.0,
+          "train-scalar": 3456872549.0
+        },
+        "op": "meshlets",
+        "ratios": {
+          "default_base": 1.0000000101247586,
+          "default_cpp": 1.0084712352356984,
+          "scalar_base": 1.0000000075212492,
+          "scalar_cpp": 1.0084712335075638
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 58155.031,
+          "base-scalar": 58155.004,
+          "cpp-default": 44942.234,
+          "cpp-scalar": 44942.226,
+          "train-default": 58154.997,
+          "train-scalar": 58154.994
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 0.999999415355827,
+          "default_cpp": 1.2939943528396922,
+          "scalar_base": 0.9999998280457516,
+          "scalar_cpp": 1.2939945164264892
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 26865576.0,
+          "base-scalar": 26865576.333333332,
+          "cpp-default": 26953160.0,
+          "cpp-scalar": 26953160.0,
+          "train-default": 26865586.0,
+          "train-scalar": 26865566.333333332
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 1.0000003722235473,
+          "default_cpp": 0.996750881900304,
+          "scalar_base": 0.9999996277764572,
+          "scalar_cpp": 0.9967501522394158
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 20801276.666666668,
+          "base-scalar": 20801280.666666668,
+          "cpp-default": 20691377.0,
+          "cpp-scalar": 20691380.0,
+          "train-default": 20801273.0,
+          "train-scalar": 20801286.666666668
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 0.9999998237287678,
+          "default_cpp": 1.005311197993251,
+          "scalar_base": 1.0000002884437789,
+          "scalar_cpp": 1.0053117127357705
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 26977680.333333332,
+          "base-scalar": 26977672.666666668,
+          "cpp-default": 26981237.666666668,
+          "cpp-scalar": 26981239.666666668,
+          "train-default": 26977699.333333332,
+          "train-scalar": 26977681.0
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 1.0000007042859047,
+          "default_cpp": 0.9998688594875799,
+          "scalar_base": 1.0000003088974143,
+          "scalar_cpp": 0.9998681058872523
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3954945356.0,
+          "base-scalar": 3954945251.0,
+          "cpp-default": 3875327434.0,
+          "cpp-scalar": 3875327310.0,
+          "train-default": 3954945287.0,
+          "train-scalar": 3954945363.0
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 0.9999999825534884,
+          "default_cpp": 1.0205448066920686,
+          "scalar_base": 1.000000028318976,
+          "scalar_cpp": 1.0205448589579909
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 13316601227.0,
+          "base-scalar": 13316599853.0,
+          "cpp-default": 13285974665.0,
+          "cpp-scalar": 13285976939.0,
+          "train-default": 13316599319.0,
+          "train-scalar": 13316599532.0
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 0.999999856720197,
+          "default_cpp": 1.0023050363087531,
+          "scalar_base": 0.9999999758947477,
+          "scalar_cpp": 1.0023048807882626
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 14357743822.0,
+          "base-scalar": 14357742340.0,
+          "cpp-default": 14278108595.0,
+          "cpp-scalar": 14278106856.0,
+          "train-default": 14357743498.0,
+          "train-scalar": 14357741308.0
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 0.9999999774337804,
+          "default_cpp": 1.0055774126152737,
+          "scalar_base": 0.9999999281224042,
+          "scalar_cpp": 1.0055773817077531
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3456872627.0,
+          "base-scalar": 3456872622.0,
+          "cpp-default": 3427779853.0,
+          "cpp-scalar": 3427779878.0,
+          "train-default": 3456872608.0,
+          "train-scalar": 3456872624.0
+        },
+        "op": "meshlets-flex",
+        "ratios": {
+          "default_base": 0.9999999945037026,
+          "default_cpp": 1.008487346401356,
+          "scalar_base": 1.0000000005785576,
+          "scalar_cpp": 1.0084873437138486
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 46551.146,
+          "base-scalar": 46552.136,
+          "cpp-default": 47727.263,
+          "cpp-scalar": 47727.225,
+          "train-default": 46551.118,
+          "train-scalar": 46552.128
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 0.9999993985110485,
+          "default_cpp": 0.9753569568822751,
+          "scalar_base": 0.9999998281496686,
+          "scalar_cpp": 0.9753788953788953
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 23115210.666666668,
+          "base-scalar": 24700143.0,
+          "cpp-default": 21769048.0,
+          "cpp-scalar": 25642091.0,
+          "train-default": 23115211.333333332,
+          "train-scalar": 24700137.0
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 1.0000000288410378,
+          "default_cpp": 1.0618384108176586,
+          "scalar_base": 0.9999997570864266,
+          "scalar_cpp": 0.9632653202892073
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 23189027.333333332,
+          "base-scalar": 24769824.666666668,
+          "cpp-default": 21785110.0,
+          "cpp-scalar": 25658739.333333332,
+          "train-default": 23189056.0,
+          "train-scalar": 24769839.666666668
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 1.0000012362168649,
+          "default_cpp": 1.0644452105130522,
+          "scalar_base": 1.0000006055755422,
+          "scalar_cpp": 0.9653568456688792
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 23187805.333333332,
+          "base-scalar": 24772734.333333332,
+          "cpp-default": 21768392.333333332,
+          "cpp-scalar": 25641459.666666668,
+          "train-default": 23187805.0,
+          "train-scalar": 24772727.0
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 0.9999999856246278,
+          "default_cpp": 1.0652052133630998,
+          "scalar_base": 0.9999997039756195,
+          "scalar_cpp": 0.9661199994867686
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 4767134898.0,
+          "base-scalar": 5160540513.0,
+          "cpp-default": 4576733508.0,
+          "cpp-scalar": 5505165832.0,
+          "train-default": 4767135196.0,
+          "train-scalar": 5160541202.0
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 1.000000062511342,
+          "default_cpp": 1.041602091899645,
+          "scalar_base": 1.000000133513146,
+          "scalar_cpp": 0.9373997731372972
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 18181388395.0,
+          "base-scalar": 19573307076.0,
+          "cpp-default": 17115095016.0,
+          "cpp-scalar": 20501099428.0,
+          "train-default": 18181391180.0,
+          "train-scalar": 19573306806.0
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 1.000000153178621,
+          "default_cpp": 1.0623015041986723,
+          "scalar_base": 0.9999999862057035,
+          "scalar_cpp": 0.9547442504116224
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 21128190394.0,
+          "base-scalar": 22752403244.0,
+          "cpp-default": 19903770508.0,
+          "cpp-scalar": 23847652281.0,
+          "train-default": 21128190230.0,
+          "train-scalar": 22752403591.0
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 0.9999999922378586,
+          "default_cpp": 1.0615169734552488,
+          "scalar_base": 1.0000000152511361,
+          "scalar_cpp": 0.9540731021613976
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 4741056620.0,
+          "base-scalar": 5096382442.0,
+          "cpp-default": 4458452505.0,
+          "cpp-scalar": 5326522820.0,
+          "train-default": 4741056767.0,
+          "train-scalar": 5096382508.0
+        },
+        "op": "meshlets-spatial",
+        "ratios": {
+          "default_base": 1.0000000310057466,
+          "default_cpp": 1.063386177532018,
+          "scalar_base": 1.0000000129503626,
+          "scalar_cpp": 0.9567935180647551
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 94133.3,
+          "base-scalar": 95427.2,
+          "cpp-default": 75640.3,
+          "cpp-scalar": 75638.5,
+          "train-default": 94136.0,
+          "train-scalar": 95434.2
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 1.0000286827297036,
+          "default_cpp": 1.244521769480026,
+          "scalar_base": 1.0000733543476075,
+          "scalar_cpp": 1.2617146030130157
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 113337517.0,
+          "base-scalar": 113517884.0,
+          "cpp-default": 99784757.0,
+          "cpp-scalar": 99784786.0,
+          "train-default": 113337376.0,
+          "train-scalar": 113517724.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.9999987559282775,
+          "default_cpp": 1.135818529878266,
+          "scalar_base": 0.9999985905304577,
+          "scalar_cpp": 1.137625569493129
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 110678415.0,
+          "base-scalar": 110857489.0,
+          "cpp-default": 94524881.0,
+          "cpp-scalar": 94524872.0,
+          "train-default": 110678295.0,
+          "train-scalar": 110857400.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.9999989157777512,
+          "default_cpp": 1.1708906039246958,
+          "scalar_base": 0.9999991971674552,
+          "scalar_cpp": 1.1727855077127214
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 115137474.0,
+          "base-scalar": 115317826.0,
+          "cpp-default": 100758232.0,
+          "cpp-scalar": 100758226.0,
+          "train-default": 115137364.0,
+          "train-scalar": 115317717.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.9999990446203466,
+          "default_cpp": 1.1427092527784728,
+          "scalar_base": 0.9999990547862045,
+          "scalar_cpp": 1.144499278897586
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 14914377294.0,
+          "base-scalar": 14936133872.0,
+          "cpp-default": 13010908556.0,
+          "cpp-scalar": 13010908325.0,
+          "train-default": 14914353686.0,
+          "train-scalar": 14936117192.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.9999984170978422,
+          "default_cpp": 1.1462960962186013,
+          "scalar_base": 0.9999988832451461,
+          "scalar_cpp": 1.1479688288403953
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 80367026979.0,
+          "base-scalar": 80439230287.0,
+          "cpp-default": 65734586314.0,
+          "cpp-scalar": 65734579552.0,
+          "train-default": 80366912982.0,
+          "train-scalar": 80439116276.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.99999858154514,
+          "default_cpp": 1.2225970754285198,
+          "scalar_base": 0.9999985826443193,
+          "scalar_cpp": 1.2236956077640662
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 90915939598.0,
+          "base-scalar": 90998379952.0,
+          "cpp-default": 74323707076.0,
+          "cpp-scalar": 74323706766.0,
+          "train-default": 90915817491.0,
+          "train-scalar": 90998310986.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.9999986569241814,
+          "default_cpp": 1.2232411577376472,
+          "scalar_base": 0.9999992421183758,
+          "scalar_cpp": 1.2243510845402013
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 22522790572.0,
+          "base-scalar": 22543480820.0,
+          "cpp-default": 18417733614.0,
+          "cpp-scalar": 18417733611.0,
+          "train-default": 22522759739.0,
+          "train-scalar": 22543450050.0
+        },
+        "op": "cluster-lod",
+        "ratios": {
+          "default_base": 0.9999986310310927,
+          "default_cpp": 1.2228844336134614,
+          "scalar_base": 0.9999986350821222,
+          "scalar_cpp": 1.2240078245314567
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 13796.066,
+          "base-scalar": 13796.076,
+          "cpp-default": 33088.141,
+          "cpp-scalar": 33088.067,
+          "train-default": 13796.13,
+          "train-scalar": 13796.066
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 1.0000046390036115,
+          "default_cpp": 0.4169508948840613,
+          "scalar_base": 0.9999992751562112,
+          "scalar_cpp": 0.4169498931442565
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1225696.3333333333,
+          "base-scalar": 1225688.3333333333,
+          "cpp-default": 2202268.6666666665,
+          "cpp-scalar": 2202271.6666666665,
+          "train-default": 1225699.3333333333,
+          "train-scalar": 1225694.3333333333
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 1.000002447588296,
+          "default_cpp": 0.5565621269944963,
+          "scalar_base": 1.0000048952085427,
+          "scalar_cpp": 0.5565590984460742
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1552688.3333333333,
+          "base-scalar": 1552363.3333333333,
+          "cpp-default": 2673236.3333333335,
+          "cpp-scalar": 2673236.3333333335,
+          "train-default": 1552360.3333333333,
+          "train-scalar": 1552363.3333333333
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 0.9997887534845478,
+          "default_cpp": 0.5807044869084401,
+          "scalar_base": 1.0,
+          "scalar_cpp": 0.5807056091436733
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2126056.6666666665,
+          "base-scalar": 2126053.3333333335,
+          "cpp-default": 3657391.3333333335,
+          "cpp-scalar": 3657385.3333333335,
+          "train-default": 2126056.3333333335,
+          "train-scalar": 2126072.3333333335
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 0.9999998432152171,
+          "default_cpp": 0.5813040332754476,
+          "scalar_base": 1.000008936746648,
+          "scalar_cpp": 0.5813093616240965
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 145102098.0,
+          "base-scalar": 145102032.0,
+          "cpp-default": 243854161.0,
+          "cpp-scalar": 243854160.0,
+          "train-default": 145102037.0,
+          "train-scalar": 145102031.0
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 0.9999995796063541,
+          "default_cpp": 0.5950361330926808,
+          "scalar_base": 0.9999999931082978,
+          "scalar_cpp": 0.5950361109279415
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2525485215.0,
+          "base-scalar": 2525485085.0,
+          "cpp-default": 4731049245.0,
+          "cpp-scalar": 4731049679.0,
+          "train-default": 2525485068.0,
+          "train-scalar": 2525485025.0
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 0.9999999417933635,
+          "default_cpp": 0.5338107758377392,
+          "scalar_base": 0.999999976242188,
+          "scalar_cpp": 0.5338107177800362
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2902631406.0,
+          "base-scalar": 2902631438.0,
+          "cpp-default": 5085025225.0,
+          "cpp-scalar": 5085025213.0,
+          "train-default": 2902631407.0,
+          "train-scalar": 2902631463.0
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 1.000000000344515,
+          "default_cpp": 0.5708194706153105,
+          "scalar_base": 1.0000000086128744,
+          "scalar_cpp": 0.5708194829750984
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 680004494.0,
+          "base-scalar": 680004481.0,
+          "cpp-default": 1277171849.0,
+          "cpp-scalar": 1277171843.0,
+          "train-default": 680004484.0,
+          "train-scalar": 680004485.0
+        },
+        "op": "vertex-encode",
+        "ratios": {
+          "default_base": 0.9999999852942149,
+          "default_cpp": 0.5324299032525889,
+          "scalar_base": 1.0000000058823142,
+          "scalar_cpp": 0.5324299065368606
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3969.01,
+          "base-scalar": 6294.0,
+          "cpp-default": 2825.621,
+          "cpp-scalar": 5485.595,
+          "train-default": 3968.991,
+          "train-scalar": 6301.055
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 0.999995212912036,
+          "default_cpp": 1.404643793346666,
+          "scalar_base": 1.0011209088020336,
+          "scalar_cpp": 1.1486547949675467
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 165432.33333333334,
+          "base-scalar": 723152.6666666666,
+          "cpp-default": 172944.33333333334,
+          "cpp-scalar": 561386.3333333334,
+          "train-default": 165429.33333333334,
+          "train-scalar": 723167.6666666666
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 0.9999818656973546,
+          "default_cpp": 0.9565467115622946,
+          "scalar_base": 1.0000207425080365,
+          "scalar_cpp": 1.2881818165624503
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 210902.33333333334,
+          "base-scalar": 921750.6666666666,
+          "cpp-default": 199867.66666666666,
+          "cpp-scalar": 810001.3333333334,
+          "train-default": 210899.33333333334,
+          "train-scalar": 921750.3333333334
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 0.9999857754063097,
+          "default_cpp": 1.0551948539283493,
+          "scalar_base": 0.999999638369306,
+          "scalar_cpp": 1.1379615012979403
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 256418.33333333334,
+          "base-scalar": 1299444.6666666667,
+          "cpp-default": 218686.33333333334,
+          "cpp-scalar": 1043485.3333333334,
+          "train-default": 256421.33333333334,
+          "train-scalar": 1299448.3333333333
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 1.0000116996314616,
+          "default_cpp": 1.1725530783054572,
+          "scalar_base": 1.0000028217182004,
+          "scalar_cpp": 1.2452962124367823
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 18691890.0,
+          "base-scalar": 87534327.0,
+          "cpp-default": 17352281.0,
+          "cpp-scalar": 83366936.0,
+          "train-default": 18691886.0,
+          "train-scalar": 87534295.0
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 0.9999997860034485,
+          "default_cpp": 1.077200513292748,
+          "scalar_base": 0.9999996344291309,
+          "scalar_cpp": 1.0499881511778242
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 356331328.0,
+          "base-scalar": 1406911473.0,
+          "cpp-default": 365791985.0,
+          "cpp-scalar": 1227542722.0,
+          "train-default": 356331335.0,
+          "train-scalar": 1406911573.0
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 1.0000000196446381,
+          "default_cpp": 0.974136530082801,
+          "scalar_base": 1.0000000710776775,
+          "scalar_cpp": 1.1461202512836046
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 410352728.0,
+          "base-scalar": 1556800922.0,
+          "cpp-default": 410936234.0,
+          "cpp-scalar": 1414333931.0,
+          "train-default": 410352727.0,
+          "train-scalar": 1556800943.0
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 0.9999999975630721,
+          "default_cpp": 0.9985800546368954,
+          "scalar_base": 1.0000000134892006,
+          "scalar_cpp": 1.100730816731003
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 96436736.0,
+          "base-scalar": 376179170.0,
+          "cpp-default": 100123281.0,
+          "cpp-scalar": 330737004.0,
+          "train-default": 96436754.0,
+          "train-scalar": 376179169.0
+        },
+        "op": "vertex-decode",
+        "ratios": {
+          "default_base": 1.000000186650863,
+          "default_cpp": 0.9631801219139033,
+          "scalar_base": 0.9999999973416922,
+          "scalar_cpp": 1.1373966760610796
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 4678.982,
+          "base-scalar": 4679.018,
+          "cpp-default": 5823.528,
+          "cpp-scalar": 5823.563,
+          "train-default": 4679.047,
+          "train-scalar": 4678.991
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 1.0000138919106762,
+          "default_cpp": 0.8034729119530291,
+          "scalar_base": 0.9999942295584244,
+          "scalar_cpp": 0.8034584669213676
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1146908.6666666667,
+          "base-scalar": 1146896.6666666667,
+          "cpp-default": 1183493.3333333333,
+          "cpp-scalar": 1183487.3333333333,
+          "train-default": 1146893.6666666667,
+          "train-scalar": 1146884.3333333333
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 0.9999869213648515,
+          "default_cpp": 0.9690748856492645,
+          "scalar_base": 0.9999892463430299,
+          "scalar_cpp": 0.9690719123314092
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1437524.0,
+          "base-scalar": 1437502.6666666667,
+          "cpp-default": 1495506.6666666667,
+          "cpp-scalar": 1495509.3333333333,
+          "train-default": 1437502.3333333333,
+          "train-scalar": 1437496.3333333333
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 0.9999849277878723,
+          "default_cpp": 0.9612142596043257,
+          "scalar_base": 0.9999955942110715,
+          "scalar_cpp": 0.9612085336367008
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1406428.3333333333,
+          "base-scalar": 1406422.3333333333,
+          "cpp-default": 1396321.3333333333,
+          "cpp-scalar": 1396324.3333333333,
+          "train-default": 1406422.3333333333,
+          "train-scalar": 1406422.3333333333
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 0.9999957338743413,
+          "default_cpp": 1.0072340082177837,
+          "scalar_base": 1.0,
+          "scalar_cpp": 1.0072318441775585
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 137819470.0,
+          "base-scalar": 137819445.0,
+          "cpp-default": 141292835.0,
+          "cpp-scalar": 141292828.0,
+          "train-default": 137819466.0,
+          "train-scalar": 137819459.0
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 0.9999999709765246,
+          "default_cpp": 0.9754172318787432,
+          "scalar_base": 1.0000001015821824,
+          "scalar_cpp": 0.9754172306608514
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 707960741.0,
+          "base-scalar": 707960753.0,
+          "cpp-default": 1089075815.0,
+          "cpp-scalar": 1089075871.0,
+          "train-default": 707960803.0,
+          "train-scalar": 707960714.0
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 1.0000000875754775,
+          "default_cpp": 0.650056491246204,
+          "scalar_base": 0.9999999449122006,
+          "scalar_cpp": 0.6500563760998062
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1405952193.0,
+          "base-scalar": 1405952209.0,
+          "cpp-default": 1301754637.0,
+          "cpp-scalar": 1301754666.0,
+          "train-default": 1405952294.0,
+          "train-scalar": 1405952218.0
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 1.0000000718374356,
+          "default_cpp": 1.08004400678774,
+          "scalar_base": 1.0000000064013557,
+          "scalar_cpp": 1.0800439243441897
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 185402784.0,
+          "base-scalar": 185402830.0,
+          "cpp-default": 285554266.0,
+          "cpp-scalar": 285554312.0,
+          "train-default": 185402780.0,
+          "train-scalar": 185402787.0
+        },
+        "op": "index-encode",
+        "ratios": {
+          "default_base": 0.9999999784253509,
+          "default_cpp": 0.6492733678858785,
+          "scalar_base": 0.9999997680725802,
+          "scalar_cpp": 0.6492732878080301
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2432.019,
+          "base-scalar": 2358.992,
+          "cpp-default": 2172.594,
+          "cpp-scalar": 2172.648,
+          "train-default": 2431.983,
+          "train-scalar": 2358.983
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 0.9999851974840659,
+          "default_cpp": 1.1193913819148906,
+          "scalar_base": 0.9999961848111397,
+          "scalar_cpp": 1.085764007791414
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 432238.3333333333,
+          "base-scalar": 415845.3333333333,
+          "cpp-default": 398476.6666666667,
+          "cpp-scalar": 398452.3333333333,
+          "train-default": 432241.3333333333,
+          "train-scalar": 415854.3333333333
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 1.000006940615324,
+          "default_cpp": 1.0847343633671565,
+          "scalar_base": 1.0000216426620154,
+          "scalar_cpp": 1.0436739819150262
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 536842.6666666666,
+          "base-scalar": 513389.3333333333,
+          "cpp-default": 495660.3333333333,
+          "cpp-scalar": 495661.0,
+          "train-default": 536841.6666666666,
+          "train-scalar": 513395.3333333333
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 0.9999981372568499,
+          "default_cpp": 1.0830837784746408,
+          "scalar_base": 1.0000116870367388,
+          "scalar_cpp": 1.0357791582015397
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 557205.6666666666,
+          "base-scalar": 532693.3333333334,
+          "cpp-default": 530842.3333333334,
+          "cpp-scalar": 530842.3333333334,
+          "train-default": 557205.3333333334,
+          "train-scalar": 532711.0
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 0.9999994017768425,
+          "default_cpp": 1.0496625802890627,
+          "scalar_base": 1.0000331647977572,
+          "scalar_cpp": 1.0035201914943985
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 52046865.0,
+          "base-scalar": 50046855.0,
+          "cpp-default": 48038180.0,
+          "cpp-scalar": 48038117.0,
+          "train-default": 52046928.0,
+          "train-scalar": 50046846.0
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 1.0000012104475458,
+          "default_cpp": 1.0834492064437078,
+          "scalar_base": 0.9999998201685201,
+          "scalar_cpp": 1.0418153151173681
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 167346441.0,
+          "base-scalar": 161644423.0,
+          "cpp-default": 175021744.0,
+          "cpp-scalar": 175021724.0,
+          "train-default": 167346445.0,
+          "train-scalar": 161644432.0
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 1.0000000239025102,
+          "default_cpp": 0.9561465974193469,
+          "scalar_base": 1.0000000556777637,
+          "scalar_cpp": 0.9235678195010809
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 391561067.0,
+          "base-scalar": 383837260.0,
+          "cpp-default": 333348445.0,
+          "cpp-scalar": 333348417.0,
+          "train-default": 391561094.0,
+          "train-scalar": 383837252.0
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 1.0000000689547615,
+          "default_cpp": 1.1746300301475832,
+          "scalar_base": 0.9999999791578337,
+          "scalar_cpp": 1.1514596512993192
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 47213882.0,
+          "base-scalar": 45569048.0,
+          "cpp-default": 49351913.0,
+          "cpp-scalar": 49351967.0,
+          "train-default": 47213891.0,
+          "train-scalar": 45569029.0
+        },
+        "op": "index-decode",
+        "ratios": {
+          "default_base": 1.0000001906219023,
+          "default_cpp": 0.9566780319133729,
+          "scalar_base": 0.9999995830503196,
+          "scalar_cpp": 0.9233477765941933
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 915.009,
+          "base-scalar": 914.982,
+          "cpp-default": 899.603,
+          "cpp-scalar": 899.603,
+          "train-default": 914.991,
+          "train-scalar": 914.973
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 0.9999803280623469,
+          "default_cpp": 1.0171053231258678,
+          "scalar_base": 0.9999901637409261,
+          "scalar_cpp": 1.0170853142997522
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 62137.333333333336,
+          "base-scalar": 62140.333333333336,
+          "cpp-default": 57182.666666666664,
+          "cpp-scalar": 57197.666666666664,
+          "train-default": 62131.333333333336,
+          "train-scalar": 62134.333333333336
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 0.9999034396927237,
+          "default_cpp": 1.0865413761745986,
+          "scalar_base": 0.999903444354445,
+          "scalar_cpp": 1.0863088820639537
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 75660.33333333333,
+          "base-scalar": 75678.66666666667,
+          "cpp-default": 69639.33333333333,
+          "cpp-scalar": 69639.33333333333,
+          "train-default": 75663.33333333333,
+          "train-scalar": 75666.33333333333
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 1.00003965089589,
+          "default_cpp": 1.0865028384342181,
+          "scalar_base": 0.999837030250709,
+          "scalar_cpp": 1.086545917537024
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 92246.33333333333,
+          "base-scalar": 92243.66666666667,
+          "cpp-default": 86753.33333333333,
+          "cpp-scalar": 86753.33333333333,
+          "train-default": 92246.33333333333,
+          "train-scalar": 92240.33333333333
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 1.0,
+          "default_cpp": 1.0633174517789903,
+          "scalar_base": 0.9999638638244359,
+          "scalar_cpp": 1.0632482901713671
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 7097278.0,
+          "base-scalar": 7097315.0,
+          "cpp-default": 6532807.0,
+          "cpp-scalar": 6532676.0,
+          "train-default": 7097278.0,
+          "train-scalar": 7097268.0
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 1.0,
+          "default_cpp": 1.0864055833885802,
+          "scalar_base": 0.9999933777773707,
+          "scalar_cpp": 1.086425838354757
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 96040936.0,
+          "base-scalar": 96040942.0,
+          "cpp-default": 88392521.0,
+          "cpp-scalar": 88392552.0,
+          "train-default": 96040944.0,
+          "train-scalar": 96041022.0
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 1.0000000832978138,
+          "default_cpp": 1.086527942788282,
+          "scalar_base": 1.0000008329780856,
+          "scalar_cpp": 1.086528444161223
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 102241367.0,
+          "base-scalar": 102241361.0,
+          "cpp-default": 94099175.0,
+          "cpp-scalar": 94099117.0,
+          "train-default": 102241348.0,
+          "train-scalar": 102241366.0
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 0.999999814165239,
+          "default_cpp": 1.0865275705127064,
+          "scalar_base": 1.0000000489038874,
+          "scalar_cpp": 1.0865284315048356
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 25562827.0,
+          "base-scalar": 25562827.0,
+          "cpp-default": 23527154.0,
+          "cpp-scalar": 23527117.0,
+          "train-default": 25562838.0,
+          "train-scalar": 25562847.0
+        },
+        "op": "remap-vertex",
+        "ratios": {
+          "default_base": 1.0000004303123438,
+          "default_cpp": 1.08652487249414,
+          "scalar_base": 1.0000007823860797,
+          "scalar_cpp": 1.086526963758458
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1278.973,
+          "base-scalar": 1279.009,
+          "cpp-default": 1089.621,
+          "cpp-scalar": 1089.594,
+          "train-default": 1278.973,
+          "train-scalar": 1279.018
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 1.0,
+          "default_cpp": 1.173777854868803,
+          "scalar_base": 1.0000070366979434,
+          "scalar_cpp": 1.1738482407208557
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 202067.33333333334,
+          "base-scalar": 202067.33333333334,
+          "cpp-default": 149643.33333333334,
+          "cpp-scalar": 149652.33333333334,
+          "train-default": 202076.33333333334,
+          "train-scalar": 202073.33333333334
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 1.0000445396089093,
+          "default_cpp": 1.3503864745060477,
+          "scalar_base": 1.0000296930726063,
+          "scalar_cpp": 1.3502852166243091
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 202078.33333333334,
+          "base-scalar": 202075.33333333334,
+          "cpp-default": 149645.33333333334,
+          "cpp-scalar": 149648.33333333334,
+          "train-default": 202066.33333333334,
+          "train-scalar": 202069.33333333334
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 0.9999406170874331,
+          "default_cpp": 1.350301602010086,
+          "scalar_base": 0.9999703081029188,
+          "scalar_cpp": 1.3502945795141943
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 202069.33333333334,
+          "base-scalar": 202069.33333333334,
+          "cpp-default": 149648.33333333334,
+          "cpp-scalar": 149645.33333333334,
+          "train-default": 202072.33333333334,
+          "train-scalar": 202066.33333333334
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 1.0000148463893581,
+          "default_cpp": 1.35031462651327,
+          "scalar_base": 0.9999851536106419,
+          "scalar_cpp": 1.350301602010086
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 24380712.0,
+          "base-scalar": 24380729.0,
+          "cpp-default": 18005506.0,
+          "cpp-scalar": 18005559.0,
+          "train-default": 24380702.0,
+          "train-scalar": 24380702.0
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 0.999999589839706,
+          "default_cpp": 1.3540692497061733,
+          "scalar_base": 0.9999988925679786,
+          "scalar_cpp": 1.3540652639554263
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 69507244.0,
+          "base-scalar": 69507252.0,
+          "cpp-default": 51331854.0,
+          "cpp-scalar": 51331856.0,
+          "train-default": 69507270.0,
+          "train-scalar": 69507286.0
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 1.000000374061731,
+          "default_cpp": 1.3540767493026844,
+          "scalar_base": 1.0000004891575918,
+          "scalar_cpp": 1.3540770082422113
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 80202480.0,
+          "base-scalar": 80202477.0,
+          "cpp-default": 59230710.0,
+          "cpp-scalar": 59230263.0,
+          "train-default": 80202487.0,
+          "train-scalar": 80202470.0
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 1.0000000872790966,
+          "default_cpp": 1.3540693164069788,
+          "scalar_base": 0.9999999127209002,
+          "scalar_cpp": 1.3540792483058872
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 20052647.0,
+          "base-scalar": 20052646.0,
+          "cpp-default": 14809421.0,
+          "cpp-scalar": 14809440.0,
+          "train-default": 20052665.0,
+          "train-scalar": 20052673.0
+        },
+        "op": "remap-index",
+        "ratios": {
+          "default_base": 1.0000008976371049,
+          "default_cpp": 1.3540478726345886,
+          "scalar_base": 1.0000013464557247,
+          "scalar_cpp": 1.35404667563392
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 14406.38,
+          "base-scalar": 15700.2,
+          "cpp-default": 13249.39,
+          "cpp-scalar": 13249.65,
+          "train-default": 14406.56,
+          "train-scalar": 15700.2
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 1.000012494464258,
+          "default_cpp": 1.0873376057312827,
+          "scalar_base": 1.0,
+          "scalar_cpp": 1.184952055337311
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2842424.0,
+          "base-scalar": 3030410.0,
+          "cpp-default": 2739775.0,
+          "cpp-scalar": 2739784.0,
+          "train-default": 2842405.0,
+          "train-scalar": 3030409.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 0.9999933155644619,
+          "default_cpp": 1.0374592804153626,
+          "scalar_base": 0.9999996700116486,
+          "scalar_cpp": 1.10607588043437
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2974874.0,
+          "base-scalar": 3160275.0,
+          "cpp-default": 2840289.0,
+          "cpp-scalar": 2840280.0,
+          "train-default": 2974910.0,
+          "train-scalar": 3160283.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 1.000012101352864,
+          "default_cpp": 1.0473969374243255,
+          "scalar_base": 1.0000025314252716,
+          "scalar_cpp": 1.112666004760094
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2842512.0,
+          "base-scalar": 3030562.0,
+          "cpp-default": 2739900.0,
+          "cpp-scalar": 2739865.0,
+          "train-default": 2842530.0,
+          "train-scalar": 3030543.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 1.0000063324270927,
+          "default_cpp": 1.0374575714442134,
+          "scalar_base": 0.9999937305357884,
+          "scalar_cpp": 1.106092088478812
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 344663742.0,
+          "base-scalar": 367185154.0,
+          "cpp-default": 333455531.0,
+          "cpp-scalar": 333455969.0,
+          "train-default": 344663773.0,
+          "train-scalar": 367185133.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 1.0000000899427361,
+          "default_cpp": 1.0336124039280068,
+          "scalar_base": 0.9999999428081452,
+          "scalar_cpp": 1.1011502781046334
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1790804721.0,
+          "base-scalar": 1877698623.0,
+          "cpp-default": 1724355453.0,
+          "cpp-scalar": 1724355427.0,
+          "train-default": 1790804745.0,
+          "train-scalar": 1877698515.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 1.0000000134017963,
+          "default_cpp": 1.0385357275870197,
+          "scalar_base": 0.9999999424827826,
+          "scalar_cpp": 1.088927773009526
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1962364340.0,
+          "base-scalar": 2056083977.0,
+          "cpp-default": 1888583047.0,
+          "cpp-scalar": 1888583037.0,
+          "train-default": 1962364289.0,
+          "train-scalar": 2056083966.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 0.9999999740109423,
+          "default_cpp": 1.0390669831105395,
+          "scalar_base": 0.999999994650024,
+          "scalar_cpp": 1.0886913234517206
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 490791571.0,
+          "base-scalar": 514241205.0,
+          "cpp-default": 472244758.0,
+          "cpp-scalar": 472244752.0,
+          "train-default": 490791513.0,
+          "train-scalar": 514241204.0
+        },
+        "op": "cluster-bounds",
+        "ratios": {
+          "default_base": 0.9999998818235614,
+          "default_cpp": 1.0392736069290578,
+          "scalar_base": 0.9999999980553873,
+          "scalar_cpp": 1.0889294202257223
+        }
+      },
+      {
+        "case": "tiny-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 14892.21,
+          "base-scalar": 16185.2,
+          "cpp-default": 13164.2,
+          "cpp-scalar": 13164.29,
+          "train-default": 14891.38,
+          "train-scalar": 16185.38
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 0.9999442661633162,
+          "default_cpp": 1.131202807614591,
+          "scalar_base": 1.0000111212712848,
+          "scalar_cpp": 1.2294912980494959
+        }
+      },
+      {
+        "case": "medium-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2997428.0,
+          "base-scalar": 3185441.0,
+          "cpp-default": 2715627.0,
+          "cpp-scalar": 2715636.0,
+          "train-default": 2997437.0,
+          "train-scalar": 3185459.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 1.000003002574207,
+          "default_cpp": 1.1037734563693762,
+          "scalar_base": 1.0000056507089599,
+          "scalar_cpp": 1.1730066179708916
+        }
+      },
+      {
+        "case": "medium-seams",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 3129633.0,
+          "base-scalar": 3314951.0,
+          "cpp-default": 2816211.0,
+          "cpp-scalar": 2816193.0,
+          "train-default": 3129579.0,
+          "train-scalar": 3314960.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 0.9999827455807119,
+          "default_cpp": 1.1112729124344731,
+          "scalar_base": 1.0000027149722575,
+          "scalar_cpp": 1.1771068247098122
+        }
+      },
+      {
+        "case": "medium-sparse",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2997536.0,
+          "base-scalar": 3185595.0,
+          "cpp-default": 2715724.0,
+          "cpp-scalar": 2715816.0,
+          "train-default": 2997536.0,
+          "train-scalar": 3185539.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 1.0,
+          "default_cpp": 1.1037704862497073,
+          "scalar_base": 0.9999824208664315,
+          "scalar_cpp": 1.1729583300194122
+        }
+      },
+      {
+        "case": "million-smooth",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 363592023.0,
+          "base-scalar": 386113402.0,
+          "cpp-default": 330507345.0,
+          "cpp-scalar": 330507347.0,
+          "train-default": 363591976.0,
+          "train-scalar": 386113357.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 0.9999998707342378,
+          "default_cpp": 1.1001025589915407,
+          "scalar_base": 0.9999998834539289,
+          "scalar_cpp": 1.1682443991176994
+        }
+      },
+      {
+        "case": "real-214e",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 1836687721.0,
+          "base-scalar": 1923581499.0,
+          "cpp-default": 1716343317.0,
+          "cpp-scalar": 1716343318.0,
+          "train-default": 1836687779.0,
+          "train-scalar": 1923581507.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 1.0000000315785853,
+          "default_cpp": 1.070116777225171,
+          "scalar_base": 1.0000000041589088,
+          "scalar_cpp": 1.1207440183013548
+        }
+      },
+      {
+        "case": "real-a082",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 2016358281.0,
+          "base-scalar": 2110077979.0,
+          "cpp-default": 1879289832.0,
+          "cpp-scalar": 1879289845.0,
+          "train-default": 2016358389.0,
+          "train-scalar": 2110078009.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 1.0000000535619096,
+          "default_cpp": 1.0729363585467429,
+          "scalar_base": 1.000000014217484,
+          "scalar_cpp": 1.1228060507079471
+        }
+      },
+      {
+        "case": "real-b6fd",
+        "identity": {
+          "base_train_default": true,
+          "base_train_scalar": true,
+          "train_cpp_default": true,
+          "train_cpp_scalar": true
+        },
+        "medians": {
+          "base-default": 504305496.0,
+          "base-scalar": 527755207.0,
+          "cpp-default": 469921519.0,
+          "cpp-scalar": 469921503.0,
+          "train-default": 504305474.0,
+          "train-scalar": 527755190.0
+        },
+        "op": "meshlet-bounds",
+        "ratios": {
+          "default_base": 0.999999956375649,
+          "default_cpp": 1.0731695689807301,
+          "scalar_base": 0.9999999677880961,
+          "scalar_cpp": 1.1230709525543887
+        }
+      }
+    ],
+    "measured_samples": 1008,
+    "regressions": [],
+    "samples": 1008,
+    "summary": [
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.0000006231792409,
+            "default_cpp": 1.0578752261242252,
+            "scalar_base": 1.0000000737650159,
+            "scalar_cpp": 1.057875280531178
+          },
+          "real": {
+            "default_base": 1.0000001471400237,
+            "default_cpp": 1.174240651206119,
+            "scalar_base": 0.9999998926978636,
+            "scalar_cpp": 1.1742402289594622
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000034998717728,
+        "max_scalar": 1.0000005626875845,
+        "op": "simplify"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999999323406684,
+            "default_cpp": 1.0684724469878435,
+            "scalar_base": 0.9999999310304203,
+            "scalar_cpp": 1.068472544272811
+          },
+          "real": {
+            "default_base": 0.9999998997551728,
+            "default_cpp": 1.1177548349041653,
+            "scalar_base": 0.9999999483579242,
+            "scalar_cpp": 1.1177547595109145
+          }
+        },
+        "identical": true,
+        "max_default": 1.000000079918169,
+        "max_scalar": 1.0000000387175192,
+        "op": "simplify-attributes"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.00000116277028,
+            "default_cpp": 1.281018628527741,
+            "scalar_base": 0.9999995266502206,
+            "scalar_cpp": 1.2810175033633038
+          },
+          "real": {
+            "default_base": 0.9999996782775414,
+            "default_cpp": 1.2836697960549934,
+            "scalar_base": 0.9999999408808747,
+            "scalar_cpp": 1.2836698294034776
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000050457267255,
+        "max_scalar": 1.0000016444982278,
+        "op": "simplify-sloppy"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999998026390746,
+            "default_cpp": 1.0763893744262591,
+            "scalar_base": 1.0000001653123758,
+            "scalar_cpp": 1.0763899482621841
+          },
+          "real": {
+            "default_base": 1.0000000757934044,
+            "default_cpp": 1.2383758388750135,
+            "scalar_base": 0.9999999584025547,
+            "scalar_cpp": 1.2383753563608697
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000007125340877,
+        "max_scalar": 1.0000012978368993,
+        "op": "simplify-update"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999980604565586,
+            "default_cpp": 1.0562905670807419,
+            "scalar_base": 0.9999989467156256,
+            "scalar_cpp": 1.0562846805464803
+          },
+          "real": {
+            "default_base": 1.000000053622763,
+            "default_cpp": 0.9712662195040643,
+            "scalar_base": 0.9999997397265263,
+            "scalar_cpp": 0.9712662139557228
+          }
+        },
+        "identical": true,
+        "max_default": 1.000003190294359,
+        "max_scalar": 1.000000628843676,
+        "op": "simplify-prune"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999985814957691,
+            "default_cpp": 1.0844155897183274,
+            "scalar_base": 1.0000011214349918,
+            "scalar_cpp": 1.0844140348780713
+          },
+          "real": {
+            "default_base": 1.000000024912911,
+            "default_cpp": 1.0321189571281058,
+            "scalar_base": 0.9999998406781108,
+            "scalar_cpp": 1.0321190291605074
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000053880521809,
+        "max_scalar": 1.0000035943373373,
+        "op": "simplify-points"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999994758087994,
+            "default_cpp": 1.0476456728076822,
+            "scalar_base": 0.9999998012361712,
+            "scalar_cpp": 1.0476455123476465
+          },
+          "real": {
+            "default_base": 1.000000065334393,
+            "default_cpp": 0.7064810088043048,
+            "scalar_base": 0.9999997290721518,
+            "scalar_cpp": 0.7064809288393197
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000007006467302,
+        "max_scalar": 1.0000000348505058,
+        "op": "cache"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999981997451525,
+            "default_cpp": 0.9388695797548531,
+            "scalar_base": 1.0000027497728423,
+            "scalar_cpp": 0.9388650406666748
+          },
+          "real": {
+            "default_base": 0.9999999656816343,
+            "default_cpp": 1.0958076210821852,
+            "scalar_base": 0.9999999321869902,
+            "scalar_cpp": 1.0958075939304512
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000037954953374,
+        "max_scalar": 1.0000080127275852,
+        "op": "overdraw"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.000006114081139,
+            "default_cpp": 1.1481969531053366,
+            "scalar_base": 1.0000053185448234,
+            "scalar_cpp": 1.1481965842311332
+          },
+          "real": {
+            "default_base": 0.9999998081413881,
+            "default_cpp": 0.9078307616604677,
+            "scalar_base": 0.999999925087802,
+            "scalar_cpp": 0.9078305921355929
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000273775292845,
+        "max_scalar": 1.0000144511686981,
+        "op": "fetch"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.0000001794953646,
+            "default_cpp": 1.0573669676548985,
+            "scalar_base": 1.0000000356813434,
+            "scalar_cpp": 1.0573668172403883
+          },
+          "real": {
+            "default_base": 0.9999999995438517,
+            "default_cpp": 1.0054378722063801,
+            "scalar_base": 1.000000037249143,
+            "scalar_cpp": 1.0054379629543235
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000006570133353,
+        "max_scalar": 1.0000003336113221,
+        "op": "meshlets"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.000000059629408,
+            "default_cpp": 1.0575938821313324,
+            "scalar_base": 1.000000016296441,
+            "scalar_cpp": 1.0575937137449711
+          },
+          "real": {
+            "default_base": 0.9999999428858914,
+            "default_cpp": 1.0054534266276256,
+            "scalar_base": 0.9999999681985694,
+            "scalar_cpp": 1.0054533634302447
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000007042859047,
+        "max_scalar": 1.0000003088974143,
+        "op": "meshlets-flex"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.000000142340805,
+            "default_cpp": 1.0411087374076973,
+            "scalar_base": 1.0000000056600244,
+            "scalar_cpp": 0.9614188111884427
+          },
+          "real": {
+            "default_base": 1.0000000588074063,
+            "default_cpp": 1.0624012753402732,
+            "scalar_base": 1.0000000048024007,
+            "scalar_cpp": 0.9552029229726133
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000012362168649,
+        "max_scalar": 1.0000006055755422,
+        "op": "meshlets-spatial"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.0000047631592455,
+            "default_cpp": 1.1673795069851984,
+            "scalar_base": 1.0000138155722715,
+            "scalar_cpp": 1.1720467550783076
+          },
+          "real": {
+            "default_base": 0.9999986231668042,
+            "default_cpp": 1.2229075272156165,
+            "scalar_base": 0.9999988199482276,
+            "scalar_cpp": 1.224018143005629
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000286827297036,
+        "max_scalar": 1.0000733543476075,
+        "op": "cluster-lod"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999590489522135,
+            "default_cpp": 0.5416267227490029,
+            "scalar_base": 1.000002620036937,
+            "scalar_cpp": 0.5416270712712539
+          },
+          "real": {
+            "default_base": 0.9999999758106976,
+            "default_cpp": 0.5454013199638685,
+            "scalar_base": 0.9999999969124588,
+            "scalar_cpp": 0.5454013052490013
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000046390036115,
+        "max_scalar": 1.000008936746648,
+        "op": "vertex-encode"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999948678741875,
+            "default_cpp": 1.1235873033525254,
+            "scalar_base": 1.0002286497080117,
+            "scalar_cpp": 1.170982125643566
+          },
+          "real": {
+            "default_base": 1.0000000679528542,
+            "default_cpp": 0.9785208322482033,
+            "scalar_base": 1.0000000273028562,
+            "scalar_cpp": 1.1279099352044928
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000116996314616,
+        "max_scalar": 1.0011209088020336,
+        "op": "vertex-decode"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999962891287975,
+            "default_cpp": 0.9403595025113677,
+            "scalar_base": 0.999995834330782,
+            "scalar_cpp": 0.9403540195932016
+          },
+          "real": {
+            "default_base": 1.000000045946087,
+            "default_cpp": 0.7696147454208064,
+            "scalar_base": 0.9999999064620404,
+            "scalar_cpp": 0.7696146487569411
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000138919106762,
+        "max_scalar": 1.0000001015821824,
+        "op": "index-encode"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999981774905282,
+            "default_cpp": 1.0838399026639505,
+            "scalar_base": 1.000012499801411,
+            "scalar_cpp": 1.041782034387877
+          },
+          "real": {
+            "default_base": 1.0000000944930556,
+            "default_cpp": 1.0242291415989464,
+            "scalar_base": 0.9999998726286176,
+            "scalar_cpp": 0.9939417685062913
+          }
+        },
+        "identical": true,
+        "max_default": 1.000006940615324,
+        "max_scalar": 1.0000331647977572,
+        "op": "index-decode"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999846827191393,
+            "default_cpp": 1.0676271230003904,
+            "scalar_base": 0.9999375742049404,
+            "scalar_cpp": 1.0675757874507803
+          },
+          "real": {
+            "default_base": 1.0000001092584336,
+            "default_cpp": 1.0865267952641815,
+            "scalar_base": 1.0000005547559534,
+            "scalar_cpp": 1.0865279464746167
+          }
+        },
+        "identical": true,
+        "max_default": 1.00003965089589,
+        "max_scalar": 1.0000008329780856,
+        "op": "remap-vertex"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999999180120077,
+            "default_cpp": 1.3137421206013304,
+            "scalar_base": 0.9999982166085635,
+            "scalar_cpp": 1.3137334989142062
+          },
+          "real": {
+            "default_base": 1.0000004529925879,
+            "default_cpp": 1.354064646059405,
+            "scalar_base": 1.0000005827778988,
+            "scalar_cpp": 1.354067643979187
+          }
+        },
+        "identical": true,
+        "max_default": 1.0000445396089093,
+        "max_scalar": 1.0000296930726063,
+        "op": "remap-index"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 1.000004866723391,
+            "default_cpp": 1.0484674809369294,
+            "scalar_base": 0.9999991749519285,
+            "scalar_cpp": 1.1217541366323076
+          },
+          "real": {
+            "default_base": 0.9999999564120985,
+            "default_cpp": 1.0389587260493423,
+            "scalar_base": 0.9999999783960642,
+            "scalar_cpp": 1.0888494998168787
+          }
+        },
+        "identical": true,
+        "max_default": 1.000012494464258,
+        "max_scalar": 1.0000025314252716,
+        "op": "cluster-bounds"
+      },
+      {
+        "groups": {
+          "corpus": {
+            "default_base": 0.9999859767675083,
+            "default_cpp": 1.1099684134576822,
+            "scalar_base": 1.000000358207434,
+            "scalar_cpp": 1.1839452464043994
+          },
+          "real": {
+            "default_base": 1.0000000138387137,
+            "default_cpp": 1.0720733366421145,
+            "scalar_base": 0.9999999953881628,
+            "scalar_cpp": 1.1222065249622473
+          }
+        },
+        "identical": true,
+        "max_default": 1.000003002574207,
+        "max_scalar": 1.0000111212712848,
+        "op": "meshlet-bounds"
+      }
+    ]
+  },
+  "campaign-failures": [],
+  "supplement-failures": [],
+  "bench": [
+    {
+      "mesh": "bunny",
+      "build": {
+        "1": {
+          "ours": 966.577792,
+          "reference": 455.40197400000005,
+          "ratio": 2.122471678175027
+        },
+        "8": {
+          "ours": 336.36352899999997,
+          "reference": 453.87271699999997,
+          "ratio": 0.7410966035219958
+        }
+      },
+      "bytes": {
+        "file_bytes": {
+          "ours": 13.12989932910088,
+          "bevy": 13.011237898894953
+        },
+        "resident_bytes": {
+          "ours": 14.917625694499492,
+          "bevy": 13.781686333590432
+        }
+      },
+      "triangles": {
+        "5": 0.7212236712913747,
+        "8": 0.7939487913076717
+      },
+      "claimed": {
+        "ours": 0.9999973854549695,
+        "bevy": 1.1607768089276083
+      },
+      "bars": {
+        "build_half_reference_1T": false,
+        "build_half_reference_8T": false,
+        "file_per_dag_triangle": false,
+        "resident_per_dag_triangle": false,
+        "fewer_cut_triangles_5px": true,
+        "fewer_cut_triangles_8px": true,
+        "measured_claimed_median_1_3": true,
+        "self_checks": true,
+        "thread_byte_identity": true
+      },
+      "hashes": [
+        "09950be193b9d4d16ee73a054393d6f07e26a69d43eceb1dc2a92f113fb92767"
+      ],
+      "self_checks": 6
+    },
+    {
+      "mesh": "coast_rocks_01",
+      "build": {
+        "1": {
+          "ours": 8851.33838,
+          "reference": 6819.3434290000005,
+          "ratio": 1.297975160241779
+        },
+        "8": {
+          "ours": 3070.8973270000006,
+          "reference": 6818.508553000001,
+          "ratio": 0.4503766920771655
+        }
+      },
+      "bytes": {
+        "file_bytes": {
+          "ours": 12.56746743781411,
+          "bevy": 12.486601377647844
+        },
+        "resident_bytes": {
+          "ours": 14.176838084764961,
+          "bevy": 13.232768916167458
+        }
+      },
+      "triangles": {
+        "5": 1.0933366970903293,
+        "8": 1.6745741542879544
+      },
+      "claimed": {
+        "ours": 0.8660305617180097,
+        "bevy": 1.1663108685004944
+      },
+      "bars": {
+        "build_half_reference_1T": false,
+        "build_half_reference_8T": true,
+        "file_per_dag_triangle": false,
+        "resident_per_dag_triangle": false,
+        "fewer_cut_triangles_5px": false,
+        "fewer_cut_triangles_8px": false,
+        "measured_claimed_median_1_3": true,
+        "self_checks": true,
+        "thread_byte_identity": true
+      },
+      "hashes": [
+        "7970c56e4488443e89fd3c29c780aa6ddcac247a9686d96b2278e291a190014d"
+      ],
+      "self_checks": 6
+    },
+    {
+      "mesh": "dead_tree_trunk_02",
+      "build": {
+        "1": {
+          "ours": 1044.145808,
+          "reference": 580.995494,
+          "ratio": 1.7971667917961511
+        },
+        "8": {
+          "ours": 387.325182,
+          "reference": 583.173016,
+          "ratio": 0.6641685595411706
+        }
+      },
+      "bytes": {
+        "file_bytes": {
+          "ours": 13.356885628944452,
+          "bevy": 13.83709507871875
+        },
+        "resident_bytes": {
+          "ours": 15.036541889483066,
+          "bevy": 14.522359025168251
+        }
+      },
+      "triangles": {
+        "5": 0.708788118367191,
+        "8": 0.7806825977392918
+      },
+      "claimed": {
+        "ours": 0.967384321378768,
+        "bevy": 1.1986585987377867
+      },
+      "bars": {
+        "build_half_reference_1T": false,
+        "build_half_reference_8T": false,
+        "file_per_dag_triangle": true,
+        "resident_per_dag_triangle": false,
+        "fewer_cut_triangles_5px": true,
+        "fewer_cut_triangles_8px": true,
+        "measured_claimed_median_1_3": true,
+        "self_checks": true,
+        "thread_byte_identity": true
+      },
+      "hashes": [
+        "efb8767288cf7c6602d8c9a3a8dd6d3c8a8c14d0156660ce284d31e7d1b1d5ad"
+      ],
+      "self_checks": 6
+    },
+    {
+      "mesh": "dragon",
+      "build": {
+        "1": {
+          "ours": 12749.837125,
+          "reference": 9596.958859999999,
+          "ratio": 1.32852889243291
+        },
+        "8": {
+          "ours": 4271.674632,
+          "reference": 9506.267530000001,
+          "ratio": 0.44935350478191305
+        }
+      },
+      "bytes": {
+        "file_bytes": {
+          "ours": 12.62347283962574,
+          "bevy": 11.68431118712833
+        },
+        "resident_bytes": {
+          "ours": 14.41140822252544,
+          "bevy": 13.322183460588148
+        }
+      },
+      "triangles": {
+        "5": 0.7610754765413356,
+        "8": 1.0718669124325308
+      },
+      "claimed": {
+        "ours": 0.9758004380434256,
+        "bevy": 1.4367581684612964
+      },
+      "bars": {
+        "build_half_reference_1T": false,
+        "build_half_reference_8T": true,
+        "file_per_dag_triangle": false,
+        "resident_per_dag_triangle": false,
+        "fewer_cut_triangles_5px": true,
+        "fewer_cut_triangles_8px": false,
+        "measured_claimed_median_1_3": true,
+        "self_checks": true,
+        "thread_byte_identity": true
+      },
+      "hashes": [
+        "7f241134d26d6fa3ba3df9050f5bad21d5d6cd4a9c6284b5f96b1fcd59c5263d"
+      ],
+      "self_checks": 6
+    },
+    {
+      "mesh": "namaqualand_boulder_02",
+      "build": {
+        "1": {
+          "ours": 1256.1314049999999,
+          "reference": 711.803639,
+          "ratio": 1.764716188813977
+        },
+        "8": {
+          "ours": 436.591342,
+          "reference": 704.196552,
+          "ratio": 0.6199850606482379
+        }
+      },
+      "bytes": {
+        "file_bytes": {
+          "ours": 13.396221787318408,
+          "bevy": 13.927627673728379
+        },
+        "resident_bytes": {
+          "ours": 15.145860266426846,
+          "bevy": 14.6706990072664
+        }
+      },
+      "triangles": {
+        "5": 0.9291342016850122,
+        "8": 0.9425196990245231
+      },
+      "claimed": {
+        "ours": 0.9704151048019655,
+        "bevy": 1.0995181226318536
+      },
+      "bars": {
+        "build_half_reference_1T": false,
+        "build_half_reference_8T": false,
+        "file_per_dag_triangle": true,
+        "resident_per_dag_triangle": false,
+        "fewer_cut_triangles_5px": true,
+        "fewer_cut_triangles_8px": true,
+        "measured_claimed_median_1_3": true,
+        "self_checks": true,
+        "thread_byte_identity": true
+      },
+      "hashes": [
+        "cfd7ade3b678ded01fdea405bda275805b0570fa882e60ebb929bc185f874264"
+      ],
+      "self_checks": 6
+    }
+  ],
+  "cpp_differentials": null
+}

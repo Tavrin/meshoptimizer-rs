@@ -1,0 +1,28 @@
+{
+  "corpus_sha256": "cd8b7f390c5ac546a7c6f0d2bca8d87c7610ffdfe13a18e5b0d26da032e7ad4f",
+  "counts": {
+    "1": 1024,
+    "16": 24,
+    "3": 1024,
+    "4": 2000,
+    "6": 512,
+    "7": 512,
+    "8": 512,
+    "spatial-extremes": 28
+  },
+  "exit": 0,
+  "real": [
+    {
+      "case": "real-214e",
+      "sha256": "3541455551af956934d084dcaf5552797108821d9504f90e0d552c2a9e51e16f"
+    },
+    {
+      "case": "real-a082",
+      "sha256": "9b38ead27c4cb3a8506ea4b4dd48396180e3df0f47a0115fd7e2f1e821b151f0"
+    },
+    {
+      "case": "real-b6fd",
+      "sha256": "b56e465d1a4eba4852136d8450a8045da41993d2f34082be9b02c411da9667d5"
+    }
+  ]
+}

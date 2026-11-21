@@ -151,7 +151,7 @@ fn build_dag_into_u32(
     build_in_context(
         config,
         mesh,
-        &mut |g, clusters, positions, ctx| {
+        &mut |g, _diagnostics, clusters, positions, ctx| {
             if g.depth < 0 || g.depth >= 64 {
                 return Err(Error::LimitExceeded);
             }

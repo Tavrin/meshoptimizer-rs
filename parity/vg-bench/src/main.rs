@@ -9,6 +9,8 @@ mod diag;
 mod materials;
 mod ours;
 mod report;
+mod saturation;
+mod shading;
 mod source;
 
 use report::Json;
@@ -45,12 +47,41 @@ fn main() {
         Some("eval") => eval(&args[1..]),
         Some("diag") => diag(&args[1..]),
         Some("plateau") => plateau(&args[1..]),
+        Some("cooked") => saturation::cooked(&args[1..]),
+        Some("raw-prep") => saturation::raw_prep(&args[1..]),
+        Some("rebuild") => saturation::rebuild(&args[1..]),
+        Some("limits") => limits(&args[1..]),
+        Some("shade-eval") => shading::evaluate(&args[1..]),
         _ => Err("usage: vgbench prep|build|eval|diag ... (see README.md)".into()),
     };
     if let Err(e) = result {
         eprintln!("error: {e}");
         std::process::exit(1);
     }
+}
+
+fn v2_settings(args: &[String]) -> Result<ours::V2Settings, String> {
+    let read = |key: &str| flag(args, key).map(|s| s.parse::<f32>().map_err(|e| format!("{key}: {e}"))).transpose();
+    let normal_error_weight = read("--normal-error-weight")?.unwrap_or(ours::V2Settings::default().normal_error_weight);
+    let uv_weight = read("--uv-weight")?;
+    let tangent_weight = read("--tangent-weight")?;
+    for v in [Some(normal_error_weight), uv_weight, tangent_weight].into_iter().flatten() {
+        if !v.is_finite() || v < 0.0 {
+            return Err("invalid diagnostic weight".into());
+        }
+    }
+    let duplicate_normals = match flag(args, "--duplicate-normals").as_deref() {
+        None | Some("0") => false,
+        Some("1") => true,
+        _ => return Err("duplicate-normals needs 0 or 1".into()),
+    };
+    Ok(ours::V2Settings {
+        normal_error_weight,
+        uv_weight,
+        tangent_weight,
+        duplicate_normals,
+        grid_exponent: ours::V2Settings::default().grid_exponent,
+    })
 }
 
 /// `prep <mesh.ply|gltf> <out.vgm> [--extent 2.0]`
@@ -79,17 +110,29 @@ fn load(p: &[&String]) -> Result<(Source, String), String> {
 fn build(args: &[String]) -> Result<(), String> {
     let p = positional(args);
     let builder = p.first().ok_or("missing builder")?.as_str().to_string();
-    let (src, name) = load(&p)?;
+    let (mut src, name) = load(&p)?;
+    let settings = v2_settings(args)?;
+    let tangent_stats = if settings.attributes() { src.derive_tangents()? } else { (0, 0) };
     let threads: usize = num(args, "--threads", 1);
-    let label =
-        Json::new().text("kind", "build").text("builder", &builder).text("mesh", &name).with("threads", threads);
+    let label = Json::new()
+        .text("kind", "build")
+        .text("builder", &builder)
+        .text("mesh", &name)
+        .with("threads", threads)
+        .with("normal_error_weight", settings.normal_error_weight)
+        .with("uv_weight", settings.uv_weight.unwrap_or(-1.0))
+        .with("tangent_weight", settings.tangent_weight.unwrap_or(-1.0))
+        .with("duplicate_normals", settings.duplicate_normals)
+        .with("tangent_degenerate_triangles", tangent_stats.0)
+        .with("tangent_fallback_vertices", tangent_stats.1);
     let line = match builder.as_str() {
         "ours" | "ours-v2" => {
             let (o, t) = if builder == "ours-v2" {
-                ours::build_v2(
+                ours::build_v2_with(
                     &src,
                     threads,
                     meshoptimizer_rs::clusterlod::default_config(128).map_err(|e| format!("{e:?}"))?,
+                    settings,
                 )?
             } else {
                 ours::build(&src, threads)?
@@ -101,6 +144,8 @@ fn build(args: &[String]) -> Result<(), String> {
             label
                 .with("build_ms", t.dag_ms + t.hierarchy_ms)
                 .with("dag_ms", t.dag_ms)
+                .with("accounted_bytes", t.accounted_bytes)
+                .with("work", t.work)
                 .with("hierarchy_ms", t.hierarchy_ms)
                 .with("serialise_ms", write_ms)
                 .with("file_bytes", file.len())
@@ -131,7 +176,7 @@ fn eval(args: &[String]) -> Result<(), String> {
     let label = Json::new().text("builder", &shown).text("mesh", &name);
     let settings = cut::Settings {
         dirs: num(args, "--dirs", 64),
-        spans: vec![64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0],
+        spans: vec![32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0],
         // The first entry selects the source clusters: it isolates the reference
         // format's position quantisation from simplification error.
         thresholds: vec![1e-9, 0.5, 1.0, 2.0, 4.0],
@@ -175,8 +220,12 @@ fn eval(args: &[String]) -> Result<(), String> {
 /// rules prototyped in `diag::price_removed_components` and `diag::price_measured_steps`.
 fn build_variant(src: &Source, jobs: usize, set: Option<String>) -> Result<ours::Ours, String> {
     let v = config(set)?;
-    let (mut o, _) =
-        if v.v2 { ours::build_v2(src, jobs, v.config)? } else { ours::build_with(src, jobs, v.config, v.normals)? };
+    let (mut o, _) = if v.v2 {
+        let settings = ours::V2Settings { grid_exponent: v.grid, ..ours::V2Settings::default() };
+        ours::build_v2_with(src, jobs, v.config, settings)?
+    } else {
+        ours::build_with(src, jobs, v.config, v.normals)?
+    };
     if v.removed {
         let raised = diag::price_removed_components(&mut o, src);
         eprintln!("removed-component rule raised {raised} groups");
@@ -197,6 +246,7 @@ struct Variant {
     removed: bool,
     measured: bool,
     v2: bool,
+    grid: i32,
 }
 
 /// Apply `key=value,...` overrides to the default configuration.
@@ -206,6 +256,7 @@ fn config(set: Option<String>) -> Result<Variant, String> {
     let mut removed = false;
     let mut measured = false;
     let mut v2 = false;
+    let mut grid = ours::V2Settings::default().grid_exponent;
     for kv in set.iter().flat_map(|s| s.split(',')).filter(|s| !s.is_empty()) {
         let (k, v) = kv.split_once('=').ok_or(format!("bad override {kv}"))?;
         let f: f32 = v.parse().map_err(|_| format!("bad value {kv}"))?;
@@ -221,10 +272,11 @@ fn config(set: Option<String>) -> Result<Variant, String> {
             "removed" => removed = f != 0.0,
             "measured" => measured = f != 0.0,
             "v2" => v2 = f != 0.0,
+            "grid" => grid = f as i32,
             _ => return Err(format!("unknown override {k}")),
         }
     }
-    Ok(Variant { config: c, normals, removed, measured, v2 })
+    Ok(Variant { config: c, normals, removed, measured, v2, grid })
 }
 
 /// `diag <ours|bevy> <in.vgm> [--artifact file] [--set k=v,...] [--jobs 8] [--samples 200000] [--no-groups]`
@@ -242,8 +294,10 @@ fn diag(args: &[String]) -> Result<(), String> {
     match builder.as_str() {
         "ours" => {
             let o = build_variant(&src, jobs, set)?;
-            for line in diag::world_cuts(&o, &src, samples, jobs, true, &label)? {
-                println!("{line}");
+            if !args.iter().any(|a| a == "--groups-only") {
+                for line in diag::world_cuts(&o, &src, samples, jobs, true, &label)? {
+                    println!("{line}");
+                }
             }
             if !args.iter().any(|a| a == "--no-groups") {
                 for line in diag::group_steps(&o, &src, jobs, &label)? {
@@ -281,5 +335,53 @@ fn plateau(args: &[String]) -> Result<(), String> {
     for line in diag::plateau(&o, &Json::new().text("mesh", &name)) {
         println!("{line}");
     }
+    Ok(())
+}
+
+/// Measure the build's accounted peak storage and work with finite budgets.
+fn limits(args: &[String]) -> Result<(), String> {
+    use meshoptimizer_rs::{
+        clusterlod::{
+            default_config,
+            page::QuantGrid,
+            v2::{self, BuildMesh},
+        },
+        Limits, Workspace,
+    };
+    let p = positional(args);
+    let (src, name) = load(&p)?;
+    let threads = num(args, "--jobs", 8);
+    let budget = if args.iter().any(|a| a == "--suggested") {
+        v2::suggested_limits(src.triangles()).map_err(|e| format!("{e:?}"))?
+    } else {
+        Limits { max_bytes: num(args, "--bytes", 1usize << 30), max_work: num(args, "--work", 1u64 << 34) }
+    };
+    let pool = rayon::ThreadPoolBuilder::new().num_threads(threads).build().map_err(|e| e.to_string())?;
+    let grid = QuantGrid::new(-22).map_err(|e| format!("{e:?}"))?;
+    let config = default_config(128).map_err(|e| format!("{e:?}"))?;
+    let mut ws = Workspace::new(budget);
+    let result = pool.install(|| {
+        let mut input = BuildMesh::new(&src.indices, &src.positions);
+        input.normals = Some(&src.normals);
+        input.normal_error_weight = num(args, "--normal-error-weight", input.normal_error_weight);
+        v2::build(config, input, grid, &mut ws)
+    });
+    let usage = ws.usage();
+    println!(
+        "{}",
+        Json::new()
+            .text("kind", "limits")
+            .text("mesh", &name)
+            .with("source_triangles", src.triangles())
+            .with("source_vertices", src.positions.len())
+            .with("max_bytes", budget.max_bytes)
+            .with("max_work", budget.max_work)
+            .with("peak_bytes", usage.bytes)
+            .with("work", usage.work)
+            .with("bytes_per_source_triangle", usage.bytes as f64 / src.triangles() as f64)
+            .with("work_per_source_triangle", usage.work as f64 / src.triangles() as f64)
+            .with("pass", result.is_ok())
+            .text("result", &format!("{:?}", result.as_ref().map(|_| ())))
+    );
     Ok(())
 }

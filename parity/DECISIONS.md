@@ -597,7 +597,7 @@ The coordinator also reserved `<local>/downstream-capture-archive`. Move only
 this job's `meshopt-lane3b` directory out and make no further artifact writes
 there. The requested `$MESHOPT_ARTIFACTS/lane3b` still rejects
 mkdir with `Read-only file system`; the session's writable roots have not changed.
-Preserve this job temporarily at `/tmp/meshopt-lane3b-artifacts`, record the
+Preserve this job temporarily in an external scratch directory, record the
 relocation, and continue the authorized measurements. Final placement at the
 requested destination remains a filesystem blocker. D30's archive destination
 is superseded; the reserved job directory has been removed.

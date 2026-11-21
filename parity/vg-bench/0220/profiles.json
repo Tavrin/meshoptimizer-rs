@@ -1,0 +1,298 @@
+[
+  {
+    "phase": "baseline",
+    "threads": 1,
+    "event": "cycles:u",
+    "sample_frequency": 997,
+    "headers": [
+      "# Total Lost Samples: 0",
+      "# Samples: 15K of event 'cycles:u'",
+      "# Event count (approx.): 61504918445"
+    ],
+    "self_symbols": [
+      {
+        "percent": 39.51,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::build_range"
+      },
+      {
+        "percent": 16.68,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::query::<true>"
+      },
+      {
+        "percent": 14.05,
+        "symbol": "meshoptimizer_rs::lod_quality::closest"
+      },
+      {
+        "percent": 5.34,
+        "symbol": "<meshoptimizer_rs::lod_quality::Stats>::sample::<true, 0>"
+      },
+      {
+        "percent": 4.57,
+        "symbol": "meshoptimizer_rs::lod_quality::direction::<u32, true, 0>"
+      },
+      {
+        "percent": 3.74,
+        "symbol": "meshoptimizer_rs::meshlet::flex::<false, true>"
+      },
+      {
+        "percent": 1.64,
+        "symbol": "meshoptimizer_rs::lod_quality::witness"
+      },
+      {
+        "percent": 1.09,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::rank"
+      },
+      {
+        "percent": 0.99,
+        "symbol": "meshoptimizer_rs::clusterlod::support::simplify::run_state"
+      },
+      {
+        "percent": 0.95,
+        "symbol": "<meshoptimizer_rs::clusterlod::attributes::Block>::decode"
+      },
+      {
+        "percent": 0.95,
+        "symbol": "meshoptimizer_rs::lod_quality::position::<u32>"
+      },
+      {
+        "percent": 0.57,
+        "symbol": "meshoptimizer_rs::meshlet_util::optimize"
+      },
+      {
+        "percent": 0.54,
+        "symbol": "meshoptimizer_rs::clusterlod::v2::region_error"
+      },
+      {
+        "percent": 0.53,
+        "symbol": "meshoptimizer_rs::meshlet_util::bounds::<false, 128, &[[f32; 3]]>"
+      },
+      {
+        "percent": 0.51,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::quadrics"
+      },
+      {
+        "percent": 0.51,
+        "symbol": "meshoptimizer_rs::meshlet::kd_build"
+      }
+    ]
+  },
+  {
+    "phase": "baseline",
+    "threads": 8,
+    "event": "cycles:u",
+    "sample_frequency": 997,
+    "headers": [
+      "# Total Lost Samples: 0",
+      "# Samples: 19K of event 'cycles:u'",
+      "# Event count (approx.): 73932146686"
+    ],
+    "self_symbols": [
+      {
+        "percent": 36.38,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::build_range"
+      },
+      {
+        "percent": 14.8,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::query::<true>"
+      },
+      {
+        "percent": 11.83,
+        "symbol": "meshoptimizer_rs::lod_quality::closest"
+      },
+      {
+        "percent": 4.06,
+        "symbol": "<meshoptimizer_rs::lod_quality::Stats>::sample::<true, 0>"
+      },
+      {
+        "percent": 3.99,
+        "symbol": "meshoptimizer_rs::lod_quality::direction::<u32, true, 0>"
+      },
+      {
+        "percent": 1.46,
+        "symbol": "meshoptimizer_rs::meshlet::flex::<false, true>"
+      },
+      {
+        "percent": 1.34,
+        "symbol": "meshoptimizer_rs::lod_quality::position::<u32>"
+      },
+      {
+        "percent": 1.3,
+        "symbol": "meshoptimizer_rs::lod_quality::witness"
+      },
+      {
+        "percent": 1.0,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::rank"
+      },
+      {
+        "percent": 0.98,
+        "symbol": "meshoptimizer_rs::clusterlod::support::simplify::run_state"
+      },
+      {
+        "percent": 0.89,
+        "symbol": "<meshoptimizer_rs::clusterlod::attributes::Block>::decode"
+      },
+      {
+        "percent": 0.58,
+        "symbol": "<meshoptimizer_rs::lod_quality::Triangle<0>>::read::<u32>"
+      },
+      {
+        "percent": 0.53,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::quadrics"
+      },
+      {
+        "percent": 0.51,
+        "symbol": "meshoptimizer_rs::clusterlod::v2::region_error"
+      }
+    ]
+  },
+  {
+    "phase": "candidate",
+    "threads": 1,
+    "event": "cycles:u",
+    "sample_frequency": 997,
+    "headers": [
+      "# Total Lost Samples: 0",
+      "# Samples: 14K of event 'cycles:u'",
+      "# Event count (approx.): 58339421564"
+    ],
+    "self_symbols": [
+      {
+        "percent": 34.91,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::build_range"
+      },
+      {
+        "percent": 19.08,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::query::<true>"
+      },
+      {
+        "percent": 15.55,
+        "symbol": "meshoptimizer_rs::lod_quality::closest"
+      },
+      {
+        "percent": 5.37,
+        "symbol": "<meshoptimizer_rs::lod_quality::Stats>::sample::<true, 0>"
+      },
+      {
+        "percent": 4.5,
+        "symbol": "meshoptimizer_rs::lod_quality::direction::<u32, true, 0>"
+      },
+      {
+        "percent": 3.75,
+        "symbol": "meshoptimizer_rs::meshlet::flex::<false, true>"
+      },
+      {
+        "percent": 1.88,
+        "symbol": "meshoptimizer_rs::lod_quality::witness"
+      },
+      {
+        "percent": 1.08,
+        "symbol": "meshoptimizer_rs::clusterlod::support::simplify::run_state"
+      },
+      {
+        "percent": 1.03,
+        "symbol": "<meshoptimizer_rs::clusterlod::attributes::Block>::decode"
+      },
+      {
+        "percent": 1.03,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::rank"
+      },
+      {
+        "percent": 0.84,
+        "symbol": "meshoptimizer_rs::lod_quality::position::<u32>"
+      },
+      {
+        "percent": 0.69,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::quadrics"
+      },
+      {
+        "percent": 0.66,
+        "symbol": "meshoptimizer_rs::meshlet_util::optimize"
+      },
+      {
+        "percent": 0.62,
+        "symbol": "meshoptimizer_rs::clusterlod::v2::region_error"
+      },
+      {
+        "percent": 0.6,
+        "symbol": "meshoptimizer_rs::meshlet_util::bounds::<false, 128, &[[f32; 3]]>"
+      },
+      {
+        "percent": 0.52,
+        "symbol": "<meshoptimizer_rs::clusterlod::page::PageView>::new"
+      }
+    ]
+  },
+  {
+    "phase": "candidate",
+    "threads": 8,
+    "event": "cycles:u",
+    "sample_frequency": 997,
+    "headers": [
+      "# Total Lost Samples: 0",
+      "# Samples: 18K of event 'cycles:u'",
+      "# Event count (approx.): 70772037813"
+    ],
+    "self_symbols": [
+      {
+        "percent": 30.47,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::build_range"
+      },
+      {
+        "percent": 16.65,
+        "symbol": "<meshoptimizer_rs::lod_quality::Tree<0>>::query::<true>"
+      },
+      {
+        "percent": 12.76,
+        "symbol": "meshoptimizer_rs::lod_quality::closest"
+      },
+      {
+        "percent": 3.77,
+        "symbol": "<meshoptimizer_rs::lod_quality::Stats>::sample::<true, 0>"
+      },
+      {
+        "percent": 3.69,
+        "symbol": "meshoptimizer_rs::lod_quality::direction::<u32, true, 0>"
+      },
+      {
+        "percent": 3.28,
+        "symbol": "meshoptimizer_rs::meshlet::flex::<false, true>"
+      },
+      {
+        "percent": 1.42,
+        "symbol": "meshoptimizer_rs::lod_quality::witness"
+      },
+      {
+        "percent": 1.3,
+        "symbol": "meshoptimizer_rs::lod_quality::position::<u32>"
+      },
+      {
+        "percent": 1.16,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::rank"
+      },
+      {
+        "percent": 0.91,
+        "symbol": "<meshoptimizer_rs::clusterlod::attributes::Block>::decode"
+      },
+      {
+        "percent": 0.89,
+        "symbol": "meshoptimizer_rs::clusterlod::support::simplify::run_state"
+      },
+      {
+        "percent": 0.58,
+        "symbol": "<meshoptimizer_rs::clusterlod::support::simplify::State>::pick::<meshoptimizer_rs::clusterlod::support::workspace::Tally>"
+      },
+      {
+        "percent": 0.57,
+        "symbol": "meshoptimizer_rs::meshlet_util::optimize"
+      },
+      {
+        "percent": 0.55,
+        "symbol": "meshoptimizer_rs::clusterlod::v2::region_error"
+      },
+      {
+        "percent": 0.51,
+        "symbol": "<meshoptimizer_rs::lod_quality::Triangle<0>>::read::<u32>"
+      }
+    ]
+  }
+]
